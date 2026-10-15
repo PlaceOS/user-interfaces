@@ -104,7 +104,7 @@ function localised(
     },
     template: `
         <header
-            class="border-base-300 flex h-14 items-center gap-3 border-b px-3"
+            class="border-base-200 bg-base-100 flex h-16 flex-none items-center gap-3 border-b pr-4 pl-2"
         >
             <a
                 icon
@@ -114,11 +114,11 @@ function localised(
             >
                 <icon>arrow_back</icon>
             </a>
-            <div class="min-w-0 flex-1 leading-tight">
-                <h2 class="truncate text-lg font-medium">
+            <div class="flex min-w-0 flex-col gap-0.5">
+                <h1 class="truncate text-lg leading-6 font-medium">
                     {{ level()?.display_name || level()?.name || level_id() }}
-                </h2>
-                <div class="truncate text-xs opacity-60">
+                </h1>
+                <div class="truncate text-xs leading-4 opacity-70">
                     @if (building()) {
                         {{ building()?.display_name || building()?.name }}
                         &middot;
@@ -128,45 +128,64 @@ function localised(
             </div>
             @if (bindings_incomplete()) {
                 <span
-                    class="bg-warning text-warning-content rounded-full px-3 py-1 text-xs font-medium"
+                    class="bg-warning/20 text-base-content ml-2 inline-flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium"
                     [matTooltip]="failed_sources().join(', ')"
                 >
+                    <icon class="text-base">link_off</icon>
                     {{ 'APP.CONCIERGE.MAPS_BINDINGS_INCOMPLETE' | translate }}
                 </span>
             }
             @if (changed_elsewhere()) {
                 <span
-                    class="bg-error text-error-content rounded-full px-3 py-1 text-xs font-medium"
+                    class="bg-error/15 text-base-content ml-2 inline-flex h-6 items-center gap-1 rounded-full px-2 text-xs font-medium"
                 >
+                    <icon class="text-base">sync_problem</icon>
                     {{ 'APP.CONCIERGE.MAPS_CHANGED_ELSEWHERE' | translate }}
                 </span>
             }
-            <button btn matRipple class="inverse" (click)="openStudio()">
-                <div class="flex items-center space-x-2">
-                    <icon>open_in_new</icon>
-                    <div class="pr-2">
-                        {{ 'APP.CONCIERGE.MAPS_OPEN_STUDIO' | translate }}
+            <div class="ml-auto flex items-center gap-2">
+                @if (session()) {
+                    <p
+                        class="mr-2 flex items-center gap-1.5 text-sm"
+                        role="status"
+                        aria-live="polite"
+                    >
+                        <span
+                            class="size-2 rounded-full"
+                            [class.bg-warning]="dirty()"
+                            [class.bg-success]="!dirty()"
+                            aria-hidden="true"
+                        ></span>
+                        {{ dirty() ? strings.unsaved : strings.saved }}
+                    </p>
+                }
+                <button btn matRipple class="clear" (click)="openStudio()">
+                    <div class="flex items-center space-x-2">
+                        <icon>open_in_new</icon>
+                        <div class="pr-2 max-md:sr-only">
+                            {{ 'APP.CONCIERGE.MAPS_OPEN_STUDIO' | translate }}
+                        </div>
                     </div>
-                </div>
-            </button>
-            <button
-                btn
-                matRipple
-                class="inverse"
-                [disabled]="!dirty() || !!saving()"
-                (click)="discard()"
-            >
-                {{ 'APP.CONCIERGE.MAPS_DISCARD' | translate }}
-            </button>
-            <button
-                btn
-                matRipple
-                class="w-32"
-                [disabled]="!dirty() || !!saving()"
-                (click)="save()"
-            >
-                {{ saving() || ('APP.CONCIERGE.MAPS_SAVE' | translate) }}
-            </button>
+                </button>
+                <button
+                    btn
+                    matRipple
+                    class="inverse"
+                    [disabled]="!dirty() || !!saving()"
+                    (click)="discard()"
+                >
+                    {{ 'APP.CONCIERGE.MAPS_DISCARD' | translate }}
+                </button>
+                <button
+                    btn
+                    matRipple
+                    class="w-32"
+                    [disabled]="!dirty() || !!saving()"
+                    (click)="save()"
+                >
+                    {{ saving() || ('APP.CONCIERGE.MAPS_SAVE' | translate) }}
+                </button>
+            </div>
         </header>
         @if (error()) {
             <div

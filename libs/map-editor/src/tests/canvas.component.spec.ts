@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { MapEditorCanvasComponent } from '../lib/canvas/map-canvas.component';
 import { MapEditorComponent } from '../lib/canvas/map-editor.component';
 import { RecordingNotifier } from '../lib/canvas/ports';
 import { AttributeGeometryProvider } from '../lib/geometry';
@@ -62,6 +64,128 @@ describe('MapEditorComponent', () => {
         host = fixture.componentInstance;
         await settle(fixture);
         viewport = fixture.nativeElement.querySelector('.viewport');
+    });
+
+    it('hides marks without removing them or changing the SVG', async () => {
+        const original = host.session.doc.serialise();
+        host.session.addAnnotation({
+            kind: 'ellipse',
+            colour: 'red',
+            x: 10,
+            y: 20,
+            width: 30,
+            height: 40,
+            hits: [],
+        });
+        await settle(fixture);
+        const toggle = Array.from(
+            fixture.nativeElement.querySelectorAll('button'),
+        ).find((button: any) =>
+            button.textContent.includes('Show marks'),
+        ) as HTMLButtonElement;
+        expect(viewport.shadowRoot?.querySelector('ellipse')).not.toBeNull();
+        toggle.click();
+        await settle(fixture);
+        expect(toggle.getAttribute('aria-pressed')).toBe('false');
+        expect(viewport.shadowRoot?.querySelector('ellipse')).toBeNull();
+        expect(host.session.annotations()).toHaveLength(1);
+        expect(host.session.doc.serialise()).toBe(original);
+        expect(host.session.dirty()).toBe(false);
+        toggle.click();
+        await settle(fixture);
+        expect(viewport.shadowRoot?.querySelector('ellipse')).not.toBeNull();
+    });
+
+    it.each(['ellipse', 'box'] as const)(
+        'draws a red %s in map coordinates through zoom and pan without editing the map',
+        async (kind) => {
+            const canvas = fixture.debugElement.query(
+                By.directive(MapEditorCanvasComponent),
+            ).componentInstance as MapEditorCanvasComponent;
+            const editor = fixture.debugElement.query(
+                By.directive(MapEditorComponent),
+            ).componentInstance as MapEditorComponent;
+            const original = host.session.doc.serialise();
+            canvas.view.set({ scale: 2, tx: 30, ty: 40 });
+            editor.annotation_tool.set(kind);
+            await settle(fixture);
+            const event = (x: number, y: number) =>
+                ({
+                    button: 0,
+                    pointerId: 1,
+                    clientX: x,
+                    clientY: y,
+                    preventDefault() {},
+                }) as PointerEvent;
+            canvas.onPointerDown(event(330, 540));
+            canvas.onPointerMove(event(210, 380));
+            canvas.onPointerUp(event(210, 380));
+            await settle(fixture);
+            expect(host.session.annotations()).toMatchObject([
+                {
+                    n: 1,
+                    kind,
+                    colour: 'red',
+                    x: 90,
+                    y: 170,
+                    width: 60,
+                    height: 80,
+                },
+            ]);
+            expect(host.session.annotations()[0].hits).toContain(
+                anchor(host.session.doc, 'table-01.001'),
+            );
+            expect(
+                viewport.shadowRoot
+                    ?.querySelector(
+                        `[data-annotation] ${kind === 'box' ? 'rect' : 'ellipse'}`,
+                    )
+                    ?.getAttribute(kind === 'box' ? 'x' : 'cx'),
+            ).toBe(kind === 'box' ? '90' : '120');
+            expect(host.session.doc.serialise()).toBe(original);
+            expect(host.session.dirty()).toBe(false);
+            expect(host.session.can_undo()).toBe(false);
+            host.session.undoAnnotation();
+            await settle(fixture);
+            expect(host.session.annotations()).toHaveLength(0);
+        },
+    );
+
+    it('draws an arrow in the chosen colour and cancels a freehand gesture', async () => {
+        const canvas = fixture.debugElement.query(
+            By.directive(MapEditorCanvasComponent),
+        ).componentInstance as MapEditorCanvasComponent;
+        const editor = fixture.debugElement.query(
+            By.directive(MapEditorComponent),
+        ).componentInstance as MapEditorComponent;
+        canvas.view.set({ scale: 1, tx: 0, ty: 0 });
+        editor.annotation_tool.set('arrow');
+        editor.annotation_colour.set('blue');
+        await settle(fixture);
+        const event = (x: number, y: number) =>
+            ({
+                button: 0,
+                pointerId: 1,
+                clientX: x,
+                clientY: y,
+                preventDefault() {},
+            }) as PointerEvent;
+        canvas.onPointerDown(event(50, 100));
+        canvas.onPointerUp(event(115, 210));
+        expect(host.session.annotations()).toMatchObject([
+            { kind: 'arrow', colour: 'blue', x2: 115, y2: 210 },
+        ]);
+        editor.annotation_tool.set('path');
+        await settle(fixture);
+        canvas.onPointerDown(event(100, 200));
+        canvas.onPointerMove(event(150, 250));
+        canvas.onPointerCancel(event(150, 250));
+        expect(host.session.annotations()).toHaveLength(1);
+        host.session.clearAnnotations();
+        expect(host.session.annotations()).toHaveLength(0);
+        key(viewport, { key: 'Escape' });
+        await settle(fixture);
+        expect(editor.annotation_tool()).toBe('select');
     });
 
     it('mounts the document root inside a shadow root with the overlay last', () => {

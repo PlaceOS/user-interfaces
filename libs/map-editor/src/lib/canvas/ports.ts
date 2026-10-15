@@ -1,6 +1,26 @@
 /** Every string the editor shows; hosts override any subset. */
 export interface MapEditorStrings {
     canvas_label: string;
+    /** Accessible name of the floating tool rail. */
+    tools_label: string;
+    /** Accessible name of the zoom cluster. */
+    zoom_label: string;
+    select_tool: string;
+    circle_tool: string;
+    rectangle_tool: string;
+    freehand_tool: string;
+    arrow_tool: string;
+    annotation_colour: string;
+    undo_mark: string;
+    clear_marks: string;
+    show_marks: string;
+    annotation_hint: string;
+    marks_attached: string;
+    red: string;
+    blue: string;
+    green: string;
+    orange: string;
+    purple: string;
     zoom_in: string;
     zoom_out: string;
     zoom_fit: string;
@@ -46,6 +66,25 @@ export interface MapEditorStrings {
 
 export const DEFAULT_MAP_EDITOR_STRINGS: MapEditorStrings = {
     canvas_label: 'Map canvas',
+    tools_label: 'Map tools',
+    zoom_label: 'Zoom',
+    select_tool: 'Select',
+    circle_tool: 'Circle',
+    rectangle_tool: 'Rectangle',
+    freehand_tool: 'Freehand',
+    arrow_tool: 'Arrow',
+    annotation_colour: 'Colour',
+    undo_mark: 'Undo last mark',
+    clear_marks: 'Clear marks',
+    show_marks: 'Show marks',
+    annotation_hint:
+        'Refer to a mark’s colour or number in your prompt. Marks aren’t saved on the map. Hold Space to pan; Esc to select.',
+    marks_attached: '{count} marks attached (maximum 20)',
+    red: 'Red',
+    blue: 'Blue',
+    green: 'Green',
+    orange: 'Orange',
+    purple: 'Purple',
     zoom_in: 'Zoom in',
     zoom_out: 'Zoom out',
     zoom_fit: 'Fit map',

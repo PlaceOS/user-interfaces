@@ -2,6 +2,7 @@ export * from './ai-panel.component';
 export * from './api';
 export * from './context';
 export * from './describe';
+export * from './preview';
 export * from './proposal';
 export * from './session-contract';
 export * from './snapshot';

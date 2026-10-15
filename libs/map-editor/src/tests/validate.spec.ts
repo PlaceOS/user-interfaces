@@ -10,6 +10,7 @@ import {
     validateProposal,
     ValidationContext,
 } from '../lib/validate';
+import { FakeSession } from './ai-fakes';
 import { anchor, load, loadMap, OFFICE } from './fixtures';
 
 const geometry = new AttributeGeometryProvider();
@@ -105,14 +106,13 @@ describe('validateProposal', () => {
         expect(result.blocking).toBe(false);
     });
 
-    it('rejects forbidden attributes, including viewBox on the root', async () => {
+    it('rejects forbidden attributes', async () => {
         for (const name of [
             'id',
             'transform',
             'href',
             'style',
             'onclick',
-            'viewBox',
             'display',
         ]) {
             const { codes } = await single({
@@ -431,15 +431,22 @@ describe('validateProposal', () => {
     });
 
     it('applies the growth caps', async () => {
-        const elements = await single({
-            op: 'duplicate',
-            why: '',
-            target: { id: 'desks' },
-            translate: [0, 30],
-            count: 20,
-        });
+        const elements = await single(
+            {
+                op: 'duplicate',
+                why: '',
+                target: { id: 'desks' },
+                translate: [0, 30],
+                count: 20,
+            },
+            {},
+            MapDocument.load(
+                `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500"><desc>${'existing metadata '.repeat(4000)}</desc><g id="desks">${Array.from({ length: 20 }, (_, i) => `<rect x="${i}" y="10" width="1" height="1"/>`).join('')}</g></svg>`,
+                { geometry },
+            ),
+        );
         expect(elements.result.issues.map((i) => i.message)).toContainEqual(
-            expect.stringContaining('adds 80 elements'),
+            expect.stringContaining('adds 420 elements'),
         );
         expect(elements.result.blocking).toBe(true);
         const bytes = await single({
@@ -1035,5 +1042,61 @@ describe('deleting part of a drawn object', () => {
         );
         expect(note?.level).toBe('info');
         expect(note?.message).toMatch(/leaves e\d+, e\d+/);
+    });
+});
+
+describe('canvas expansion', () => {
+    it('accepts negative origins and updates bounds through undo and redo', async () => {
+        const doc = office();
+        const op: MapOp = {
+            op: 'set_attr',
+            why: '',
+            target: { a: doc.anchorOf(doc.root) },
+            name: 'viewBox',
+            value: '0 -200 1000 700',
+        };
+        const { row, result } = await single(op, {}, doc);
+        expect(row.applied).toBe(true);
+        expect(result.blocking).toBe(false);
+        const session = new FakeSession(doc);
+        session.apply([op], 'Expand');
+        expect(doc.view_box.y).toBe(-200);
+        expect(doc.clone().view_box.height).toBe(700);
+        session.undo();
+        expect(doc.view_box.y).toBe(0);
+        session.redo();
+        expect(doc.view_box.y).toBe(-200);
+    });
+    it.each([
+        '0 10 1000 500',
+        '0 0 999 500',
+        '0 -100 5000 600',
+        '0 0 1000 0',
+        '0 rubbish 0 1000 500',
+    ])('rejects cropping or invalid expansion %s', async (value) => {
+        const doc = office();
+        const { row } = await single(
+            {
+                op: 'set_attr',
+                why: '',
+                target: { a: doc.anchorOf(doc.root) },
+                name: 'viewBox',
+                value,
+            },
+            {},
+            doc,
+        );
+        expect(row.applied).toBe(false);
+        expect(row.locked).toBe(true);
+    });
+    it('rejects a viewBox on a shape', async () => {
+        const { row } = await single({
+            op: 'set_attr',
+            why: '',
+            target: { id: 'bg' },
+            name: 'viewBox',
+            value: '0 -200 1000 700',
+        });
+        expect(row.applied).toBe(false);
     });
 });

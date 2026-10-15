@@ -44,6 +44,7 @@ export type MapAiPhase =
 
 export type ProposalOutcome =
     | 'previewing'
+    | 'not_applied'
     | 'kept'
     | 'partial'
     | 'undone'
@@ -152,7 +153,6 @@ export interface MapAiState {
     parent_job_id: string | null;
     /** The composer's text, kept for a retry. */
     draft: string;
-    snapshot_on: boolean;
     /** Reason chips ticked on the undo prompt. */
     reasons: string[];
     /** The last state change, for the live region. */
@@ -170,7 +170,6 @@ export type MapAiEvent =
       }
     | { type: 'draft'; text: string }
     | { type: 'model_chosen'; choice: MapAiModelChoice | null }
-    | { type: 'snapshot_toggled'; on: boolean }
     | {
           type: 'submit';
           instruction: string;
@@ -178,7 +177,6 @@ export type MapAiEvent =
           snapshot: boolean;
           at: number;
       }
-    | { type: 'snapshot_failed' }
     | { type: 'job_accepted'; job: MapAIJob; at: number }
     | { type: 'job_updated'; job: MapAIJob }
     | { type: 'submit_failed'; error: MapAiError }
@@ -209,7 +207,6 @@ export function initialState(): MapAiState {
         turns: [],
         parent_job_id: null,
         draft: '',
-        snapshot_on: true,
         reasons: [],
         announcement: '',
         sequence: 0,
@@ -248,6 +245,9 @@ function proposalFor(phase: MapAiPhase): Proposal | null {
 
 function outcomeFor(proposal: Proposal): ProposalOutcome {
     switch (proposal.verdict) {
+        case 'blocked':
+        case 'nothing_accepted':
+            return 'not_applied';
         case 'questions':
             return 'questions';
         case 'empty':
@@ -297,7 +297,7 @@ function replaceProposal(state: MapAiState, proposal: Proposal): MapAiState {
         ...state,
         turns: state.turns.map((turn) =>
             turn.kind === 'proposal' && turn.job_id === proposal.job.id
-                ? { ...turn, proposal }
+                ? { ...turn, proposal, outcome: outcomeFor(proposal) }
                 : turn,
         ),
     };
@@ -355,8 +355,6 @@ export function reduce(
             return { ...state, draft: event.text };
         case 'model_chosen':
             return { ...state, choice: event.choice };
-        case 'snapshot_toggled':
-            return { ...state, snapshot_on: event.on };
         case 'submit': {
             if (!canCompose(state.phase)) return state;
             const next = withTurn(state, {
@@ -374,13 +372,6 @@ export function reduce(
                 announcement: strings.sending,
             };
         }
-        case 'snapshot_failed':
-            return withTurn(state, {
-                kind: 'status',
-                text: strings.snapshot_failed,
-                error: null,
-                at: Date.now(),
-            });
         case 'job_accepted':
             return {
                 ...state,

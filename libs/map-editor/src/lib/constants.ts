@@ -138,7 +138,7 @@ export const MAX_OPS_PER_PROPOSAL = 80;
 export const MAX_REPLACEMENT_MARKUP_BYTES = 16 * 1024;
 export const MAX_TRANSFORM_TARGETS = 200;
 export const MAX_DUPLICATE_COUNT = 40;
-export const MAX_ELEMENT_GROWTH = 60;
+export const MAX_ELEMENT_GROWTH = 300;
 /** Fraction of the document's byte size a proposal may add. */
 export const MAX_BYTE_GROWTH = 0.25;
 /** Fraction of the viewBox size geometry may leave the canvas by. */

@@ -684,3 +684,194 @@ describe('proposal', () => {
         expect(anchor(doc, 'rooms')).toBeTruthy();
     });
 });
+
+describe('connected ID renames', () => {
+    function swap() {
+        const doc = MapDocument.load(
+            svg(
+                '<rect id="zone-3.WAT" x="100"/><rect id="zone-3.CF" x="10"/><text id="label">Waters</text>',
+            ),
+        );
+        const waters = target(doc, 'zone-3.WAT');
+        const food = target(doc, 'zone-3.CF');
+        const ops: MapOp[] = [
+            {
+                op: 'set_text',
+                why: 'Rename label',
+                target: target(doc, 'label'),
+                text: 'Confectionery & Food',
+            },
+            {
+                op: 'set_id',
+                why: 'Temporary ID',
+                target: waters,
+                new_id: 'ai-zone-swap-tmp',
+            },
+            {
+                op: 'set_id',
+                why: 'Swap left zone',
+                target: food,
+                new_id: 'zone-3.WAT',
+            },
+            {
+                op: 'set_id',
+                why: 'Swap right zone',
+                target: { a: waters.a },
+                new_id: 'zone-3.CF',
+            },
+        ];
+        return { doc, ops, session: new FakeSession(doc) };
+    }
+    it('applies a complete temporary-ID swap and toggles its renames together', async () => {
+        const { doc, ops, session } = swap();
+        const proposal = await buildProposal(
+            job({ state: 'done', ops }),
+            session,
+            DEFAULT_AI_STRINGS,
+        );
+        expect(proposal.accepted).toEqual([0, 1, 2, 3]);
+        const trial = MapDocument.load(proposal.trial_markup!);
+        expect(trial.byId('zone-3.WAT')?.getAttribute('x')).toBe('10');
+        expect(trial.byId('zone-3.CF')?.getAttribute('x')).toBe('100');
+        expect(trial.byId('ai-zone-swap-tmp')).toBeNull();
+        const unchecked = toggleRow(proposal, 2, false);
+        expect([...unchecked]).toEqual([0]);
+        const partial = await buildProposal(
+            job({ state: 'done', ops }),
+            session,
+            DEFAULT_AI_STRINGS,
+            { accepted: unchecked },
+        );
+        expect(toggleRow(partial, 1, true)).toEqual(new Set([0, 1, 2, 3]));
+        expect(doc.byId('zone-3.WAT')?.getAttribute('x')).toBe('100');
+    });
+    it('does not leave a temporary ID when a later swap step has a server warning', async () => {
+        const { ops, session } = swap();
+        const proposal = await buildProposal(
+            job({
+                state: 'done',
+                ops,
+                server_issues: {
+                    'op-3': 'zone-3.WAT is already an id in the map',
+                },
+            }),
+            session,
+            DEFAULT_AI_STRINGS,
+        );
+        expect(proposal.accepted).toEqual([0]);
+        const trial = MapDocument.load(proposal.trial_markup!);
+        expect(trial.byId('zone-3.WAT')?.getAttribute('x')).toBe('100');
+        expect(trial.byId('zone-3.CF')?.getAttribute('x')).toBe('10');
+        expect(trial.byId('ai-zone-swap-tmp')).toBeNull();
+        expect(trial.byId('label')?.textContent).toBe('Confectionery & Food');
+    });
+    it('rejects all connected renames when the final target is stale', async () => {
+        const { ops, session } = swap();
+        ops[3] = { ...ops[3], target: { a: 'missing-anchor' } } as MapOp;
+        const proposal = await buildProposal(
+            job({ state: 'done', ops }),
+            session,
+            DEFAULT_AI_STRINGS,
+        );
+        expect(proposal.accepted).toEqual([0]);
+        const trial = MapDocument.load(proposal.trial_markup!);
+        expect(trial.byId('ai-zone-swap-tmp')).toBeNull();
+        expect(trial.byId('zone-3.WAT')).toBeTruthy();
+        expect(trial.byId('zone-3.CF')).toBeTruthy();
+    });
+});
+
+describe('inserting an overlay with a released ID', () => {
+    it('keeps a room renumbering and its replacement overlay together', async () => {
+        const doc = MapDocument.load(
+            svg(
+                '<rect id="area-R19.04-status" x="10"/><rect id="area-R19.05-status" x="20"/>',
+            ),
+        );
+        const ops: MapOp[] = [
+            {
+                op: 'set_id',
+                why: 'Shift room 5',
+                target: target(doc, 'area-R19.05-status'),
+                new_id: 'area-R19.06-status',
+            },
+            {
+                op: 'set_id',
+                why: 'Shift room 4',
+                target: target(doc, 'area-R19.04-status'),
+                new_id: 'area-R19.05-status',
+            },
+            {
+                op: 'insert_shape',
+                why: 'New room 4',
+                kind: 'rect',
+                new_id: 'area-R19.04-status',
+                attrs: [
+                    { name: 'x', value: '30' },
+                    { name: 'y', value: '0' },
+                    { name: 'width', value: '5' },
+                    { name: 'height', value: '5' },
+                ],
+            },
+        ];
+        const session = new FakeSession(doc);
+        const valid = await buildProposal(
+            job({ state: 'done', ops }),
+            session,
+            DEFAULT_AI_STRINGS,
+        );
+        expect(valid.accepted).toEqual([0, 1, 2]);
+        expect(toggleRow(valid, 2, false)).toEqual(new Set());
+        const incomplete = await buildProposal(
+            job({
+                state: 'done',
+                ops,
+                server_issues: { 'op-3': 'Cannot create room' },
+            }),
+            session,
+            DEFAULT_AI_STRINGS,
+        );
+        expect(incomplete.accepted).toEqual([]);
+        expect(incomplete.trial_markup).toBeNull();
+        const trial = doc;
+        expect(trial.byId('area-R19.04-status')?.getAttribute('x')).toBe('10');
+        expect(trial.byId('area-R19.05-status')?.getAttribute('x')).toBe('20');
+        expect(trial.byId('area-R19.06-status')).toBeNull();
+    });
+});
+
+describe('canvas expansion review', () => {
+    it('keeps the canvas and its edits together when any checkbox changes', async () => {
+        const doc = MapDocument.load(MAP);
+        const ops: MapOp[] = [
+            {
+                op: 'set_attr',
+                why: '',
+                target: { a: doc.anchorOf(doc.root) },
+                name: 'viewBox',
+                value: '0 -100 1000 600',
+            },
+            {
+                op: 'set_attr',
+                why: '',
+                target: { id: 'desk-01.004' },
+                name: 'fill',
+                value: 'red',
+            },
+        ];
+        const proposal = await buildProposal(
+            job({ state: 'done', ops }),
+            new FakeSession(doc),
+            DEFAULT_AI_STRINGS,
+        );
+        expect(proposal.accepted).toEqual([0, 1]);
+        expect(toggleRow(proposal, 1, false)).toEqual(new Set());
+        const unticked = await buildProposal(
+            job({ state: 'done', ops }),
+            new FakeSession(doc),
+            DEFAULT_AI_STRINGS,
+            { accepted: new Set() },
+        );
+        expect(toggleRow(unticked, 1, true)).toEqual(new Set([0, 1]));
+    });
+});

@@ -1,3 +1,9 @@
+import {
+    invert,
+    multiply,
+    sanitiseTree,
+    translation,
+} from '@placeos/map-editor';
 import { MapObjectType, ObjectGeometry } from './types';
 
 /**
@@ -23,7 +29,21 @@ export interface ParsedObject {
     geometry: ObjectGeometry;
     /** Editor layer id — always set, so nothing is silently dropped */
     layer: string;
+    groupId?: string | null;
     attributes: Record<string, string>;
+    presentation?: {
+        fill: string | null;
+        stroke: string | null;
+        opacity: number;
+    };
+    parentMatrix?: {
+        a: number;
+        b: number;
+        c: number;
+        d: number;
+        e: number;
+        f: number;
+    };
 }
 
 export interface SvgIssue {
@@ -32,6 +52,7 @@ export interface SvgIssue {
 }
 
 export interface SvgAnalysis {
+    sourceSvg?: string;
     width: number;
     height: number;
     viewBox: string | null;
@@ -47,6 +68,10 @@ const INTERACTIVE_TAGS = [
     'path',
     'ellipse',
     'polyline',
+    'line',
+    'text',
+    'use',
+    'image',
 ];
 
 const TYPE_PATTERNS: { pattern: RegExp; type: MapObjectType }[] = [
@@ -182,7 +207,11 @@ function extractLabel(el: Element): string | null {
         const value = el.getAttribute(attr);
         if (value) return value;
     }
-    return el.querySelector('title')?.textContent?.trim() || null;
+    return (
+        el.querySelector('title')?.textContent?.trim() ||
+        (el.localName === 'text' ? el.textContent?.trim() : null) ||
+        null
+    );
 }
 
 /** Editor layer of the nearest ancestor group carrying an id */
@@ -190,11 +219,28 @@ function findParentLayer(el: Element): string {
     let current = el.parentElement;
     while (current) {
         const id = current.getAttribute('id');
-        if (current.tagName.toLowerCase() === 'g' && id)
+        if (
+            current.tagName.toLowerCase() === 'g' &&
+            id &&
+            LAYER_NAME_MAP[id.toLowerCase()]
+        )
             return mapLayerName(id);
         current = current.parentElement;
     }
     return UNGROUPED_LAYER;
+}
+
+function findParentGroup(el: Element): string | null {
+    let current = el.parentElement;
+    while (current) {
+        const id = current.getAttribute('id');
+        if (current.localName === 'g' && id)
+            return LAYER_NAME_MAP[id.toLowerCase()] || /^Layer[_-]/i.test(id)
+                ? null
+                : id;
+        current = current.parentElement;
+    }
+    return null;
 }
 
 function isGeometryValid(geometry: ObjectGeometry): boolean {
@@ -215,8 +261,16 @@ function isGeometryValid(geometry: ObjectGeometry): boolean {
 /** Parse an SVG floor plan into layers and placeable objects */
 export function analyzeSvg(svg_content: string): SvgAnalysis {
     const issues: SvgIssue[] = [];
-    const doc = new DOMParser().parseFromString(svg_content, 'image/svg+xml');
-    const svg = doc.querySelector('svg');
+    let doc = new DOMParser().parseFromString(svg_content, 'image/svg+xml');
+    let svg = doc.querySelector('svg');
+    if (svg && !svg.namespaceURI) {
+        svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        doc = new DOMParser().parseFromString(
+            new XMLSerializer().serializeToString(svg),
+            'image/svg+xml',
+        );
+        svg = doc.querySelector('svg');
+    }
 
     if (!svg || doc.querySelector('parsererror')) {
         return {
@@ -231,14 +285,15 @@ export function analyzeSvg(svg_content: string): SvgAnalysis {
         };
     }
 
+    sanitiseTree(svg);
     const viewBox = svg.getAttribute('viewBox');
     let width = parseNumber(svg.getAttribute('width')) ?? 0;
     let height = parseNumber(svg.getAttribute('height')) ?? 0;
-    if ((!width || !height) && viewBox) {
+    if (viewBox) {
         const parts = viewBox.split(/[\s,]+/).map(Number);
         if (parts.length === 4) {
-            width = width || parts[2];
-            height = height || parts[3];
+            width = parts[2] || width;
+            height = parts[3] || height;
         }
     }
     if (!width || !height) {
@@ -253,16 +308,101 @@ export function analyzeSvg(svg_content: string): SvgAnalysis {
     // so the review step can never exclude a layer the objects don't share.
     const objects: ParsedObject[] = [];
     let without_id = 0;
-
-    for (const el of Array.from(
+    const ids = new Set(
+        Array.from(svg.querySelectorAll('[id]')).map((el) => el.id),
+    );
+    const host = document.createElement('div');
+    host.style.cssText =
+        'position:fixed;left:-100000px;top:0;visibility:hidden;pointer-events:none';
+    const shadow = host.attachShadow({ mode: 'open' });
+    const measured = document.importNode(svg, true) as unknown as SVGSVGElement;
+    measured.setAttribute('width', String(width));
+    measured.setAttribute('height', String(height));
+    shadow.appendChild(measured);
+    document.body.appendChild(host);
+    const viewport = measured.getCTM?.();
+    const inverse = viewport ? invert(viewport) : null;
+    const origin = viewBox?.split(/[\s,]+/).map(Number) || [0, 0];
+    const canvas_matrix = inverse
+        ? multiply(translation(-origin[0], -origin[1]), inverse)
+        : null;
+    const source_elements = Array.from(
         svg.querySelectorAll(INTERACTIVE_TAGS.join(', ')),
-    )) {
-        const svg_id = el.getAttribute('id');
-        if (!svg_id) {
-            without_id++;
+    );
+    const measured_elements = Array.from(
+        measured.querySelectorAll(INTERACTIVE_TAGS.join(', ')),
+    );
+
+    for (const [index, el] of source_elements.entries()) {
+        if (el.closest('defs, clipPath, mask, pattern, marker, symbol'))
             continue;
+        let svg_id = el.getAttribute('id');
+        if (!svg_id) {
+            do {
+                svg_id = `imported-svg-${++without_id}`;
+            } while (ids.has(svg_id));
+            ids.add(svg_id);
+            el.setAttribute('id', svg_id);
         }
-        const geometry = extractGeometry(el);
+        let geometry = extractGeometry(el);
+        let parentMatrix: ParsedObject['parentMatrix'];
+        let presentation: ParsedObject['presentation'];
+        const rendered = measured_elements[index] as SVGGraphicsElement;
+        if (typeof rendered.getBBox === 'function') {
+            try {
+                const style = getComputedStyle(rendered);
+                presentation = {
+                    fill: style.fill || el.getAttribute('fill'),
+                    stroke: style.stroke || el.getAttribute('stroke'),
+                    opacity: Number(
+                        style.opacity || el.getAttribute('opacity') || 1,
+                    ),
+                };
+                const box = rendered.getBBox();
+                const ctm = rendered.getCTM();
+                const matrix =
+                    ctm && canvas_matrix ? multiply(canvas_matrix, ctm) : ctm;
+                const parent =
+                    rendered.parentElement as unknown as SVGGraphicsElement;
+                const parent_ctm = parent.getCTM?.();
+                const pm =
+                    parent_ctm && canvas_matrix
+                        ? multiply(canvas_matrix, parent_ctm)
+                        : parent_ctm;
+                if (pm)
+                    parentMatrix = {
+                        a: pm.a,
+                        b: pm.b,
+                        c: pm.c,
+                        d: pm.d,
+                        e: pm.e,
+                        f: pm.f,
+                    };
+                if (matrix && (box.width || box.height)) {
+                    const corners = [
+                        [box.x, box.y],
+                        [box.x + box.width, box.y],
+                        [box.x, box.y + box.height],
+                        [box.x + box.width, box.y + box.height],
+                    ];
+                    const xs = corners.map(
+                        ([x, y]) => matrix.a * x + matrix.c * y + matrix.e,
+                    );
+                    const ys = corners.map(
+                        ([x, y]) => matrix.b * x + matrix.d * y + matrix.f,
+                    );
+                    geometry = {
+                        type: 'rect',
+                        x: Math.min(...xs),
+                        y: Math.min(...ys),
+                        width: Math.max(...xs) - Math.min(...xs),
+                        height: Math.max(...ys) - Math.min(...ys),
+                    };
+                }
+            } catch {
+                /* Non-rendering SVG nodes have no bounding box. */
+            }
+        }
         const tag = el.tagName.toLowerCase();
         if (!isGeometryValid(geometry)) {
             issues.push({
@@ -277,13 +417,18 @@ export function analyzeSvg(svg_content: string): SvgAnalysis {
             label: extractLabel(el),
             geometry,
             layer: findParentLayer(el),
+            groupId: findParentGroup(el),
             attributes: extractAttributes(el),
+            parentMatrix,
+            presentation,
         });
     }
 
+    host.remove();
+
     if (without_id > 0) {
         issues.push({
-            message: `${without_id} shape element(s) have no id attribute and were skipped`,
+            message: `${without_id} SVG element(s) were assigned IDs for editing`,
             severity: 'info',
         });
     }
@@ -293,7 +438,8 @@ export function analyzeSvg(svg_content: string): SvgAnalysis {
     for (const group of Array.from(svg.querySelectorAll('g'))) {
         const id = group.getAttribute('id');
         if (!id) continue;
-        const mapped = mapLayerName(id);
+        const mapped = LAYER_NAME_MAP[id.toLowerCase()];
+        if (!mapped) continue;
         const names = group_names.get(mapped) ?? new Set<string>();
         names.add(group.getAttribute('inkscape:label') || id);
         group_names.set(mapped, names);
@@ -324,5 +470,13 @@ export function analyzeSvg(svg_content: string): SvgAnalysis {
         });
     }
 
-    return { width, height, viewBox, layers, objects, issues };
+    return {
+        width,
+        height,
+        viewBox,
+        layers,
+        objects,
+        issues,
+        sourceSvg: new XMLSerializer().serializeToString(svg),
+    };
 }

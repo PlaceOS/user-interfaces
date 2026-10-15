@@ -27,7 +27,7 @@ describe('snapshot', () => {
     it('outlines the selection on a pixel-sized clone and leaves the document alone', () => {
         const doc = MapDocument.load(OFFICE);
         const desk = anchor(doc, 'table-01.001');
-        const before = doc.serialise();
+        const before = doc.root.outerHTML;
         const count = doc.elementCount();
         const snapshot = snapshotMarkup(doc, { selection: [desk, 'e9999'] });
         expect(snapshot.image_px).toEqual([2048, 1024]);
@@ -43,7 +43,7 @@ describe('snapshot', () => {
         );
         expect(snapshot.markup).toMatch(/<text [^>]*>table-01\.001<\/text>/);
         expect(snapshot.markup).not.toContain('data-map-editor');
-        expect(doc.serialise()).toBe(before);
+        expect(doc.root.outerHTML).toBe(before);
         expect(doc.elementCount()).toBe(count);
     });
 
@@ -71,4 +71,80 @@ describe('snapshot tags', () => {
         expect((result.markup.match(/<text/g) || []).length).toBe(1);
         expect(result.outlined).toEqual([]);
     });
+});
+
+describe('annotation snapshots', () => {
+    it('includes coloured circles, freehand marks and arrowheads only in the snapshot', () => {
+        const doc = MapDocument.load(OFFICE);
+        const original = doc.serialise();
+        const result = snapshotMarkup(doc, {
+            annotations: [
+                {
+                    n: 1,
+                    kind: 'ellipse',
+                    colour: 'red',
+                    x: 90,
+                    y: 180,
+                    width: 70,
+                    height: 60,
+                },
+                {
+                    n: 2,
+                    kind: 'arrow',
+                    colour: 'blue',
+                    x: 50,
+                    y: 50,
+                    x2: 100,
+                    y2: 200,
+                },
+                {
+                    n: 3,
+                    kind: 'path',
+                    colour: 'green',
+                    points: [
+                        [100, 180],
+                        [160, 180],
+                        [160, 240],
+                        [100, 180],
+                    ],
+                },
+            ],
+        });
+        const root = new DOMParser().parseFromString(
+            result.markup,
+            'image/svg+xml',
+        );
+        expect(root.querySelectorAll('[data-annotation]')).toHaveLength(3);
+        expect(
+            root
+                .querySelector('[data-annotation="1"] ellipse')
+                ?.getAttribute('cx'),
+        ).toBe('125');
+        expect(
+            root
+                .querySelector('[data-annotation="1"] ellipse')
+                ?.getAttribute('style'),
+        ).toContain('stroke:#dc2626');
+        expect(
+            root.querySelector('[data-annotation="2"] path')?.getAttribute('d'),
+        ).toContain('L100 200M');
+        expect(
+            root.querySelector('[data-annotation="3"] path')?.getAttribute('d'),
+        ).toBe('M100 180L160 180L160 240L100 180');
+        expect(doc.serialise()).toBe(original);
+    });
+});
+
+it('includes marks outside the map in the image without changing the document', () => {
+    const doc = MapDocument.load(OFFICE);
+    const before = doc.root.outerHTML;
+    const snapshot = snapshotMarkup(doc, {
+        annotations: [
+            { n: 1, kind: 'box', x: 200, y: -200, width: 100, height: 200 },
+        ],
+    });
+    expect(snapshot.view_box!.y).toBeLessThan(-200);
+    expect(snapshot.view_box!.height).toBeGreaterThan(700);
+    expect(doc.view_box.y).toBe(0);
+    expect(doc.root.outerHTML).toBe(before);
 });

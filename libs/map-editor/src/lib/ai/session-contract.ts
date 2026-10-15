@@ -6,6 +6,8 @@ import { MapIndex } from '../map-index';
 import { MapOp } from '../ops';
 import { ProtectedIdSet } from '../protected-ids';
 import { RenderCheck } from '../render-check';
+import { PreviewSummary } from './preview';
+import { MapAIAnnotation } from './types';
 
 export interface SessionApplyOptions {
     /** Indices of ops to leave out, such as rows the person unticked. */
@@ -20,12 +22,16 @@ export interface SessionApplyOptions {
 export interface MapEditorSessionLike {
     /** The live document; undo, redo and restore swap its root in place. */
     readonly doc: MapDocument;
+    readonly annotations?: Signal<readonly MapAIAnnotation[]>;
     /** Bumps on every document change. */
     readonly version: Signal<number>;
     /** Anchors of the selected elements. */
     readonly selection: Signal<readonly string[]>;
     /** Anchor under the pointer or highlighted by a panel row. */
     readonly hover: Signal<string | null>;
+    /** The proposal previewed on the map, when the host draws pins for it. */
+    readonly preview?: Signal<PreviewSummary | null>;
+    setPreview?(summary: PreviewSummary | null): void;
     readonly protected: ProtectedIdSet;
     readonly geometry: GeometryProvider;
     readonly render_check: RenderCheck;

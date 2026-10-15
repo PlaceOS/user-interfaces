@@ -4,14 +4,19 @@ import {
     Component,
     computed,
     effect,
+    ElementRef,
     input,
     OnDestroy,
     OnInit,
     signal,
     untracked,
+    viewChild,
 } from '@angular/core';
 import { MapAiTransport } from './api';
 import { Proposal, ProposalGroup, ProposalRow } from './proposal';
+import { OpCategory } from './describe';
+import { PANEL_ICONS } from './panel-icons';
+import { previewSummary } from './preview';
 import { MapEditorSessionLike } from './session-contract';
 import { MapAiPhase, MapAiState, modelKey, ThreadTurn } from './state';
 import {
@@ -56,6 +61,22 @@ const IDLE: MapAiPhase = { kind: 'idle' };
  * requests and proposals, the composer at the bottom. A proposal that
  * validates is previewed on the map at once; the card offers Keep and Undo.
  */
+/** The rows of one change category, in proposal order, with a group when the section is tickable as a whole. */
+export interface PanelSection {
+    key: OpCategory;
+    label: string;
+    rows: ProposalRow[];
+    group: ProposalGroup | null;
+}
+
+const SECTION_ORDER: readonly OpCategory[] = [
+    'added',
+    'changed',
+    'removed',
+    'question',
+    'none',
+];
+
 @Component({
     selector: 'map-editor-ai-panel',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,43 +84,32 @@ const IDLE: MapAiPhase = { kind: 'idle' };
         @if (thread(); as t) {
             @if (!hidden()) {
                 <div
-                    class="flex h-full min-h-0 flex-col text-sm"
+                    class="panel"
                     [attr.aria-busy]="t.busy()"
                 >
                     @switch (phase().kind) {
                         @case ('idle') {
-                            <p class="p-3 text-xs opacity-70">
-                                {{ t.strings.checking }}
-                            </p>
+                            <p class="note">{{ t.strings.checking }}</p>
                         }
                         @case ('checking') {
-                            <p class="p-3 text-xs opacity-70" role="status">
+                            <p class="note" role="status">
                                 {{ t.strings.checking }}
                             </p>
                         }
                         @case ('unavailable') {
-                            <p class="p-3 text-xs" role="status" unavailable>
+                            <p class="note" role="status" unavailable>
                                 {{ unavailableText() }}
                             </p>
                         }
                         @default {
-                            <header
-                                class="border-base-300 space-y-0.5 border-b px-3 py-2 text-xs"
-                                capabilities
-                            >
-                                <h2 class="text-sm font-medium">
-                                    {{ t.strings.title }}
-                                </h2>
+                            <header class="head" capabilities>
+                                <h2>{{ t.strings.title }}</h2>
                                 @if (model_options().length > 1) {
-                                    <label
-                                        class="flex items-center gap-2"
-                                        model-choice
-                                    >
-                                        <span class="opacity-70">
+                                    <label class="model" model-choice>
+                                        <span class="muted">
                                             {{ t.strings.model_label }}
                                         </span>
                                         <select
-                                            class="select select-bordered select-xs min-w-0 flex-1"
                                             [value]="model_key()"
                                             (change)="chooseModel($event)"
                                         >
@@ -124,13 +134,13 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                     <p model-note>{{ model_note() }}</p>
                                 }
                                 @if (quota_note()) {
-                                    <p class="opacity-70" quota-note>
+                                    <p class="muted" quota-note>
                                         {{ quota_note() }}
                                     </p>
                                 }
                                 @if (t.quota_block(); as block) {
                                     <p
-                                        class="text-error"
+                                        class="error"
                                         role="status"
                                         quota-block
                                     >
@@ -138,24 +148,30 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                     </p>
                                 }
                             </header>
+                            @if (!t.turns().length && phase().kind !== 'running') {
+                                <ng-container
+                                    *ngTemplateOutlet="
+                                        composer_template;
+                                        context: { $implicit: t, first: true }
+                                    "
+                                />
+                            }
                             <ol
-                                class="min-h-0 flex-1 space-y-3 overflow-auto px-3 py-2"
+                                #threadList
+                                class="thread"
+                                [class.empty]="!t.turns().length"
                                 [attr.aria-label]="t.strings.title"
                                 thread
                             >
                                 @for (turn of t.turns(); track turn.id) {
                                     @switch (turn.kind) {
                                         @case ('person') {
-                                            <li class="ml-6" person-turn>
-                                                <p
-                                                    class="bg-base-200 rounded-lg px-3 py-2 whitespace-pre-wrap"
-                                                >
+                                            <li class="person" person-turn>
+                                                <p class="bubble">
                                                     {{ turn.instruction }}
                                                 </p>
                                                 @if (personMeta(turn)) {
-                                                    <p
-                                                        class="mt-0.5 text-xs opacity-70"
-                                                    >
+                                                    <p class="meta muted">
                                                         {{ personMeta(turn) }}
                                                     </p>
                                                 }
@@ -163,10 +179,8 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                         }
                                         @case ('status') {
                                             <li
-                                                class="rounded-lg border px-3 py-2"
-                                                [class.border-error]="
-                                                    turn.error
-                                                "
+                                                class="status"
+                                                [class.failed]="turn.error"
                                                 role="status"
                                                 status-turn
                                             >
@@ -177,7 +191,7 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                 ) {
                                                     <button
                                                         type="button"
-                                                        class="ml-2 underline"
+                                                        class="link"
                                                         retry
                                                         (click)="retry()"
                                                     >
@@ -188,21 +202,19 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                         }
                                         @case ('proposal') {
                                             <li
-                                                class="border-base-300 rounded-lg border"
-                                                [class.opacity-60]="
+                                                class="proposal"
+                                                [class.inactive]="
                                                     !isActive(turn)
                                                 "
                                                 proposal-card
                                                 [attr.data-job]="turn.job_id"
                                             >
-                                                <header
-                                                    class="flex items-center justify-between gap-2 px-3 py-2"
-                                                >
+                                                <header class="title-row">
                                                     <strong card-title>{{
                                                         cardTitle(turn.proposal)
                                                     }}</strong>
                                                     <span
-                                                        class="text-xs opacity-70"
+                                                        class="muted"
                                                         outcome
                                                     >
                                                         {{ outcomeText(turn) }}
@@ -210,7 +222,7 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                 </header>
                                                 @if (turn.proposal.summary) {
                                                     <p
-                                                        class="px-3 pb-2 text-xs"
+                                                        class="summary"
                                                         summary
                                                     >
                                                         {{
@@ -225,7 +237,7 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                     track question
                                                 ) {
                                                     <p
-                                                        class="bg-base-200 mx-3 mb-2 rounded px-2 py-1"
+                                                        class="question"
                                                         question
                                                     >
                                                         {{ question }}
@@ -236,7 +248,7 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                         .length
                                                 ) {
                                                     <p
-                                                        class="px-3 pb-2 text-xs opacity-70"
+                                                        class="small muted"
                                                         hint
                                                     >
                                                         {{
@@ -250,11 +262,43 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                     as text
                                                 ) {
                                                     <p
-                                                        class="px-3 pb-2 text-xs"
+                                                        class="verdict"
                                                         role="status"
                                                         verdict
                                                     >
+                                                        @if (
+                                                            turn.proposal
+                                                                .invalid_count ||
+                                                            turn.proposal
+                                                                .blocking
+                                                        ) {
+                                                            <svg
+                                                                class="error"
+                                                                viewBox="0 0 24 24"
+                                                                aria-hidden="true"
+                                                            >
+                                                                <path
+                                                                    [attr.d]="
+                                                                        icons.error
+                                                                    "
+                                                                />
+                                                            </svg>
+                                                        }
                                                         {{ text }}
+                                                    </p>
+                                                }
+                                                @if (
+                                                    isActive(turn) &&
+                                                    t.selection_error()
+                                                ) {
+                                                    <p
+                                                        class="small error"
+                                                        role="alert"
+                                                        selection-error
+                                                    >
+                                                        {{
+                                                            t.selection_error()
+                                                        }}
                                                     </p>
                                                 }
                                                 @for (
@@ -263,8 +307,8 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                     track $index
                                                 ) {
                                                     <p
-                                                        class="px-3 pb-1 text-xs"
-                                                        [class.text-error]="
+                                                        class="small"
+                                                        [class.error]="
                                                             issue.level ===
                                                             'error'
                                                         "
@@ -279,18 +323,15 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                         thumbnails().after)
                                                 ) {
                                                     <div
-                                                        class="flex gap-2 px-3 pb-2"
+                                                        class="thumbs"
                                                         thumbnails
                                                     >
                                                         @if (
                                                             thumbnails().before;
                                                             as before
                                                         ) {
-                                                            <figure
-                                                                class="min-w-0 flex-1"
-                                                            >
+                                                            <figure>
                                                                 <img
-                                                                    class="border-base-300 w-full border bg-white"
                                                                     [src]="
                                                                         before
                                                                     "
@@ -301,7 +342,7 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                                     "
                                                                 />
                                                                 <figcaption
-                                                                    class="text-center text-xs"
+                                                                    class="muted"
                                                                 >
                                                                     {{
                                                                         t
@@ -315,11 +356,8 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                             thumbnails().after;
                                                             as after
                                                         ) {
-                                                            <figure
-                                                                class="min-w-0 flex-1"
-                                                            >
+                                                            <figure>
                                                                 <img
-                                                                    class="border-base-300 w-full border bg-white"
                                                                     [src]="
                                                                         after
                                                                     "
@@ -330,7 +368,7 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                                     "
                                                                 />
                                                                 <figcaption
-                                                                    class="text-center text-xs"
+                                                                    class="muted"
                                                                 >
                                                                     {{
                                                                         t
@@ -343,188 +381,171 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                                     </div>
                                                 }
                                                 @if (
-                                                    turn.proposal.groups;
-                                                    as groups
+                                                    sectionsOf(turn.proposal);
+                                                    as sections
                                                 ) {
-                                                    @for (
-                                                        group of groups;
-                                                        track group.key
-                                                    ) {
-                                                        <div
-                                                            class="px-3 pb-1"
-                                                            row-group
-                                                        >
-                                                            <div
-                                                                class="flex items-center gap-2"
-                                                            >
-                                                                <input
-                                                                    type="checkbox"
-                                                                    [id]="
-                                                                        turn.id +
-                                                                        '-' +
-                                                                        group.key
-                                                                    "
-                                                                    [checked]="
-                                                                        group.checked ===
-                                                                        'all'
-                                                                    "
-                                                                    [indeterminate]="
-                                                                        group.checked ===
-                                                                        'some'
-                                                                    "
-                                                                    [disabled]="
-                                                                        group.locked ||
-                                                                        !isActive(
-                                                                            turn
-                                                                        )
-                                                                    "
-                                                                    (change)="
-                                                                        onGroup(
-                                                                            group,
-                                                                            $event
-                                                                        )
-                                                                    "
-                                                                />
-                                                                <label
-                                                                    [for]="
-                                                                        turn.id +
-                                                                        '-' +
-                                                                        group.key
-                                                                    "
-                                                                >
-                                                                    {{
-                                                                        group.label
-                                                                    }}
-                                                                </label>
-                                                                <button
-                                                                    type="button"
-                                                                    class="text-xs underline"
-                                                                    [attr.aria-expanded]="
-                                                                        open_groups().has(
-                                                                            group.key
-                                                                        )
-                                                                    "
-                                                                    (click)="
-                                                                        toggleGroupOpen(
-                                                                            group.key
-                                                                        )
-                                                                    "
-                                                                >
-                                                                    {{
-                                                                        open_groups().has(
-                                                                            group.key
-                                                                        )
-                                                                            ? t
-                                                                                  .strings
-                                                                                  .hide_group
-                                                                            : t
-                                                                                  .strings
-                                                                                  .show_group
-                                                                    }}
-                                                                </button>
-                                                            </div>
-                                                            @if (
-                                                                open_groups().has(
-                                                                    group.key
-                                                                )
+                                                    @if (sections.length) {
+                                                        <div class="changes">
+                                                            @for (
+                                                                section of sections;
+                                                                track section.key
                                                             ) {
-                                                                <ul
-                                                                    class="ml-5"
+                                                                <div
+                                                                    class="section"
+                                                                    row-group
+                                                                    [attr.data-category]="
+                                                                        section.key
+                                                                    "
                                                                 >
-                                                                    @for (
-                                                                        row of rowsOf(
-                                                                            turn.proposal,
-                                                                            group
-                                                                        );
-                                                                        track row.id
+                                                                    <div
+                                                                        class="section-head"
+                                                                    >
+                                                                        @if (
+                                                                            section.group
+                                                                        ) {
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                [id]="
+                                                                                    turn.id +
+                                                                                    '-' +
+                                                                                    section.key
+                                                                                "
+                                                                                [checked]="
+                                                                                    section
+                                                                                        .group
+                                                                                        .checked ===
+                                                                                    'all'
+                                                                                "
+                                                                                [indeterminate]="
+                                                                                    section
+                                                                                        .group
+                                                                                        .checked ===
+                                                                                    'some'
+                                                                                "
+                                                                                [disabled]="
+                                                                                    section
+                                                                                        .group
+                                                                                        .locked ||
+                                                                                    !isActive(
+                                                                                        turn
+                                                                                    )
+                                                                                "
+                                                                                [attr.aria-label]="
+                                                                                    section.label
+                                                                                "
+                                                                                (change)="
+                                                                                    onGroup(
+                                                                                        section.group,
+                                                                                        $event
+                                                                                    )
+                                                                                "
+                                                                            />
+                                                                        }
+                                                                        <span>{{
+                                                                            section.label
+                                                                        }}</span>
+                                                                        <span
+                                                                            class="muted count"
+                                                                            >{{
+                                                                                section
+                                                                                    .rows
+                                                                                    .length
+                                                                            }}</span
+                                                                        >
+                                                                        @if (
+                                                                            section
+                                                                                .rows
+                                                                                .length >=
+                                                                            4
+                                                                        ) {
+                                                                            <button
+                                                                                type="button"
+                                                                                class="link"
+                                                                                [attr.aria-expanded]="
+                                                                                    isGroupOpen(
+                                                                                        turn.id +
+                                                                                            ':' +
+                                                                                            section.key
+                                                                                    )
+                                                                                "
+                                                                                (click)="
+                                                                                    toggleGroupOpen(
+                                                                                        turn.id +
+                                                                                            ':' +
+                                                                                            section.key
+                                                                                    )
+                                                                                "
+                                                                            >
+                                                                                {{
+                                                                                    isGroupOpen(
+                                                                                        turn.id +
+                                                                                            ':' +
+                                                                                            section.key
+                                                                                    )
+                                                                                        ? t
+                                                                                              .strings
+                                                                                              .hide_group
+                                                                                        : t
+                                                                                              .strings
+                                                                                              .show_group
+                                                                                }}
+                                                                            </button>
+                                                                        }
+                                                                    </div>
+                                                                    @if (
+                                                                        isGroupOpen(
+                                                                            turn.id +
+                                                                                ':' +
+                                                                                section.key
+                                                                        )
                                                                     ) {
-                                                                        <ng-container
-                                                                            *ngTemplateOutlet="
-                                                                                row_template;
-                                                                                context: {
-                                                                                    $implicit:
-                                                                                        row,
-                                                                                    turn: turn,
-                                                                                }
-                                                                            "
-                                                                        />
+                                                                        <ul
+                                                                            class="rows"
+                                                                            rows
+                                                                        >
+                                                                            @for (
+                                                                                row of section.rows;
+                                                                                track row.id
+                                                                            ) {
+                                                                                <ng-container
+                                                                                    *ngTemplateOutlet="
+                                                                                        row_template;
+                                                                                        context: {
+                                                                                            $implicit:
+                                                                                                row,
+                                                                                            turn: turn,
+                                                                                        }
+                                                                                    "
+                                                                                />
+                                                                            }
+                                                                        </ul>
                                                                     }
-                                                                </ul>
+                                                                </div>
                                                             }
                                                         </div>
                                                     }
-                                                } @else {
-                                                    <ul class="px-3 pb-2" rows>
-                                                        @for (
-                                                            row of turn.proposal
-                                                                .rows;
-                                                            track row.id
-                                                        ) {
-                                                            <ng-container
-                                                                *ngTemplateOutlet="
-                                                                    row_template;
-                                                                    context: {
-                                                                        $implicit:
-                                                                            row,
-                                                                        turn: turn,
-                                                                    }
-                                                                "
-                                                            />
-                                                        }
-                                                    </ul>
                                                 }
                                                 @if (
                                                     isActive(turn) &&
-                                                    showsDecision()
+                                                    showsDecision() &&
+                                                    hasReasons()
                                                 ) {
                                                     <div
-                                                        class="flex flex-wrap items-center gap-2 px-3 pb-2"
-                                                        decision
-                                                    >
-                                                        @if (
-                                                            phase().kind ===
-                                                            'applied'
-                                                        ) {
-                                                            <button
-                                                                type="button"
-                                                                class="bg-primary rounded px-3 py-1 text-white"
-                                                                keep
-                                                                (click)="keep()"
-                                                            >
-                                                                {{
-                                                                    t.strings
-                                                                        .keep
-                                                                }}
-                                                            </button>
-                                                        }
-                                                        <button
-                                                            type="button"
-                                                            class="border-base-300 rounded border px-3 py-1"
-                                                            undo
-                                                            (click)="undo()"
-                                                        >
-                                                            {{ t.strings.undo }}
-                                                        </button>
-                                                    </div>
-                                                    <div
-                                                        class="px-3 pb-2 text-xs"
+                                                        class="reasons small"
                                                         reasons
                                                     >
-                                                        <span
-                                                            class="opacity-70"
-                                                            >{{
-                                                                t.strings
-                                                                    .reason_prompt
-                                                            }}</span
-                                                        >
+                                                        <span class="muted">{{
+                                                            t.strings
+                                                                .reason_prompt
+                                                        }}</span>
                                                         @for (
                                                             chip of reason_chips();
                                                             track chip.key
                                                         ) {
                                                             <button
                                                                 type="button"
-                                                                class="border-base-300 ml-1 rounded-full border px-2 py-0.5"
-                                                                [class.bg-base-200]="
+                                                                class="chip"
+                                                                [class.on]="
                                                                     hasReason(
                                                                         chip.key
                                                                     )
@@ -552,7 +573,7 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                 }
                                 @if (phase().kind === 'running') {
                                     <li
-                                        class="border-base-300 flex items-center gap-2 rounded-lg border px-3 py-2"
+                                        class="status running"
                                         role="status"
                                         running
                                     >
@@ -560,12 +581,12 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                             class="spinner"
                                             aria-hidden="true"
                                         ></span>
-                                        <span class="flex-1">{{
+                                        <span class="grow">{{
                                             running_text()
                                         }}</span>
                                         <button
                                             type="button"
-                                            class="underline"
+                                            class="link"
                                             cancel
                                             [disabled]="cancelling()"
                                             (click)="cancel()"
@@ -579,95 +600,55 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                                     </li>
                                 }
                             </ol>
-                            <form
-                                class="border-base-300 space-y-2 border-t px-3 py-2"
-                                composer
-                                (submit)="send($event)"
-                            >
-                                <label
-                                    class="text-xs font-medium"
-                                    for="map-editor-ai-draft"
-                                >
-                                    {{ t.strings.composer_label }}
-                                </label>
-                                <textarea
-                                    id="map-editor-ai-draft"
-                                    class="border-base-300 w-full rounded border px-2 py-1"
-                                    rows="4"
-                                    [value]="draft()"
-                                    [placeholder]="placeholder()"
-                                    [disabled]="!t.can_send()"
-                                    [attr.aria-invalid]="too_long()"
-                                    (input)="onDraft($event)"
-                                    (keydown)="onKeydown($event)"
-                                ></textarea>
-                                <div
-                                    class="flex flex-wrap items-center gap-2 text-xs"
-                                    chips
-                                >
-                                    @if (selection_count() > 0) {
-                                        <span
-                                            class="bg-base-200 inline-flex items-center gap-1 rounded-full px-2 py-0.5"
-                                            selection-chip
-                                        >
-                                            {{ selectionText() }}
+                            @if (activeTurn(); as active) {
+                                @if (showsDecision()) {
+                                    <div class="decide" decision>
+                                        @if (phase().kind === 'applied') {
                                             <button
                                                 type="button"
-                                                [attr.aria-label]="
-                                                    t.strings.clear_selection
-                                                "
-                                                (click)="clearSelection()"
+                                                class="btn"
+                                                keep
+                                                (click)="keep()"
                                             >
-                                                &times;
+                                                <svg
+                                                    viewBox="0 0 24 24"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        [attr.d]="icons.check"
+                                                    />
+                                                </svg>
+                                                {{ t.strings.keep }}
                                             </button>
-                                        </span>
-                                    }
-                                    @if (upload()) {
+                                        }
                                         <button
                                             type="button"
-                                            class="border-base-300 rounded-full border px-2 py-0.5"
-                                            [class.bg-base-200]="snapshotOn()"
-                                            role="switch"
-                                            [attr.aria-checked]="snapshotOn()"
-                                            snapshot-toggle
-                                            (click)="toggleSnapshot()"
+                                            class="btn inverse"
+                                            [class.wide]="
+                                                phase().kind !== 'applied'
+                                            "
+                                            undo
+                                            (click)="undo()"
                                         >
-                                            {{ t.strings.snapshot_toggle }}
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                            >
+                                                <path [attr.d]="icons.undo" />
+                                            </svg>
+                                            {{ t.strings.undo }}
                                         </button>
-                                    }
-                                    @if (chars_note()) {
-                                        <span
-                                            class="ml-auto opacity-70"
-                                            [class.text-error]="too_long()"
-                                            chars
-                                        >
-                                            {{ chars_note() }}
-                                        </span>
-                                    }
-                                </div>
-                                <div
-                                    class="flex items-center justify-end gap-2"
-                                >
-                                    @if (t.turns().length) {
-                                        <button
-                                            type="button"
-                                            class="text-xs underline"
-                                            new-request
-                                            (click)="newRequest()"
-                                        >
-                                            {{ t.strings.new_request }}
-                                        </button>
-                                    }
-                                    <button
-                                        type="submit"
-                                        class="bg-primary rounded px-3 py-1 text-white disabled:opacity-50"
-                                        send
-                                        [disabled]="!can_send()"
-                                    >
-                                        {{ t.strings.send }}
-                                    </button>
-                                </div>
-                            </form>
+                                    </div>
+                                }
+                            }
+                            @if (t.turns().length || phase().kind === 'running') {
+                                <ng-container
+                                    *ngTemplateOutlet="
+                                        composer_template;
+                                        context: { $implicit: t, first: false }
+                                    "
+                                />
+                            }
                         }
                     }
                 </div>
@@ -683,10 +664,82 @@ const IDLE: MapAiPhase = { kind: 'idle' };
             </div>
         }
 
+        <ng-template #composer_template let-t let-first="first">
+            <form
+                class="composer"
+                [class.first]="first"
+                composer
+                (submit)="send($event)"
+            >
+                <label for="map-editor-ai-draft">
+                    {{ t.strings.composer_label }}
+                </label>
+                <textarea
+                    id="map-editor-ai-draft"
+                    [class.tall]="first"
+                    [value]="draft()"
+                    [placeholder]="placeholder()"
+                    [disabled]="!t.can_send()"
+                    [attr.aria-invalid]="too_long()"
+                    (input)="onDraft($event)"
+                    (keydown)="onKeydown($event)"
+                ></textarea>
+                <div class="footer" chips>
+                    @if (selection_count() > 0) {
+                        <span class="chip" selection-chip>
+                            {{ selectionText() }}
+                            <button
+                                type="button"
+                                class="clear"
+                                [attr.aria-label]="t.strings.clear_selection"
+                                (click)="clearSelection()"
+                            >
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path [attr.d]="icons.close" />
+                                </svg>
+                            </button>
+                        </span>
+                    }
+                    @if (chars_note()) {
+                        <span
+                            class="small muted"
+                            [class.error]="too_long()"
+                            chars
+                        >
+                            {{ chars_note() }}
+                        </span>
+                    }
+                    <span class="grow"></span>
+                    @if (t.turns().length) {
+                        <button
+                            type="button"
+                            class="link"
+                            new-request
+                            (click)="newRequest()"
+                        >
+                            {{ t.strings.new_request }}
+                        </button>
+                    }
+                    <button
+                        type="submit"
+                        class="btn"
+                        send
+                        [disabled]="!can_send()"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path [attr.d]="icons.send" />
+                        </svg>
+                        {{ t.strings.send }}
+                    </button>
+                </div>
+            </form>
+        </ng-template>
+
         <ng-template #row_template let-row let-turn="turn">
             <li
-                class="flex items-start gap-2 py-0.5"
+                class="row"
                 row
+                [class.hot]="isHot(row)"
                 [attr.data-category]="row.category"
                 [attr.data-index]="row.index"
                 (mouseenter)="hoverRow(row)"
@@ -697,7 +750,6 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                 @if (row.actionable) {
                     <input
                         type="checkbox"
-                        class="mt-1"
                         [id]="turn.id + '-' + row.id"
                         [checked]="row.checked"
                         [disabled]="row.locked || !isActive(turn)"
@@ -707,51 +759,47 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                         (change)="onRow(row, $event)"
                     />
                 } @else {
-                    <span
-                        class="mt-1 inline-block w-3.5"
-                        aria-hidden="true"
-                    ></span>
+                    <span class="spacer" aria-hidden="true"></span>
                 }
-                <span
-                    class="glyph w-3 text-center font-mono"
-                    aria-hidden="true"
-                    >{{ row.glyph }}</span
-                >
+                <span class="num" aria-hidden="true">{{ row.index + 1 }}</span>
                 <span class="sr-only">{{ categoryWord(row) }}</span>
-                <span class="min-w-0 flex-1">
-                    <span class="mr-1 text-xs opacity-70">{{
-                        row.kind_word
-                    }}</span>
+                <span class="body">
+                    <span class="kind muted">{{ row.kind_word }}</span>
                     <button
                         type="button"
-                        class="text-left hover:underline"
+                        class="row-text"
                         row-text
                         (click)="selectRow(row)"
                     >
                         {{ row.text }}
                     </button>
                     <span
-                        class="block text-xs"
+                        class="notes"
                         [id]="turn.id + '-' + row.id + '-notes'"
                     >
                         @if (row.actionable && row.locked) {
-                            <span class="text-error mr-1" locked>{{
-                                words().locked_note
-                            }}</span>
+                            <span class="error" locked>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path [attr.d]="icons.lock" />
+                                </svg>
+                                {{ words().locked_note }}
+                            </span>
                         }
                         @if (row.depends_on.length) {
-                            <span class="mr-1 opacity-70" needs>{{
-                                needsText(row)
-                            }}</span>
+                            <span class="muted" needs>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path [attr.d]="icons.needs" />
+                                </svg>
+                                {{ needsText(row) }}
+                            </span>
                         }
                         @if (row.note) {
-                            <span class="mr-1 opacity-70">{{ row.note }}</span>
+                            <span class="muted">{{ row.note }}</span>
                         }
                         @for (issue of row.issues; track $index) {
                             <span
-                                class="mr-1"
-                                [class.text-error]="issue.level === 'error'"
-                                [class.text-warning]="issue.level === 'warning'"
+                                [class.error]="issue.level === 'error'"
+                                [class.warning]="issue.level === 'warning'"
                                 issue
                             >
                                 {{ issue.message }}
@@ -769,19 +817,560 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                 flex-direction: column;
                 height: 100%;
                 min-height: 0;
+                color: var(--base-content, #111);
+                font-size: 0.875rem;
             }
-            [row][data-category='added'] .glyph {
-                color: #16a34a;
+
+            .panel {
+                display: flex;
+                flex: 1;
+                flex-direction: column;
+                height: 100%;
+                min-height: 0;
             }
-            [row][data-category='changed'] .glyph {
-                color: #2563eb;
+
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                margin: -1px;
+                padding: 0;
+                overflow: hidden;
+                clip: rect(0 0 0 0);
+                white-space: nowrap;
+                border: 0;
             }
-            [row][data-category='removed'] .glyph {
-                color: #dc2626;
+
+            .muted {
+                opacity: 0.72;
             }
-            [row][data-category='question'] .glyph {
-                color: #d97706;
+
+            .small {
+                font-size: 0.75rem;
+                line-height: 1rem;
             }
+
+            .error {
+                color: var(--error, #dc2626);
+                opacity: 1;
+            }
+
+            .warning {
+                color: var(--warn, #d97706);
+            }
+
+            .grow {
+                flex: 1;
+            }
+
+            .note {
+                margin: 0;
+                padding: 0.75rem 1rem;
+                font-size: 0.75rem;
+                opacity: 0.72;
+            }
+
+            .head {
+                padding: 0.75rem 1rem;
+                border-bottom: 1px solid var(--base-200, #e5e7eb);
+            }
+
+            .head h2 {
+                margin: 0 0 0.25rem;
+                font-size: 1rem;
+                font-weight: 500;
+                line-height: 1.5rem;
+            }
+
+            .head p {
+                margin: 0;
+                font-size: 0.75rem;
+                line-height: 1rem;
+            }
+
+            .head p + p {
+                margin-top: 0.125rem;
+            }
+
+            .model {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .model select {
+                flex: 1;
+                min-width: 0;
+                height: 2rem;
+                padding: 0 0.5rem;
+                border: 1px solid var(--base-300, #d4d4d8);
+                border-radius: 0.375rem;
+                background: var(--base-100, #fff);
+                color: inherit;
+                font: inherit;
+                font-size: 0.875rem;
+            }
+
+            .thread {
+                display: flex;
+                flex: 1;
+                flex-direction: column;
+                gap: 0.75rem;
+                min-height: 0;
+                margin: 0;
+                padding: 0.75rem 1rem;
+                overflow: auto;
+                list-style: none;
+            }
+
+            .thread.empty {
+                padding: 0;
+            }
+
+            .person {
+                margin-left: 2rem;
+            }
+
+            .bubble {
+                margin: 0;
+                padding: 0.5rem 0.75rem;
+                border-radius: 0.5rem;
+                background: var(--base-200, #f4f4f5);
+                line-height: 1.25rem;
+                white-space: pre-wrap;
+            }
+
+            .meta {
+                margin: 0.125rem 0 0;
+                font-size: 0.75rem;
+            }
+
+            .status {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.5rem 0.75rem;
+                border: 1px solid var(--base-300, #d4d4d8);
+                border-radius: 0.5rem;
+            }
+
+            .status.failed {
+                border-color: var(--error, #dc2626);
+            }
+
+            .proposal.inactive {
+                opacity: 0.6;
+            }
+
+            .title-row {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 0.5rem;
+                padding: 0 0.125rem 0.375rem;
+            }
+
+            .title-row strong {
+                font-size: 1rem;
+                font-weight: 500;
+            }
+
+            .title-row .muted {
+                font-size: 0.75rem;
+            }
+
+            .summary {
+                margin: 0 0.125rem 0.5rem;
+                line-height: 1.25rem;
+            }
+
+            .question {
+                margin: 0 0 0.5rem;
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.375rem;
+                background: var(--base-200, #f4f4f5);
+            }
+
+            .proposal p.small {
+                margin: 0 0.125rem 0.5rem;
+            }
+
+            .verdict {
+                display: flex;
+                align-items: center;
+                gap: 0.375rem;
+                margin: 0 0.125rem 0.5rem;
+                font-size: 0.75rem;
+                line-height: 1rem;
+            }
+
+            .verdict svg {
+                width: 1rem;
+                height: 1rem;
+                flex: none;
+                fill: currentColor;
+            }
+
+            .thumbs {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem;
+                margin: 0 0 0.625rem;
+            }
+
+            .thumbs figure {
+                display: flex;
+                align-items: center;
+                gap: 0.375rem;
+                margin: 0;
+            }
+
+            .thumbs img {
+                flex: 1;
+                min-width: 0;
+                border: 1px solid var(--base-300, #d4d4d8);
+                border-radius: 0.25rem;
+                background: var(--base-200, #f4f4f5);
+            }
+
+            .thumbs figcaption {
+                font-size: 0.75rem;
+            }
+
+            .changes {
+                border: 1px solid var(--base-300, #d4d4d8);
+                border-radius: 0.5rem;
+            }
+
+            .section + .section {
+                border-top: 1px solid var(--base-200, #e5e7eb);
+            }
+
+            .section-head {
+                display: flex;
+                align-items: center;
+                gap: 0.625rem;
+                padding: 0.625rem 0.625rem 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 500;
+                letter-spacing: 0.02em;
+            }
+
+            .section-head .count {
+                font-weight: 400;
+            }
+
+            .section-head .link {
+                margin-left: auto;
+            }
+
+            input[type='checkbox'] {
+                flex: none;
+                width: 1rem;
+                height: 1rem;
+                margin: 0;
+                accent-color: var(--secondary, #1f2155);
+            }
+
+            .rows {
+                margin: 0;
+                padding: 0 0 0.25rem;
+                list-style: none;
+            }
+
+            .row {
+                display: flex;
+                align-items: flex-start;
+                gap: 0.625rem;
+                padding: 0.5rem 0.625rem;
+                border-radius: 0.375rem;
+                line-height: 1.25rem;
+            }
+
+            .row input[type='checkbox'] {
+                margin-top: 1px;
+            }
+
+            .row .spacer {
+                flex: none;
+                width: 1rem;
+            }
+
+            .row.hot {
+                background: color-mix(
+                    in srgb,
+                    var(--primary, #2563eb) 10%,
+                    transparent
+                );
+            }
+
+            .num {
+                flex: none;
+                min-width: 22px;
+                height: 22px;
+                margin-top: -2px;
+                padding: 0 4px;
+                border: 2px solid var(--info, #2563eb);
+                border-radius: 999px;
+                font-size: 0.75rem;
+                font-weight: 700;
+                line-height: 18px;
+                text-align: center;
+            }
+
+            .row[data-category='added'] .num {
+                border-color: var(--success, #16a34a);
+            }
+
+            .row[data-category='removed'] .num {
+                border-color: var(--error, #dc2626);
+                border-style: dashed;
+            }
+
+            .row[data-category='question'] .num {
+                border-color: var(--warn, #d97706);
+            }
+
+            .row.hot .num {
+                background: var(--primary, #2563eb);
+                border-color: var(--primary, #2563eb);
+                border-style: solid;
+                color: var(--primary-content, #fff);
+            }
+
+            .row .body {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .kind {
+                margin-right: 0.25rem;
+                font-size: 0.75rem;
+            }
+
+            .row-text {
+                padding: 0;
+                border: none;
+                background: none;
+                color: inherit;
+                font: inherit;
+                text-align: left;
+                cursor: pointer;
+            }
+
+            .row-text:hover {
+                text-decoration: underline;
+            }
+
+            .notes {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 0.25rem 0.5rem;
+                margin-top: 0.125rem;
+                font-size: 0.75rem;
+                line-height: 1rem;
+            }
+
+            .notes:empty {
+                display: none;
+            }
+
+            .notes > span {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+            .notes svg {
+                width: 0.875rem;
+                height: 0.875rem;
+                flex: none;
+                fill: currentColor;
+            }
+
+            .link {
+                padding: 0 0.25rem;
+                border: none;
+                background: none;
+                color: inherit;
+                font: inherit;
+                font-size: 0.75rem;
+                font-weight: 500;
+                opacity: 0.8;
+                text-decoration: underline;
+                cursor: pointer;
+            }
+
+            .link:disabled {
+                opacity: 0.4;
+                cursor: default;
+            }
+
+            .reasons {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 0.25rem;
+                margin: 0.5rem 0.125rem 0;
+            }
+
+            .chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+                height: 1.5rem;
+                padding: 0 0.5rem;
+                border: none;
+                border-radius: 999px;
+                background: var(--base-200, #f4f4f5);
+                color: inherit;
+                font: inherit;
+                font-size: 0.75rem;
+                font-weight: 500;
+                white-space: nowrap;
+                cursor: default;
+            }
+
+            button.chip {
+                border: 1px solid var(--base-300, #d4d4d8);
+                background: transparent;
+                cursor: pointer;
+            }
+
+            button.chip.on {
+                background: var(--base-200, #f4f4f5);
+            }
+
+            .chip .clear {
+                display: inline-flex;
+                margin-left: 0.125rem;
+                padding: 0;
+                border: none;
+                background: none;
+                color: inherit;
+                cursor: pointer;
+            }
+
+            .chip svg {
+                width: 1rem;
+                height: 1rem;
+                fill: currentColor;
+            }
+
+            .decide {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem;
+                padding: 0.75rem 1rem;
+                border-top: 1px solid var(--base-200, #e5e7eb);
+            }
+
+            .decide .wide {
+                grid-column: span 2;
+            }
+
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                min-height: 3rem;
+                padding: 0 1rem;
+                border: 1px solid var(--secondary, #1f2155);
+                border-radius: 0.5rem;
+                background: var(--secondary, #1f2155);
+                color: var(--secondary-content, #fff);
+                font: inherit;
+                font-weight: 500;
+                white-space: nowrap;
+                cursor: pointer;
+            }
+
+            .btn.inverse {
+                border-color: transparent;
+                background: color-mix(
+                    in srgb,
+                    var(--secondary, #1f2155) 15%,
+                    transparent
+                );
+                color: var(--secondary, #1f2155);
+            }
+
+            :host-context(.theme-dark) .btn.inverse {
+                background: color-mix(in srgb, #fff 15%, transparent);
+                color: #fff;
+            }
+
+            .btn:disabled {
+                opacity: 0.3;
+                pointer-events: none;
+            }
+
+            .btn svg {
+                width: 1.25rem;
+                height: 1.25rem;
+                fill: currentColor;
+            }
+
+            .composer {
+                padding: 0.75rem 1rem 1rem;
+                border-top: 1px solid var(--base-200, #e5e7eb);
+            }
+
+            .composer.first {
+                padding: 1rem;
+                border-top: none;
+            }
+
+            .composer label {
+                display: block;
+                margin-bottom: 0.375rem;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+
+            .composer textarea {
+                box-sizing: border-box;
+                width: 100%;
+                height: 5.25rem;
+                padding: 0.625rem 0.75rem;
+                border: 1px solid var(--base-300, #d4d4d8);
+                border-radius: 0.5rem;
+                background: var(--base-100, #fff);
+                color: inherit;
+                font: inherit;
+                line-height: 1.4;
+                resize: none;
+            }
+
+            .composer textarea.tall {
+                height: 9rem;
+            }
+
+            .composer textarea:focus-visible,
+            .row-text:focus-visible,
+            .link:focus-visible,
+            .btn:focus-visible,
+            .chip .clear:focus-visible,
+            button.chip:focus-visible,
+            input[type='checkbox']:focus-visible {
+                outline: 2px solid var(--primary, #2563eb);
+                outline-offset: 2px;
+            }
+
+            .composer textarea:disabled {
+                opacity: 0.6;
+            }
+
+            .footer {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
+            }
+
             .spinner {
                 width: 1rem;
                 height: 1rem;
@@ -790,11 +1379,26 @@ const IDLE: MapAiPhase = { kind: 'idle' };
                 border-right-color: transparent;
                 animation: map-editor-ai-spin 0.8s linear infinite;
             }
+
             @keyframes map-editor-ai-spin {
                 to {
                     transform: rotate(360deg);
                 }
             }
+
+            @media (prefers-reduced-motion: no-preference) {
+                .row,
+                .num,
+                .btn,
+                .link,
+                button.chip {
+                    transition:
+                        background-color 120ms,
+                        box-shadow 120ms,
+                        outline-color 120ms;
+                }
+            }
+
             @media (prefers-reduced-motion: reduce) {
                 .spinner {
                     animation: none;
@@ -814,7 +1418,11 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
 
     public readonly thread = signal<MapAiThread | null>(null);
     public readonly draft = signal('');
-    public readonly open_groups = signal<ReadonlySet<string>>(new Set());
+    /** Sections the person collapsed; everything else is open. */
+    public readonly closed_groups = signal<ReadonlySet<string>>(new Set());
+    public readonly icons = PANEL_ICONS;
+    private readonly _thread_list =
+        viewChild<ElementRef<HTMLElement>>('threadList');
     public readonly thumbnails = signal<Thumbnails>({
         before: null,
         after: null,
@@ -937,9 +1545,6 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
     public readonly active_job_id = computed(
         () => this.thread()?.proposal()?.job.id ?? null,
     );
-    public readonly snapshotOn = computed(
-        () => this.state()?.snapshot_on ?? false,
-    );
     public readonly selectionText = computed(() => {
         const thread = this.thread();
         return thread
@@ -969,12 +1574,37 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
             const proposal = this.thread()?.proposal() ?? null;
             const thumbnails: Thumbnails = {
                 before: objectUrl(proposal?.before_markup),
-                after: objectUrl(proposal?.trial_markup),
+                after:
+                    proposal?.verdict === 'blocked'
+                        ? null
+                        : objectUrl(proposal?.trial_markup),
             };
             untracked(() => this.thumbnails.set(thumbnails));
             onCleanup(() => {
                 revokeUrl(thumbnails.before);
                 revokeUrl(thumbnails.after);
+            });
+        });
+        effect(() => {
+            const session = this.session();
+            const thread = this.thread();
+            const proposal = thread?.proposal() ?? null;
+            const previewed = this.phase().kind === 'applied';
+            const summary =
+                thread && proposal && previewed
+                    ? previewSummary(proposal, thread.strings)
+                    : null;
+            untracked(() => session.setPreview?.(summary));
+        });
+        effect(() => {
+            const id = this.active_job_id();
+            const list = this._thread_list()?.nativeElement;
+            if (!id || !list) return;
+            setTimeout(() => {
+                const turn = list.querySelector<HTMLElement>(
+                    `[proposal-card][data-job="${id}"]`,
+                );
+                if (turn) list.scrollTop = turn.offsetTop - list.offsetTop;
             });
         });
         effect((onCleanup) => {
@@ -1006,6 +1636,7 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
 
     public ngOnDestroy(): void {
         this.thread()?.dispose();
+        this.session().setPreview?.(null);
     }
 
     public onDraft(event: Event): void {
@@ -1055,11 +1686,6 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
         this.session().select([]);
     }
 
-    public toggleSnapshot(): void {
-        const thread = this.thread();
-        if (thread) thread.setSnapshot(!thread.state().snapshot_on);
-    }
-
     public hasReason(key: string): boolean {
         return this.state()?.reasons.includes(key) ?? false;
     }
@@ -1074,26 +1700,92 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
     }
 
     public onRow(row: ProposalRow, event: Event): void {
-        void this.thread()?.toggle(
-            row.index,
-            (event.target as HTMLInputElement).checked,
-        );
+        const checkbox = event.target as HTMLInputElement;
+        const checked = checkbox.checked;
+        checkbox.checked = row.checked;
+        void this.thread()?.toggle(row.index, checked);
     }
 
     public onGroup(group: ProposalGroup, event: Event): void {
-        void this.thread()?.toggleGroup(
-            group,
-            (event.target as HTMLInputElement).checked,
-        );
+        const checkbox = event.target as HTMLInputElement;
+        const checked = checkbox.checked;
+        checkbox.checked = group.checked === 'all';
+        checkbox.indeterminate = group.checked === 'some';
+        void this.thread()?.toggleGroup(group, checked);
+    }
+
+    public isGroupOpen(key: string): boolean {
+        return !this.closed_groups().has(key);
     }
 
     public toggleGroupOpen(key: string): void {
-        this.open_groups.update((open) => {
-            const next = new Set(open);
+        this.closed_groups.update((closed) => {
+            const next = new Set(closed);
             if (next.has(key)) next.delete(key);
             else next.add(key);
             return next;
         });
+    }
+
+    /** The proposal's rows by category, in the order added, changed, removed, question, none. */
+    public sectionsOf(proposal: Proposal): PanelSection[] {
+        const thread = this.thread();
+        if (!thread) return [];
+        const sections: PanelSection[] = [];
+        for (const category of SECTION_ORDER) {
+            const rows = proposal.rows.filter(
+                (row) => row.category === category,
+            );
+            if (!rows.length) continue;
+            const tickable = rows.filter((row) => row.actionable && !row.locked);
+            const ticked = tickable.filter((row) => row.checked).length;
+            const group: ProposalGroup | null =
+                tickable.length >= 3
+                    ? {
+                          key: category,
+                          label: thread.strings.categories[category],
+                          category,
+                          kind: rows[0].kind,
+                          indices: rows.map((row) => row.index),
+                          checked:
+                              ticked === 0
+                                  ? 'none'
+                                  : ticked === tickable.length
+                                    ? 'all'
+                                    : 'some',
+                          locked: false,
+                      }
+                    : null;
+            sections.push({
+                key: category,
+                label: thread.strings.categories[category],
+                rows,
+                group,
+            });
+        }
+        return sections;
+    }
+
+    public activeTurn(): ThreadTurn | null {
+        const id = this.active_job_id();
+        if (!id) return null;
+        return (
+            this.thread()
+                ?.turns()
+                .find(
+                    (turn) => turn.kind === 'proposal' && turn.job_id === id,
+                ) ?? null
+        );
+    }
+
+    public hasReasons(): boolean {
+        return this.reason_chips().length > 0;
+    }
+
+    /** The row's element is under the pointer, on the map or in the list. */
+    public isHot(row: ProposalRow): boolean {
+        const hover = this.session().hover();
+        return !!hover && row.anchors.includes(hover);
     }
 
     public rowsOf(proposal: Proposal, group: ProposalGroup): ProposalRow[] {
@@ -1188,7 +1880,7 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
             parts.push(
                 format(thread.strings.selection_chip, { count: turn.selected }),
             );
-        if (turn.snapshot) parts.push(thread.strings.snapshot_toggle);
+        if (turn.snapshot) parts.push(thread.strings.snapshot_attached);
         return parts.join(' · ');
     }
 

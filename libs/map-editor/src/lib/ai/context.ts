@@ -5,6 +5,7 @@ import { snapshotSize, SnapshotSize } from './snapshot';
 import {
     MAP_AI_CONTEXT_SCHEMA,
     MAP_AI_MARKUP_SCHEMA,
+    MapAIAnnotation,
     MapAIContext,
     MapAIContextEntry,
     MapAIViewBox,
@@ -23,6 +24,7 @@ export interface ContextSource {
 export interface BuildContextOptions {
     /** Anchors of the selected elements. */
     selection?: readonly string[];
+    annotations?: readonly MapAIAnnotation[];
     /** The instruction; elements whose ids it names join the shortlist. */
     instruction?: string;
     /** Anchors near the person's marks, from hit-testing. */
@@ -142,6 +144,8 @@ const LABEL_MIN_GLYPHS = 3;
 const ROW_GAP_RATIO = 1.5;
 const ROW_OVERLAP_RATIO = 0.5;
 const ROW_STACK_RATIO = 1.2;
+// Indexed bounds are rounded to whole SVG units.
+const PUNCTUATION_EDGE_TOLERANCE = 1;
 
 /** An anonymous path small enough to be one letter of an outlined label inside its container. */
 export function isGlyphCandidate(
@@ -266,9 +270,8 @@ function median(values: readonly number[]): number {
 }
 
 /**
- * An anonymous filled path outside every room, sized like the glyphs found
- * inside rooms. Shapes lying on a sibling are the layers of a drawn object,
- * not letters.
+ * An anonymous filled path sized like previously identified glyphs. Shapes
+ * lying on a sibling are the layers of a drawn object, not letters.
  */
 export function isLooseGlyphCandidate(
     entry: MapIndexEntry,
@@ -347,33 +350,76 @@ export function labelClusters(
     }
     if (glyph_heights.length) {
         const typical = median(glyph_heights);
-        const outside = index.entries.filter(
+        const clustered = new Set(clusters.flatMap((label) => label.anchors));
+        const label_styles = new Set(
+            index.entries
+                .filter((entry) => clustered.has(entry.anchor))
+                .map((entry) => `${entry.parent}|${entry.fill}`),
+        );
+        const remaining = index.entries.filter(
             (entry) =>
-                !containers.has(entry.anchor) &&
+                !clustered.has(entry.anchor) &&
+                (!containers.has(entry.anchor) ||
+                    label_styles.has(`${entry.parent}|${entry.fill}`)) &&
                 entry.kind !== 'root' &&
                 entry.kind !== 'non-rendered' &&
                 entry.kind !== 'bookable' &&
                 entry.kind !== 'zone',
         );
         const loose = new Map<string, MapIndexEntry[]>();
-        for (const entry of outside) {
-            if (!isLooseGlyphCandidate(entry, typical, outside)) continue;
-            const key = `${entry.parent}|${entry.fill}`;
+        for (const entry of remaining) {
+            if (!isLooseGlyphCandidate(entry, typical, index.entries)) continue;
+            const container = containers.get(entry.anchor);
+            const key = `${container?.anchor || ''}|${entry.parent}|${entry.fill}`;
             const members = loose.get(key) || [];
             members.push(entry);
             loose.set(key, members);
         }
         for (const members of loose.values()) {
             for (const run of glyphRuns(members)) {
+                const container = containers.get(run.anchors[0]);
                 clusters.push({
                     kind: 'glyphs',
-                    in: null,
+                    in: container ? container.id || container.anchor : null,
                     anchors: run.anchors,
                     bbox: run.bbox,
                     fill: members[0].fill,
                     text: null,
                 });
             }
+        }
+    }
+    const assigned_glyphs = new Set(clusters.flatMap((label) => label.anchors));
+    for (const cluster of clusters) {
+        const parent = index.by_anchor.get(cluster.anchors[0])?.parent;
+        const [x, y, width, height] = cluster.bbox;
+        for (const entry of index.entries) {
+            if (
+                assigned_glyphs.has(entry.anchor) ||
+                entry.id ||
+                entry.label ||
+                entry.protected ||
+                !entry.visible ||
+                !entry.bbox ||
+                entry.parent !== parent ||
+                entry.fill !== cluster.fill ||
+                (entry.tag !== 'path' && entry.tag !== 'polygon')
+            )
+                continue;
+            const [px, py, pw, ph] = entry.bbox;
+            if (
+                pw <= 0 ||
+                ph <= 0 ||
+                pw >= GLYPH_MIN_HEIGHT ||
+                ph >= GLYPH_MIN_HEIGHT ||
+                px < x - PUNCTUATION_EDGE_TOLERANCE ||
+                py < y - PUNCTUATION_EDGE_TOLERANCE ||
+                px + pw > x + width + PUNCTUATION_EDGE_TOLERANCE ||
+                py + ph > y + height + PUNCTUATION_EDGE_TOLERANCE
+            )
+                continue;
+            cluster.anchors.push(entry.anchor);
+            assigned_glyphs.add(entry.anchor);
         }
     }
     for (const entry of index.entries) {
@@ -674,16 +720,54 @@ export function buildContext(
         })
         .slice(0, MAX_MENTIONS)
         .map((entry) => entry.anchor);
+    const box = doc.view_box;
+    const outside = (options.annotations || []).some((mark) => {
+        const points = [...(mark.points || [])];
+        if (mark.x !== undefined && mark.y !== undefined) {
+            points.push([mark.x, mark.y]);
+            points.push([
+                mark.x + (mark.width || 0),
+                mark.y + (mark.height || 0),
+            ]);
+        }
+        if (mark.x2 !== undefined && mark.y2 !== undefined)
+            points.push([mark.x2, mark.y2]);
+        return points.some(
+            ([x, y]) =>
+                x < box.x ||
+                y < box.y ||
+                x > box.x + box.width ||
+                y > box.y + box.height,
+        );
+    });
+    const include_root =
+        !!root_entry &&
+        (outside || /\b(expand|extend|enlarge)\b/.test(instruction));
     const shortlist = unique([
         ...selection,
         ...(options.shortlist || []),
+        ...(options.annotations || []).flatMap((mark) => [
+            ...(mark.hits || []),
+            ...(mark.near || []),
+        ]),
         ...mentioned,
         ...named_text,
+        ...(include_root
+            ? index.entries
+                  .filter(
+                      (entry) =>
+                          entry.tag === 'g' &&
+                          /outline|walls?/i.test(entry.id || ''),
+                  )
+                  .map((entry) => entry.anchor)
+            : []),
     ]);
     const size =
         options.snapshot || snapshotSize(doc.view_box, options.long_side);
 
-    const ordered = orderEntries(index);
+    const ordered = include_root
+        ? [root_entry!, ...orderEntries(index)]
+        : orderEntries(index);
     const containers = containerIndex(index);
     const labels = labelClusters(index, containers, (anchor) => {
         const element = doc.byAnchor(anchor);
@@ -704,7 +788,9 @@ export function buildContext(
             pieces.get(entry.anchor) ?? null,
         ),
     );
-    const named_count = ordered.filter(isNamedEntry).length;
+    const named_count =
+        ordered.filter(isNamedEntry).length +
+        (include_root && !isNamedEntry(root_entry!) ? 1 : 0);
 
     const subtrees: Record<string, string> = {};
     for (const anchor of shortlist) {
@@ -736,8 +822,10 @@ export function buildContext(
         style_rules: styleRuleStrings(doc.styleRules()),
         markup: {
             schema: MAP_AI_MARKUP_SCHEMA,
-            viewBox: viewBoxTuple(doc.view_box),
-            annotations: [],
+            viewBox: viewBoxTuple(size.view_box || doc.view_box),
+            annotations: JSON.parse(
+                JSON.stringify(options.annotations || []),
+            ) as MapAIAnnotation[],
             selected: selection,
         },
         stats: { ...index.stats },
@@ -766,8 +854,8 @@ export function buildContext(
     };
     drop_tail(named_count, 'anonymous');
     drop_tail(named_count, 'anonymous');
-    drop_tail(0, 'named');
-    drop_tail(0, 'named');
+    drop_tail(include_root ? 1 : 0, 'named');
+    drop_tail(include_root ? 1 : 0, 'named');
 
     return { context, bytes, dropped, fits: bytes <= max_bytes };
 }

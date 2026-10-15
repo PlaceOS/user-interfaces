@@ -56,7 +56,7 @@ export function referencedTargets(op: MapOp): Target[] {
 /**
  * For each op, the indices of earlier ops it depends on: an op whose target
  * is an element an earlier op creates (by anchor or by new id) needs that op
- * applied first. Learned from a trial run on a clone, op by op.
+ * applied first. Connected ID renames are accepted or rejected together.
  */
 export function deriveDependencies(
     doc: MapDocument,
@@ -109,7 +109,48 @@ export function deriveDependencies(
             }
         }
     });
-    return result;
+    const identity_changes = new Map<string, number[]>();
+    ops.forEach((op, index) => {
+        if (!op || typeof op !== 'object') return;
+        const keys: string[] = [];
+        if (op.op === 'set_id' && op.target) {
+            const resolution = doc.resolve(op.target);
+            const old_id = resolution.ok
+                ? resolution.element.getAttribute('id')
+                : op.target.id;
+            const anchor = resolution.ok
+                ? doc.anchorOf(resolution.element)
+                : op.target.a;
+            if (anchor) keys.push(`anchor:${anchor}`);
+            if (old_id) keys.push(`id:${old_id}`);
+        }
+        if ('new_id' in op && op.new_id) keys.push(`id:${op.new_id}`);
+        for (const key of new Set(keys)) {
+            const related = identity_changes.get(key) || [];
+            for (const other of related) {
+                if (op.op !== 'set_id' && ops[other].op !== 'set_id') continue;
+                if (!result[index].includes(other)) result[index].push(other);
+                if (!result[other].includes(index)) result[other].push(index);
+            }
+            related.push(index);
+            identity_changes.set(key, related);
+        }
+    });
+    const expansion = ops.findIndex(
+        (op) => op.op === 'set_attr' && op.name === 'viewBox',
+    );
+    if (expansion >= 0) {
+        const related = ops
+            .map((op, index) =>
+                op.op !== 'ask' && op.op !== 'no_change' ? index : -1,
+            )
+            .filter((index) => index >= 0);
+        for (const index of related)
+            for (const other of related)
+                if (index !== other && !result[index].includes(other))
+                    result[index].push(other);
+    }
+    return result.map((needs) => needs.sort((a, b) => a - b));
 }
 
 export interface ProposalRow {
@@ -328,7 +369,8 @@ export async function buildProposal(
     const validate = (accepted?: ReadonlySet<number>) =>
         validateProposal(session.doc, ops, { ...base, accepted });
 
-    let validation: ValidationResult = await validate(options.accepted);
+    const complete_validation = await validate();
+    let validation: ValidationResult = complete_validation;
     const tickable = (i: number) =>
         !!validation.ops[i] &&
         validation.ops[i].actionable &&
@@ -355,7 +397,10 @@ export async function buildProposal(
         for (const need of needs) dependents[need]?.push(i);
     });
 
-    const rows: ProposalRow[] = validation.ops.map((result, i) => {
+    const rows: ProposalRow[] = validation.ops.map((trial_result, i) => {
+        const result = accepted.has(i)
+            ? trial_result
+            : complete_validation.ops[i];
         const op = ops[i];
         const category = opCategory(op);
         const kind: OpKind = op.op;
@@ -373,7 +418,7 @@ export async function buildProposal(
             actionable: result.actionable,
             locked: result.locked,
             checked: accepted.has(i),
-            applied: result.applied,
+            applied: !validation.blocking && trial_result.applied,
             ...(result.affected !== undefined
                 ? { affected: result.affected }
                 : {}),

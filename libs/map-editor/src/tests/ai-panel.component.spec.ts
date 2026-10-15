@@ -67,6 +67,56 @@ describe('MapEditorAiPanelComponent', () => {
         return fixture;
     }
 
+    it('rejects an oversized checkbox selection visibly while keeping the existing preview', async () => {
+        const sequence = jobSequence({
+            ops: [
+                recolour(doc, 'area-1.01-status', '#d1fae5'),
+                {
+                    op: 'duplicate',
+                    why: 'desks',
+                    target: { id: 'desks' },
+                    translate: [0, 0],
+                    count: 10,
+                },
+            ],
+        });
+        const fixture = await mount(
+            new FakeTransport({
+                edit: sequence.accepted,
+                polls: sequence.polls,
+            }),
+        );
+        await fixture.componentInstance
+            .thread()!
+            .submit('Recolour and duplicate');
+        await settle(fixture);
+        expect(fixture.nativeElement.textContent).toContain(
+            'Not applied to the map',
+        );
+        expect(
+            fixture.nativeElement.querySelector('img[alt="After"]'),
+        ).toBeNull();
+        const duplicate_box = () =>
+            fixture.nativeElement.querySelector(
+                '[row][data-index="1"] input[type="checkbox"]',
+            ) as HTMLInputElement;
+        duplicate_box().click();
+        await settle(fixture);
+        expect(doc.byId('area-1.01-status')!.getAttribute('fill')).toBe(
+            '#d1fae5',
+        );
+        expect(duplicate_box().checked).toBe(false);
+        duplicate_box().click();
+        await settle(fixture);
+        expect(duplicate_box().checked).toBe(false);
+        expect(doc.byId('area-1.01-status')!.getAttribute('fill')).toBe(
+            '#d1fae5',
+        );
+        expect(text(fixture, '[selection-error]')).toContain(
+            'Your previous preview is unchanged',
+        );
+    });
+
     it('renders nothing visible when the deployment has no map AI', async () => {
         const fixture = await mount(
             new FakeTransport({ capabilities: httpError(404, 'not found') }),

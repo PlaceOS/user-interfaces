@@ -1,8 +1,10 @@
+import { signal } from '@angular/core';
 import { MapAiModelChoice } from '../lib/ai/state';
 import { DEFAULT_AI_STRINGS } from '../lib/ai/strings';
 import { errorFromJob, errorFromStatus, MapAiThread } from '../lib/ai/thread';
 import {
     MAP_AI_CONTEXT_SCHEMA,
+    MapAIAnnotation,
     MapAIEditRequest,
     MapAIJob,
 } from '../lib/ai/types';
@@ -257,6 +259,96 @@ describe('MapAiThread', () => {
             reasons: ['wrong_values', 'too_much'],
         });
         expect(thread.state().parent_job_id).toBeTruthy();
+    });
+
+    it('keeps a valid preview when another checkbox exceeds the batch size limit', async () => {
+        const base = MapDocument.load(OFFICE);
+        const { doc, thread, session } = setup([
+            recolour(base, 'area-1.01-status', '#d1fae5'),
+            {
+                op: 'duplicate',
+                why: 'adds furniture',
+                target: target(base, 'desks'),
+                translate: [0, 0],
+                count: 10,
+            },
+        ]);
+        await thread.load();
+        await thread.submit('Recolour and copy desks');
+        expect(thread.proposal()?.verdict).toBe('blocked');
+        expect(thread.proposal()?.rows.every((row) => !row.applied)).toBe(true);
+        expect(thread.turns()[1]).toMatchObject({ outcome: 'not_applied' });
+        await thread.toggle(1, false);
+        const before = doc.serialise();
+        expect(fill(doc, 'area-1.01-status')).toBe('#d1fae5');
+        await thread.toggle(1, true);
+        expect(doc.serialise()).toBe(before);
+        expect(thread.phase().kind).toBe('applied');
+        expect(thread.proposal()?.accepted).toEqual([0]);
+        expect(thread.proposal()?.rows[1].checked).toBe(false);
+        expect(thread.selection_error()).toContain(
+            'Your previous preview is unchanged',
+        );
+        expect(session.history.length).toBe(1);
+        await thread.toggle(0, false);
+        expect(thread.selection_error()).toBe('');
+        expect(thread.turns()[1]).toMatchObject({ outcome: 'not_applied' });
+    });
+
+    it('toggles two complete 41-piece plant copies independently', async () => {
+        const markup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500"><desc>${'existing metadata '.repeat(3000)}</desc><g id="plants">${Array.from({ length: 41 }, (_, i) => `<rect x="${10 + i / 2}" y="20" width="1" height="2" fill="green"/>`).join('')}</g></svg>`;
+        const doc = MapDocument.load(markup);
+        const session = new FakeSession(doc);
+        const ops: MapOp[] = [
+            {
+                op: 'group',
+                why: 'complete plant',
+                targets: [...doc.byId('plants')!.children].map((el) => ({
+                    a: doc.anchorOf(el),
+                    h: doc.hashOf(el),
+                })),
+                new_id: 'ai-plant-01',
+            },
+            {
+                op: 'duplicate',
+                why: 'first plant',
+                target: { id: 'ai-plant-01' },
+                new_id: 'ai-plant-02',
+                translate: [100, 0],
+            },
+            {
+                op: 'duplicate',
+                why: 'second plant',
+                target: { id: 'ai-plant-01' },
+                new_id: 'ai-plant-03',
+                translate: [200, 0],
+            },
+        ];
+        const sequence = jobSequence({ ops });
+        const thread = new MapAiThread(session, 'zone-1', {
+            transport: new FakeTransport({
+                edit: sequence.accepted,
+                polls: sequence.polls,
+            }),
+            sleep: no_sleep,
+        });
+        await thread.load();
+        await thread.submit('Add two plants');
+        expect(thread.proposal()?.verdict).toBe('ready');
+        expect(doc.byId('ai-plant-02')!.children).toHaveLength(41);
+        expect(doc.byId('ai-plant-03')!.children).toHaveLength(41);
+        await thread.toggle(1, false);
+        expect(doc.byId('ai-plant-02')).toBeNull();
+        expect(doc.byId('ai-plant-03')!.children).toHaveLength(41);
+        await thread.toggle(1, true);
+        expect(doc.byId('ai-plant-02')!.children).toHaveLength(41);
+        expect(doc.byId('ai-plant-03')!.children).toHaveLength(41);
+        await thread.toggle(2, false);
+        expect(doc.byId('ai-plant-02')!.children).toHaveLength(41);
+        expect(doc.byId('ai-plant-03')).toBeNull();
+        await thread.toggle(2, true);
+        expect(thread.proposal()?.accepted).toEqual([0, 1, 2]);
+        expect(doc.byId('ai-plant-03')!.children).toHaveLength(41);
     });
 
     it('re-applies the preview when a row is unticked and resolves as partial', async () => {
@@ -561,6 +653,58 @@ describe('MapAiThread', () => {
         expect(thread.phase().kind).toBe('composing');
     });
 
+    it('sends the same coloured marks to the snapshot and context while drawing can continue', async () => {
+        const sequence = jobSequence({ ops: [] });
+        const transport = new FakeTransport({
+            edit: sequence.accepted,
+            polls: sequence.polls,
+        });
+        const annotations = signal<readonly MapAIAnnotation[]>([
+            {
+                n: 1,
+                kind: 'ellipse',
+                colour: 'red',
+                text: 'red circle',
+                x: 90,
+                y: 190,
+                width: 60,
+                height: 50,
+            },
+        ]);
+        const session = Object.assign(
+            new FakeSession(MapDocument.load(OFFICE)),
+            { annotations },
+        );
+        let captured: readonly MapAIAnnotation[] = [];
+        const thread = new MapAiThread(session, 'zone-1', {
+            transport,
+            sleep: no_sleep,
+            upload: async () => 'upload-1',
+            snapshot: async (_session, _selection, _tags, marks) => {
+                captured = marks;
+                annotations.set([]);
+                return {
+                    blob: new Blob(['png']),
+                    image_px: [1024, 512],
+                    units_per_px: 0.9766,
+                };
+            },
+        });
+        await thread.load();
+        await thread.submit('Remove the chairs from the desk circled in red');
+        const edit = transport.edits[0].body as MapAIEditRequest;
+        expect(edit.context.markup.annotations).toEqual(captured);
+        expect(edit.context.markup.annotations[0].colour).toBe('red');
+        expect(edit.context.markup.annotations[0].text).toBe('red circle');
+        expect(edit.context.markup.annotations[0].hits).toContain(
+            session.doc.anchorOf(session.doc.byId('table-01.001')!),
+        );
+        expect(edit.context.shortlist).toContain(
+            session.doc.anchorOf(session.doc.byId('table-01.001')!),
+        );
+        expect(annotations()).toEqual([]);
+    });
+
     it('sends the snapshot through the upload port and its size in the context', async () => {
         const sequence = jobSequence({ ops: [] });
         const transport = new FakeTransport({
@@ -586,7 +730,6 @@ describe('MapAiThread', () => {
             },
         );
         await thread.load();
-        thread.setSnapshot(true);
         await thread.submit('recolour');
         expect(uploads).toEqual(['map-snapshot.png']);
         const edit = transport.edits[0].body as MapAIEditRequest;
@@ -599,7 +742,7 @@ describe('MapAiThread', () => {
         });
     });
 
-    it('sends without the picture when the snapshot fails', async () => {
+    it('does not send when the snapshot upload fails', async () => {
         const sequence = jobSequence({ ops: [] });
         const transport = new FakeTransport({
             edit: sequence.accepted,
@@ -622,21 +765,15 @@ describe('MapAiThread', () => {
             },
         );
         await thread.load();
-        thread.setSnapshot(true);
         await thread.submit('recolour');
-        expect(
-            (transport.edits[0].body as MapAIEditRequest).markup_upload_id,
-        ).toBeNull();
-        expect(
-            thread
-                .turns()
-                .some(
-                    (turn) =>
-                        turn.kind === 'status' &&
-                        turn.text === DEFAULT_AI_STRINGS.snapshot_failed,
-                ),
-        ).toBe(true);
-        expect(thread.phase().kind).toBe('reviewing');
+        expect(transport.edits).toHaveLength(0);
+        expect(thread.phase()).toMatchObject({
+            kind: 'error',
+            error: {
+                message: DEFAULT_AI_STRINGS.snapshot_failed,
+                retryable: true,
+            },
+        });
     });
 
     it('cancels a running job and ignores the watch afterwards', async () => {

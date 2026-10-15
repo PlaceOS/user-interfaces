@@ -19,7 +19,7 @@ import {
 } from './constants';
 import { AttributeGeometryProvider, BBox, GeometryProvider } from './geometry';
 import { idIssue, idsIn, referencesTo, styleReferencesTo } from './ids';
-import { MapDocument, Target } from './map-document';
+import { canvasExpansionIssue, MapDocument, Target } from './map-document';
 import {
     isOpKind,
     MapOp,
@@ -552,6 +552,25 @@ class Validator {
         switch (op.op) {
             case 'set_attr': {
                 const name = (op.name || '').trim();
+                if (name === 'viewBox') {
+                    const elements = this._resolveTargets(step, [op.target]);
+                    if (!elements) return;
+                    if (elements[0] !== this.trial.root)
+                        push(
+                            'error',
+                            'forbidden_attribute',
+                            'canvas bounds can only be changed on the SVG root',
+                        );
+                    else {
+                        const reason = canvasExpansionIssue(
+                            this._doc.view_box,
+                            op.value,
+                        );
+                        if (reason) push('error', 'canvas_bounds', reason);
+                    }
+                    step.changed = [...step.anchors];
+                    return;
+                }
                 if (!isAllowedAttributeName(name)) {
                     push(
                         'error',
@@ -1321,6 +1340,14 @@ function batchChecks(
     const issues: ValidationIssue[] = [];
     const applied = steps.filter((step) => step.validation.applied);
     for (const name of ROOT_INVARIANT_ATTRS) {
+        if (
+            name === 'viewBox' &&
+            applied.some(
+                (step) =>
+                    step.op.op === 'set_attr' && step.op.name === 'viewBox',
+            )
+        )
+            continue;
         if (doc.root.getAttribute(name) !== trial.root.getAttribute(name)) {
             issues.push(
                 issue('error', 'root_changed', `the root ${name} changed`),

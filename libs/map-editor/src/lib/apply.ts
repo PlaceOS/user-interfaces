@@ -22,7 +22,12 @@ import {
     referencesTo,
     rewriteReferences,
 } from './ids';
-import { MapDocument, stripEditorAttributes, Target } from './map-document';
+import {
+    canvasExpansionIssue,
+    MapDocument,
+    stripEditorAttributes,
+    Target,
+} from './map-document';
 import {
     changeOfBasis,
     composeTransform,
@@ -98,7 +103,15 @@ type Outcome =
       }
     | { ok: false; reason: string };
 
-const PAINT_STYLE_ATTRS = new Set(['fill', 'stroke']);
+const PAINT_STYLE_ATTRS = new Set([
+    'fill',
+    'stroke',
+    'opacity',
+    'fill-opacity',
+    'stroke-opacity',
+]);
+const BOOKING_OVERLAY_ID = /^area-.+-status$/i;
+const BOOKING_OVERLAY_FILL_OPACITY = '0.3';
 
 /** Apply ops in order through the DOM API; a rejected op leaves the document as it was. */
 export function applyOps(
@@ -234,6 +247,17 @@ function setAttr(doc: MapDocument, op: SetAttrOp): Outcome {
     if (resolution.ok === false) return { ok: false, reason: resolution.error };
     const element = resolution.element;
     const name = (op.name || '').trim();
+    if (name === 'viewBox') {
+        if (!isRoot(doc, element))
+            return {
+                ok: false,
+                reason: 'canvas bounds can only be changed on the SVG root',
+            };
+        const reason = canvasExpansionIssue(doc.view_box, op.value);
+        if (reason) return { ok: false, reason };
+        element.setAttribute('viewBox', op.value || '');
+        return { ok: true, anchors: [doc.anchorOf(element)] };
+    }
     if (!isAllowedAttributeName(name)) {
         return { ok: false, reason: `attribute "${name}" is not editable` };
     }
@@ -667,6 +691,19 @@ function insertShape(
     const element = doc.root.ownerDocument.createElementNS(SVG_NS, op.kind);
     for (const [name, value] of attrs) element.setAttribute(name, value);
     element.setAttribute('id', id);
+    for (const name of ['opacity', 'fill-opacity', 'stroke-opacity']) {
+        const value = element.getAttribute(name);
+        if (value !== null) element.style.setProperty(name, value);
+    }
+    if (
+        BOOKING_OVERLAY_ID.test(id) &&
+        ['rect', 'path', 'polygon'].includes(op.kind) &&
+        !element.hasAttribute('opacity') &&
+        !element.hasAttribute('fill-opacity')
+    ) {
+        element.setAttribute('fill-opacity', BOOKING_OVERLAY_FILL_OPACITY);
+        element.style.setProperty('fill-opacity', BOOKING_OVERLAY_FILL_OPACITY);
+    }
     if (op.kind === 'text' && typeof op.text === 'string')
         writeTextLines(element, op.text);
     let note: string | undefined = placement_note;

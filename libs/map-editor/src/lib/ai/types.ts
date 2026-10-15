@@ -160,12 +160,13 @@ export interface MapAIContextEntry {
     piece: string | null;
 }
 
-export type MapAIAnnotationKind = 'box' | 'arrow' | 'path' | 'pin';
+export type MapAIAnnotationKind = 'box' | 'ellipse' | 'arrow' | 'path' | 'pin';
 
 /** One mark the person drew, in user units. */
 export interface MapAIAnnotation {
     n: number;
     kind: MapAIAnnotationKind;
+    colour?: string;
     x?: number;
     y?: number;
     width?: number;

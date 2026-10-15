@@ -2,6 +2,7 @@ import { Component, computed, input, signal } from '@angular/core';
 
 import { AvailabilityState, Floorplan, MapObject } from '../data/types';
 import { STATE_COLORS } from '../editor/availability';
+import { composeSourceSvg, importedObject } from '../editor/source-svg';
 import { computeHeatmap } from './heatmap';
 
 const STATUS_FILLS: Record<string, string> = {
@@ -58,7 +59,18 @@ const DEFAULT_STROKE = '#475569';
                     [attr.fill]="background()"
                 />
 
-                @if (image_url(); as href) {
+                @if (sourceImage(); as href) {
+                    <image
+                        [attr.href]="href"
+                        x="0"
+                        y="0"
+                        [attr.width]="width()"
+                        [attr.height]="height()"
+                        class="pointer-events-none"
+                    />
+                }
+
+                @if (!floorplan().svg_source && image_url(); as href) {
                     <image
                         [attr.href]="href"
                         x="0"
@@ -335,8 +347,27 @@ export class FloorPlan2dComponent {
         Math.max(6, this.width() / 120),
     );
 
+    public readonly sourceImage = computed(() => {
+        const floor = this.floorplan();
+        if (!floor.svg_source) return null;
+        const objects = this.objects().map((object) =>
+            this.availability()[object.id]
+                ? {
+                      ...object,
+                      fill_color: this.fillOf(object),
+                      stroke_color: this.strokeOf(object),
+                  }
+                : object,
+        );
+        return `data:image/svg+xml,${encodeURIComponent(composeSourceSvg(floor.svg_source, objects, floor.svg_source_ids))}`;
+    });
+
     private readonly _visible = computed(() =>
-        this.objects().filter((o) => o.visible),
+        this.objects().filter(
+            (o) =>
+                o.visible &&
+                (!this.floorplan().svg_source || !importedObject(o)),
+        ),
     );
 
     public readonly walls = computed(() =>

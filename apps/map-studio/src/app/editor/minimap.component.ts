@@ -13,6 +13,7 @@ import { IconComponent } from '@placeos/components';
 
 import { MapObject } from '../data/types';
 import { EditorStateService } from './editor-state.service';
+import { importedObject } from './source-svg';
 
 const TYPE_COLORS: Record<string, string> = {
     room: '#3b82f6',
@@ -70,7 +71,15 @@ const clamp = (value: number, min: number, max: number) =>
                         state.canvas_height()
                     "
                 >
-                    @if (state.image_url(); as href) {
+                    @if (source_image(); as href) {
+                        <image
+                            [attr.href]="href"
+                            x="0"
+                            y="0"
+                            [attr.width]="state.canvas_width()"
+                            [attr.height]="state.canvas_height()"
+                        />
+                    } @else if (state.image_url(); as href) {
                         <image
                             [attr.href]="href"
                             x="0"
@@ -80,7 +89,7 @@ const clamp = (value: number, min: number, max: number) =>
                             opacity="0.7"
                         />
                     }
-                    @for (object of state.visible_objects(); track object.id) {
+                    @for (object of drawnObjects(); track object.id) {
                         @switch (object.geometry.type) {
                             @case ('rect') {
                                 <rect
@@ -131,6 +140,14 @@ export class MinimapComponent {
 
     /** The editor's scrolling canvas container */
     public readonly container = input.required<HTMLElement>();
+    public readonly source_image = input<string | null | undefined>(null);
+    public readonly drawnObjects = computed(() =>
+        this.state
+            .visible_objects()
+            .filter(
+                (object) => !this.source_image() || !importedObject(object),
+            ),
+    );
 
     private readonly _frame = viewChild<ElementRef<HTMLDivElement>>('frame');
 

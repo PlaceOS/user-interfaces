@@ -242,6 +242,8 @@ export class PublishPanelComponent {
             this.state.canvas_width(),
             this.state.canvas_height(),
             this.state.floorplan()?.background_color || '#ffffff',
+            this.state.floorplan()?.svg_source,
+            this.state.floorplan()?.svg_source_ids,
         );
     }
 

@@ -1,5 +1,6 @@
 import { computed, signal, Signal, WritableSignal } from '@angular/core';
 import { MapIndex } from '../map-index';
+import { annotationCandidates } from './annotations';
 import {
     cancelMapAIJob,
     errorMessage,
@@ -42,11 +43,12 @@ import {
     reduce,
 } from './state';
 import {
+    format,
     MapEditorAiStrings,
     MapEditorAiStringsOverride,
     resolveAiStrings,
 } from './strings';
-import { MapAIJob, MapAIResolveDecision } from './types';
+import { MapAIAnnotation, MapAIJob, MapAIResolveDecision } from './types';
 
 /** Stores a file and answers with its upload id. */
 export type UploadPort = (blob: Blob, name: string) => Promise<string>;
@@ -73,6 +75,7 @@ export type SnapshotPort = (
     session: MapEditorSessionLike,
     selection: readonly string[],
     tags: readonly string[],
+    annotations: readonly MapAIAnnotation[],
 ) => Promise<{ blob: Blob } & SnapshotSize>;
 
 /** Where the model choice is kept between visits; null keeps nothing. */
@@ -265,6 +268,7 @@ export class MapAiThread {
     public readonly capabilities: Signal<MapAiState['capabilities']>;
     public readonly turns: Signal<MapAiState['turns']>;
     public readonly proposal: Signal<Proposal | null>;
+    public readonly selection_error = signal('');
     public readonly busy: Signal<boolean>;
     public readonly quota_block: Signal<string | null>;
     public readonly can_send: Signal<boolean>;
@@ -298,8 +302,13 @@ export class MapAiThread {
         const long_side = options.long_side;
         this._snapshot =
             options.snapshot ??
-            ((session, selection, tags) =>
-                renderSnapshot(session.doc, { selection, tags, long_side }));
+            ((session, selection, tags, annotations) =>
+                renderSnapshot(session.doc, {
+                    selection,
+                    tags,
+                    annotations,
+                    long_side,
+                }));
         this._memory =
             options.memory === undefined ? localModelMemory() : options.memory;
         this._state = signal({
@@ -366,10 +375,6 @@ export class MapAiThread {
         this.dispatch({ type: 'draft', text });
     }
 
-    public setSnapshot(on: boolean): void {
-        this.dispatch({ type: 'snapshot_toggled', on });
-    }
-
     public toggleReason(reason: string): void {
         this.dispatch({ type: 'reason_toggled', reason });
     }
@@ -400,8 +405,15 @@ export class MapAiThread {
             await this._resolveQuietly(state.phase.proposal, 'refined');
             this.dispatch({ type: 'refined', proposal: state.phase.proposal });
         }
+        this.selection_error.set('');
         const selection = [...this._session.selection()];
-        const want_snapshot = state.snapshot_on && !!this._upload;
+        const annotations = structuredClone([
+            ...(this._session.annotations?.() || []),
+        ]).map((mark) => ({
+            ...mark,
+            hits: annotationCandidates(this._session.index(), mark),
+        }));
+        const want_snapshot = !!this._upload;
         this.dispatch({
             type: 'submit',
             instruction: text,
@@ -417,6 +429,7 @@ export class MapAiThread {
                     this._session,
                     selection,
                     snapshotTags(this._session.index(), text),
+                    annotations,
                 );
                 markup_upload_id = await this._upload(
                     snapshot.blob,
@@ -425,9 +438,18 @@ export class MapAiThread {
                 size = {
                     image_px: snapshot.image_px,
                     units_per_px: snapshot.units_per_px,
+                    view_box: snapshot.view_box,
                 };
             } catch {
-                this.dispatch({ type: 'snapshot_failed' });
+                this.dispatch({
+                    type: 'submit_failed',
+                    error: errorFromStatus(
+                        undefined,
+                        this.strings.snapshot_failed,
+                        this.strings,
+                    ),
+                });
+                return;
             }
         }
         const built = buildContext(
@@ -435,6 +457,7 @@ export class MapAiThread {
             {
                 selection,
                 instruction: text,
+                annotations,
                 max_bytes: state.capabilities?.limits.max_context_bytes,
                 snapshot: size,
             },
@@ -587,6 +610,7 @@ export class MapAiThread {
 
     /** Starts a new thread; a previewed proposal stays on the map as abandoned. */
     public reset(): void {
+        this.selection_error.set('');
         this._abort?.abort();
         this._abort = null;
         const proposal = proposalOf(this._state());
@@ -688,6 +712,7 @@ export class MapAiThread {
         const state = this._state();
         const proposal = proposalOf(state);
         if (!proposal) return;
+        this.selection_error.set('');
         const accepted = next(proposal);
         if (state.phase.kind === 'applied') this._session.undo();
         this.dispatch({ type: 'validating' });
@@ -697,6 +722,29 @@ export class MapAiThread {
             this.strings,
             { accepted, dependencies: proposal.dependencies },
         );
+        if (rebuilt.verdict === 'blocked' && state.phase.kind === 'applied') {
+            const restored = await buildProposal(
+                proposal.job,
+                this._session,
+                this.strings,
+                {
+                    accepted: new Set(proposal.accepted),
+                    dependencies: proposal.dependencies,
+                },
+            );
+            this.dispatch({ type: 'rows_changed', proposal: restored });
+            this._preview(restored);
+            const reason = rebuilt.batch_issues
+                .filter((issue) => issue.level === 'error')
+                .map((issue) => issue.message)
+                .join('; ');
+            const text = format(this.strings.states.selection_refused, {
+                reason,
+            });
+            this.selection_error.set(text);
+            this.dispatch({ type: 'announce', text });
+            return;
+        }
         this.dispatch({ type: 'rows_changed', proposal: rebuilt });
         this._preview(rebuilt);
     }

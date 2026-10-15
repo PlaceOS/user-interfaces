@@ -324,6 +324,78 @@ describe('containment, glyphs and mentions', () => {
         ]);
     });
 
+    it('keeps decimal points with outlined labels without absorbing nearby artwork', () => {
+        const punctuation_map = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
+          <rect id="area-room-status" width="200" height="120"/>
+          <g>
+            <path d="M10 10h5v8h-5z" fill="#fff"/>
+            <path d="M17 10h5v8h-5z" fill="#fff"/>
+            <path d="M27 10h5v8h-5z" fill="#fff"/>
+            <path d="M24 16.2h2v2h-2z" fill="#fff"/>
+            <path d="M24 30h2v2h-2z" fill="#fff"/>
+            <path d="M24 12h2v2h-2z" fill="#888"/>
+            <path id="named-art" d="M24 10h2v2h-2z" fill="#fff"/>
+          </g>
+          <g><path d="M24 14h2v2h-2z" fill="#fff"/></g>
+        </svg>`;
+        const doc = MapDocument.load(punctuation_map, {
+            geometry: new AttributeGeometryProvider(),
+        });
+        const index = buildIndex(doc);
+        const { context } = buildContext({ doc, index: () => index });
+        expect(context.labels).toHaveLength(1);
+        expect(context.labels[0].anchors).toHaveLength(4);
+        expect(
+            context.index.filter((entry) => entry.kind === 'glyph'),
+        ).toHaveLength(4);
+        const punctuation = context.index.find(
+            (entry) => entry.bbox?.[0] === 24 && entry.bbox?.[1] === 16,
+        );
+        expect(punctuation?.kind).toBe('glyph');
+        expect(context.labels[0].anchors).toContain(punctuation?.a);
+        expect(
+            context.index.find((entry) => entry.id === 'named-art')?.kind,
+        ).not.toBe('glyph');
+    });
+
+    it('includes matching outlined labels in short rooms without classifying furniture as text', () => {
+        const small_map = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200">
+          <g id="bookings">
+            <rect id="area-large-status" x="0" y="0" width="100" height="100"/>
+            <rect id="area-small-status" x="110" y="0" width="40" height="30"/>
+          </g>
+          <g id="labels">
+            <path d="M10 10h5v8h-5z" fill="#fff"/>
+            <path d="M17 10h5v8h-5z" fill="#fff"/>
+            <path d="M24 10h5v8h-5z" fill="#fff"/>
+            <path d="M115 10h5v8h-5z" fill="#fff"/>
+            <path d="M122 10h5v8h-5z" fill="#fff"/>
+            <path d="M129 10h5v8h-5z" fill="#fff"/>
+          </g>
+          <g id="furniture">
+            <path d="M115 20h5v8h-5z" fill="#fff"/>
+            <path d="M122 20h5v8h-5z" fill="#fff"/>
+            <path d="M129 20h5v8h-5z" fill="#fff"/>
+          </g>
+        </svg>`;
+        const doc = MapDocument.load(small_map, {
+            geometry: new AttributeGeometryProvider(),
+        });
+        const index = buildIndex(doc);
+        const { context } = buildContext({ doc, index: () => index }, {});
+        expect(context.labels.map((label) => label.in)).toEqual([
+            'area-large-status',
+            'area-small-status',
+        ]);
+        expect(context.labels[1].anchors).toHaveLength(3);
+        const furniture = doc.anchorOf(doc.byId('furniture') as Element);
+        expect(
+            context.index
+                .filter((entry) => entry.p === furniture)
+                .every((entry) => entry.kind !== 'glyph'),
+        ).toBe(true);
+    });
+
     it('shortlists the elements the instruction names by number', () => {
         expect(
             mentionedTokens('Rename Boardroom 1.03 and desk 01.004'),
@@ -504,5 +576,46 @@ describe('labels outside rooms and text labels', () => {
             (entry) => entry.id === 'studio',
         );
         expect(studio?.kind).not.toBe('glyph');
+    });
+});
+
+describe('canvas expansion context', () => {
+    it('includes and retains the root target for an out-of-bounds mark', () => {
+        const session = new FakeSession(
+            MapDocument.load(
+                OFFICE.replace(
+                    '</svg>',
+                    '<g id="outline"><polyline points="0,0 1000,0 1000,500"/></g></svg>',
+                ),
+            ),
+        );
+        const wrapper = document.createElement('div');
+        wrapper.appendChild(session.doc.root);
+        const options = {
+            annotations: [
+                {
+                    n: 1,
+                    kind: 'box' as const,
+                    x: 200,
+                    y: -100,
+                    width: 100,
+                    height: 100,
+                },
+            ],
+        };
+        const built = buildContext(session, options);
+        expect(built.context.index[0].kind).toBe('root');
+        expect(Object.values(built.context.subtrees).join('')).toContain(
+            '0,0 1000,0 1000,500',
+        );
+        const small = buildContext(session, { ...options, max_bytes: 1 });
+        expect(small.context.index).toHaveLength(1);
+        expect(small.context.index[0].kind).toBe('root');
+        expect(small.fits).toBe(false);
+        expect(
+            buildContext(session).context.index.some(
+                (entry) => entry.kind === 'root',
+            ),
+        ).toBe(false);
     });
 });

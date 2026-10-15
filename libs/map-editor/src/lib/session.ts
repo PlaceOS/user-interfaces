@@ -3,6 +3,8 @@ import {
     MapEditorSessionLike,
     SessionApplyOptions,
 } from './ai/session-contract';
+import { PreviewSummary } from './ai/preview';
+import { MapAIAnnotation } from './ai/types';
 import { applyOps, ApplyResult } from './apply';
 import { ANCHOR_ATTR } from './constants';
 import { draftKeyFor, DraftStore, makeDraft } from './draft-store';
@@ -58,6 +60,26 @@ export class MapEditorSession implements MapEditorSessionLike {
     public readonly render_check: RenderCheck;
     public readonly history: MapHistory;
 
+    private readonly _annotations = signal<readonly MapAIAnnotation[]>([]);
+    public readonly annotations = this._annotations.asReadonly();
+    private _next_annotation = 1;
+
+    public addAnnotation(mark: Omit<MapAIAnnotation, 'n'>): void {
+        if (this._annotations().length >= 20) return;
+        this._annotations.update((marks) => [
+            ...marks,
+            structuredClone({ ...mark, n: this._next_annotation++ }),
+        ]);
+    }
+
+    public undoAnnotation(): void {
+        this._annotations.update((marks) => marks.slice(0, -1));
+    }
+
+    public clearAnnotations(): void {
+        this._annotations.set([]);
+    }
+
     private readonly _version = signal(0);
     public readonly version: Signal<number> = this._version.asReadonly();
     private readonly _selection = signal<readonly string[]>([]);
@@ -65,6 +87,10 @@ export class MapEditorSession implements MapEditorSessionLike {
         this._selection.asReadonly();
     private readonly _hover = signal<string | null>(null);
     public readonly hover: Signal<string | null> = this._hover.asReadonly();
+    private readonly _preview = signal<PreviewSummary | null>(null);
+    /** The AI proposal previewed on the map, for the pins and the summary. */
+    public readonly preview: Signal<PreviewSummary | null> =
+        this._preview.asReadonly();
     private readonly _can_undo = signal(false);
     public readonly can_undo: Signal<boolean> = this._can_undo.asReadonly();
     private readonly _can_redo = signal(false);
@@ -164,6 +190,10 @@ export class MapEditorSession implements MapEditorSessionLike {
     public setHover(anchor: string | null): void {
         const next = anchor && this.doc.byAnchor(anchor) ? anchor : null;
         if (next !== this._hover()) this._hover.set(next);
+    }
+
+    public setPreview(summary: PreviewSummary | null): void {
+        this._preview.set(summary);
     }
 
     /** One history entry, then the ops, then a version bump. */

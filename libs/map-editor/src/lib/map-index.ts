@@ -101,7 +101,6 @@ function guessKind(
     parent_kind: ElementKind | null,
 ): ElementKind {
     const tag = element.localName;
-    if (tag === 'svg' && !element.parentElement) return 'root';
     if (isInsideNonRendered(element)) return 'non-rendered';
     const id = element.getAttribute('id') || '';
     if (is_protected) return 'bookable';
@@ -143,11 +142,10 @@ export function buildIndex(
             ? by_element.get(parent_element)
             : undefined;
         const is_protected = protected_ids.has(id);
-        const kind = guessKind(
-            element,
-            is_protected,
-            parent_entry?.kind || null,
-        );
+        const kind =
+            element === doc.root
+                ? 'root'
+                : guessKind(element, is_protected, parent_entry?.kind || null);
         const rendered =
             kind !== 'non-rendered' &&
             !NON_RENDERED_TAGS.has(element.localName.toLowerCase());

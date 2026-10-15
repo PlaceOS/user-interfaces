@@ -33,6 +33,30 @@ export interface ViewBox {
     height: number;
 }
 
+/** Only expansions that keep the entire previous viewport are editable. */
+export function canvasExpansionIssue(
+    before: ViewBox,
+    value: string | null,
+): string | null {
+    const after = parseViewBox(value);
+    if (!after)
+        return 'the canvas bounds must be four finite numbers with positive dimensions';
+    if (
+        after.x > before.x ||
+        after.y > before.y ||
+        after.x + after.width < before.x + before.width ||
+        after.y + after.height < before.y + before.height
+    )
+        return 'the canvas may expand but cannot crop the existing map';
+    if (
+        after.width > before.width * 4 ||
+        after.height > before.height * 4 ||
+        after.width * after.height > before.width * before.height * 4
+    )
+        return 'the canvas expansion exceeds four times the existing size';
+    return null;
+}
+
 export interface MapDocumentOptions {
     geometry?: GeometryProvider;
     protected?: ProtectedIdSet;
@@ -105,7 +129,7 @@ export class MapDocument {
 
     private constructor(
         root: SVGSVGElement,
-        public readonly view_box: ViewBox,
+        private readonly _initial_view_box: ViewBox,
         public readonly view_box_synthesised: boolean,
         public readonly prolog: string,
         public readonly sanitise_report: SanitiseReport,
@@ -116,6 +140,13 @@ export class MapDocument {
         this._anchor_counter = anchor_counter;
         this.geometry = options.geometry || new AttributeGeometryProvider();
         this.protected = options.protected || ProtectedIdSet.empty();
+    }
+
+    public get view_box(): ViewBox {
+        return (
+            parseViewBox(this._root.getAttribute('viewBox')) ||
+            this._initial_view_box
+        );
     }
 
     /**

@@ -1,5 +1,7 @@
 import { SVG_NS } from '../constants';
 import { MapDocument, stripEditorAttributes, ViewBox } from '../map-document';
+import { drawAnnotations } from './annotations';
+import { MapAIAnnotation } from './types';
 
 export const SNAPSHOT_LONG_SIDE = 2048;
 export const SNAPSHOT_OUTLINE_COLOUR = '#d946ef';
@@ -7,6 +9,7 @@ export const SNAPSHOT_TAG_COLOUR = '#c2410c';
 const DEFAULT_RENDER_TIMEOUT_MS = 15_000;
 
 export interface SnapshotSize {
+    view_box?: ViewBox;
     /** Width and height in pixels. */
     image_px: [number, number];
     /** User units per pixel, to four places. */
@@ -38,6 +41,7 @@ export function snapshotSize(
 export interface SnapshotMarkupOptions {
     /** Anchors to outline, with their ids as labels. */
     selection?: readonly string[];
+    annotations?: readonly MapAIAnnotation[];
     /** Anchors to mark with a small id tag at the top left of their box. */
     tags?: readonly string[];
     long_side?: number;
@@ -60,7 +64,43 @@ export function snapshotMarkup(
     doc: MapDocument,
     options: SnapshotMarkupOptions = {},
 ): SnapshotMarkup {
-    const size = snapshotSize(doc.view_box, options.long_side);
+    const bounds = { ...doc.view_box };
+    const points = (options.annotations || [])
+        .flatMap((mark) => {
+            const result = [...(mark.points || [])];
+            if (mark.x !== undefined && mark.y !== undefined) {
+                result.push([mark.x, mark.y]);
+                result.push([
+                    mark.x + (mark.width || 0),
+                    mark.y + (mark.height || 0),
+                ]);
+            }
+            if (mark.x2 !== undefined && mark.y2 !== undefined)
+                result.push([mark.x2, mark.y2]);
+            return result;
+        })
+        .filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+    for (const [x, y] of points) {
+        const right = Math.max(bounds.x + bounds.width, x);
+        const bottom = Math.max(bounds.y + bounds.height, y);
+        bounds.x = Math.min(bounds.x, x);
+        bounds.y = Math.min(bounds.y, y);
+        bounds.width = right - bounds.x;
+        bounds.height = bottom - bounds.y;
+    }
+    if (
+        bounds.x !== doc.view_box.x ||
+        bounds.y !== doc.view_box.y ||
+        bounds.width !== doc.view_box.width ||
+        bounds.height !== doc.view_box.height
+    ) {
+        const margin = Math.max(bounds.width, bounds.height) * 0.015;
+        bounds.x -= margin;
+        bounds.y -= margin;
+        bounds.width += margin * 2;
+        bounds.height += margin * 2;
+    }
+    const size = snapshotSize(bounds, options.long_side);
     const clone = doc.root.cloneNode(true) as SVGSVGElement;
     const owner = clone.ownerDocument;
     const colour = options.colour || SNAPSHOT_OUTLINE_COLOUR;
@@ -120,12 +160,18 @@ export function snapshotMarkup(
         overlay.appendChild(text);
         tagged.add(anchor);
     }
+    drawAnnotations(overlay, options.annotations || [], size.units_per_px);
     if (overlay.childNodes.length) clone.appendChild(overlay);
+    clone.setAttribute(
+        'viewBox',
+        `${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}`,
+    );
     clone.setAttribute('width', String(size.image_px[0]));
     clone.setAttribute('height', String(size.image_px[1]));
     stripEditorAttributes(clone);
     return {
         ...size,
+        view_box: bounds,
         markup: new XMLSerializer().serializeToString(clone),
         outlined,
     };

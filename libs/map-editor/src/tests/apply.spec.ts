@@ -530,6 +530,80 @@ describe('applyOps', () => {
             ).toMatch(/not allowed on a rect/);
         });
 
+        it('keeps furniture visible under a new booking overlay copied from a solid room class', () => {
+            const doc = MapDocument.load(
+                `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><style>.room {fill:#666;fill-opacity:1}</style><g id="furniture"><rect id="desk-1" x="20" y="20" width="20" height="20" fill="#fff"/></g><g id="rooms"><rect id="area-existing-status" class="room" x="60" y="60" width="20" height="20"/></g></svg>`,
+                { geometry },
+            );
+            const furniture = doc.byId('furniture')!.outerHTML;
+            const existing = doc.byId('area-existing-status')!.outerHTML;
+            const result = one(doc, {
+                op: 'insert_shape',
+                why: '',
+                kind: 'rect',
+                parent: { id: 'rooms' },
+                new_id: 'area-new-status',
+                attrs: [
+                    { name: 'x', value: '10' },
+                    { name: 'y', value: '10' },
+                    { name: 'width', value: '40' },
+                    { name: 'height', value: '40' },
+                    { name: 'class', value: 'room' },
+                ],
+            });
+            expect(result.rejected).toBeUndefined();
+            const overlay = doc.byId('area-new-status') as SVGElement;
+            expect(overlay.getAttribute('fill-opacity')).toBe('0.3');
+            expect(overlay.style.getPropertyValue('fill-opacity')).toBe('0.3');
+            expect(doc.byId('furniture')!.outerHTML).toBe(furniture);
+            expect(doc.byId('area-existing-status')!.outerHTML).toBe(existing);
+            one(doc, {
+                op: 'set_attr',
+                why: '',
+                target: { id: 'area-new-status' },
+                name: 'fill-opacity',
+                value: '0.2',
+            });
+            expect(overlay.style.getPropertyValue('fill-opacity')).toBe('0.2');
+        });
+
+        it('preserves explicit overlay opacity and ordinary inserted artwork', () => {
+            const doc = office();
+            for (const [id, attrs] of [
+                [
+                    'area-explicit-status',
+                    [{ name: 'fill-opacity', value: '0.15' }],
+                ],
+                ['area-opacity-status', [{ name: 'opacity', value: '0.25' }]],
+                ['ai-art', []],
+            ] as const) {
+                one(doc, {
+                    op: 'insert_shape',
+                    why: '',
+                    kind: 'rect',
+                    new_id: id,
+                    attrs: [
+                        { name: 'width', value: '10' },
+                        { name: 'height', value: '10' },
+                        ...attrs,
+                    ],
+                });
+            }
+            expect(
+                (
+                    doc.byId('area-explicit-status') as SVGElement
+                ).style.getPropertyValue('fill-opacity'),
+            ).toBe('0.15');
+            expect(
+                (
+                    doc.byId('area-opacity-status') as SVGElement
+                ).style.getPropertyValue('opacity'),
+            ).toBe('0.25');
+            expect(doc.byId('ai-art')!.hasAttribute('fill-opacity')).toBe(
+                false,
+            );
+        });
+
         it('inserts into the root with an ai- id and into a group after a sibling', () => {
             const doc = office();
             const first = one(doc, {

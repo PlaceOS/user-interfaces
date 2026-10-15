@@ -27,7 +27,7 @@ export interface MapEditorAiStrings {
     /** `{count}` selected elements. */
     selection_chip: string;
     clear_selection: string;
-    snapshot_toggle: string;
+    snapshot_attached: string;
     snapshot_failed: string;
     /** `{used}` and `{max}` characters. */
     chars: string;
@@ -109,6 +109,7 @@ export interface MapEditorAiStrings {
     };
     outcomes: {
         previewing: string;
+        not_applied: string;
         kept: string;
         /** `{accepted}` of `{total}` rows kept. */
         partial: string;
@@ -138,6 +139,7 @@ export interface MapEditorAiStrings {
         applied: string;
         nothing_accepted: string;
         blocked: string;
+        selection_refused: string;
         forbidden: string;
         unknown: string;
     };
@@ -165,9 +167,9 @@ export const DEFAULT_AI_STRINGS: MapEditorAiStrings = {
     retry: 'Retry',
     selection_chip: '{count} selected',
     clear_selection: 'Clear the selection',
-    snapshot_toggle: 'Send a picture of the map',
+    snapshot_attached: 'Map picture attached',
     snapshot_failed:
-        'The picture of the map could not be made; the request was sent without it.',
+        'The map picture could not be prepared or uploaded. Please retry.',
     chars: '{used} / {max}',
     too_long: 'The request is too long.',
     sending: 'Sending...',
@@ -256,6 +258,7 @@ export const DEFAULT_AI_STRINGS: MapEditorAiStrings = {
     },
     outcomes: {
         previewing: 'Previewed on the map',
+        not_applied: 'Not applied to the map',
         kept: 'Kept',
         partial: 'Kept {accepted} of {total}',
         undone: 'Undone',
@@ -283,6 +286,8 @@ export const DEFAULT_AI_STRINGS: MapEditorAiStrings = {
         applied: 'Applied {count} changes to the map. Keep them, or undo.',
         nothing_accepted: 'Nothing is ticked, so nothing has been applied.',
         blocked: 'The changes cannot be applied together.',
+        selection_refused:
+            'That selection cannot be applied: {reason}. Your previous preview is unchanged.',
         forbidden: 'You cannot change this map.',
         unknown: 'Something went wrong.',
     },

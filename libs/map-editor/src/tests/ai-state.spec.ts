@@ -406,16 +406,7 @@ describe('map AI reducer', () => {
             },
         ]);
         expect(state).toBe(before);
-        step([
-            { type: 'draft', text: 'c' },
-            { type: 'snapshot_toggled', on: true },
-        ]);
+        step([{ type: 'draft', text: 'c' }]);
         expect(state.draft).toBe('c');
-        expect(state.snapshot_on).toBe(true);
-        step([{ type: 'snapshot_failed' }]);
-        expect(state.turns[state.turns.length - 1]).toMatchObject({
-            kind: 'status',
-            text: strings.snapshot_failed,
-        });
     });
 });

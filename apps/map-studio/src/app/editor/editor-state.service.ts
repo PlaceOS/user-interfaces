@@ -211,7 +211,9 @@ export class EditorStateService extends AsyncHandler {
     public readonly canvas_width = computed(() =>
         Math.max(
             100,
-            this._image_dims()?.width ??
+            (this._floorplan()?.svg_source
+                ? this._floorplan()?.canvas_width
+                : this._image_dims()?.width) ??
                 this._floorplan()?.canvas_width ??
                 1000,
         ),
@@ -220,7 +222,9 @@ export class EditorStateService extends AsyncHandler {
     public readonly canvas_height = computed(() =>
         Math.max(
             100,
-            this._image_dims()?.height ??
+            (this._floorplan()?.svg_source
+                ? this._floorplan()?.canvas_height
+                : this._image_dims()?.height) ??
                 this._floorplan()?.canvas_height ??
                 800,
         ),
@@ -238,6 +242,41 @@ export class EditorStateService extends AsyncHandler {
     private _floorplan_id = '';
 
     // ── Loading ─────────────────────────────────────────────────────────────
+
+    public readonly can_reimport_svg = computed(() => {
+        const floor = this._floorplan();
+        return (
+            !!floor?.svg_output &&
+            !floor.svg_source &&
+            (floor.source_type === 'svg-import' ||
+                floor.source_type === 'image/svg+xml')
+        );
+    });
+
+    public async reimportSvg() {
+        if (
+            !this.can_reimport_svg() ||
+            !confirm(
+                'Reimport the original SVG? This replaces the current draft.',
+            )
+        )
+            return;
+        this._loading.set(true);
+        try {
+            const image = this._image_url();
+            const source = image
+                ? await fetch(image).then((response) => response.text())
+                : this._floorplan()?.svg_output;
+            if (!source) throw new Error('The original SVG is unavailable.');
+            await this._store.importLevelSvg(this._floorplan_id, source);
+            await this.load(this._floorplan_id);
+            await this.save();
+        } catch (error) {
+            this._error.set(this._message(error, 'Failed to reimport SVG'));
+        } finally {
+            this._loading.set(false);
+        }
+    }
 
     public async load(floorplan_id: string) {
         this._floorplan_id = floorplan_id;
@@ -310,6 +349,24 @@ export class EditorStateService extends AsyncHandler {
                 }
             }
 
+            const known_layers = new Set(
+                this._layers().map((layer) => layer.id),
+            );
+            const missing_layers = [
+                ...new Set(objects.map((object) => object.layer)),
+            ].filter((id) => !known_layers.has(id));
+            if (missing_layers.length)
+                this._layers.update((layers) => [
+                    ...layers,
+                    ...missing_layers.map((id, index) => ({
+                        id,
+                        name: id,
+                        visible: true,
+                        locked: false,
+                        opacity: 1,
+                        order: layers.length + index,
+                    })),
+                ]);
             await this._loadImage(floorplan_id);
             if (imported_svg) await this.save();
         } catch (error) {

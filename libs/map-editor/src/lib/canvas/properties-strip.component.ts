@@ -181,18 +181,19 @@ import {
                 display: flex;
                 flex-wrap: wrap;
                 align-items: center;
-                gap: 0.5rem 1.25rem;
-                min-height: 3rem;
+                gap: 0.5rem 1rem;
+                min-height: 3.75rem;
                 padding: 0.5rem 1rem;
-                font-size: 0.875rem;
-                border-top: 1px solid var(--base-300, #d4d4d8);
+                font-size: 0.8125rem;
+                border-top: 1px solid var(--base-200, #e5e7eb);
                 background: var(--base-100, #fff);
+                color: var(--base-content, #111);
             }
 
             .field {
                 display: inline-flex;
                 align-items: center;
-                gap: 0.4rem;
+                gap: 0.375rem;
             }
 
             .field.grow {
@@ -204,8 +205,9 @@ import {
             }
 
             .label {
-                opacity: 0.6;
-                font-size: 0.75rem;
+                opacity: 0.72;
+                font-size: 0.6875rem;
+                font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.04em;
             }
@@ -217,19 +219,24 @@ import {
             }
 
             .muted {
-                opacity: 0.6;
+                opacity: 0.72;
                 font-size: 0.75rem;
             }
 
             .hint {
-                opacity: 0.6;
+                opacity: 0.72;
+                font-size: 0.8125rem;
             }
 
             code {
-                font-size: 0.8125rem;
-                padding: 0.1rem 0.35rem;
-                border-radius: 0.25rem;
+                display: inline-flex;
+                align-items: center;
+                height: 1.5rem;
+                padding: 0 0.5rem;
+                border-radius: 999px;
                 background: var(--base-200, #f4f4f5);
+                font-family: 'Roboto Mono', ui-monospace, monospace;
+                font-size: 0.75rem;
             }
 
             .text {
@@ -239,8 +246,8 @@ import {
                 border-radius: 0.375rem;
                 background: var(--base-100, #fff);
                 color: inherit;
-                font: inherit;
-                font-size: 0.875rem;
+                font-family: 'Roboto Mono', ui-monospace, monospace;
+                font-size: 0.8125rem;
                 min-width: 6rem;
             }
 
@@ -252,7 +259,7 @@ import {
             }
 
             .text.short {
-                width: 7.5rem;
+                width: 6rem;
                 min-width: 0;
             }
 
@@ -262,8 +269,8 @@ import {
             }
 
             .swatch {
-                width: 2rem;
-                height: 2rem;
+                width: 1.5rem;
+                height: 1.5rem;
                 padding: 0;
                 border: 1px solid var(--base-300, #d4d4d8);
                 border-radius: 0.375rem;
@@ -271,32 +278,50 @@ import {
                 cursor: pointer;
             }
 
+            .swatch::-webkit-color-swatch-wrapper {
+                padding: 0;
+            }
+
+            .swatch::-webkit-color-swatch {
+                border: none;
+                border-radius: 0.3rem;
+            }
+
             .badge {
-                padding: 0.1rem 0.5rem;
+                display: inline-flex;
+                align-items: center;
+                height: 1.5rem;
+                padding: 0 0.5rem;
                 border-radius: 999px;
-                font-size: 0.7rem;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.04em;
+                font-size: 0.75rem;
+                font-weight: 500;
             }
 
             .badge.changed {
-                background: var(--warning, #f59e0b);
-                color: var(--warning-content, #1f1300);
+                background: color-mix(
+                    in srgb,
+                    var(--warning, #f59e0b) 22%,
+                    var(--base-100, #fff)
+                );
             }
 
             .badge.bound {
-                background: var(--info, #0ea5e9);
-                color: var(--info-content, #03202d);
+                background: color-mix(
+                    in srgb,
+                    var(--info, #0ea5e9) 16%,
+                    var(--base-100, #fff)
+                );
             }
 
             .link {
                 border: none;
                 background: none;
-                padding: 0;
-                color: var(--primary, #2563eb);
+                padding: 0 0.25rem;
+                color: var(--base-content, #111);
                 font: inherit;
-                font-size: 0.8125rem;
+                font-size: 0.75rem;
+                font-weight: 500;
+                opacity: 0.8;
                 cursor: pointer;
                 text-decoration: underline;
             }
