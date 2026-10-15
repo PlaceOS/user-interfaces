@@ -42,7 +42,7 @@ export interface SystemRow {
 }
 
 /**
- * A system in the org, building and level.
+ * A system in the org, building and level, with any other `fields` given.
  *
  * The org zone is what makes source publish its modules at all: a status topic
  * begins with the org, and source drops events for a system it cannot scope.
@@ -51,12 +51,14 @@ export async function createSystem(
     api: APIRequestContext,
     zones: HierarchyZones,
     label: string,
+    fields: Record<string, unknown> = {},
 ): Promise<SystemRow> {
     const res = await api.post(`${ENGINE_API}/systems`, {
         data: {
             name: uniqueTitle(`${STAGEHAND_SYSTEM_PREFIX} ${label}`),
             description: 'Created by the stagehand e2e specs. Safe to delete.',
             zones: [zones.org, zones.building, zones.level],
+            ...fields,
         },
     });
     if (!res.ok()) {

@@ -4,6 +4,7 @@ import {
     TriggerComparison,
     TriggerConditionOperator,
 } from '@placeos/ts-client';
+import { ZoneFilter } from '../support-groups';
 
 type AlertSeverity = 'critical' | 'high' | 'medium' | 'low';
 type AlertStatus = 'open' | 'in progress' | 'closed' | 'resolved';
@@ -49,57 +50,54 @@ export function topicToString(topic: StateTopic, org_id = ''): string {
 
 export function stringToTopic(topic: string): StateTopic {
     const [
-        _,
-        _o,
-        _s,
-        bld_id,
-        lvl_id,
+        ,
+        ,
+        ,
+        region_id,
+        building_id,
+        level_id,
         area_id,
-        _b,
-        sys_id,
-        dev_id,
-        mod_id,
-        mod_idx,
-        key,
+        system_id,
+        driver_id,
+        module_name,
+        module_index,
+        state_key,
     ] = topic.split('/');
     return {
-        building_id: bld_id,
-        level_id: lvl_id,
-        area_id: area_id,
-        system_id: sys_id,
-        driver_id: dev_id,
-        module_name: mod_id,
-        module_index: mod_idx,
-        state_key: key,
+        region_id,
+        building_id,
+        level_id,
+        area_id,
+        system_id,
+        driver_id,
+        module_name,
+        module_index,
+        state_key,
     };
 }
 
-/** The topic filter a comparison listens on */
+/** The topic filter a comparison listens on, within `zones` */
 export function compareAsTopic(
     item: TriggerComparison,
-    zones: { region?: string; building?: string; level?: string } = {},
+    zones: ZoneFilter = {},
     org_id = '',
 ): string {
+    const location = {
+        region_id: zones.region,
+        building_id: zones.building,
+        level_id: zones.level,
+        area_id: zones.area,
+    };
     if (!(item.left instanceof Object))
         return topicToString(
-            {
-                state_key: `${item.left}`,
-                region_id: zones.region,
-                building_id: zones.building,
-            },
+            { ...location, state_key: `${item.left}` },
             org_id,
         );
     const parts = (item.left?.mod || '').split('_');
     parts.pop();
     const module_name = parts.join('_');
     return topicToString(
-        {
-            module_name,
-            state_key: item.left.status,
-            region_id: zones.region,
-            building_id: zones.building,
-            level_id: zones.level,
-        },
+        { ...location, module_name, state_key: item.left.status },
         org_id,
     );
 }

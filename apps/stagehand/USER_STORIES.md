@@ -79,6 +79,23 @@ Stagehand is an AV systems monitoring and management application for facility ma
 
 ---
 
+### US-SM-037: Work in a Support Group
+
+**As an** AV technician
+**I want to** work in one of my support groups at a time
+**So that** I only see the rooms and devices my team looks after
+
+**Acceptance Criteria:**
+
+- The sidebar shows the selected support group (a group with the `support` subsystem) and opens a searchable list of the user's groups to switch to
+- The user starts in their first group, and the app remembers the group they last picked
+- Alerts, the remote support room list, the system search and the region and building lists only include zones the group was granted, with their descendants, less any zone the group was denied
+- Switching group clears the alerts and loads the new group's; nothing from the previous group shows while it loads
+- System admins and support users can also pick "All groups", which covers the whole organisation, and start there
+- A user who is in no support group, and is not a system admin or support user, is sent to the unauthorised page
+
+---
+
 ### US-SM-006: View Alerts from Specific Dashboard
 
 **As an** AV technician

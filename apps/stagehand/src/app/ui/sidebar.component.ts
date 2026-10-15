@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import {
     OrganisationService,
     SettingsService,
@@ -18,6 +19,7 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DashboardsService } from '../dashboards/dashboards.service';
+import { SupportGroupsService } from '../support-groups.service';
 import { PushNotificationSettingsComponent } from '../push-notification-settings.component';
 import { AlertNotificationService } from '../push-notification.service';
 
@@ -67,6 +69,38 @@ const COMPACT_SIGNAL = signal(false);
                     }}</icon>
                 </button>
             </div>
+            @if (show_group_selector()) {
+                <div class="px-2 pt-1">
+                    <button
+                        matRipple
+                        type="button"
+                        group-selector
+                        class="hover:bg-base-100/10 border-base-100/20 flex w-full items-center gap-2 rounded-sm border p-2 text-left"
+                        [class.justify-center]="is_compact()"
+                        [attr.aria-label]="'Support group: ' + group_label()"
+                        [matTooltip]="is_compact() ? group_label() : ''"
+                        matTooltipPosition="right"
+                        (click)="selectGroup()"
+                    >
+                        <icon class="text-2xl">{{
+                            selected_group() ? 'group' : 'public'
+                        }}</icon>
+                        @if (!is_compact()) {
+                            <div class="min-w-0 flex-1">
+                                <div
+                                    class="stagehand-muted text-xs font-medium tracking-wide uppercase"
+                                >
+                                    Support group
+                                </div>
+                                <div class="truncate text-sm">
+                                    {{ group_label() }}
+                                </div>
+                            </div>
+                            <icon class="text-xl">unfold_more</icon>
+                        }
+                    </button>
+                </div>
+            }
             @if (!is_compact()) {
                 @let r_list = region_list();
                 @let bld_list = building_list();
@@ -357,6 +391,7 @@ export class SidebarComponent {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
+    private _groups = inject(SupportGroupsService);
 
     public readonly push = inject(AlertNotificationService);
     public readonly is_compact = COMPACT_SIGNAL;
@@ -387,8 +422,28 @@ export class SidebarComponent {
     public readonly region = this._dash.region_id;
     public readonly building = this._dash.building_id;
 
-    public readonly region_list = this._org.region_list;
-    public readonly building_list = this._org.active_buildings;
+    public readonly selected_group = this._groups.selected_group;
+    public readonly group_label = computed(
+        () => this.selected_group()?.group.name || 'All groups',
+    );
+    /** Shown to anyone in a group, or who can see them all */
+    public readonly show_group_selector = computed(
+        () => this._groups.can_view_all() || this._groups.groups().length > 0,
+    );
+    /** Regions, limited to those the selected group can see */
+    public readonly region_list = computed(() => {
+        const scope = this._groups.scope();
+        const regions = this._org.region_list();
+        return scope ? regions.filter((r) => scope.zones.has(r.id)) : regions;
+    });
+    /** Buildings of the region, limited to those the selected group can see */
+    public readonly building_list = computed(() => {
+        const scope = this._groups.scope();
+        const buildings = this._org.active_buildings();
+        return scope
+            ? buildings.filter((b) => scope.zones.has(b.id))
+            : buildings;
+    });
 
     public readonly setRegion = (r) => {
         this._org.region = r;
@@ -399,6 +454,24 @@ export class SidebarComponent {
         this._org.building = b;
         this._dash.listenForDashboardAlerts(true);
     };
+
+    /** Let the user pick the support group to work in */
+    public async selectGroup() {
+        const { GroupSelectModalComponent } =
+            await import('./group-select-modal.component');
+        const ref = this._dialog.open(GroupSelectModalComponent, {
+            data: {
+                groups: this._groups.groups(),
+                selected_group_id: this._groups.group_id(),
+                show_all_groups: this._groups.can_view_all(),
+            },
+        });
+        const group_id: string | undefined = await firstValueFrom(
+            ref.afterClosed(),
+            { defaultValue: undefined },
+        );
+        if (group_id !== undefined) this._groups.setSelectedGroup(group_id);
+    }
 
     public toggleCompact() {
         this.is_compact.update((s) => !s);

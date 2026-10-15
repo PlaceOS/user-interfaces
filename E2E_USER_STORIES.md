@@ -483,6 +483,19 @@ below were green.
 | SH-HOT-02 | P1 | A module added to a system after stagehand has loaded it can still raise an alert. | **done** — `local/stagehand-hotlist.spec.ts`. Was a module list cached forever by the REST re-check, which is gone. |
 | SH-HOT-03 | P0 | A deleted module leaves the hot list, the module after it is listed at its index, and the page makes no per-alert REST calls. | **done** — `local/stagehand-hotlist.spec.ts`. Red against the REST re-checking stagehand: an emptied topic failed to parse, so the deleted module stayed listed. |
 
+### Support groups
+
+Stagehand works in one support group (a group with the `support` subsystem) at a time and shows
+only what it can see. The specs build two buildings, three systems (one on a level its group is
+denied) and two groups, with the worker's staff user in both.
+
+| ID | P | Story | Status |
+|----|---|-------|--------|
+| SH-GRP-01 | P0 | A member starts in their first support group, is offered only their groups, and the hot list and remote support room list show only that group's systems: none in a zone it is denied or was never granted. | **done** — `local/stagehand-support-groups.spec.ts` |
+| SH-GRP-02 | P0 | Switching group switches the hot list and room list to the new group's systems, and the choice outlives a reload. | **done** — `local/stagehand-support-groups.spec.ts` |
+| SH-GRP-03 | P1 | An admin starts in "All groups", which shows every system, and can narrow to one group and back. | **done** — `local/stagehand-support-groups.spec.ts` |
+| SH-GRP-04 | P1 | A user in no support group, who is not an admin or support user, is sent to the unauthorised page. | **done** — `local/stagehand-support-groups.spec.ts` |
+
 **The lifecycle specs need source v1.22.1 or later** (PlaceOS/source#65). Against
 `placeos-2.2610.1` SH-MQTT-10 … 19 and SH-HOT-02 are red, which is what they are for. Until a
 PlaceOS release carries the fix, run them with `E2E_SOURCE_IMAGE=placeos/source:nightly` (a

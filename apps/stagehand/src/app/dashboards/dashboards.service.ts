@@ -1,4 +1,4 @@
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -24,6 +24,13 @@ import { openConfirmModal } from '@placeos/components';
 import mqtt from 'mqtt';
 import { AlertNotificationService } from '../push-notification.service';
 import {
+    inGroupScope,
+    scopeZoneFilters,
+    topicZoneIds,
+    ZoneFilter,
+} from '../support-groups';
+import { SupportGroupsService } from '../support-groups.service';
+import {
     Alert,
     BrokerValue,
     compareAsTopic,
@@ -38,6 +45,7 @@ export class DashboardsService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _push = inject(AlertNotificationService);
+    private _groups = inject(SupportGroupsService);
 
     private _mqtt_broker: mqtt.MqttClient;
     private _connected = false;
@@ -55,6 +63,10 @@ export class DashboardsService extends AsyncHandler {
     private _notified_alert_ids = new Set<string>();
     /** Track current alert subscription scope to avoid unnecessary resets */
     private _alert_scope = '';
+    /** Changes each time the selected group's scope does */
+    private _group_scope_version = 0;
+    /** Whether anything has asked for the alerts yet */
+    private _listening = false;
 
     public readonly loading = signal<string[]>([]);
     public readonly region_id = signal<string>('');
@@ -90,6 +102,44 @@ export class DashboardsService extends AsyncHandler {
             this.region_id.set(region_id);
             this.building_id.set('');
         });
+        // A region or building the selected group cannot see falls back to
+        // all of them
+        effect(() => {
+            const scope = this._groups.scope();
+            if (!scope || !this._groups.scope_ready()) return;
+            untracked(() => {
+                const building = this.building_id();
+                const region = this.region_id();
+                if (building && !scope.zones.has(building)) {
+                    this.building_id.set('');
+                }
+                if (region && !scope.zones.has(region)) {
+                    this.region_id.set('');
+                    this.building_id.set('');
+                }
+            });
+        });
+        // Listen again whenever the group, or what it can see, changes
+        effect(() => {
+            this._groups.scope();
+            untracked(() => {
+                this._group_scope_version++;
+                if (this._listening) this.listenForDashboardAlerts(true);
+            });
+        });
+    }
+
+    /**
+     * Zones the hot list listens on: the region or building picked, within
+     * what the selected group can see
+     */
+    private _zoneFilters(): ZoneFilter[] {
+        const building = this.building_id();
+        const region = this.region_id();
+        const scope = this._groups.scope();
+        if (scope) return scopeZoneFilters(scope, building || region);
+        if (building) return [{ building }];
+        return [region ? { region } : {}];
     }
 
     /** Initialize region/building from URL query params */
@@ -205,10 +255,13 @@ export class DashboardsService extends AsyncHandler {
     public async listenForDashboardAlerts(force = false) {
         const dashboard = this.dashboard();
         if (!dashboard && !force) return;
+        this._listening = true;
         const alert_scope = [
             dashboard?.id || 'disconnected',
             this.region_id() || '',
             this.building_id() || '',
+            this._groups.group_id(),
+            this._group_scope_version,
         ].join('|');
         const scope_changed = this._alert_scope !== alert_scope;
         if (!scope_changed && this._mqtt_broker && this._connected) return;
@@ -287,28 +340,30 @@ export class DashboardsService extends AsyncHandler {
                 },
             } as any);
         }
+        const zone_filters = this._zoneFilters();
+        const topics = new Set<string>();
         for (const alert of alert_list) {
             for (const item of alert.conditions.comparisons) {
-                const topic = compareAsTopic(
-                    item,
-                    this.building_id()
-                        ? { building: this.building_id() }
-                        : this.region_id()
-                          ? { region: this.region_id() }
-                          : {},
-                    this._org.organisation.id,
-                );
-                if (!topic) continue;
-                log('ALERTS', 'Listening to topic:', topic);
-                this._mqtt_broker.subscribe(topic);
-                this.subscription(
-                    `alert:${dashboard?.id || 'disconnected'}|${topic}`,
-                    () => {
-                        log('ALERTS', 'Dropped topic:', topic);
-                        this._mqtt_broker?.unsubscribe(topic);
-                    },
-                );
+                for (const zones of zone_filters) {
+                    const topic = compareAsTopic(
+                        item,
+                        zones,
+                        this._org.organisation.id,
+                    );
+                    if (topic) topics.add(topic);
+                }
             }
+        }
+        for (const topic of topics) {
+            log('ALERTS', 'Listening to topic:', topic);
+            this._mqtt_broker.subscribe(topic);
+            this.subscription(
+                `alert:${dashboard?.id || 'disconnected'}|${topic}`,
+                () => {
+                    log('ALERTS', 'Dropped topic:', topic);
+                    this._mqtt_broker?.unsubscribe(topic);
+                },
+            );
         }
     }
 
@@ -320,6 +375,8 @@ export class DashboardsService extends AsyncHandler {
             log('ALERTS', `Ignoring unreadable message on ${t}:`, e);
             return;
         }
+        // a listened zone can hold zones the group is denied
+        if (!inGroupScope(topicZoneIds(t), this._groups.scope())) return;
         // keep only the latest value of each topic, and forget removed ones
         if (entry) this._values.set(t, entry);
         else this._values.delete(t);
