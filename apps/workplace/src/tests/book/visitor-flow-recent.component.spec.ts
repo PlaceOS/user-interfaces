@@ -69,4 +69,34 @@ describe('VisitorFlowRecentComponent', () => {
 
         expect(model().phone).toBe('+61400111222');
     });
+
+    it('should restore the visitor flags from saved recent visitors', () => {
+        get_setting.mockReturnValue([
+            'visitor.one@example.com|Visitor One|Acme|1||external',
+        ]);
+
+        spectator.component.ngOnInit();
+        spectator.component.selectVisitor(spectator.component.visitors()[0]);
+
+        expect(model().international).toBe(true);
+        expect(model().visitor_internal_or_external).toBe('external');
+    });
+
+    it('should restore the visitor flags of a group member from saved recent visitors', () => {
+        get_setting.mockReturnValue([
+            'visitor.one@example.com|Visitor One|Acme|1||external',
+        ]);
+        (spectator.inject(BookingFormService).options as any).set({
+            type: 'visitor',
+            group: true,
+        });
+
+        spectator.component.ngOnInit();
+        spectator.component.selectVisitor(spectator.component.visitors()[0]);
+
+        expect(model().assets[0].extension_data).toEqual({
+            international: true,
+            visitor_internal_or_external: 'external',
+        });
+    });
 });

@@ -1,9 +1,12 @@
 import { SlicePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { BookingFormService } from '@placeos/bookings';
+import {
+    BookingFormService,
+    parseRecentVisitors,
+    RecentVisitor,
+} from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { parseRecentVisitors, RecentVisitor } from './recent-visitors';
 
 @Component({
     selector: 'visitor-flow-recent',
@@ -220,6 +223,11 @@ export class VisitorFlowRecentComponent implements OnInit {
                     name: enriched.name,
                     company: enriched.company,
                     phone: enriched.phone,
+                    extension_data: {
+                        international: enriched.international,
+                        visitor_internal_or_external:
+                            enriched.visitor_internal_or_external,
+                    },
                 });
             }
 
@@ -235,6 +243,9 @@ export class VisitorFlowRecentComponent implements OnInit {
                 asset_name: enriched.name,
                 company: enriched.company,
                 phone: enriched.phone,
+                international: enriched.international,
+                visitor_internal_or_external:
+                    enriched.visitor_internal_or_external,
             }));
         }
     }

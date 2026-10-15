@@ -7,6 +7,8 @@ import {
     BookingFlowView,
     BookingFormService,
     mapGroupMembersFromBookings,
+    recentVisitorEntry,
+    toVisitorInternalOrExternal,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -23,7 +25,6 @@ import {
     openConfirmModal,
     TranslatePipe,
 } from '@placeos/components';
-import { recentVisitorEntry } from './recent-visitors';
 import { VisitorFlowDetailsComponent } from './visitor-flow-details.component';
 import { VisitorFlowInvitesComponent } from './visitor-flow-invites.component';
 import { VisitorFlowRecentComponent } from './visitor-flow-recent.component';
@@ -302,12 +303,23 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                             company: a.organisation || a.company,
                             phone: a.phone,
                             international: !!a.extension_data?.international,
+                            visitor_internal_or_external:
+                                toVisitorInternalOrExternal(
+                                    a.extension_data
+                                        ?.visitor_internal_or_external,
+                                ),
                         }),
                     ),
             ]);
         } else {
-            const { asset_id, asset_name, company, phone, international } =
-                value;
+            const {
+                asset_id,
+                asset_name,
+                company,
+                phone,
+                international,
+                visitor_internal_or_external,
+            } = value;
             this._settings.saveUserSetting('visitor-invitees', [
                 ...old_visitors.filter(
                     (v) => `${v}`.split('|')[0] !== asset_id,
@@ -318,6 +330,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                     company,
                     phone,
                     international,
+                    visitor_internal_or_external,
                 }),
             ]);
         }

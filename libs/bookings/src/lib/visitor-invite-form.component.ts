@@ -40,7 +40,16 @@ import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-f
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
+import {
+    toVisitorInternalOrExternal,
+    VisitorInternalOrExternal,
+} from './booking-form.model';
 import { BookingFormService } from './booking-form.service';
+import {
+    parseRecentVisitors,
+    RecentVisitor,
+    recentVisitorEntry,
+} from './recent-visitors';
 
 @Component({
     selector: 'visitor-invite-form',
@@ -180,8 +189,8 @@ import { BookingFormService } from './booking-form.service';
                                         <div class="text-xs opacity-60">
                                             {{ item.email }}
                                             {{
-                                                item.organisation
-                                                    ? '| ' + item.organisation
+                                                item.company
+                                                    ? '| ' + item.company
                                                     : ''
                                             }}
                                         </div>
@@ -222,8 +231,8 @@ import { BookingFormService } from './booking-form.service';
                                         <div class="text-xs opacity-60">
                                             {{ item.email }}
                                             {{
-                                                item.organisation
-                                                    ? '| ' + item.organisation
+                                                item.company
+                                                    ? '| ' + item.company
                                                     : ''
                                             }}
                                         </div>
@@ -469,15 +478,15 @@ export class VisitorInviteFormComponent
     public readonly done = output<number>();
 
     public readonly search_term = signal<string>('');
-    public readonly visitors = signal<User[]>([]);
+    public readonly visitors = signal<RecentVisitor[]>([]);
     public readonly visitor_international = signal<Record<string, boolean>>({});
     public readonly visitor_internal_or_external = signal<
-        Record<string, 'internal' | 'external'>
+        Record<string, VisitorInternalOrExternal>
     >({});
     public readonly filtered_visitors = computed(() => {
         const s = this.search_term().toLowerCase();
         return this.visitors().filter(
-            ({ email, name, company }: any) =>
+            ({ email, name, company }) =>
                 email.toLowerCase().includes(s) ||
                 name.toLowerCase().includes(s) ||
                 `${company || ''}`.toLowerCase().includes(s),
@@ -595,33 +604,11 @@ export class VisitorInviteFormComponent
     public async ngOnInit() {
         this._service.clearOldState();
         await this.initFormZone();
-        const visitors = this._settings.get('visitor-invitees') || [];
-        this.visitors.update((list) => {
-            for (const item of visitors) {
-                if (typeof item !== 'string') continue;
-                const [
-                    email,
-                    name,
-                    company,
-                    flag,
-                    phone,
-                    visitor_internal_or_external,
-                ] = item.split('|');
-                const is_flag = !flag || flag === '0' || flag === '1';
-                list.push({
-                    email,
-                    name,
-                    company,
-                    phone: is_flag ? phone : flag,
-                    international: flag === '1',
-                    visitor_internal_or_external:
-                        visitor_internal_or_external === 'external'
-                            ? 'external'
-                            : 'internal',
-                } as any);
-            }
-            return list;
-        });
+        this.visitors.set(
+            parseRecentVisitors(
+                this._settings.get('visitor-invitees'),
+            ).reverse(),
+        );
         this.search_term.set('');
         const email_handle = onFieldChange(
             this.model,
@@ -669,7 +656,7 @@ export class VisitorInviteFormComponent
         }
     }
 
-    public setVisitor(item) {
+    public setVisitor(item: Partial<RecentVisitor>) {
         this.model.update((m) => ({
             ...m,
             asset_id: item.email,
@@ -677,35 +664,25 @@ export class VisitorInviteFormComponent
             company: item.company,
             phone: item.phone,
             international: !!item.international,
-            visitor_internal_or_external:
-                item.visitor_internal_or_external === 'external'
-                    ? 'external'
-                    : 'internal',
+            visitor_internal_or_external: toVisitorInternalOrExternal(
+                item.visitor_internal_or_external,
+            ),
         }));
     }
 
-    public setSingleVisitorInternalOrExternal(
-        visitor_internal_or_external: string,
-    ) {
+    public setSingleVisitorInternalOrExternal(type: VisitorInternalOrExternal) {
         this.model.update((m) => ({
             ...m,
-            visitor_internal_or_external:
-                visitor_internal_or_external === 'external'
-                    ? 'external'
-                    : 'internal',
+            visitor_internal_or_external: type,
         }));
     }
 
     public setVisitorInternalOrExternal(
         item: User,
-        visitor_internal_or_external: string,
+        type: VisitorInternalOrExternal,
     ) {
         const key = item.email || item.id;
         if (!key) return;
-        const type =
-            visitor_internal_or_external === 'external'
-                ? 'external'
-                : 'internal';
         this.visitor_internal_or_external.set({
             ...this.visitor_internal_or_external(),
             [key]: type,
@@ -718,7 +695,6 @@ export class VisitorInviteFormComponent
                     ? user
                     : new User({
                           ...user,
-                          visitor_internal_or_external: type,
                           extension_data: {
                               ...(user.extension_data || {}),
                               visitor_internal_or_external: type,
@@ -800,25 +776,29 @@ export class VisitorInviteFormComponent
                 }),
                 ...assets
                     .filter((_) => !!_.email)
-                    .map((item) => {
-                        return `${item.email}|${item.name || item.email}|${
-                            item.company || item.organisation || ''
-                        }|${this.getVisitorInternational(item) ? '1' : '0'}|${
-                            item.phone || ''
-                        }|${this.getVisitorInternalOrExternal(item)}`;
-                    }),
+                    .map((item) =>
+                        recentVisitorEntry({
+                            email: item.email,
+                            name: item.name || item.email,
+                            company: item.company || item.organisation,
+                            phone: item.phone,
+                            international: this.getVisitorInternational(item),
+                            visitor_internal_or_external:
+                                this.getVisitorInternalOrExternal(item),
+                        }),
+                    ),
             ]);
         } else {
-            const visitor_details = `${asset_id}|${asset_name}|${company}|${
-                international ? '1' : '0'
-            }|${phone || ''}|${
-                visitor_internal_or_external === 'external'
-                    ? 'external'
-                    : 'internal'
-            }`;
             this._settings.saveUserSetting('visitor-invitees', [
                 ...old_visitors.filter((_) => !_.includes(asset_id)),
-                visitor_details,
+                recentVisitorEntry({
+                    email: asset_id,
+                    name: asset_name,
+                    company,
+                    phone,
+                    international,
+                    visitor_internal_or_external,
+                }),
             ]);
         }
         // The group flow clears the form on success, so grab the count first.
@@ -878,13 +858,6 @@ export class VisitorInviteFormComponent
                             visitor.organisation ||
                             this.model().company,
                         phone: visitor.phone || this.model().phone,
-                        visitor_internal_or_external:
-                            ((visitor as any).visitor_internal_or_external ??
-                                visitor.extension_data
-                                    ?.visitor_internal_or_external) ===
-                            'external'
-                                ? 'external'
-                                : 'internal',
                     }));
                 }
             }
@@ -923,8 +896,6 @@ export class VisitorInviteFormComponent
                         ...user,
                         name: user.name || user.email,
                         international: this.getVisitorInternational(user),
-                        visitor_internal_or_external:
-                            this.getVisitorInternalOrExternal(user),
                         extension_data: {
                             ...(user.extension_data || {}),
                             international: this.getVisitorInternational(user),
@@ -963,7 +934,7 @@ export class VisitorInviteFormComponent
     }
 
     private syncVisitorInternalOrExternal(assets: User[] = []) {
-        const map_data: Record<string, 'internal' | 'external'> = {};
+        const map_data: Record<string, VisitorInternalOrExternal> = {};
         for (const item of assets || []) {
             const key = item.email || item.id;
             if (!key) continue;
@@ -972,14 +943,15 @@ export class VisitorInviteFormComponent
         this.visitor_internal_or_external.set(map_data);
     }
 
-    private getVisitorInternalOrExternal(item: User): 'internal' | 'external' {
+    private getVisitorInternalOrExternal(
+        item: User,
+    ): VisitorInternalOrExternal {
         const key = item?.email || item?.id;
         if (key && key in this.visitor_internal_or_external()) {
             return this.visitor_internal_or_external()[key];
         }
-        const type =
-            (item as any)?.visitor_internal_or_external ??
-            item?.extension_data?.visitor_internal_or_external;
-        return type === 'external' ? 'external' : 'internal';
+        return toVisitorInternalOrExternal(
+            item?.extension_data?.visitor_internal_or_external,
+        );
     }
 }

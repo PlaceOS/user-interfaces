@@ -14,7 +14,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { BookingFormService } from '@placeos/bookings';
+import {
+    BookingFormService,
+    normaliseVisitorEmail,
+    parseRecentVisitors,
+    RecentVisitor,
+    recentVisitorEntry,
+    toVisitorInternalOrExternal,
+    VisitorInternalOrExternal,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     onFieldChange,
@@ -24,12 +32,6 @@ import {
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { UserListFieldComponent } from '@placeos/form-fields';
-import {
-    normaliseVisitorEmail,
-    parseRecentVisitors,
-    RecentVisitor,
-    recentVisitorEntry,
-} from './recent-visitors';
 
 @Component({
     selector: 'visitor-flow-invites',
@@ -347,21 +349,18 @@ export class VisitorFlowInvitesComponent
                       key: model.asset_id || model.asset_name || 'visitor',
                       name: model.asset_name || model.asset_id || '',
                       international: !!model.international,
-                      visitor_internal_or_external:
-                          model.visitor_internal_or_external === 'external'
-                              ? 'external'
-                              : 'internal',
+                      visitor_internal_or_external: toVisitorInternalOrExternal(
+                          model.visitor_internal_or_external,
+                      ),
                   },
               ]
             : (model.assets || []).map((item) => ({
                   key: item.email || item.id,
                   name: item.name || item.email || '',
                   international: !!item.extension_data?.international,
-                  visitor_internal_or_external:
-                      item.extension_data?.visitor_internal_or_external ===
-                      'external'
-                          ? 'external'
-                          : 'internal',
+                  visitor_internal_or_external: toVisitorInternalOrExternal(
+                      item.extension_data?.visitor_internal_or_external,
+                  ),
               }));
         return visitors
             .filter((visitor) => !!`${visitor.name}`.trim())
@@ -451,10 +450,9 @@ export class VisitorFlowInvitesComponent
             company: visitor.company,
             phone: item.phone,
             international: !!item.international,
-            visitor_internal_or_external:
-                item.visitor_internal_or_external === 'external'
-                    ? 'external'
-                    : 'internal',
+            visitor_internal_or_external: toVisitorInternalOrExternal(
+                item.visitor_internal_or_external,
+            ),
         }));
 
         // Save to visitor history
@@ -473,12 +471,8 @@ export class VisitorFlowInvitesComponent
      * visitor updates the form value, a group member its own record. */
     public setVisitorInternalOrExternal(
         key: string,
-        visitor_internal_or_external: string,
+        type: VisitorInternalOrExternal,
     ) {
-        const type =
-            visitor_internal_or_external === 'external'
-                ? 'external'
-                : 'internal';
         if (this.is_single()) {
             this.model.update((m) => ({
                 ...m,

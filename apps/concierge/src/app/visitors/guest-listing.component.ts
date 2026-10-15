@@ -452,11 +452,11 @@ import { VisitorsStateService } from './visitors-state.service';
                     row.extension_data?.visitor_internal_or_external ===
                     'external'
                 ) {
-                    <span class="opacity-30">{{
-                        'COMMON.TYPE_EXTERNAL' | translate
-                    }}</span>
+                    {{ 'COMMON.TYPE_EXTERNAL' | translate }}
                 } @else {
-                    {{ 'COMMON.TYPE_INTERNAL' | translate }}
+                    <span class="opacity-30">{{
+                        'COMMON.TYPE_INTERNAL' | translate
+                    }}</span>
                 }
             </div>
         </ng-template>

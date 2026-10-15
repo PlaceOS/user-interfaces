@@ -1,7 +1,7 @@
 import {
     parseRecentVisitors,
     recentVisitorEntry,
-} from '../../../app/book/visitor-flow-new/recent-visitors';
+} from '../lib/recent-visitors';
 
 describe('recent visitors', () => {
     it('should read the international flag of the shared visitor forms and not use it as a phone number', () => {

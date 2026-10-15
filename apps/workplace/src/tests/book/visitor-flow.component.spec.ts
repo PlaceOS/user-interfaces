@@ -13,7 +13,7 @@ import {
     generateBookingForm,
     InviteVisitorFormComponent,
 } from '@placeos/bookings';
-import { SettingsService } from '@placeos/common';
+import { SettingsService, User } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
@@ -188,6 +188,44 @@ describe('VisitorFlowNewComponent', () => {
 
         expect(save_user_setting).toHaveBeenCalledWith('visitor-invitees', [
             'visitor.one@example.com|Visitor One|Acme|0|+61400111222|internal',
+        ]);
+    });
+
+    it('should save the external type in recent visitors history', () => {
+        model.update((m) => ({
+            ...m,
+            asset_id: 'visitor.one@example.com',
+            asset_name: 'Visitor One',
+            visitor_internal_or_external: 'external',
+        }));
+
+        (spectator.component as any)._saveRecentVisitors(false);
+
+        expect(save_user_setting).toHaveBeenCalledWith('visitor-invitees', [
+            'visitor.one@example.com|Visitor One||0||external',
+        ]);
+    });
+
+    it('should save the external type of each group member in recent visitors history', () => {
+        model.update((m) => ({
+            ...m,
+            assets: [
+                new User({
+                    email: 'ext@example.com',
+                    name: 'Ext',
+                    extension_data: {
+                        visitor_internal_or_external: 'external',
+                    },
+                }),
+                new User({ email: 'int@example.com', name: 'Int' }),
+            ],
+        }));
+
+        (spectator.component as any)._saveRecentVisitors(true);
+
+        expect(save_user_setting).toHaveBeenCalledWith('visitor-invitees', [
+            'ext@example.com|Ext||0||external',
+            'int@example.com|Int||0||internal',
         ]);
     });
 

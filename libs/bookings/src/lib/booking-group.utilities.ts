@@ -6,19 +6,12 @@ import {
     unique,
     User,
 } from '@placeos/common';
+import { toVisitorInternalOrExternal } from './booking-form.model';
 import { removeBooking } from './bookings.fn';
 
 /** Give each new group its own asset ID and preserve it during edits. */
 export function groupName(existing?: string) {
     return existing || `grp-${randomString(24)}`;
-}
-
-/** Internal/external type of a visitor. Anything that is not `external` is `internal`. */
-export function visitorInternalOrExternal(value: any): 'internal' | 'external' {
-    const type =
-        value?.visitor_internal_or_external ??
-        value?.extension_data?.visitor_internal_or_external;
-    return type === 'external' ? 'external' : 'internal';
 }
 
 /** Form patch for a single visitor in a group flow. Zones fall back from the
@@ -47,7 +40,9 @@ export function visitorMemberPatch(
         international:
             (member as any).international ||
             !!member.extension_data?.international,
-        visitor_internal_or_external: visitorInternalOrExternal(member),
+        visitor_internal_or_external: toVisitorInternalOrExternal(
+            member.extension_data?.visitor_internal_or_external,
+        ),
         company: (member as any).company || member.organisation,
         phone: member.phone,
         zones: unique(
@@ -94,7 +89,9 @@ export function mapGroupMembers(type: BookingType, members: User[] = []) {
             international:
                 !!(member as any).international ||
                 !!member.extension_data?.international,
-            visitor_internal_or_external: visitorInternalOrExternal(member),
+            visitor_internal_or_external: toVisitorInternalOrExternal(
+                member.extension_data?.visitor_internal_or_external,
+            ),
         }));
 }
 
@@ -131,12 +128,12 @@ export function mapGroupMembersFromBookings(
                               ),
                               visitor_internal_or_external:
                                   group_member?.visitor_internal_or_external ===
-                                      'external' ||
-                                  booking.extension_data
-                                      ?.visitor_internal_or_external ===
-                                      'external'
+                                  'external'
                                       ? 'external'
-                                      : 'internal',
+                                      : toVisitorInternalOrExternal(
+                                            booking.extension_data
+                                                ?.visitor_internal_or_external,
+                                        ),
                           },
                       })
                     : new User({
@@ -175,7 +172,9 @@ export function mapGroupMembersFromExtension(
                             ...(is_visitor
                                 ? {
                                       visitor_internal_or_external:
-                                          visitorInternalOrExternal(member),
+                                          toVisitorInternalOrExternal(
+                                              member.visitor_internal_or_external,
+                                          ),
                                   }
                                 : {}),
                         },
