@@ -1,0 +1,1 @@
+import{St as m}from"./main-LCO6AQH4.js";function a(o,r){let t=m(o,r?.in);return t.setDate(1),t.setHours(0,0,0,0),t}export{a as t};
