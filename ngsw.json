@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1792104231657,
+  "timestamp": 1792104524116,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -257,9 +257,9 @@
     "./chunk-x_EPPIUm.js": "26dfb68bc62b8428d71967c095edebed1903ee60",
     "./favicon.ico": "f169facae544e62416885eef632d81129da291c5",
     "./index.html": "633b1df573bd821ac1c1c926aace6abeb656602a",
-    "./main.js": "2ba1048c61ebffffc8d630be7a2cfc04345e1bfd",
+    "./main.js": "aaacab0198d083deb3931405ceaecb2aa9fec75c",
     "./manifest.webmanifest": "13e11cd6a36b62c01e1eff0a76597b21a560d9c2",
-    "./styles.css": "c2fd583f0d4af38e62260301611ca469c64108a5"
+    "./styles.css": "02bc7a0e8715b277613b9ea743fbbfaca699383f"
   },
   "navigationUrls": [
     {
