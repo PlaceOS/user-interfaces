@@ -6,9 +6,9 @@
  *   harness reports connected: false                -> listed
  *   harness reports connected: true                 -> gone again
  *
- * The broker is asserted alongside the page at every step. When stagehand
- * stops re-checking alerts over REST, this spec is what says the page is still
- * right; until then, the broker assertions are what say the data is.
+ * The broker is asserted alongside the page at every step. Stagehand takes the
+ * hot list straight from the broker's retained state, with no REST checks, so
+ * these are what say the page follows the broker.
  *
  * "Not listed" needs a control (see e2e/README.md, Conventions): the page shows
  * a spinner, not an empty table, until its first alert. So the system also
@@ -29,6 +29,7 @@ import { expect, test } from '../../../../e2e/support/stagehand/fixtures';
 import {
     addHarness,
     createSystem,
+    deleteModule,
     deleteSystem,
     setConnected,
     sweepSystems,
@@ -84,10 +85,6 @@ test('a module is listed while it reports connected: false, and only then', asyn
             MQTT_PROPAGATION_MS,
         );
 
-        // NOTE: both modules exist before the system's first alert. Stagehand
-        // caches a system's module list on its first alert and never refreshes
-        // it, so a module added after that cannot alert until a reload
-        // (SH-HOT-02). This spec is about the working path.
         await setConnected(adminApi, control.id, false);
         await broker.waitForValue(
             'Projector',
@@ -190,6 +187,68 @@ test('SH-HOT-02: a module added after the page loaded the system can still be li
         await test
             .info()
             .attach('stagehand ALERTS log', { body: app_log.join('\n') });
+        await broker.close();
+        await deleteSystem(adminApi, system.id);
+    }
+});
+
+test('SH-HOT-03: a deleted module leaves the list, and the module after it takes its index, without REST checks', async ({
+    page,
+    adminApi,
+    stagehandAdminToken,
+    harnessDriverId,
+    zones,
+}) => {
+    const system = await createSystem(adminApi, zones, 'delete-listed');
+    const broker = await BrokerView.open(
+        stagehandAdminToken,
+        systemFilter(zones.org, system.id),
+    );
+    // the per-alert checks stagehand used to make: a system's modules, and a
+    // module's state
+    const rest_checks: string[] = [];
+    page.on('request', (r) => {
+        const url = r.url();
+        if (
+            /\/api\/engine\/v2\/modules\?.*control_system_id=/.test(url) ||
+            new RegExp(`/api/engine/v2/systems/${system.id}/[^/?]+_\\d+`).test(
+                url,
+            )
+        ) {
+            rest_checks.push(`${r.method()} ${url}`);
+        }
+    });
+    try {
+        await openHotList(page);
+
+        const first = await addHarness(adminApi, system.id, harnessDriverId);
+        const second = await addHarness(adminApi, system.id, harnessDriverId);
+        await waitForConnected(adminApi, first.id, true);
+        await waitForConnected(adminApi, second.id, true);
+        await setConnected(adminApi, first.id, false);
+        await setConnected(adminApi, second.id, false);
+        await expectHotList(page, system.id, ['Display_1', 'Display_2']);
+
+        // the second becomes Display_1; nothing is left at Display_2
+        await deleteModule(adminApi, first.id);
+        await expectHotList(page, system.id, ['Display_1']);
+
+        // and it is the second module listed there, so reconnecting it clears it
+        await setConnected(adminApi, second.id, true);
+        await broker.waitForValue(
+            'Display',
+            1,
+            'connected',
+            true,
+            MQTT_PROPAGATION_MS,
+        );
+        await expectHotList(page, system.id, []);
+
+        expect(rest_checks).toEqual([]);
+    } finally {
+        await test
+            .info()
+            .attach('broker messages', { body: broker.describeLog() });
         await broker.close();
         await deleteSystem(adminApi, system.id);
     }
