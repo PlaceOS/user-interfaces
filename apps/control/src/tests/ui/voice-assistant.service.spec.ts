@@ -45,7 +45,7 @@ describe('VoiceAssistantService', () => {
     let capture: { start: any; stop: any; resume: any };
     let capture_events: VoiceActivityEvents;
     let is_muted: () => boolean;
-    let engine: { start: any; transcribe: any; synthesize: any };
+    let engine: { start: any; transcribe: any; stream: any; synthesize: any };
     let engine_events: SpeechEngineEvents;
     let player: { play: any; stop: any; chime: any; busy_until: number };
 
@@ -69,7 +69,8 @@ describe('VoiceAssistantService', () => {
         };
         engine = {
             start: vi.fn((_, events) => (engine_events = events)),
-            transcribe: vi.fn(async () => ({ text: '' })),
+            transcribe: vi.fn(async () => ''),
+            stream: vi.fn(async () => ''),
             synthesize: vi.fn(async () => {}),
         };
         player = {
@@ -110,12 +111,9 @@ describe('VoiceAssistantService', () => {
         TestBed.flushEffects();
     }
 
-    /**
-     * Simulates a spoken phrase that speech recognition reads as `text`.
-     * `command` is set when the model scores the wake phrase.
-     */
-    async function hear(text: string, command?: string) {
-        engine.transcribe.mockResolvedValueOnce({ text, command });
+    /** Simulates a spoken phrase that speech recognition reads as `text` */
+    async function hear(text: string) {
+        engine.transcribe.mockResolvedValueOnce(text);
         capture_events.start();
         capture_events.end(new Float32Array(16000));
         await vi.advanceTimersByTimeAsync(0);
@@ -213,16 +211,9 @@ describe('VoiceAssistantService', () => {
         );
     });
 
-    it('should send the command when the model hears the wake phrase', async () => {
-        enable();
-        // Some accents give other words, but the wake phrase still scores high
-        await hear('Pay room, volume up.', ', volume up.');
-        expect(chat.sendMessage).toHaveBeenCalledWith('Hey PlaceOS, volume up');
-    });
-
     it('should chime and listen after the wake phrase alone', async () => {
         enable();
-        await hear('Hey Room.', '');
+        await hear('Hey Room.');
         expect(spectator.service.state()).toBe('listening');
         expect(player.chime).toHaveBeenCalled();
         // A spoken prompt would mute the microphone while the user starts to speak
@@ -239,9 +230,31 @@ describe('VoiceAssistantService', () => {
         );
     });
 
+    it('should show the words of a command while it is spoken', async () => {
+        enable();
+        spectator.service.activate();
+        engine.stream.mockResolvedValueOnce('turn on the');
+        capture_events.start();
+        capture_events.progress(new Float32Array(16000));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(spectator.service.live_text()).toBe('turn on the');
+        await hear('Turn on the projector.');
+        expect(spectator.service.live_text()).toBe('');
+        expect(chat.sendMessage).toHaveBeenCalledWith(
+            'Hey PlaceOS, turn on the projector',
+        );
+    });
+
+    it('should not transcribe live while waiting for the wake phrase', () => {
+        enable();
+        capture_events.start();
+        capture_events.progress(new Float32Array(16000));
+        expect(engine.stream).not.toHaveBeenCalled();
+    });
+
     it('should show when speech is heard and processed', async () => {
         enable();
-        let resolve: (transcript: { text: string }) => void = () => {};
+        let resolve: (text: string) => void = () => {};
         engine.transcribe.mockReturnValueOnce(
             new Promise((_) => (resolve = _)),
         );
@@ -250,7 +263,7 @@ describe('VoiceAssistantService', () => {
         capture_events.end(new Float32Array(16000));
         expect(spectator.service.hearing()).toBe(false);
         expect(spectator.service.transcribing()).toBe(true);
-        resolve({ text: '' });
+        resolve('');
         await vi.advanceTimersByTimeAsync(0);
         expect(spectator.service.transcribing()).toBe(false);
     });
@@ -287,13 +300,13 @@ describe('VoiceAssistantService', () => {
 
     it('should drop a transcript that arrives after voice control turns off', async () => {
         enable();
-        let resolve: (transcript: { text: string }) => void = () => {};
+        let resolve: (text: string) => void = () => {};
         engine.transcribe.mockReturnValueOnce(
             new Promise((_) => (resolve = _)),
         );
         capture_events.end(new Float32Array(16000));
         spectator.service.setEnabled(false);
-        resolve({ text: 'hey room turn on the projector' });
+        resolve('hey room turn on the projector');
         await vi.advanceTimersByTimeAsync(0);
         expect(chat.sendMessage).not.toHaveBeenCalled();
     });

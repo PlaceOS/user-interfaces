@@ -9,10 +9,8 @@ import {
 
 /** Model files, pinned to a commit so an upstream change cannot break the app */
 const DEFAULT_FILE_URLS = {
-    moonshine:
-        'https://huggingface.co/litert-community/moonshine-tiny/resolve/eb73d789d7eebcd4d3d5f1a851692923a8e76763/moonshine_tiny_5s_i8.tflite',
-    moonshine_tokenizer:
-        'https://huggingface.co/UsefulSensors/moonshine-tiny/resolve/390624ed33d594443aa4aa221f5b9f283b545b5a/tokenizer.json',
+    whistle:
+        'https://huggingface.co/Cactus-Compute/whistle/resolve/ca5287601bef25af26dcf2e1b2bdc0843a7c19e5/whistle.cact',
     ...matchaUrls(
         'https://huggingface.co/litert-community/Matcha-TTS/resolve/6dd0418da3204f5704d7afb66722d795e84fcbe5/',
     ),

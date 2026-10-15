@@ -48,6 +48,23 @@ describe('VoiceActivityDetector', () => {
         expect(seconds).toBeLessThan(2);
     });
 
+    it('should give new speech about once a second while someone speaks', () => {
+        const progress: Float32Array[] = [];
+        detector = new VoiceActivityDetector({
+            start: () => {},
+            progress: (audio) => progress.push(audio),
+            end: (phrase) => phrase && phrases.push(phrase),
+        });
+        detector.push(silence(0.5));
+        detector.push(tone(3));
+        expect(progress.length).toBeGreaterThanOrEqual(3);
+        // Each part is new audio, so the parts add up to the speech so far
+        const total = progress.reduce((sum, _) => sum + _.length, 0);
+        expect(total / RATE).toBeLessThan(3.5);
+        detector.push(silence(1));
+        expect(phrases).toHaveLength(1);
+    });
+
     it('should accept audio in blocks of any size', () => {
         const audio = [silence(0.5), tone(1), silence(1)];
         for (const part of audio) {

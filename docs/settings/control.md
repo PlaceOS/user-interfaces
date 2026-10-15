@@ -65,12 +65,12 @@ Example:
 
 ## Voice Assistant
 
-The System's `voice_control` binding turns on the voice assistant. To give a command, say "Hey Room" and then the command, or tap the microphone button. A green ring shows on the button when the panel hears speech. If you say "Hey Room" and stop, the panel plays a short tone and waits for the command. Speech recognition and speech synthesis run on the device with LiteRT models:
+The System's `voice_control` binding turns on the voice assistant. To give a command, say "Hey Room" and then the command, or tap the microphone button. A green ring shows on the button when the panel hears speech. If you say "Hey Room" and stop, the panel plays a short tone and waits for the command. While you give a command, the words show next to the button. Speech recognition and speech synthesis run on the device:
 
-- Speech to text: [Moonshine Tiny](https://huggingface.co/litert-community/moonshine-tiny) (English only, MIT licence).
-- Text to speech: [Matcha-TTS](https://huggingface.co/litert-community/Matcha-TTS) (English only, MIT licence).
+- Speech to text: [Whistle](https://huggingface.co/Cactus-Compute/whistle) on the Needle Wasm engine (Apache-2.0 licence). The app uses English. The engine is in `apps/control/src/assets/needle`.
+- Text to speech: [Matcha-TTS](https://huggingface.co/litert-community/Matcha-TTS) on LiteRT (English only, MIT licence).
 
-The app downloads approximately 145 MB of model files when the voice assistant starts for the first time. The browser keeps the files in the Cache API for later visits. By default, the files come from Hugging Face at fixed commits.
+The app downloads approximately 110 MB of model files when the voice assistant starts for the first time. The browser keeps the files in the Cache API for later visits. By default, the files come from Hugging Face at fixed commits.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -78,8 +78,7 @@ The app downloads approximately 145 MB of model files when the voice assistant s
 
 The folder must hold these files, with the same names as in the Hugging Face repositories:
 
-- `moonshine_tiny_5s_i8.tflite` from `litert-community/moonshine-tiny`
-- `tokenizer.json` from `UsefulSensors/moonshine-tiny`
+- `whistle.cact` from `Cactus-Compute/whistle`
 - `matcha_textenc_fp16.tflite`, `matcha_decoder_fp16.tflite`, `matcha_vocoder_fp16.tflite`, `dp_g2p_matcha_fp16.tflite`, `emb.bin`, `g2p_dict.txt.gz`, `config.json` and `g2p_meta.json` from `litert-community/Matcha-TTS`
 
 Use the commits in `apps/control/src/app/ui/speech/litert.ts`. If the server is on a different origin, it must send CORS headers.

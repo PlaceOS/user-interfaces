@@ -1,17 +1,19 @@
 /// <reference lib="webworker" />
 import { ModelFiles, loadRuntime } from './litert';
 import { MatchaSynthesizer } from './matcha';
-import { MoonshineTranscriber } from './moonshine';
 import type {
     SpeechModel,
     SpeechRequest,
     SpeechResponse,
     SpeechSetup,
 } from './speech-messages';
+import { WhistleTranscriber } from './whistle';
 
 /*
- * Runs the speech models off the main thread.
- * The Wasm runtime has no threads here, so a model run can take seconds.
+ * Runs the speech models off the main thread:
+ * Whistle on the Needle engine for speech to text,
+ * and Matcha-TTS on LiteRT for text to speech.
+ * The Wasm runtimes have no threads here, so a model run can take seconds.
  * Jobs run one at a time, in order.
  */
 
@@ -33,7 +35,7 @@ self.importScripts = (...urls: (string | URL)[]) => {
     }
 };
 
-let speech_to_text: Promise<MoonshineTranscriber> | undefined;
+let speech_to_text: Promise<WhistleTranscriber> | undefined;
 let text_to_speech: Promise<MatchaSynthesizer> | undefined;
 let queue: Promise<void> = Promise.resolve();
 const cancelled = new Set<number>();
@@ -64,22 +66,27 @@ function watch<T>(model: SpeechModel, loading: Promise<T>) {
 
 function setup({
     wasm_url,
+    needle_url,
     mirror_url,
     cached_phrases: phrases,
-    wake_phrase,
+    keywords,
 }: SpeechSetup) {
     if (speech_to_text) return;
     const files = new ModelFiles(mirror_url);
-    const runtime = loadRuntime(wasm_url);
     speech_to_text = watch(
         'speech_to_text',
-        runtime.then(() => MoonshineTranscriber.load(files, wake_phrase)),
+        files
+            .bytes('whistle')
+            .then((model) =>
+                WhistleTranscriber.load(needle_url, model, keywords),
+            ),
     );
     // Load text to speech second, so listening for the wake phrase starts sooner
     text_to_speech = watch(
         'text_to_speech',
         speech_to_text
-            .catch(() => runtime)
+            .catch(() => {})
+            .then(() => loadRuntime(wasm_url))
             .then(() => MatchaSynthesizer.load(files)),
     );
     cached_phrases = new Set(phrases);
@@ -151,9 +158,13 @@ self.onmessage = ({ data }: MessageEvent<SpeechRequest>) => {
             cancelled.add(data.id);
             return;
         case 'transcribe':
+        case 'stream':
             return schedule(data.id, speech_to_text, async (transcriber) => {
-                const transcript = await transcriber.transcribe(data.audio);
-                post({ type: 'transcript', id: data.id, transcript });
+                const text =
+                    data.type === 'stream'
+                        ? transcriber.stream(data.audio)
+                        : transcriber.transcribe(data.audio);
+                post({ type: 'transcript', id: data.id, text });
             });
         case 'synthesize':
             return schedule(

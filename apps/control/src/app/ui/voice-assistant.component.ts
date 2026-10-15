@@ -126,7 +126,15 @@ export class VoiceAssistantComponent {
     public readonly status = computed(() => {
         const text = this._service.current_text();
         switch (this.state()) {
-            case 'listening':
+            case 'listening': {
+                // Live words show while the user speaks and until the full text is ready
+                const live = this._service.live_text();
+                const busy =
+                    this._service.hearing() || this._service.transcribing();
+                if (live && busy) {
+                    const words = live.replace(/[.,!?]+$/, '');
+                    return { icon: 'graphic_eq', message: `“${words}…”` };
+                }
                 if (this._service.hearing()) {
                     return { icon: 'graphic_eq', message: 'Hearing you...' };
                 }
@@ -134,6 +142,7 @@ export class VoiceAssistantComponent {
                     return { icon: 'pending', message: 'Processing...' };
                 }
                 return { icon: 'hearing', message: text || 'Listening...' };
+            }
             case 'processing': {
                 const progress = this._service.progress();
                 return {

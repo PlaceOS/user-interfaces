@@ -1,5 +1,7 @@
 {
     "$schema": "./node_modules/oxlint/configuration_schema.json",
+    // Vendored, minified third party code
+    "ignorePatterns": ["apps/control/src/assets/needle/**"],
     // Only the rules in this file run. They are the rules that the ESLint
     // presets enabled, so each new rule is adopted deliberately.
     "categories": {

@@ -12,6 +12,8 @@ const MIN_SPEECH_FRAMES = 8;
 const MAX_FRAMES = 334;
 /** Frames kept from before the phrase starts, so soft first sounds such as "h" are not cut */
 const PRE_ROLL_FRAMES = 15;
+/** Frames of new speech in each `progress` event, about one second */
+const PROGRESS_FRAMES = 34;
 /** Quiet frames kept after the last word */
 const TAIL_FRAMES = 10;
 /** Loudness (RMS) that always counts as quiet. About -48 dBFS, for people far from the panel. */
@@ -22,6 +24,8 @@ const NOISE_RATIO = 2.5;
 export interface VoiceActivityEvents {
     /** Someone started to speak */
     start: () => void;
+    /** About one second of new 16 kHz audio while someone speaks, for live transcription */
+    progress?: (audio: Float32Array) => void;
     /** The speaker stopped. Gives the phrase as 16 kHz audio, or undefined if it was only noise. */
     end: (phrase?: Float32Array) => void;
 }
@@ -40,6 +44,8 @@ export class VoiceActivityDetector {
     private _loud_run = 0;
     private _quiet_run = 0;
     private _loud_frames = 0;
+    /** Frames of the phrase already given in `progress` events */
+    private _sent_frames = 0;
 
     constructor(private _events: VoiceActivityEvents) {}
 
@@ -77,6 +83,7 @@ export class VoiceActivityDetector {
         this._loud_run = 0;
         this._quiet_run = 0;
         this._loud_frames = 0;
+        this._sent_frames = 0;
     }
 
     private _process(frame: Float32Array) {
@@ -104,6 +111,11 @@ export class VoiceActivityDetector {
 
         this._phrase.push(frame);
         if (is_loud) this._loud_frames++;
+        if (this._phrase.length - this._sent_frames >= PROGRESS_FRAMES) {
+            const frames = this._phrase.slice(this._sent_frames);
+            this._sent_frames = this._phrase.length;
+            this._events.progress?.(joinFrames(frames));
+        }
         if (
             this._quiet_run >= END_FRAMES ||
             this._phrase.length >= MAX_FRAMES
@@ -119,11 +131,14 @@ export class VoiceActivityDetector {
         const tail = Math.max(0, this._quiet_run - TAIL_FRAMES);
         this._clear();
         if (!is_speech) return this._events.end();
-        const kept = frames.slice(0, frames.length - tail);
-        const audio = new Float32Array(kept.length * FRAME_SAMPLES);
-        kept.forEach((frame, i) => audio.set(frame, i * FRAME_SAMPLES));
-        this._events.end(audio);
+        this._events.end(joinFrames(frames.slice(0, frames.length - tail)));
     }
+}
+
+function joinFrames(frames: Float32Array[]) {
+    const audio = new Float32Array(frames.length * FRAME_SAMPLES);
+    frames.forEach((frame, i) => audio.set(frame, i * FRAME_SAMPLES));
+    return audio;
 }
 
 /**

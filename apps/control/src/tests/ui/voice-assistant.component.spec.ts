@@ -16,6 +16,7 @@ describe('VoiceAssistantComponent', () => {
     let enabled: ReturnType<typeof signal<boolean>>;
     let hearing: ReturnType<typeof signal<boolean>>;
     let transcribing: ReturnType<typeof signal<boolean>>;
+    let live_text: ReturnType<typeof signal<string>>;
     let service: any;
 
     const createComponent = createComponentFactory({
@@ -32,7 +33,9 @@ describe('VoiceAssistantComponent', () => {
         enabled = signal(true);
         hearing = signal(false);
         transcribing = signal(false);
+        live_text = signal('');
         service = {
+            live_text,
             hearing,
             transcribing,
             activate: vi.fn(),
@@ -109,6 +112,16 @@ describe('VoiceAssistantComponent', () => {
         expect(spectator.query('.ring-4')).not.toExist();
         expect(spectator.query('[role="status"]')).toContainText(
             'Processing...',
+        );
+    });
+
+    it('should show live words while a command is spoken', () => {
+        state.set('listening');
+        hearing.set(true);
+        live_text.set('turn on the');
+        spectator.detectChanges();
+        expect(spectator.query('[role="status"]')).toContainText(
+            '“turn on the…”',
         );
     });
 
