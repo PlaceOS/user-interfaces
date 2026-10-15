@@ -187,7 +187,7 @@ describe('VisitorFlowNewComponent', () => {
         (spectator.component as any)._saveRecentVisitors(false);
 
         expect(save_user_setting).toHaveBeenCalledWith('visitor-invitees', [
-            'visitor.one@example.com|Visitor One|Acme|0|+61400111222',
+            'visitor.one@example.com|Visitor One|Acme|0|+61400111222|internal',
         ]);
     });
 

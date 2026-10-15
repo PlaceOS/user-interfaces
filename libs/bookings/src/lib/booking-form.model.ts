@@ -78,6 +78,8 @@ export interface BookingFormValue {
     prefer_booked_location_first: boolean;
     pass_number: string;
     international: boolean;
+    /** Visitor internal/external type. `internal` unless set to `external`. */
+    visitor_internal_or_external: 'internal' | 'external';
     recurrence_custom: boolean;
     recurrence_type: string;
     recurrence_days: any;
@@ -190,6 +192,10 @@ export function bookingFormValue(
             extension_data.prefer_booked_location_first ?? false,
         pass_number: extension_data.pass_number || '',
         international: extension_data.international ?? false,
+        visitor_internal_or_external:
+            extension_data.visitor_internal_or_external === 'external'
+                ? 'external'
+                : 'internal',
         recurrence_custom: extension_data.recurrence_custom ?? false,
         recurrence_type: booking.recurrence_type || 'none',
         recurrence_days: booking.recurrence_days ?? 0,

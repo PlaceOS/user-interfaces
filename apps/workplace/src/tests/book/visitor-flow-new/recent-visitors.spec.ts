@@ -16,9 +16,26 @@ describe('recent visitors', () => {
             company: 'Acme',
             phone: '',
             international: false,
+            visitor_internal_or_external: 'internal',
         });
         expect(international.phone).toBe('');
         expect(international.international).toBe(true);
+    });
+
+    it('should default the internal/external type to internal for legacy entries', () => {
+        const [visitor] = parseRecentVisitors([
+            'local@example.com|Local|Acme|0',
+        ]);
+
+        expect(visitor.visitor_internal_or_external).toBe('internal');
+    });
+
+    it('should read the internal/external type from the sixth field', () => {
+        const [visitor] = parseRecentVisitors([
+            'ext@example.com|Ext|Globex|0||external',
+        ]);
+
+        expect(visitor.visitor_internal_or_external).toBe('external');
     });
 
     it('should read the phone number from the fifth field', () => {
@@ -57,10 +74,29 @@ describe('recent visitors', () => {
             company: 'Acme',
             phone: '+61400111222',
             international: true,
+            visitor_internal_or_external: 'internal' as const,
         };
 
         expect(recentVisitorEntry(visitor)).toBe(
-            'a@example.com|A|Acme|1|+61400111222',
+            'a@example.com|A|Acme|1|+61400111222|internal',
+        );
+        expect(parseRecentVisitors([recentVisitorEntry(visitor)])).toEqual([
+            visitor,
+        ]);
+    });
+
+    it('should write and read back an external type', () => {
+        const visitor = {
+            email: 'a@example.com',
+            name: 'A',
+            company: 'Acme',
+            phone: '',
+            international: false,
+            visitor_internal_or_external: 'external' as const,
+        };
+
+        expect(recentVisitorEntry(visitor)).toBe(
+            'a@example.com|A|Acme|0||external',
         );
         expect(parseRecentVisitors([recentVisitorEntry(visitor)])).toEqual([
             visitor,

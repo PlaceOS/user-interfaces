@@ -149,6 +149,61 @@ describe('VisitorInviteFormComponent', () => {
         );
     });
 
+    it('should expose the internal or external setting for template display', () => {
+        expect(spectator.component.allow_visitor_internal_or_external()).toBe(
+            false,
+        );
+        settingSignal('visitors.allow_visitor_internal_or_external', false).set(
+            true,
+        );
+        expect(spectator.component.allow_visitor_internal_or_external()).toBe(
+            true,
+        );
+    });
+
+    it('should default a single visitor to internal', () => {
+        expect(spectator.component.model().visitor_internal_or_external).toBe(
+            'internal',
+        );
+    });
+
+    it('should set the internal or external type for a single visitor', () => {
+        const service = spectator.inject(BookingFormService);
+        spectator.component.setSingleVisitorInternalOrExternal('external');
+        expect(service.model().visitor_internal_or_external).toBe('external');
+    });
+
+    it('should track internal or external type per visitor and update the assets', () => {
+        const service = spectator.inject(BookingFormService);
+        const visitor = new User({
+            email: 'dave@example.com',
+            name: 'Dave',
+        });
+        service.model.update((m) => ({ ...m, assets: [visitor] }));
+
+        spectator.component.setVisitorInternalOrExternal(visitor, 'external');
+
+        expect(
+            spectator.component.visitor_internal_or_external()[
+                'dave@example.com'
+            ],
+        ).toBe('external');
+        expect(
+            service.model().assets[0].extension_data
+                ?.visitor_internal_or_external,
+        ).toBe('external');
+    });
+
+    it('should carry the internal or external type when a suggested visitor is selected', () => {
+        const service = spectator.inject(BookingFormService);
+        spectator.component.setVisitor({
+            email: 'carol@example.com',
+            name: 'Carol',
+            visitor_internal_or_external: 'external',
+        } as any);
+        expect(service.model().visitor_internal_or_external).toBe('external');
+    });
+
     it('should not send invite when required fields are missing', async () => {
         const service = spectator.inject(BookingFormService);
         const done = vi.fn();
@@ -176,6 +231,7 @@ describe('VisitorInviteFormComponent', () => {
                 name: 'Erin',
                 company: 'Umbrella',
                 international: true,
+                visitor_internal_or_external: 'internal',
             },
         ]);
         expect(spectator.inject(BookingFormService).model().title).toBe(

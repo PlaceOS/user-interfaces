@@ -12,6 +12,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -191,14 +192,14 @@ import {
                         </mat-form-field>
                     </div>
                 }
-                @if (allow_international() && international_visitors().length) {
+                @if (allow_international() && invited_visitors().length) {
                     <div class="international-visitors flex flex-col">
                         <label>{{
                             'BOOKINGS.INTERNATIONAL_VISITORS' | translate
                         }}</label>
                         <div class="flex flex-wrap gap-x-4 gap-y-2">
                             @for (
-                                visitor of international_visitors();
+                                visitor of invited_visitors();
                                 track visitor.key
                             ) {
                                 <div class="flex items-center space-x-2">
@@ -227,6 +228,55 @@ import {
                         </div>
                     </div>
                 }
+                @if (
+                    allow_visitor_internal_or_external() &&
+                    invited_visitors().length
+                ) {
+                    <div class="visitor-internal-or-external flex flex-col">
+                        <label>{{
+                            'BOOKINGS.VISITOR_INTERNAL_OR_EXTERNAL' | translate
+                        }}</label>
+                        <div class="flex flex-col gap-y-2">
+                            @for (
+                                visitor of invited_visitors();
+                                track visitor.key
+                            ) {
+                                <div
+                                    class="flex flex-wrap items-center gap-x-4"
+                                >
+                                    <span class="visitor-name">{{
+                                        visitor.name
+                                    }}</span>
+                                    <mat-radio-group
+                                        [value]="
+                                            visitor.visitor_internal_or_external
+                                        "
+                                        (change)="
+                                            setVisitorInternalOrExternal(
+                                                visitor.key,
+                                                $event.value
+                                            )
+                                        "
+                                        [attr.aria-label]="visitor.name"
+                                    >
+                                        <mat-radio-button value="internal">
+                                            {{
+                                                'COMMON.TYPE_INTERNAL'
+                                                    | translate
+                                            }}
+                                        </mat-radio-button>
+                                        <mat-radio-button value="external">
+                                            {{
+                                                'COMMON.TYPE_EXTERNAL'
+                                                    | translate
+                                            }}
+                                        </mat-radio-button>
+                                    </mat-radio-group>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     `,
@@ -237,6 +287,7 @@ import {
         MatSelectModule,
         MatAutocompleteModule,
         MatCheckboxModule,
+        MatRadioModule,
         MatRippleModule,
         UserListFieldComponent,
         TranslatePipe,
@@ -282,8 +333,13 @@ export class VisitorFlowInvitesComponent
         false,
     );
 
-    /** Every invited visitor, ordered by first name, with their international flag. */
-    public readonly international_visitors = computed(() => {
+    public readonly allow_visitor_internal_or_external = settingSignal(
+        'visitors.allow_visitor_internal_or_external',
+        false,
+    );
+
+    /** Every invited visitor, ordered by first name, with their visitor flags. */
+    public readonly invited_visitors = computed(() => {
         const model = this.model();
         const visitors = this.is_single()
             ? [
@@ -291,12 +347,21 @@ export class VisitorFlowInvitesComponent
                       key: model.asset_id || model.asset_name || 'visitor',
                       name: model.asset_name || model.asset_id || '',
                       international: !!model.international,
+                      visitor_internal_or_external:
+                          model.visitor_internal_or_external === 'external'
+                              ? 'external'
+                              : 'internal',
                   },
               ]
             : (model.assets || []).map((item) => ({
                   key: item.email || item.id,
                   name: item.name || item.email || '',
                   international: !!item.extension_data?.international,
+                  visitor_internal_or_external:
+                      item.extension_data?.visitor_internal_or_external ===
+                      'external'
+                          ? 'external'
+                          : 'internal',
               }));
         return visitors
             .filter((visitor) => !!`${visitor.name}`.trim())
@@ -386,6 +451,10 @@ export class VisitorFlowInvitesComponent
             company: visitor.company,
             phone: item.phone,
             international: !!item.international,
+            visitor_internal_or_external:
+                item.visitor_internal_or_external === 'external'
+                    ? 'external'
+                    : 'internal',
         }));
 
         // Save to visitor history
@@ -398,6 +467,39 @@ export class VisitorFlowInvitesComponent
             'visitor-invitees',
             [...old_visitors, visitor].map(recentVisitorEntry),
         );
+    }
+
+    /** Store the internal/external type against a visitor. A single
+     * visitor updates the form value, a group member its own record. */
+    public setVisitorInternalOrExternal(
+        key: string,
+        visitor_internal_or_external: string,
+    ) {
+        const type =
+            visitor_internal_or_external === 'external'
+                ? 'external'
+                : 'internal';
+        if (this.is_single()) {
+            this.model.update((m) => ({
+                ...m,
+                visitor_internal_or_external: type,
+            }));
+            return;
+        }
+        this.model.update((m) => ({
+            ...m,
+            assets: (m.assets || []).map((item) => {
+                const item_key = item.email || item.id;
+                if (item_key !== key) return item;
+                return new User({
+                    ...item,
+                    extension_data: {
+                        ...(item.extension_data || {}),
+                        visitor_internal_or_external: type,
+                    },
+                });
+            }),
+        }));
     }
 
     /** Store the international flag against a group member. A single

@@ -79,6 +79,10 @@ export function buildBookingExtensionData(
         ...(type === 'visitor'
             ? {
                   international: !!value.international,
+                  visitor_internal_or_external:
+                      value.visitor_internal_or_external === 'external'
+                          ? 'external'
+                          : 'internal',
                   visitor_name: value.asset_name || value.asset_id || '',
               }
             : {}),

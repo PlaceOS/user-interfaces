@@ -1109,6 +1109,13 @@ import { UploadButtonComponent } from './upload-button.component';
                                         "
                                     ></settings-toggle>
                                     <settings-toggle
+                                        label="Allow visitors to be marked internal or external"
+                                        [formField]="
+                                            form.visitors
+                                                .allow_visitor_internal_or_external
+                                        "
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         label="Show calendar links after booking"
                                         [formField]="
                                             form.visitors.show_calendar_links
@@ -1916,6 +1923,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             allow_pass_number: false,
             allow_printing_label: false,
             allow_international: false,
+            allow_visitor_internal_or_external: false,
             show_calendar_links: false,
             all_visitors_action_window: 15,
             hide_fields: [] as string[],

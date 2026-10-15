@@ -1259,6 +1259,15 @@ import { errorText } from '../modal-actions';
                                             "
                                         ></settings-toggle>
                                     </ng-container>
+                                    <ng-container>
+                                        <settings-toggle
+                                            label="Allow visitors to be marked internal or external"
+                                            [formField]="
+                                                form.visitors
+                                                    .allow_visitor_internal_or_external
+                                            "
+                                        ></settings-toggle>
+                                    </ng-container>
                                 </div>
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
@@ -2146,6 +2155,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             },
             show_calendar_links: false,
             allow_international: false,
+            allow_visitor_internal_or_external: false,
         },
         explore: {
             hide_device_fields: false,
