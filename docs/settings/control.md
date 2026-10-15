@@ -62,3 +62,26 @@ Example:
     "support_phone": "+61 2 9123 4567"
 }
 ```
+
+## Voice Assistant
+
+The System's `voice_control` binding turns on the voice assistant. To give a command, say "Hey Room" and then the command, or tap the microphone button. Speech recognition and speech synthesis run on the device with LiteRT models:
+
+- Speech to text: [Moonshine Tiny](https://huggingface.co/litert-community/moonshine-tiny) (English only, MIT licence).
+- Text to speech: [Matcha-TTS](https://huggingface.co/litert-community/Matcha-TTS) (English only, MIT licence).
+
+The app downloads approximately 145 MB of model files when the voice assistant starts for the first time. The browser keeps the files in the Cache API for later visits. By default, the files come from Hugging Face at fixed commits.
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `voice_models_url` | string | — | URL of a folder that holds copies of the model files. Use this setting when the panels cannot connect to Hugging Face. A relative URL starts at the app's base URL. |
+
+The folder must hold these files, with the same names as in the Hugging Face repositories:
+
+- `moonshine_tiny_5s_i8.tflite` from `litert-community/moonshine-tiny`
+- `tokenizer.json` from `UsefulSensors/moonshine-tiny`
+- `matcha_textenc_fp16.tflite`, `matcha_decoder_fp16.tflite`, `matcha_vocoder_fp16.tflite`, `dp_g2p_matcha_fp16.tflite`, `emb.bin`, `g2p_dict.txt.gz`, `config.json` and `g2p_meta.json` from `litert-community/Matcha-TTS`
+
+Use the commits in `apps/control/src/app/ui/speech/litert.ts`. If the server is on a different origin, it must send CORS headers.
+
+The browser must support Web Workers, AudioWorklet and WebAssembly. WebGPU makes speech synthesis faster, but it is not necessary.

@@ -1,8 +1,17 @@
 import { Injectable, effect, inject, signal, untracked } from '@angular/core';
-import { AsyncHandler, currentUser, log, randomInt } from '@placeos/common';
+import {
+    AsyncHandler,
+    SettingsService,
+    currentUser,
+    log,
+    randomInt,
+} from '@placeos/common';
 
 import { ChatService } from '@placeos/components';
 import { MicLevels } from './mic-levels';
+import { MicCapture } from './speech/mic-capture';
+import { SpeechEngine, SpeechModel } from './speech/speech-engine';
+import { SpeechPlayer } from './speech/speech-player';
 
 /**
  * - `idle`: Waits for a wake phrase.
@@ -12,50 +21,22 @@ import { MicLevels } from './mic-levels';
 export type VoiceState = 'idle' | 'listening' | 'processing';
 
 const WAITING_PHRASES = ['One second...', 'One moment...', 'Working on it...'];
+const PROMPT_PHRASE = 'How may I help you?';
+/** Wake phrases without spaces, including words that speech recognition hears by mistake */
 const WAKE_PHRASES = [
-    `hey place`,
-    `hey please`,
-    `hey plays`,
-    `a place`,
-    `who place`,
-    `who plays`,
-    `who please`,
-    `he plays`,
-    `hit plays`,
-    `can you please`,
+    'heyroom',
+    'hayroom',
+    'heyrooms',
+    'heyrum',
+    'heyrome',
+    'hiroom',
 ];
-/** Recognition errors that stop voice control until the page reloads */
-const FATAL_ERRORS = [
-    'not-allowed',
-    'service-not-allowed',
-    'audio-capture',
-    'language-not-supported',
-];
+const MAX_WAKE_WORDS = 2;
 const LISTEN_TIMEOUT = 8 * 1000;
 const RESPONSE_TIMEOUT = 60 * 1000;
 /** Time after speech ends where the microphone can still hear our own voice */
 const ECHO_DELAY = 1000;
-const NETWORK_RETRY_DELAY = 5 * 1000;
 const MAX_CONNECT_ATTEMPTS = 20;
-
-/** Parts of the Web Speech API that TypeScript's DOM types leave out */
-interface SpeechRecognitionInstance {
-    continuous: boolean;
-    interimResults: boolean;
-    lang: string;
-    maxAlternatives: number;
-    onresult: ((event: SpeechRecognitionEvent) => void) | null;
-    onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
-    onend: (() => void) | null;
-    start(): void;
-    stop(): void;
-    abort(): void;
-}
-type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
-type SpeechWindow = Window & {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
-};
 
 /** Converts chat message HTML into plain text so markdown is not read aloud */
 function htmlToText(html: string) {
@@ -64,16 +45,45 @@ function htmlToText(html: string) {
     return doc.body.textContent?.trim() || '';
 }
 
+/** Lower case words without punctuation, as `"hey room turn on the tv"` */
+export function normalizeTranscript(text: string) {
+    return text
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}'%\s]/gu, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+/**
+ * Finds a wake phrase at the start of a transcript.
+ * Returns the command after it, or undefined when there is no wake phrase.
+ */
+export function parseWakePhrase(transcript: string) {
+    const words = normalizeTranscript(transcript).split(' ');
+    for (
+        let count = Math.min(MAX_WAKE_WORDS, words.length);
+        count > 0;
+        count--
+    ) {
+        if (WAKE_PHRASES.includes(words.slice(0, count).join(''))) {
+            return words.slice(count).join(' ');
+        }
+    }
+    return undefined;
+}
+
 /**
  * Hands-free voice control for a room system.
- * Listens for a wake phrase (or a tap on the mic),
+ * Listens for the wake phrase "Hey Room" (or a tap on the mic),
  * sends the next phrase to the chat service and speaks the reply.
+ * Speech to text and text to speech run on the device with LiteRT models.
  */
 @Injectable({
     providedIn: 'root',
 })
 export class VoiceAssistantService extends AsyncHandler {
     private _chat_service = inject(ChatService);
+    private _settings = inject(SettingsService);
 
     private _system_id = signal('');
     private _state = signal<VoiceState>('idle');
@@ -91,10 +101,15 @@ export class VoiceAssistantService extends AsyncHandler {
     /** True when `readLevels()` returns live microphone levels */
     public readonly levels_ready = this._mic_levels.ready;
 
-    private _user_speech?: SpeechRecognitionInstance;
+    /** Keeps the models loaded while the app is open */
+    private _engine = inject(SpeechEngine);
+    private _capture = inject(MicCapture);
+    private _player = inject(SpeechPlayer);
+    private _speech?: AbortController;
+    private _voice_on = false;
+    /** Changes when voice control turns off, so late results are dropped */
+    private _session = 0;
     private _last_message_id = '';
-    private _speaking_until = 0;
-    private _restart_delay = 0;
 
     constructor() {
         super();
@@ -127,19 +142,20 @@ export class VoiceAssistantService extends AsyncHandler {
         });
         effect(() => {
             const enabled = this._enabled();
-            if (enabled) this._setupVoiceRecognition();
-            else this._teardownVoiceRecognition();
+            if (enabled) untracked(() => void this._startVoice());
+            else untracked(() => this._stopVoice());
         });
-        // Only use the microphone for levels while listening for a command
+        // Only read microphone levels while listening for a command
         effect(() => {
-            if (this._state() === 'listening') void this._mic_levels.open();
-            else this._mic_levels.close();
+            const { context, stream } = this._capture;
+            if (this._state() === 'listening' && context && stream) {
+                this._mic_levels.open(context, stream);
+            } else this._mic_levels.close();
         });
     }
 
     protected override destroy() {
-        this._teardownVoiceRecognition();
-        this._mic_levels.close();
+        this._stopVoice();
         super.destroy();
     }
 
@@ -156,7 +172,7 @@ export class VoiceAssistantService extends AsyncHandler {
         }
         this.clearTimeout('set_enabled');
         this._enabled.set(false);
-        this._teardownVoiceRecognition();
+        this._stopVoice();
     }
 
     public setBinding(system_id: string) {
@@ -166,8 +182,10 @@ export class VoiceAssistantService extends AsyncHandler {
     /** Toggles listening for a command without the wake phrase. Used by the mic button. */
     public activate() {
         if (this._error().speech_recognition) return;
+        // A tap lets the browser start audio that it held back
+        this._capture.resume();
         if (this._state() === 'listening') return this._setIdle();
-        window.speechSynthesis?.cancel();
+        this._stopSpeaking();
         this._listen();
     }
 
@@ -184,116 +202,104 @@ export class VoiceAssistantService extends AsyncHandler {
         this._current_text.set('');
     }
 
+    private _setError(model: SpeechModel) {
+        this._error.update((error) => ({
+            ...error,
+            [model === 'speech_to_text'
+                ? 'speech_recognition'
+                : 'speech_synthesis']: true,
+        }));
+    }
+
     /** Returns true while our own voice can reach the microphone */
     private _isSpeaking() {
-        return (
-            !!window.speechSynthesis?.speaking ||
-            Date.now() < this._speaking_until
+        return Date.now() < this._player.busy_until + ECHO_DELAY;
+    }
+
+    private async _startVoice() {
+        if (this._voice_on || this._error().speech_recognition) return;
+        if (!window.Worker || !window.AudioWorkletNode) {
+            log('VOICE', 'Voice control is unavailable.', undefined, 'warn');
+            return this._setError('speech_to_text');
+        }
+        this._voice_on = true;
+        const session = this._session;
+        // Open the microphone first, so a blocked microphone skips the model download
+        try {
+            await this._capture.start(
+                {
+                    start: () => this._onSpeechStart(),
+                    phrase: (audio) => this._onPhrase(audio),
+                },
+                () => this._isSpeaking(),
+            );
+        } catch (error) {
+            if (session !== this._session) return;
+            log('VOICE', 'Unable to open the microphone:', error, 'warn');
+            this._setError('speech_to_text');
+            return this._stopVoice();
+        }
+        if (session !== this._session) return;
+        log('VOICE', 'Listening for commands.');
+        const mirror = this._settings.get<string>('app.voice_models_url');
+        this._engine.start(
+            {
+                wasm_url: new URL('assets/litert/', document.baseURI).href,
+                mirror_url: mirror
+                    ? new URL(mirror, document.baseURI).href
+                    : '',
+                cached_phrases: [...WAITING_PHRASES, PROMPT_PHRASE],
+            },
+            {
+                ready: (model) => log('VOICE', `Loaded ${model} model.`),
+                failed: (model, message) => {
+                    log('VOICE', `Unable to load ${model}:`, message, 'warn');
+                    this._setError(model);
+                    if (model === 'speech_to_text') this._stopVoice();
+                },
+            },
         );
     }
 
-    private _setupVoiceRecognition() {
-        const speech_window = window as SpeechWindow;
-        const SpeechRecognition =
-            speech_window.SpeechRecognition ||
-            speech_window.webkitSpeechRecognition;
-        if (this._user_speech) return;
-        if (!SpeechRecognition) {
-            log(
-                'VOICE',
-                'Speech recognition is unavailable.',
-                undefined,
-                'warn',
-            );
-            this._error.update((error) => ({
-                ...error,
-                speech_recognition: true,
-            }));
-            return;
-        }
-        log('VOICE', 'Initialising speech recognition.');
-        // Load the voice list early. Some browsers load it asynchronously.
-        window.speechSynthesis?.getVoices();
-        const speech = new SpeechRecognition();
-        this._user_speech = speech;
-        speech.continuous = false;
-        speech.lang = navigator.language || 'en-US';
-        speech.interimResults = true;
-        speech.maxAlternatives = 1;
-
-        speech.onresult = (event) => {
-            this._restart_delay = 0;
-            if (this._isSpeaking()) return;
-            const result = event.results[0];
-            const transcript = result[0].transcript?.toLowerCase().trim() || '';
-            const wake_phrase = WAKE_PHRASES.find((_) =>
-                transcript.startsWith(_),
-            );
-            const is_listening = this._state() === 'listening';
-            if (!is_listening && !wake_phrase) return;
-            const command = transcript
-                .substring(wake_phrase?.length || 0)
-                .trim();
-            if (!result.isFinal) {
-                if (!is_listening) this._listen();
-                this._current_text.set(command);
-                return;
-            }
-            if (command.length <= 3) {
-                this._listen();
-                this._speakText('How may I help you?');
-                return;
-            }
-            this._sendCommand(command);
-        };
-
-        speech.onerror = (event) => {
-            if (event.error === 'no-speech' || event.error === 'aborted') {
-                return;
-            }
-            log('VOICE', 'Speech Recognition Error:', event.error, 'warn');
-            if (event.error === 'network') {
-                this._restart_delay = NETWORK_RETRY_DELAY;
-            }
-            if (!FATAL_ERRORS.includes(event.error)) return;
-            this._error.update((error) => ({
-                ...error,
-                speech_recognition: true,
-            }));
-            this._setIdle();
-        };
-
-        // Recognition stops after each phrase. Restart it to keep listening.
-        speech.onend = () => {
-            if (this._error().speech_recognition) return;
-            this.timeout(
-                'restart',
-                () => {
-                    try {
-                        this._user_speech?.start();
-                    } catch {}
-                },
-                this._restart_delay,
-            );
-        };
-        speech.start();
-        log('VOICE', 'Listening for commands.');
-    }
-
-    private _teardownVoiceRecognition() {
-        this.clearTimeout('restart');
+    private _stopVoice() {
         this._setIdle();
-        const speech = this._user_speech;
-        if (!speech) return;
-        // Detach handlers first. `abort` drops any pending result, so no
-        // command is sent after voice control is turned off.
-        speech.onresult = null;
-        speech.onerror = null;
-        speech.onend = null;
-        speech.abort();
-        this._user_speech = undefined;
+        if (!this._voice_on) return;
+        this._voice_on = false;
+        this._session++;
+        this._stopSpeaking();
+        this._mic_levels.close();
+        this._capture.stop();
         // Commands need voice control, so drop the chat connection with it
         this._chat_service.endChat();
+    }
+
+    private _onSpeechStart() {
+        // Give the speaker time to finish the command
+        if (this._state() === 'listening') this._listen();
+    }
+
+    private _onPhrase(audio: Float32Array) {
+        const session = this._session;
+        if (this._state() === 'listening') this._listen();
+        this._engine.transcribe(audio).then(
+            (text) => session === this._session && this._onTranscript(text),
+            (error) => log('VOICE', 'Speech recognition error:', error, 'warn'),
+        );
+    }
+
+    private _onTranscript(transcript: string) {
+        const text = normalizeTranscript(transcript);
+        if (!text) return;
+        const is_listening = this._state() === 'listening';
+        const command =
+            parseWakePhrase(text) ?? (is_listening ? text : undefined);
+        if (command === undefined) return;
+        if (command.length <= 3) {
+            this._listen();
+            this._speakText(PROMPT_PHRASE);
+            return;
+        }
+        this._sendCommand(command);
     }
 
     private _sendCommand(command: string, attempt = 0) {
@@ -323,29 +329,31 @@ export class VoiceAssistantService extends AsyncHandler {
         );
     }
 
+    private _stopSpeaking() {
+        this._speech?.abort();
+        this._speech = undefined;
+        this._player.stop();
+    }
+
     private _speakText(text: string) {
-        const synth = window.speechSynthesis;
-        if (!synth || !('SpeechSynthesisUtterance' in window)) {
-            log('VOICE', `Speech Synthesis is unavailable.`, undefined, 'warn');
-            this._error.update((error) => ({
-                ...error,
-                speech_synthesis: true,
-            }));
+        if (!text) return;
+        if (!this._voice_on || this._error().speech_synthesis) {
+            log('VOICE', 'Speech synthesis is unavailable.', undefined, 'warn');
             return;
         }
         log('VOICE', `Response: "${text}"`);
-        synth.cancel();
-        const speech = new SpeechSynthesisUtterance(text);
-        const lang = this._user_speech?.lang || navigator.language;
-        const voices = synth.getVoices();
-        speech.voice =
-            voices.find((_) => _.name.includes('Karen')) ||
-            voices.find((_) => _.lang === lang) ||
-            null;
-        speech.lang = speech.voice?.lang || lang;
-        const on_done = () => (this._speaking_until = Date.now() + ECHO_DELAY);
-        speech.onend = on_done;
-        speech.onerror = on_done;
-        synth.speak(speech);
+        this._stopSpeaking();
+        const speech = new AbortController();
+        this._speech = speech;
+        this._engine
+            .synthesize(
+                text,
+                (samples, sample_rate) =>
+                    this._player.play(samples, sample_rate),
+                speech.signal,
+            )
+            .catch((error) =>
+                log('VOICE', 'Speech synthesis error:', error, 'warn'),
+            );
     }
 }
