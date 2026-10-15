@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["guest-listing.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                height: 100%;\n                min-height: 0;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,MACA,OAAA,KACA,WAAA,CACJ",
+  "names": []
+}
