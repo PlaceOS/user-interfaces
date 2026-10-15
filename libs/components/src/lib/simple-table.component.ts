@@ -482,6 +482,7 @@ export class SimpleTableComponent<T extends object = any> {
     private readonly _row_heights = signal(new Map<string | T, number>());
     private _viewport_width = 0;
     private _pending_scroll_top: number | null = null;
+    private _scroll_anchor: { key: string | T; offset: number } | null = null;
     private _at_end = false;
     private _last_filter = '';
     private _last_sort: { key: string; reverse: boolean } | null = null;
@@ -618,6 +619,8 @@ export class SimpleTableComponent<T extends object = any> {
             if (!this.virtual_scroll()) return;
             const rows = this._rows();
             const header = this._header();
+            // Data can change without replacing the rendered row elements.
+            this.data_view();
             this._row_heights();
             // Apply the anchor after the spacers have their new heights.
             if (this._pending_scroll_top !== null) {
@@ -674,9 +677,8 @@ export class SimpleTableComponent<T extends object = any> {
             );
         });
 
-        // Reset page and update pagination info when data view changes.
-        // A reload with the same rows in the same order keeps the page, so
-        // an edit or a poll does not move the user back to the first page.
+        // Keep paged views on the same page when the row keys do not change.
+        // Virtual views keep their visible row when data is added or removed.
         effect(() => {
             const data = this.data_view();
             const page_size_value = this.page_size();
@@ -691,17 +693,27 @@ export class SimpleTableComponent<T extends object = any> {
             const filter = this.filter();
             const sort = this.sort();
             const reset_virtual =
-                !same_rows ||
-                filter !== this._last_filter ||
-                sort !== this._last_sort;
+                filter !== this._last_filter || sort !== this._last_sort;
             this._last_filter = filter;
             this._last_sort = sort;
             if (!same_rows) this.page.set(0);
-            if (reset_virtual && this.virtual_scroll()) {
-                this._pending_scroll_top = null;
+            if (this.virtual_scroll() && (reset_virtual || !same_rows)) {
+                const anchor = this._scroll_anchor;
+                const anchor_index =
+                    !reset_virtual && anchor
+                        ? data.findIndex(
+                              (row) => (this.rowKey(row) ?? row) === anchor.key,
+                          )
+                        : -1;
+                const top =
+                    anchor_index >= 0
+                        ? untracked(this.row_offsets)[anchor_index] +
+                          anchor.offset
+                        : 0;
+                if (anchor_index < 0) this._scroll_anchor = null;
+                this._pending_scroll_top = top;
                 this._at_end = false;
-                this._element.nativeElement.scrollTop = 0;
-                this._scroll_top.set(0);
+                this._scroll_top.set(top);
                 this.active_row.set(-1);
             }
 
@@ -742,6 +754,18 @@ export class SimpleTableComponent<T extends object = any> {
         );
         this._scroll_top.set(element.scrollTop);
         this.active_row.set(-1);
+        // Save the key before the next data update, once the scroll has settled.
+        if (this._pending_scroll_top === null) {
+            const offsets = this.row_offsets();
+            const index = this._rowAtOffset(offsets, element.scrollTop);
+            const row = this.data_view()[index];
+            this._scroll_anchor = row
+                ? {
+                      key: this.rowKey(row) ?? row,
+                      offset: element.scrollTop - offsets[index],
+                  }
+                : null;
+        }
     }
 
     /** Find a row in logarithmic time, including large scrollbar jumps. */

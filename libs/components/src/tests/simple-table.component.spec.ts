@@ -271,6 +271,39 @@ describe('SimpleTableComponent', () => {
             expect('[data-row-index="0"]').toContainText('Row 1999');
         });
 
+        it.each([0, 990])(
+            'should keep the visible row when row %i is removed above it',
+            (removed_index) => {
+                scrollTo(64017);
+                spectator.setInput({
+                    data: rows.filter((_, index) => index !== removed_index),
+                });
+                expect(spectator.element.scrollTop).toBe(63953);
+                expect('[data-row-index="999"]').toContainText('Row 1000');
+                expect(spectator.queryAll('[table-row]').length).toBeLessThan(
+                    40,
+                );
+            },
+        );
+
+        it('should keep the visible row when a poll inserts a new row above it', () => {
+            scrollTo(64017);
+            spectator.setInput({
+                data: [{ id: 'new', name: 'New visitor', age: -1 }, ...rows],
+            });
+            expect(spectator.element.scrollTop).toBe(64081);
+            expect('[data-row-index="1001"]').toContainText('Row 1000');
+        });
+
+        it('should return to the top when the visible anchor row is removed', () => {
+            scrollTo(64017);
+            spectator.setInput({
+                data: rows.filter((row) => row.id !== 'row-1000'),
+            });
+            expect(spectator.element.scrollTop).toBe(0);
+            expect('[data-row-index="0"]').toContainText('Row 0');
+        });
+
         it('should measure variable row heights, preserve the visible anchor, and disconnect observers', () => {
             let resize: () => void = () => undefined;
             const disconnect = vi.fn();
@@ -307,6 +340,8 @@ describe('SimpleTableComponent', () => {
             spectator.detectChanges();
             expect(spectator.element.scrollTop).toBe(before + 80);
             expect(spectator.component.row_offsets()[1]).toBe(240);
+            spectator.setInput({ data: rows.slice(1) });
+            expect(spectator.element.scrollTop).toBe(before + 80 - 240);
             spectator.fixture.destroy();
             expect(disconnect).toHaveBeenCalled();
             vi.unstubAllGlobals();
