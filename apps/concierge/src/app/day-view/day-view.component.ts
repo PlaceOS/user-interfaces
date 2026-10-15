@@ -1,19 +1,11 @@
-import {
-    Component,
-    DestroyRef,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { RoomBookingsComponent } from './room-bookings.component';
 
 @Component({
     selector: '[app-new-dayview]',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
@@ -38,11 +30,7 @@ import { RoomBookingsComponent } from './room-bookings.component';
             }
         `,
     ],
-    imports: [
-        ApplicationTopbarComponent,
-        ApplicationSidebarComponent,
-        RoomBookingsComponent,
-    ],
+    imports: [ApplicationSidebarComponent, RoomBookingsComponent],
 })
 export class DayViewComponent {
     private _router = inject(Router);

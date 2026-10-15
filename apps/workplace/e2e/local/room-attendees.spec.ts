@@ -107,9 +107,8 @@ test.describe('room booking attendees', () => {
         try {
             const me = await currentUser(staffApi);
             // Added and then taken off again — the everyday version of this is
-            // picking the wrong colleague out of a lookup. The correction
-            // happens inside the send flow, so a retry cannot quietly re-add
-            // them.
+            // picking the wrong colleague out of a lookup. Both the add and the
+            // correction happen on the last step, before Confirm.
             const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
                 date: slot.date_ms,
                 attendees: [dropped],

@@ -54,7 +54,7 @@ test.describe('visitor invite times', () => {
         try {
             const form = new InviteVisitorForm(staffPage);
             await form.open();
-            await form.expectSingleMode();
+            await form.useSingleMode();
 
             // Pick from what the form itself offers rather than naming an hour:
             // the options run on a fixed step from the current time, so a
@@ -103,7 +103,7 @@ test.describe('visitor invite times', () => {
 
         const form = new InviteVisitorForm(staffPage);
         await form.open();
-        await form.expectSingleMode();
+        await form.useSingleMode();
 
         const lengths = await form.durationOptions();
         expect(

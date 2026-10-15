@@ -39,10 +39,10 @@ test.describe('concierge access', () => {
         adminPage,
     }) => {
         await adminPage.goto('/#/');
-        // `app-topbar` and `app-sidebar` are the shell the existing mock specs
-        // already rely on, so they are the safest handles in this app.
+        // `app-sidebar` is the shell the existing mock specs already rely
+        // on, so it is the safest handle in this app.
         await expect(
-            adminPage.locator('app-topbar'),
+            adminPage.locator('app-sidebar'),
             'the concierge shell never rendered for an admin. If this fails first, ' +
                 'nothing else in this app can be trusted. Check three things in order: ' +
                 `the app is served on ${CONCIERGE_URL}; the dev server's proxy is ` +
@@ -51,10 +51,6 @@ test.describe('concierge access', () => {
                 'against the shared dev deployment and is bounced to real Microsoft); ' +
                 'and the storage state was minted for THAT origin',
         ).toBeVisible({ timeout: 45_000 });
-        await expect(
-            adminPage.locator('app-sidebar'),
-            'the sidebar is what carries the navigation between concierge areas',
-        ).toBeVisible({ timeout: 30_000 });
         await expect(
             adminPage,
             'and an authorised admin must not be bounced to /unauthorised',
@@ -163,8 +159,8 @@ test.describe('concierge access', () => {
      *
      * `e2e-staff-0@place.tech` has `sys_admin: false`, `support: false` and
      * `groups: []`. With `app.allow_access_groups` unset the guard admits it;
-     * the sidebar still drops the management block, because `is_admin` reads
-     * the user's flags and groups.
+     * the sidebar still drops the management block, because its admin check
+     * reads the user's flags and groups.
      */
     test('CON-B1: with no access group configured, a staff user is admitted without the management pages', async ({
         browser,
@@ -180,7 +176,7 @@ test.describe('concierge access', () => {
             // No settings override: this is the default configuration.
             await page.goto('/#/');
             await expect(
-                page.locator('app-topbar'),
+                page.locator('app-sidebar'),
                 'a signed-in staff user must be given the concierge shell when no ' +
                     'access group is configured. If this fails, check nothing has ' +
                     'set app.allow_access_groups on this stack before reading the ' +

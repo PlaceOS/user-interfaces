@@ -4,6 +4,7 @@ import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
+import { supportGroupsGuard } from './support-groups.guard';
 
 export const routes: Routes = [
     {
@@ -14,13 +15,13 @@ export const routes: Routes = [
         path: 'alerts',
         loadComponent: () =>
             import('./alerts.component').then((m) => m.AlertsComponent),
-        canActivate: [AuthorisedUserGuard],
+        canActivate: [AuthorisedUserGuard, supportGroupsGuard],
     },
     {
         path: 'alerts/:id',
         loadComponent: () =>
             import('./alerts.component').then((m) => m.AlertsComponent),
-        canActivate: [AuthorisedUserGuard],
+        canActivate: [AuthorisedUserGuard, supportGroupsGuard],
     },
     {
         path: 'remote-support',
@@ -28,13 +29,13 @@ export const routes: Routes = [
             import('./remote-support.component').then(
                 (m) => m.RemoteSupportComponent,
             ),
-        canActivate: [AuthorisedUserGuard],
+        canActivate: [AuthorisedUserGuard, supportGroupsGuard],
     },
     {
         path: 'analytics',
         loadComponent: () =>
             import('./analytics.component').then((m) => m.AnalyticsComponent),
-        canActivate: [AuthorisedUserGuard],
+        canActivate: [AuthorisedUserGuard, supportGroupsGuard],
     },
     {
         path: 'dashboards',
@@ -42,7 +43,7 @@ export const routes: Routes = [
             import('./dashboards/dashboards.component').then(
                 (m) => m.DashboardsComponent,
             ),
-        canActivate: [AuthorisedUserGuard],
+        canActivate: [AuthorisedUserGuard, supportGroupsGuard],
         children: [
             {
                 path: 'list',
@@ -102,7 +103,7 @@ export const routes: Routes = [
             import('./recorder-view.component').then(
                 (m) => m.RecorderGridViewComponent,
             ),
-        canActivate: [AuthorisedUserGuard],
+        canActivate: [AuthorisedUserGuard, supportGroupsGuard],
     },
     { path: '**', redirectTo: 'alerts' },
 ];

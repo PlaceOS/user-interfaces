@@ -2,13 +2,11 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { ReportsMenuComponent } from './reports-menu.component';
 
 @Component({
     selector: '[app-new-reports]',
     template: `
-        <app-topbar class="screen-only" />
         <div class="flex h-px flex-1">
             <app-sidebar class="screen-only"></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
@@ -40,12 +38,7 @@ import { ReportsMenuComponent } from './reports-menu.component';
             }
         `,
     ],
-    imports: [
-        ApplicationTopbarComponent,
-        ApplicationSidebarComponent,
-        RouterModule,
-        ReportsMenuComponent,
-    ],
+    imports: [ApplicationSidebarComponent, RouterModule, ReportsMenuComponent],
 })
 export class ReportsComponent extends AsyncHandler {
     private _router = inject(Router);

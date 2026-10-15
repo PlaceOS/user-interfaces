@@ -93,12 +93,23 @@ export async function createRoomBookingViaApi(
 }
 
 /**
+ * The key of the user setting that holds the ids of the favourite rooms.
+ *
+ * The same value as `SETTING_KEYS.FAVORITE_ROOMS` in
+ * `libs/common/src/lib/constants.ts`. The key was `favourite_spaces` before
+ * the new workplace views. The app still reads the old key, but only while
+ * this one has no value (`LEGACY_USER_SETTING_KEYS` in `settings.service.ts`).
+ */
+export const FAVOURITE_ROOMS_KEY = 'favourite_rooms';
+
+/**
  * The signed-in user's own settings blob.
  *
  * Favourite rooms are a USER SETTING, not a property of the room: the app
  * writes the whole blob to `PUT /metadata/{user_id}` (debounced ~2.4s), and
- * `favourite_spaces` is one key inside `details`. Read here so a spec can prove
- * a favourite outlived the page rather than just checking a star turned blue.
+ * `FAVOURITE_ROOMS_KEY` is one key inside `details`. Read here so a spec can
+ * prove a favourite outlived the page rather than just checking a star turned
+ * blue.
  */
 export async function readUserSettings(
     api: APIRequestContext,
@@ -118,8 +129,12 @@ export async function readUserSettings(
  * Set the user's favourite rooms, leaving every other setting alone.
  *
  * Read-modify-write, because the app PUTs the WHOLE settings blob and this has
- * to do the same — a PUT carrying only `favourite_spaces` would wipe the
+ * to do the same — a PUT carrying only the favourites would wipe the
  * visitor specs' saved invitee list, which lives in the same object.
+ *
+ * This always writes a list, also an empty one. The app then does not fall
+ * back to a value that an earlier run left under the old `favourite_spaces`
+ * key.
  */
 export async function setFavouriteSpaces(
     api: APIRequestContext,
@@ -131,12 +146,12 @@ export async function setFavouriteSpaces(
         data: {
             name: 'settings',
             description: '',
-            details: { ...details, favourite_spaces: ids },
+            details: { ...details, [FAVOURITE_ROOMS_KEY]: ids },
         },
     });
     if (!res.ok()) {
         throw new Error(
-            `write favourite_spaces failed: HTTP ${res.status()} ${await res.text()}`,
+            `write ${FAVOURITE_ROOMS_KEY} failed: HTTP ${res.status()} ${await res.text()}`,
         );
     }
 }

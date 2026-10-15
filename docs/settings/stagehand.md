@@ -18,6 +18,18 @@ Set settings in Backoffice zone metadata under `stagehand_app` for the standard 
 | `allow_dark_mode` | boolean | `false` | Make the dark theme control available in the sidebar. |
 | `chat.enabled` | boolean | `false` | Show the chat widget. |
 
+## Access & Support Groups
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `access_subsystem` | string | `"support"` | Group subsystem that grants access to the app, when the authority's `use_group_subsystem_access` is on. |
+
+Stagehand works in one support group at a time: a group whose subsystems include `support`. The sidebar shows the selected group, and opens a list of the user's groups to switch to. The selection is saved in the browser.
+
+The group decides what the app shows. The MQTT alert subscriptions, the remote support system list, the system search and the region and building lists only include the zones the group was granted, with their descendants, and leave out any zone the group was denied. A zone without a hierarchy tag (`region`, `building`, `level` or `area`) cannot be used as an MQTT topic filter, so the alerts list only follows hierarchy zones.
+
+System admins and support users can also pick "All groups", which shows the whole organisation. Other users who are in no support group are sent to the unauthorised page.
+
 ## Alerts & Push Notifications
 
 | Setting | Type | Default | Description |

@@ -31,8 +31,10 @@ import {
     ALLOW_EDITING,
     useSettings,
 } from '../../../../e2e/support/visitor/visitor.settings';
-import { inviteVisitorsViaUI } from '../../../../e2e/support/visitor/visitor.flows';
-import { InviteVisitorForm } from '../../../../e2e/support/visitor/invite-form.page';
+import {
+    inviteVisitorsViaUI,
+    saveEditViaUI,
+} from '../../../../e2e/support/visitor/visitor.flows';
 import { YourBookingsPage } from '../../../../e2e/support/visitor/your-bookings.page';
 
 const DAY = 86_400;
@@ -148,20 +150,21 @@ test.describe('moving a group invite', () => {
             ).not.toBe(hhmm(Math.floor(moved_to / 1000)));
 
             // Re-open the invite from the schedule and change only the time.
+            // Through `saveEditViaUI`, which does the edit again if REG-09
+            // refuses the save.
             const schedule = new YourBookingsPage(staffPage);
-            await schedule.open();
-            await schedule.showVisitors();
-            await schedule.showDayOf(visit_day);
-            await schedule.startEdit(member_ids[0]);
+            await saveEditViaUI(staffPage, async (form) => {
+                await schedule.open();
+                await schedule.showVisitors();
+                await schedule.showDayOf(visit_day);
+                await schedule.startEdit(member_ids[0]);
 
-            const form = new InviteVisitorForm(staffPage);
-            await expect(
-                form.chips,
-                'the edit form should open with both visitors listed',
-            ).toHaveCount(2, { timeout: 30_000 });
-            await form.setStartTime(hhmm(Math.floor(moved_to / 1000)));
-            await staffPage.waitForTimeout(3_000);
-            await form.sendButton.click();
+                await expect(
+                    form.chips,
+                    'the edit form should open with both visitors listed',
+                ).toHaveCount(2, { timeout: 30_000 });
+                await form.setStartTime(hhmm(Math.floor(moved_to / 1000)));
+            });
 
             // EVERY member, not just the one the edit was opened from.
             await expect(async () => {

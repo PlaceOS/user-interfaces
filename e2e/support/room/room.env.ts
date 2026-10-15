@@ -70,7 +70,7 @@ export const ROOM_SLOTS_2 = {
     allday: { hour: 18 },
     /** room-delegate.spec.ts */
     delegate: { hour: 19 },
-    /** room-features.spec.ts — no booking, so only the picker matters */
+    /** room-features.spec.ts — no booking, so only the room list matters */
     features: { hour: 20 },
 } as const;
 
@@ -95,6 +95,21 @@ export const ROOM_SLOTS_3 = {
     recurring: { hour: 12 },
 } as const;
 
+/**
+ * A FOURTH day, for `meeting-flow-new.spec.ts` alone.
+ *
+ * NEW-ROOM-01 books the room for the whole day. On a day that another spec
+ * uses, a booking left by a run that died would hold the room against that
+ * spec. On today it would also hold the room against the specs that take the
+ * default time (`home-meeting-with`, and the concierge catering spec on
+ * worker 0).
+ *
+ * Not 6 or 7: ROOM-25b in `room-recurring.spec.ts` books `THIRD_DAY + 1` in
+ * Sydney time, which is local day 6 or 7, and its weekly instances are one
+ * and two weeks after that.
+ */
+export const FOURTH_DAY = 8;
+
 export interface RoomIdentity {
     /** Engine system id, filled in by the seeder — not known up front. */
     id: string;
@@ -117,7 +132,7 @@ export interface RoomIdentity {
  *    way for the test to fail for an unrelated reason.
  *
  * The names deliberately share no prefix with each other's full name, because
- * the picker is searched by name text: "E2E Room 0" does not appear inside
+ * the room list is searched by name text: "E2E Room 0" does not appear inside
  * "E2E Alt Room 0" or "E2E Small Room 0".
  */
 export type RoomVariant = 'main' | 'alt' | 'small';
@@ -126,10 +141,10 @@ export type RoomVariant = 'main' | 'alt' | 'small';
  * A feature only the `alt` room has.
  *
  * Space features come from the engine System's own `features` list, and the
- * picker's facilities filter is built from whatever the loaded rooms carry
- * (`space-filters.component.ts`). With no room carrying anything, the filter
- * section is not rendered at all — so testing it needs exactly this: one
- * feature, on one room, so filtering by it has a right answer.
+ * facilities filter of the room list is built from whatever the loaded rooms
+ * carry (`meeting-flow-space-select.component.ts`). With no room carrying
+ * anything, the filter section is not rendered at all — so testing it needs
+ * exactly this: one feature, on one room, so filtering by it has a right answer.
  */
 export const ALT_ROOM_FEATURE = 'E2E Projector';
 

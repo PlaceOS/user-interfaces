@@ -4,7 +4,7 @@
  *
  * Test 1 asks the plain question nothing else here asks: if a user picks a day,
  * a start time and a length, are THOSE the times that get stored? Everything
- * else in the room specs takes whatever the form offers, so a form that ignored
+ * else in the room specs takes whatever the flow offers, so a flow that ignored
  * the pickers would have passed the lot.
  *
  * Test 2 covers the two settings that fence the pickers in — a maximum meeting
@@ -12,7 +12,12 @@
  * nothing else sees them, and both fail quietly in the same way: the option is
  * simply absent rather than refused. That is why this asserts on the options
  * OFFERED. "A three-hour meeting is rejected" would be testing something the
- * form never lets you attempt.
+ * flow never lets you attempt.
+ *
+ * Test 3 asks the same question as test 1 for the LENGTH alone.
+ *
+ * All three set the day before they read or pick a time. The details step
+ * starts on today and offers only the times that are left of it.
  */
 import {
     deleteBooking,
@@ -20,10 +25,10 @@ import {
     uniqueTitle,
 } from '../../../../e2e/support/api';
 import { expect, test } from '../../../../e2e/support/fixtures';
-import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
 import { releaseRoom } from '../../../../e2e/support/room/room.api';
 import { ROOM_SLOTS, slotFor } from '../../../../e2e/support/room/room.env';
-import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
+import { bookRoomViaUI, setDate } from '../../../../e2e/support/room/room.flows';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import {
     LIMITED_HOURS,
@@ -58,16 +63,16 @@ test.describe('room booking times', () => {
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
 
         try {
-            const form = new MeetingForm(staffPage);
+            const form = new MeetingFlow(staffPage);
             await form.open();
+            await setDate(form, staffPage, slot.date_ms);
 
-            // Pick from what the form itself offers rather than naming an hour:
-            // the options run on a fixed step, so a hardcoded "14:30" is a test
-            // that stops working after 14:30.
+            // Pick from what the flow itself offers rather than naming an hour.
+            // The second option, so the choice is not the default of the field.
             const times = await form.startTimeOptions();
             expect(
                 times.length,
-                'the form offered no start times at all — nothing can be chosen',
+                'the flow offered no start times at all — nothing can be chosen',
             ).toBeGreaterThan(1);
             const lengths = await form.durationOptions();
             const chosen_time = times[1];
@@ -95,15 +100,12 @@ test.describe('room booking times', () => {
             ).toBe(new Date(slot.date_ms).toDateString());
             expect(
                 start.getHours() * 60 + start.getMinutes(),
-                `and start at the ${chosen_time} that was picked, not the form's default`,
+                `and start at the ${chosen_time} that was picked, not the flow's default`,
             ).toBe(minutesOfDay(chosen_time));
-            // The LENGTH is deliberately not asserted here — see the `fixme`
-            // below. ROOM-B3: the form and the confirmation both show the length
-            // that was picked, and the booking is made for 60 minutes anyway.
             expect(
                 (stored.booking_end - stored.booking_start) / 60,
-                'the meeting has some length at all',
-            ).toBeGreaterThan(0);
+                `and run for the ${chosen_length} minutes that were picked`,
+            ).toBe(chosen_length);
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
         }
@@ -117,24 +119,27 @@ test.describe('room booking times', () => {
             ...LIMITED_HOURS,
         });
 
-        const form = new MeetingForm(staffPage);
+        const form = new MeetingFlow(staffPage);
         await form.open();
+        // A day with all of its hours ahead of it. Today offers only what is
+        // left of the bookable hours, which can be nothing.
+        await setDate(form, staffPage, slotFor(ROOM_SLOTS.times.limits).date_ms);
 
         const lengths = await form.durationOptions();
         expect(
             lengths.length,
-            'the form offered no meeting lengths at all, so the cap cannot be judged',
+            'the flow offered no meeting lengths at all, so the cap cannot be judged',
         ).toBeGreaterThan(0);
         expect(
             Math.max(...lengths),
-            `with a ${MAX_MINUTES} minute cap nothing longer may be offered — the form ` +
+            `with a ${MAX_MINUTES} minute cap nothing longer may be offered — the flow ` +
                 `is the only place this is enforced, the backend stores any length`,
         ).toBeLessThanOrEqual(MAX_MINUTES);
 
         const times = await form.startTimeOptions();
         expect(
             times.length,
-            'the form offered no start times at all, so the hours cannot be judged',
+            'the flow offered no start times at all, so the hours cannot be judged',
         ).toBeGreaterThan(0);
         expect(
             Math.min(...times.map(minutesOfDay)),
@@ -148,29 +153,17 @@ test.describe('room booking times', () => {
     });
 
     /**
-     * ROOM-14, blocked by ROOM-B3 — the meeting length chosen on the form is not
-     * the length booked.
+     * ROOM-14 — the meeting length chosen on the form is the length booked.
      *
-     * Measured while writing the test above. The form is asked for a 90 minute
-     * meeting; the duration field shows "1 hour 30 minutes", the confirmation
-     * shows 6:00 PM – 7:30 PM, and the request sent is:
+     * The flow that this one replaced booked 60 minutes whatever length was
+     * picked (ROOM-B3): the request carried `booking_end` at one hour while
+     * `extension_data.event_end` held the length that was asked for. A user
+     * was shown one time range and the room was held for another. This test
+     * was blocked on it.
      *
-     *   booking_start ............... 6:00 PM
-     *   booking_end ................. 7:00 PM   <- 60 minutes
-     *   extension_data.event_end .... 7:30 PM   <- the event knows it is 90
-     *
-     * So the CalendarEvent carries the right end time and the Booking built from
-     * it does not: `newBookingFromCalendarEvent` takes `event.duration`, which
-     * is still the default. **A user is shown one time range and the room is
-     * held for another** — anyone booking a long meeting loses the second half
-     * of it, and the room looks free to everybody else.
-     *
-     * Order does not help: setting the length before the start time and after it
-     * both post 60. Not a timing problem either — the field still reads 90 four
-     * seconds later, immediately before the confirmation is sent.
-     *
-     * `fixme`, so it costs nothing per run. Drop the marker once the app carries
-     * the chosen length through, and fold it back into the test above.
+     * Measured on the new flow, 13 Oct 2026: a 90 minute meeting is stored as
+     * 90 minutes, so the test is active. Test 1 asserts the length too, with a
+     * start time picked next to it.
      */
     test('the meeting length chosen on the form is what gets booked', async ({
         staffPage,

@@ -137,6 +137,44 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
+                        <label for="hide-landing-widgets"
+                            >Hidden Landing Widgets</label
+                        >
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                [formField]="form.hide_landing_widgets"
+                                placeholder="None"
+                                multiple
+                            >
+                                <mat-option value="available_now">
+                                    Available Now
+                                </mat-option>
+                                <mat-option value="quick_actions">
+                                    Quick Actions
+                                </mat-option>
+                                <mat-option value="desk_week">
+                                    My Desk Bookings
+                                </mat-option>
+                                <mat-option value="favourites">
+                                    Favourites
+                                </mat-option>
+                                <mat-option value="colleagues">
+                                    Colleagues
+                                </mat-option>
+                                <mat-option value="focus_timer">
+                                    Focus Timer
+                                </mat-option>
+                                <mat-option value="world_clock">
+                                    World Clock
+                                </mat-option>
+                            </mat-select>
+                            <mat-hint>
+                                Widgets that users cannot have on the landing
+                                page
+                            </mat-hint>
+                        </mat-form-field>
+                    </div>
+                    <div>
                         <label for="features"
                             >Hide Global Search Item Types</label
                         >
@@ -463,6 +501,11 @@ import { errorText } from '../modal-actions';
                         <settings-toggle
                             label="Hide colleagues"
                             [formField]="form.hide_colleagues"
+                        ></settings-toggle>
+                        <settings-toggle
+                            label="Hide landing customise"
+                            info="Will stop users from changing the layout of the landing page"
+                            [formField]="form.hide_landing_customise"
                         ></settings-toggle>
                         <settings-toggle
                             label="Show landing quick links"
@@ -1959,6 +2002,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         hide_landing_spaces: false,
         hide_landing_rooms: false,
         hide_colleagues: false,
+        hide_landing_customise: false,
+        hide_landing_widgets: [] as string[],
         show_quick_links: false,
         show_quick_book: false,
         allow_dark_mode: true,

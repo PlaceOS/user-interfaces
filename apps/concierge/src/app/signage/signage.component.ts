@@ -1,18 +1,16 @@
-import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Router, RouterModule } from '@angular/router';
 import { AsyncHandler, i18n, settingSignal } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
     selector: '[app-new-staff]',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             @if (!hide_sidebar()) {
                 <app-sidebar></app-sidebar>
@@ -81,7 +79,6 @@ import { SignageStateService } from './signage-state.service';
     ],
     imports: [
         CommonModule,
-        ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         TranslatePipe,
         MatRippleModule,

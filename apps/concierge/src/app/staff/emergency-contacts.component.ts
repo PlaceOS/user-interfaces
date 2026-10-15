@@ -21,7 +21,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
 import {
     EmergencyContact,
@@ -34,7 +33,6 @@ export type { EmergencyContact } from './emergency-contacts.service';
 @Component({
     selector: '[app-emergency-contacts]',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -236,7 +234,6 @@ export type { EmergencyContact } from './emergency-contacts.service';
         MatFormFieldModule,
         MatSelectModule,
         MatInputModule,
-        ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         FormsModule,
         TranslatePipe,

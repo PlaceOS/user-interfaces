@@ -2,7 +2,7 @@
  * PARK-12 — saving a favourite parking space and filtering the picker to favourites.
  *
  * Favourites are a USER setting, written to the signed-in user's `settings`
- * metadata as `favourite_parking_spaces` and read back on every later visit. The room
+ * metadata as `favourite_parking` and read back on every later visit. The room
  * and desk equivalents are both green; parking has the same feature, and the
  * same failure mode: a star that lights up and is forgotten on reload looks
  * perfect in a screenshot and is useless to the person circling the car park
@@ -101,8 +101,7 @@ test.describe('favourite parking spaces', () => {
                 expect(
                     settings[FAVOURITE_PARKING_KEY] ?? [],
                     `${space.name} (${space.id}) should be saved as a favourite space ` +
-                        `under "${FAVOURITE_PARKING_KEY}". Note the codebase also has a ` +
-                        `dead \`favourite_parking\` constant that nothing reads`,
+                        `under "${FAVOURITE_PARKING_KEY}"`,
                 ).toContain(space.id);
             }).toPass({ timeout: 30_000 });
 

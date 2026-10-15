@@ -111,7 +111,7 @@ test.describe('concierge reports', () => {
             ).toEqual([]);
 
             await expect(
-                adminPage.locator('app-topbar'),
+                adminPage.locator('app-sidebar'),
                 'and the shell must still be standing afterwards',
             ).toBeVisible();
         });

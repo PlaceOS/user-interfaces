@@ -1,76 +1,128 @@
 /**
- * Page object for the Invite Visitor form (`/#/book/visitor/form`).
+ * Page object for the visitor invite page (`/#/book/visitor/form`), which is
+ * the `visitor-flow-new` component.
  *
- * SELECTOR POLICY, because this form has none of the `name` hooks the desk flow
- * relies on: every locator below is a hardcoded attribute, a fixed id, a form
- * control suffix, or a `data-` attribute. NOT ONE depends on visible text, so a
- * translation change cannot break this file. Each was confirmed against the
- * running app by dumping the DOM, not read off the template and hoped for.
+ * ## One page
  *
- *   Send button        `button[send]`            bare attribute in the template
- *   Sending spinner    `div[loading]`            bare attribute
- *   Success panel      `div[sent]`               bare attribute
- *   Visitor name       `#visitor-name`           fixed id
- *   Visitor email      `#visitor-email`          fixed id
- *   Reason             `#reason`                 fixed id
- *   Company etc.       `input[name$=".company"]` signal-form control suffix
+ * The recent visitors, the visit details, the visitor fields and the Confirm
+ * button are all on one page. There are no steps. Confirm sends the invite at
+ * once, and the app then shows `visitor-flow-success` at
+ * `/#/book/visitor/success`. An invalid form shows a snack bar and sends
+ * nothing.
+ *
+ * ## Two modes, chosen on the page
+ *
+ * A Single/Multiple toggle at the top of the details chooses between the
+ * name/email fields and the visitor chip list. The page always opens in
+ * single mode: `bookings.multiple_visitors` does NOT choose the mode here, it
+ * only changes the wording of the success view. The toggle is not shown while
+ * an existing invite is edited — the invite keeps the mode it was made in.
+ *
+ * SELECTOR POLICY: every locator below is an element name, a hardcoded
+ * attribute, a form control suffix, a `data-` attribute or an icon ligature.
+ * NOT ONE depends on visible text, so a translation change cannot break this
+ * file. Each was confirmed against the running app by dumping the DOM, not
+ * read off the template and hoped for.
+ *
+ *   Confirm button     `button[btn]` + icon `task_alt`   no attribute of its own
+ *   Success view       `visitor-flow-success`     element
+ *   Mode toggle        `button[btn]` + icon `person` / `group`
+ *   Visitor name       `input[name$=".asset_name"]`  signal-form control suffix
+ *   Visitor email      `input[name$=".asset_id"]`    the email IS the asset id
+ *   Company etc.       `input[name$=".company"]`     signal-form control suffix
+ *   Reason             `input[name$=".title"]`       stored as the booking title
  *   Visitor chips      `mat-chip-row[user]`      bare attribute
  *   Chip entry         `input[name="user_email"]` hardcoded name
- *   Building           `mat-select[name="building"]` hardcoded name
+ *   Recent visitors    `visitor-flow-recent button[type="button"]`
+ *   Host               `a-user-search-field input`   no name on the input
  *   Time picker        `button[time-field]`      bare attribute
  *   Time option        `button[data-time="HH:mm"]`     real data- attribute
  *   Duration option    `button[data-duration="mins"]`  real data- attribute
  *
  * The form-control names carry a form index (`ng.form0.asset_name`), so match
- * the SUFFIX rather than the whole name. Note the reason lives on a SECOND
- * form (`ng.form1.title`) because it is validated separately — `#reason` is the
- * unambiguous way to reach it.
+ * the SUFFIX rather than the whole name. An icon ligature is the icon's name in
+ * the source, not copy, so it is not translated.
  */
 import { Locator, Page, expect } from '@playwright/test';
 import { pickCalendarDay } from './calendar';
+
+type VisitorMode = 'single' | 'group';
+
+/** The icon on each button of the Single/Multiple toggle. */
+const MODE_ICONS: Record<VisitorMode, string> = { single: 'person', group: 'group' };
 
 export class InviteVisitorForm {
     constructor(private readonly page: Page) {}
 
     get root(): Locator {
-        return this.page.locator('invite-visitor-form');
+        return this.page.locator('visitor-flow-new');
     }
+    private get details(): Locator {
+        return this.root.locator('visitor-flow-details');
+    }
+    private get invites(): Locator {
+        return this.root.locator('visitor-flow-invites');
+    }
+
+    /** A `button[btn]` inside `scope`, matched on the whole name of its icon. */
+    private iconButton(scope: Locator, icon: string): Locator {
+        return scope.locator('button[btn]').filter({
+            has: this.page.locator('icon', { hasText: new RegExp(`^\\s*${icon}\\s*$`) }),
+        });
+    }
+
+    /**
+     * The Confirm button. It sends a new invite and saves an edited one.
+     * While the request is in flight its icon is a spinner, so this matches
+     * nothing until the app is ready for another click.
+     */
     get sendButton(): Locator {
-        return this.root.locator('button[send]');
+        return this.iconButton(this.root, 'task_alt');
     }
+    /** The success view. It replaces the form, at `/#/book/visitor/success`. */
     get successPanel(): Locator {
-        return this.page.locator('div[sent]');
+        return this.page.locator('visitor-flow-success');
     }
     get visitorName(): Locator {
-        return this.page.locator('#visitor-name');
+        return this.invites.locator('input[name$=".asset_name"]');
     }
+    /** The visitor's address. It is the booking's `asset_id`, and is required. */
     get visitorEmail(): Locator {
-        return this.page.locator('#visitor-email');
+        return this.invites.locator('input[name$=".asset_id"]');
     }
     get company(): Locator {
-        return this.root.locator('input[name$=".company"]');
+        return this.invites.locator('input[name$=".company"]');
     }
+    /** The reason for the visit. Stored as the booking title. */
     get reason(): Locator {
-        return this.page.locator('#reason');
+        return this.details.locator('input[name$=".title"]');
     }
     get passNumber(): Locator {
-        return this.root.locator('input[name$=".pass_number"]');
+        return this.invites.locator('input[name$=".pass_number"]');
     }
     get allDay(): Locator {
-        return this.root.locator('input[name$=".all_day"]');
+        return this.details.locator('input[name$=".all_day"]');
     }
+    /**
+     * The international-visitor checkbox. The page has no such control at the
+     * moment: this is the name that the control would carry.
+     */
     get international(): Locator {
         return this.root.locator('input[name$=".international"]');
     }
     get chipEntry(): Locator {
-        return this.page.locator('input[name="user_email"]');
+        return this.invites.locator('input[name="user_email"]');
     }
     get chips(): Locator {
-        return this.page.locator('mat-chip-row[user]');
+        return this.invites.locator('mat-chip-row[user]');
+    }
+    /** The recent visitors that the quick action panel offers. */
+    get recentVisitors(): Locator {
+        return this.root.locator('visitor-flow-recent button[type="button"]');
     }
     /** The button that opens the date picker. */
     get dateButton(): Locator {
-        return this.root.locator('a-date-field button').first();
+        return this.details.locator('a-date-field button').first();
     }
     /** The picker itself, which lives in an overlay once opened. */
     get datePicker(): Locator {
@@ -162,11 +214,8 @@ export class InviteVisitorForm {
         ).toHaveCount(before - 1, { timeout: 10_000 });
     }
 
-    get buildingSelect(): Locator {
-        return this.page.locator('mat-select[name="building"]');
-    }
     get hostField(): Locator {
-        return this.page.locator('a-user-search-field');
+        return this.details.locator('a-user-search-field');
     }
     get hostInput(): Locator {
         return this.hostField.locator('input').first();
@@ -182,9 +231,12 @@ export class InviteVisitorForm {
      * here. Likewise the search field's default source is `/people`, also
      * calendar backed; `basic_user_search` swings it to rest-api's `/users`.
      *
-     * Once chosen the input shows the host's NAME, not their email
-     * (`displayFn` in user-search-field.component.ts) — which is why the name
-     * is needed to tell "already set" from "not set yet".
+     * The input shows the host's NAME, not their email (`displayFn` in
+     * user-search-field.component.ts), and it starts on the signed-in user —
+     * which is why the name is needed to tell "already set" from "not set yet".
+     *
+     * Choose the mode FIRST. The Single/Multiple toggle puts the host back to
+     * the signed-in user (`setActiveForm` in visitor-flow-details).
      */
     async chooseHost(email: string, name: string): Promise<void> {
         await expect(
@@ -210,11 +262,11 @@ export class InviteVisitorForm {
         await expect(this.hostInput).toHaveValue(name);
     }
     get startTimeTrigger(): Locator {
-        return this.page.locator('button[time-field]');
+        return this.details.locator('button[time-field]');
     }
 
     get durationTrigger(): Locator {
-        return this.page.locator('button[duration-field]');
+        return this.details.locator('button[duration-field]');
     }
 
     /**
@@ -265,37 +317,53 @@ export class InviteVisitorForm {
         await option.click();
     }
 
-    /** Open the form and wait for it to render. */
+    /** Open the page on a fresh form and wait for it to render. */
     async open(): Promise<void> {
-        // A goto to the route the page is already on only touches the hash, so
-        // Angular keeps the component — still on its sent screen after an
-        // earlier invite. Reload instead so it starts from a fresh form.
-        const route = new URL(this.page.url()).hash.split('?')[0];
-        if (route === '#/book/visitor/form') await this.page.reload();
-        else await this.page.goto('/#/book/visitor/form');
+        // The form and the success view are routes of ONE component, so a goto
+        // from either only touches the hash and Angular keeps the component —
+        // with a half-sent group still in it after a failed attempt. Reload as
+        // well, so it starts from a fresh form.
+        const on_visitor_route = new URL(this.page.url()).hash.startsWith('#/book/visitor');
+        await this.page.goto('/#/book/visitor/form');
+        if (on_visitor_route) await this.page.reload();
         await expect(
-            this.root,
-            'the visitor invite form never rendered — is the `visitor-invite` feature enabled?',
+            this.reason,
+            'the visitor invite page never rendered — is the `visitor-invite` feature enabled?',
         ).toBeVisible({ timeout: 30_000 });
     }
 
-    /** Fail with a useful message if the form is not in single-visitor mode. */
-    async expectSingleMode(): Promise<void> {
-        await expect(
-            this.visitorEmail,
-            'the single-visitor email field is missing — this flow needs ' +
-                '`app.bookings.multiple_visitors = false`; the app default is true, ' +
-                'which renders the chip list instead',
-        ).toBeVisible({ timeout: 30_000 });
+    /** Put the page in single-visitor mode: the name and email fields. */
+    async useSingleMode(): Promise<void> {
+        await this.useMode('single', this.visitorEmail);
     }
 
-    /** Fail with a useful message if the form is not in multi-visitor mode. */
-    async expectGroupMode(): Promise<void> {
-        await expect(
-            this.chipEntry,
-            'the multi-visitor entry field is missing — this flow needs ' +
-                '`app.bookings.multiple_visitors = true`',
-        ).toBeVisible({ timeout: 30_000 });
+    /** Put the page in multi-visitor mode: the visitor chip list. */
+    async useGroupMode(): Promise<void> {
+        await this.useMode('group', this.chipEntry);
+    }
+
+    /**
+     * Choose a mode, if the page is not in it already. `marker` is a field
+     * that only that mode renders, so it says which mode the page is in
+     * without reading a style class off the toggle.
+     */
+    private async useMode(mode: VisitorMode, marker: Locator): Promise<void> {
+        // Either mode renders this, so it proves the page is ready to be read.
+        await expect(this.invites, 'the visitor fields never rendered').toBeVisible({
+            timeout: 30_000,
+        });
+        if (!(await marker.isVisible())) {
+            const toggle = this.iconButton(this.details, MODE_ICONS[mode]);
+            await expect(
+                toggle,
+                `the page is not in ${mode} mode and has no toggle to change it — an ` +
+                    'invite that is being edited keeps the mode it was made in',
+            ).toBeVisible({ timeout: 10_000 });
+            await toggle.click();
+        }
+        await expect(marker, `the page did not go to ${mode} mode`).toBeVisible({
+            timeout: 30_000,
+        });
     }
 
     /**
@@ -319,8 +387,12 @@ export class InviteVisitorForm {
 
     /** Set a Material checkbox to a state, reading the real state off the input. */
     async setCheckbox(input: Locator, want: boolean): Promise<void> {
-        if (!(await input.count())) return;
-        if ((await input.isChecked().catch(() => false)) === want) return;
+        await expect(
+            input,
+            'the checkbox is not on the page — either the setting that shows it is ' +
+                'off, or this page has no such control',
+        ).toBeAttached({ timeout: 10_000 });
+        if ((await input.isChecked()) === want) return;
         // The visible mat-checkbox is the click target; the input holds `checked`.
         await input.locator('xpath=ancestor::mat-checkbox').click();
         await (want ? expect(input).toBeChecked() : expect(input).not.toBeChecked());

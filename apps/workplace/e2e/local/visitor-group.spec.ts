@@ -1,9 +1,9 @@
 /**
  * VIS-03 / VIS-04 — invite SEVERAL visitors at once, through the full UI.
  *
- * This is the mode workplace ships with (`bookings.multiple_visitors` defaults
- * to true), and it is not "the single flow, twice". One send produces N+1
- * records:
+ * This is the Multiple side of the toggle on the invite page, which
+ * `inviteVisitorsViaUI` selects, and it is not "the single flow, twice". One
+ * send produces N+1 records:
  *
  *   - a GROUP CONTAINER booking, `booking_type: 'group'`, carrying the shared
  *     group reference in `extension_data`;

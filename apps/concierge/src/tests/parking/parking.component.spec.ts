@@ -11,7 +11,6 @@ import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { ParkingTopbarComponent } from '../../app/parking/parking-topbar.component';
 import { ParkingComponent } from '../../app/parking/parking.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 
 describe('ParkingComponent', () => {
     let spectator: SpectatorRouting<ParkingComponent>;
@@ -32,7 +31,6 @@ describe('ParkingComponent', () => {
             }),
         ],
         declarations: [
-            MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
             MockComponent(ParkingTopbarComponent),
         ],

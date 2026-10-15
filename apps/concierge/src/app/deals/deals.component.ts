@@ -2,12 +2,10 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 
 @Component({
     selector: '[app-deals]',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
@@ -26,11 +24,7 @@ import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
             }
         `,
     ],
-    imports: [
-        ApplicationTopbarComponent,
-        ApplicationSidebarComponent,
-        RouterModule,
-    ],
+    imports: [ApplicationSidebarComponent, RouterModule],
 })
 export class DealsComponent extends AsyncHandler {
     private _router = inject(Router);

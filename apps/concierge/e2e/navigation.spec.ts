@@ -8,7 +8,6 @@ test.describe('Application Shell', () => {
         await page.goto('/#/?mock=true');
         await page.locator('[app-new-dayview]').waitFor({ timeout: 30000 });
 
-        await expect(page.locator('app-topbar')).toBeVisible();
         await expect(page.locator('app-sidebar')).toBeVisible();
     });
 

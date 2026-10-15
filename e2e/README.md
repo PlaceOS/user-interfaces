@@ -52,9 +52,9 @@ e2e/stack/down.sh            # stop        (--volumes to wipe; driver binaries a
 ```
 
 It is trimmed to what the e2e path exercises: postgres, elasticsearch, redis,
-search-ingest, frontend-loader, auth, rest-api, staff-api, core, nginx, init.
-Dropped from PlaceOS/local: edge, triggers, dispatch, source, influx, chronograf,
-mosquitto, minio and the loki/grafana profile — roughly half the containers.
+search-ingest, frontend-loader, auth, rest-api, staff-api, core, source,
+mosquitto, nginx, init. Dropped from PlaceOS/local: edge, triggers, dispatch,
+influx, chronograf, minio and the loki/grafana profile.
 
 The calendar and directory can be backed by the PlaceOS Microsoft 365 sandbox
 tenant. Set `E2E_O365_TENANT`, `E2E_O365_CLIENT_ID` and `E2E_O365_CLIENT_SECRET`
@@ -90,6 +90,60 @@ Two things a cold start taught us that a long-lived stack hides:
   `seed.ts` patches `login_url` to an absolute URL. A long-lived stack usually has
   an absolute value already, which is why this never shows up locally.
 
+## MQTT
+
+Stagehand reads module state from MQTT, so the stack carries that path:
+
+```
+driver --> redis --> source --> mosquitto:1883      (source publishes, API key auth)
+                                 mosquitto:9001  <-- nginx /api/mqtt/ <-- browser (bearer auth)
+```
+
+- **`source` publishes to Broker rows, nothing else.** `e2e/support/mqtt/mqtt.seed.ts`
+  creates one for `mosquitto:1883`, signed in with an API key minted as Support (rest-api
+  only lets support users publish). `up.sh` runs it.
+- **mosquitto asks rest-api about every client and topic**, as a deployment does. The routes
+  are `/api/engine/v2/mqtt/user` and `/mqtt/access`. PlaceOS/local's config names
+  `mqtt_user`/`mqtt_access`, which 404, so every client is refused there; `e2e/stack/mosquitto.conf`
+  has the working names.
+- **A subscription is sent everything retained under it at once**, and mosquitto drops what
+  does not fit the client's queue. `mosquitto.conf` sets `max_queued_messages 10000`, as
+  deployments now do; the default of 1000 cut wide subscriptions short on large sites.
+- **Restarting mosquitto empties it** (no persistence). source before v1.22.1 (so
+  `placeos-2.2610.1`) neither republishes after reconnecting nor retries a broker it could not
+  reach at startup, so restart source after mosquitto. v1.22.1 (PlaceOS/source#65) does both.
+- **Test against a newer source than the release**: `E2E_SOURCE_IMAGE=placeos/source:nightly`,
+  or build it (`docker build -t placeos/source:local .` in the source clone), then
+  `E2E_SOURCE_IMAGE=placeos/source:local e2e/stack/up.sh`, or recreate just
+  that service with `LOG_LEVEL=info E2E_SOURCE_IMAGE=placeos/source:local docker compose -p
+  placeos-e2e -f e2e/stack/docker-compose.yml up -d --no-deps --force-recreate source`.
+  `LOG_LEVEL=info` shows source's `reconciled retained state` and `swept retained state` lines.
+- **Assert the broker against the truth, not a value.** `expectedTopics` (stagehand.api.ts) builds
+  every topic a system should have from its module order, names, zones and each module's own
+  state; `retainedForSystem` (broker-view.ts) is what a fresh client is handed. The lifecycle
+  specs require them to be equal, so a stale, missing or misplaced topic all fail the same way.
+- **Do not run a Crystal spec suite in Docker alongside the stack** on an 8 GB Docker VM: the
+  compiler is OOM-killed, and takes Elasticsearch with it. Stop the stack first.
+- **Specs read the broker as well as the page.** `e2e/support/mqtt/broker-view.ts` connects the
+  way stagehand does: `BrokerView` follows topics live, `retainedSnapshot` is what a client
+  connecting now is handed. Stagehand re-checks alerts over REST, so a right-looking page does not
+  mean the broker is right.
+
+The specs drive state with `drivers/place/e2e/state_harness.cr`, pinned in
+`e2e/support/drivers/drivers.env.ts` (`HARNESS_*`). It is a UDP device, so it reports
+`connected: true` without a peer; `set_connected`, `set_status` and `clear_status` change what
+it reports. Create a harness module with `running: true` rather than creating then starting it:
+core drops a `start` that arrives before it has loaded the module (`No protocol manager`), and
+the module stays `running` with no process behind it.
+
+If the build farm cannot build for this machine's architecture (arm64 answered 502 for every
+build on 2026-10-14 while amd64 worked), run core as amd64 under emulation:
+
+```bash
+DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose -p placeos-e2e -f e2e/stack/docker-compose.yml \
+    up -d --force-recreate --no-deps core
+```
+
 ## Layout
 
 ```
@@ -107,7 +161,7 @@ e2e/                          shared engine, all apps
       visitor.env.ts              per-worker visitor addresses + slot table
       visitor.api.ts              guest + visitor-booking helpers and sweeps
       visitor.settings.ts         per-context app settings presets
-      invite-form.page.ts         locators for the invite form
+      invite-form.page.ts         locators for the invite page (`visitor-flow-new`)
       your-bookings.page.ts       locators for the schedule + details modal
       visitor.flows.ts            multi-step UI flows (inviteVisitorViaUI)
     room/                     room-booking coverage, kept out of the files above
@@ -115,9 +169,18 @@ e2e/                          shared engine, all apps
       room.seed.ts                creates the rooms as engine Systems (needs ADMIN)
       room.api.ts                 room-booking helpers, sweeps, tryRoomBooking
       room.settings.ts            per-context app settings presets (use_bookings mode)
-      meeting-form.page.ts        locators for the meeting form + room picker
+      meeting-flow.page.ts        locators for the `meeting-flow-new` booking flow
       schedule.page.ts            extends visitor/your-bookings.page.ts for event cards
       room.flows.ts               multi-step UI flows (bookRoomViaUI)
+    mqtt/                       the MQTT path stagehand reads
+      mqtt.seed.ts                the Broker row source publishes to
+      broker-view.ts              an MQTT client that sees what stagehand sees
+    stagehand/                  stagehand coverage
+      stagehand.env.ts            app URL and timings
+      stagehand.seed.ts           OAuth app for the stagehand origin + the harness driver
+      stagehand.api.ts            systems and harness modules
+      alerts.page.ts              the hot list
+      fixtures.ts                 admin session, bearer, harness driver, zones
     repro/                      standalone reproducers for confirmed backend bugs
     preflight.ts                "is the stack up?" — fails in 1s, not 90
     preflight.setup.ts          setup project — `local` depends on it, `mock` does not
@@ -334,4 +397,15 @@ failure that looked like something else entirely.
 - **Red-check new assertions.** Break the expected value once and confirm the test
   fails for the reason you think. An assertion that never observed real data is
   worse than no assertion.
+- **"Nothing is shown" needs a control.** An empty state is also what a page shows
+  before its data loads. Hold a second item that the page can only show when it
+  has loaded, and assert on that.
+- **A workaround for an app defect goes in the report.** A helper that retries past
+  a known defect adds an annotation to the test each time the retry fires:
+  `test.info().annotations.push({ type: 'NEW-F5', description })`. The type is the
+  id of the finding in `E2E_USER_STORIES.md`. A `console.warn` alone is not read on
+  a green run, and the defect can then get worse with no sign.
+- **Do not make a booking of TODAY for the user of another worker.** The home page
+  shows the first booking a user has today, so the home specs delete every booking
+  their user has today (`clearToday`). Book a later day.
 - `.auth/` and `.env` are gitignored — those tokens are impersonation-grade.

@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { StaffListingComponent } from './staff-listing.component';
 import { StaffStateService } from './staff-state.service';
 import { StaffTopbarComponent } from './staff-topbar.component';
@@ -10,7 +9,6 @@ import { StaffTopbarComponent } from './staff-topbar.component';
 @Component({
     selector: '[app-new-staff]',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -38,7 +36,6 @@ import { StaffTopbarComponent } from './staff-topbar.component';
     ],
     imports: [
         MatProgressBarModule,
-        ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         StaffTopbarComponent,
         StaffListingComponent,

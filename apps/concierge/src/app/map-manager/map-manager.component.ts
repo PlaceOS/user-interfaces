@@ -22,7 +22,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { isApiUpload, MapRow } from './map-list.utilities';
 import { MapManagementService } from './map-management.service';
@@ -30,7 +29,6 @@ import { MapManagementService } from './map-management.service';
 @Component({
     selector: '[app-map-manager]',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -237,7 +235,6 @@ import { MapManagementService } from './map-management.service';
         `,
     ],
     imports: [
-        ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         SearchbarComponent,
         SimpleTableComponent,

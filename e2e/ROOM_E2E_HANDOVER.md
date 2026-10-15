@@ -1,5 +1,10 @@
 # Room booking e2e — handover
 
+> **This document describes the meeting flow before PR #561.** That PR changed the view that the
+> route opens, and the specs now drive the new view. The page object `e2e/support/room/meeting-flow.page.ts` and §1c of
+> [`../E2E_USER_STORIES.md`](../E2E_USER_STORIES.md) have the current behaviour. The findings
+> and the decisions below are kept as the record of how the coverage was built.
+
 Working notes for the room-booking coverage, built after the visitor work and in the
 same shape. Written to be picked up cold. The coverage contract lives in
 [`../E2E_USER_STORIES.md`](../E2E_USER_STORIES.md) (§1b, ROOM-01 … ROOM-14); harness

@@ -9,13 +9,11 @@ import {
 import { settingSignal } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { CateringTopbarComponent } from './catering-topbar.component';
 
 @Component({
     selector: '[app-catering]',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -126,7 +124,6 @@ import { CateringTopbarComponent } from './catering-topbar.component';
         `,
     ],
     imports: [
-        ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         MatRippleModule,
         RouterModule,

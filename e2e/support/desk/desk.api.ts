@@ -9,8 +9,9 @@
  * The retry is the same one the visitor and Your Bookings areas carry, for the
  * same reason (REG-09 / PPT-2642: a burst of booking writes poisons a staff-api
  * connection and the request that lands on it fails for reasons unrelated to
- * what was sent). Duplicated rather than shared, like the rest of the per-area
- * support, so no area can break another.
+ * what was sent). The retry is duplicated, like the rest of the per-area
+ * support, so no area can break another. The check for REG-09 is not: it is
+ * `isReg09` in `../api.ts`, so that its removal is one deletion.
  */
 import { APIRequestContext } from '@playwright/test';
 import {
@@ -18,18 +19,10 @@ import {
     ENGINE_API,
     STAFF_API,
     currentUser,
+    isReg09,
     readBack,
     zonesWithTag,
 } from '../api';
-
-function isConcurrentWriteFailure(status: number, body: string): boolean {
-    if (status === 400 && /Expected BeginObject but was EOF/.test(body)) return true;
-    if (status === 500 && /could not serialize access/.test(body)) return true;
-    // An empty `failures` list is the tell: a genuine validation error names the
-    // field it is unhappy about.
-    if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
-    return false;
-}
 
 /**
  * Create a desk booking straight through the API.
@@ -88,7 +81,7 @@ export async function createDeskBookingViaApi(
             continue;
         }
         last = `HTTP ${res.status()} ${body.slice(0, 200)}`;
-        if (!isConcurrentWriteFailure(res.status(), body)) {
+        if (!isReg09(res.status(), body)) {
             throw new Error(
                 `create desk booking failed: ${last}. A 409 means the desk is already ` +
                     `held for that window — check the spec swept its own day first, and ` +

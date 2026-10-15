@@ -10,26 +10,25 @@
  *
  * ## The setting is `events.allow_all_day`
  *
- * Not `allow_multiday`, which only widens the range of dates the room picker
- * offers. The control lives in `meeting-form-details.component.ts`, a different
- * component from the flow form — which is why a first attempt found no checkbox
- * and nearly concluded that all-day meetings do not exist in this app.
+ * Not `allow_multiday`, which replaces the length with an end date and an end
+ * time. The checkbox is on the details step
+ * (`meeting-flow-details.component.ts`), and without the setting it is not
+ * rendered at all.
  *
- * ## `fixme` — ROOM-B7: the all-day flag is ignored
+ * ## ROOM-B7: the all-day flag was ignored
  *
- * Measured: with `app.events.allow_all_day` on, the All Day checkbox ticked, and
- * **the checkbox proven still ticked at the moment the meeting is confirmed**,
- * the stored booking is **one hour long**. The room is free for the rest of the
- * day while the person who booked it believes they have it all day.
+ * Measured on the flow that this one replaced: with the All Day checkbox
+ * ticked, and proven still ticked when the meeting was confirmed, the stored
+ * booking was **one hour long**. The room was free for the rest of the day
+ * while the person who booked it believed they had it all day. It was the same
+ * family as ROOM-B3 (the chosen length was not the length booked).
  *
- * The "still ticked" check matters: it rules out the form rebuilding itself and
- * reverting the control (REG-10's family), which would look identical from the
- * outside. `bookRoomViaUI` asserts it before sending for exactly this reason.
+ * Measured on the new flow, 13 Oct 2026: the booking is stored with
+ * `all_day: true` and holds the room for the day. This test is the guard.
  *
- * Same family as ROOM-B3 (the chosen length is not the length booked):
- * `postForm` computes an all-day range, and the booking built from it by
- * `newBookingFromCalendarEvent` takes `duration` from the event instead. Fixing
- * ROOM-B3 properly would most likely fix this too.
+ * `bookRoomViaUI` checks that the checkbox is still ticked when it leaves the
+ * details step. That rules out the control reverting before anything is sent,
+ * which would look identical from the outside.
  */
 import {
     deleteBooking,

@@ -1,11 +1,11 @@
 /**
- * Seeding a catering menu, so the meeting form offers catering at all.
+ * Seeding a catering menu, so the meeting flow offers catering at all.
  *
  * ## Why this is needed
  *
- * The meeting form only renders its catering section when
- * `CateringStateService.available_menu()` is non-empty
- * (`meeting-flow-form.component.ts`: `has_catering`), and that menu is built
+ * The meeting flow only renders its catering section when
+ * `CateringOrderStateService.available_menu()` is non-empty
+ * (`meeting-flow-options.component.ts`: `has_catering`), and that menu is built
  * from ASSETS, not from settings. So without seeding, the whole feature is
  * invisible and a spec would be asserting against a section that can never
  * exist.

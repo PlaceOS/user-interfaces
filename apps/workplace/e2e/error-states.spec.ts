@@ -10,7 +10,9 @@ const LOAD_TIMEOUT = 30000;
 test.describe('Error & access states', () => {
     test('US-090: renders the unauthorised page', async ({ page }) => {
         await page.goto('/#/unauthorised?mock=true');
-        await expect(page.locator('app-unauthorised')).toBeVisible({
+        // Not the host element: its only child is `absolute inset-0`, so the
+        // host has no box and Playwright reports it as hidden.
+        await expect(page.locator('app-unauthorised [unauthorised]')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
     });

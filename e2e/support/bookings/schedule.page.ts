@@ -19,38 +19,22 @@
  * that are already green for no behavioural gain.
  */
 import { Locator, expect } from '@playwright/test';
-import { YourBookingsPage } from '../visitor/your-bookings.page';
+import { YourBookingsPage, type ScheduleType } from '../visitor/your-bookings.page';
 
 /** The five type filters the schedule offers, by the name in their markup. */
-export type ScheduleType = 'event' | 'desk' | 'parking' | 'visitor' | 'locker';
+export type { ScheduleType } from '../visitor/your-bookings.page';
 
 export class SchedulePage extends YourBookingsPage {
     /**
-     * A type filter toggle — the VISIBLE one.
+     * A type filter toggle of the sidebar.
      *
-     * Every filter is in the DOM more than once: the sidebar renders a set for
-     * wide screens and the filter card renders another for narrow ones, and the
-     * locker filter appears twice within the card alone. Only one copy is on
-     * screen at a time.
-     *
-     * `:visible` is load-bearing, not tidiness. A plain `.first()` picks
-     * whichever copy comes first in the DOM, which is the HIDDEN one for parking
-     * and lockers — and clicking a hidden element does not fail fast, it waits.
-     * Measured: a spec sat on that click for **16 minutes** until the test
-     * timeout, then reported "the filter did not turn off", which is true and
-     * says nothing about why.
+     * The filters are in the DOM more than once: the sidebar has the toggles
+     * for wide screens, and `schedule-filters` has chips and a filter card for
+     * narrow ones. The toggles are the sidebar copy only, which is the one on
+     * screen at the size the suite runs at.
      */
     filterToggle(type: ScheduleType): Locator {
-        return this.page
-            .locator(`button[name="schedule-toggle-${type}-filter"]:visible`)
-            .first();
-    }
-
-    /** Is a type currently being shown? Read from the checkbox, not the class. */
-    async isShown(type: ScheduleType): Promise<boolean> {
-        const checkbox = this.filterToggle(type).locator('input[type="checkbox"]');
-        if (!(await checkbox.count())) return false;
-        return checkbox.isChecked().catch(() => false);
+        return this.typeFilter(type);
     }
 
     /**
@@ -63,18 +47,10 @@ export class SchedulePage extends YourBookingsPage {
     async setShown(type: ScheduleType, shown: boolean): Promise<void> {
         const toggle = this.filterToggle(type);
         if (!(await toggle.count())) {
-            const in_dom = await this.page
-                .locator(`button[name="schedule-toggle-${type}-filter"]`)
-                .count();
             throw new Error(
-                in_dom
-                    ? `the ${type} filter is in the DOM ${in_dom} time(s) but none of ` +
-                      `them is visible, so it cannot be clicked. The schedule renders ` +
-                      `one set of filters for wide screens and another for narrow ones.`
-                    : `the schedule has no ${type} filter at all. It is only rendered ` +
-                      `when that booking type is enabled for the org ` +
-                      `(schedule-state.service.ts: \`_canLoadBookingType\`), so this is ` +
-                      `a configuration difference, not a selector problem.`,
+                `the schedule sidebar has no ${type} filter. It is only rendered when ` +
+                    `that booking type is enabled for the org, and the sidebar itself ` +
+                    `only from the \`sm\` breakpoint up.`,
             );
         }
         // CONVERGE, do not click once and hope. The schedule re-renders its
@@ -89,7 +65,7 @@ export class SchedulePage extends YourBookingsPage {
             if ((await this.isShown(type)) !== shown) {
                 // An explicit timeout, so a control that cannot be clicked says
                 // so in seconds rather than sitting until the test times out.
-                await toggle.click({ timeout: 10_000 });
+                await toggle.locator('button').first().click({ timeout: 10_000 });
             }
             expect(
                 await this.isShown(type),
@@ -115,8 +91,9 @@ export class SchedulePage extends YourBookingsPage {
 
     /** The "remove this filter" chip for a type, shown above the list. */
     filterChip(type: ScheduleType): Locator {
+        // The chips keep the `-mobile` suffix at every screen size.
         return this.page
-            .locator(`button[name="schedule-remove-${type}-filter"]`)
+            .locator(`button[name="schedule-remove-${type}-filter-mobile"]:visible`)
             .first();
     }
 
@@ -177,7 +154,7 @@ export class SchedulePage extends YourBookingsPage {
      * so the expectation belongs to the test rather than to the class. Setting it
      * lets the inherited `startEdit` be reused as-is instead of copied.
      */
-    private _edit_form = 'invite-visitor-form';
+    private _edit_form = 'visitor-flow-new';
 
     expectEditForm(selector: string): void {
         this._edit_form = selector;

@@ -2,8 +2,9 @@
 
 `apps/workplace/e2e/local/desk-group.spec.ts` implements DESK-GROUP-01–06.
 It extends the existing local auth fixtures and uses `DeskGroupPage`, which
-composes the existing `DeskForm`. API setup and assertions remain in support
-helpers. Booking requests use the real local backend.
+composes `DeskFlow`, the page object of the `desk-flow-new` booking flow. API
+setup and assertions remain in support helpers. Booking requests use the real
+local backend.
 
 Each test attempt (including retries) creates three temporary non-admin users,
 its own level, desk metadata and SVG map, then removes its bookings, level and
@@ -33,14 +34,22 @@ stack port. The config rejects non-local backends. The selection runs six group
 tests and one backend preflight. Results are in
 `reports/e2e/workplace/index.html`.
 
-The group page selects Group again after date initialisation as a safeguard.
-Form initialisation keeps a Group selection since the PPT-2643 fix. This suite
-does not cover form initialisation. It waits for actual directory results rather than selecting the
-similarly labelled external-user option.
+The flow has one page and no confirm dialog. The group page selects Group,
+sets the date, the time and the members, limits the desk list to the test
+level, and selects the first desk of that level. Confirm saves at once. The
+flow gives the other members the desks nearest to the selected desk on the map.
+A refusal shows as an error notice and the form stays on the page. This suite does
+not cover form initialisation. It waits for actual directory results rather
+than selecting the similarly labelled external-user option.
 
-Group selection uses the existing English button label. It does not require the
-uncommitted `desk-mode-group`/`desk-mode-lone` application attributes. Run with
-the English UI, as required by other text locators in the existing desk helper.
+Group selection matches the Group button on its icon ligature (`group_add`),
+which is not translated. No locator of the group page depends on the language
+of the UI.
+
+Each seeded desk has a `features` list, also when the list is empty. The desk
+select of the flow reads the list from every desk of the building. A desk
+without it stops the view from rendering a desk selection, in every page that
+has the building open.
 
 Cleanup checks cancellation responses and verifies captured bookings are deleted.
 It also queries dedicated actors' desk/group bookings in the scenario window to
@@ -58,10 +67,11 @@ repository's disposable isolated stack lifecycle to recover such an interrupted
 run. This does not validate coexistence with investigation tests that overwrite
 shared zone metadata/settings.
 
-DESK-GROUP-04 deliberately retains the product-behaviour assertion for the refusal
-reason. It currently fails because the application writes to a Fetch Response's
-readonly `status`, masking the refusal reason. A failing CI result for this defect
-is expected; no `fixme`, expected-failure marker or softened assertion is used.
+DESK-GROUP-04 asserts that the refusal reason of the member shows. It passes
+against `desk-flow-new`: the success view lists each member, and a member whose
+write was refused shows with the reason. It failed against the flow that this
+one replaced, because that flow wrote to the readonly `status` of a Fetch
+Response and masked the reason.
 
 The suite uses Playwright's managed page/context, retaining configured screenshot
 and video handling. On the first retry it records `group-browser-trace.zip`

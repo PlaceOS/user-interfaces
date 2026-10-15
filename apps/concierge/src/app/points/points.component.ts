@@ -5,14 +5,12 @@ import { Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { PointsStateService } from './points-state.service';
 import { PointsTopbarComponent } from './points-topbar.component';
 
 @Component({
     selector: 'placeos-new-points',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -81,7 +79,6 @@ import { PointsTopbarComponent } from './points-topbar.component';
     imports: [
         MatTabsModule,
         RouterModule,
-        ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         PointsTopbarComponent,
         MatRippleModule,

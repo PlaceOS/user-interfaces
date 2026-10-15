@@ -1,11 +1,21 @@
 /**
  * ROOM-24 — equipment requested on a meeting.
  *
- * ## The headline: it cannot be done on a PlaceOS-native room booking
+ * ## State on the new meeting flow
  *
- * Measured 2026-09-17, and it is a NEW finding — **ROOM-B9**. I expected this to
- * work from reading the code and it does not, which is worth saying plainly
- * because the code genuinely looks like it should.
+ * Measured 13 Oct 2026 through `meeting-flow-new`: the request is stored as
+ * its own `asset-request` booking, against a unit of the catalogue, and is
+ * linked to the meeting. Both tests are active.
+ *
+ * The rest of this note is the finding that the first test was written for,
+ * as it was measured on the flow that this one replaced. It is kept because it
+ * says what the assertions guard against.
+ *
+ * ## ROOM-B9: it could not be done on a PlaceOS-native room booking
+ *
+ * Measured 2026-09-17. I expected this to work from reading the code and it
+ * did not, which is worth saying plainly because the code genuinely looked
+ * like it should.
  *
  * `validateAssetRequestsForResource` (`libs/assets/src/lib/assets.fn.ts`) has a
  * branch for exactly this case:
@@ -58,17 +68,17 @@
  *
  * ## What still passes, and it is worth having
  *
- * ROOM-24b below is active and green: equipment ALLOCATION works even though
- * requesting it through a meeting does not. With two of three units held by
- * existing `asset-request` bookings, the picker offers exactly one — so
+ * ROOM-24b below guards equipment ALLOCATION, which worked even while
+ * requesting it through a meeting did not. With two of three units held by
+ * existing `asset-request` bookings, the asset modal offers exactly one — so
  * `queryGroupAvailability` really does read existing requests, and two meetings
  * cannot be handed the same projector. That is the half of ROOM-24 that can be
  * guarded today.
  *
  * ## Two preconditions, neither of which fails loudly
  *
- *  - `app.events.has_assets` (ROOM_ASSETS_MODE) or the form has no equipment
- *    section at all.
+ *  - `app.events.has_assets` (ROOM_ASSETS_MODE) or the last step of the flow
+ *    has no equipment section at all.
  *  - requestable assets seeded (`asset.seed.ts`) or the modal opens empty.
  *
  * The group offered is the asset TYPE, not an individual unit: the app allocates
@@ -93,7 +103,7 @@ import {
     ROOM_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
-import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
 import { bookRoomViaUI, setDate } from '../../../../e2e/support/room/room.flows';
 
 const DAY = 86_400;
@@ -138,11 +148,11 @@ test.describe('room booking equipment requests', () => {
         await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...ROOM_ASSETS_MODE });
 
         try {
-            // Through the shared flow rather than the form directly. It owns the
-            // load-bearing order — the DATE first and exactly once, then title
-            // and room through the REG-10 retry, then the times last — and
-            // getting that wrong is what made the first attempt at this spec
-            // fail on a start time the form had never been asked to offer.
+            // Through the shared flow rather than the page object directly. It
+            // owns the order of the three steps — the DATE before the times,
+            // the room before the equipment — and getting that wrong is what
+            // made the first attempt at this spec fail on a start time the form
+            // had never been asked to offer.
             const meeting = await bookRoomViaUI(staffPage, staffApi, room, title, {
                 date: slot.date_ms,
                 startTime: `${String(ROOM_SLOTS_3.assets.hour).padStart(2, '0')}:00`,
@@ -262,49 +272,42 @@ test.describe('room booking equipment requests', () => {
                 ...ROOM_BASE_SETTINGS,
                 ...ROOM_ASSETS_MODE,
             });
-            // No booking is made here, so this drives the form directly rather
+            // No booking is made here, so this drives the flow directly rather
             // than going through `bookRoomViaUI` — but the DATE still has to be
-            // set before the times, or the form offers today's hours and the
-            // slot's hour is simply absent.
-            const form = new MeetingForm(staffPage);
+            // set before the times, or the flow offers today's hours and the
+            // slot's hour is simply absent. The equipment section is on the last
+            // step, so the room comes first.
+            const form = new MeetingFlow(staffPage);
             await form.open();
+            await form.title.fill(uniqueTitle('E2E Assets Offered'));
             await setDate(form, staffPage, slot.date_ms);
-            await staffPage.waitForTimeout(2_000);
-            await form.chooseRoom(room.name);
             await form.setStartTime(
                 `${String(ROOM_SLOTS_3.assets.second).padStart(2, '0')}:00`,
             );
-            await staffPage.waitForTimeout(3_000);
-
-            await staffPage
-                .locator('asset-list-field')
-                .getByRole('button', { name: /Request Assets/i })
-                .first()
-                .click();
-            const modal = staffPage.locator('asset-select-modal');
-            await expect(modal, 'the asset modal did not open').toBeVisible({
-                timeout: 20_000,
-            });
+            await form.toRoomStep();
+            await form.selectRoom(room.name);
+            await form.toOptionsStep();
+            await form.openAssetModal();
 
             // The count the modal shows is the assertion. `queryGroupAvailability`
             // removes any unit covered by a live `asset-request`, so with all but
             // one held it must offer exactly one.
-            const listing = modal.locator('asset-list');
+            const group = form.assetGroup(kit.type_name);
             await expect(
-                listing.getByText(kit.type_name, { exact: false }).first(),
+                group,
                 'the equipment group should still be listed while one unit is free',
             ).toBeVisible({ timeout: 20_000 });
-            await expect
-                .poll(async () => (await listing.innerText()).replace(/\s+/g, ' '), {
-                    message:
-                        `with ${held.length} of ${kit.items.length} units held, the ` +
-                        `modal must offer exactly ${kit.items.length - held.length}. ` +
-                        `If it still offers all of them, availability is not reading ` +
-                        `existing asset-request bookings and two meetings can be given ` +
-                        `the same projector`,
-                    timeout: 25_000,
-                })
-                .toContain(`${kit.items.length - held.length} available`);
+            // The row shows the number of free units in a translated sentence.
+            // Only the number is matched.
+            const free = kit.items.length - held.length;
+            await expect(
+                group.locator('p'),
+                `with ${held.length} of ${kit.items.length} units held, the ` +
+                    `modal must offer exactly ${free}. ` +
+                    `If it still offers all of them, availability is not reading ` +
+                    `existing asset-request bookings and two meetings can be given ` +
+                    `the same projector`,
+            ).toHaveText(new RegExp(`(^|\\D)${free}(\\D|$)`), { timeout: 25_000 });
         } finally {
             for (const id of held) await deleteBooking(staffApi, id);
             for (const stale of await ourAssetRequests(staffApi, unit_ids)) {

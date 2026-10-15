@@ -13,21 +13,27 @@ import { AsyncHandler } from '@placeos/common';
 import { generateQRCode } from '@placeos/common/qr-code';
 
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    TranslatePipe,
+} from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
 import { endingSoon } from './helpers';
 
 @Component({
     selector: 'panel-view-details',
     template: `
-        <div class="relative h-full w-full bg-black text-white">
+        <div class="relative h-full w-full overflow-hidden bg-black text-white">
             @let cur = current();
             @let sys = system();
             @if (room_image) {
-                <div
-                    class="absolute inset-0 bg-cover bg-center"
-                    [style.background-image]="'url(' + room_image + ')'"
-                ></div>
+                <div class="absolute inset-0">
+                    <img
+                        auth
+                        class="h-full w-full object-cover object-center"
+                        [source]="room_image"
+                    />
+                </div>
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div name class="absolute top-4 left-4 text-4xl font-medium">
@@ -97,7 +103,7 @@ import { endingSoon } from './helpers';
         `,
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CommonModule, TranslatePipe],
+    imports: [CommonModule, TranslatePipe, AuthenticatedImageDirective],
 })
 export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);

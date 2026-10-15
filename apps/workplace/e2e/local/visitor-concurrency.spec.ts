@@ -44,7 +44,7 @@
  * spec and wrong for this one — a retry would hide the very thing being
  * measured. These writes go straight at the API.
  *
- * ## Why these were `fixme` until the staff-api fix shipped
+ * ## Why these are `fixme`
  *
  * The plan's note on this row said "a burst spec would encode REG-09 flakiness;
  * the reproducer stays the record until the image is fixed". I tried to design
@@ -61,9 +61,30 @@
  * which is how a real finding gets trained out of a team's attention.
  *
  * Both tests were `test.fixme` until the stack ran a staff-api with the fix
- * (placeos-2.2609.6, pg-orm 2.2.4): four consecutive runs held the invariant
- * with 2 of 8 writes accepted each time. Two things worth taking from the
- * measurement even so:
+ * (placeos-2.2609.6, pg-orm 2.2.4). They were made active on 2026-10-07, after
+ * four consecutive runs held the invariant with 2 of 8 writes accepted each
+ * time.
+ *
+ * Measured again on 2026-10-14, on that same image (`placeos-2.2609.6`,
+ * revision `e7257439`). The invariant still breaks:
+ *
+ *   VIS-28 alone, ten times on one worker ....... 3 runs with a PHANTOM WRITE
+ *   full local runs of 13 and 14 October ........ a phantom write in each
+ *                                                 (VIS-28, then VIS-28b)
+ *   CI run 38386909981, images of 13 October .... VIS-28 failed 3 of 3 tries
+ *
+ * One phantom was checked by hand, to rule out a slow commit. Booking 2519
+ * answered 201. Minutes later `GET /bookings/2519` as the admin answered 404,
+ * while the container and the other member of its group were stored. The
+ * write was never committed.
+ *
+ * So the fix is not in effect on the image that the suite runs, and both
+ * tests are `fixme` again for the reason the note gave. PPT-2642 is not done.
+ * To measure a new image, remove `.fixme` and run this file alone:
+ * `--repeat-each=10 --workers=1`. One clean run proves nothing: seven of the
+ * ten runs above were clean.
+ *
+ * Two things worth taking from the first measurement even so:
  *
  *  - Only **2 or 3 of 8** concurrent writes are accepted at all. The other five
  *    or six are refused `400 Expected BeginObject but was EOF` — staff-api
@@ -107,7 +128,9 @@ interface Attempt {
 }
 
 test.describe('concurrent visitor writes', () => {
-    test('VIS-28: every accepted write is stored, and every refused one leaves nothing', async ({
+    // FIXME (backend fault, measured 2026-10-14): phantom writes still occur
+    // on staff-api `placeos-2.2609.6`. See "Why these are `fixme`" above.
+    test.fixme('VIS-28: every accepted write is stored, and every refused one leaves nothing', async ({
         staffApi,
     }) => {
         const me = await (await staffApi.get('/api/engine/v2/users/current')).json();
@@ -250,7 +273,9 @@ test.describe('concurrent visitor writes', () => {
         }
     });
 
-    test('VIS-28b: a group container is never left holding fewer members than were written', async ({
+    // FIXME (backend fault, measured 2026-10-14): the same phantom write, on a
+    // member of a group. See "Why these are `fixme`" above.
+    test.fixme('VIS-28b: a group container is never left holding fewer members than were written', async ({
         staffApi,
     }) => {
         const me = await (await staffApi.get('/api/engine/v2/users/current')).json();

@@ -1,32 +1,29 @@
 /**
- * Booking a room through the full UI.
+ * Booking a room through the full UI — the `meeting-flow-new` flow.
  *
  * Returns what the BACKEND created, parsed from the real POST response, never
  * anything the page rendered — the same principle as `bookDeskViaUI` and
  * `inviteVisitorViaUI`, and the reason this suite can tell "the screen looked
  * right" apart from "the data is right".
  *
- * ## Why the form is filled twice
+ * ## Three steps, one send
  *
- * REG-10 / PPT-2643: the booking form is rebuilt when its async init completes
- * and restores defaults, silently dropping anything typed before that. The desk
- * flow works around it by converging on the form state, and the meeting form has
- * the same shape, so the same guard applies here. It is a workaround, and it
- * means this flow cannot DETECT that bug — which is exactly why REG-10 has its
- * own row in the coverage doc rather than being considered covered.
+ * Details, then the room list, then the options. Nothing is sent until
+ * Confirm on the last step, and Confirm sends the request at once: there is
+ * no separate confirm screen. See `meeting-flow.page.ts`.
  *
- * ## Two clicks, not one
+ * ## The form is filled once
  *
- * `Confirm` on the form only switches to the confirm screen. Nothing is sent
- * until `confirm-meeting` on that second screen. Both live in
- * `MeetingForm.confirmAndSend`.
+ * The flow this one replaced was filled twice, because that form was rebuilt
+ * when its async init completed (REG-10 / PPT-2643). This flow loads its form
+ * when the page opens and does not rebuild it. `bookRoomViaUI` still checks
+ * the summary on the last step before it sends, so a value that was lost on
+ * the way fails there and not as a wrong booking.
  */
 import { APIRequestContext, Page, expect } from '@playwright/test';
-import { MeetingForm } from './meeting-form.page';
+import { isReg09 } from '../api';
+import { MeetingFlow } from './meeting-flow.page';
 import { RoomBooking } from './room.api';
-
-/** How long to let the form settle before filling it a second time. */
-const SETTLE_MS = 1_500;
 
 interface CapturedPost {
     status: number;
@@ -70,24 +67,10 @@ function collectBookingPosts(page: Page) {
 }
 
 /**
- * Fill, wait, fill again, and only accept it once the second pass sticks.
- *
- * See the REG-10 note above. `toPass` rather than a bare double-fill so a form
- * still resolving its defaults gets another go instead of failing the spec.
- */
-async function fillAndSettle(page: Page, fill: () => Promise<void>): Promise<void> {
-    await expect(async () => {
-        await fill();
-        await page.waitForTimeout(SETTLE_MS);
-        await fill();
-    }).toPass({ timeout: 45_000 });
-}
-
-/**
- * Book a room through the form and return the booking the backend stored.
+ * Book a room through the flow and return the booking the backend stored.
  *
  * `startTime` and `duration` are optional: a spec that does not care takes
- * whatever the form offers, and one that asserts on stored times says so.
+ * whatever the flow offers, and one that asserts on stored times says so.
  */
 export async function bookRoomViaUI(
     page: Page,
@@ -95,31 +78,20 @@ export async function bookRoomViaUI(
     room: { id: string; name: string },
     title: string,
     options: {
-        /** Local ms timestamp of the day to book. Defaults to the form's day. */
+        /** Local ms timestamp of the day to book. Defaults to the flow's day. */
         date?: number;
-        /** "HH:mm", from the options the form offers. */
+        /** "HH:mm", from the options the flow offers. */
         startTime?: string;
         /** Minutes. */
         duration?: number;
         /** Addresses to add to the meeting. */
         attendees?: string[];
-        /**
-         * Added, then taken off again before sending. The correction has to
-         * happen INSIDE the fill, or a retry re-adds the person and invites
-         * someone the user removed.
-         */
+        /** Added, then taken off again before sending. */
         removeAttendees?: string[];
-        /**
-         * Catering item names to order. Added AFTER the fill loop, because the
-         * catering modal is a three-click flow of its own and a retry would
-         * order lunch twice.
-         */
+        /** Catering item names to order. */
         catering?: string[];
         /**
-         * Asset TYPE names to request as equipment. Added in the same place and
-         * for the same reasons as `catering`: the request carries the room as
-         * its delivery location, so it cannot be made before a room is chosen,
-         * and the modal is a four-click flow that a retry would run twice.
+         * Asset TYPE names to request as equipment.
          *
          * Needs `app.events.has_assets` (ROOM_ASSETS_MODE) and seeded assets
          * (`asset.seed.ts`), or the section is absent / the modal is empty.
@@ -127,112 +99,85 @@ export async function bookRoomViaUI(
         assets?: string[];
         /**
          * Tick All Day. Replaces the window entirely — `_allDayTimeRange`
-         * overwrites whatever start and length were chosen — so it is set inside
-         * the fill loop and no times are passed with it.
+         * overwrites whatever start and length were chosen — so no times are
+         * passed with it.
          */
         allDay?: boolean;
         /**
-         * Book for somebody else. Needs `events.can_book_for_anyone`, or the
+         * Book for somebody else. Needs `events.can_book_for_others`, or the
          * field is not rendered at all.
          */
         host?: string;
     } = {},
 ): Promise<RoomBooking> {
-    const form = new MeetingForm(page);
-    await form.open();
+    const flow = new MeetingFlow(page);
+    await flow.open();
 
-    // THE ORDER HERE IS LOAD-BEARING, and every step of it was paid for:
-    //
-    //  1. the date goes FIRST and exactly ONCE. Changing the date resets the
-    //     duration to the default, asynchronously — so a date click repeated
-    //     inside the retry loop lands AFTER the duration pick and quietly
-    //     reverts a 90 minute meeting to the default. That reads as "the form
-    //     ignored the duration field", and is not that at all.
-    //  2. title and room go through the retry loop, because those are what the
-    //     REG-10 form rebuild wipes.
-    //  3. the times go LAST, after the rebuild can no longer undo them, and are
-    //     given time to land before anything is confirmed.
-    if (options.date !== undefined) {
-        await setDate(form, page, options.date);
-        await page.waitForTimeout(SETTLE_MS);
-    }
+    // STEP 1, the details. The date goes before the times: the times on offer
+    // are those of the chosen day, and today offers only what is left of it.
+    await flow.title.fill(title);
+    if (options.date !== undefined) await setDate(flow, page, options.date);
+    if (options.allDay !== undefined) await flow.setAllDay(options.allDay);
+    if (options.host) await flow.chooseHost(options.host);
+    if (options.startTime) await flow.setStartTime(options.startTime);
+    if (options.duration !== undefined) await flow.setDuration(options.duration);
 
-    const fill = async () => {
-        await form.title.fill(title);
-        if (options.allDay !== undefined) {
-            await form.setAllDay(options.allDay);
-        }
-        if (options.host) await form.chooseHost(options.host);
-        // ROOM BEFORE THE TIMES. The picker carries its own date, start and end
-        // filters, and taking a room from it writes those back over the form.
-        if ((await form.chosenSpaces.count()) === 0) await form.chooseRoom(room.name);
-        for (const attendee of options.attendees ?? []) {
-            const already = await form.attendeeChips
-                .filter({ hasText: attendee.split('@')[0] })
-                .count();
-            if (!already) await form.addAttendee(attendee);
-        }
-        for (const attendee of options.removeAttendees ?? []) {
-            await form.removeAttendee(attendee);
-        }
-        expect(await form.title.inputValue()).toBe(title);
-        expect(await form.chosenSpaces.count()).toBe(1);
-    };
-
-    await fillAndSettle(page, fill);
-
-    // Catering needs the room to be chosen first — the button is disabled until
-    // then — so it cannot go in the fill above, and it is not idempotent.
-    for (const item of options.catering ?? []) {
-        await form.addCateringItem(item);
-    }
-
-    // Equipment, for the same reason and in the same place as catering.
-    for (const type_name of options.assets ?? []) {
-        await form.addAssetRequest(type_name);
-    }
-
-    // The time and duration fields apply to the model ASYNCHRONOUSLY — measured
-    // at up to ~2 seconds — and the confirm modal snapshots the model when it
-    // opens. Set them, then let them land.
-    if (options.duration !== undefined) await form.setDuration(options.duration);
-    if (options.startTime) await form.setStartTime(options.startTime);
-    if (options.startTime || options.duration !== undefined) {
-        await page.waitForTimeout(4_000);
-    }
-
-    // PROVE the form still holds what was asked for, immediately before sending.
+    // PROVE the step still holds what was asked for, before leaving it.
     //
     // Without this, "the booking came back wrong" has two possible causes that
-    // look identical: the app discarded the choice, or the form rebuilt itself
-    // and reverted the control before anything was sent (REG-10's family). A
-    // finding is only worth reporting once the second has been ruled out.
+    // look identical: the app discarded the choice, or the control reverted
+    // before anything was sent. A finding is only worth reporting once the
+    // second has been ruled out.
+    await expect(flow.title, 'the title must still be set').toHaveValue(title);
     if (options.allDay !== undefined) {
         expect(
-            await form.isAllDay(),
-            'the All Day checkbox must still be set when the meeting is confirmed — ' +
+            await flow.isAllDay(),
+            'the All Day checkbox must still be set when the details are left — ' +
                 'if this fails the form reverted it, and nothing can be concluded ' +
                 'about what the app stores',
         ).toBe(options.allDay);
     }
     if (options.host) {
-        const shown = await form.hostValue();
-        const flat = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const shown = await flow.hostValue();
         expect(
-            flat(shown),
-            `the host field must still show ${options.host} when the meeting is ` +
-                `confirmed; it shows "${shown}"`,
-        ).toContain(flat(options.host.split('@')[0]));
+            shown.toLowerCase(),
+            `the host field must still show ${options.host} when the details are ` +
+                `left; it shows "${shown}"`,
+        ).toContain(options.host.toLowerCase());
     }
 
+    // STEP 2, the room.
+    await flow.toRoomStep();
+    await flow.selectRoom(room.name);
+
+    // STEP 3, the options. Catering and equipment are delivered to the room,
+    // which is why they come after it.
+    await flow.toOptionsStep();
+    for (const attendee of options.attendees ?? []) await flow.addAttendee(attendee);
+    for (const attendee of options.removeAttendees ?? []) {
+        await flow.removeAttendee(attendee);
+    }
+    for (const item of options.catering ?? []) await flow.addCateringItem(item);
+    for (const type_name of options.assets ?? []) await flow.addAssetRequest(type_name);
+
+    // The summary of the last step shows what Confirm sends.
+    await expect(
+        flow.options,
+        'the summary of the last step must show the meeting name',
+    ).toContainText(title);
+    expect(
+        await flow.chosenRoomNames(),
+        'the summary of the last step must show the room that was selected',
+    ).toEqual([room.name]);
+
     const posts = collectBookingPosts(page);
-    await form.confirmAndSend();
+    await flow.confirm.click();
 
     // Do NOT just assert on the success screen. When the post is refused the
-    // confirm dialog stays open and shows a toast, and "success screen never
+    // flow stays on the last step and shows a toast, and "success screen never
     // appeared" is the least informative way to report that. Gather the
     // evidence first, then fail with it.
-    let reached_success = await form.successPanel
+    let reached_success = await flow.successContinue
         .waitFor({ state: 'visible', timeout: 30_000 })
         .then(() => true)
         .catch(() => false);
@@ -241,23 +186,18 @@ export async function bookRoomViaUI(
 
     // RETRY past REG-09, and only past REG-09.
     //
-    // The confirm dialog stays open when a post is refused, so the send can be
-    // pressed again without rebuilding the form. That is worth doing when — and
-    // only when — every failure looks like the concurrent-write defect
+    // The flow stays on the last step when a post is refused, so Confirm can be
+    // pressed again without filling the flow again. That is worth doing when —
+    // and only when — every failure looks like the concurrent-write defect
     // (PPT-2642): a burst of booking writes poisons a staff-api connection and
     // the request that lands on it fails for reasons unrelated to what was sent.
-    // Its shapes are a 400 "Expected BeginObject but was EOF", a 500 "could not
-    // serialize access", and a 422 whose `failures` list is EMPTY — a real
-    // validation error always names the field it is unhappy about.
+    // `isReg09` in `../api.ts` has its three shapes.
     //
     // Seen here on a full parallel room run: 422 with no failures, on a payload
     // that had just worked twice. Delete this with the rest of the REG-09
     // handling once the stack runs staff-api on pg-orm >= 2.2.4, and do not read
     // a green run as evidence the image is fixed.
-    const looks_like_reg09 = (p: CapturedPost) =>
-        (p.status === 400 && /Expected BeginObject but was EOF/.test(p.body)) ||
-        (p.status === 500 && /could not serialize access/.test(p.body)) ||
-        (p.status === 422 && /"failures"\s*:\s*\[\s*\]/.test(p.body));
+    const looks_like_reg09 = (p: CapturedPost) => isReg09(p.status, p.body);
 
     for (let attempt = 1; attempt <= 3; attempt++) {
         if (reached_success && created.length) break;
@@ -268,9 +208,9 @@ export async function bookRoomViaUI(
         );
         await page.waitForTimeout(600 * attempt);
         const retry = collectBookingPosts(page);
-        if (!(await form.confirmButton.isVisible().catch(() => false))) break;
-        await form.confirmButton.click();
-        reached_success = await form.successPanel
+        if (!(await flow.confirm.isVisible().catch(() => false))) break;
+        await flow.confirm.click();
+        reached_success = await flow.successContinue
             .waitFor({ state: 'visible', timeout: 30_000 })
             .then(() => true)
             .catch(() => false);
@@ -293,7 +233,7 @@ export async function bookRoomViaUI(
             .catch(() => '');
         throw new Error(
             `the room booking did not go through. ` +
-                `Booking POSTs: ${attempts || 'none at all — the form refused locally'}. ` +
+                `Booking POSTs: ${attempts || 'none at all — the flow refused locally'}. ` +
                 `On screen: "${message.replace(/\s+/g, ' ').trim().slice(0, 220)}"`,
         );
     }
@@ -306,13 +246,14 @@ export async function bookRoomViaUI(
     return rooms[0];
 }
 
-/** Drive the form's date picker to a given day. */
 /**
- * Exported because a spec that drives the form WITHOUT booking still has to set
- * the date before touching the times — the form defaults to today, so a slot on
+ * Drive the date picker of the details step to a given day.
+ *
+ * Exported because a spec that drives the flow WITHOUT booking still has to set
+ * the date before touching the times — the flow defaults to today, so a slot on
  * another day has its hour simply absent from the picker. That cost a run.
  */
-export async function setDate(form: MeetingForm, page: Page, timestamp_ms: number) {
+export async function setDate(form: MeetingFlow, page: Page, timestamp_ms: number) {
     await form.dateButton.click();
     const calendar = form.datePicker;
     await expect(calendar, 'the date picker did not open').toBeVisible({ timeout: 10_000 });
@@ -351,6 +292,15 @@ export async function setDate(form: MeetingForm, page: Page, timestamp_ms: numbe
     }
     await cells.nth(index).click();
     await expect(calendar, 'the date picker stayed open after choosing a day').toBeHidden({
+        timeout: 10_000,
+    });
+    // The date button shows the new day a moment after the picker closes. Wait
+    // for it, so that the times read next are those of the chosen day. The day
+    // number and the year are matched, not the month name.
+    await expect(
+        form.dateButton,
+        `the date field does not show ${target.toDateString()}`,
+    ).toContainText(new RegExp(`(^|\\D)${target.getDate()}, ${target.getFullYear()}`), {
         timeout: 10_000,
     });
 }

@@ -7,7 +7,6 @@ test.describe('Visitors Page', () => {
         await page.goto('/#/book/visitors?mock=true');
         await page.locator('[app-new-visitors]').waitFor({ timeout: 30000 });
 
-        await expect(page.locator('app-topbar')).toBeVisible();
         await expect(page.locator('guest-listings')).toBeVisible();
     });
 

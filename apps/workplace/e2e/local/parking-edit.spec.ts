@@ -77,8 +77,31 @@ test.describe('editing a parking booking', () => {
                 'the edit form should open with the booked space already on it',
             ).toHaveCount(1, { timeout: 30_000 });
 
-            await form.setStartTime(hhmm(to_slot.start));
-            await staffPage.waitForTimeout(3_000);
+            // The form can be rebuilt while it loads, and the rebuild puts the
+            // booked time back. Under load that came after the choice, and the
+            // edit was saved with the old time. So set the time again until
+            // the form holds the WANTED time for three seconds. A user who
+            // picks a time in that window loses it the same way: this is
+            // REG-10 on the parking form, and a second set goes in the report.
+            const wanted = hhmm(to_slot.start);
+            let sets = 0;
+            await expect(async () => {
+                if ((await form.startTime()) !== wanted) {
+                    await form.setStartTime(wanted);
+                    sets += 1;
+                }
+                await staffPage.waitForTimeout(3_000);
+                expect(
+                    await form.startTime(),
+                    'the form put the start time back after it was chosen',
+                ).toBe(wanted);
+            }).toPass({ timeout: 30_000 });
+            if (sets > 1) {
+                testInfo.annotations.push({
+                    type: 'REG-10',
+                    description: `the parking form lost the chosen start time ${sets - 1} time(s)`,
+                });
+            }
             await form.confirmAndSend();
 
             await expect(async () => {

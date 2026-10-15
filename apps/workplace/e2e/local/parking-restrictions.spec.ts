@@ -32,12 +32,16 @@ test('a parking request requires and stores the selected restriction', async ({
         await staffPage.goto('/#/book/parking-request/form');
         const form = staffPage.locator('parking-request-form');
         await expect(form).toBeVisible();
+        // The submit control has no `name`. Its `send` icon is the handle.
+        const submit = form
+            .locator('button[btn]')
+            .filter({ has: staffPage.locator('icon', { hasText: 'send' }) });
         const restrictions = form.locator(
             'mat-radio-group[aria-labelledby="parking-space-restrictions-label"]',
         );
         await expect(restrictions).toBeVisible();
         await expect(restrictions).toHaveAttribute('aria-required', 'true');
-        await form.locator('button[confirm]').click();
+        await submit.click();
         await expect(restrictions).toHaveAttribute('aria-invalid', 'true');
         expect(posts).toHaveLength(0);
         await restrictions
@@ -53,7 +57,7 @@ test('a parking request requires and stores the selected restriction', async ({
                     r.request().method() === 'POST' &&
                     new URL(r.url()).pathname === `${STAFF_API}/bookings`,
             ),
-            form.locator('button[confirm]').click(),
+            submit.click(),
         ]);
         const body = await response.json();
         booking_id = body.id;

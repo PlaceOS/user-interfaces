@@ -63,3 +63,39 @@ export const ROOM_DRIVERS = {
 } satisfies Record<string, DriverSpec>;
 
 export type RoomDriver = keyof typeof ROOM_DRIVERS;
+
+/**
+ * Where the state harness comes from: `drivers/place/e2e/state_harness.cr`, a
+ * UDP device whose `connected` state and other statuses are set by calling its
+ * functions. The stagehand specs use it to drive what a module publishes over
+ * MQTT.
+ *
+ * A repository row of its own, because it is pinned apart from the room
+ * drivers: the harness is on master, and they sit on a branch it is not on.
+ * When both are on master this can collapse into `DRIVERS_REPOSITORY`.
+ *
+ * Override with E2E_HARNESS_URI, E2E_HARNESS_BRANCH and E2E_HARNESS_COMMIT.
+ */
+export const HARNESS_REPOSITORY = {
+    name: 'E2E Harness Drivers',
+    folder_name: 'e2e-harness-drivers',
+    uri: process.env.E2E_HARNESS_URI ?? 'https://github.com/placeos/drivers',
+    branch: process.env.E2E_HARNESS_BRANCH ?? 'master',
+};
+
+export const HARNESS_COMMIT =
+    process.env.E2E_HARNESS_COMMIT ??
+    'a4b072a81bcfc3f8a48baf6236b5c1830a155f7c';
+
+/**
+ * Shows up in systems as `Display`, so a system with two of them has
+ * `Display_1` and `Display_2` — which is what the reordering specs need.
+ * Role 1 is a device: it needs an address and a port, and any will do.
+ */
+export const HARNESS_DRIVER = {
+    name: 'E2E State Harness',
+    file_name: 'drivers/place/e2e/state_harness.cr',
+    module_name: 'Display',
+    role: 1,
+    description: 'Owned by the e2e suite. Safe to delete.',
+} satisfies DriverSpec;

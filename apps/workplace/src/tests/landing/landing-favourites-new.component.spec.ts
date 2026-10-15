@@ -37,6 +37,7 @@ describe('LandingFavouritesNewComponent', () => {
             }),
             MockProvider(EventFormService, {
                 newForm: vi.fn(),
+                newFormWith: vi.fn(),
                 model: signal<any>({}),
             } as any),
             MockProvider(BookingFormService, {
@@ -110,6 +111,27 @@ describe('LandingFavouritesNewComponent', () => {
         expect(booking_form.newForm).not.toHaveBeenCalled();
         expect(booking_form.setOptions).not.toHaveBeenCalled();
         expect(booking_model()).toEqual({});
+    });
+
+    // No wait before the checks: a prefill on a timer is lost when the form
+    // page loads after the timer.
+    it('should save a favourite room with the meeting form before it opens the form', () => {
+        const router = spectator.inject(Router);
+        const settings = spectator.inject(SettingsService);
+        const event_form = spectator.inject(EventFormService);
+        (settings.get as any).mockReturnValue(true);
+        spectator.detectChanges();
+
+        spectator.component.bookResource({
+            id: 'space-1',
+            name: 'Room 1',
+            type: 'room',
+        } as any);
+
+        expect(event_form.newFormWith).toHaveBeenCalledWith({
+            resources: [expect.objectContaining({ id: 'space-1' })],
+        });
+        expect(router.navigate).toHaveBeenCalledWith(['/book', 'meeting']);
     });
 
     it('should still preload non-desk favourites into the booking form', async () => {

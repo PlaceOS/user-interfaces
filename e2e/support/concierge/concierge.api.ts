@@ -23,8 +23,9 @@
  *
  * Same retry, for the same reason, as the desk/visitor/parking helpers
  * (REG-09 / PPT-2642: a burst of booking writes poisons a staff-api connection
- * and an unrelated request fails on it). Duplicated rather than shared, like the
- * rest of the per-area support, so no area can break another.
+ * and an unrelated request fails on it). The retry is duplicated, like the rest
+ * of the per-area support, so no area can break another. The check for REG-09
+ * is `isReg09` in `../api.ts`.
  */
 import { APIRequestContext } from '@playwright/test';
 import {
@@ -33,6 +34,7 @@ import {
     STAFF_API,
     currentUser,
     deleteBooking,
+    isReg09,
     readBack,
     zonesWithTag,
 } from '../api';
@@ -50,15 +52,6 @@ export async function withZoneChain(api: APIRequestContext): Promise<string[]> {
         );
     }
     return [...new Set(ids)];
-}
-
-function isConcurrentWriteFailure(status: number, body: string): boolean {
-    if (status === 400 && /Expected BeginObject but was EOF/.test(body)) return true;
-    if (status === 500 && /could not serialize access/.test(body)) return true;
-    // An empty `failures` list is the tell: a genuine validation error names the
-    // field it is unhappy about.
-    if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
-    return false;
 }
 
 export interface BookingForOptions {
@@ -120,7 +113,7 @@ export async function createBookingFor(
             last = `201 for id ${booking.id}, but GET /bookings/${booking.id} then 404'd (REG-09)`;
         } else {
             last = `HTTP ${res.status()} ${body.slice(0, 300)}`;
-            if (!isConcurrentWriteFailure(res.status(), body)) break;
+            if (!isReg09(res.status(), body)) break;
         }
         await new Promise((r) => setTimeout(r, 400 * attempt));
     }

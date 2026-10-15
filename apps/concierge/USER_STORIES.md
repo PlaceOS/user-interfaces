@@ -27,20 +27,20 @@ The app covers room, desk, parking, locker, catering, asset, visitor, staff, rep
 **Acceptance Criteria:**
 - Opening `/#/` redirects through the configured `default_route`.
 - The default route is expected to take users to room bookings unless the configured concierge settings override it.
-- The top bar (`app-topbar`) and side navigation (`app-sidebar`) are visible once the route loads.
+- The side navigation (`app-sidebar`) is visible once the route loads.
 - The route loads against mock data when `?mock=true` is supplied.
 - If the target route is unavailable because the feature is disabled, the app redirects to a reachable route instead of leaving the shell blank.
 
 ### US-002: Navigate between feature areas
 **As a** concierge
-**I want to** use the sidebar to move between bookings, management, reports, and standalone tools
+**I want to** use the sidebar to move between bookings, management, reports, and other tools
 **So that** I can reach any operational area quickly
 
 **Acceptance Criteria:**
-- The sidebar groups links under Bookings, Management, and Reports where child links exist.
+- The sidebar groups links under Bookings, Management, Other, and Reports where child links exist.
 - Bookings links include room bookings, desk bookings, parking bookings, locker bookings, asset bookings, catering bookings, visitor bookings, and visitor rules when those features are enabled.
 - Management links include zones, rooms, desks, parking, lockers, catering, points, emergency contacts, signage, map features, URL management, email templates, and deals when those features are enabled.
-- Standalone links include assets, staff, events, and surveys when enabled.
+- Other links include assets, staff, events, and surveys when enabled.
 - The active route is highlighted.
 - Links hidden by `app.features` or `app.feature_groups` are not shown to users without access.
 - Management items are hidden from non-admin users.
@@ -52,7 +52,7 @@ The app covers room, desk, parking, locker, catering, asset, visitor, staff, rep
 **So that** I can manage my session and understand app-wide status
 
 **Acceptance Criteria:**
-- The top bar shows the configured logo, notification control, and current user avatar.
+- The sidebar shows the configured logo, keyboard shortcuts control, notification control, and current user avatar.
 - The logo links back to the landing route.
 - Global banners render above the active route when configured.
 - Global loading state is visible while blocking app-level operations are in progress.

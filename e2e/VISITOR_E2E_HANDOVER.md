@@ -1,5 +1,10 @@
 # Visitor invite e2e — handover
 
+> **This document describes the invite flow before PR #561.** That PR changed the view that the
+> route opens, and the specs now drive the new view. The page object `e2e/support/visitor/invite-form.page.ts` and §1c of
+> [`../E2E_USER_STORIES.md`](../E2E_USER_STORIES.md) have the current behaviour. The findings
+> and the decisions below are kept as the record of how the coverage was built.
+
 Working notes for the visitor-invite coverage added alongside the existing desk
 specs. Written to be picked up cold. Coverage contract lives in
 [`../E2E_USER_STORIES.md`](../E2E_USER_STORIES.md); harness conventions in
@@ -62,7 +67,7 @@ Eight new files, no existing file changed except one line in `package.json`
 |---|---|
 | `calendar.ts` | driving the shared `date-calendar` widget (schedule sidebar AND the form's date pop-up) |
 | `visitor.env.ts` | `visitorFor(worker, slot)` + the `VISITOR_SLOTS` table |
-| `visitor.api.ts` | guest search/delete, sweeps, `createBookingViaApi`, `checkInViaApi`, `isReg09` |
+| `visitor.api.ts` | guest search/delete, sweeps, `createBookingViaApi`, `checkInViaApi`. The REG-09 check, `isReg09`, is in `../api.ts` |
 | `visitor.settings.ts` | `useSettings()` + named mode presets |
 | `invite-form.page.ts` | page object for `/#/book/visitor/form` |
 | `your-bookings.page.ts` | page object for `/#/your-bookings` + details modal |

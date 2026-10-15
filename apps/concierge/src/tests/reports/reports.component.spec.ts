@@ -1,14 +1,13 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Component } from '@angular/core';
-import { MockComponent } from 'ng-mocks';
 import { RouterModule } from '@angular/router';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { MockComponent } from 'ng-mocks';
 import { Subject } from 'rxjs';
 
 import { Router } from '@angular/router';
-import { ApplicationSidebarComponent } from 'apps/concierge/src/app/ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from 'apps/concierge/src/app/ui/app-topbar.component';
 import { ReportsMenuComponent } from 'apps/concierge/src/app/reports/reports-menu.component';
 import { ReportsComponent } from 'apps/concierge/src/app/reports/reports.component';
+import { ApplicationSidebarComponent } from 'apps/concierge/src/app/ui/app-sidebar.component';
 
 @Component({ selector: 'router-outlet', template: '' })
 class StubRouterOutlet {}
@@ -29,7 +28,6 @@ describe('ReportsComponent', () => {
             ],
         ],
         declarations: [
-            MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
             MockComponent(ReportsMenuComponent),
         ],

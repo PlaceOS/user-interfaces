@@ -1,12 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 
 @Component({
     selector: '[app-events]',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
@@ -25,10 +23,6 @@ import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
             }
         `,
     ],
-    imports: [
-        ApplicationTopbarComponent,
-        ApplicationSidebarComponent,
-        RouterModule,
-    ],
+    imports: [ApplicationSidebarComponent, RouterModule],
 })
 export class EventsComponent {}

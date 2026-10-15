@@ -63,7 +63,11 @@ test.describe('parking requests', () => {
                     { timeout: 30_000 },
                 )
                 .catch(() => null);
-            await form.locator('button[confirm]').first().click({ timeout: 10_000 });
+            // The submit control has no `name`. Its `send` icon is the handle.
+            await form
+                .locator('button[btn]')
+                .filter({ has: staffPage.locator('icon', { hasText: 'send' }) })
+                .click({ timeout: 10_000 });
             const response = await sent;
             if (!response) {
                 const message = await staffPage

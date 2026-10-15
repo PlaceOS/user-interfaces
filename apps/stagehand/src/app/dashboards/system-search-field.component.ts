@@ -3,6 +3,7 @@ import {
     ElementRef,
     effect,
     forwardRef,
+    inject,
     input,
     model,
     OnChanges,
@@ -29,6 +30,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler } from '@placeos/common';
+import { inGroupScope } from '../support-groups';
+import { SupportGroupsService } from '../support-groups.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 
@@ -221,9 +224,21 @@ export class SystemSearchFieldComponent
     public readonly min_length = input(0, { alias: 'minLength' });
     /** Whether item list is loading */
     public readonly loading = model<boolean>(false);
-    /** Service used for searching items */
+    private _groups = inject(SupportGroupsService);
+    /** Service used for searching items. By default, the systems of the
+     * selected support group. */
     public readonly query_fn = input<(_: string) => Promise<PlaceSystem[]>>(
-        (_) => querySystems({ q: _ }).then((resp) => resp.data),
+        (q) => {
+            const group_id = this._groups.group_id();
+            const scope = this._groups.scope();
+            if (scope && !scope.reachable.size) return Promise.resolve([]);
+            return querySystems({ q, ...(group_id ? { group_id } : {}) }).then(
+                (resp) =>
+                    resp.data.filter((system) =>
+                        inGroupScope(system.zones || [], scope),
+                    ),
+            );
+        },
     );
     /** Currently selected item */
     public active_item = signal(null);

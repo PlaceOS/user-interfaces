@@ -11,64 +11,67 @@
  * `app.events.strict_capacity_check` is not a stronger version of the default —
  * it is a different mechanism:
  *
- *   unset ...... a warning is drawn next to the room list and the booking goes
- *                through anyway. This is the shipped default, so it is the
- *                behaviour real users get.
- *   true ....... `viewConfirm` (meeting-flow-form.component.ts) returns early
- *                with a toast. The confirm screen never opens and nothing is
- *                sent.
+ *   unset ...... a warning is drawn under the attendee list of the last step
+ *                and the booking goes through anyway. This is the shipped
+ *                default, so it is the behaviour real users get.
+ *   true ....... Confirm (`confirmBooking`, meeting-flow-options.component.ts)
+ *                returns early with a toast. Nothing is sent.
  *
- * Test 1 takes the strict path, because "the form refused and the backend never
+ * Test 1 takes the strict path, because "the flow refused and the backend never
  * heard about it" is the assertion with teeth. Test 2 takes the default path,
  * because a warning nobody renders is the failure users would actually hit.
  *
  * ## Both tests carry their own control
  *
- * A form that refuses everything, or renders a warning always, would pass a
+ * A flow that refuses everything, or renders a warning always, would pass a
  * one-sided version of either test. So test 1 removes the attendee and shows
- * the same form then reaches the confirm screen, and test 2 starts from a room
- * that IS big enough and shows the warning appear only when the room changes.
- * Nothing but the capacity differs across either pair.
+ * the same flow then books, and test 2 starts from a room that IS big enough
+ * and shows the warning appear only when the room changes. Nothing but the
+ * capacity differs across either pair.
+ *
+ * ## The control of test 1 books for real
+ *
+ * The flow has no confirm screen to stop at: Confirm sends the request at
+ * once. So the control of test 1 is a booking that goes through, and the test
+ * deletes it afterwards.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { deleteBooking, listBookings, uniqueTitle } from '../../../../e2e/support/api';
 import { WORKERS, staffEmail } from '../../../../e2e/support/env';
 import { type RoomBooking, releaseRoom } from '../../../../e2e/support/room/room.api';
+import { ROOM_SLOTS_2, SECOND_DAY, slotFor } from '../../../../e2e/support/room/room.env';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import {
     ROOM_BASE_SETTINGS,
     STRICT_CAPACITY,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
-import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
+import { setDate } from '../../../../e2e/support/room/room.flows';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
 const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
 
-/**
- * The capacity warning, matched on its CLASSES.
- *
- * The one selector in the room specs that is neither a `name` attribute nor
- * test data. The element has no attribute to hold on to and its text is
- * translated (`CALENDAR_EVENT.CAPACITY_WARNING`), so the styling is all there
- * is. Scoped to the form so a toast or another warning elsewhere on the page
- * cannot satisfy it.
- */
-const CAPACITY_WARNING = 'meeting-flow-form div.bg-warning.text-warning-content';
+/** "HH:00" for an hour of the slot table. */
+const onTheHour = (hour: number) => `${String(hour).padStart(2, '0')}:00`;
 
 test.describe('room capacity', () => {
     test('a meeting bigger than the room is refused before anything is sent', async ({
         staffPage,
+        staffApi,
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
         test.skip(theirs === mine, 'needs at least two workers for a second address');
 
         const small = await roomForWorker(mine, 'small');
+        const slot = slotFor(ROOM_SLOTS_2.capacity.strict, SECOND_DAY);
         const title = uniqueTitle('E2E Room Capacity');
         const guest = staffEmail(theirs);
+        let booking_id: number | undefined;
 
+        await releaseRoom(staffApi, small.id, window_from(), window_to());
         await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...STRICT_CAPACITY });
 
         // Watch every booking write, not just the successful ones. The point of
@@ -78,48 +81,68 @@ test.describe('room capacity', () => {
         staffPage.on('request', (r) => {
             if (!r.url().includes('/api/staff/v1/bookings')) return;
             if (r.method() === 'GET') return;
-            writes.push(`${r.method()} ${r.url()}`);
+            writes.push(`${r.method()} ${new URL(r.url()).pathname}`);
         });
 
-        const form = new MeetingForm(staffPage);
-        await form.open();
-        // Without this the small room is not even offered — the picker starts at
-        // "min. 4 people". See `setRoomSize`.
-        await form.setRoomSize(1);
-        await expect(async () => {
+        try {
+            const form = new MeetingFlow(staffPage);
+            await form.open();
             await form.title.fill(title);
-            if ((await form.chosenSpaces.count()) === 0) await form.chooseRoom(small.name);
-            await expect(form.title).toHaveValue(title, { timeout: 1_000 });
-            expect(await form.chosenSpaces.count()).toBe(1);
-        }).toPass({ timeout: 45_000 });
-        await form.addAttendee(guest);
-        await staffPage.waitForTimeout(2_000);
+            await setDate(form, staffPage, slot.date_ms);
+            await form.setStartTime(onTheHour(ROOM_SLOTS_2.capacity.strict));
+            await form.toRoomStep();
+            await form.selectRoom(small.name);
+            await form.toOptionsStep();
+            await form.addAttendee(guest);
 
-        // Press Confirm on the FORM. In strict mode this should not even get as
-        // far as the confirm screen.
-        await form.confirmViewButton.click();
-        await expect(
-            form.confirmButton,
-            'a meeting with more people than the room holds must not reach the ' +
-                'confirm screen when `app.events.strict_capacity_check` is set',
-        ).toBeHidden({ timeout: 10_000 });
-        expect(
-            writes,
-            'nothing at all should have been written to the backend',
-        ).toEqual([]);
+            // Press Confirm. In strict mode the flow refuses with a toast and
+            // stays on the last step.
+            await form.confirm.click();
+            await expect(
+                staffPage.locator('mat-snack-bar-container'),
+                'a meeting with more people than the room holds must be refused ' +
+                    'with a message when `app.events.strict_capacity_check` is set',
+            ).toBeVisible({ timeout: 10_000 });
+            await expect(
+                form.confirm,
+                'the flow must stay on the last step, ready for a correction',
+            ).toBeVisible();
+            await expect(form.successContinue).toHaveCount(0);
+            expect(
+                writes,
+                'nothing at all should have been written to the backend',
+            ).toEqual([]);
 
-        // CONTROL: the same form, one person lighter, gets through. Without
-        // this, a form that was simply broken would pass the assertions above.
-        await form.removeAttendee(guest);
-        await staffPage.waitForTimeout(2_000);
-        await form.confirmViewButton.click();
-        await expect(
-            form.confirmButton,
-            'with the meeting back inside the room capacity the confirm screen must ' +
-                'open — otherwise the refusal above was not about capacity at all',
-        ).toBeVisible({ timeout: 20_000 });
-        // Deliberately NOT confirmed: the control is that the screen opens, and
-        // sending it would leave a booking to clean up for no extra coverage.
+            // CONTROL: the same flow, one person lighter, gets through. Without
+            // this, a flow that was simply broken would pass the assertions above.
+            await form.removeAttendee(guest);
+            const [response] = await Promise.all([
+                staffPage.waitForResponse(
+                    (r) =>
+                        r.url().includes('/api/staff/v1/bookings') &&
+                        r.request().method() === 'POST',
+                    { timeout: 30_000 },
+                ),
+                form.confirm.click(),
+            ]);
+            const body = await response.text().catch(() => '<body unavailable>');
+            expect(
+                response.ok(),
+                'with the meeting back inside the room capacity the booking must go ' +
+                    'through — otherwise the refusal above was not about capacity at ' +
+                    `all. Got HTTP ${response.status()}: ${body}`,
+            ).toBeTruthy();
+            booking_id = JSON.parse(body).id;
+            await expect(form.successContinue).toBeVisible({ timeout: 30_000 });
+            expect(
+                writes,
+                'the only write of the whole test is the booking of the control, so ' +
+                    'the refused attempt sent nothing late either',
+            ).toEqual(['POST /api/staff/v1/bookings']);
+        } finally {
+            if (booking_id != null) await deleteBooking(staffApi, booking_id);
+            await releaseRoom(staffApi, small.id, window_from(), window_to());
+        }
     });
 
     test('a meeting bigger than the room is warned about by default', async ({
@@ -132,58 +155,64 @@ test.describe('room capacity', () => {
 
         const room = await roomForWorker(mine);
         const small = await roomForWorker(mine, 'small');
+        const slot = slotFor(ROOM_SLOTS_2.capacity.warning, SECOND_DAY);
         const title = uniqueTitle('E2E Room Capacity Warn');
         const guest = staffEmail(theirs);
 
         // The default: strict checking OFF, which is what ships.
         //
-        // The day is left at whatever the form offers, unlike the other room
-        // specs: this test asserts on the FORM, and the only booking it makes is
-        // in the small room, which nothing else in the suite ever touches — so
-        // there is no slot to collide over. It is swept either side regardless.
+        // The only booking this test makes is in the small room. The main room
+        // is selected for the control and then swapped out, but it has to be
+        // free for the window to be offered at all, so both are swept.
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
+        await releaseRoom(staffApi, room.id, window_from(), window_to());
         await releaseRoom(staffApi, small.id, window_from(), window_to());
 
-        const form = new MeetingForm(staffPage);
+        const form = new MeetingFlow(staffPage);
         await form.open();
-        // Both rooms have to be on offer for the swap below, and the small one is
-        // only offered at the smallest size. See `setRoomSize`.
-        await form.setRoomSize(1);
-        await expect(async () => {
-            await form.title.fill(title);
-            if ((await form.chosenSpaces.count()) === 0) await form.chooseRoom(room.name);
-            await expect(form.title).toHaveValue(title, { timeout: 1_000 });
-            expect(await form.chosenSpaces.count()).toBe(1);
-        }).toPass({ timeout: 45_000 });
+        await form.title.fill(title);
+        await setDate(form, staffPage, slot.date_ms);
+        await form.setStartTime(onTheHour(ROOM_SLOTS_2.capacity.warning));
+        await form.toRoomStep();
+        await form.selectRoom(room.name);
+        await form.toOptionsStep();
         await form.addAttendee(guest);
-        await staffPage.waitForTimeout(2_000);
 
         // CONTROL FIRST, with a room that fits: no warning. This is what makes
         // the assertion below about capacity rather than about the element
-        // simply always being there.
+        // simply always being there. The room in the summary proves the step
+        // has rendered, so "no warning" is not read off an empty page.
+        expect(await form.chosenRoomNames()).toEqual([room.name]);
         await expect(
-            staffPage.locator(CAPACITY_WARNING),
+            form.capacityWarning,
             `${room.name} holds ${room.capacity}, so a two-person meeting must not ` +
                 'be warned about',
-        ).toBeHidden({ timeout: 10_000 });
+        ).toHaveCount(0);
 
-        // Only the room changes.
-        await form.removeRoom();
-        await form.chooseRoom(small.name);
+        // Only the room changes. A click on a room in the list takes it in
+        // place of the one that was selected.
+        await form.stepLink(1).click();
+        await form.selectRoom(small.name);
+        await form.toOptionsStep();
+        expect(await form.chosenRoomNames()).toEqual([small.name]);
         await expect(
-            staffPage.locator(CAPACITY_WARNING),
+            form.attendeeChips,
+            'the attendee must still be on the meeting after the room changed',
+        ).toHaveCount(1);
+        await expect(
+            form.capacityWarning,
             `${small.name} holds ${small.capacity}, so the same meeting must now be ` +
                 'warned about',
         ).toBeVisible({ timeout: 20_000 });
 
         // And it is only a warning: the booking still goes through. That is the
         // shipped behaviour, and a user who ignores the warning must not end up
-        // with a form that silently refuses to submit.
+        // with a flow that silently refuses to submit.
         let booking_id: number | undefined;
         try {
-            await form.confirmAndSend();
+            await form.confirm.click();
             await expect(
-                form.successPanel,
+                form.successContinue,
                 'the default capacity check is advisory — the booking must still be ' +
                     'accepted after the warning',
             ).toBeVisible({ timeout: 30_000 });
@@ -201,6 +230,7 @@ test.describe('room capacity', () => {
                 'a booking should exist for the over-capacity meeting that was warned ' +
                     'about and confirmed anyway',
             ).toBeTruthy();
+            expect(made?.asset_id, 'and it holds the small room').toBe(small.id);
             booking_id = made?.id;
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);

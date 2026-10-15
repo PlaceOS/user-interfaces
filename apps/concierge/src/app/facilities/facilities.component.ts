@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { FacilitiesMapComponent } from './facilities-map.component';
 import { FacilitiesStatusComponent } from './facilities-status.component';
 import { FacilitiesTopbarComponent } from './facilities-topbar.component';
@@ -10,7 +9,6 @@ import { FacilitiesTopbarComponent } from './facilities-topbar.component';
 @Component({
     selector: '[app-new-facilities]',
     template: `
-        <app-topbar />
         <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -40,7 +38,6 @@ import { FacilitiesTopbarComponent } from './facilities-topbar.component';
         `,
     ],
     imports: [
-        ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         FacilitiesTopbarComponent,
         FacilitiesMapComponent,

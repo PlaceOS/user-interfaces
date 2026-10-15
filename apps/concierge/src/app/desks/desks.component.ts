@@ -50,7 +50,6 @@ import {
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { showMetadata } from '@placeos/ts-client';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
@@ -61,7 +60,6 @@ import { DesksStateService } from './desks-state.service';
 @Component({
     selector: '[app-desks]',
     template: `
-        <app-topbar class="print:hidden" />
         <div class="flex h-px flex-1 print:hidden">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
@@ -287,7 +285,6 @@ import { DesksStateService } from './desks-state.service';
         MatFormFieldModule,
         MatSelectModule,
         ApplicationSidebarComponent,
-        ApplicationTopbarComponent,
         SearchbarComponent,
         TranslatePipe,
         BuildingPipe,

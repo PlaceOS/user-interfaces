@@ -11,7 +11,6 @@ describe('EventsComponent', () => {
     beforeEach(() => createComponent());
 
     it('should render the shell layout with an outlet', () => {
-        expect('app-topbar').toExist();
         expect('app-sidebar').toExist();
         expect('router-outlet').toExist();
     });

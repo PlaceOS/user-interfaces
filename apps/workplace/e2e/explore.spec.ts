@@ -42,15 +42,27 @@ test.describe('Explore / Map', () => {
             timeout: LOAD_TIMEOUT,
         });
 
+        await expect(page.locator('explore-map-view')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+
+        // The pill shows only while the mock user has a booking of today that
+        // is not done. The mock bookings are from 7am to 6pm, so an evening
+        // run has no pill. The pill renders a moment after the map, so wait
+        // for it: a count taken at once is always 0.
         const booking_pill = page.locator('[name="upcoming-booking-map-pill"]');
-        if ((await booking_pill.count()) > 0) {
-            await booking_pill.locator('button').click();
-            await expect(page.getByRole('button', { name: 'Clear Pin' })).toBeVisible(
-                { timeout: LOAD_TIMEOUT },
-            );
-        } else {
-            await expect(page.locator('explore-map-view')).toBeVisible();
-        }
+        const has_booking = await booking_pill
+            .waitFor({ state: 'visible', timeout: 10_000 })
+            .then(() => true)
+            .catch(() => false);
+        if (!has_booking) return;
+
+        await booking_pill.locator('button').click();
+        // The action puts the pin of the booking on the map. Not "Clear Pin":
+        // that is the control of a `locate` query (US-043), not of this pin.
+        await expect(page.locator('event-map-pin')).toBeAttached({
+            timeout: LOAD_TIMEOUT,
+        });
     });
 
     test('US-043/044: map can open with a located resource query', async ({

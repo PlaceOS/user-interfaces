@@ -46,16 +46,12 @@ test.describe('concierge day view', () => {
     }) => {
         await adminPage.goto('/#/');
 
-        // The same three handles the existing mock spec uses, so this and
+        // The same two handles the existing mock spec uses, so this and
         // `dayview.spec.ts` cannot disagree about what "rendered" means.
         await expect(
-            adminPage.locator('app-topbar'),
+            adminPage.locator('app-sidebar'),
             'the concierge shell never rendered on the default route',
         ).toBeVisible({ timeout: 45_000 });
-        await expect(
-            adminPage.locator('app-sidebar'),
-            'the sidebar carries the navigation between concierge areas',
-        ).toBeVisible({ timeout: 30_000 });
         // `room-bookings > div`, NOT `room-bookings`.
         //
         // The custom element itself is unstyled and measures 1024x0, so
@@ -124,7 +120,7 @@ test.describe('concierge day view', () => {
         ).toEqual([]);
 
         await expect(
-            adminPage.locator('app-topbar'),
+            adminPage.locator('app-sidebar'),
             'and the shell must still be standing afterwards',
         ).toBeVisible();
     });

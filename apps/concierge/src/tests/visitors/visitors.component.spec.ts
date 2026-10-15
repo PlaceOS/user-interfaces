@@ -11,7 +11,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 import { GuestListingComponent } from '../../app/visitors/guest-listing.component';
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
@@ -50,7 +49,6 @@ describe('VisitorsComponent', () => {
             MockProvider(SettingsService, { get: vi.fn() }),
         ],
         declarations: [
-            MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
             MockComponent(GuestListingComponent),
             MockComponent(VisitorsTopbarComponent),
