@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
     createServiceFactory,
@@ -13,6 +14,8 @@ import * as ts_client from '@placeos/ts-client';
 
 import { DashboardsService } from '../app/dashboards/dashboards.service';
 import { AlertNotificationService } from '../app/push-notification.service';
+import { GroupScope, groupScope } from '../app/support-groups';
+import { SupportGroupsService } from '../app/support-groups.service';
 
 const { mock_mqtt_connect } = vi.hoisted(() => {
     const client = {
@@ -36,8 +39,15 @@ const flush = async () => {
     for (let i = 0; i < 6; i++) await Promise.resolve();
 };
 
+const zone = (id: string, parent_id = '', tags: string[] = []) =>
+    ({ id, parent_id, tags, name: id }) as any;
+
 describe('DashboardsService', () => {
     let spectator: SpectatorService<DashboardsService>;
+    const group_id = signal('');
+    const scope = signal<GroupScope | null>(null);
+    const scope_ready = signal(true);
+    const groups = { group_id, scope, scope_ready } as any;
     let org: unknown;
     let active_region: ReturnType<typeof signal<unknown>>;
     let notify_open: ReturnType<typeof vi.fn>;
@@ -53,6 +63,7 @@ describe('DashboardsService', () => {
                 notifyAlert: vi.fn(),
             }),
             MockProvider(OrganisationService),
+            MockProvider(SupportGroupsService, groups),
         ],
     });
 
@@ -93,6 +104,9 @@ describe('DashboardsService', () => {
             })),
         };
 
+        group_id.set('');
+        scope.set(null);
+        scope_ready.set(true);
         active_region = signal<unknown>(undefined);
         org = {
             waitUntilInitialised: vi.fn(() => Promise.resolve()),
@@ -107,6 +121,7 @@ describe('DashboardsService', () => {
                     notifyAlert: vi.fn(),
                 }),
                 MockProvider(MatDialog, dialog),
+                MockProvider(SupportGroupsService, groups),
             ],
         });
     });
@@ -404,6 +419,126 @@ describe('DashboardsService', () => {
                     Buffer.from('not json'),
                 ),
             ).not.toThrow();
+        });
+    });
+
+    // A support group limits the hot list to the zones it can see
+    describe('support groups', () => {
+        const disconnected = {
+            id: 'alert-1',
+            name: 'Disconnected',
+            conditions: {
+                comparisons: [
+                    {
+                        left: 'connected',
+                        operator: ts_client.TriggerConditionOperator.EQ,
+                        right: false,
+                    },
+                ],
+            },
+        } as any;
+        const region = zone('rgn-1', 'org-1', ['region']);
+        const building = zone('bld-1', 'rgn-1', ['building']);
+        const level = zone('lvl-1', 'bld-1', ['level']);
+        const denied = zone('lvl-2', 'bld-1', ['level']);
+        const other_building = zone('bld-2', 'rgn-1', ['building']);
+        const other_level = zone('lvl-9', 'bld-2', ['level']);
+        const client = () => (mock_mqtt_connect as any)();
+        const subscribed = () =>
+            client().subscribe.mock.calls.map(([topic]) => topic).sort();
+        const listen = () => {
+            const service = spectator.service as any;
+            service._mqtt_broker = client();
+            service._connected = true;
+            spectator.service.alerts_list.set([disconnected]);
+            service._listenToAlertTopics();
+        };
+
+        beforeEach(() => {
+            group_id.set('group-1');
+            // granted building 1 (less its second level) and a level of
+            // building 2
+            scope.set(
+                groupScope(
+                    [building, level, other_level],
+                    [building, denied, other_level],
+                    [region, other_building],
+                ),
+            );
+        });
+
+        it('listens on the zones the group was granted, not org wide', () => {
+            listen();
+            expect(subscribed()).toEqual([
+                'placeos/org-1/+/+/+/lvl-9/+/+/+/+/+/connected',
+                'placeos/org-1/+/+/bld-1/+/+/+/+/+/+/connected',
+            ]);
+        });
+
+        it('narrows a picked building above a granted zone to that zone', () => {
+            spectator.service.building_id.set('bld-2');
+            listen();
+            expect(subscribed()).toEqual([
+                'placeos/org-1/+/+/+/lvl-9/+/+/+/+/+/connected',
+            ]);
+        });
+
+        it('listens on a picked building the group can see as a whole', () => {
+            spectator.service.building_id.set('bld-1');
+            listen();
+            expect(subscribed()).toEqual([
+                'placeos/org-1/+/+/bld-1/+/+/+/+/+/+/connected',
+            ]);
+        });
+
+        it('listens on nothing while the group loads', () => {
+            scope.set(groupScope([], []));
+            listen();
+            expect(client().subscribe).not.toHaveBeenCalled();
+        });
+
+        it('ignores values from zones the group is denied or cannot see', () => {
+            vi.useFakeTimers();
+            const send = (zones: string, system: string) =>
+                (spectator.service as any)._handleBrokerMessage(
+                    `placeos/org-1/state/rgn-1/${zones}/_/${system}/drv/Display/1/connected`,
+                    Buffer.from(JSON.stringify({ time: 1, value: false })),
+                );
+            spectator.service.alerts_list.set([disconnected]);
+            send('bld-1/lvl-1', 'sys-in');
+            send('bld-1/lvl-2', 'sys-denied');
+            send('bld-2/lvl-3', 'sys-other');
+            send('bld-2/lvl-9', 'sys-level');
+            vi.advanceTimersByTime(100);
+            expect(
+                spectator.service.dashboard_alerts().map((a) => a.location),
+            ).toEqual(['sys-in', 'sys-level']);
+            vi.useRealTimers();
+        });
+
+        it('resets a region the group cannot see to every region', () => {
+            spectator.service.setRegionFromParams('rgn-elsewhere', 'bld-x');
+            TestBed.tick();
+            expect(spectator.service.region_id()).toBe('');
+            expect(spectator.service.building_id()).toBe('');
+        });
+
+        it('listens again when the group changes', async () => {
+            await spectator.service.listenForDashboardAlerts(true);
+            await flush();
+            const service = spectator.service as any;
+            service._connected = true;
+            TestBed.tick();
+            client().subscribe.mockClear();
+
+            group_id.set('group-2');
+            scope.set(groupScope([other_level], [other_level], [other_building]));
+            TestBed.tick();
+            await vi.waitFor(() =>
+                expect(subscribed()).toEqual([
+                    'placeos/org-1/+/+/+/lvl-9/+/+/+/+/+/connected',
+                ]),
+            );
         });
     });
 });

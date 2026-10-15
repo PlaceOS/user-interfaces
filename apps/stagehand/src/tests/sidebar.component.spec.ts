@@ -1,5 +1,6 @@
 import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
+import { of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import {
     createRoutingFactory,
@@ -10,6 +11,8 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import { DashboardsService } from '../app/dashboards/dashboards.service';
 import { PushNotificationSettingsComponent } from '../app/push-notification-settings.component';
 import { AlertNotificationService } from '../app/push-notification.service';
+import { groupScope } from '../app/support-groups';
+import { SupportGroupsService } from '../app/support-groups.service';
 import { SidebarComponent } from '../app/ui/sidebar.component';
 
 describe('SidebarComponent', () => {
@@ -23,6 +26,7 @@ describe('SidebarComponent', () => {
     let org: any;
     let dash: any;
     let push: any;
+    let groups: any;
 
     const create_component = createRoutingFactory({
         component: SidebarComponent,
@@ -63,6 +67,14 @@ describe('SidebarComponent', () => {
             building_id: signal(''),
             listenForDashboardAlerts: vi.fn(),
         };
+        groups = {
+            can_view_all: signal(true),
+            groups: signal([]),
+            selected_group: signal(undefined),
+            group_id: signal(''),
+            scope: signal(null),
+            setSelectedGroup: vi.fn(),
+        };
         push = {
             enabled: signal(false),
             config: signal({
@@ -78,6 +90,7 @@ describe('SidebarComponent', () => {
                 { provide: SettingsService, useValue: settings },
                 { provide: OrganisationService, useValue: org },
                 { provide: DashboardsService, useValue: dash },
+                { provide: SupportGroupsService, useValue: groups },
                 { provide: MatDialog, useValue: dialog },
                 { provide: AlertNotificationService, useValue: push },
             ],
@@ -179,5 +192,85 @@ describe('SidebarComponent', () => {
             low: false,
         });
         expect(component.notifications_active()).toBe(true);
+    });
+
+    describe('support groups', () => {
+        const zone = (id: string, parent_id: string, tags: string[]) =>
+            ({ id, parent_id, tags, name: id }) as any;
+
+        it('shows "All groups", and switches to the group picked', async () => {
+            groups.groups.set([{ group: { id: 'g1', name: 'Level 3 AV' } }]);
+            dialog.open.mockReturnValue({ afterClosed: () => of('g1') });
+            spectator.detectChanges();
+            const button = spectator.query('[group-selector]');
+            expect(button.getAttribute('aria-label')).toBe(
+                'Support group: All groups',
+            );
+            await component.selectGroup();
+            expect(dialog.open).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({
+                    data: {
+                        groups: groups.groups(),
+                        selected_group_id: '',
+                        show_all_groups: true,
+                    },
+                }),
+            );
+            expect(groups.setSelectedGroup).toHaveBeenCalledWith('g1');
+        });
+
+        it('keeps the group when the picker is dismissed', async () => {
+            dialog.open.mockReturnValue({ afterClosed: () => of(undefined) });
+            await component.selectGroup();
+            expect(groups.setSelectedGroup).not.toHaveBeenCalled();
+        });
+
+        it('names the selected group', () => {
+            groups.can_view_all.set(false);
+            groups.groups.set([{ group: { id: 'g1', name: 'Level 3 AV' } }]);
+            groups.selected_group.set({
+                group: { id: 'g1', name: 'Level 3 AV' },
+            });
+            spectator.detectChanges();
+            expect(
+                spectator.query('[group-selector]').getAttribute('aria-label'),
+            ).toBe('Support group: Level 3 AV');
+        });
+
+        it('hides the picker from a user with no group to pick', () => {
+            groups.can_view_all.set(false);
+            spectator.detectChanges();
+            expect(spectator.query('[group-selector]')).toBeNull();
+        });
+
+        it('lists only the regions and buildings the group can see', () => {
+            org.region_list.set([
+                { id: 'reg-1', name: 'Region 1' },
+                { id: 'reg-2', name: 'Region 2' },
+            ]);
+            org.active_buildings.set([
+                { id: 'bld-1', name: 'Building 1' },
+                { id: 'bld-2', name: 'Building 2' },
+            ]);
+            // granted a level of building 2, so its building and region show
+            groups.scope.set(
+                groupScope(
+                    [zone('lvl-1', 'bld-2', ['level'])],
+                    [zone('lvl-1', 'bld-2', ['level'])],
+                    [
+                        zone('bld-2', 'reg-1', ['building']),
+                        zone('reg-1', 'org-1', ['region']),
+                    ],
+                ),
+            );
+            expect(component.region_list().map((r) => r.id)).toEqual(['reg-1']);
+            expect(component.building_list().map((b) => b.id)).toEqual([
+                'bld-2',
+            ]);
+
+            groups.scope.set(null);
+            expect(component.region_list()).toHaveLength(2);
+        });
     });
 });

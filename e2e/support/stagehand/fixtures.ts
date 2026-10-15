@@ -15,15 +15,21 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ENGINE_API } from '../api';
 import { buildStorageState, mintToken } from '../auth';
-import { AUTH_DIR, BACKEND_URL, roleFor } from '../env';
+import { AUTH_DIR, BACKEND_URL, RoleName, roleFor } from '../env';
 import { adminApi as bootstrapApi } from '../seed';
 import { HierarchyZones, hierarchyZones } from './stagehand.api';
 import { STAGEHAND_URL, assertStagehandLocal } from './stagehand.env';
 import { ensureHarnessDriver, ensureStagehandOAuthApp } from './stagehand.seed';
+import { userIdByEmail } from './support-groups.api';
 
 interface StagehandWorkerFixtures {
     /** storageState path for the admin, bound to the stagehand origin. */
     stagehandAdminState: string;
+    /** storageState path for this worker's staff user (not an admin, not
+     * support), bound to the stagehand origin. */
+    stagehandStaffState: string;
+    /** This worker's staff user's id. */
+    staffUserId: string;
     /** A bearer for the admin: what the specs' own MQTT clients sign in with. */
     stagehandAdminToken: string;
     /** The state harness driver's id. Loaded by `up.sh`; checked here. */
@@ -44,7 +50,7 @@ async function apiWithToken(token: string): Promise<APIRequestContext> {
     });
 }
 
-async function mintForStagehand(workerIndex: number) {
+async function mintForStagehand(workerIndex: number, role: RoleName = 'admin') {
     assertStagehandLocal();
     const setup = await bootstrapApi();
     try {
@@ -52,17 +58,17 @@ async function mintForStagehand(workerIndex: number) {
     } finally {
         await setup.dispose();
     }
-    const admin = roleFor('admin', workerIndex);
+    const user = roleFor(role, workerIndex);
     const mint = await mintToken(
         BACKEND_URL,
         STAGEHAND_URL,
-        admin.email,
-        admin.password,
+        user.email,
+        user.password,
     );
     fs.mkdirSync(AUTH_DIR, { recursive: true });
     const state_path = path.join(
         AUTH_DIR,
-        `stagehand-admin-${workerIndex}.json`,
+        `stagehand-${role}-${workerIndex}.json`,
     );
     fs.writeFileSync(
         state_path,
@@ -83,6 +89,34 @@ export const test = base.extend<StagehandTestFixtures, StagehandWorkerFixtures>(
                     test.info().parallelIndex,
                 );
                 await use(state_path);
+            },
+            { scope: 'worker' },
+        ],
+
+        stagehandStaffState: [
+            async ({}, use) => {
+                const { state_path } = await mintForStagehand(
+                    test.info().parallelIndex,
+                    'staff',
+                );
+                await use(state_path);
+            },
+            { scope: 'worker' },
+        ],
+
+        staffUserId: [
+            async ({ stagehandAdminToken }, use) => {
+                const api = await apiWithToken(stagehandAdminToken);
+                try {
+                    await use(
+                        await userIdByEmail(
+                            api,
+                            roleFor('staff', test.info().parallelIndex).email,
+                        ),
+                    );
+                } finally {
+                    await api.dispose();
+                }
             },
             { scope: 'worker' },
         ],
