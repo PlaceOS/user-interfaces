@@ -26,6 +26,39 @@ export interface PhonemeChunk {
 
 const TOKEN = /[a-z']+|\d+(?:\.\d+)?|[.,!?;:—…"]/g;
 const WORD = /^[a-z']+$/;
+/**
+ * Acronyms such as "HDMI" or "AV" have no dictionary entry, so they are read letter by letter.
+ * Each name is a dictionary word that sounds like the letter.
+ */
+const ACRONYM = /\b[A-Z]{2,4}\b/g;
+const LETTER_NAMES: Record<string, string> = {
+    A: 'eh',
+    B: 'bee',
+    C: 'see',
+    D: 'dee',
+    E: 'ee',
+    F: 'ef',
+    G: 'gee',
+    H: 'aitch',
+    I: 'eye',
+    J: 'jay',
+    K: 'kay',
+    L: 'el',
+    M: 'em',
+    N: 'en',
+    O: 'oh',
+    P: 'pee',
+    Q: 'cue',
+    R: 'ar',
+    S: 'ess',
+    T: 'tee',
+    U: 'you',
+    V: 'vee',
+    W: 'double you',
+    X: 'ex',
+    Y: 'why',
+    Z: 'zed',
+};
 const SYMBOL_WORDS: [RegExp, string][] = [
     [/%/g, ' percent'],
     [/&/g, ' and '],
@@ -158,6 +191,13 @@ export class G2P {
     }
 }
 
+/** Replaces acronyms with letter names, as "HDMI" to "aitch dee em eye" */
+export function spellAcronyms(text: string) {
+    return text.replace(ACRONYM, (word) =>
+        [...word].map((letter) => LETTER_NAMES[letter]).join(' '),
+    );
+}
+
 /** Parses the tab separated `word<TAB>ipa` dictionary */
 export function parseDictionary(text: string) {
     const dictionary = new Map<string, string>();
@@ -202,7 +242,7 @@ export async function phonemize(
     };
     const normalized = SYMBOL_WORDS.reduce(
         (result, [pattern, words]) => result.replace(pattern, words),
-        text.toLowerCase(),
+        spellAcronyms(text).toLowerCase(),
     );
     for (const [token] of normalized.matchAll(TOKEN)) {
         if (/^\d/.test(token)) {

@@ -1,4 +1,8 @@
-import { numberToWords, phonemize } from '../../../app/ui/speech/g2p';
+import {
+    numberToWords,
+    phonemize,
+    spellAcronyms,
+} from '../../../app/ui/speech/g2p';
 
 describe('numberToWords', () => {
     it('should spell out numbers', () => {
@@ -6,6 +10,20 @@ describe('numberToWords', () => {
         expect(numberToWords('42')).toBe('forty two');
         expect(numberToWords('1500')).toBe('one thousand five hundred');
         expect(numberToWords('2.5')).toBe('two point five');
+    });
+});
+
+describe('spellAcronyms', () => {
+    it('should read acronyms letter by letter', () => {
+        expect(spellAcronyms('Switch to HDMI on the TV.')).toBe(
+            'Switch to aitch dee em eye on the tee vee.',
+        );
+    });
+
+    it('should leave words and single capitals alone', () => {
+        expect(spellAcronyms('I opened PlaceOS in Sydney.')).toBe(
+            'I opened PlaceOS in Sydney.',
+        );
     });
 });
 
