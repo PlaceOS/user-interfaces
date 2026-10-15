@@ -220,6 +220,7 @@ export class SignageApprovePlaylistModalComponent {
         MatDialogRef<SignageApprovePlaylistModalComponent>,
     );
     private _service = inject(SignageStateService);
+    private readonly _uses_lists = this._service.use('media');
 
     public readonly loading = signal('');
     private readonly _playlist_id = signal(this._playlist?.id || '');

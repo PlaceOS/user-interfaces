@@ -111,6 +111,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 })
 export class AssetCategoryFormComponent {
     private _state = inject(AssetManagerStateService);
+    private readonly _uses_lists = this._state.use('categories');
     private _dialog_ref = inject<MatDialogRef<AssetCategoryFormComponent>>(
         MatDialogRef,
         { optional: true },

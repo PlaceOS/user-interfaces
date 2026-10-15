@@ -143,6 +143,12 @@ export class BuildingListComponent extends AsyncHandler {
     public readonly surveys = this._survey.survey_list;
     public readonly answers = this._survey.answer_list;
 
+    constructor() {
+        super();
+        // The answer counts on this page are the only use of the answers
+        this._survey.loadAnswers();
+    }
+
     public readonly bld_stats = computed(() => {
         const mapping = {};
         const answers_list = flatten(this.answers());

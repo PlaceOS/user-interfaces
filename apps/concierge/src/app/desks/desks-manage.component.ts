@@ -34,14 +34,16 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
     selector: 'desks-manage',
     template: `
         <div
-            class="h-full w-full overflow-auto pb-4"
+            class="h-full w-full overflow-hidden pb-4"
             (dragenter)="handleDrag('enter', $event)"
             (window:dragend)="handleDrag('end', $event)"
         >
             <simple-table
-                class="block w-full min-w-6xl text-sm"
+                class="block w-full text-sm"
+                min_width="72rem"
                 [filter]="filters().search"
                 [data]="desks()"
+                [virtual_scroll]="true"
                 [columns]="[
                     {
                         key: 'id',
@@ -62,6 +64,7 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                         key: 'features',
                         name: 'COMMON.FEATURES' | translate,
                         content: item_list_template,
+                        size: '12rem',
                     },
                     {
                         key: 'tags',

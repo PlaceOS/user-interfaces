@@ -358,6 +358,7 @@ import { isWebPageUrl } from './signage.utilities';
 })
 export class SignageMediaListComponent {
     private _state = inject(SignageStateService);
+    private readonly _uses_lists = this._state.use('media', 'playlists');
 
     public readonly link = signal('');
 

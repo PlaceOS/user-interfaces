@@ -78,9 +78,9 @@ describe('LevelManagementService', () => {
         expect(org.addZone).toHaveBeenCalledWith({ id: 'new-level' });
     });
 
-    it('should add the returned zone after editing a level map', () => {
+    it('should add the returned zone after editing a level map', async () => {
         dialog_open.mockReturnValue({ afterClosed: () => of({ id: 'level-map' }) });
-        spectator.service.editLevelMap({ id: 'level-1' } as any);
+        await spectator.service.editLevelMap({ id: 'level-1' } as any);
         expect(dialog_open).toHaveBeenCalled();
         expect(org.addZone).toHaveBeenCalledWith({ id: 'level-map' });
     });

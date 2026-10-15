@@ -38,8 +38,9 @@ import { VisitorsStateService } from './visitors-state.service';
             [error]="load_error()"
             (retry)="retryLoad()"
             class="z-0 block text-sm print:hidden"
-            [style.min-width]="72 + extra_width + 'rem'"
+            [min_width]="72 + extra_width + 'rem'"
             [data]="guests()"
+            [virtual_scroll]="true"
             [columns]="[
                 {
                     key: 'state',
@@ -369,7 +370,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     "
                 >
                     <div class="flex items-center space-x-2 pr-2 pl-4">
-                        <div class="flex-1 text-left">
+                        <div class="flex-1 text-left whitespace-nowrap">
                             {{ bookingStatusLabel(row) | translate }}
                         </div>
                         @if (
@@ -730,9 +731,16 @@ import { VisitorsStateService } from './visitors-state.service';
                 />
             </div>
         }
-        <div class="h-8 w-full"></div>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                display: block;
+                height: 100%;
+                min-height: 0;
+            }
+        `,
+    ],
     imports: [
         CommonModule,
         MatRippleModule,

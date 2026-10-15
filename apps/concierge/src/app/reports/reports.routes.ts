@@ -1,67 +1,98 @@
 import { Route, Routes } from '@angular/router';
-import { AssetsReportComponent } from './assets/assets-report.component';
-import { SiteAttendanceReportComponent } from './attendance/site-attendance-report.component';
-import { CateringReportComponent } from './catering/catering-report.component';
-import { ContactTracingReportComponent } from './contact-tracing/contact-tracing-report.component';
-import { CustomReportComponent } from './custom-report.component';
-import { ReportDesksComponent } from './desks/report-desks.component';
-import { LockersReportComponent } from './lockers/lockers-report.component';
-import { ParkingReportComponent } from './parking/parking-report.component';
-import { ReportsOptionsComponent } from './reports-options.component';
 import { ReportsComponent } from './reports.component';
-import { ReportSpacesComponent } from './spaces/report-spaces.component';
-import { UserReportComponent } from './user/user-report.component';
-import { VisitorsReportComponent } from './visitors/visitors-report.component';
 
+// Each report loads in its own chunk, so a report does not download the
+// charts and code of the other reports
 const children: Route[] = [
     { path: '', redirectTo: 'desks', pathMatch: 'full' },
     {
         path: 'bookings',
-        component: ReportSpacesComponent,
+        loadComponent: () =>
+            import('./spaces/report-spaces.component').then(
+                (m) => m.ReportSpacesComponent,
+            ),
         title: 'Booking Reports',
     },
     {
         path: 'attendance',
-        component: SiteAttendanceReportComponent,
+        loadComponent: () =>
+            import('./attendance/site-attendance-report.component').then(
+                (m) => m.SiteAttendanceReportComponent,
+            ),
         title: 'Attendance Reports',
     },
-    { path: 'desks', component: ReportDesksComponent, title: 'Desk Reports' },
+    {
+        path: 'desks',
+        loadComponent: () =>
+            import('./desks/report-desks.component').then(
+                (m) => m.ReportDesksComponent,
+            ),
+        title: 'Desk Reports',
+    },
     {
         path: 'parking',
-        component: ParkingReportComponent,
+        loadComponent: () =>
+            import('./parking/parking-report.component').then(
+                (m) => m.ParkingReportComponent,
+            ),
         title: 'Parking Reports',
     },
     {
         path: 'lockers',
-        component: LockersReportComponent,
+        loadComponent: () =>
+            import('./lockers/lockers-report.component').then(
+                (m) => m.LockersReportComponent,
+            ),
         title: 'Locker Reports',
     },
     {
         path: 'catering',
-        component: CateringReportComponent,
+        loadComponent: () =>
+            import('./catering/catering-report.component').then(
+                (m) => m.CateringReportComponent,
+            ),
         title: 'Catering Reports',
     },
     {
         path: 'contact-tracing',
-        component: ContactTracingReportComponent,
+        loadComponent: () =>
+            import('./contact-tracing/contact-tracing-report.component').then(
+                (m) => m.ContactTracingReportComponent,
+            ),
         title: 'Contact Tracing Reports',
     },
     {
         path: 'assets',
-        component: AssetsReportComponent,
+        loadComponent: () =>
+            import('./assets/assets-report.component').then(
+                (m) => m.AssetsReportComponent,
+            ),
         title: 'Asset Reports',
     },
     {
         path: 'visitors',
-        component: VisitorsReportComponent,
+        loadComponent: () =>
+            import('./visitors/visitors-report.component').then(
+                (m) => m.VisitorsReportComponent,
+            ),
         title: 'Visitor Reports',
     },
     {
         path: 'user',
-        component: UserReportComponent,
+        loadComponent: () =>
+            import('./user/user-report.component').then(
+                (m) => m.UserReportComponent,
+            ),
         title: 'User Booking Reports',
     },
-    { path: ':id', component: CustomReportComponent, title: 'Reports' },
+    {
+        path: ':id',
+        loadComponent: () =>
+            import('./custom-report.component').then(
+                (m) => m.CustomReportComponent,
+            ),
+        title: 'Reports',
+    },
     { path: '**', redirectTo: 'desks', pathMatch: 'full' },
 ];
 

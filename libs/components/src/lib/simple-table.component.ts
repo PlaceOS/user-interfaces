@@ -1,14 +1,19 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    ElementRef,
     TemplateRef,
+    afterRenderEffect,
     computed,
     effect,
+    inject,
     input,
     model,
     output,
     signal,
     untracked,
+    viewChild,
+    viewChildren,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -36,180 +41,252 @@ export interface TableColumn {
             role="table"
             class="border-base-300 grid border"
             [style.gridTemplateColumns]="column_template()"
+            [style.minWidth]="min_width() || null"
+            [attr.aria-rowcount]="data_view().length + (show_header() ? 1 : 0)"
             (click)="active_row() >= 0 ? rowClicked.emit(active_row()) : null"
             (touchend)="active_row.set(-1)"
             (mouseleave)="active_row.set(-1)"
         >
             @if (show_header()) {
-                @if (selectable()) {
-                    <div
-                        id="column-selector"
-                        class="border-base-200 bg-base-300 sticky top-0 z-20 flex min-h-full items-center justify-between border-r border-b px-2"
-                        [style.gridColumn]="'1 / 2'"
-                    >
-                        <mat-checkbox
-                            [checked]="all_selected()"
-                            [indeterminate]="
-                                selected().length > 0 && !all_selected()
-                            "
-                            [disabled]="!selectable_keys().length"
-                            [aria-label]="'COMMON.SELECT_ALL' | translate"
-                            (change)="selectAll($event.checked)"
-                        ></mat-checkbox>
-                    </div>
-                }
-                @for (
-                    column of active_columns();
-                    track column.key + i;
-                    let i = $index
-                ) {
-                    <button
-                        header
-                        matRipple
-                        [id]="'column-' + column.key"
-                        class="border-base-200 bg-base-300 sticky top-0 z-20 flex min-h-full items-center justify-between border-b p-4"
-                        [style.gridColumn]="
-                            1 +
-                            i +
-                            (selectable() ? 1 : 0) +
-                            ' / ' +
-                            (2 + i + (selectable() ? 1 : 0))
-                        "
-                        [class.pointer-events-none]="
-                            !sortable() || column.sortable === false
-                        "
-                        (click)="setSort(column.key)"
-                        [class.active]="sort()?.key === column.key"
-                        [class.border-r]="i !== active_columns().length - 1"
-                        [class.width]="column.size"
-                    >
-                        <div class="font-medium">
-                            {{ column.name || column.key }}
+                <div #table_header table-header role="row">
+                    @if (selectable()) {
+                        <div
+                            id="column-selector"
+                            class="border-base-200 bg-base-300 sticky top-0 z-20 flex min-h-full items-center justify-between border-r border-b px-2"
+                            [style.gridColumn]="'1 / 2'"
+                        >
+                            <mat-checkbox
+                                [checked]="all_selected()"
+                                [indeterminate]="
+                                    selected().length > 0 && !all_selected()
+                                "
+                                [disabled]="!selectable_keys().length"
+                                [aria-label]="'COMMON.SELECT_ALL' | translate"
+                                (change)="selectAll($event.checked)"
+                            ></mat-checkbox>
                         </div>
-                        @if (sortable() && column.sortable !== false) {
-                            <icon class="text-[1.25em]">
-                                {{
-                                    sort()?.key === column.key &&
-                                    sort()?.reverse
-                                        ? 'arrow_downward'
-                                        : 'arrow_upward'
-                                }}
-                            </icon>
-                        }
-                    </button>
-                }
+                    }
+                    @for (
+                        column of active_columns();
+                        track column.key + i;
+                        let i = $index
+                    ) {
+                        <button
+                            header
+                            role="columnheader"
+                            matRipple
+                            [id]="'column-' + column.key"
+                            class="border-base-200 bg-base-300 sticky top-0 z-20 flex min-h-full items-center justify-between border-b p-4"
+                            [style.gridColumn]="
+                                1 +
+                                i +
+                                (selectable() ? 1 : 0) +
+                                ' / ' +
+                                (2 + i + (selectable() ? 1 : 0))
+                            "
+                            [class.pointer-events-none]="
+                                !sortable() || column.sortable === false
+                            "
+                            (click)="setSort(column.key)"
+                            [class.active]="sort()?.key === column.key"
+                            [class.border-r]="i !== active_columns().length - 1"
+                            [class.width]="column.size"
+                        >
+                            <div class="font-medium">
+                                {{ column.name || column.key }}
+                            </div>
+                            @if (sortable() && column.sortable !== false) {
+                                <icon class="text-[1.25em]">
+                                    {{
+                                        sort()?.key === column.key &&
+                                        sort()?.reverse
+                                            ? 'arrow_downward'
+                                            : 'arrow_upward'
+                                    }}
+                                </icon>
+                            }
+                        </button>
+                    }
+                </div>
+            }
+            @if (virtual_scroll()) {
+                <div
+                    aria-hidden="true"
+                    class="col-span-full"
+                    [style.height.px]="row_offsets()[virtual_range().start]"
+                ></div>
             }
             @for (
-                row of paginated_data();
+                row of rendered_data();
                 track rowKey(row) || row;
                 let i = $index
             ) {
-                @if (selectable()) {
-                    @let key = rowKey(row);
-                    <div
-                        id="column-selector"
-                        class="border-base-200 z-10 flex min-h-full items-center justify-between border-r px-2"
-                        [style.gridColumn]="'1 / 2'"
-                        [class.border-b]="i !== paginated_data().length - 1"
-                        (mouseenter)="active_row.set(i)"
-                        (touchstart)="active_row.set(i)"
-                        (click)="$event.stopPropagation()"
-                    >
-                        <mat-checkbox
-                            [checked]="selected().includes(key)"
-                            [disabled]="!can_select()(row)"
-                            [aria-label]="'COMMON.SELECT_ROW' | translate"
-                            (change)="select(key, $event.checked)"
-                        ></mat-checkbox>
-                    </div>
-                }
-                @for (
-                    column of active_columns();
-                    track column.key + j;
-                    let j = $index
-                ) {
-                    <div
-                        class="border-base-200 z-10 flex min-h-full items-center justify-between"
-                        [style.gridColumn]="
-                            1 +
-                            j +
-                            (selectable() ? 1 : 0) +
-                            ' / ' +
-                            (2 + j + (selectable() ? 1 : 0))
-                        "
-                        [class.border-b]="i !== paginated_data().length - 1"
-                        [class.border-r]="j !== active_columns().length - 1"
-                        [class.width]="column.size"
-                        (mouseenter)="active_row.set(i)"
-                        (touchstart)="active_row.set(i)"
-                    >
-                        @switch (columnType(column)) {
-                            @default {
-                                <div class="p-4">
-                                    {{
-                                        row[column.key] ??
-                                            (column.key === '_index'
-                                                ? i +
-                                                  1 +
-                                                  page() * (page_size() || 0)
-                                                : row[column.key])
-                                    }}
-                                    @if (
-                                        (row[column.key] === null ||
-                                            row[column.key] === undefined ||
-                                            row[column.key] === '') &&
-                                        column.key !== '_index'
-                                    ) {
-                                        <span class="opacity-30">
-                                            {{
-                                                column.empty ||
-                                                    ('COMMON.EMPTY' | translate)
-                                            }}
-                                        </span>
-                                    }
-                                </div>
-                            }
-                            @case ('template') {
-                                <ng-container
-                                    *ngTemplateOutlet="
-                                        template(column);
-                                        context: {
-                                            first: i === 0,
-                                            last:
-                                                i ===
-                                                paginated_data().length - 1,
-                                            index:
-                                                i + page() * (page_size() || 0),
-                                            data: row[column.key],
-                                            row: row,
-                                            key: column.key,
-                                            name: column.name || column.key,
-                                        }
-                                    "
-                                ></ng-container>
-                            }
-                        }
-                    </div>
-                }
-                @if (show_children()[row['id']] && child_template()) {
-                    <div
-                        child-node
-                        [style.gridColumn]="'span ' + column_count()"
-                        class="border-base-200 relative border-b last:border-t last:border-b-0"
-                    >
-                        <ng-container
-                            *ngTemplateOutlet="
-                                child_template();
-                                context: {
-                                    first: i === 0,
-                                    last: i === paginated_data().length - 1,
-                                    index: i + page() * (page_size() || 0),
-                                    row: row,
-                                }
+                <div
+                    #table_row
+                    table-row
+                    role="row"
+                    [attr.data-row-index]="row_offset() + i"
+                    [attr.aria-rowindex]="
+                        row_offset() + i + (show_header() ? 2 : 1)
+                    "
+                >
+                    @if (selectable()) {
+                        @let key = rowKey(row);
+                        <div
+                            id="column-selector"
+                            class="border-base-200 z-10 flex min-h-full items-center justify-between border-r px-2"
+                            [style.gridColumn]="'1 / 2'"
+                            [class.border-b]="
+                                virtual_scroll()
+                                    ? row_offset() + i !==
+                                      data_view().length - 1
+                                    : i !== rendered_data().length - 1
                             "
-                        ></ng-container>
-                    </div>
-                }
+                            (mouseenter)="
+                                active_row.set(
+                                    i + (virtual_scroll() ? row_offset() : 0)
+                                )
+                            "
+                            (touchstart)="
+                                active_row.set(
+                                    i + (virtual_scroll() ? row_offset() : 0)
+                                )
+                            "
+                            (click)="$event.stopPropagation()"
+                        >
+                            <mat-checkbox
+                                [checked]="selected().includes(key)"
+                                [disabled]="!can_select()(row)"
+                                [aria-label]="'COMMON.SELECT_ROW' | translate"
+                                (change)="select(key, $event.checked)"
+                            ></mat-checkbox>
+                        </div>
+                    }
+                    @for (
+                        column of active_columns();
+                        track column.key + j;
+                        let j = $index
+                    ) {
+                        <div
+                            role="cell"
+                            class="border-base-200 z-10 flex min-h-full items-center justify-between"
+                            [style.gridColumn]="
+                                1 +
+                                j +
+                                (selectable() ? 1 : 0) +
+                                ' / ' +
+                                (2 + j + (selectable() ? 1 : 0))
+                            "
+                            [class.border-b]="
+                                virtual_scroll()
+                                    ? row_offset() + i !==
+                                      data_view().length - 1
+                                    : i !== rendered_data().length - 1
+                            "
+                            [class.border-r]="j !== active_columns().length - 1"
+                            [class.width]="column.size"
+                            (mouseenter)="
+                                active_row.set(
+                                    i + (virtual_scroll() ? row_offset() : 0)
+                                )
+                            "
+                            (touchstart)="
+                                active_row.set(
+                                    i + (virtual_scroll() ? row_offset() : 0)
+                                )
+                            "
+                        >
+                            @switch (columnType(column)) {
+                                @default {
+                                    <div class="p-4">
+                                        {{
+                                            row[column.key] ??
+                                                (column.key === '_index'
+                                                    ? i + 1 + row_offset()
+                                                    : row[column.key])
+                                        }}
+                                        @if (
+                                            (row[column.key] === null ||
+                                                row[column.key] === undefined ||
+                                                row[column.key] === '') &&
+                                            column.key !== '_index'
+                                        ) {
+                                            <span class="opacity-30">
+                                                {{
+                                                    column.empty ||
+                                                        ('COMMON.EMPTY'
+                                                            | translate)
+                                                }}
+                                            </span>
+                                        }
+                                    </div>
+                                }
+                                @case ('template') {
+                                    <ng-container
+                                        *ngTemplateOutlet="
+                                            template(column);
+                                            context: {
+                                                first:
+                                                    i === 0 &&
+                                                    (!virtual_scroll() ||
+                                                        row_offset() === 0),
+                                                last:
+                                                    i ===
+                                                        rendered_data().length -
+                                                            1 &&
+                                                    (!virtual_scroll() ||
+                                                        i + row_offset() ===
+                                                            data_view().length -
+                                                                1),
+                                                index: i + row_offset(),
+                                                data: row[column.key],
+                                                row: row,
+                                                key: column.key,
+                                                name: column.name || column.key,
+                                            }
+                                        "
+                                    ></ng-container>
+                                }
+                            }
+                        </div>
+                    }
+                    @if (show_children()[row['id']] && child_template()) {
+                        <div
+                            child-node
+                            [style.gridColumn]="'span ' + column_count()"
+                            class="border-base-200 relative border-b last:border-t last:border-b-0"
+                        >
+                            <ng-container
+                                *ngTemplateOutlet="
+                                    child_template();
+                                    context: {
+                                        first:
+                                            i === 0 &&
+                                            (!virtual_scroll() ||
+                                                row_offset() === 0),
+                                        last:
+                                            i === rendered_data().length - 1 &&
+                                            (!virtual_scroll() ||
+                                                i + row_offset() ===
+                                                    data_view().length - 1),
+                                        index: i + row_offset(),
+                                        row: row,
+                                    }
+                                "
+                            ></ng-container>
+                        </div>
+                    }
+                </div>
+            }
+            @if (virtual_scroll()) {
+                <div
+                    aria-hidden="true"
+                    class="col-span-full"
+                    [style.height.px]="
+                        row_offsets()[data_view().length] -
+                        row_offsets()[virtual_range().end]
+                    "
+                ></div>
             }
             @if (error()) {
                 <load-error
@@ -225,12 +302,14 @@ export interface TableColumn {
                 </div>
             }
         </div>
-        @if (page_size()) {
+        @if (page_size() && !virtual_scroll()) {
             <div
-                class="bg-base-200 sticky bottom-0 z-30 flex w-full items-center justify-end space-x-2 p-2"
+                class="bg-base-200 sticky bottom-0 left-0 z-30 flex w-full max-w-full items-center justify-end space-x-2 p-2"
+                [style.width]="min_width() ? '100cqw' : null"
             >
                 <div class="px-4 py-2">
-                    {{ page() * (page_size() || 9999) + 1 }} &ndash;
+                    {{ total_count() ? page() * (page_size() || 9999) + 1 : 0 }}
+                    &ndash;
                     {{
                         (page() + 1) * (page_size() || 9999) > total_count()
                             ? total_count()
@@ -249,7 +328,7 @@ export interface TableColumn {
                 <button
                     icon
                     matRipple
-                    [disabled]="page() === total_pages() - 1"
+                    [disabled]="page() >= total_pages() - 1"
                     (click)="setPage(page() + 1)"
                 >
                     <icon>chevron_right</icon>
@@ -265,7 +344,7 @@ export interface TableColumn {
                 <button
                     icon
                     matRipple
-                    [disabled]="page() === total_pages() - 1"
+                    [disabled]="page() >= total_pages() - 1"
                     (click)="setPage(total_pages() - 1)"
                 >
                     <icon>last_page</icon>
@@ -273,11 +352,52 @@ export interface TableColumn {
             </div>
         }
     `,
+    host: {
+        '[style.min-width]': 'virtual_scroll() ? null : min_width() || null',
+        '[class.virtual-scroll]': 'virtual_scroll()',
+        '(scroll)': 'readViewport(true)',
+    },
     styles: [
         `
             :host,
             :host > button {
                 min-width: 100%;
+            }
+
+            [table-header],
+            [table-row] {
+                display: contents;
+            }
+
+            :host.virtual-scroll {
+                display: block;
+                height: 100%;
+                min-height: 0;
+                overflow: auto;
+                overflow-anchor: none;
+            }
+
+            :host.virtual-scroll [table-header],
+            :host.virtual-scroll [table-row] {
+                display: grid;
+                grid-column: 1 / -1;
+                grid-template-columns: subgrid;
+            }
+
+            :host.virtual-scroll [table-header] {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+            }
+
+            :host.virtual-scroll [role='cell'] {
+                min-width: 0;
+                overflow-wrap: anywhere;
+            }
+
+            :host.virtual-scroll [role='cell'] > * {
+                min-width: 0;
+                max-width: 100%;
             }
 
             [header] icon {
@@ -318,6 +438,14 @@ export class SimpleTableComponent<T extends object = any> {
     /** Keys of the selected rows. Supports two-way binding. */
     public readonly selected = model<string[]>([]);
     public readonly page_size = input(0);
+    /** Render the visible rows and a viewport of buffer on each side. Requires a parent with a set height. */
+    public readonly virtual_scroll = input(false);
+    /**
+     * Minimum width of the rows, e.g. `72rem`. Set `container-type:
+     * inline-size` on the scroll wrapper so the page controls use its width
+     * and stay visible when the rows scroll sideways.
+     */
+    public readonly min_width = input('');
     public readonly empty_message = input('No data to list');
     public readonly child_template = input<TemplateRef<any>>(null);
     public readonly show_children = input<Record<string, boolean>>({});
@@ -342,6 +470,22 @@ export class SimpleTableComponent<T extends object = any> {
     // Signal to hold the actual data (handles both array and Observable inputs)
     private readonly _data_signal = signal<T[]>([]);
     private _data_subscription: Subscription | null = null;
+    /** Row keys and page size of the last data view, to detect reloads */
+    private _last_row_keys = '';
+    private _last_page_size = 0;
+    private readonly _element = inject<ElementRef<HTMLElement>>(ElementRef);
+    private readonly _rows = viewChildren<ElementRef<HTMLElement>>('table_row');
+    private readonly _header =
+        viewChild<ElementRef<HTMLElement>>('table_header');
+    private readonly _scroll_top = signal(0);
+    private readonly _viewport_height = signal(600);
+    private readonly _row_heights = signal(new Map<string | T, number>());
+    private _viewport_width = 0;
+    private _pending_scroll_top: number | null = null;
+    private _scroll_anchor: { key: string | T; offset: number } | null = null;
+    private _at_end = false;
+    private _last_filter = '';
+    private _last_sort: { key: string; reverse: boolean } | null = null;
 
     // Computed data view with filtering and sorting
     public readonly data_view = computed(() => {
@@ -391,12 +535,53 @@ export class SimpleTableComponent<T extends object = any> {
     public readonly paginated_data = computed(() => {
         const data = this.data_view();
         const page_size_value = this.page_size();
-        if (!page_size_value) return data;
+        if (!page_size_value || this.virtual_scroll()) return data;
 
         const start = this.page() * page_size_value;
         const end = (this.page() + 1) * page_size_value;
         return data.slice(start, end);
     });
+
+    /** Prefix sums are rebuilt on data or size changes, not on each scroll. */
+    public readonly row_offsets = computed(() => {
+        const heights = this._row_heights();
+        const offsets = [0];
+        for (const row of this.data_view()) {
+            offsets.push(
+                offsets[offsets.length - 1] +
+                    (heights.get(this.rowKey(row) ?? row) ?? 64),
+            );
+        }
+        return offsets;
+    });
+
+    public readonly virtual_range = computed(() => {
+        const offsets = this.row_offsets();
+        const height = this._viewport_height();
+        const top = this._scroll_top();
+        return {
+            start: this._rowAtOffset(offsets, Math.max(0, top - height)),
+            end: Math.min(
+                this.data_view().length,
+                this._rowAtOffset(offsets, top + height * 2) + 1,
+            ),
+        };
+    });
+
+    public readonly row_offset = computed(() =>
+        this.virtual_scroll()
+            ? this.virtual_range().start
+            : this.page() * this.page_size(),
+    );
+
+    public readonly rendered_data = computed(() =>
+        this.virtual_scroll()
+            ? this.data_view().slice(
+                  this.virtual_range().start,
+                  this.virtual_range().end,
+              )
+            : this.paginated_data(),
+    );
 
     /** Keys of the rows in view that the user can select */
     public readonly selectable_keys = computed(() => {
@@ -415,7 +600,11 @@ export class SimpleTableComponent<T extends object = any> {
     // Computed column template
     public readonly column_template = computed(() => {
         const template = this.active_columns()
-            .map((_) => _.size || 'auto')
+            .map(
+                (_) =>
+                    _.size ||
+                    (this.virtual_scroll() ? 'minmax(0, 1fr)' : 'auto'),
+            )
             .join(' ');
         return this.selectable() ? `3.5rem ${template}` : template;
     });
@@ -426,6 +615,28 @@ export class SimpleTableComponent<T extends object = any> {
     });
 
     constructor() {
+        afterRenderEffect((onCleanup) => {
+            if (!this.virtual_scroll()) return;
+            const rows = this._rows();
+            const header = this._header();
+            // Data can change without replacing the rendered row elements.
+            this.data_view();
+            this._row_heights();
+            // Apply the anchor after the spacers have their new heights.
+            if (this._pending_scroll_top !== null) {
+                this._element.nativeElement.scrollTop =
+                    this._pending_scroll_top;
+                this._pending_scroll_top = null;
+            }
+            untracked(() => this._measureRows());
+            if (typeof ResizeObserver === 'undefined') return;
+            const observer = new ResizeObserver(() => this._measureRows());
+            observer.observe(this._element.nativeElement);
+            if (header) observer.observe(header.nativeElement);
+            for (const row of rows) observer.observe(row.nativeElement);
+            onCleanup(() => observer.disconnect());
+        });
+
         // Handle data input changes (supports both array and Observable)
         effect((onCleanup) => {
             const data = this.data();
@@ -466,18 +677,146 @@ export class SimpleTableComponent<T extends object = any> {
             );
         });
 
-        // Reset page and update pagination info when data view changes
+        // Keep paged views on the same page when the row keys do not change.
+        // Virtual views keep their visible row when data is added or removed.
         effect(() => {
             const data = this.data_view();
             const page_size_value = this.page_size();
+            const row_keys = data.map((row) => this.rowKey(row));
+            const same_rows =
+                page_size_value === this._last_page_size &&
+                row_keys.every((key) => key != null) &&
+                row_keys.join('\u0000') === this._last_row_keys;
+            this._last_row_keys = row_keys.join('\u0000');
+            this._last_page_size = page_size_value;
 
-            this.page.set(0);
+            const filter = this.filter();
+            const sort = this.sort();
+            const reset_virtual =
+                filter !== this._last_filter || sort !== this._last_sort;
+            this._last_filter = filter;
+            this._last_sort = sort;
+            if (!same_rows) this.page.set(0);
+            if (this.virtual_scroll() && (reset_virtual || !same_rows)) {
+                const anchor = this._scroll_anchor;
+                const anchor_index =
+                    !reset_virtual && anchor
+                        ? data.findIndex(
+                              (row) => (this.rowKey(row) ?? row) === anchor.key,
+                          )
+                        : -1;
+                const top =
+                    anchor_index >= 0
+                        ? untracked(this.row_offsets)[anchor_index] +
+                          anchor.offset
+                        : 0;
+                if (anchor_index < 0) this._scroll_anchor = null;
+                this._pending_scroll_top = top;
+                this._at_end = false;
+                this._scroll_top.set(top);
+                this.active_row.set(-1);
+            }
+
+            // Remove measurements for deleted or filtered rows.
+            if (this.virtual_scroll()) {
+                const keys = new Set(
+                    data.map((row) => this.rowKey(row) ?? row),
+                );
+                const heights = untracked(this._row_heights);
+                if ([...heights.keys()].some((key) => !keys.has(key))) {
+                    this._row_heights.set(
+                        new Map([...heights].filter(([key]) => keys.has(key))),
+                    );
+                }
+            }
 
             if (page_size_value) {
                 this.total_count.set(data.length);
                 this.total_pages.set(Math.ceil(data.length / page_size_value));
             }
         });
+    }
+
+    public readViewport(from_scroll = false) {
+        if (!this.virtual_scroll()) return;
+        const element = this._element.nativeElement;
+        if (from_scroll) {
+            this._at_end =
+                element.scrollTop > 0 &&
+                element.scrollHeight > element.clientHeight &&
+                element.scrollTop >=
+                    element.scrollHeight - element.clientHeight - 2;
+        }
+        const header_height =
+            this._header()?.nativeElement.getBoundingClientRect().height || 0;
+        this._viewport_height.set(
+            Math.max(1, element.clientHeight - header_height),
+        );
+        this._scroll_top.set(element.scrollTop);
+        this.active_row.set(-1);
+        // Save the key before the next data update, once the scroll has settled.
+        if (this._pending_scroll_top === null) {
+            const offsets = this.row_offsets();
+            const index = this._rowAtOffset(offsets, element.scrollTop);
+            const row = this.data_view()[index];
+            this._scroll_anchor = row
+                ? {
+                      key: this.rowKey(row) ?? row,
+                      offset: element.scrollTop - offsets[index],
+                  }
+                : null;
+        }
+    }
+
+    /** Find a row in logarithmic time, including large scrollbar jumps. */
+    private _rowAtOffset(offsets: number[], offset: number) {
+        let low = 0;
+        let high = Math.max(0, offsets.length - 2);
+        while (low < high) {
+            const middle = Math.ceil((low + high) / 2);
+            if (offsets[middle] <= offset) low = middle;
+            else high = middle - 1;
+        }
+        return low;
+    }
+
+    /** Measure complete rows, including wrapped text and expanded children. */
+    private _measureRows() {
+        const element = this._element.nativeElement;
+        if (
+            !element.clientHeight ||
+            !element.clientWidth ||
+            this._pending_scroll_top !== null
+        )
+            return;
+        const offsets = this.row_offsets();
+        const anchor = this._rowAtOffset(offsets, element.scrollTop);
+        const anchor_offset = element.scrollTop - offsets[anchor];
+        const resized = element.clientWidth !== this._viewport_width;
+        this._viewport_width = element.clientWidth;
+        const previous = this._row_heights();
+        const heights = resized
+            ? new Map<string | T, number>()
+            : new Map(previous);
+        const data = this.data_view();
+        let changed = resized;
+        for (const row of this._rows()) {
+            const index = Number(row.nativeElement.dataset.rowIndex);
+            const height = row.nativeElement.getBoundingClientRect().height;
+            if (!data[index] || !height) continue;
+            const key = this.rowKey(data[index]) ?? data[index];
+            if (Math.abs((heights.get(key) ?? 64) - height) < 0.5) continue;
+            heights.set(key, height);
+            changed = true;
+        }
+        if (changed) {
+            this._row_heights.set(heights);
+            // Keep the first visible row in place when a buffered row changes height.
+            this._pending_scroll_top = this._at_end
+                ? Number.MAX_SAFE_INTEGER
+                : this.row_offsets()[anchor] + anchor_offset;
+        }
+        this.readViewport();
     }
 
     public template(column: TableColumn) {

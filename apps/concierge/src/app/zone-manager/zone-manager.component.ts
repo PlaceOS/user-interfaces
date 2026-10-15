@@ -13,10 +13,6 @@ import { LevelListComponent } from '../level-manager/level-list.component';
 import { LevelManagementService } from '../level-manager/level-management.service';
 import { RegionListComponent } from '../region-manager/region-list.component';
 import { RegionManagementService } from '../region-manager/region-management.service';
-import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
-import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
-import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
-import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 
 @Component({
@@ -213,25 +209,33 @@ export class ZoneManagerComponent extends AsyncHandler implements OnInit {
         );
     }
 
-    public editWorkplaceSettings() {
+    public async editWorkplaceSettings() {
+        const { WorkplaceSettingsFormModalComponent } =
+            await import('../ui/app-settings/workplace-settings-form-modal.component');
         this._dialog.open(WorkplaceSettingsFormModalComponent, {
             data: { zone: this._org.organisation },
         });
     }
 
-    public editConciergeSettings() {
+    public async editConciergeSettings() {
+        const { ConciergeSettingsFormModalComponent } =
+            await import('../ui/app-settings/concierge-settings-form-modal.component');
         this._dialog.open(ConciergeSettingsFormModalComponent, {
             data: { zone: this._org.organisation },
         });
     }
 
-    public editBookingPanelSettings() {
+    public async editBookingPanelSettings() {
+        const { BookingPanelSettingsModalComponent } =
+            await import('../ui/app-settings/booking-panel-settings-modal.component');
         this._dialog.open(BookingPanelSettingsModalComponent, {
             data: { zone: this._org.organisation },
         });
     }
 
-    public editVisitorKioskSettings() {
+    public async editVisitorKioskSettings() {
+        const { VisitorKioskSettingsFormModalComponent } =
+            await import('../ui/app-settings/visitor-kiosk-settings-form-modal.component');
         this._dialog.open(VisitorKioskSettingsFormModalComponent, {
             data: { zone: this._org.organisation },
         });

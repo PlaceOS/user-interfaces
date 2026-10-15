@@ -87,9 +87,9 @@ describe('BuildingListComponent', () => {
         expect(manager.removeBuilding).toHaveBeenCalledWith(row);
     });
 
-    it('should open the workplace settings modal for the selected zone', () => {
+    it('should open the workplace settings modal for the selected zone', async () => {
         const zone = { id: 'b1' };
-        spectator.component.editWorkplaceSettings(zone);
+        await spectator.component.editWorkplaceSettings(zone);
         expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
             WorkplaceSettingsFormModalComponent,
             { data: { zone } },

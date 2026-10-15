@@ -268,6 +268,19 @@ export class RoomWeekBookingsTimelineComponent
             );
         }
 
+        // Format each event date one time, not one time for each day
+        const events_by_date = new Map<string, CalendarEvent[]>();
+        for (const event of events) {
+            if (event.is_system_event) continue;
+            const event_date_value = this._data_pipe.transform(
+                event.date,
+                'yyyy-MM-dd',
+                this.tz,
+            );
+            const list = events_by_date.get(event_date_value) || [];
+            list.push(event);
+            events_by_date.set(event_date_value, list);
+        }
         const event_map: Record<string, CalendarEvent[]> = {};
         for (const date of day_list) {
             const date_value = this._data_pipe.transform(
@@ -275,19 +288,9 @@ export class RoomWeekBookingsTimelineComponent
                 'yyyy-MM-dd',
                 this.tz,
             );
-            event_map[date] = events
-                .filter((event) => {
-                    const event_date_value = this._data_pipe.transform(
-                        event.date,
-                        'yyyy-MM-dd',
-                        this.tz,
-                    );
-                    return (
-                        date_value === event_date_value &&
-                        !event.is_system_event
-                    );
-                })
-                .sort((a, b) => a.date - b.date);
+            event_map[date] = [...(events_by_date.get(date_value) || [])].sort(
+                (a, b) => a.date - b.date,
+            );
         }
         return event_map;
     });

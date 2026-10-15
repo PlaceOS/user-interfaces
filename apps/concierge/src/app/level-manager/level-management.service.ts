@@ -17,7 +17,6 @@ import {
 } from '@placeos/common';
 import { requestSpacesForZone } from '@placeos/events';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
-import { LevelMapEditorModalComponent } from './level-map-editor-modal.component';
 import { LevelModalComponent } from './level-modal.component';
 
 export interface LevelListOptions {
@@ -99,7 +98,9 @@ export class LevelManagementService {
         });
     }
 
-    public editLevelMap(level: BuildingLevel) {
+    public async editLevelMap(level: BuildingLevel) {
+        const { LevelMapEditorModalComponent } =
+            await import('./level-map-editor-modal.component');
         const ref = this._dialog.open(LevelMapEditorModalComponent, {
             data: level,
         });

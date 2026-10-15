@@ -79,7 +79,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     <div class="w-2 flex-1"></div>
                     <date-options (dateChange)="setDate($event)"></date-options>
                 </div>
-                <div class="mx-8 h-1/2 flex-1 overflow-auto">
+                <div class="mx-8 min-h-0 flex-1 overflow-hidden">
                     <guest-listings></guest-listings>
                 </div>
                 @if (loading()) {
@@ -167,13 +167,14 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     }
 
     public ngOnInit() {
+        this._state.activate();
         this._syncDateFilter();
         this._state.poll();
         this._state.startPolling();
     }
 
     public ngOnDestroy() {
-        this._state.stopPolling();
+        this._state.deactivate();
     }
 
     private _syncDateFilter() {

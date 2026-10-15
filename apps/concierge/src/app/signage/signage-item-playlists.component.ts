@@ -249,6 +249,7 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
 })
 export class SignageItemPlaylistsComponent {
     private _state = inject(SignageStateService);
+    private readonly _uses_lists = this._state.use('playlists');
 
     public readonly item = input<any>(undefined);
     // fallow-ignore-next-line unused-component-input -- read in a template pipe expression fallow does not parse

@@ -153,12 +153,12 @@ export function getItemWithKeys(keys: string[], map: HashMap) {
  * @param key Key on array objects to compare for uniqueness
  */
 export function unique<T = any>(array: T[] = [], key = ''): T[] {
-    const keys = [];
+    const keys = new Set();
     return array.filter((el) => {
         const id = key ? el[key] : el;
-        const exists = keys.includes(id);
-        if (!exists) keys.push(id);
-        return !exists;
+        if (keys.has(id)) return false;
+        keys.add(id);
+        return true;
     });
 }
 

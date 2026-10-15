@@ -7,10 +7,7 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
-import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
-import { AutoReleaseSettingsModalComponent } from './auto-release-settings-modal.component';
 import { BuildingModalComponent } from './building-modal.component';
-import { InductionSettingsModalComponent } from './induction-settings-modal.component';
 import { ItemListModalComponent } from './item-list-modal.component';
 
 export interface BuildingListOptions {
@@ -71,7 +68,9 @@ export class BuildingManagementService {
         });
     }
 
-    public editBuildingMetadata(zone: PlaceZone = new PlaceZone()) {
+    public async editBuildingMetadata(zone: PlaceZone = new PlaceZone()) {
+        const { AppSettingsModalComponent } =
+            await import('../ui/app-settings-modal.component');
         const ref = this._dialog.open(AppSettingsModalComponent, {
             data: { zone },
         });
@@ -80,15 +79,20 @@ export class BuildingManagementService {
         });
     }
 
-    public setAutoRelease(building: PlaceZone) {
+    public async setAutoRelease(building: PlaceZone) {
         if (!building?.id) return;
+        // Loads on demand, so the zone screens do not download its YAML parser
+        const { AutoReleaseSettingsModalComponent } =
+            await import('./auto-release-settings-modal.component');
         this._dialog.open(AutoReleaseSettingsModalComponent, {
             data: building.id,
         });
     }
 
-    public setInduction(building: PlaceZone) {
+    public async setInduction(building: PlaceZone) {
         if (!building?.id) return;
+        const { InductionSettingsModalComponent } =
+            await import('./induction-settings-modal.component');
         this._dialog.open(InductionSettingsModalComponent, {
             data: building.id,
         });

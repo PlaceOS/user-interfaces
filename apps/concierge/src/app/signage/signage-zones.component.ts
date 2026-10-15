@@ -161,6 +161,7 @@ import { SignageStateService } from './signage-state.service';
 })
 export class SignageZonesComponent extends AsyncHandler {
     private _state = inject(SignageStateService);
+    private readonly _uses_lists = this._state.use('zones', 'playlists');
     private _route = inject(ActivatedRoute);
 
     public readonly adding = signal(false);

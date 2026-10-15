@@ -25,6 +25,32 @@ export interface QuestionFilters {
         | 'dropdown';
 }
 
+/** Most answer requests that run at the same time */
+const ANSWER_REQUEST_LIMIT = 6;
+
+/**
+ * Run `fn` for each item with at most `limit` calls in progress.
+ * Results keep the order of the items.
+ */
+async function mapWithLimit<T, R>(
+    items: readonly T[],
+    limit: number,
+    fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+    const results = new Array<R>(items.length);
+    let next_index = 0;
+    const worker = async () => {
+        while (next_index < items.length) {
+            const index = next_index++;
+            results[index] = await fn(items[index]);
+        }
+    };
+    await Promise.all(
+        Array.from({ length: Math.min(limit, items.length) }, worker),
+    );
+    return results;
+}
+
 enum LoadType {
     ALL = 'all',
     SURVEYS = 'surveys',
@@ -80,10 +106,30 @@ export class SurveyService {
         );
     });
 
+    /** Resolves when the first survey list load is done */
+    private readonly _surveys_ready: Promise<void>;
+    /** Answers load at most one time, when a view asks for them */
+    private _answers_request?: Promise<void>;
+
     constructor() {
-        this._org.waitUntilInitialised().then(() => {
-            setTimeout(() => this._load(), 300);
-        });
+        // Only surveys load at start. Answers load when the building list
+        // shows their counts. Nothing in this service needs the questions.
+        this._surveys_ready = this._org
+            .waitUntilInitialised()
+            .then(() => new Promise((resolve) => setTimeout(resolve, 300)))
+            .then(() => this._load(LoadType.SURVEYS));
+    }
+
+    /** Load the answers for all surveys if they are not loaded yet */
+    public loadAnswers() {
+        this._answers_request ??= this._surveys_ready
+            .then(() => this._load(LoadType.ANSWERS))
+            .catch(() => {
+                // Let the next call try again
+                this._answers_request = undefined;
+                this.loading.set('');
+            });
+        return this._answers_request;
     }
 
     public setBuilding(id: string) {
@@ -153,10 +199,10 @@ export class SurveyService {
             this.survey_list.set(survey_list);
         }
         if (type === LoadType.ALL || type === LoadType.ANSWERS) {
-            const answers = await Promise.all(
-                this.survey_list().map((survey) =>
-                    queryAnswers({ survey_id: survey.id }),
-                ),
+            const answers = await mapWithLimit(
+                this.survey_list(),
+                ANSWER_REQUEST_LIMIT,
+                (survey) => queryAnswers({ survey_id: survey.id }),
             );
             this.answer_list.set(answers.flat());
         }

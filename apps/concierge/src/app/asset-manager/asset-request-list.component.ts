@@ -299,6 +299,7 @@ import { SplitJoinPipe } from './split-join.pipe';
 })
 export class AssetRequestListComponent extends AsyncHandler implements OnInit {
     private _state = inject(AssetManagerStateService);
+    private readonly _uses_lists = this._state.use('requests');
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
