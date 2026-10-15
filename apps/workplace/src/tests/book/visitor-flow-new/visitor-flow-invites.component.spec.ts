@@ -7,7 +7,7 @@ import {
     BookingFormService,
     generateBookingForm,
 } from '@placeos/bookings';
-import { settingSignal, SettingsService } from '@placeos/common';
+import { settingSignal, SettingsService, User } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { UserListFieldComponent } from '@placeos/form-fields';
 
@@ -67,6 +67,7 @@ describe('VisitorFlowInvitesComponent', () => {
         stored_visitors = [];
         save_user_setting = vi.fn();
         settingSignal('visitors.allow_pass_number', false).set(false);
+        settingSignal('visitors.allow_international', false).set(false);
         settingSignal('bookings.multiple_visitors', false).set(false);
         spectator = createComponent({ detectChanges: false });
     });
@@ -161,5 +162,132 @@ describe('VisitorFlowInvitesComponent', () => {
         expect(spectator.component.allow_pass_number()).toBe(false);
         settingSignal('visitors.allow_pass_number', false).set(true);
         expect(spectator.component.allow_pass_number()).toBe(true);
+    });
+
+    describe('international visitors', () => {
+        const enableInternational = () =>
+            settingSignal('visitors.allow_international', false).set(true);
+
+        it('hides the section when the setting is off', () => {
+            model.update((m) => ({
+                ...m,
+                asset_id: 'alice@place.tech',
+                asset_name: 'Alice Smith',
+            }));
+            spectator.detectChanges();
+            expect(spectator.query('.international-visitors')).toBeNull();
+        });
+
+        it('hides the section when no visitor has been entered', () => {
+            enableInternational();
+            spectator.detectChanges();
+            expect(spectator.query('.international-visitors')).toBeNull();
+        });
+
+        it('shows the section with the visitor name when the setting is on', () => {
+            enableInternational();
+            model.update((m) => ({
+                ...m,
+                asset_id: 'alice@place.tech',
+                asset_name: 'Alice Smith',
+            }));
+            spectator.detectChanges();
+            const names = spectator
+                .queryAll('.international-visitors .visitor-name')
+                .map((el) => el.textContent.trim());
+            expect(names).toEqual(['Alice Smith']);
+        });
+
+        it('binds the single visitor checkbox to the booking flag', () => {
+            enableInternational();
+            model.update((m) => ({
+                ...m,
+                asset_id: 'alice@place.tech',
+                asset_name: 'Alice Smith',
+                international: true,
+            }));
+            spectator.detectChanges();
+            const input = spectator.query(
+                '.international-visitors input[type="checkbox"]',
+            ) as HTMLInputElement;
+            expect(input).toBeTruthy();
+            expect(input.checked).toBe(true);
+            input.click();
+            spectator.detectChanges();
+            expect(model().international).toBe(false);
+        });
+
+        it('lists group members alphabetically by first name', () => {
+            enableInternational();
+            options.set({ type: 'visitor', group: true });
+            model.update((m) => ({
+                ...m,
+                asset_id: 'multiple@place.tech',
+                assets: [
+                    new User({ name: 'Zoe Amos', email: 'zoe@place.tech' }),
+                    new User({ name: 'Adam Zeta', email: 'zeta@place.tech' }),
+                    new User({ name: 'Adam Brown', email: 'adam@place.tech' }),
+                ],
+            }));
+            spectator.detectChanges();
+            const names = spectator
+                .queryAll('.international-visitors .visitor-name')
+                .map((el) => el.textContent.trim());
+            expect(names).toEqual(['Adam Brown', 'Adam Zeta', 'Zoe Amos']);
+            expect(
+                spectator.queryAll('.international-visitors mat-checkbox')
+                    .length,
+            ).toBe(3);
+        });
+
+        it('reads a member flag back from the stored extension data', () => {
+            enableInternational();
+            options.set({ type: 'visitor', group: true });
+            model.update((m) => ({
+                ...m,
+                asset_id: 'multiple@place.tech',
+                assets: [
+                    new User({
+                        name: 'Zoe Amos',
+                        email: 'zoe@place.tech',
+                        extension_data: { international: true },
+                    }),
+                    new User({ name: 'Adam Brown', email: 'adam@place.tech' }),
+                ],
+            }));
+            spectator.detectChanges();
+            const flags = spectator
+                .queryAll('.international-visitors input[type="checkbox"]')
+                .map((input: HTMLInputElement) => input.checked);
+            expect(flags).toEqual([false, true]);
+        });
+
+        it('stores the group flag when a checkbox is clicked', () => {
+            enableInternational();
+            options.set({ type: 'visitor', group: true });
+            model.update((m) => ({
+                ...m,
+                asset_id: 'multiple@place.tech',
+                assets: [
+                    new User({ name: 'Zoe Amos', email: 'zoe@place.tech' }),
+                    new User({ name: 'Adam Brown', email: 'adam@place.tech' }),
+                ],
+            }));
+            spectator.detectChanges();
+            const input = spectator.query(
+                '.international-visitors input[type="checkbox"]',
+            ) as HTMLInputElement;
+            input.click();
+            spectator.detectChanges();
+            const adam = (model().assets || []).find(
+                (asset) => asset.email === 'adam@place.tech',
+            );
+            const zoe = (model().assets || []).find(
+                (asset) => asset.email === 'zoe@place.tech',
+            );
+            expect(adam?.extension_data?.international).toBe(true);
+            expect(zoe?.extension_data?.international).toBeFalsy();
+            expect(input.checked).toBe(true);
+        });
     });
 });

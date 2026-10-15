@@ -6,9 +6,9 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -19,6 +19,7 @@ import {
     onFieldChange,
     settingSignal,
     SettingsService,
+    User,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { UserListFieldComponent } from '@placeos/form-fields';
@@ -190,6 +191,42 @@ import {
                         </mat-form-field>
                     </div>
                 }
+                @if (allow_international() && international_visitors().length) {
+                    <div class="international-visitors flex flex-col">
+                        <label>{{
+                            'BOOKINGS.INTERNATIONAL_VISITORS' | translate
+                        }}</label>
+                        <div class="flex flex-wrap gap-x-4 gap-y-2">
+                            @for (
+                                visitor of international_visitors();
+                                track visitor.key
+                            ) {
+                                <div class="flex items-center space-x-2">
+                                    <span class="visitor-name">{{
+                                        visitor.name
+                                    }}</span>
+                                    @if (is_single()) {
+                                        <mat-checkbox
+                                            [formField]="form.international"
+                                            [attr.aria-label]="visitor.name"
+                                        ></mat-checkbox>
+                                    } @else {
+                                        <mat-checkbox
+                                            [checked]="visitor.international"
+                                            (change)="
+                                                setInternational(
+                                                    visitor.key,
+                                                    $event.checked
+                                                )
+                                            "
+                                            [attr.aria-label]="visitor.name"
+                                        ></mat-checkbox>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     `,
@@ -199,11 +236,11 @@ import {
         MatInputModule,
         MatSelectModule,
         MatAutocompleteModule,
+        MatCheckboxModule,
         MatRippleModule,
         UserListFieldComponent,
         TranslatePipe,
         FormField,
-        FormsModule,
     ],
 })
 export class VisitorFlowInvitesComponent
@@ -239,6 +276,32 @@ export class VisitorFlowInvitesComponent
         'visitors.allow_pass_number',
         false,
     );
+
+    public readonly allow_international = settingSignal(
+        'visitors.allow_international',
+        false,
+    );
+
+    /** Every invited visitor, ordered by first name, with their international flag. */
+    public readonly international_visitors = computed(() => {
+        const model = this.model();
+        const visitors = this.is_single()
+            ? [
+                  {
+                      key: model.asset_id || model.asset_name || 'visitor',
+                      name: model.asset_name || model.asset_id || '',
+                      international: !!model.international,
+                  },
+              ]
+            : (model.assets || []).map((item) => ({
+                  key: item.email || item.id,
+                  name: item.name || item.email || '',
+                  international: !!item.extension_data?.international,
+              }));
+        return visitors
+            .filter((visitor) => !!`${visitor.name}`.trim())
+            .sort((a, b) => a.name.localeCompare(b.name));
+    });
 
     public readonly multiple = settingSignal(
         'bookings.multiple_visitors',
@@ -322,6 +385,7 @@ export class VisitorFlowInvitesComponent
             asset_name: visitor.name,
             company: visitor.company,
             phone: item.phone,
+            international: !!item.international,
         }));
 
         // Save to visitor history
@@ -334,5 +398,24 @@ export class VisitorFlowInvitesComponent
             'visitor-invitees',
             [...old_visitors, visitor].map(recentVisitorEntry),
         );
+    }
+
+    /** Store the international flag against a group member. A single
+     * visitor binds the checkbox to `form.international` instead. */
+    public setInternational(key: string, international: boolean) {
+        this.model.update((m) => ({
+            ...m,
+            assets: (m.assets || []).map((item) => {
+                const item_key = item.email || item.id;
+                if (item_key !== key) return item;
+                return new User({
+                    ...item,
+                    extension_data: {
+                        ...(item.extension_data || {}),
+                        international,
+                    },
+                });
+            }),
+        }));
     }
 }
