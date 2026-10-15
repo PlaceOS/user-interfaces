@@ -22,9 +22,9 @@ import {
 
 import { openConfirmModal } from '@placeos/components';
 import mqtt from 'mqtt';
-import { Alert } from '../alerts.service';
 import { AlertNotificationService } from '../push-notification.service';
 import {
+    Alert,
     BrokerValue,
     compareAsTopic,
     parseBrokerMessage,

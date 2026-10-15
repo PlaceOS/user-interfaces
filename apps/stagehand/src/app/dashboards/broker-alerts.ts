@@ -5,7 +5,22 @@ import {
     TriggerConditionOperator,
 } from '@placeos/ts-client';
 
-import { Alert } from '../alerts.service';
+type AlertSeverity = 'critical' | 'high' | 'medium' | 'low';
+type AlertStatus = 'open' | 'in progress' | 'closed' | 'resolved';
+type DeviceType = 'display' | 'audio' | 'video' | 'network' | 'control';
+
+/** An alert raised on the hot list */
+export interface Alert {
+    id: string;
+    severity: AlertSeverity;
+    type: DeviceType;
+    location: string;
+    device: string;
+    subject: string;
+    body: string;
+    status: AlertStatus;
+    timestamp: number;
+}
 
 export interface StateTopic {
     region_id?: string;
