@@ -14,6 +14,16 @@ body {
     font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
+/*
+ * Every view covers the page, so the shared animated background is not seen.
+ * Stop it, or idle panels repaint the full page on every frame.
+ * `:root` makes these rules win over shared/styles/application.css, which loads later.
+ */
+:root,
+:root body {
+    animation: none;
+}
+
 [content] h1 {
     font-size: 2rem;
     font-weight: 500;
