@@ -97,15 +97,13 @@ export function signageTemplateVersionsEqual(
 }
 
 export async function loadTemplateApprovalVersions(template_id: string) {
-    const pending_template = await showSignageTemplate(template_id);
-    let approved_template: SignageTemplate | null = null;
-    try {
-        approved_template = await showSignageTemplate(template_id, {
-            approved: true,
-        });
-    } catch {
+    const [pending_template, approved_template] = await Promise.all([
+        showSignageTemplate(template_id),
         // A new template has no approved version to compare or restore.
-    }
+        showSignageTemplate(template_id, { approved: true }).catch(
+            (): SignageTemplate | null => null,
+        ),
+    ]);
     return approved_template &&
         !signageTemplateVersionsEqual(pending_template, approved_template)
         ? [pending_template, approved_template]

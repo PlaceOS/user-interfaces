@@ -392,8 +392,13 @@ export class SignageContextService {
     );
     // Group selection fans out to six heavy list queries (media, playlists,
     // displays, zones...). Debounce so clicking through the group tree doesn't
-    // fire a full set of refetches per click.
-    public readonly api_group_id_debounced = debounced(this.api_group_id, 300);
+    // fire a full set of refetches per click. The group restored on page load
+    // is not a click, so it applies at once and the first lists load sooner.
+    public readonly api_group_id_debounced = debounced(this.api_group_id, () =>
+        untracked(this._group_switch)
+            ? new Promise<void>((resolve) => setTimeout(resolve, 300))
+            : undefined,
+    );
     public readonly can_create = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Create),
     );

@@ -6,7 +6,7 @@ import {
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import { SignageMediaService } from '../../app/media/signage-media.service';
+import { MediaPreviewService } from '../../app/media/media-preview.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { PlaylistRequestApprovalModalComponent } from '../../app/shared/playlist-request-approval-modal.component';
 import { SignageContextService } from '../../app/signage-context.service';
@@ -82,7 +82,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
                 { provide: SignageContextService, useValue: context },
-                { provide: SignageMediaService, useValue: media_service },
+                { provide: MediaPreviewService, useValue: media_service },
                 { provide: SignagePlaylistService, useValue: playlist_service },
             ],
         }).compileComponents();

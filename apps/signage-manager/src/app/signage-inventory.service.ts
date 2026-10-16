@@ -45,6 +45,12 @@ export interface ContentReport {
 const MAX_EXPIRED_MEDIA_CHECKS = 100;
 /** Most media requests the report sends at the same time */
 const EXPIRED_MEDIA_CONCURRENCY = 6;
+/**
+ * Most time, in milliseconds, that a loaded inventory is used again. Local
+ * saves change `inventory_key` and load it again sooner. This limit picks up
+ * changes that other users make.
+ */
+const INVENTORY_MAX_AGE = 60 * 1000;
 
 /**
  * Every display, zone and playlist in the active group, for checks that need
@@ -66,12 +72,41 @@ export class SignageInventoryService {
         change: this._context.data_change(),
     }));
 
+    // Last inventory load, shared by the pages and checks that need it
+    private _inventory: {
+        key: ReturnType<typeof this.inventory_key>;
+        loaded_at: number;
+        request: Promise<SignageInventory>;
+    } | null = null;
+
     /**
-     * Fetch every display, zone and playlist in the active group. The lists
-     * on screen only hold the pages loaded so far, so checks that need the
-     * full set use this instead.
+     * Every display, zone and playlist in the active group. The lists on
+     * screen only hold the pages loaded so far, so checks that need the full
+     * set use this instead.
+     *
+     * Callers share one load for each `inventory_key`, for at most
+     * `INVENTORY_MAX_AGE`. This stops a full download for each page visit
+     * and each takeover check.
      */
-    public async loadSignageInventory(): Promise<SignageInventory> {
+    public loadSignageInventory(): Promise<SignageInventory> {
+        const key = this.inventory_key();
+        const cached = this._inventory;
+        if (
+            cached?.key === key &&
+            Date.now() - cached.loaded_at < INVENTORY_MAX_AGE
+        ) {
+            return cached.request;
+        }
+        const request = this._fetchSignageInventory();
+        this._inventory = { key, loaded_at: Date.now(), request };
+        // Do not keep a failed load, so the next caller tries again
+        request.catch(() => {
+            if (this._inventory?.request === request) this._inventory = null;
+        });
+        return request;
+    }
+
+    private async _fetchSignageInventory(): Promise<SignageInventory> {
         if (!this._context.canQueryLists()) {
             return { displays: [], zones: [], playlists: [] };
         }

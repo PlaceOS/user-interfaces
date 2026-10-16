@@ -99,6 +99,33 @@ describe('SignagePlaylistService', () => {
         });
     }
 
+    it('loads playlist thumbnails a few at a time', async () => {
+        const service = createService();
+        const finish: (() => void)[] = [];
+        vi.mocked(listSignagePlaylistMedia).mockImplementation(
+            () =>
+                new Promise((resolve) =>
+                    finish.push(() =>
+                        resolve({ items: [], media: [] } as never),
+                    ),
+                ),
+        );
+        const playlists = Array.from(
+            { length: 6 },
+            (_, index) =>
+                new SignagePlaylist({ id: `meta-${index}`, updated_at: 1 }),
+        );
+
+        service.queuePlaylistMeta(playlists);
+        expect(listSignagePlaylistMedia).toHaveBeenCalledTimes(4);
+
+        // Each finished load starts the next queued one
+        await vi.waitFor(() => {
+            finish.shift()?.();
+            expect(listSignagePlaylistMedia).toHaveBeenCalledTimes(6);
+        });
+    });
+
     it('requires schedules before adding media to distribution playlists', async () => {
         const service = createService();
         const test_service =

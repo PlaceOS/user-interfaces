@@ -1218,6 +1218,26 @@ describe('SignageMediaService', () => {
     });
 
     it.each([
+        ['reloads the lists after a save', new SignageMedia({ id: 'm1' }), 1],
+        ['does not reload the lists after a cancel', undefined, 0],
+    ])('image generation %s', async (_name, result, reloads) => {
+        const service = createService();
+        const context = TestBed.inject(SignageContextService);
+        Object.defineProperty(context, 'can_create', {
+            value: () => true,
+        });
+        Object.defineProperty(context, 'features', {
+            value: () => ['ai-generation'],
+        });
+        const changed = vi.spyOn(context, 'changed');
+        closeNextDialogWith(result);
+
+        await service.generateMediaWithImageGen();
+
+        expect(changed).toHaveBeenCalledTimes(reloads);
+    });
+
+    it.each([
         ['generation', {}, ['ai-editing']],
         ['editing', { source_upload_id: 'upload-1' }, ['ai-generation']],
     ])(

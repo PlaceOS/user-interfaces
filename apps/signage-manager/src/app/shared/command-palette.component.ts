@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignageMediaService } from '../media/signage-media.service';
+import { MediaPreviewService } from '../media/media-preview.service';
 import { CommandPaletteService } from './command-palette.service';
 import { injectNavItems } from './nav-items';
 
@@ -153,7 +153,7 @@ const KIND_LABELS: Record<PaletteKind, string> = {
 })
 export class CommandPaletteComponent {
     private readonly _palette = inject(CommandPaletteService);
-    private readonly _media_service = inject(SignageMediaService);
+    private readonly _media_preview = inject(MediaPreviewService);
     private readonly _router = inject(Router);
     private readonly _dialog_ref = inject(MatDialogRef);
     private readonly _element = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -235,7 +235,7 @@ export class CommandPaletteComponent {
                 detail: media.description || '',
                 select: () => {
                     this._dialog_ref.close();
-                    void this._media_service.previewMedia(media);
+                    void this._media_preview.previewMedia(media);
                 },
             })),
         ];

@@ -6,7 +6,7 @@ import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import type { SignageMedia } from '@placeos/ts-client';
 import { format } from 'date-fns';
-import { SignageMediaService } from '../media/signage-media.service';
+import { MediaPreviewService } from '../media/media-preview.service';
 import { CONFLICT_WINDOW_DAYS } from '../schedules/schedule-conflicts.util';
 import { SignageInventoryService } from '../signage-inventory.service';
 import { playlistExpiredAt } from '../signage-playlist.util';
@@ -204,7 +204,7 @@ interface ReportSection {
 })
 export class ContentReportComponent {
     private readonly _inventory_service = inject(SignageInventoryService);
-    private readonly _media_service = inject(SignageMediaService);
+    private readonly _media_preview = inject(MediaPreviewService);
 
     public readonly max_rows = MAX_ROWS;
     public readonly window_days = CONFLICT_WINDOW_DAYS;
@@ -297,6 +297,6 @@ export class ContentReportComponent {
     }
 
     public preview(media: SignageMedia) {
-        void this._media_service.previewMedia(media);
+        void this._media_preview.previewMedia(media);
     }
 }

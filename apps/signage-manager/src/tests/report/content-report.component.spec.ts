@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { SignageMediaService } from '../../app/media/signage-media.service';
+import { MediaPreviewService } from '../../app/media/media-preview.service';
 import { ContentReportComponent } from '../../app/report/content-report.component';
 import { SignageInventoryService } from '../../app/signage-inventory.service';
 
@@ -21,7 +21,7 @@ describe('ContentReportComponent', () => {
                     },
                 },
                 {
-                    provide: SignageMediaService,
+                    provide: MediaPreviewService,
                     useValue: { previewMedia: preview_media },
                 },
             ],
