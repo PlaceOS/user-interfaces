@@ -4,7 +4,6 @@ import {
     ALERTS_URL,
     enterSearchTerm,
     getAlertCount,
-    isTableVisible,
     LOAD_TIMEOUT,
     navigateWithMock,
     selectDeviceTypeFilter,
@@ -57,14 +56,6 @@ test.describe('US-SM-001: View All System Alerts', () => {
 
         const count = await getAlertCount(page, 'open');
         expect(count).toBeDefined();
-    });
-
-    test('should display alerts table', async ({ page }) => {
-        await navigateWithMock(page, ALERTS_URL);
-        await waitForAlertsPage(page);
-
-        const table_visible = await isTableVisible(page);
-        expect(table_visible).toBeTruthy();
     });
 
     test('should display table with correct columns', async ({ page }) => {

@@ -15,6 +15,10 @@
  * so columns are addressed by that id rather than by position, because the
  * column ORDER is a product decision that may change.
  *
+ * Since 9c4a026cb7 (2026-10) each row is wrapped in a `[role=row]` element
+ * (`[table-header]` for the header, `[table-row]` per data row) with its cells
+ * as `[role=cell]`. `readTable` reads that layout, and still reads the flat one.
+ *
  * One quirk the ids do not fix: two different columns share `id="column-date"`
  * (Date and Period). `columnIndex` returns the FIRST match, which is Date;
  * anything needing Period should ask by index.
@@ -67,6 +71,33 @@ export async function readTable(
 ): Promise<TableSnapshot> {
     await waitForTable(page, host);
     return tableOf(page, host).evaluate((table) => {
+        const text = (el: HTMLElement) =>
+            (el.innerText || '').trim().replace(/\n+/g, '~');
+        const header_of = (el: HTMLElement) =>
+            (el.innerText || '').trim().split('\n')[0];
+        // Rows wrapped in `[role=row]` (one per header and data row), with the
+        // cells inside each as `[role=cell]`
+        const row_els = Array.from(
+            table.querySelectorAll(':scope > [table-row]'),
+        ) as HTMLElement[];
+        const head = table.querySelector(':scope > [table-header]');
+        if (head || row_els.length) {
+            const header_cells = Array.from(
+                head?.querySelectorAll(':scope > [header]') ?? [],
+            ) as HTMLElement[];
+            return {
+                column_ids: header_cells.map((el) => el.id),
+                headers: header_cells.map(header_of),
+                rows: row_els.map((row) =>
+                    (
+                        Array.from(
+                            row.querySelectorAll(':scope > [role=cell]'),
+                        ) as HTMLElement[]
+                    ).map(text),
+                ),
+            };
+        }
+        // The older flat grid: every cell a sibling, grouped by header count
         const kids = Array.from(table.children) as HTMLElement[];
         const header_cells = kids.filter((el) => el.hasAttribute('header'));
         const body_cells = kids.filter((el) => !el.hasAttribute('header'));
@@ -240,6 +271,32 @@ export async function waitForRow(
 }
 
 /**
+ * The cell at `row` and `column` of a `readTable` snapshot, to act on.
+ *
+ * `width` is the snapshot's column count, which the older flat grid needs to
+ * find a row; the row-wrapped layout ignores it.
+ */
+export async function rowCell(
+    page: Page,
+    row: number,
+    column: number,
+    width: number,
+    host = 'simple-table',
+): Promise<Locator> {
+    const table = tableOf(page, host);
+    if (await table.locator(':scope > [table-row]').count()) {
+        return table
+            .locator(':scope > [table-row]')
+            .nth(row)
+            .locator(':scope > [role=cell]')
+            .nth(column);
+    }
+    return table
+        .locator(':scope > *:not([header])')
+        .nth(row * width + column);
+}
+
+/**
  * Open the dropdown in `field`'s cell on the row holding `needle`, and choose
  * `option`.
  *
@@ -281,9 +338,13 @@ export async function chooseRowMenuItem(
                 `chosen. The listing had ${snapshot.rows.length} row(s).`,
         );
     }
-    const cell = page
-        .locator(`${host} [role=table] > *:not([header])`)
-        .nth(row * width + columnIndex(snapshot, field));
+    const cell = await rowCell(
+        page,
+        row,
+        columnIndex(snapshot, field),
+        width,
+        host,
+    );
     await cell.locator('button, [matripple]').first().click();
 
     const item = page
