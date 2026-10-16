@@ -15,6 +15,7 @@ import {
     columnIndex,
     confirmDialog,
     readTable,
+    rowCell,
     waitForRow,
 } from '../../../../e2e/support/concierge/simple-table.page';
 import { roleFor } from '../../../../e2e/support/env';
@@ -43,9 +44,13 @@ test('CON-PARK-03: cancelling another user’s parking booking persists', async 
         const row = table.rows.findIndex(
             (r) => LIVE_ONLY(r) && r.some((c) => c.includes(spaces[0].name)),
         );
-        await adminPage
-            .locator('simple-table [role=table] > *:not([header])')
-            .nth(row * table.column_ids.length + columnIndex(table, 'actions'))
+        const actions = await rowCell(
+            adminPage,
+            row,
+            columnIndex(table, 'actions'),
+            table.column_ids.length,
+        );
+        await actions
             .getByRole('button', { name: 'delete', exact: true })
             .click();
         await confirmDialog(adminPage, { required: true });
