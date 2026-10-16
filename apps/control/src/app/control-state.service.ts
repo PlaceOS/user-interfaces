@@ -123,6 +123,16 @@ export interface SystemState {
     dial_bindings?: any;
 }
 
+/**
+ * Whether two alias lists have the same items in the same order.
+ * Status values arrive as new arrays, so a list sent again (for example after
+ * a reconnect) would otherwise release and rebind every source.
+ */
+function sameAliases(a: string[], b: string[]) {
+    if (!a || !b) return a === b;
+    return a.length === b.length && a.every((alias, i) => alias === b[i]);
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -135,9 +145,9 @@ export class ControlStateService extends AsyncHandler {
 
     private readonly _id = signal<string>('');
     private readonly _system = signal<SystemState>({});
-    private readonly _inputs = signal<string[]>([]);
+    private readonly _inputs = signal<string[]>([], { equal: sameAliases });
     private readonly _available_inputs = signal<string[]>([]);
-    private readonly _outputs = signal<string[]>([]);
+    private readonly _outputs = signal<string[]>([], { equal: sameAliases });
     private readonly _input_data = signal<RoomInput[]>([]);
     private readonly _output_data = signal<RoomOutput[]>([]);
     private readonly _lights = signal<string[]>([]);
@@ -317,13 +327,16 @@ export class ControlStateService extends AsyncHandler {
             const id = this._id();
             untracked(() => this.bindToState(id));
         });
+        // `_id` is read so a new room with the same alias list still rebinds
         effect(() => {
+            const id = this._id();
             const inputs = this._inputs() || [];
-            untracked(() => this.bindSources('input', inputs));
+            untracked(() => this.bindSources('input', id, inputs));
         });
         effect(() => {
+            const id = this._id();
             const outputs = this._outputs() || [];
-            untracked(() => this.bindSources('output', outputs));
+            untracked(() => this.bindSources('output', id, outputs));
         });
     }
 
@@ -608,8 +621,11 @@ export class ControlStateService extends AsyncHandler {
     }
 
     /** Bind to changes on input or output sources */
-    private bindSources(type: 'input' | 'output', alias_list: string[]) {
-        const id = this._id();
+    private bindSources(
+        type: 'input' | 'output',
+        id: string,
+        alias_list: string[],
+    ) {
         if (!id) return;
 
         // Release bindings for aliases from the previous list or room
