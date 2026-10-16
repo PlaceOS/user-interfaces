@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1792122800569,
+  "timestamp": 1792123120111,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -294,7 +294,7 @@
     "./it-DP3AYVRR.js": "ee62a3cf464843d157a1df98ecc7ab58712ba2a6",
     "./ja-KPFTZVOP.js": "b1b88a5e25fc6aad4bb41cdb86a03766fb9598a9",
     "./main-view.component-CAr6rJxt.js": "2990291068212bb6f4bb21ac4721ae862f7ee3d7",
-    "./main.js": "99bebacb6c7260296e1d0fe4ee89e37043ada1cb",
+    "./main.js": "5bb0f9d22c558bf1d33cdbfbd8bc0b1431739e4a",
     "./manifest.webmanifest": "93cf2cd96aab65435a80fb200e9dd247402f1d6e",
     "./native-domain-overlay.component-BNQvzWx5.js": "083ac823a265e296d866e3c575f9ba9f368406a1",
     "./sentry-sdk-ECTLCS9F.js": "87d4481fc46954823feceb96f18cccf2c7ed8e74",
@@ -303,7 +303,7 @@
     "./snack-bar-B8EjtEg6.js": "3e6b9c4d78b4a6ff11a230471c709b9c04e449f9",
     "./squire-H3PFFLV6.js": "75349adec3f9c6db3b51bc8c23c1f02b78329f66",
     "./src-BFpEGhVT.js": "cd073436c10feb62a5145530321b61bac673a12a",
-    "./styles.css": "f73f21db00c8fcaba5fbc264cff923a0c486d03b",
+    "./styles.css": "fd9d8ab7102e197c7e675704743b8ef39fa3b5a0",
     "./tabbed-view.component-B_yIrcql.js": "80b7337b54492fe02a17742f27a89f386d1c5e06",
     "./video-call-view.component-DJzvgXoI.js": "4cf4ae2f9b8d3808dbabdf4888d642c921012f79",
     "./worker-VRXFSIDO.js": "c703ecd94aef5ed9a017f55a38a074f95495007e",
