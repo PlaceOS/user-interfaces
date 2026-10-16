@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
     Booking,
     guardModelUndefinedWrites,
@@ -7,6 +7,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    OrganisationService,
 } from '@placeos/common';
 import { addMinutes, getUnixTime, isSameDay } from 'date-fns';
 
@@ -47,6 +48,7 @@ function guestDetailsForm(
     providedIn: 'root',
 })
 export class CheckinStateService {
+    private _org = inject(OrganisationService);
     /** Current event being checked in */
     private _booking = signal<Booking>(null);
     /** Current guest being checked in */
@@ -118,10 +120,13 @@ export class CheckinStateService {
             this.form.set(guestDetailsForm(guest, guest.booking.user_email));
             return { guest, event: guest.booking };
         }
+        // Without a zone, the API lists only the kiosk account's own bookings
+        const building_id = this._org.building?.id;
         let upcoming = await queryAllBookings({
             type: 'visitor',
             period_start: getUnixTime(Date.now()),
             period_end: getUnixTime(addMinutes(Date.now(), 120)),
+            ...(building_id ? { zones: building_id } : {}),
         });
         upcoming = upcoming.filter(
             (_) => _.user_email === email || _.asset_id === email,

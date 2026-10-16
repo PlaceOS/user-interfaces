@@ -2,8 +2,9 @@ import {
     SpectatorService,
     createServiceFactory,
 } from '@ngneat/spectator/vitest';
-import { Booking } from '@placeos/common';
+import { Booking, OrganisationService } from '@placeos/common';
 import { get, patch, post, put, query } from '@placeos/ts-client';
+import { MockProvider } from 'ng-mocks';
 
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
@@ -17,6 +18,11 @@ describe('CheckinStateService', () => {
     let spectator: SpectatorService<CheckinStateService>;
     const createService = createServiceFactory({
         service: CheckinStateService,
+        providers: [
+            MockProvider(OrganisationService, {
+                building: { id: 'bld-01' } as any,
+            }),
+        ],
     });
 
     beforeEach(() => {
@@ -62,6 +68,19 @@ describe('CheckinStateService', () => {
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
         // showBooking -> get on the bookings endpoint with the event id
         expect(get).toHaveBeenCalledWith(expect.stringContaining('event-1234'));
+    });
+
+    it('only looks up visitors in the kiosk building', async () => {
+        vi.mocked(query).mockResolvedValue({
+            data: [{ date: Date.now(), asset_id: 'a@b.com' }],
+            next: null,
+        } as any);
+        await spectator.service.loadGuestAndEvent('a@b.com');
+        expect(query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                query_params: expect.objectContaining({ zones: 'bld-01' }),
+            }),
+        );
     });
 
     it('should allow updating guests', async () => {
