@@ -793,20 +793,20 @@ export class TemplateLayoutListComponent {
         const background_id = this.selected_template()?.background_item_id;
         return background_id ? mediaThumbnail(background_id) : '';
     });
+    // A computed only changes when the ID does, so a new object for the same
+    // template after a save does not load the mappings again
+    private readonly _mappings_template_id = computed(() =>
+        this.view_tab() === 'details'
+            ? this.selected_template()?.live_template_id ||
+              this.selected_template()?.id ||
+              ''
+            : '',
+    );
     private readonly _mappings = resource({
-        params: () => ({
-            template_id:
-                this.view_tab() === 'details'
-                    ? this.selected_template()?.live_template_id ||
-                      this.selected_template()?.id ||
-                      ''
-                    : '',
-        }),
-        loader: ({ params }) =>
-            params.template_id
-                ? this._template_service.listTemplateMappings({
-                      template_id: params.template_id,
-                  })
+        params: () => this._mappings_template_id(),
+        loader: ({ params: template_id }) =>
+            template_id
+                ? this._template_service.listTemplateMappings({ template_id })
                 : Promise.resolve([]),
     });
     // value() throws while the resource is in error, so check hasValue first

@@ -8,7 +8,7 @@ import {
     SignagePlaylistMedia,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import { SignageMediaService } from '../../app/media/signage-media.service';
+import { MediaPreviewService } from '../../app/media/media-preview.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { PlaylistApproveModalComponent } from '../../app/shared/playlist-approve-modal.component';
 import { SignageContextService } from '../../app/signage-context.service';
@@ -79,7 +79,7 @@ describe('PlaylistApproveModalComponent', () => {
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
                 { provide: SignageContextService, useValue: context },
-                { provide: SignageMediaService, useValue: media_service },
+                { provide: MediaPreviewService, useValue: media_service },
                 { provide: SignagePlaylistService, useValue: playlist_service },
             ],
         }).compileComponents();

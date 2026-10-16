@@ -103,6 +103,19 @@ describe('TemplateLayoutListComponent', () => {
         expect(details_tab.focus).toHaveBeenCalled();
     });
 
+    it('does not reload mappings when a save replaces the same template', async () => {
+        selected_template.set({ id: 'template-1' });
+        const component = await make();
+        component.setViewTab('details');
+        await vi.waitFor(() => expect(list_mappings).toHaveBeenCalledOnce());
+
+        selected_template.set({ id: 'template-1', name: 'Renamed' });
+        TestBed.tick();
+        await Promise.resolve();
+
+        expect(list_mappings).toHaveBeenCalledOnce();
+    });
+
     it('loads and labels mappings for the selected template', async () => {
         selected_template.set({
             id: 'template-draft',

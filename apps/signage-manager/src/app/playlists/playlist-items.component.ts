@@ -31,7 +31,7 @@ import {
     SignagePlaylistItemSchedule,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
-import { SignageMediaService } from '../media/signage-media.service';
+import { MediaPreviewService } from '../media/media-preview.service';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import { SignageContextService } from '../signage-context.service';
 import {
@@ -98,7 +98,8 @@ import { SignagePlaylistService } from './signage-playlist.service';
                     role="list"
                     (cdkDropListDropped)="onDrop($event)"
                 >
-                    @for (item of items(); track item.id + '-' + $index) {
+                    @for (row of keyed_items(); track row.key) {
+                        @let item = row.item;
                         <div cdkDrag role="listitem" class="mb-2">
                             <div
                                 #item_row
@@ -318,7 +319,8 @@ import { SignagePlaylistService } from './signage-playlist.service';
                             }}</span>
                         </button>
                     </div>
-                    @for (item of items(); track item.id + '-' + $index) {
+                    @for (row of keyed_items(); track row.key) {
+                        @let item = row.item;
                         @let schedule = itemSchedule(item, $index);
                         <div role="listitem" class="mb-2">
                             <div
@@ -692,7 +694,7 @@ import { SignagePlaylistService } from './signage-playlist.service';
 })
 export class PlaylistItemsComponent {
     private readonly _context = inject(SignageContextService);
-    private readonly _media_service = inject(SignageMediaService);
+    private readonly _media_preview = inject(MediaPreviewService);
     private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _injector = inject(Injector);
     private readonly _rows = viewChildren<ElementRef<HTMLElement>>('item_row');
@@ -705,6 +707,19 @@ export class PlaylistItemsComponent {
         this._playlist_service.selected_playlist_item_index;
     public readonly can_update = this._context.can_update;
     public readonly items = this._playlist_service.playlist_media_items;
+    /**
+     * Items with a key that moves with each item when the list is reordered,
+     * so the rows between the two positions are not rebuilt. A media item can
+     * be in the list more than once, so each copy is numbered.
+     */
+    public readonly keyed_items = computed(() => {
+        const copies = new Map<string, number>();
+        return this.items().map((item) => {
+            const copy = copies.get(item.id) ?? 0;
+            copies.set(item.id, copy + 1);
+            return { key: `${item.id}#${copy}`, item };
+        });
+    });
     /** Only show the spinner when there are no items to show yet */
     public readonly loading = computed(
         () =>
@@ -868,7 +883,7 @@ export class PlaylistItemsComponent {
     }
 
     public previewItem(item: SignageMedia) {
-        this._media_service.previewMedia(item);
+        this._media_preview.previewMedia(item);
     }
 
     public editItemSchedule(schedule: SignagePlaylistItemSchedule) {

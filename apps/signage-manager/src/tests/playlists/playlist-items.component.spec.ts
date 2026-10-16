@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SignagePlaylistItemSchedule } from '@placeos/ts-client';
-import { SignageMediaService } from '../../app/media/signage-media.service';
+import { MediaPreviewService } from '../../app/media/media-preview.service';
 import { PlaylistActionsComponent } from '../../app/playlists/playlist-actions.component';
 import { PlaylistItemsComponent } from '../../app/playlists/playlist-items.component';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
@@ -55,7 +55,7 @@ describe('PlaylistItemsComponent', () => {
             imports: [PlaylistItemsComponent],
             providers: [
                 { provide: SignageContextService, useValue: context_stub },
-                { provide: SignageMediaService, useValue: media_stub },
+                { provide: MediaPreviewService, useValue: media_stub },
                 { provide: SignagePlaylistService, useValue: playlist_stub },
             ],
         })
@@ -86,7 +86,7 @@ describe('PlaylistItemsComponent', () => {
             imports: [PlaylistItemsComponent],
             providers: [
                 { provide: SignageContextService, useValue: context_stub },
-                { provide: SignageMediaService, useValue: media_stub },
+                { provide: MediaPreviewService, useValue: media_stub },
                 { provide: SignagePlaylistService, useValue: playlist_stub },
             ],
         })
@@ -260,6 +260,25 @@ describe('PlaylistItemsComponent', () => {
         for (const child of Array.from(list?.children || [])) {
             expect(child.getAttribute('role')).toBe('listitem');
         }
+    });
+
+    it('keeps each row when the items are reordered', async () => {
+        const [a, b, c] = [media('a'), media('b'), media('c')];
+        playlist_media_items.set([a, b, a, c]);
+        selected_playlist.set({ id: 'pl-1' });
+        const fixture = await render();
+        const rows = () =>
+            Array.from(
+                fixture.nativeElement.querySelector('[role="list"]').children,
+            );
+        const [a0, b0, a1, c0] = rows();
+
+        playlist_media_items.set([c, a, b, a]);
+        fixture.detectChanges();
+
+        // The same elements, moved, not new rows
+        const moved = [c0, a0, b0, a1];
+        rows().forEach((row, index) => expect(row).toBe(moved[index]));
     });
 
     it('leaves Enter and Space to the controls inside a row', async () => {

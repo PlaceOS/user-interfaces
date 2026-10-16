@@ -149,6 +149,28 @@ describe('SignageContextService group context', () => {
     });
 
     describe('startup', () => {
+        it('applies the saved group at once, and debounces a switch', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g1');
+            const service = TestBed.inject(SignageContextService);
+            /** Run effects and pending promises, without the debounce */
+            const flush = async () => {
+                for (let i = 0; i < 5; i++) {
+                    TestBed.tick();
+                    await vi.advanceTimersByTimeAsync(0);
+                }
+            };
+
+            await flush();
+            expect(service.api_group_id_debounced.value()).toBe('g1');
+
+            service.setSelectedGroup('g2');
+            await flush();
+            expect(service.api_group_id_debounced.value()).toBe('g1');
+
+            await settle();
+            expect(service.api_group_id_debounced.value()).toBe('g2');
+        });
+
         it('keeps the saved group until the live user has loaded', async () => {
             localStorage.setItem(STORAGE_KEY, 'a');
             // The cached user is shown first and misses the admin role
