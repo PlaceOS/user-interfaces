@@ -75,6 +75,39 @@ describe('GlobalLoadingComponent', () => {
         expect('[loader]').not.toExist();
     });
 
+    describe('page background animation', () => {
+        const settled = () =>
+            document.documentElement.classList.contains('background-settled');
+
+        afterEach(() =>
+            document.documentElement.classList.remove('background-settled'),
+        );
+
+        it('should pause 3 seconds after the loading screen hides', () => {
+            spectator.detectChanges();
+            markInitialisationComplete();
+            spectator.detectChanges();
+
+            vi.advanceTimersByTime(2999);
+            expect(settled()).toBe(false);
+            vi.advanceTimersByTime(1);
+            expect(settled()).toBe(true);
+        });
+
+        it('should run again while the loading screen shows', () => {
+            spectator.detectChanges();
+            markInitialisationComplete();
+            spectator.detectChanges();
+            vi.advanceTimersByTime(3000);
+
+            failInitialisation('Unable to load');
+            spectator.detectChanges();
+            expect(settled()).toBe(false);
+            vi.advanceTimersByTime(5000);
+            expect(settled()).toBe(false);
+        });
+    });
+
     describe('loading gradient', () => {
         const background = () =>
             spectator.query<HTMLElement>('[loader]').style.backgroundImage;

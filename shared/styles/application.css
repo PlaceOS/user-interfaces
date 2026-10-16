@@ -185,6 +185,13 @@ body {
     }
 }
 
+/* GlobalLoadingComponent adds this class 3 seconds after its loading screen
+   hides. The paused gradient stays in place and stops repainting the page */
+html.background-settled,
+html.background-settled body {
+    animation-play-state: paused;
+}
+
 @keyframes application-gradient {
     to {
         background-position: 100% 50%;

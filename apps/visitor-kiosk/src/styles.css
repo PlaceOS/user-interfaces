@@ -17,14 +17,6 @@ body {
     font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
-/* Kiosk screens cover the page background with an image or panel, so the
-   shared gradient animation is not seen. It still restyles and repaints the
-   page every frame, all day. Keep the gradient static */
-html,
-body {
-    animation: none !important;
-}
-
 @media print {
     @page {
         size: auto;
