@@ -198,6 +198,37 @@ describe('CheckinQRScanComponent', () => {
         expect(context.imageSmoothingQuality).toBe('high');
     });
 
+    it('decodes less often while the camera image is still', async () => {
+        const video_el = spectator.query<HTMLVideoElement>('video');
+        Object.defineProperties(video_el, {
+            videoHeight: { configurable: true, value: 720 },
+            videoWidth: { configurable: true, value: 1280 },
+        });
+        let brightness = 100;
+        vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+            drawImage: vi.fn(),
+            getImageData: () => ({
+                data: new Uint8ClampedArray(32 * 18 * 4).fill(brightness),
+            }),
+        } as unknown as CanvasRenderingContext2D);
+        const decodesBetween = async (start: number, end: number) => {
+            const before = qr_mocks.camera.readFrame.mock.calls.length;
+            for (let time = start; time < end; time += 100) {
+                qr_mocks.frame_callback?.(time);
+                await new Promise((resolve) => setTimeout(resolve));
+            }
+            return qr_mocks.camera.readFrame.mock.calls.length - before;
+        };
+
+        // Every scan decodes for 2 seconds after the first frame
+        expect(await decodesBetween(0, 2000)).toBe(20);
+        // A still image decodes every 500 ms
+        expect(await decodesBetween(2000, 3000)).toBe(2);
+        // Motion decodes every scan again
+        brightness = 160;
+        expect(await decodesBetween(3000, 3500)).toBe(5);
+    });
+
     it('resumes scanning after an invalid QR code', async () => {
         qr_mocks.camera.readFrame.mockResolvedValue('invalid');
 

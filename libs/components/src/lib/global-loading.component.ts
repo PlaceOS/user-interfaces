@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import {
     AsyncHandler,
     autoConfirmNativeDomain,
@@ -17,6 +24,13 @@ import { NativeDomainOverlayComponent } from './native-domain-overlay.component'
 import { ServiceWorkerUpdateCardComponent } from './service-worker-update-card.component';
 import { TranslatePipe } from './translate.pipe';
 
+/**
+ * Class on the root element that pauses the animated page background.
+ * `shared/styles/application.css` reads it.
+ */
+export const BACKGROUND_SETTLED_CLASS = 'background-settled';
+/** Time after the loading screen hides before the page background pauses */
+const BACKGROUND_SETTLE_DELAY_MS = 3000;
 /** Local storage key for the last gradient, so a reload has no colour change */
 const GRADIENT_CACHE_KEY = 'PLACEOS.loading_gradient';
 /** Hex, named and functional CSS colours. No `url()` or other CSS values */
@@ -79,7 +93,7 @@ export class NativeDomainOverlayLoaderComponent {
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
         }
-        @if (loading() || initialisation_error()) {
+        @if (visible()) {
             <div
                 loader
                 class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
@@ -148,6 +162,10 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     public readonly initialisation_error = initialisationFailure();
     public readonly initialisation_complete = initialisationComplete();
     public readonly loading = computed(() => !this.initialisation_complete());
+    /** Whether the loading screen shows */
+    public readonly visible = computed(
+        () => this.loading() || !!this.initialisation_error(),
+    );
     /**
      * Background of the loading screen, from the `loading_gradient` list of
      * colours in the domain config. Empty for the default gradient.
@@ -155,6 +173,25 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     public readonly gradient = signal(
         localStorage.getItem(GRADIENT_CACHE_KEY) || '',
     );
+
+    /**
+     * The animated page background repaints the page on every frame. Pause it
+     * a short time after the loading screen hides, and run it again while
+     * the loading screen shows.
+     */
+    private readonly _settle_background = effect(() => {
+        const root = document.documentElement;
+        if (this.visible()) {
+            this.clearTimeout('settle-background');
+            root.classList.remove(BACKGROUND_SETTLED_CLASS);
+            return;
+        }
+        this.timeout(
+            'settle-background',
+            () => root.classList.add(BACKGROUND_SETTLED_CLASS),
+            BACKGROUND_SETTLE_DELAY_MS,
+        );
+    });
 
     public retry(): void {
         retryInitialisation();
