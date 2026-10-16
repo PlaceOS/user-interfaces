@@ -13,6 +13,7 @@ Set settings in Backoffice zone metadata under `visitor-kiosk_app` for the stand
 | `description` | string | `Kiosk UI written with Angular Framework` | Description of the application. |
 | `short_name` | string | `KIOSK` | Short name for the application. |
 | `default_route` | string | – | Route the app redirects to after it initialises. Defaults to `welcome` when unset. |
+| `inactivity_timeout_secs` | number | – | Number of **seconds** with no touch, click or key press before the kiosk returns to the welcome page. This stops the camera and removes visitor details from the screen. The welcome and setup pages stay open. Set to `0` to turn off the reset. Defaults to `120` when unset. |
 | `logo_light` | string | `assets/logo-light.svg` | URL of the logo shown when the app is using a light theme. |
 | `logo_dark` | string | `assets/logo-dark.svg` | URL of the logo shown when the app is using a dark theme. |
 

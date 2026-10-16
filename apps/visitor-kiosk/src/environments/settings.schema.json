@@ -22,6 +22,10 @@
             "type": "string",
             "description": "Route to redirect to after the application has initialised. Defaults to `welcome`"
         },
+        "inactivity_timeout_secs": {
+            "type": "number",
+            "description": "Number of seconds with no touch, click or key press before the kiosk returns to the welcome page. The welcome and setup pages stay open. Set to `0` to turn off the reset. Defaults to `120`"
+        },
         "logo_light": {
             "type": "string",
             "description": "URL of the logo to display when the application is using a light theme"

@@ -10,6 +10,7 @@ import { ChatComponent } from '@placeos/components/chat';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
 import { parseTokenFromUrl } from './checkin/token-from-url';
+import { returnToWelcomeWhenIdle } from './inactivity-reset';
 
 @Component({
     selector: 'app-root',
@@ -59,6 +60,10 @@ export class AppComponent implements OnInit {
     private _has_chat = settingSignal<boolean>('chat.enabled', false);
 
     public readonly has_chat = computed(() => !!this._has_chat());
+
+    constructor() {
+        returnToWelcomeWhenIdle();
+    }
 
     public ngOnInit(): void {
         VirtualKeyboardComponent.enabled =
