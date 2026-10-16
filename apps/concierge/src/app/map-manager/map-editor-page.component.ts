@@ -99,8 +99,7 @@ function localised(
 @Component({
     selector: '[app-map-editor-page]',
     host: {
-        '(window:beforeunload)':
-            'hasUnsavedChanges() && $event.preventDefault()',
+        '(window:beforeunload)': 'onBeforeUnload($event)',
     },
     template: `
         <header
@@ -286,6 +285,11 @@ export class MapEditorPageComponent implements OnInit, HasUnsavedChanges {
 
     public hasUnsavedChanges(): boolean {
         return this.dirty();
+    }
+
+    /** Asks the browser to confirm leaving only while the map has unsaved changes. */
+    public onBeforeUnload(event: BeforeUnloadEvent): void {
+        if (this.dirty()) event.preventDefault();
     }
 
     public async ngOnInit() {

@@ -95,6 +95,10 @@ export class FakeSession implements MapEditorSessionLike {
         return result;
     }
 
+    public undoDepth(): number {
+        return this.history.length;
+    }
+
     public undo(): boolean {
         const ok = this.history.undo();
         if (ok) this._bump();

@@ -641,7 +641,8 @@ function insertShape(
         if (former) {
             parent = former.parent;
             before = former.next;
-            placement_note = `placed where ${op.after.a} was, which an earlier change deleted`;
+            placement_note =
+                'placed where an element removed by an earlier change was';
         } else if (resolution.ok === false) {
             return { ok: false, reason: resolution.error };
         } else {

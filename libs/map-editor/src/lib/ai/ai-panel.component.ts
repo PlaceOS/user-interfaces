@@ -77,6 +77,18 @@ const SECTION_ORDER: readonly OpCategory[] = [
     'none',
 ];
 
+/** "claude-opus-5-5" reads "Claude Opus 5.5" and "gpt-5.4-mini" reads "GPT-5.4 mini"; other ids are shown as they are. */
+export function readableModel(model: string): string {
+    const claude = /^claude-([a-z]+)-(\d+)-(\d+)$/.exec(model);
+    if (claude) {
+        const family = claude[1];
+        return `Claude ${family[0].toUpperCase()}${family.slice(1)} ${claude[2]}.${claude[3]}`;
+    }
+    const gpt = /^gpt-([\d.]+)(?:-(.+))?$/.exec(model);
+    if (gpt) return `GPT-${gpt[1]}${gpt[2] ? ` ${gpt[2]}` : ''}`;
+    return model;
+}
+
 @Component({
     selector: 'map-editor-ai-panel',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -122,8 +134,7 @@ const SECTION_ORDER: readonly OpCategory[] = [
                                                         model_key()
                                                     "
                                                 >
-                                                    {{ option.model }} ·
-                                                    {{ option.provider_name }}
+                                                    {{ optionLabel(option) }}
                                                 </option>
                                             }
                                         </select>
@@ -636,7 +647,10 @@ const SECTION_ORDER: readonly OpCategory[] = [
                             @if (activeTurn(); as active) {
                                 @if (showsDecision()) {
                                     <div class="decide" decision>
-                                        @if (phase().kind === 'applied') {
+                                        @if (
+                                            phase().kind === 'applied' ||
+                                            revalidating()
+                                        ) {
                                             <button
                                                 type="button"
                                                 class="btn"
@@ -658,7 +672,8 @@ const SECTION_ORDER: readonly OpCategory[] = [
                                             type="button"
                                             class="btn quiet"
                                             [class.wide]="
-                                                phase().kind !== 'applied'
+                                                phase().kind !== 'applied' &&
+                                                !revalidating()
                                             "
                                             undo
                                             (click)="undo()"
@@ -760,6 +775,7 @@ const SECTION_ORDER: readonly OpCategory[] = [
                             type="submit"
                             class="btn small"
                             send
+                            [title]="t.strings.send_shortcut"
                             [disabled]="!can_send()"
                         >
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1763,7 +1779,7 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
         );
         return provider
             ? format(thread.strings.model_note, {
-                  model: choice.model,
+                  model: readableModel(choice.model),
                   provider: provider.name,
               })
             : '';
@@ -1771,6 +1787,18 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
     public readonly model_options = computed(
         () => this.thread()?.model_options() ?? [],
     );
+    /** The model's readable name, with its provider when another option offers the same model. */
+    public optionLabel(option: {
+        model: string;
+        provider_name: string;
+    }): string {
+        const shared = this.model_options().some(
+            (other) => other !== option && other.model === option.model,
+        );
+        const name = readableModel(option.model);
+        return shared ? `${name} · ${option.provider_name}` : name;
+    }
+
     public readonly model_key = computed(() => {
         const choice = this.thread()?.choice();
         return choice ? modelKey(choice) : '';
@@ -1863,17 +1891,25 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
         if (!thread || phase.kind !== 'unavailable') return '';
         return format(thread.strings.unavailable, { reason: phase.reason });
     });
+    /** True while a changed selection is checked before it is previewed again. */
+    public readonly revalidating = computed(() => {
+        const phase = this.phase();
+        return phase.kind === 'reviewing' && phase.validating;
+    });
     public readonly showsDecision = computed(() => {
         const phase = this.phase();
         if (phase.kind === 'applied') return true;
         return (
             phase.kind === 'reviewing' &&
-            !phase.validating &&
             phase.proposal.rows.some((row) => row.actionable)
         );
     });
 
     constructor() {
+        effect(() => {
+            this.session().version();
+            untracked(() => this.thread()?.mapChanged());
+        });
         effect((onCleanup) => {
             const proposal = this.thread()?.proposal() ?? null;
             const thumbnails: Thumbnails = {

@@ -20,6 +20,7 @@ import { buildContext, mentionedEntries } from './context';
 import {
     buildProposal,
     decisionFor,
+    heldAfter,
     Proposal,
     ProposalGroup,
     ProposalRow,
@@ -287,6 +288,9 @@ export class MapAiThread {
     private readonly _key: () => string;
     private _abort: AbortController | null = null;
     private _queue: Promise<void> = Promise.resolve();
+    /** Session version and undo depth right after the preview went on the map; -1 when none is tracked. */
+    private _preview_version = -1;
+    private _preview_depth = 0;
 
     constructor(
         private readonly _session: MapEditorSessionLike,
@@ -574,14 +578,46 @@ export class MapAiThread {
     /** Ticks or unticks a row, then previews the new accepted set. */
     public toggle(index: number, checked: boolean): Promise<void> {
         return this._enqueue(() =>
-            this._retick((proposal) => toggleRow(proposal, index, checked)),
+            this._retick(
+                (proposal) => toggleRow(proposal, index, checked),
+                checked ? [] : [index],
+            ),
         );
     }
 
     public toggleGroup(group: ProposalGroup, checked: boolean): Promise<void> {
         return this._enqueue(() =>
-            this._retick((proposal) => toggleGroup(proposal, group, checked)),
+            this._retick(
+                (proposal) => toggleGroup(proposal, group, checked),
+                checked ? [] : group.indices,
+            ),
         );
+    }
+
+    /**
+     * Settles the previewed proposal after the map changed outside the panel:
+     * undone when the preview was undone or the map is back to its saved
+     * state, kept when edits went on top of it.
+     */
+    public mapChanged(): void {
+        const phase = this._state().phase;
+        if (phase.kind !== 'applied' || this._preview_version < 0) return;
+        if (this._session.version() === this._preview_version) return;
+        const undone =
+            (this._session.undoDepth?.() ?? this._preview_depth) <
+                this._preview_depth || !this._session.dirty();
+        this._preview_version = -1;
+        const proposal = phase.proposal;
+        void this._enqueue(async () => {
+            if (this._state().phase.kind !== 'applied') return;
+            if (undone) {
+                await this._resolveQuietly(proposal, 'rejected');
+                this.dispatch({ type: 'undone', proposal, reasons: [] });
+                return;
+            }
+            await this._resolveQuietly(proposal, decisionFor(proposal));
+            this.dispatch({ type: 'kept', proposal });
+        });
     }
 
     /** Keeps the previewed changes and records the decision. */
@@ -601,6 +637,7 @@ export class MapAiThread {
             const state = this._state();
             const proposal = proposalOf(state);
             if (!proposal) return;
+            this._preview_version = -1;
             if (state.phase.kind === 'applied') this._session.undo();
             const chips = [...(reasons ?? state.reasons)];
             await this._resolveQuietly(proposal, 'rejected', chips);
@@ -698,6 +735,8 @@ export class MapAiThread {
             `AI: ${proposal.summary || this.strings.title}`,
             { skip },
         );
+        this._preview_version = this._session.version();
+        this._preview_depth = this._session.undoDepth?.() ?? 0;
         const applied = new Set(result.applied.map((step) => step.index));
         const rows = proposal.rows.map((row) => ({
             ...row,
@@ -706,21 +745,25 @@ export class MapAiThread {
         this.dispatch({ type: 'previewed', proposal: { ...proposal, rows } });
     }
 
+    /** @param unticked rows the person unticked directly, which are never held */
     private async _retick(
         next: (proposal: Proposal) => ReadonlySet<number>,
+        unticked: readonly number[] = [],
     ): Promise<void> {
         const state = this._state();
         const proposal = proposalOf(state);
         if (!proposal) return;
         this.selection_error.set('');
         const accepted = next(proposal);
+        const held = heldAfter(proposal, accepted, unticked);
+        this._preview_version = -1;
         if (state.phase.kind === 'applied') this._session.undo();
         this.dispatch({ type: 'validating' });
         const rebuilt = await buildProposal(
             proposal.job,
             this._session,
             this.strings,
-            { accepted, dependencies: proposal.dependencies },
+            { accepted, dependencies: proposal.dependencies, held },
         );
         if (rebuilt.verdict === 'blocked' && state.phase.kind === 'applied') {
             const restored = await buildProposal(
@@ -730,6 +773,7 @@ export class MapAiThread {
                 {
                     accepted: new Set(proposal.accepted),
                     dependencies: proposal.dependencies,
+                    held: proposal.held,
                 },
             );
             this.dispatch({ type: 'rows_changed', proposal: restored });

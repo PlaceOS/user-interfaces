@@ -66,6 +66,8 @@ interface PanState {
 
 const HOVER_INTERVAL_MS = 40;
 const PRIMARY = 'var(--primary, #2563eb)';
+/** Above this many selected or dragged elements, one outline encloses them all. */
+const MAX_SEPARATE_OUTLINES = 8;
 const PREVIEW_COLOURS: Record<string, string> = {
     added: 'var(--success, #16a34a)',
     changed: 'var(--info, #2563eb)',
@@ -134,7 +136,11 @@ type ShadowWithPoints = ShadowRoot & {
                 user-select: none;
                 background-color: var(--base-200, #e5e7eb);
                 background-image: radial-gradient(
-                    color-mix(in srgb, var(--base-300, #d4d4d8) 70%, transparent)
+                    color-mix(
+                            in srgb,
+                            var(--base-300, #d4d4d8) 70%,
+                            transparent
+                        )
                         1px,
                     transparent 1.2px
                 );
@@ -741,18 +747,14 @@ export class MapEditorCanvasComponent implements AfterViewInit {
         if (hover && !selection.includes(hover) && !hot_marker) {
             this._outline(overlay, index, hover, 'hover', [0, 0]);
         }
-        for (const anchor of selection) {
-            this._outline(overlay, index, anchor, 'selected', [0, 0]);
-        }
+        this._outlines(overlay, index, selection, 'selected', [0, 0]);
         if (drag?.moved) {
             const delta = dragDelta(
                 drag.start,
                 drag.current,
                 this.view().scale,
             );
-            for (const anchor of drag.anchors) {
-                this._outline(overlay, index, anchor, 'ghost', delta);
-            }
+            this._outlines(overlay, index, drag.anchors, 'ghost', delta);
         }
         if (preview) this._drawPreview(overlay, index, preview, hover);
     }
@@ -766,11 +768,12 @@ export class MapEditorCanvasComponent implements AfterViewInit {
     ): void {
         const units_per_px = 1 / this.view().scale;
         for (const marker of preview.markers) {
-            const box = this._unionBox(index, marker);
+            const box = this._unionBox(index, marker.anchors);
             if (!box) continue;
             const [x, y, width, height] = box;
             const hot = !!hover && marker.anchors.includes(hover);
-            const colour = PREVIEW_COLOURS[marker.category] || PREVIEW_COLOURS.changed;
+            const colour =
+                PREVIEW_COLOURS[marker.category] || PREVIEW_COLOURS.changed;
             const stroke = hot ? PRIMARY : colour;
             const group = document.createElementNS(SVG_NS, 'g');
             group.setAttribute('data-preview', String(marker.n));
@@ -828,10 +831,10 @@ export class MapEditorCanvasComponent implements AfterViewInit {
     /** The box around every element a marker touches; null when none is in the map. */
     private _unionBox(
         index: MapIndex,
-        marker: PreviewMarker,
+        anchors: readonly string[],
     ): [number, number, number, number] | null {
         let box: [number, number, number, number] | null = null;
-        for (const anchor of marker.anchors) {
+        for (const anchor of anchors) {
             const bbox = index.by_anchor.get(anchor)?.bbox;
             if (!bbox) continue;
             if (!box) {
@@ -847,6 +850,23 @@ export class MapEditorCanvasComponent implements AfterViewInit {
         return box;
     }
 
+    /** One outline per element, or one around them all above MAX_SEPARATE_OUTLINES. */
+    private _outlines(
+        overlay: SVGSVGElement,
+        index: MapIndex,
+        anchors: readonly string[],
+        kind: 'selected' | 'ghost',
+        offset: readonly [number, number],
+    ): void {
+        if (anchors.length <= MAX_SEPARATE_OUTLINES) {
+            for (const anchor of anchors)
+                this._outline(overlay, index, anchor, kind, offset);
+            return;
+        }
+        const box = this._unionBox(index, anchors);
+        if (box) this._outlineBox(overlay, box, kind, offset);
+    }
+
     private _outline(
         overlay: SVGSVGElement,
         index: MapIndex,
@@ -855,7 +875,15 @@ export class MapEditorCanvasComponent implements AfterViewInit {
         offset: readonly [number, number],
     ): void {
         const bbox = index.by_anchor.get(anchor)?.bbox;
-        if (!bbox) return;
+        if (bbox) this._outlineBox(overlay, bbox, kind, offset);
+    }
+
+    private _outlineBox(
+        overlay: SVGSVGElement,
+        bbox: readonly number[],
+        kind: 'hover' | 'selected' | 'ghost',
+        offset: readonly [number, number],
+    ): void {
         const rect = document.createElementNS(SVG_NS, 'rect');
         rect.setAttribute('x', `${bbox[0] + offset[0]}`);
         rect.setAttribute('y', `${bbox[1] + offset[1]}`);

@@ -41,9 +41,10 @@ export function previewSummary(
         category: row.category,
         applied: row.checked && !row.locked,
     }));
+    const on_map = rows.filter((row) => row.checked && !row.locked);
     const counts = COUNTED.map((category) => ({
         category,
-        count: rows.filter((row) => row.category === category).length,
+        count: on_map.filter((row) => row.category === category).length,
         label: '',
     }))
         .filter((entry) => entry.count > 0)
@@ -55,7 +56,13 @@ export function previewSummary(
             }),
         }));
     return {
-        title: format(strings.proposal_title, { count: rows.length }),
+        title:
+            on_map.length === rows.length
+                ? format(strings.proposal_title, { count: rows.length })
+                : format(strings.preview_partial_title, {
+                      applied: on_map.length,
+                      count: rows.length,
+                  }),
         note: strings.outcomes.previewing,
         counts,
         markers,

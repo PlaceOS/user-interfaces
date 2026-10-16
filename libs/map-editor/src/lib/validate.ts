@@ -897,7 +897,7 @@ class Validator {
                     push(
                         'info',
                         'after_deleted',
-                        `placed where ${op.after.a} was, which an earlier change deleted`,
+                        'placed where an element removed by an earlier change was',
                     );
                 } else if (op.after && !this._resolveTargets(step, [op.after]))
                     return;

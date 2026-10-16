@@ -217,6 +217,8 @@ export interface Proposal {
     /** Actionable rows that cannot be applied. */
     invalid_count: number;
     dependencies: number[][];
+    /** Rows unticked only because a row they need was unticked; ticking that row again restores them. */
+    held?: number[];
     groups: ProposalGroup[] | null;
 }
 
@@ -226,6 +228,7 @@ export interface BuildProposalOptions {
     /** Protected ids the person has unlocked. */
     unlocked?: Iterable<string>;
     dependencies?: number[][];
+    held?: Iterable<number>;
     /** Serialise the document and the trial for the thumbnails. Default true. */
     trial_markup?: boolean;
 }
@@ -461,6 +464,9 @@ export async function buildProposal(
         invalid_count: rows.filter((row) => row.actionable && row.locked)
             .length,
         dependencies,
+        held: [...new Set(options.held ?? [])]
+            .filter((i) => !accepted.has(i))
+            .sort((a, b) => a - b),
         groups: rows.length > GROUP_THRESHOLD ? groupRows(rows, strings) : null,
     };
 }
@@ -471,7 +477,8 @@ export function acceptedSet(proposal: Proposal): Set<number> {
 
 /**
  * The ticked set after one row changes. Ticking a row ticks the rows it
- * needs; unticking a row unticks the rows that need it.
+ * needs and the held rows whose needs are now all ticked; unticking a row
+ * unticks the rows that need it.
  */
 export function toggleRow(
     proposal: Proposal,
@@ -492,6 +499,7 @@ export function toggleRow(
             next.add(need);
             stack.push(...needed.depends_on);
         }
+        restoreHeld(proposal, next);
     } else {
         next.delete(index);
         const stack = [...row.dependents];
@@ -503,6 +511,41 @@ export function toggleRow(
         }
     }
     return next;
+}
+
+function restoreHeld(proposal: Proposal, next: Set<number>): void {
+    const held = (proposal.held ?? []).filter((i) => !next.has(i));
+    let restored = true;
+    while (restored) {
+        restored = false;
+        for (const index of held) {
+            const row = proposal.rows[index];
+            if (next.has(index) || !row || row.locked || !row.actionable)
+                continue;
+            if (!row.depends_on.length) continue;
+            if (row.depends_on.every((need) => next.has(need))) {
+                next.add(index);
+                restored = true;
+            }
+        }
+    }
+}
+
+/**
+ * The held rows after a change of ticks: rows that went off as a side effect
+ * join them, rows that are ticked or were unticked directly leave them.
+ */
+export function heldAfter(
+    proposal: Proposal,
+    accepted: ReadonlySet<number>,
+    unticked: Iterable<number> = [],
+): Set<number> {
+    const held = new Set(proposal.held ?? []);
+    for (const index of proposal.accepted)
+        if (!accepted.has(index)) held.add(index);
+    for (const index of unticked) held.delete(index);
+    for (const index of [...held]) if (accepted.has(index)) held.delete(index);
+    return held;
 }
 
 /** The ticked set after a whole group changes, member by member. */

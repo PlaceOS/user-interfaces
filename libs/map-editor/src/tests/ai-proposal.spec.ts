@@ -1,10 +1,12 @@
 import { describeOp, opCategory, opGlyph, whoOf } from '../lib/ai/describe';
+import { previewSummary } from '../lib/ai/preview';
 import {
     buildProposal,
     cascadeDependencies,
     decisionFor,
     deriveDependencies,
     groupRows,
+    heldAfter,
     opsWithServerIssues,
     Proposal,
     referencedTargets,
@@ -502,6 +504,90 @@ describe('proposal', () => {
         ]);
         expect([...toggleRow(proposal, 2, false)].sort()).toEqual([0, 1]);
         expect([...toggleRow(proposal, 99, false)].sort()).toEqual([0, 1, 2]);
+    });
+
+    it('counts only the ticked rows in the preview summary', async () => {
+        const doc = officeDoc();
+        const session = new FakeSession(doc);
+        const fill = (id: string): MapOp => ({
+            op: 'set_attr',
+            why: '-',
+            target: target(doc, id),
+            name: 'fill',
+            value: '#abc',
+        });
+        const done = job({
+            state: 'done',
+            ops: [fill('desk-01.004'), fill('desk-01.005')],
+        });
+        const all = await buildProposal(done, session, DEFAULT_AI_STRINGS);
+        expect(previewSummary(all, DEFAULT_AI_STRINGS)?.title).toBe(
+            '2 changes',
+        );
+        const one = await buildProposal(done, session, DEFAULT_AI_STRINGS, {
+            accepted: new Set([1]),
+        });
+        const summary = previewSummary(one, DEFAULT_AI_STRINGS);
+        expect(summary?.title).toBe('1 of 2 changes');
+        expect(summary?.counts.map((entry) => entry.count)).toEqual([1]);
+    });
+
+    it('ticks the rows a cascade unticked when the row they need is ticked again', async () => {
+        const doc = officeDoc();
+        const session = new FakeSession(doc);
+        const fill = (name: string): MapOp => ({
+            op: 'set_attr',
+            why: '-',
+            target: { id: 'ai-1' },
+            name,
+            value: '#abc',
+        });
+        const done = job({
+            state: 'done',
+            ops: [
+                {
+                    op: 'insert_shape',
+                    why: '-',
+                    parent: target(doc, 'rooms'),
+                    kind: 'rect',
+                    attrs: [
+                        { name: 'x', value: '300' },
+                        { name: 'y', value: '10' },
+                        { name: 'width', value: '50' },
+                        { name: 'height', value: '50' },
+                    ],
+                    new_id: 'ai-1',
+                },
+                fill('fill'),
+                fill('stroke'),
+            ],
+        });
+        const step = async (
+            from: Proposal,
+            index: number,
+            checked: boolean,
+        ): Promise<Proposal> => {
+            const accepted = toggleRow(from, index, checked);
+            const held = heldAfter(from, accepted, checked ? [] : [index]);
+            return buildProposal(done, session, DEFAULT_AI_STRINGS, {
+                accepted,
+                held,
+                dependencies: from.dependencies,
+            });
+        };
+        const proposal = await buildProposal(done, session, DEFAULT_AI_STRINGS);
+
+        const parent_off = await step(proposal, 0, false);
+        expect(parent_off.accepted).toEqual([]);
+        expect(parent_off.held).toEqual([1, 2]);
+        const parent_on = await step(parent_off, 0, true);
+        expect(parent_on.accepted).toEqual([0, 1, 2]);
+        expect(parent_on.held).toEqual([]);
+
+        const stroke_off = await step(proposal, 2, false);
+        const both_off = await step(stroke_off, 0, false);
+        expect(both_off.held).toEqual([1]);
+        expect((await step(both_off, 0, true)).accepted).toEqual([0, 1]);
     });
 
     it('groups rows by kind above twenty and toggles a group as a whole', async () => {

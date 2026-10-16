@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MapEditorAiPanelComponent } from '../lib/ai/ai-panel.component';
+import {
+    MapEditorAiPanelComponent,
+    readableModel,
+} from '../lib/ai/ai-panel.component';
 import { MapAIEditRequest } from '../lib/ai/types';
 import { MapDocument } from '../lib/map-document';
 import { MapOp } from '../lib/ops';
@@ -153,7 +156,7 @@ describe('MapEditorAiPanelComponent', () => {
         });
         const fixture = await mount(transport);
         expect(text(fixture, '[model-note]')).toBe(
-            'Edits by gpt-5.4-mini, via Signage Image Gen',
+            'Edits by GPT-5.4 mini, via Signage Image Gen',
         );
         expect(text(fixture, '[quota-note]')).toBe(
             '39 edits left today · 980 left this month for the organisation',
@@ -322,5 +325,14 @@ describe('MapEditorAiPanelComponent', () => {
             'textarea',
         ) as HTMLTextAreaElement;
         expect(textarea.disabled).toBe(true);
+    });
+});
+
+describe('readableModel', () => {
+    it('names Claude and GPT models the way their makers write them', () => {
+        expect(readableModel('claude-opus-5-5')).toBe('Claude Opus 5.5');
+        expect(readableModel('gpt-5.4-mini')).toBe('GPT-5.4 mini');
+        expect(readableModel('gpt-6')).toBe('GPT-6');
+        expect(readableModel('some-custom-model')).toBe('some-custom-model');
     });
 });

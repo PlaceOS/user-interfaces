@@ -261,6 +261,54 @@ describe('MapAiThread', () => {
         expect(thread.state().parent_job_id).toBeTruthy();
     });
 
+    it('settles the preview when the map changes outside the panel', async () => {
+        const op = recolour(
+            MapDocument.load(OFFICE),
+            'area-1.01-status',
+            '#d1fae5',
+        );
+
+        const undone = setup([op]);
+        await undone.thread.load();
+        await undone.thread.submit('recolour');
+        undone.session.undo();
+        undone.thread.mapChanged();
+        await undone.thread.keep();
+        expect(fill(undone.doc, 'area-1.01-status')).toBeNull();
+        expect(undone.thread.phase().kind).toBe('composing');
+        expect(undone.thread.turns()[1]).toMatchObject({ outcome: 'undone' });
+        expect(undone.transport.resolves).toHaveLength(1);
+        expect(undone.transport.resolves[0].body).toMatchObject({
+            decision: 'rejected',
+        });
+
+        const reverted = setup([op]);
+        await reverted.thread.load();
+        await reverted.thread.submit('recolour');
+        reverted.session.dirty.set(false);
+        reverted.session.version.update((version) => version + 1);
+        reverted.thread.mapChanged();
+        await reverted.thread.keep();
+        expect(reverted.thread.turns()[1]).toMatchObject({ outcome: 'undone' });
+
+        const edited = setup([op]);
+        await edited.thread.load();
+        await edited.thread.submit('recolour');
+        edited.session.apply(
+            [recolour(edited.doc, 'area-1.02-status', '#fee2e2')],
+            'Fill',
+        );
+        edited.thread.mapChanged();
+        await edited.thread.keep();
+        expect(fill(edited.doc, 'area-1.01-status')).toBe('#d1fae5');
+        expect(fill(edited.doc, 'area-1.02-status')).toBe('#fee2e2');
+        expect(edited.thread.turns()[1]).toMatchObject({ outcome: 'kept' });
+        expect(edited.transport.resolves).toHaveLength(1);
+        expect(edited.transport.resolves[0].body).toMatchObject({
+            decision: 'applied',
+        });
+    });
+
     it('keeps a valid preview when another checkbox exceeds the batch size limit', async () => {
         const base = MapDocument.load(OFFICE);
         const { doc, thread, session } = setup([

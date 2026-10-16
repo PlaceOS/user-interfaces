@@ -20,6 +20,8 @@ export interface MapEditorAiStrings {
     composer_placeholder: string;
     reply_placeholder: string;
     send: string;
+    /** Tooltip on Send naming its keyboard shortcut. */
+    send_shortcut: string;
     cancel: string;
     cancelling: string;
     new_request: string;
@@ -38,6 +40,8 @@ export interface MapEditorAiStrings {
     running_long: string;
     /** `{count}` changes in the proposal. */
     proposal_title: string;
+    /** `{applied}` of the proposal's `{count}` changes are on the map. */
+    preview_partial_title: string;
     questions_title: string;
     /** Shown under a question from the model. */
     questions_hint: string;
@@ -161,6 +165,7 @@ export const DEFAULT_AI_STRINGS: MapEditorAiStrings = {
         'Describe the change, for example "recolour Meeting 1.01 light blue" or "add six desks along the north wall labelled 1.031 to 1.036"',
     reply_placeholder: 'Answer the question, or change the request',
     send: 'Send',
+    send_shortcut: 'Send (Ctrl or ⌘ + Enter)',
     cancel: 'Cancel',
     cancelling: 'Stopping...',
     new_request: 'New request',
@@ -176,6 +181,7 @@ export const DEFAULT_AI_STRINGS: MapEditorAiStrings = {
     running: 'Reading the map and working out the changes...',
     running_long: 'Still working after {seconds} s',
     proposal_title: '{count} changes',
+    preview_partial_title: '{applied} of {count} changes',
     questions_title: 'The AI has a question',
     questions_hint:
         'Click the element on the map to select it, then answer below; the selection is sent with your reply.',

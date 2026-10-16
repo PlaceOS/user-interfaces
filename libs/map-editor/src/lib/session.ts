@@ -1,9 +1,9 @@
 import { Signal, signal } from '@angular/core';
+import { PreviewSummary } from './ai/preview';
 import {
     MapEditorSessionLike,
     SessionApplyOptions,
 } from './ai/session-contract';
-import { PreviewSummary } from './ai/preview';
 import { MapAIAnnotation } from './ai/types';
 import { applyOps, ApplyResult } from './apply';
 import { ANCHOR_ATTR } from './constants';
@@ -214,6 +214,10 @@ export class MapEditorSession implements MapEditorSessionLike {
         }
         this._changed();
         return result;
+    }
+
+    public undoDepth(): number {
+        return this.history.length;
     }
 
     public undo(): boolean {
