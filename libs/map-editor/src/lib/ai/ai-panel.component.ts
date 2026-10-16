@@ -13,10 +13,10 @@ import {
     viewChild,
 } from '@angular/core';
 import { MapAiTransport } from './api';
-import { Proposal, ProposalGroup, ProposalRow } from './proposal';
 import { OpCategory } from './describe';
 import { PANEL_ICONS } from './panel-icons';
 import { previewSummary } from './preview';
+import { Proposal, ProposalGroup, ProposalRow } from './proposal';
 import { MapEditorSessionLike } from './session-contract';
 import { MapAiPhase, MapAiState, modelKey, ThreadTurn } from './state';
 import {
@@ -83,16 +83,14 @@ const SECTION_ORDER: readonly OpCategory[] = [
     template: `
         @if (thread(); as t) {
             @if (!hidden()) {
-                <div
-                    class="panel"
-                    [attr.aria-busy]="t.busy()"
-                >
+                <div class="panel" [attr.aria-busy]="t.busy()">
                     @switch (phase().kind) {
                         @case ('idle') {
                             <p class="note">{{ t.strings.checking }}</p>
                         }
                         @case ('checking') {
                             <p class="note" role="status">
+                                <span class="spinner" aria-hidden="true"></span>
                                 {{ t.strings.checking }}
                             </p>
                         }
@@ -106,7 +104,7 @@ const SECTION_ORDER: readonly OpCategory[] = [
                                 <h2>{{ t.strings.title }}</h2>
                                 @if (model_options().length > 1) {
                                     <label class="model" model-choice>
-                                        <span class="muted">
+                                        <span class="sr-only">
                                             {{ t.strings.model_label }}
                                         </span>
                                         <select
@@ -131,16 +129,18 @@ const SECTION_ORDER: readonly OpCategory[] = [
                                         </select>
                                     </label>
                                 } @else if (model_note()) {
-                                    <p model-note>{{ model_note() }}</p>
+                                    <p class="meta" model-note>
+                                        {{ model_note() }}
+                                    </p>
                                 }
                                 @if (quota_note()) {
-                                    <p class="muted" quota-note>
+                                    <p class="meta" quota-note>
                                         {{ quota_note() }}
                                     </p>
                                 }
                                 @if (t.quota_block(); as block) {
                                     <p
-                                        class="error"
+                                        class="callout error"
                                         role="status"
                                         quota-block
                                     >
@@ -148,7 +148,9 @@ const SECTION_ORDER: readonly OpCategory[] = [
                                     </p>
                                 }
                             </header>
-                            @if (!t.turns().length && phase().kind !== 'running') {
+                            @if (
+                                !t.turns().length && phase().kind !== 'running'
+                            ) {
                                 <ng-container
                                     *ngTemplateOutlet="
                                         composer_template;
@@ -171,7 +173,7 @@ const SECTION_ORDER: readonly OpCategory[] = [
                                                     {{ turn.instruction }}
                                                 </p>
                                                 @if (personMeta(turn)) {
-                                                    <p class="meta muted">
+                                                    <p class="meta">
                                                         {{ personMeta(turn) }}
                                                     </p>
                                                 }
@@ -184,7 +186,9 @@ const SECTION_ORDER: readonly OpCategory[] = [
                                                 role="status"
                                                 status-turn
                                             >
-                                                {{ turn.text }}
+                                                <span class="grow">{{
+                                                    turn.text
+                                                }}</span>
                                                 @if (
                                                     turn.error?.retryable &&
                                                     isLastTurn(turn)
@@ -202,325 +206,354 @@ const SECTION_ORDER: readonly OpCategory[] = [
                                         }
                                         @case ('proposal') {
                                             <li
-                                                class="proposal"
+                                                class="card"
                                                 [class.inactive]="
                                                     !isActive(turn)
                                                 "
                                                 proposal-card
                                                 [attr.data-job]="turn.job_id"
                                             >
-                                                <header class="title-row">
-                                                    <strong card-title>{{
-                                                        cardTitle(turn.proposal)
-                                                    }}</strong>
-                                                    <span
-                                                        class="muted"
-                                                        outcome
-                                                    >
-                                                        {{ outcomeText(turn) }}
-                                                    </span>
+                                                <header class="card-head">
+                                                    <h3 card-title>
+                                                        {{
+                                                            cardTitle(
+                                                                turn.proposal
+                                                            )
+                                                        }}
+                                                    </h3>
+                                                    @if (outcomeText(turn)) {
+                                                        <span
+                                                            class="badge"
+                                                            [attr.data-outcome]="
+                                                                turn.outcome
+                                                            "
+                                                            outcome
+                                                        >
+                                                            {{
+                                                                outcomeText(
+                                                                    turn
+                                                                )
+                                                            }}
+                                                        </span>
+                                                    }
                                                 </header>
-                                                @if (turn.proposal.summary) {
-                                                    <p
-                                                        class="summary"
-                                                        summary
-                                                    >
-                                                        {{
-                                                            turn.proposal
-                                                                .summary
-                                                        }}
-                                                    </p>
-                                                }
-                                                @for (
-                                                    question of turn.proposal
-                                                        .questions;
-                                                    track question
-                                                ) {
-                                                    <p
-                                                        class="question"
-                                                        question
-                                                    >
-                                                        {{ question }}
-                                                    </p>
-                                                }
-                                                @if (
-                                                    turn.proposal.questions
-                                                        .length
-                                                ) {
-                                                    <p
-                                                        class="small muted"
-                                                        hint
-                                                    >
-                                                        {{
-                                                            t.strings
-                                                                .questions_hint
-                                                        }}
-                                                    </p>
-                                                }
-                                                @if (
-                                                    verdictText(turn.proposal);
-                                                    as text
-                                                ) {
-                                                    <p
-                                                        class="verdict"
-                                                        role="status"
-                                                        verdict
-                                                    >
-                                                        @if (
-                                                            turn.proposal
-                                                                .invalid_count ||
-                                                            turn.proposal
-                                                                .blocking
-                                                        ) {
-                                                            <svg
-                                                                class="error"
-                                                                viewBox="0 0 24 24"
-                                                                aria-hidden="true"
+                                                <div class="card-body">
+                                                    @if (
+                                                        turn.proposal.summary
+                                                    ) {
+                                                        <p
+                                                            class="summary"
+                                                            summary
+                                                        >
+                                                            {{
+                                                                turn.proposal
+                                                                    .summary
+                                                            }}
+                                                        </p>
+                                                    }
+                                                    @if (
+                                                        turn.proposal.questions
+                                                            .length
+                                                    ) {
+                                                        <div
+                                                            class="callout ask"
+                                                        >
+                                                            @for (
+                                                                question of turn
+                                                                    .proposal
+                                                                    .questions;
+                                                                track question
+                                                            ) {
+                                                                <p
+                                                                    class="question"
+                                                                    question
+                                                                >
+                                                                    {{
+                                                                        question
+                                                                    }}
+                                                                </p>
+                                                            }
+                                                            <p
+                                                                class="meta"
+                                                                hint
                                                             >
-                                                                <path
-                                                                    [attr.d]="
-                                                                        icons.error
-                                                                    "
-                                                                />
-                                                            </svg>
-                                                        }
-                                                        {{ text }}
-                                                    </p>
-                                                }
-                                                @if (
-                                                    isActive(turn) &&
-                                                    t.selection_error()
-                                                ) {
-                                                    <p
-                                                        class="small error"
-                                                        role="alert"
-                                                        selection-error
-                                                    >
-                                                        {{
-                                                            t.selection_error()
-                                                        }}
-                                                    </p>
-                                                }
-                                                @for (
-                                                    issue of turn.proposal
-                                                        .batch_issues;
-                                                    track $index
-                                                ) {
-                                                    <p
-                                                        class="small"
-                                                        [class.error]="
-                                                            issue.level ===
-                                                            'error'
-                                                        "
-                                                        batch-issue
-                                                    >
-                                                        {{ issue.message }}
-                                                    </p>
-                                                }
-                                                @if (
-                                                    isActive(turn) &&
-                                                    (thumbnails().before ||
-                                                        thumbnails().after)
-                                                ) {
-                                                    <div
-                                                        class="thumbs"
-                                                        thumbnails
-                                                    >
-                                                        @if (
-                                                            thumbnails().before;
-                                                            as before
-                                                        ) {
-                                                            <figure>
-                                                                <img
-                                                                    [src]="
-                                                                        before
-                                                                    "
-                                                                    [alt]="
-                                                                        t
-                                                                            .strings
-                                                                            .before
-                                                                    "
-                                                                />
-                                                                <figcaption
-                                                                    class="muted"
+                                                                {{
+                                                                    t.strings
+                                                                        .questions_hint
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    }
+                                                    @if (
+                                                        verdictText(
+                                                            turn.proposal
+                                                        );
+                                                        as text
+                                                    ) {
+                                                        <p
+                                                            class="callout"
+                                                            [class.error]="
+                                                                turn.proposal
+                                                                    .invalid_count ||
+                                                                turn.proposal
+                                                                    .blocking
+                                                            "
+                                                            role="status"
+                                                            verdict
+                                                        >
+                                                            @if (
+                                                                turn.proposal
+                                                                    .invalid_count ||
+                                                                turn.proposal
+                                                                    .blocking
+                                                            ) {
+                                                                <svg
+                                                                    viewBox="0 0 24 24"
+                                                                    aria-hidden="true"
                                                                 >
-                                                                    {{
-                                                                        t
-                                                                            .strings
-                                                                            .before
-                                                                    }}
-                                                                </figcaption>
-                                                            </figure>
-                                                        }
-                                                        @if (
-                                                            thumbnails().after;
-                                                            as after
-                                                        ) {
-                                                            <figure>
-                                                                <img
-                                                                    [src]="
-                                                                        after
-                                                                    "
-                                                                    [alt]="
-                                                                        t
-                                                                            .strings
-                                                                            .after
-                                                                    "
-                                                                />
-                                                                <figcaption
-                                                                    class="muted"
-                                                                >
-                                                                    {{
-                                                                        t
-                                                                            .strings
-                                                                            .after
-                                                                    }}
-                                                                </figcaption>
-                                                            </figure>
-                                                        }
-                                                    </div>
-                                                }
+                                                                    <path
+                                                                        [attr.d]="
+                                                                            icons.error
+                                                                        "
+                                                                    />
+                                                                </svg>
+                                                            }
+                                                            <span>{{
+                                                                text
+                                                            }}</span>
+                                                        </p>
+                                                    }
+                                                    @if (
+                                                        isActive(turn) &&
+                                                        t.selection_error()
+                                                    ) {
+                                                        <p
+                                                            class="callout error"
+                                                            role="alert"
+                                                            selection-error
+                                                        >
+                                                            {{
+                                                                t.selection_error()
+                                                            }}
+                                                        </p>
+                                                    }
+                                                    @for (
+                                                        issue of turn.proposal
+                                                            .batch_issues;
+                                                        track $index
+                                                    ) {
+                                                        <p
+                                                            class="meta"
+                                                            [class.error]="
+                                                                issue.level ===
+                                                                'error'
+                                                            "
+                                                            batch-issue
+                                                        >
+                                                            {{ issue.message }}
+                                                        </p>
+                                                    }
+                                                    @if (
+                                                        isActive(turn) &&
+                                                        (thumbnails().before ||
+                                                            thumbnails().after)
+                                                    ) {
+                                                        <div
+                                                            class="thumbs"
+                                                            thumbnails
+                                                        >
+                                                            @if (
+                                                                thumbnails()
+                                                                    .before;
+                                                                as before
+                                                            ) {
+                                                                <figure>
+                                                                    <img
+                                                                        [src]="
+                                                                            before
+                                                                        "
+                                                                        [alt]="
+                                                                            t
+                                                                                .strings
+                                                                                .before
+                                                                        "
+                                                                    />
+                                                                    <figcaption>
+                                                                        {{
+                                                                            t
+                                                                                .strings
+                                                                                .before
+                                                                        }}
+                                                                    </figcaption>
+                                                                </figure>
+                                                            }
+                                                            @if (
+                                                                thumbnails()
+                                                                    .after;
+                                                                as after
+                                                            ) {
+                                                                <figure>
+                                                                    <img
+                                                                        [src]="
+                                                                            after
+                                                                        "
+                                                                        [alt]="
+                                                                            t
+                                                                                .strings
+                                                                                .after
+                                                                        "
+                                                                    />
+                                                                    <figcaption>
+                                                                        {{
+                                                                            t
+                                                                                .strings
+                                                                                .after
+                                                                        }}
+                                                                    </figcaption>
+                                                                </figure>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
                                                 @if (
                                                     sectionsOf(turn.proposal);
                                                     as sections
                                                 ) {
-                                                    @if (sections.length) {
-                                                        <div class="changes">
-                                                            @for (
-                                                                section of sections;
-                                                                track section.key
-                                                            ) {
-                                                                <div
-                                                                    class="section"
-                                                                    row-group
-                                                                    [attr.data-category]="
-                                                                        section.key
-                                                                    "
-                                                                >
-                                                                    <div
-                                                                        class="section-head"
-                                                                    >
-                                                                        @if (
-                                                                            section.group
-                                                                        ) {
-                                                                            <input
-                                                                                type="checkbox"
-                                                                                [id]="
-                                                                                    turn.id +
-                                                                                    '-' +
-                                                                                    section.key
-                                                                                "
-                                                                                [checked]="
-                                                                                    section
-                                                                                        .group
-                                                                                        .checked ===
-                                                                                    'all'
-                                                                                "
-                                                                                [indeterminate]="
-                                                                                    section
-                                                                                        .group
-                                                                                        .checked ===
-                                                                                    'some'
-                                                                                "
-                                                                                [disabled]="
-                                                                                    section
-                                                                                        .group
-                                                                                        .locked ||
-                                                                                    !isActive(
-                                                                                        turn
-                                                                                    )
-                                                                                "
-                                                                                [attr.aria-label]="
-                                                                                    section.label
-                                                                                "
-                                                                                (change)="
-                                                                                    onGroup(
-                                                                                        section.group,
-                                                                                        $event
-                                                                                    )
-                                                                                "
-                                                                            />
-                                                                        }
-                                                                        <span>{{
-                                                                            section.label
-                                                                        }}</span>
-                                                                        <span
-                                                                            class="muted count"
-                                                                            >{{
-                                                                                section
-                                                                                    .rows
-                                                                                    .length
-                                                                            }}</span
-                                                                        >
-                                                                        @if (
-                                                                            section
-                                                                                .rows
-                                                                                .length >=
-                                                                            4
-                                                                        ) {
-                                                                            <button
-                                                                                type="button"
-                                                                                class="link"
-                                                                                [attr.aria-expanded]="
-                                                                                    isGroupOpen(
-                                                                                        turn.id +
-                                                                                            ':' +
-                                                                                            section.key
-                                                                                    )
-                                                                                "
-                                                                                (click)="
-                                                                                    toggleGroupOpen(
-                                                                                        turn.id +
-                                                                                            ':' +
-                                                                                            section.key
-                                                                                    )
-                                                                                "
-                                                                            >
-                                                                                {{
-                                                                                    isGroupOpen(
-                                                                                        turn.id +
-                                                                                            ':' +
-                                                                                            section.key
-                                                                                    )
-                                                                                        ? t
-                                                                                              .strings
-                                                                                              .hide_group
-                                                                                        : t
-                                                                                              .strings
-                                                                                              .show_group
-                                                                                }}
-                                                                            </button>
-                                                                        }
-                                                                    </div>
-                                                                    @if (
-                                                                        isGroupOpen(
+                                                    @for (
+                                                        section of sections;
+                                                        track section.key
+                                                    ) {
+                                                        <div
+                                                            class="section"
+                                                            row-group
+                                                            [attr.data-category]="
+                                                                section.key
+                                                            "
+                                                        >
+                                                            <div
+                                                                class="section-head"
+                                                            >
+                                                                @if (
+                                                                    section.group
+                                                                ) {
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        [id]="
                                                                             turn.id +
-                                                                                ':' +
-                                                                                section.key
-                                                                        )
+                                                                            '-' +
+                                                                            section.key
+                                                                        "
+                                                                        [checked]="
+                                                                            section
+                                                                                .group
+                                                                                .checked ===
+                                                                            'all'
+                                                                        "
+                                                                        [indeterminate]="
+                                                                            section
+                                                                                .group
+                                                                                .checked ===
+                                                                            'some'
+                                                                        "
+                                                                        [disabled]="
+                                                                            section
+                                                                                .group
+                                                                                .locked ||
+                                                                            !isActive(
+                                                                                turn
+                                                                            )
+                                                                        "
+                                                                        [attr.aria-label]="
+                                                                            section.label
+                                                                        "
+                                                                        (change)="
+                                                                            onGroup(
+                                                                                section.group,
+                                                                                $event
+                                                                            )
+                                                                        "
+                                                                    />
+                                                                }
+                                                                <span
+                                                                    class="section-label"
+                                                                    >{{
+                                                                        section.label
+                                                                    }}</span
+                                                                >
+                                                                <span
+                                                                    class="count"
+                                                                    >{{
+                                                                        section
+                                                                            .rows
+                                                                            .length
+                                                                    }}</span
+                                                                >
+                                                                @if (
+                                                                    section.rows
+                                                                        .length >=
+                                                                    4
+                                                                ) {
+                                                                    <button
+                                                                        type="button"
+                                                                        class="link"
+                                                                        [attr.aria-expanded]="
+                                                                            isGroupOpen(
+                                                                                turn.id +
+                                                                                    ':' +
+                                                                                    section.key
+                                                                            )
+                                                                        "
+                                                                        (click)="
+                                                                            toggleGroupOpen(
+                                                                                turn.id +
+                                                                                    ':' +
+                                                                                    section.key
+                                                                            )
+                                                                        "
+                                                                    >
+                                                                        {{
+                                                                            isGroupOpen(
+                                                                                turn.id +
+                                                                                    ':' +
+                                                                                    section.key
+                                                                            )
+                                                                                ? t
+                                                                                      .strings
+                                                                                      .hide_group
+                                                                                : t
+                                                                                      .strings
+                                                                                      .show_group
+                                                                        }}
+                                                                    </button>
+                                                                }
+                                                            </div>
+                                                            @if (
+                                                                isGroupOpen(
+                                                                    turn.id +
+                                                                        ':' +
+                                                                        section.key
+                                                                )
+                                                            ) {
+                                                                <ul
+                                                                    class="rows"
+                                                                    rows
+                                                                >
+                                                                    @for (
+                                                                        row of section.rows;
+                                                                        track row.id
                                                                     ) {
-                                                                        <ul
-                                                                            class="rows"
-                                                                            rows
-                                                                        >
-                                                                            @for (
-                                                                                row of section.rows;
-                                                                                track row.id
-                                                                            ) {
-                                                                                <ng-container
-                                                                                    *ngTemplateOutlet="
-                                                                                        row_template;
-                                                                                        context: {
-                                                                                            $implicit:
-                                                                                                row,
-                                                                                            turn: turn,
-                                                                                        }
-                                                                                    "
-                                                                                />
-                                                                            }
-                                                                        </ul>
+                                                                        <ng-container
+                                                                            *ngTemplateOutlet="
+                                                                                row_template;
+                                                                                context: {
+                                                                                    $implicit:
+                                                                                        row,
+                                                                                    turn: turn,
+                                                                                }
+                                                                            "
+                                                                        />
                                                                     }
-                                                                </div>
+                                                                </ul>
                                                             }
                                                         </div>
                                                     }
@@ -531,10 +564,10 @@ const SECTION_ORDER: readonly OpCategory[] = [
                                                     hasReasons()
                                                 ) {
                                                     <div
-                                                        class="reasons small"
+                                                        class="reasons"
                                                         reasons
                                                     >
-                                                        <span class="muted">{{
+                                                        <span class="meta">{{
                                                             t.strings
                                                                 .reason_prompt
                                                         }}</span>
@@ -623,7 +656,7 @@ const SECTION_ORDER: readonly OpCategory[] = [
                                         }
                                         <button
                                             type="button"
-                                            class="btn inverse"
+                                            class="btn quiet"
                                             [class.wide]="
                                                 phase().kind !== 'applied'
                                             "
@@ -641,7 +674,9 @@ const SECTION_ORDER: readonly OpCategory[] = [
                                     </div>
                                 }
                             }
-                            @if (t.turns().length || phase().kind === 'running') {
+                            @if (
+                                t.turns().length || phase().kind === 'running'
+                            ) {
                                 <ng-container
                                     *ngTemplateOutlet="
                                         composer_template;
@@ -671,45 +706,10 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 composer
                 (submit)="send($event)"
             >
-                <label for="map-editor-ai-draft">
-                    {{ t.strings.composer_label }}
-                </label>
-                <textarea
-                    id="map-editor-ai-draft"
-                    [class.tall]="first"
-                    [value]="draft()"
-                    [placeholder]="placeholder()"
-                    [disabled]="!t.can_send()"
-                    [attr.aria-invalid]="too_long()"
-                    (input)="onDraft($event)"
-                    (keydown)="onKeydown($event)"
-                ></textarea>
-                <div class="footer" chips>
-                    @if (selection_count() > 0) {
-                        <span class="chip" selection-chip>
-                            {{ selectionText() }}
-                            <button
-                                type="button"
-                                class="clear"
-                                [attr.aria-label]="t.strings.clear_selection"
-                                (click)="clearSelection()"
-                            >
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path [attr.d]="icons.close" />
-                                </svg>
-                            </button>
-                        </span>
-                    }
-                    @if (chars_note()) {
-                        <span
-                            class="small muted"
-                            [class.error]="too_long()"
-                            chars
-                        >
-                            {{ chars_note() }}
-                        </span>
-                    }
-                    <span class="grow"></span>
+                <div class="composer-head">
+                    <label class="label" for="map-editor-ai-draft">
+                        {{ t.strings.composer_label }}
+                    </label>
                     @if (t.turns().length) {
                         <button
                             type="button"
@@ -720,17 +720,54 @@ const SECTION_ORDER: readonly OpCategory[] = [
                             {{ t.strings.new_request }}
                         </button>
                     }
-                    <button
-                        type="submit"
-                        class="btn"
-                        send
-                        [disabled]="!can_send()"
-                    >
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path [attr.d]="icons.send" />
-                        </svg>
-                        {{ t.strings.send }}
-                    </button>
+                </div>
+                <div class="field" [class.invalid]="too_long()">
+                    <textarea
+                        id="map-editor-ai-draft"
+                        [class.tall]="first"
+                        [value]="draft()"
+                        [placeholder]="placeholder()"
+                        [disabled]="!t.can_send()"
+                        [attr.aria-invalid]="too_long()"
+                        (input)="onDraft($event)"
+                        (keydown)="onKeydown($event)"
+                    ></textarea>
+                    <div class="footer" chips>
+                        @if (selection_count() > 0) {
+                            <span class="chip" selection-chip>
+                                {{ selectionText() }}
+                                <button
+                                    type="button"
+                                    class="clear"
+                                    [attr.aria-label]="
+                                        t.strings.clear_selection
+                                    "
+                                    (click)="clearSelection()"
+                                >
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path [attr.d]="icons.close" />
+                                    </svg>
+                                </button>
+                            </span>
+                        }
+                        @if (chars_note()) {
+                            <span class="meta" [class.error]="too_long()" chars>
+                                {{ chars_note() }}
+                            </span>
+                        }
+                        <span class="grow"></span>
+                        <button
+                            type="submit"
+                            class="btn small"
+                            send
+                            [disabled]="!can_send()"
+                        >
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path [attr.d]="icons.send" />
+                            </svg>
+                            {{ t.strings.send }}
+                        </button>
+                    </div>
                 </div>
             </form>
         </ng-template>
@@ -764,7 +801,7 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 <span class="num" aria-hidden="true">{{ row.index + 1 }}</span>
                 <span class="sr-only">{{ categoryWord(row) }}</span>
                 <span class="body">
-                    <span class="kind muted">{{ row.kind_word }}</span>
+                    <span class="sr-only">{{ row.kind_word }}</span>
                     <button
                         type="button"
                         class="row-text"
@@ -786,7 +823,7 @@ const SECTION_ORDER: readonly OpCategory[] = [
                             </span>
                         }
                         @if (row.depends_on.length) {
-                            <span class="muted" needs>
+                            <span needs>
                                 <svg viewBox="0 0 24 24" aria-hidden="true">
                                     <path [attr.d]="icons.needs" />
                                 </svg>
@@ -794,9 +831,9 @@ const SECTION_ORDER: readonly OpCategory[] = [
                             </span>
                         }
                         @if (row.note) {
-                            <span class="muted">{{ row.note }}</span>
+                            <span>{{ row.note }}</span>
                         }
-                        @for (issue of row.issues; track $index) {
+                        @for (issue of rowIssues(row); track $index) {
                             <span
                                 [class.error]="issue.level === 'error'"
                                 [class.warning]="issue.level === 'warning'"
@@ -813,12 +850,36 @@ const SECTION_ORDER: readonly OpCategory[] = [
     styles: [
         `
             :host {
+                --ai-fg: var(--base-content, #111);
+                --ai-fg-2: color-mix(in srgb, var(--ai-fg) 62%, transparent);
+                --ai-line: color-mix(in srgb, var(--ai-fg) 11%, transparent);
+                --ai-line-strong: color-mix(
+                    in srgb,
+                    var(--ai-fg) 20%,
+                    transparent
+                );
+                --ai-bg: var(--base-100, #fff);
+                --ai-wash: color-mix(in srgb, var(--ai-fg) 3.5%, var(--ai-bg));
+                --ai-card: color-mix(in srgb, var(--ai-bg) 80%, #fff);
+                --ai-accent: var(--secondary, #1f2155);
+                --ai-tint: color-mix(in srgb, var(--ai-fg) 5%, transparent);
+                --ai-radius: 0.75rem;
+
                 display: flex;
                 flex-direction: column;
                 height: 100%;
                 min-height: 0;
-                color: var(--base-content, #111);
+                color: var(--ai-fg);
                 font-size: 0.875rem;
+                line-height: 1.25rem;
+            }
+
+            :host-context(.theme-dark) {
+                --ai-accent: color-mix(
+                    in srgb,
+                    var(--secondary, #1f2155) 40%,
+                    #fff
+                );
             }
 
             .panel {
@@ -841,224 +902,384 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 border: 0;
             }
 
-            .muted {
-                opacity: 0.72;
+            p {
+                margin: 0;
             }
 
-            .small {
+            .meta {
+                color: var(--ai-fg-2);
                 font-size: 0.75rem;
                 line-height: 1rem;
             }
 
             .error {
                 color: var(--error, #dc2626);
-                opacity: 1;
             }
 
             .warning {
-                color: var(--warn, #d97706);
+                color: color-mix(in srgb, var(--warn, #d97706) 70%, #000);
             }
 
             .grow {
                 flex: 1;
+                min-width: 0;
             }
 
             .note {
-                margin: 0;
-                padding: 0.75rem 1rem;
-                font-size: 0.75rem;
-                opacity: 0.72;
-            }
-
-            .head {
-                padding: 0.75rem 1rem;
-                border-bottom: 1px solid var(--base-200, #e5e7eb);
-            }
-
-            .head h2 {
-                margin: 0 0 0.25rem;
-                font-size: 1rem;
-                font-weight: 500;
-                line-height: 1.5rem;
-            }
-
-            .head p {
-                margin: 0;
-                font-size: 0.75rem;
-                line-height: 1rem;
-            }
-
-            .head p + p {
-                margin-top: 0.125rem;
-            }
-
-            .model {
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
+                padding: 1rem;
+                color: var(--ai-fg-2);
                 font-size: 0.75rem;
             }
 
-            .model select {
-                flex: 1;
+            /* Header */
+
+            .head {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 1rem;
+                border-bottom: 1px solid var(--ai-line);
+            }
+
+            .head h2 {
+                margin: 0;
+                font-size: 1rem;
+                font-weight: 600;
+                line-height: 1.5rem;
+            }
+
+            /* Concierge's global label rule sets width, margin and weight. */
+            label.model,
+            label.label {
+                width: auto;
                 min-width: 0;
-                height: 2rem;
-                padding: 0 0.5rem;
-                border: 1px solid var(--base-300, #d4d4d8);
-                border-radius: 0.375rem;
-                background: var(--base-100, #fff);
+                margin: 0;
+            }
+
+            label.model {
+                display: block;
+                font-size: inherit;
+                font-weight: 400;
+            }
+
+            .model select {
+                box-sizing: border-box;
+                width: 100%;
+                height: 2.25rem;
+                padding: 0 2rem 0 0.75rem;
+                border: 1px solid var(--ai-line-strong);
+                border-radius: 0.5rem;
+                background-color: var(--ai-card);
+                background-image:
+                    linear-gradient(45deg, transparent 50%, currentColor 50%),
+                    linear-gradient(135deg, currentColor 50%, transparent 50%);
+                background-position:
+                    right 0.95rem center,
+                    right 0.65rem center;
+                background-size: 0.3rem 0.3rem;
+                background-repeat: no-repeat;
                 color: inherit;
                 font: inherit;
-                font-size: 0.875rem;
+                font-size: 0.8125rem;
+                appearance: none;
+                cursor: pointer;
             }
+
+            .model select:hover {
+                border-color: color-mix(in srgb, var(--ai-fg) 35%, transparent);
+            }
+
+            .head .meta + .meta {
+                margin-top: -0.25rem;
+            }
+
+            /* Thread */
 
             .thread {
                 display: flex;
                 flex: 1;
                 flex-direction: column;
-                gap: 0.75rem;
+                gap: 1rem;
                 min-height: 0;
                 margin: 0;
-                padding: 0.75rem 1rem;
+                padding: 1rem;
                 overflow: auto;
                 list-style: none;
+                background: var(--ai-wash);
             }
 
             .thread.empty {
+                flex: 0;
                 padding: 0;
             }
 
             .person {
-                margin-left: 2rem;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 0.25rem;
+                margin-left: 2.5rem;
             }
 
             .bubble {
-                margin: 0;
-                padding: 0.5rem 0.75rem;
-                border-radius: 0.5rem;
-                background: var(--base-200, #f4f4f5);
-                line-height: 1.25rem;
-                white-space: pre-wrap;
-            }
-
-            .meta {
-                margin: 0.125rem 0 0;
-                font-size: 0.75rem;
+                padding: 0.75rem 1rem;
+                border-radius: var(--ai-radius) var(--ai-radius) 0.25rem
+                    var(--ai-radius);
+                background: color-mix(
+                    in srgb,
+                    var(--ai-accent) 9%,
+                    var(--ai-card)
+                );
+                white-space: pre-line;
             }
 
             .status {
                 display: flex;
                 align-items: center;
-                gap: 0.5rem;
-                padding: 0.5rem 0.75rem;
-                border: 1px solid var(--base-300, #d4d4d8);
-                border-radius: 0.5rem;
+                gap: 0.625rem;
+                padding: 0.75rem 1rem;
+                border: 1px solid var(--ai-line);
+                border-radius: var(--ai-radius);
+                background: var(--ai-card);
+                color: var(--ai-fg-2);
             }
 
             .status.failed {
-                border-color: var(--error, #dc2626);
+                border-color: color-mix(
+                    in srgb,
+                    var(--error, #dc2626) 35%,
+                    transparent
+                );
+                background: color-mix(
+                    in srgb,
+                    var(--error, #dc2626) 6%,
+                    var(--ai-card)
+                );
+                color: var(--ai-fg);
             }
 
-            .proposal.inactive {
-                opacity: 0.6;
+            /* Proposal card */
+
+            .card {
+                border: 1px solid var(--ai-line);
+                border-radius: var(--ai-radius);
+                background: var(--ai-card);
+                box-shadow: 0 1px 2px
+                    color-mix(in srgb, var(--ai-fg) 5%, transparent);
             }
 
-            .title-row {
-                display: flex;
-                align-items: baseline;
-                justify-content: space-between;
-                gap: 0.5rem;
-                padding: 0 0.125rem 0.375rem;
+            .card.inactive {
+                opacity: 0.65;
             }
 
-            .title-row strong {
-                font-size: 1rem;
-                font-weight: 500;
-            }
-
-            .title-row .muted {
-                font-size: 0.75rem;
-            }
-
-            .summary {
-                margin: 0 0.125rem 0.5rem;
-                line-height: 1.25rem;
-            }
-
-            .question {
-                margin: 0 0 0.5rem;
-                padding: 0.25rem 0.5rem;
-                border-radius: 0.375rem;
-                background: var(--base-200, #f4f4f5);
-            }
-
-            .proposal p.small {
-                margin: 0 0.125rem 0.5rem;
-            }
-
-            .verdict {
+            .card-head {
                 display: flex;
                 align-items: center;
+                justify-content: space-between;
+                gap: 0.75rem;
+                padding: 1rem 1rem 0;
+            }
+
+            .card-head h3 {
+                margin: 0;
+                font-size: 0.875rem;
+                font-weight: 600;
+            }
+
+            .badge {
+                display: inline-flex;
+                flex: none;
+                align-items: center;
                 gap: 0.375rem;
-                margin: 0 0.125rem 0.5rem;
+                padding: 0.125rem 0.5rem;
+                border-radius: 999px;
+                background: var(--ai-tint);
+                color: var(--ai-fg-2);
                 font-size: 0.75rem;
+                font-weight: 500;
                 line-height: 1rem;
             }
 
-            .verdict svg {
+            .badge::before {
+                content: '';
+                width: 0.375rem;
+                height: 0.375rem;
+                border-radius: 999px;
+                background: currentColor;
+            }
+
+            .badge[data-outcome='previewing'] {
+                background: color-mix(
+                    in srgb,
+                    var(--info, #2563eb) 12%,
+                    transparent
+                );
+                color: color-mix(in srgb, var(--info, #2563eb) 75%, #000);
+            }
+
+            .badge[data-outcome='kept'],
+            .badge[data-outcome='partial'],
+            .badge[data-outcome='refined'],
+            .badge[data-outcome='abandoned'] {
+                background: color-mix(
+                    in srgb,
+                    var(--success, #16a34a) 12%,
+                    transparent
+                );
+                color: color-mix(in srgb, var(--success, #16a34a) 70%, #000);
+            }
+
+            .badge[data-outcome='questions'] {
+                background: color-mix(
+                    in srgb,
+                    var(--warn, #d97706) 16%,
+                    transparent
+                );
+                color: color-mix(in srgb, var(--warn, #d97706) 45%, #000);
+            }
+
+            .badge[data-outcome='failed'],
+            .badge[data-outcome='not_applied'] {
+                background: color-mix(
+                    in srgb,
+                    var(--error, #dc2626) 10%,
+                    transparent
+                );
+                color: var(--error, #dc2626);
+            }
+
+            :host-context(.theme-dark) .badge {
+                color: var(--ai-fg);
+            }
+
+            .card-body {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 0.5rem 1rem 1rem;
+            }
+
+            .summary {
+                line-height: 1.375rem;
+            }
+
+            .callout {
+                display: flex;
+                flex-direction: column;
+                gap: 0.375rem;
+                padding: 0.75rem;
+                border-left: 3px solid var(--ai-line-strong);
+                border-radius: 0.25rem 0.5rem 0.5rem 0.25rem;
+                background: var(--ai-tint);
+                color: var(--ai-fg);
+                font-size: 0.8125rem;
+            }
+
+            p.callout {
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .callout.ask {
+                border-left-color: var(--warn, #d97706);
+                background: color-mix(
+                    in srgb,
+                    var(--warn, #d97706) 9%,
+                    transparent
+                );
+            }
+
+            .callout.error {
+                border-left-color: var(--error, #dc2626);
+                background: color-mix(
+                    in srgb,
+                    var(--error, #dc2626) 7%,
+                    transparent
+                );
+                color: var(--ai-fg);
+            }
+
+            .callout svg {
                 width: 1rem;
                 height: 1rem;
                 flex: none;
-                fill: currentColor;
+                margin-top: 0.125rem;
+                fill: var(--error, #dc2626);
+            }
+
+            .question {
+                font-weight: 500;
+            }
+
+            .head .callout {
+                font-size: 0.75rem;
+                line-height: 1rem;
             }
 
             .thumbs {
                 display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 0.5rem;
-                margin: 0 0 0.625rem;
             }
 
             .thumbs figure {
                 display: flex;
-                align-items: center;
-                gap: 0.375rem;
+                flex-direction: column;
+                gap: 0.25rem;
                 margin: 0;
             }
 
             .thumbs img {
-                flex: 1;
-                min-width: 0;
-                border: 1px solid var(--base-300, #d4d4d8);
-                border-radius: 0.25rem;
-                background: var(--base-200, #f4f4f5);
+                display: block;
+                width: 100%;
+                aspect-ratio: 16 / 9;
+                object-fit: contain;
+                border: 1px solid var(--ai-line);
+                border-radius: 0.5rem;
+                background: var(--ai-wash);
             }
 
             .thumbs figcaption {
+                color: var(--ai-fg-2);
                 font-size: 0.75rem;
+                line-height: 1rem;
             }
 
-            .changes {
-                border: 1px solid var(--base-300, #d4d4d8);
-                border-radius: 0.5rem;
-            }
+            /* Change list */
 
-            .section + .section {
-                border-top: 1px solid var(--base-200, #e5e7eb);
+            .section {
+                padding: 0.5rem;
+                border-top: 1px solid var(--ai-line);
             }
 
             .section-head {
                 display: flex;
                 align-items: center;
                 gap: 0.625rem;
-                padding: 0.625rem 0.625rem 0.25rem;
-                font-size: 0.75rem;
-                font-weight: 500;
-                letter-spacing: 0.02em;
+                min-height: 2rem;
+                padding: 0 0.5rem;
             }
 
-            .section-head .count {
-                font-weight: 400;
+            .section-label {
+                font-size: 0.75rem;
+                font-weight: 600;
+                line-height: 1rem;
+            }
+
+            .count {
+                min-width: 1.25rem;
+                padding: 0 0.375rem;
+                border-radius: 999px;
+                background: var(--ai-tint);
+                color: var(--ai-fg-2);
+                font-size: 0.6875rem;
+                font-weight: 600;
+                line-height: 1.125rem;
+                text-align: center;
             }
 
             .section-head .link {
@@ -1070,12 +1291,20 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 width: 1rem;
                 height: 1rem;
                 margin: 0;
-                accent-color: var(--secondary, #1f2155);
+                accent-color: var(--ai-accent);
+                cursor: pointer;
+            }
+
+            input[type='checkbox']:disabled {
+                cursor: default;
             }
 
             .rows {
+                display: flex;
+                flex-direction: column;
+                gap: 0.125rem;
                 margin: 0;
-                padding: 0 0 0.25rem;
+                padding: 0;
                 list-style: none;
             }
 
@@ -1083,13 +1312,18 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 display: flex;
                 align-items: flex-start;
                 gap: 0.625rem;
-                padding: 0.5rem 0.625rem;
-                border-radius: 0.375rem;
-                line-height: 1.25rem;
+                padding: 0.5rem;
+                border-radius: 0.5rem;
+                font-size: 0.8125rem;
+            }
+
+            .row:hover,
+            .row.hot {
+                background: var(--ai-tint);
             }
 
             .row input[type='checkbox'] {
-                margin-top: 1px;
+                margin-top: 0.125rem;
             }
 
             .row .spacer {
@@ -1097,25 +1331,17 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 width: 1rem;
             }
 
-            .row.hot {
-                background: color-mix(
-                    in srgb,
-                    var(--primary, #2563eb) 10%,
-                    transparent
-                );
-            }
-
             .num {
+                box-sizing: border-box;
                 flex: none;
-                min-width: 22px;
-                height: 22px;
-                margin-top: -2px;
-                padding: 0 4px;
-                border: 2px solid var(--info, #2563eb);
+                min-width: 1.25rem;
+                height: 1.25rem;
+                padding: 0 0.25rem;
+                border: 1.5px solid var(--info, #2563eb);
                 border-radius: 999px;
-                font-size: 0.75rem;
-                font-weight: 700;
-                line-height: 18px;
+                font-size: 0.6875rem;
+                font-weight: 600;
+                line-height: calc(1.25rem - 3px);
                 text-align: center;
             }
 
@@ -1140,13 +1366,11 @@ const SECTION_ORDER: readonly OpCategory[] = [
             }
 
             .row .body {
+                display: flex;
                 flex: 1;
+                flex-direction: column;
+                gap: 0.125rem;
                 min-width: 0;
-            }
-
-            .kind {
-                margin-right: 0.25rem;
-                font-size: 0.75rem;
             }
 
             .row-text {
@@ -1156,19 +1380,20 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 color: inherit;
                 font: inherit;
                 text-align: left;
+                overflow-wrap: anywhere;
                 cursor: pointer;
             }
 
             .row-text:hover {
                 text-decoration: underline;
+                text-underline-offset: 2px;
             }
 
             .notes {
                 display: flex;
-                flex-wrap: wrap;
-                align-items: center;
-                gap: 0.25rem 0.5rem;
-                margin-top: 0.125rem;
+                flex-direction: column;
+                gap: 0.125rem;
+                color: var(--ai-fg-2);
                 font-size: 0.75rem;
                 line-height: 1rem;
             }
@@ -1179,7 +1404,7 @@ const SECTION_ORDER: readonly OpCategory[] = [
 
             .notes > span {
                 display: inline-flex;
-                align-items: center;
+                align-items: flex-start;
                 gap: 0.25rem;
             }
 
@@ -1187,75 +1412,101 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 width: 0.875rem;
                 height: 0.875rem;
                 flex: none;
+                margin-top: 0.0625rem;
                 fill: currentColor;
             }
 
-            .link {
-                padding: 0 0.25rem;
-                border: none;
-                background: none;
-                color: inherit;
-                font: inherit;
-                font-size: 0.75rem;
-                font-weight: 500;
-                opacity: 0.8;
-                text-decoration: underline;
-                cursor: pointer;
-            }
-
-            .link:disabled {
-                opacity: 0.4;
-                cursor: default;
-            }
+            /* Feedback */
 
             .reasons {
                 display: flex;
                 flex-wrap: wrap;
                 align-items: center;
-                gap: 0.25rem;
-                margin: 0.5rem 0.125rem 0;
+                gap: 0.5rem;
+                padding: 1rem;
+                border-top: 1px solid var(--ai-line);
+            }
+
+            .reasons .meta {
+                width: 100%;
+            }
+
+            /* Controls */
+
+            .link {
+                padding: 0.125rem 0.25rem;
+                border: none;
+                border-radius: 0.25rem;
+                background: none;
+                color: var(--ai-fg-2);
+                font: inherit;
+                font-size: 0.75rem;
+                font-weight: 500;
+                line-height: 1rem;
+                cursor: pointer;
+            }
+
+            .link:hover {
+                color: var(--ai-fg);
+                text-decoration: underline;
+                text-underline-offset: 2px;
+            }
+
+            .link:disabled {
+                opacity: 0.4;
+                cursor: default;
+                text-decoration: none;
             }
 
             .chip {
                 display: inline-flex;
                 align-items: center;
                 gap: 0.25rem;
-                height: 1.5rem;
-                padding: 0 0.5rem;
-                border: none;
+                height: 1.625rem;
+                padding: 0 0.625rem;
+                border: 1px solid transparent;
                 border-radius: 999px;
-                background: var(--base-200, #f4f4f5);
+                background: var(--ai-tint);
                 color: inherit;
                 font: inherit;
                 font-size: 0.75rem;
                 font-weight: 500;
                 white-space: nowrap;
-                cursor: default;
             }
 
             button.chip {
-                border: 1px solid var(--base-300, #d4d4d8);
+                border-color: var(--ai-line-strong);
                 background: transparent;
                 cursor: pointer;
             }
 
+            button.chip:hover {
+                background: var(--ai-tint);
+            }
+
             button.chip.on {
-                background: var(--base-200, #f4f4f5);
+                border-color: var(--ai-accent);
+                background: color-mix(
+                    in srgb,
+                    var(--ai-accent) 10%,
+                    transparent
+                );
             }
 
             .chip .clear {
                 display: inline-flex;
-                margin-left: 0.125rem;
+                margin-right: -0.25rem;
                 padding: 0;
                 border: none;
+                border-radius: 999px;
                 background: none;
                 color: inherit;
                 cursor: pointer;
             }
 
             .chip svg {
-                width: 1rem;
-                height: 1rem;
+                width: 0.875rem;
+                height: 0.875rem;
                 fill: currentColor;
             }
 
@@ -1264,7 +1515,8 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 0.5rem;
                 padding: 0.75rem 1rem;
-                border-top: 1px solid var(--base-200, #e5e7eb);
+                border-top: 1px solid var(--ai-line);
+                background: var(--ai-bg);
             }
 
             .decide .wide {
@@ -1275,92 +1527,125 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                gap: 0.5rem;
-                min-height: 3rem;
+                gap: 0.375rem;
+                height: 2.5rem;
                 padding: 0 1rem;
-                border: 1px solid var(--secondary, #1f2155);
+                border: 1px solid var(--ai-accent);
                 border-radius: 0.5rem;
-                background: var(--secondary, #1f2155);
+                background: var(--ai-accent);
                 color: var(--secondary-content, #fff);
                 font: inherit;
-                font-weight: 500;
+                font-weight: 600;
                 white-space: nowrap;
                 cursor: pointer;
             }
 
-            .btn.inverse {
-                border-color: transparent;
-                background: color-mix(
-                    in srgb,
-                    var(--secondary, #1f2155) 15%,
-                    transparent
-                );
-                color: var(--secondary, #1f2155);
+            .btn:hover {
+                background: color-mix(in srgb, var(--ai-accent) 88%, #000);
             }
 
-            :host-context(.theme-dark) .btn.inverse {
-                background: color-mix(in srgb, #fff 15%, transparent);
-                color: #fff;
+            .btn.quiet {
+                border-color: var(--ai-line-strong);
+                background: var(--ai-card);
+                color: var(--ai-fg);
+            }
+
+            .btn.quiet:hover {
+                background: var(--ai-tint);
+            }
+
+            .btn.small {
+                height: 2rem;
+                padding: 0 0.75rem;
+                font-size: 0.8125rem;
             }
 
             .btn:disabled {
-                opacity: 0.3;
+                opacity: 0.35;
                 pointer-events: none;
             }
 
             .btn svg {
-                width: 1.25rem;
-                height: 1.25rem;
+                width: 1.125rem;
+                height: 1.125rem;
                 fill: currentColor;
             }
 
+            .btn.small svg {
+                width: 1rem;
+                height: 1rem;
+            }
+
+            /* Composer */
+
             .composer {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
                 padding: 0.75rem 1rem 1rem;
-                border-top: 1px solid var(--base-200, #e5e7eb);
+                border-top: 1px solid var(--ai-line);
+                background: var(--ai-bg);
             }
 
             .composer.first {
-                padding: 1rem;
+                padding-top: 1rem;
                 border-top: none;
             }
 
-            .composer label {
-                display: block;
-                margin-bottom: 0.375rem;
-                font-size: 0.75rem;
-                font-weight: 500;
+            .composer-head {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.5rem;
+                min-height: 1.25rem;
             }
 
-            .composer textarea {
+            .label {
+                font-size: 0.75rem;
+                font-weight: 600;
+                line-height: 1rem;
+            }
+
+            .field {
+                border: 1px solid var(--ai-line-strong);
+                border-radius: 0.625rem;
+                background: var(--ai-card);
+            }
+
+            .field:focus-within {
+                border-color: var(--ai-accent);
+                box-shadow: 0 0 0 3px
+                    color-mix(in srgb, var(--ai-accent) 15%, transparent);
+            }
+
+            .field.invalid {
+                border-color: var(--error, #dc2626);
+            }
+
+            .field textarea {
+                display: block;
                 box-sizing: border-box;
                 width: 100%;
-                height: 5.25rem;
-                padding: 0.625rem 0.75rem;
-                border: 1px solid var(--base-300, #d4d4d8);
-                border-radius: 0.5rem;
-                background: var(--base-100, #fff);
+                height: 4.5rem;
+                padding: 0.625rem 0.75rem 0.25rem;
+                border: none;
+                outline: none;
+                background: transparent;
                 color: inherit;
                 font: inherit;
-                line-height: 1.4;
+                line-height: 1.375rem;
                 resize: none;
             }
 
-            .composer textarea.tall {
-                height: 9rem;
+            .field textarea::placeholder {
+                color: color-mix(in srgb, var(--ai-fg) 45%, transparent);
             }
 
-            .composer textarea:focus-visible,
-            .row-text:focus-visible,
-            .link:focus-visible,
-            .btn:focus-visible,
-            .chip .clear:focus-visible,
-            button.chip:focus-visible,
-            input[type='checkbox']:focus-visible {
-                outline: 2px solid var(--primary, #2563eb);
-                outline-offset: 2px;
+            .field textarea.tall {
+                height: 8rem;
             }
 
-            .composer textarea:disabled {
+            .field textarea:disabled {
                 opacity: 0.6;
             }
 
@@ -1368,10 +1653,26 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
-                margin-top: 0.5rem;
+                padding: 0.375rem 0.375rem 0.375rem 0.75rem;
+            }
+
+            .footer .meta.error {
+                color: var(--error, #dc2626);
+            }
+
+            .row-text:focus-visible,
+            .link:focus-visible,
+            .btn:focus-visible,
+            .chip .clear:focus-visible,
+            button.chip:focus-visible,
+            .model select:focus-visible,
+            input[type='checkbox']:focus-visible {
+                outline: 2px solid var(--primary, #2563eb);
+                outline-offset: 2px;
             }
 
             .spinner {
+                flex: none;
                 width: 1rem;
                 height: 1rem;
                 border-radius: 9999px;
@@ -1391,11 +1692,14 @@ const SECTION_ORDER: readonly OpCategory[] = [
                 .num,
                 .btn,
                 .link,
+                .field,
+                .model select,
                 button.chip {
                     transition:
                         background-color 120ms,
+                        border-color 120ms,
                         box-shadow 120ms,
-                        outline-color 120ms;
+                        color 120ms;
                 }
             }
 
@@ -1604,7 +1908,10 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
                 const turn = list.querySelector<HTMLElement>(
                     `[proposal-card][data-job="${id}"]`,
                 );
-                if (turn) list.scrollTop = turn.offsetTop - list.offsetTop;
+                if (!turn) return;
+                const inset =
+                    parseFloat(getComputedStyle(list).paddingTop) || 0;
+                list.scrollTop = turn.offsetTop - list.offsetTop - inset;
             });
         });
         effect((onCleanup) => {
@@ -1727,7 +2034,20 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
         });
     }
 
-    /** The proposal's rows by category, in the order added, changed, removed, question, none. */
+    /** The row's issues without repeats, and without one that only repeats its note. */
+    public rowIssues(row: ProposalRow): ProposalRow['issues'] {
+        const seen = new Set(row.note ? [row.note] : []);
+        return row.issues.filter((issue) => {
+            if (seen.has(issue.message)) return false;
+            seen.add(issue.message);
+            return true;
+        });
+    }
+
+    /**
+     * The proposal's rows by category, in the order added, changed, removed,
+     * question, none. Questions already shown above the list are left out.
+     */
     public sectionsOf(proposal: Proposal): PanelSection[] {
         const thread = this.thread();
         if (!thread) return [];
@@ -1737,7 +2057,14 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
                 (row) => row.category === category,
             );
             if (!rows.length) continue;
-            const tickable = rows.filter((row) => row.actionable && !row.locked);
+            if (
+                category === 'question' &&
+                rows.every((row) => proposal.questions.includes(row.text))
+            )
+                continue;
+            const tickable = rows.filter(
+                (row) => row.actionable && !row.locked,
+            );
             const ticked = tickable.filter((row) => row.checked).length;
             const group: ProposalGroup | null =
                 tickable.length >= 3
