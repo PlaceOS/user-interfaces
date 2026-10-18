@@ -2840,6 +2840,27 @@ describe('SignageService', () => {
         expect(spectator.service.display()?.id).toBe('display-1');
     });
 
+    it('should save the display for offline use only when it changes', async () => {
+        const save = vi.spyOn(Object.getPrototypeOf(localStorage), 'setItem');
+        const saves = () =>
+            save.mock.calls.filter(
+                ([key]) => key === 'PlaceOS.SIGNAGE.display_details.display-1',
+            ).length;
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+        await spectator.service.refresh();
+
+        expect(saves()).toBe(1);
+
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(create_display({ name: 'Renamed' })),
+        );
+        await spectator.service.refresh();
+
+        expect(saves()).toBe(2);
+    });
+
     it('should ignore a saved display that cannot be read', async () => {
         localStorage.setItem(
             'PlaceOS.SIGNAGE.display_details.display-1',
