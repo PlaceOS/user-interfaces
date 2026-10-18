@@ -53,6 +53,10 @@ describe('MediaPlayerComponent', () => {
             configurable: true,
             value: vi.fn(),
         });
+        Object.defineProperty(HTMLMediaElement.prototype, 'load', {
+            configurable: true,
+            value: vi.fn(),
+        });
         Object.defineProperty(URL, 'revokeObjectURL', {
             configurable: true,
             value: vi.fn(),
@@ -379,7 +383,7 @@ describe('MediaPlayerComponent', () => {
         expect(pause_spy).toHaveBeenCalled();
     });
 
-    it('should pause video playback when the video output is no longer active', () => {
+    it('should unload the video when its output is no longer active', () => {
         const video_item = create_item('video-1', { type: 'video' });
         const image_item = create_item('image-1');
         load_playlist([video_item, image_item]);
@@ -387,19 +391,43 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_output_items'] = [video_item, image_item];
         spectator.component['_item_output'].set('video-1', 0);
         spectator.component['_item_output'].set('image-1', 1);
+        const video = spectator.component['_video_element'](0).nativeElement;
+        video.setAttribute('src', 'blob:video-1');
         const video_pause = vi.fn();
-        Object.defineProperty(
-            spectator.component['_video_element'](0).nativeElement,
-            'pause',
-            {
-                configurable: true,
-                value: video_pause,
-            },
-        );
+        const video_load = vi.fn();
+        Object.defineProperty(video, 'pause', {
+            configurable: true,
+            value: video_pause,
+        });
+        Object.defineProperty(video, 'load', {
+            configurable: true,
+            value: video_load,
+        });
 
         spectator.component['_cleanupInactiveOutputs']();
 
         expect(video_pause).toHaveBeenCalled();
+        expect(video.hasAttribute('src')).toBe(false);
+        expect(video_load).toHaveBeenCalled();
+    });
+
+    it('should keep a dropped video on screen until it is swapped out', () => {
+        const video_item = create_item('video-1', { type: 'video' });
+        const image_item = create_item('image-1');
+        load_playlist([video_item, image_item]);
+        spectator.component.active_output.set(0);
+        spectator.component['_output_items'] = [video_item, image_item];
+        const video = spectator.component['_video_element'](0).nativeElement;
+        video.setAttribute('src', 'blob:video-1');
+
+        spectator.component['_dropItemState'](new Set(['image-1']));
+
+        expect(video.hasAttribute('src')).toBe(true);
+
+        spectator.component.active_output.set(1);
+        spectator.component['_cleanupInactiveOutputs']();
+
+        expect(video.hasAttribute('src')).toBe(false);
     });
 
     it('should emit playlist metrics when advancing from the last valid playlist item', async () => {

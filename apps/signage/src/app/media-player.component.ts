@@ -1048,7 +1048,7 @@ export class MediaPlayerComponent
     private _clearOutput(output: 0 | 1) {
         const item = this._output_items[output];
         this._hideMediaElements(output);
-        if (item?.type === 'video') this._pauseOutputVideo(output);
+        this._releaseOutputVideo(output);
         this._web_element(output).nativeElement.removeAttribute('src');
         if (item) {
             this._item_output.delete(item.id);
@@ -1814,15 +1814,28 @@ export class MediaPlayerComponent
             const item = this._output_items[output];
             if (item?.type === 'webpage' || item?.type === 'plugin') {
                 this._clearOutput(output);
-            } else if (item?.type === 'video') {
-                this._pauseOutputVideo(output);
+            } else {
+                // Also when nothing is tracked here: a playlist change can
+                // drop the item while its video is still on screen, and it
+                // is only safe to unload once it has been swapped out
+                this._releaseOutputVideo(output);
             }
         }
     }
 
-    private _pauseOutputVideo(output: 0 | 1) {
-        this._video_element(output).nativeElement.pause();
+    /**
+     * Unload the video on an output that is off screen. A paused video keeps
+     * its decoder and buffers, and players often have only one or two hardware
+     * decoders. Keeping it gains nothing: showing the item again sets its
+     * source, which reloads it anyway.
+     */
+    private _releaseOutputVideo(output: 0 | 1) {
+        const video = this._video_element(output).nativeElement;
         this._last_video_speed.delete(output);
+        if (!video.hasAttribute('src')) return;
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
     }
 
     private _shouldTransition(
