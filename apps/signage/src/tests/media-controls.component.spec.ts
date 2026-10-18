@@ -307,11 +307,32 @@ describe('MediaProgressBarComponent', () => {
         ).toBe('30');
     });
 
+    it('should not request animation frames while paused', () => {
+        spectator = create_component({
+            props: {
+                state: 'PAUSED',
+                progress: 40,
+                playback_start: 1000,
+                playback_duration: 10000,
+            },
+        });
+        spectator.detectChanges();
+
+        expect(spectator.component['_animation_frame']).toBe(0);
+        expect(bar_scale()).toBe('scaleX(0.4)');
+    });
+
     it('should cancel the pending animation frame on destroy', () => {
         const cancel_spy = vi.spyOn(window, 'cancelAnimationFrame');
-        spectator = create_component({ props: { progress: 10 } });
+        spectator = create_component({
+            props: {
+                state: 'PLAYING',
+                playback_start: 1000,
+                playback_duration: 10000,
+            },
+        });
         spectator.detectChanges();
-        spectator.component['_updateProgress']();
+        cancel_spy.mockClear();
 
         spectator.fixture.destroy();
 

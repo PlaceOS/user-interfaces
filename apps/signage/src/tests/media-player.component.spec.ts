@@ -411,6 +411,20 @@ describe('MediaPlayerComponent', () => {
         expect(video_load).toHaveBeenCalled();
     });
 
+    it('should pass progress to the debug controls only when they cannot work it out', () => {
+        const player = spectator.component;
+        player.state.set('PLAYING');
+        player.progress_start.set(1000);
+        player.progress_duration.set(10000);
+        player.progress.set(40);
+
+        expect(player.controls_progress()).toBe(0);
+
+        player.state.set('PAUSED');
+
+        expect(player.controls_progress()).toBe(40);
+    });
+
     it('should keep the outgoing image on screen until the next one is decoded', async () => {
         const items = [create_item('image-1'), create_item('image-2')];
         load_playlist(items);

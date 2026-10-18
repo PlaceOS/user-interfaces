@@ -1,5 +1,6 @@
 import {
     Component,
+    computed,
     ElementRef,
     input,
     linkedSignal,
@@ -211,7 +212,7 @@ function settleWithin(promise: Promise<unknown>, timeout_ms: number) {
                         [loop]="loop()"
                         [muted]="muted()"
                         [shuffle]="shuffle()"
-                        [progress]="progress()"
+                        [progress]="controls_progress()"
                         [duration]="duration()"
                         [playback_start]="progress_start()"
                         [playback_duration]="progress_duration()"
@@ -330,6 +331,19 @@ export class MediaPlayerComponent
 
     public readonly duration = signal(0);
     public readonly progress = signal(0);
+    /**
+     * Progress for the debug controls. Their bar works out progress itself
+     * while an item plays, so the 50 ms updates are only passed on when it
+     * cannot. Otherwise they would re-render the player 20 times a second.
+     */
+    public readonly controls_progress = computed(() =>
+        this.state() === 'PLAYING' &&
+        this.progress_start() > 0 &&
+        this.progress_duration() > 0 &&
+        !this.waiting_for_item()
+            ? 0
+            : this.progress(),
+    );
     public readonly progress_start = signal(0);
     public readonly progress_duration = signal(0);
     public readonly in_animation = signal(false);
