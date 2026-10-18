@@ -411,6 +411,118 @@ describe('MediaPlayerComponent', () => {
         expect(video_load).toHaveBeenCalled();
     });
 
+    it('should keep the outgoing image on screen until the next one is decoded', async () => {
+        const items = [create_item('image-1'), create_item('image-2')];
+        load_playlist(items);
+        spectator.component['_item_urls'] = {
+            'image-1': 'blob:image-1',
+            'image-2': 'blob:image-2',
+        };
+        spectator.component.index.set(0);
+        spectator.component.active_output.set(0);
+        let decoded = () => undefined;
+        Object.defineProperty(
+            spectator.component['_image_element'](1).nativeElement,
+            'decode',
+            {
+                configurable: true,
+                value: () =>
+                    new Promise<void>((resolve) => (decoded = resolve)),
+            },
+        );
+        const flush = async () => {
+            for (let i = 0; i < 5; i++) await Promise.resolve();
+        };
+
+        spectator.component.setPlaylistItem(1);
+        await flush();
+
+        expect(spectator.component.active_output()).toBe(0);
+
+        decoded();
+        await flush();
+
+        expect(spectator.component.active_output()).toBe(1);
+    });
+
+    it('should stay playing when resumed while the next image decodes', async () => {
+        const items = [create_item('image-1'), create_item('image-2')];
+        load_playlist(items);
+        spectator.component['_item_urls'] = {
+            'image-1': 'blob:image-1',
+            'image-2': 'blob:image-2',
+        };
+        spectator.component.index.set(0);
+        spectator.component.active_output.set(0);
+        let decoded = () => undefined;
+        Object.defineProperty(
+            spectator.component['_image_element'](1).nativeElement,
+            'decode',
+            {
+                configurable: true,
+                value: () =>
+                    new Promise<void>((resolve) => (decoded = resolve)),
+            },
+        );
+        const flush = async () => {
+            for (let i = 0; i < 5; i++) await Promise.resolve();
+        };
+
+        spectator.component.setPlaylistItem(1);
+        await flush();
+        // As the embedding shell does when it resumes playback
+        spectator.component.togglePause();
+        decoded();
+        await flush();
+
+        expect(spectator.component.active_output()).toBe(1);
+        expect(spectator.component.state()).toBe('PLAYING');
+    });
+
+    it('should not end a superseded transition while the next image decodes', async () => {
+        vi.useFakeTimers();
+        const items = ['image-1', 'image-2', 'image-3'].map((id) =>
+            create_item(id, { animation: MediaAnimation.CrossFade }),
+        );
+        load_playlist(items);
+        spectator.component['_item_urls'] = {
+            'image-1': 'blob:image-1',
+            'image-2': 'blob:image-2',
+            'image-3': 'blob:image-3',
+        };
+        // The first load is still waiting on URLs; only the race is tested
+        spectator.component['clearTimeout']('wait-for-url');
+        spectator.component.index.set(0);
+        spectator.component.active_output.set(0);
+        let decodes = 0;
+        Object.defineProperty(
+            spectator.component['_image_element'](1).nativeElement,
+            'decode',
+            {
+                configurable: true,
+                // The first image decodes at once, the next never does
+                value: () =>
+                    ++decodes === 1
+                        ? Promise.resolve()
+                        : new Promise<void>(() => undefined),
+            },
+        );
+        const flush = async () => {
+            for (let i = 0; i < 5; i++) await Promise.resolve();
+        };
+
+        spectator.component.setPlaylistItem(1);
+        await flush();
+        // The first transition starts its animation and end timer
+        vi.advanceTimersToNextFrame();
+        spectator.component.setPlaylistItem(2);
+        await flush();
+        vi.advanceTimersByTime(1000);
+
+        expect(spectator.component.active_output()).toBe(0);
+        expect(spectator.component.state()).toBe('PAUSED');
+    });
+
     it('should keep a dropped video on screen until it is swapped out', () => {
         const video_item = create_item('video-1', { type: 'video' });
         const image_item = create_item('image-1');
