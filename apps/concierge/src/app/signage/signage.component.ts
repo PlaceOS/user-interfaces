@@ -3,7 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Router, RouterModule } from '@angular/router';
-import { AsyncHandler, i18n, settingSignal } from '@placeos/common';
+import { AsyncHandler, settingSignal } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { SignageStateService } from './signage-state.service';
@@ -51,7 +51,7 @@ import { SignageStateService } from './signage-state.service';
                                     "
                                     [active]="active_link() == link.id"
                                 >
-                                    {{ link.name }}
+                                    {{ link.name | translate }}
                                 </a>
                             }
                         </nav>
@@ -92,9 +92,9 @@ export class SignageComponent extends AsyncHandler {
 
     public readonly loading = this._state.loading;
     public readonly links = signal([
-        { id: 'Media', name: i18n('APP.CONCIERGE.SIGNAGE_MEDIA') },
-        { id: 'Displays', name: i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS') },
-        { id: 'Zones', name: i18n('APP.CONCIERGE.SIGNAGE_ZONES') },
+        { id: 'Media', name: 'APP.CONCIERGE.SIGNAGE_MEDIA' },
+        { id: 'Displays', name: 'APP.CONCIERGE.SIGNAGE_DISPLAYS' },
+        { id: 'Zones', name: 'APP.CONCIERGE.SIGNAGE_ZONES' },
     ]);
     private readonly _current_url = signal(this._router.url);
 
