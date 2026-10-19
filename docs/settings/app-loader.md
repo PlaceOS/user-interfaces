@@ -10,14 +10,7 @@ All keys below live under the `app` settings key.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `name` | string | `"Applications"` | Name of the application. Used as the suffix on browser page titles. |
-| `title` | string | `"PlaceOS"` | Base browser page title for the application. |
-| `description` | string | `"Application launcher"` | Description of the application. |
-| `short_name` | string | `"PlaceOS"` | Short name of the application. |
-| `logo_light` | string | `"assets/logo-light.svg"` | Application logo for light backgrounds. Not currently displayed by the launcher — each tile shows the target application's own favicon instead. |
-| `logo_dark` | string | `"assets/logo-dark.svg"` | Application logo for dark backgrounds. Not currently displayed by the launcher. |
-| `general` | object | `{}` | General settings associated with the app. |
-| `prevent_space_init` | boolean | `true` | Prevents the shared spaces service from loading every bookable space at startup. The App Loader has no space features, so leave this on. |
+| `name` | string | `"Applications"` | If the URL pathname is empty, the app uses this name as the prefix for console log messages. |
 | `application_restrictions` | array | `[]` | Rules that limit which applications are visible to which user groups. See below. |
 
 ## Application Restrictions

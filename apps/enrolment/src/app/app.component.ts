@@ -136,11 +136,12 @@ export class AppComponent extends AsyncHandler implements OnInit {
             return;
         }
         setupCache(this._cache, this._settings.get('service_worker') || {});
+        // Apply the domain config first, so it can set `internal_user_domain`
+        this._settings.setOverrides([authority.config?.enrolment || {}]);
         setInternalUserDomain(
             this._settings.get('app.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`,
         );
-        this._settings.setOverrides([authority.config?.enrolment || {}]);
         this.timeout('init_uploads', async () => {
             // Loaded on demand to keep the upload library out of the initial bundle
             const {

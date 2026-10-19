@@ -4,42 +4,36 @@ The Caterer UI app is the interface used by external caterers to view and manage
 
 Set settings in Backoffice zone metadata under `caterer-ui_app` for the standard `/caterer-ui/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
-## Branding
+## Application name
 
-These settings control how the app presents itself in the browser and in the app header.
+These settings control the name that the app gives to the PlaceOS API and uses in console logs.
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
-| `name` | string | `"Catering"` | Name of the application. Used in the browser page title when no short name is set. |
-| `title` | string | `"PlaceOS"` | Title metadata for the application. |
-| `description` | string | `"Caterers UI"` | Description metadata for the application. |
-| `short_name` | string | `"PlaceOS"` | Short name for the application. Used in browser page titles and as the app identifier. |
-| `logo` | object (Icon) | Built-in light logo | Logo shown when the app is using the light theme. See [Icon objects](#icon-objects). |
-| `logo_dark` | object (Icon) | Built-in dark logo | Logo shown when the app is using the dark theme. See [Icon objects](#icon-objects). |
-
-Example — using your own logos:
-
-```json
-{
-    "name": "Acme Catering",
-    "short_name": "Acme",
-    "logo": {
-        "type": "img",
-        "src": "https://example.com/assets/acme-logo-light.svg"
-    },
-    "logo_dark": {
-        "type": "img",
-        "src": "https://example.com/assets/acme-logo-dark.svg"
-    }
-}
-```
+| `name` | string | `"Catering"` | Application name for the PlaceOS API client. If the URL pathname is empty, the app also uses this name to make the settings metadata key. |
+| `short_name` | string | `"PlaceOS"` | Prefix for console log messages. The app also uses it as the API client application name if `name` is not set. |
 
 ## Behaviour
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
-| `general` | object | `{}` | General settings associated with the app. |
-| `use_region` | boolean | – | When enabled, the level filter lists levels for the whole active region instead of only the active building, showing the parent building name under each level. Useful when a caterer services multiple buildings. |
+| `use_region` | boolean | – | When enabled, the app uses the active region instead of the active building. The level filter lists the levels of the whole region, with the parent building name under each level. The app also loads the orders for the whole region. Useful when a caterer services multiple buildings. |
+| `currency` | string | – | Currency code for menu prices, e.g. `"AUD"`. When not set, the app uses the currency of the active building, then `"USD"`. |
+| `catering_provider_groups` | object | – | Map of caterer names to the user groups that can see each caterer. When set, the caterer filters list only the caterers for the user's groups. Users in `placeos_admin` or `placeos_support` see all caterers in the order list. |
+| `catering.use_bookings` | boolean | – | Load catering orders from the bookings API instead of calendar events. |
+
+Example:
+
+```json
+{
+    "catering_provider_groups": {
+        "Acme Catering": ["acme-caterers"]
+    },
+    "catering": {
+        "use_bookings": true
+    }
+}
+```
 
 ## Chat
 
@@ -56,15 +50,3 @@ Example:
     }
 }
 ```
-
-## Icon objects
-
-The `logo` and `logo_dark` settings take an icon object with the following fields:
-
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `type` | string | Yes | Type of icon to render. Either `"img"` (an image from a URL) or `"icon"` (an icon font glyph). |
-| `src` | string | For `img` | URL of the image to display. |
-| `class` | string | No | CSS class to apply to the icon container element. |
-| `content` | string | No | Content to add to the icon container element (e.g. the icon font glyph name). |
-| `background` | string | No | Background colour for the icon. |

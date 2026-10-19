@@ -8,13 +8,8 @@ Set settings in Backoffice on the organisation zone under `survey_app` for the s
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `name` | string | `"Survey"` | Name of the application. Used as the suffix on browser page titles. |
-| `title` | string | `"PlaceOS"` | Base browser page title for the application. |
-| `description` | string | `"Survey UI"` | Description of the application. |
-| `short_name` | string | `"PlaceOS"` | Short name of the application. Used as the app name for PlaceOS API metadata. |
-| `general` | object | `{}` | General settings associated with the app. |
-| `sentry_dsn` | string | – | Sentry DSN for application error reporting. |
-| `prevent_space_init` | boolean | `true` | Prevents the shared spaces service from loading every bookable space at startup. The Survey app has no space features, so leave this on. |
+| `name` | string | `"Survey"` | If the URL pathname is empty, the app uses this name to make the settings metadata key. |
+| `short_name` | string | `"PlaceOS"` | Prefix for console log messages. |
 | `allow_dark_mode` | boolean | `true` | Whether the app is allowed to use the dark theme. When off, the app always renders with the light theme. |
 
 ## Localisation
@@ -43,17 +38,17 @@ Each locale entry:
 
 ## Branding
 
-The logo is shown in the header above the survey. `logo_light` is used with the light theme and `logo_dark` when the dark theme is active. Each accepts either an image URL string or an icon object with a `src` URL.
+The logo is shown in the header above the survey. `logo_light` is used with the light theme and `logo_dark` when the dark theme is active. Each accepts either an image URL string or an object with a `src` URL.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `logo_light` | string or icon object | `"assets/logo-light.svg"` | Logo shown with the light theme. |
-| `logo_dark` | string or icon object | `"assets/logo-dark.svg"` | Logo shown when the dark theme is active. |
+| `logo_light` | string or object | `"assets/logo-light.svg"` | Logo shown with the light theme. |
+| `logo_dark` | string or object | `"assets/logo-dark.svg"` | Logo shown when the dark theme is active. |
 
 ```json
 {
     "logo_light": "https://example.com/assets/company-logo.svg",
-    "logo_dark": { "type": "img", "src": "https://example.com/assets/company-logo-white.svg" }
+    "logo_dark": { "src": "https://example.com/assets/company-logo-white.svg" }
 }
 ```
 
