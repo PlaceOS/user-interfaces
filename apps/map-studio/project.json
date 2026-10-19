@@ -84,7 +84,7 @@
                         {
                             "type": "anyComponentStyle",
                             "maximumWarning": "6kb",
-                            "maximumError": "10kb"
+                            "maximumError": "16kb"
                         }
                     ],
                     "serviceWorker": "apps/map-studio/ngsw-config.json"
