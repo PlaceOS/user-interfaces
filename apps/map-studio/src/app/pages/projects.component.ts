@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -216,7 +216,10 @@ export class ProjectsComponent {
     public readonly form_building = signal('');
 
     constructor() {
-        this.load();
+        effect(() => {
+            this._store.zone_sync_version();
+            void this.load();
+        });
     }
 
     public readonly floorCount = (project: Project) =>

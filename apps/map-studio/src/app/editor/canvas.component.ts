@@ -28,6 +28,7 @@ import {
     computeSnap,
     getHandlePos,
 } from './geometry';
+import { composeSourceSvg, importedObject } from './source-svg';
 
 interface DragState {
     id: string;
@@ -168,6 +169,17 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                     />
                 }
 
+                @if (sourceImage(); as href) {
+                    <image
+                        [attr.href]="href"
+                        x="0"
+                        y="0"
+                        [attr.width]="width()"
+                        [attr.height]="height()"
+                        class="pointer-events-none"
+                    />
+                }
+
                 @if (state.grid_enabled()) {
                     <rect
                         x="0"
@@ -205,7 +217,7 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                     }
                 }
 
-                @for (object of state.visible_objects(); track object.id) {
+                @for (object of drawnObjects(); track object.id) {
                     @switch (object.geometry.type) {
                         @case ('rect') {
                             <g
@@ -502,6 +514,35 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                         stroke-dasharray="4 2"
                         class="pointer-events-none"
                     />
+                    @if (state.selected(); as object) {
+                        @if (
+                            object.metadata?.['source'] === 'svg-import' &&
+                            state.floorplan()?.svg_source &&
+                            !object.locked
+                        ) {
+                            @for (handle of handles; track handle) {
+                                <circle
+                                    [attr.cx]="handleX(object, handle)"
+                                    [attr.cy]="handleY(object, handle)"
+                                    [attr.r]="state.handle_radius()"
+                                    fill="#fff"
+                                    stroke="#3b82f6"
+                                    [attr.stroke-width]="state.stroke_width()"
+                                    [style.cursor]="cursorFor(handle)"
+                                />
+                            }
+                            <circle
+                                [attr.cx]="centerX(object)"
+                                [attr.cy]="rotateHandleY(object)"
+                                [attr.r]="state.handle_radius() * 0.8"
+                                fill="#3b82f6"
+                                stroke="#fff"
+                                [attr.stroke-width]="state.stroke_width() * 0.5"
+                                class="cursor-grab"
+                                (mousedown)="startRotate($event, object)"
+                            />
+                        }
+                    }
                 }
 
                 @if (rect_draw(); as draw) {
@@ -735,7 +776,49 @@ export class CanvasComponent {
         () => this.state.floorplan()?.background_color || '#ffffff',
     );
 
+    public readonly drawnObjects = computed(() =>
+        this.state
+            .visible_objects()
+            .filter(
+                (object) =>
+                    !this.state.floorplan()?.svg_source ||
+                    !importedObject(object),
+            ),
+    );
+
+    /** True while a drag, resize, rotate or vertex drag is under way. */
+    private readonly _pointer_editing = computed(
+        () =>
+            !!this._dragging() ||
+            !!this._resizing() ||
+            !!this._rotating() ||
+            !!this._group_resizing() ||
+            !!this._group_rotating() ||
+            !!this._vertex_drag(),
+    );
+    private _last_source_image: string | null = null;
+
+    /**
+     * The imported map with object edits applied, as an image. It is held
+     * while a pointer edit is under way and composed again on release, since
+     * composing parses and serialises the whole source SVG.
+     */
+    public readonly sourceImage = computed(() => {
+        const floor = this.state.floorplan();
+        if (!floor?.svg_source) return (this._last_source_image = null);
+        if (this._pointer_editing() && this._last_source_image)
+            return this._last_source_image;
+        const visible = new Set(
+            this.state.visible_objects().map((object) => object.id),
+        );
+        const objects = this.state
+            .objects()
+            .map((object) => ({ ...object, visible: visible.has(object.id) }));
+        return (this._last_source_image = `data:image/svg+xml,${encodeURIComponent(composeSourceSvg(floor.svg_source, objects, floor.svg_source_ids))}`);
+    });
+
     public readonly guideImage = computed(() => {
+        if (this.state.floorplan()?.svg_source) return null;
         const layer = this.state.layers().find((l) => l.id === 'guide');
         return layer?.visible === false ? null : this.state.image_url();
     });
@@ -753,7 +836,7 @@ export class CanvasComponent {
     );
 
     public readonly roomOutlines = computed(() =>
-        this.state.visible_objects().filter((o) => o.object_type === 'room'),
+        this.drawnObjects().filter((o) => o.object_type === 'room'),
     );
 
     public readonly selectedRect = computed(() => {
@@ -1816,7 +1899,11 @@ export class CanvasComponent {
         if (!hits.length) return null;
         const onActive = hits.filter((h) => h.onActive);
         const pool = onActive.length ? onActive : hits;
-        pool.sort((a, b) => a.area - b.area);
+        pool.sort((a, b) =>
+            Math.abs(a.area - b.area) < 0.01
+                ? b.object.z_index - a.object.z_index
+                : a.area - b.area,
+        );
         return pool[0].object;
     }
 

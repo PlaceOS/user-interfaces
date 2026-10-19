@@ -1,6 +1,27 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
+import { StoreService } from './data/store.service';
+
+/** Opens the floorplan for a PlaceOS level, which is how Concierge links here. */
+async function openLevel(route: ActivatedRouteSnapshot) {
+    const router = inject(Router);
+    const store = inject(StoreService);
+    const level_id = route.paramMap.get('level_id') ?? '';
+    try {
+        const floorplan = await store.floorplanForLevel(level_id);
+        return router.createUrlTree(['/editor', floorplan.id]);
+    } catch (error) {
+        console.warn(`Failed to open level ${level_id}`, error);
+        return router.createUrlTree(['/']);
+    }
+}
 
 export const routes: Routes = [
+    {
+        path: 'level/:level_id',
+        canActivate: [openLevel],
+        children: [],
+    },
     {
         path: 'editor/:floorplan_id',
         loadComponent: () =>

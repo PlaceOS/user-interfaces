@@ -1,6 +1,7 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
@@ -14,6 +15,7 @@ describe('LevelListComponent', () => {
     let spectator: Spectator<LevelListComponent>;
     let manager: any;
     let copy: any;
+    let navigate: any;
     let notify_open: ReturnType<typeof vi.fn>;
 
     const createComponent = createComponentFactory({
@@ -24,6 +26,7 @@ describe('LevelListComponent', () => {
             MockProvider(LevelManagementService, {}),
             MockProvider(Clipboard, {}),
             MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(Router, { navigate: vi.fn() }),
         ],
     });
 
@@ -36,15 +39,16 @@ describe('LevelListComponent', () => {
         manager = {
             filtered_levels: signal([{ id: 'lvl-1' }]),
             editLevel: vi.fn(),
-            editLevelMap: vi.fn(),
             removeLevel: vi.fn(),
         };
         copy = vi.fn(() => true);
+        navigate = vi.fn(async () => true);
         spectator = createComponent({
             providers: [
                 { provide: LevelManagementService, useValue: manager },
                 { provide: Clipboard, useValue: { copy } },
                 { provide: MatDialog, useValue: { open: vi.fn() } },
+                { provide: Router, useValue: { navigate } },
             ],
         });
     });
@@ -58,11 +62,14 @@ describe('LevelListComponent', () => {
     it('should delegate level actions to the management service', () => {
         const row = { id: 'lvl-1' };
         spectator.component.editLevel(row);
-        spectator.component.editLevelMap(row);
         spectator.component.removeLevel(row);
         expect(manager.editLevel).toHaveBeenCalledWith(row);
-        expect(manager.editLevelMap).toHaveBeenCalledWith(row);
         expect(manager.removeLevel).toHaveBeenCalledWith(row);
+    });
+
+    it('should open the map in Map Management', () => {
+        spectator.component.editLevelMap({ id: 'lvl-1' });
+        expect(navigate).toHaveBeenCalledWith(['/map-management', 'lvl-1']);
     });
 
     it('should notify only when the id copy succeeds', () => {

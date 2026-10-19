@@ -1,6 +1,10 @@
 import { Injectable, signal } from '@angular/core';
+import { requestTokenFromOpener } from '@placeos/common';
 import {
+    authorise,
     authority,
+    PlaceAuthOptions,
+    setToken,
     setup,
     showMetadata,
     token,
@@ -12,6 +16,7 @@ import type { Floorplan } from './types';
 const SETTINGS_KEY = 'MAP_BUILDER.placeos';
 const FLOORPLAN_METADATA_KEY = 'map-studio';
 const PLACEOS_REQUEST_TIMEOUT = 10 * 1000;
+const HANDOFF_MIN_DELAY_MS = 30 * 1000;
 
 function withDeadline<T>(promise: Promise<T>, message: string): Promise<T> {
     return new Promise<T>((resolve, reject) => {
@@ -32,12 +37,15 @@ function withDeadline<T>(promise: Promise<T>, message: string): Promise<T> {
     });
 }
 
-function fetchWithDeadline(
+function fetchWithDeadline<T>(
     input: RequestInfo | URL,
-    init: RequestInit = {},
-): Promise<Response> {
+    init: RequestInit,
+    read: (response: Response) => T | Promise<T>,
+): Promise<T> {
     const controller = new AbortController();
-    const request = fetch(input, { ...init, signal: controller.signal });
+    const request = fetch(input, { ...init, signal: controller.signal }).then(
+        read,
+    );
     return withDeadline(request, 'PlaceOS request timed out.').finally(() =>
         controller.abort(),
     );
@@ -127,6 +135,7 @@ function loadSettings(): PlaceOSSettings {
 export class PlaceOSService {
     private readonly _settings = signal<PlaceOSSettings>(loadSettings());
     private readonly _mode = signal<PlaceOSAuthMode>('checking');
+    private _handoff_timer?: ReturnType<typeof setTimeout>;
 
     /** Current connection settings */
     public readonly settings = this._settings.asReadonly();
@@ -138,30 +147,50 @@ export class PlaceOSService {
      * flow if an authority is available on the current origin.
      */
     public async init(): Promise<void> {
-        const resolved = await fetchWithDeadline('/auth/authority', {
-            credentials: 'same-origin',
-        })
-            .then((resp) => resp.ok)
-            .catch(() => false);
+        const resolved = await fetchWithDeadline(
+            '/auth/authority',
+            { credentials: 'same-origin' },
+            (resp) => resp.ok,
+        ).catch(() => false);
         if (!resolved) return this._mode.set('manual');
-        // Redirects to login when there's no session, and comes back here
+        // ts-client keeps this object and reads handle_login on every authorise
+        const options: PlaceAuthOptions = {
+            auth_uri: '/auth/oauth/authorize',
+            token_uri: '/auth/token',
+            redirect_uri: new URL(
+                'oauth-resp.html',
+                document.baseURI,
+            ).toString(),
+            scope: 'public',
+            handle_login: false,
+        };
         try {
-            await withDeadline(
-                setup({
-                    auth_uri: '/auth/oauth/authorize',
-                    token_uri: '/auth/token',
-                    redirect_uri: new URL(
-                        'oauth-resp.html',
-                        document.baseURI,
-                    ).toString(),
-                    scope: 'public',
-                }),
-                'PlaceOS setup timed out.',
-            );
+            await withDeadline(setup(options), 'PlaceOS setup timed out.');
+            if (!token()) await this._useOpenerToken();
+            options.handle_login = true;
+            // With handle_login on, this redirects to the login page
+            if (!token()) return void authorise().catch(() => undefined);
             this._mode.set('domain');
         } catch {
             this._mode.set('manual');
         }
+    }
+
+    /**
+     * Signs in with the token of the app that opened this tab, such as
+     * Concierge, and asks it again shortly before that token expires.
+     */
+    private async _useOpenerToken(): Promise<void> {
+        const handed = await requestTokenFromOpener();
+        if (!handed) return;
+        if (handed.expires_at && handed.expires_at <= Date.now()) return;
+        setToken(handed.token, handed.expires_at);
+        if (!handed.expires_at) return;
+        clearTimeout(this._handoff_timer);
+        this._handoff_timer = setTimeout(
+            () => void this._useOpenerToken(),
+            Math.max(handed.expires_at - Date.now(), HANDOFF_MIN_DELAY_MS),
+        );
     }
 
     public get config(): PlaceOSConfig {
@@ -306,6 +335,13 @@ export class PlaceOSService {
     }
 
     public async getLevelSvg(level_id: string): Promise<string | null> {
+        return (await this.getLevelMap(level_id))?.svg ?? null;
+    }
+
+    /** The level's current `map_id` and its SVG; null when the level has no map. */
+    public async getLevelMap(
+        level_id: string,
+    ): Promise<{ map_id: string; svg: string } | null> {
         const map_id = (await this.getZone(level_id)).map_id;
         if (!map_id) return null;
 
@@ -329,7 +365,7 @@ export class PlaceOSService {
         if (!/<svg[\s>]/i.test(svg)) {
             throw new Error('The level map is not an SVG');
         }
-        return svg;
+        return { map_id, svg };
     }
 
     // ── Systems ─────────────────────────────────────────────────────────────
@@ -458,7 +494,7 @@ export class PlaceOSService {
         const on_domain = this._mode() === 'domain';
         if (!on_domain && !api_key) throw new Error('PlaceOS not configured');
         const query = new URLSearchParams(params).toString();
-        const response = await fetchWithDeadline(
+        return fetchWithDeadline(
             `${on_domain ? '' : domain}/api/engine/v2${path}${query ? `?${query}` : ''}`,
             {
                 ...options,
@@ -470,13 +506,15 @@ export class PlaceOSService {
                     ...(options.headers ?? {}),
                 },
             },
+            async (response) => {
+                if (!response.ok) {
+                    const detail = await response.text().catch(() => '');
+                    throw new Error(
+                        `PlaceOS ${response.status}: ${detail || response.statusText}`,
+                    );
+                }
+                return response.json() as Promise<T>;
+            },
         );
-        if (!response.ok) {
-            const detail = await response.text().catch(() => '');
-            throw new Error(
-                `PlaceOS ${response.status}: ${detail || response.statusText}`,
-            );
-        }
-        return response.json() as Promise<T>;
     }
 }

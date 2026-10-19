@@ -59,6 +59,7 @@ Each locale entry requires an `id` and `name`:
 | `admin_group` | string | `"concierge_admins"` | Name of the user group that grants access to admin sections of the app, such as the management group of the sidebar. Members of `placeos_admin` and `placeos_support` are also admin in the sidebar and the parking pages. The signage playlist media list allows `placeos_admin` but not `placeos_support`. When no settings source sets it, the app uses `admin`. |
 | `has_uploads` | boolean | `true` | Whether file upload support (S3/cloud storage) is available in the app. |
 | `bulk_actions` | boolean | `false` | Let staff select several rows and apply one action to all of them. Desk, parking and locker bookings, parking requests and asset requests get approve and reject actions. Catering orders get a status action. |
+| `map_studio_url` | string | – | Where the `Open in Map Studio` links in Map Management go. Defaults to `/map-studio/`. |
 
 ### Feature values
 
@@ -75,6 +76,7 @@ Each locale entry requires an `id` and `name`:
 | `visitors` | Visitor bookings | Yes |
 | `visitor-rules` | Visitor rules | No |
 | `zones` | Zone management | Yes |
+| `maps` | Map management | Yes |
 | `points` | Points management | Yes |
 | `emergency-contacts` | Emergency contacts | No |
 | `signage` | Signage management | Yes |

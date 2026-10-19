@@ -243,6 +243,14 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                                 (change)="onUpload($event)"
                             />
                         </label>
+                        @if (state.can_reimport_svg()) {
+                            <button
+                                [class]="toolClass(false)"
+                                (click)="state.reimportSvg()"
+                            >
+                                Reimport original SVG
+                            </button>
+                        }
                         @if (ai_configured) {
                             <button
                                 [class]="toolClass(false)"
@@ -355,6 +363,10 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                 <div class="bg-error-light text-error px-4 py-2 text-sm">
                     {{ message }}
                 </div>
+            } @else if (state.server_save_error(); as message) {
+                <div class="bg-warning-light px-4 py-2 text-sm" server-save>
+                    {{ message }}
+                </div>
             }
 
             @if (state.loading()) {
@@ -444,7 +456,10 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                             </button>
                         </div>
                         @if (canvas()?.containerEl(); as container) {
-                            <map-studio-minimap [container]="container" />
+                            <map-studio-minimap
+                                [container]="container"
+                                [source_image]="canvas()?.sourceImage()"
+                            />
                         }
                     </main>
 

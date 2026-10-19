@@ -2,6 +2,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
+import { Router } from '@angular/router';
 import { i18n, notifySuccess } from '@placeos/common';
 import {
     IconComponent,
@@ -94,7 +95,9 @@ import { LevelManagementService } from './level-management.service';
                     >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">map</icon>
-                            <span>Edit SVG map</span>
+                            <span>{{
+                                'APP.CONCIERGE.MAPS_EDIT' | translate
+                            }}</span>
                         </div>
                     </button>
                     <button
@@ -138,11 +141,13 @@ export class LevelListComponent {
     private _manager = inject(LevelManagementService);
     private _clipboard = inject(Clipboard);
     private _dialog = inject(MatDialog);
+    private _router = inject(Router);
 
     public readonly levels = this._manager.filtered_levels;
 
     public readonly editLevel = (level) => this._manager.editLevel(level);
-    public readonly editLevelMap = (level) => this._manager.editLevelMap(level);
+    public readonly editLevelMap = (level) =>
+        this._router.navigate(['/map-management', level.id]);
     public readonly removeLevel = (level) => this._manager.removeLevel(level);
 
     public readonly copyToClipboard = (id: string) => {

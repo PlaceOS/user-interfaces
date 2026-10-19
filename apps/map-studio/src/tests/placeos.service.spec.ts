@@ -1,4 +1,5 @@
 vi.mock('@placeos/ts-client', () => ({
+    authorise: vi.fn(async () => ''),
     authority: () => ({
         domain: 'place.example.com',
         config: {
@@ -9,17 +10,46 @@ vi.mock('@placeos/ts-client', () => ({
             },
         },
     }),
+    setToken: vi.fn(),
     setup: vi.fn(async () => undefined),
     showMetadata: vi.fn(async () => ({ details: {} })),
-    token: () => 'session-token',
+    token: vi.fn(() => 'session-token'),
     updateMetadata: vi.fn(async () => undefined),
 }));
 
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { setup, showMetadata, updateMetadata } from '@placeos/ts-client';
+import {
+    authorise,
+    setToken,
+    setup,
+    showMetadata,
+    token,
+    updateMetadata,
+} from '@placeos/ts-client';
 
 import { PlaceOSService } from '../app/data/placeos.service';
+
+/** Makes this window look opened by another tab that answers token requests with `reply`. */
+function openedBy(reply: Record<string, unknown> | null) {
+    const frame = document.createElement('iframe');
+    document.body.appendChild(frame);
+    const opener = frame.contentWindow as Window;
+    vi.spyOn(opener, 'postMessage').mockImplementation(() => {
+        if (!reply) return;
+        window.dispatchEvent(
+            new MessageEvent('message', {
+                source: opener,
+                origin: `http://${location.hostname}:4200`,
+                data: { type: 'placeos:token', ...reply },
+            }),
+        );
+    });
+    Object.defineProperty(window, 'opener', {
+        value: opener,
+        configurable: true,
+    });
+}
 
 /** Records the last request so the auth headers can be checked */
 function stubFetch(authority_ok: boolean) {
@@ -64,13 +94,22 @@ describe('PlaceOSService', () => {
         vi.clearAllMocks();
         localStorage.clear();
         vi.mocked(setup).mockResolvedValue(undefined);
+        vi.mocked(token).mockReturnValue('session-token');
+        vi.mocked(setToken).mockImplementation(() => undefined);
         TestBed.configureTestingModule({
             providers: [provideZonelessChangeDetection()],
         });
         service = TestBed.inject(PlaceOSService);
     });
 
-    afterEach(() => vi.unstubAllGlobals());
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        Object.defineProperty(window, 'opener', {
+            value: null,
+            configurable: true,
+        });
+        document.body.innerHTML = '';
+    });
 
     it('uses the domain session when the authority resolves', async () => {
         const calls = stubFetch(true);
@@ -104,6 +143,63 @@ describe('PlaceOSService', () => {
 
         expect(service.mode()).toBe('manual');
         vi.useRealTimers();
+    });
+
+    it('keeps the response readable until its JSON body has finished', async () => {
+        stubFetch(true);
+        await service.init();
+        let signal: AbortSignal;
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async (_url, options: RequestInit) => {
+                signal = options.signal as AbortSignal;
+                return {
+                    ok: true,
+                    json: async () => {
+                        await new Promise((resolve) => setTimeout(resolve, 0));
+                        if (signal.aborted)
+                            throw new DOMException('Aborted', 'AbortError');
+                        return [{ id: 'org-2' }];
+                    },
+                };
+            }),
+        );
+
+        await expect(service.getZones()).resolves.toEqual([{ id: 'org-2' }]);
+        expect(signal!.aborted).toBe(true);
+    });
+
+    it('does not start domain requests while login is redirecting', async () => {
+        stubFetch(true);
+        vi.mocked(token).mockReturnValue('');
+        await service.init();
+        expect(service.mode()).toBe('checking');
+        expect(authorise).toHaveBeenCalled();
+    });
+
+    it('signs in with the token of the app that opened it', async () => {
+        stubFetch(true);
+        const expires_at = Date.now() + 60 * 60 * 1000;
+        let current = '';
+        vi.mocked(token).mockImplementation(() => current);
+        vi.mocked(setToken).mockImplementation((value) => (current = value));
+        openedBy({ token: 'concierge-token', expires_at });
+        await service.init();
+        expect(setup).toHaveBeenCalledWith(
+            expect.objectContaining({ handle_login: true }),
+        );
+        expect(setToken).toHaveBeenCalledWith('concierge-token', expires_at);
+        expect(authorise).not.toHaveBeenCalled();
+        expect(service.mode()).toBe('domain');
+    });
+
+    it('goes to login when the opener hands over an expired token', async () => {
+        stubFetch(true);
+        vi.mocked(token).mockReturnValue('');
+        openedBy({ token: 'stale', expires_at: Date.now() - 1000 });
+        await service.init();
+        expect(setToken).not.toHaveBeenCalled();
+        expect(authorise).toHaveBeenCalled();
     });
 
     it('falls back to manual setup when PlaceOS setup does not settle', async () => {

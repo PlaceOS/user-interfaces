@@ -98,17 +98,6 @@ export class LevelManagementService {
         });
     }
 
-    public async editLevelMap(level: BuildingLevel) {
-        const { LevelMapEditorModalComponent } =
-            await import('./level-map-editor-modal.component');
-        const ref = this._dialog.open(LevelMapEditorModalComponent, {
-            data: level,
-        });
-        ref.afterClosed().subscribe((data) => {
-            if (data) this._org.addZone(data);
-        });
-    }
-
     public async removeLevel(level: BuildingLevel) {
         const removed = await confirmAction(
             this._dialog,

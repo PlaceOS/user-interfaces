@@ -17,6 +17,8 @@ export interface Floorplan {
     floor_name: string;
     floor_index: number;
     level_zone_id?: string | null;
+    /** The level `map_id` this floorplan was last imported from or published to. */
+    source_map_id?: string | null;
     source_image_path: string | null;
     source_type: string | null;
     background_opacity: number;
@@ -26,6 +28,8 @@ export interface Floorplan {
     canvas_width: number | null;
     canvas_height: number | null;
     canvas_state: EditorState | null;
+    svg_source?: string | null;
+    svg_source_ids?: string[];
     svg_output: string | null;
     status: 'draft' | 'published' | 'archived';
     version: number;
@@ -38,6 +42,8 @@ export interface FloorplanVersion {
     floorplan_id: string;
     version: number;
     canvas_state: EditorState;
+    svg_source?: string | null;
+    svg_source_ids?: string[];
     svg_output: string | null;
     note: string | null;
     created_at: string;

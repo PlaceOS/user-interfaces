@@ -174,6 +174,8 @@ export class EditorStateService extends AsyncHandler {
     public readonly last_saved = this._last_saved.asReadonly();
     public readonly loading = this._loading.asReadonly();
     public readonly error = this._error.asReadonly();
+    public readonly server_save_error =
+        this._store.server_save_error.asReadonly();
     public readonly image_url = this._image_url.asReadonly();
     public readonly image_dims = this._image_dims.asReadonly();
     public readonly place_size = this._place_size.asReadonly();
@@ -211,7 +213,9 @@ export class EditorStateService extends AsyncHandler {
     public readonly canvas_width = computed(() =>
         Math.max(
             100,
-            this._image_dims()?.width ??
+            (this._floorplan()?.svg_source
+                ? this._floorplan()?.canvas_width
+                : this._image_dims()?.width) ??
                 this._floorplan()?.canvas_width ??
                 1000,
         ),
@@ -220,7 +224,9 @@ export class EditorStateService extends AsyncHandler {
     public readonly canvas_height = computed(() =>
         Math.max(
             100,
-            this._image_dims()?.height ??
+            (this._floorplan()?.svg_source
+                ? this._floorplan()?.canvas_height
+                : this._image_dims()?.height) ??
                 this._floorplan()?.canvas_height ??
                 800,
         ),
@@ -238,6 +244,41 @@ export class EditorStateService extends AsyncHandler {
     private _floorplan_id = '';
 
     // ── Loading ─────────────────────────────────────────────────────────────
+
+    public readonly can_reimport_svg = computed(() => {
+        const floor = this._floorplan();
+        return (
+            !!floor?.svg_output &&
+            !floor.svg_source &&
+            (floor.source_type === 'svg-import' ||
+                floor.source_type === 'image/svg+xml')
+        );
+    });
+
+    public async reimportSvg() {
+        if (
+            !this.can_reimport_svg() ||
+            !confirm(
+                'Reimport the original SVG? This replaces the current draft.',
+            )
+        )
+            return;
+        this._loading.set(true);
+        try {
+            const image = this._image_url();
+            const source = image
+                ? await fetch(image).then((response) => response.text())
+                : this._floorplan()?.svg_output;
+            if (!source) throw new Error('The original SVG is unavailable.');
+            await this._store.importLevelSvg(this._floorplan_id, source);
+            await this.load(this._floorplan_id);
+            await this.save();
+        } catch (error) {
+            this._error.set(this._message(error, 'Failed to reimport SVG'));
+        } finally {
+            this._loading.set(false);
+        }
+    }
 
     public async load(floorplan_id: string) {
         this._floorplan_id = floorplan_id;
@@ -264,18 +305,17 @@ export class EditorStateService extends AsyncHandler {
             let objects = await this._store.listObjects(floorplan_id);
             let imported_svg = false;
             const svg_check_key = `map-studio.svg-import.${floorplan_id}`;
-            if (
-                floorplan.level_zone_id &&
+            const level_id = floorplan.level_zone_id;
+            const empty =
                 !floorplan.canvas_state &&
                 !floorplan.svg_output &&
                 !floorplan.source_image_path &&
-                !objects.length &&
-                !localStorage.getItem(svg_check_key)
-            ) {
-                const svg = await this._placeos
-                    .getLevelSvg(floorplan.level_zone_id)
+                !objects.length;
+            if (level_id && empty && !localStorage.getItem(svg_check_key)) {
+                const level_map = await this._placeos
+                    .getLevelMap(level_id)
                     .catch(() => null);
-                if (svg) {
+                if (level_map) {
                     localStorage.setItem(svg_check_key, 'checked');
                     if (
                         confirm(
@@ -284,10 +324,42 @@ export class EditorStateService extends AsyncHandler {
                     ) {
                         floorplan = await this._store.importLevelSvg(
                             floorplan_id,
-                            svg,
+                            level_map.svg,
+                            level_map.map_id,
                         );
                         objects = await this._store.listObjects(floorplan_id);
                         imported_svg = true;
+                    }
+                }
+            } else if (
+                level_id &&
+                !empty &&
+                this._placeos.mode() === 'domain'
+            ) {
+                const map_id = await this._placeos
+                    .getZone(level_id)
+                    .then((zone) => zone.map_id)
+                    .catch(() => '');
+                if (map_id && map_id !== floorplan.source_map_id) {
+                    const replace = confirm(
+                        "This level's map in PlaceOS is not the one this floorplan was made from. Import the current map?\n\nThis replaces the Studio draft. Cancel keeps the draft.",
+                    );
+                    const level_map = replace
+                        ? await this._placeos.getLevelMap(level_id)
+                        : null;
+                    if (level_map) {
+                        floorplan = await this._store.importLevelSvg(
+                            floorplan_id,
+                            level_map.svg,
+                            level_map.map_id,
+                        );
+                        objects = await this._store.listObjects(floorplan_id);
+                        imported_svg = true;
+                    } else if (!replace) {
+                        floorplan = await this._store.updateFloorplan(
+                            floorplan_id,
+                            { source_map_id: map_id },
+                        );
                     }
                 }
             }
@@ -310,6 +382,24 @@ export class EditorStateService extends AsyncHandler {
                 }
             }
 
+            const known_layers = new Set(
+                this._layers().map((layer) => layer.id),
+            );
+            const missing_layers = [
+                ...new Set(objects.map((object) => object.layer)),
+            ].filter((id) => !known_layers.has(id));
+            if (missing_layers.length)
+                this._layers.update((layers) => [
+                    ...layers,
+                    ...missing_layers.map((id, index) => ({
+                        id,
+                        name: id,
+                        visible: true,
+                        locked: false,
+                        opacity: 1,
+                        order: layers.length + index,
+                    })),
+                ]);
             await this._loadImage(floorplan_id);
             if (imported_svg) await this.save();
         } catch (error) {

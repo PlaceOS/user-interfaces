@@ -127,6 +127,14 @@ export const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'map-management',
+        title: 'Map Management',
+        loadChildren: () =>
+            import('./map-manager/map-manager.routes').then((m) => m.ROUTES),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'zone-management',
         title: 'Zone Management',
         loadChildren: () =>
