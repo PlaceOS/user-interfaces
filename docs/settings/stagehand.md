@@ -4,19 +4,14 @@ Stagehand is an AV systems monitoring and management application for facility ma
 
 Set settings in Backoffice zone metadata under `stagehand_app` for the standard `/stagehand/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
-## Branding & Identity
+## Application
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `name` | string | `"Stagehand"` | Name of the application. Used in the browser tab title and as the name of the auth client. |
-| `title` | string | `"PlaceOS"` | Title for the application. |
-| `description` | string | `"Stagehand UI"` | Description of the application. |
-| `short_name` | string | `"PlaceOS"` | Short name for the application. |
-| `logo_light` | string | `"assets/logo-light.svg"` | URL of the logo image to display when using the light theme, e.g. on the login page. |
-| `logo_dark` | string | `"assets/logo-dark.svg"` | URL of the logo image to display when using the dark theme, e.g. on the login page. |
-| `general` | object | `{}` | General settings associated with the app. |
-| `allow_dark_mode` | boolean | `false` | Make the dark theme control available in the sidebar. |
-| `chat.enabled` | boolean | `false` | Show the chat widget. |
+| `name` | string | `"Stagehand"` | Application name for the PlaceOS API client. If the URL pathname is empty, the app also uses this name to make the settings metadata key. |
+| `short_name` | string | `"PlaceOS"` | Prefix for console log messages. The app also uses it as the API client application name if `name` is not set. |
+| `allow_dark_mode` | boolean | – | Make the dark theme control available in the sidebar. When off or not set, the app uses the light theme. |
+| `chat.enabled` | boolean | – | Show the chat widget. When not set, the widget does not show. |
 
 ## Access & Support Groups
 
@@ -76,13 +71,3 @@ These values only set the starting point for new users. Each user's saved notifi
     ]
 }
 ```
-
-## Booking Behaviour
-
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `desks.hide_reason` | boolean | `true` | Whether to disable the ability for a user to set a reason on the desk booking confirmation. |
-| `desks.can_set_host` | boolean | `true` | Whether a user is allowed to make desk bookings for others. |
-| `events.can_book_for_others` | boolean | `true` | Whether a user is allowed to set another user as the host when booking a space from the explore map. |
-| `explore.search_enabled` | boolean | `true` | Whether searching is available on the explore map view. |
-| `show_qr_for_booking` | boolean | `true` | Whether to show a QR code for bookings. |

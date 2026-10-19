@@ -4,35 +4,31 @@
     "properties": {
         "name": {
             "type": "string",
-            "description": "Name of the application. Used in page titles when no short name is set"
-        },
-        "title": {
-            "type": "string",
-            "description": "Display title for the application"
-        },
-        "description": {
-            "type": "string",
-            "description": "Description of the application"
+            "description": "Application name for the PlaceOS API client. If the URL pathname is empty, the app also uses this name to make the settings metadata key"
         },
         "short_name": {
             "type": "string",
-            "description": "Short name for the application. Used in page titles and API request headers"
+            "description": "Prefix for console log messages. The app also uses it as the API client application name if `name` is not set"
         },
         "logo_light": {
-            "description": "Logo displayed in the top bar when the light theme is active. Either an image URL string or an icon object with a `src`",
-            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/icon" }]
+            "description": "Logo displayed in the top bar when the light theme is active. Either an image URL string or an object with a `src` URL",
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/logo" }]
         },
         "logo_dark": {
-            "description": "Logo displayed in the top bar when the dark theme is active. Either an image URL string or an icon object with a `src`",
-            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/icon" }]
+            "description": "Logo displayed in the top bar when the dark theme is active. Either an image URL string or an object with a `src` URL. Needs `allow_dark_mode`",
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/logo" }]
+        },
+        "allow_dark_mode": {
+            "type": "boolean",
+            "description": "Allow the dark theme. When on, the app uses the theme saved in the user's settings. When off or not set, the app uses the light theme"
         },
         "block_start": {
             "type": "number",
-            "description": "First hour of the day (0-24) displayed on the timetable grid. Defaults to `0`"
+            "description": "First hour of the day (0-23) displayed on the timetable grid. Defaults to `0`"
         },
         "block_end": {
             "type": "number",
-            "description": "Last hour of the day (0-24) displayed on the timetable grid. Defaults to `24`"
+            "description": "Last hour of the day (1-24) displayed on the timetable grid. The app always shows at least one hour after `block_start`. Defaults to `24`"
         },
         "use_24_hour_time": {
             "type": "boolean",
@@ -70,27 +66,13 @@
         }
     },
     "$defs": {
-        "icon": {
+        "logo": {
             "type": "object",
-            "required": ["type"],
+            "required": ["src"],
             "properties": {
-                "type": {
-                    "type": "string",
-                    "enum": ["img", "icon"],
-                    "enumNames": ["Image", "Icon"],
-                    "description": "Type of icon to render. Either `img` or `icon`"
-                },
                 "src": {
                     "type": "string",
-                    "description": "URL of the image icon to display"
-                },
-                "class": {
-                    "type": "string",
-                    "description": "CSS class to apply to icon container element"
-                },
-                "content": {
-                    "type": "string",
-                    "description": "Content to add to the icon container element"
+                    "description": "URL of the logo image"
                 }
             }
         }

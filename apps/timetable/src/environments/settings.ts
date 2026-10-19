@@ -3,8 +3,6 @@
  */
 const app: any = {
     name: 'timetable',
-    title: 'Timetable Application',
-    description: 'PlaceOS Timetable UI written with Angular Framework',
     short_name: 'TIMETABLE',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',

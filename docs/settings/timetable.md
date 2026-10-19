@@ -66,10 +66,8 @@ Set settings in Backoffice zone metadata under `timetable_app` for the standard 
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `name` | string | `"timetable"` | Name of the application. Used in page titles when no short name is set. |
-| `title` | string | `"Timetable Application"` | Display title for the application. |
-| `description` | string | `"PlaceOS Timetable UI written with Angular Framework"` | Description of the application. |
-| `short_name` | string | `"TIMETABLE"` | Short name for the application. Used in page titles and API request headers. |
+| `name` | string | `"timetable"` | Application name for the PlaceOS API client. If the URL pathname is empty, the app also uses this name to make the settings metadata key. |
+| `short_name` | string | `"TIMETABLE"` | Prefix for console log messages. The app also uses it as the API client application name if `name` is not set. |
 | `use_24_hour_time` | boolean | `false` | Whether to show times in 24-hour format. |
 | `eink_mode` | boolean | `false` | Whether to limit screen updates for e-ink panels. See [E-ink panels](#e-ink-panels). |
 | `page_interval` | number | `20` | Seconds between pages when more spaces are selected than fit on the screen. Set to `0` to scroll instead. See [Pages](#pages). |
@@ -80,38 +78,17 @@ Set settings in Backoffice zone metadata under `timetable_app` for the standard 
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `logo_light` | string or icon object | `"assets/logo-light.svg"` | Logo displayed in the top bar when the light theme is active. Either an image URL string or an icon object with a `src`. |
-| `logo_dark` | string or icon object | `"assets/logo-dark.svg"` | Logo displayed in the top bar when the dark theme is active. Either an image URL string or an icon object with a `src`. |
+| `logo_light` | string or object | `"assets/logo-light.svg"` | Logo displayed in the top bar when the light theme is active. Either an image URL string or an object with a `src` URL. |
+| `logo_dark` | string or object | `"assets/logo-dark.svg"` | Logo displayed in the top bar when the dark theme is active. Either an image URL string or an object with a `src` URL. Needs `allow_dark_mode`. |
+| `allow_dark_mode` | boolean | – | Allow the dark theme. When on, the app uses the theme saved in the user's settings. When off or not set, the app uses the light theme. |
 
-Logos can be set as a simple URL string:
-
-```json
-{
-    "logo_light": "https://example.com/my-logo.svg"
-}
-```
-
-Or as an icon object for more control:
+Logos can be a plain URL string, or an object with a `src` URL:
 
 ```json
 {
-    "logo_light": {
-        "type": "img",
-        "src": "https://example.com/my-logo.svg",
-        "class": "my-logo-class",
-        "content": ""
-    }
+    "logo_light": { "src": "https://example.com/my-logo.svg" }
 }
 ```
-
-Icon object fields:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `type` | string | Type of icon to render. Either `"img"` or `"icon"`. Required. |
-| `src` | string | URL of the image to display. |
-| `class` | string | CSS class to apply to the icon container element. |
-| `content` | string | Content to add to the icon container element. |
 
 ## Timetable Grid
 
