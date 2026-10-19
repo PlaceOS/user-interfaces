@@ -277,6 +277,8 @@ export class PanelStateService extends AsyncHandler {
             'pending_before',
             'room_image',
             'offline_image',
+            'offline_color',
+            'default_title',
             'show_qr_code',
             'hide_qr_text',
             'presence',
