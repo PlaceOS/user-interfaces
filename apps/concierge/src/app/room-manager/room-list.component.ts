@@ -15,12 +15,14 @@ import { RoomManagementService } from './room-management.service';
 @Component({
     selector: 'room-list',
     template: `
-        <div class="absolute inset-0 overflow-auto px-8">
+        <div class="absolute inset-0 overflow-hidden px-8">
             <simple-table
                 [error]="load_error()"
                 (retry)="retryLoad()"
-                class="block min-w-6xl text-sm"
+                class="block text-sm"
+                min_width="72rem"
                 [data]="rooms()"
+                [virtual_scroll]="true"
                 empty_message="No rooms for selected level or building"
                 [columns]="[
                     {
@@ -80,7 +82,6 @@ import { RoomManagementService } from './room-management.service';
                 ]"
                 [sortable]="true"
             ></simple-table>
-            <div class="h-20 w-full"></div>
         </div>
         <ng-template #name_template let-row="row" let-data="data">
             <button
@@ -144,12 +145,7 @@ import { RoomManagementService } from './room-management.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto p-1">
-                <button
-                    icon
-                    default
-                    matRipple
-                    [matMenuTriggerFor]="menu"
-                >
+                <button icon default matRipple [matMenuTriggerFor]="menu">
                     <icon>more_vert</icon>
                 </button>
             </div>

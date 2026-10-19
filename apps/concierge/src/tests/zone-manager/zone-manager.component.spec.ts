@@ -112,8 +112,8 @@ describe('ZoneManagerComponent', () => {
         expect(spectator.component.selected_tab()).toBe(1);
     });
 
-    it('should open the organisation workplace settings modal', () => {
-        spectator.component.editWorkplaceSettings();
+    it('should open the organisation workplace settings modal', async () => {
+        await spectator.component.editWorkplaceSettings();
         expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
             WorkplaceSettingsFormModalComponent,
             { data: { zone: { id: 'org-1' } } },

@@ -57,8 +57,16 @@ import {
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import { errorText } from '../ui/modal-actions';
+import { ResourceDemand } from '../ui/resource-demand';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
 import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
+
+/** Lists that load only while a view uses them */
+export type AssetManagerList =
+    | 'products'
+    | 'purchase_orders'
+    | 'requests'
+    | 'categories';
 
 export interface AssetOptions {
     date?: number;
@@ -93,13 +101,15 @@ export class AssetManagerStateService extends AsyncHandler {
     public readonly options = this._options.asReadonly();
     /** List of extra assets to display */
     public readonly extra_assets = this._extra_assets.asReadonly();
+    /** Lists that the open views use. A list loads only when a view uses it. */
+    private readonly _demand = new ResourceDemand<AssetManagerList>();
 
     /** List of available assets */
     private readonly _products = resource({
-        params: () => ({
+        params: this._demand.params('products', () => ({
             change: this._change(),
             building: this._org.active_building()?.id,
-        }),
+        })),
         defaultValue: [] as AssetGroup[],
         loader: async () => {
             this._loading.set(true);
@@ -122,7 +132,7 @@ export class AssetManagerStateService extends AsyncHandler {
 
     /** List of available purchase orders */
     private readonly _purchase_orders = resource({
-        params: () => this._change(),
+        params: this._demand.params('purchase_orders', () => this._change()),
         defaultValue: [] as AssetPurchaseOrder[],
         loader: async () => {
             this._loading.set(true);
@@ -167,7 +177,9 @@ export class AssetManagerStateService extends AsyncHandler {
 
     /** List of requests made by users for assets */
     private readonly _requests = resource({
-        params: () => this._request_params_debounced.value(),
+        params: this._demand.params('requests', () =>
+            this._request_params_debounced.value(),
+        ),
         defaultValue: [] as Booking[],
         loader: async ({ params }) => {
             const start = startOfDay(params.date || Date.now()).valueOf();
@@ -250,7 +262,7 @@ export class AssetManagerStateService extends AsyncHandler {
 
     /** List of asset categories */
     private readonly _categories = resource({
-        params: () => this._change(),
+        params: this._demand.params('categories', () => this._change()),
         defaultValue: [] as AssetCategory[],
         loader: async () => {
             const list = await queryAssetCategories();
@@ -358,6 +370,14 @@ export class AssetManagerStateService extends AsyncHandler {
 
     public get base_route() {
         return '/book/assets';
+    }
+
+    /**
+     * Load the lists while the calling view is open.
+     * Call in an injection context, for example a field initializer.
+     */
+    public use(...lists: AssetManagerList[]) {
+        this._demand.use(...lists);
     }
 
     public startPolling(delay = 3 * MINUTES) {

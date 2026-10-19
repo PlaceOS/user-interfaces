@@ -1,16 +1,4 @@
 /**
- * GENERAL APPLICATION SETTINGS
- */
-const general = {
-    banner: {
-        id: '2',
-        type: 'info',
-        content: ``,
-    },
-    search: true,
-    dark_mode: true,
-};
-/**
  * HELP/SUPPORT SETTINGS
  */
 const help = [
@@ -63,17 +51,13 @@ const help = [
  */
 const events = {
     multiple_spaces: false,
-    desk_start: 9,
     // bookable_hours: { start: 8, end: 19 },
     can_book_for_others: false,
-    has_catering: true,
     has_assets: true,
     allow_all_day: true,
     hide_notes: false,
     hide_attendees: false,
     hide_nearby_desks: false,
-    features_label: '',
-    features_on_form: false,
     booking_unavailable: false,
     allow_externals: true,
     allow_recurrence: false,
@@ -82,28 +66,10 @@ const events = {
     force_current_user_for_booking_rules: false,
 };
 /*===========================*\
-||  SPACE LISTING SETTINGS   ||
-\*===========================*/
-const space_display = {
-    show_images: false,
-};
-/*===========================*\
-||  USER DIRECTORY SETTINGS  ||
-\*===========================*/
-const directory = {
-    show_avatars: true,
-    min_search_length: 3,
-};
-/*===========================*\
 ||    SCHEULDE SETTINGS   ||
 \*===========================*/
 const schedule = {
     use_websocket: false,
-    legend: [
-        { name: 'Accepted', color: '#21A453' },
-        { name: 'Pending', color: '#ffbf1f' },
-        { name: 'Rejected', color: '#f44336' },
-    ],
 };
 /*===========================*\
 ||    EXPLORE MAP SETTINGS   ||
@@ -127,26 +93,19 @@ const explore = {
         'zone-medium': '#ffb300',
         'zone-high': '#e53935',
     },
-    can_select_building: true,
-    show_legend_group_names: true,
     show_legend: true,
     hide_zones: true,
     hide_devices: true,
     hide_sensors: true,
     use_zone_polygons: false,
-    show_simple_sensor_info: false,
-    show_presence_indicators: false,
     legend: [
         ['Available', '#43a047'],
         ['In Use', '#e53935'],
         ['Pending', '#ffb300'],
         ['Signs of Life', '#1565c0'],
     ],
-    use_cisco_maps: false,
     cisco_maps: {
-        token: '',
-        tenant_id: '',
-        location_id: '',
+        enabled: false,
     },
 };
 /**
@@ -154,8 +113,6 @@ const explore = {
  */
 const app = {
     name: 'Workplace',
-    title: 'Workplace Application',
-    description: 'PlaceOS Workplace UI written with Angular Framework',
     short_name: 'Workplace',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
@@ -203,11 +160,8 @@ const app = {
     use_24_hour_time: false,
     show_changelog: true,
     new_features: true,
-    can_deliver: true,
-    no_user_calendar: false,
     basic_user_search: false,
-    no_maps: true,
-    general,
+    show_presence_indicators: false,
     help,
     events,
     // Catering backend: 'native' uses PlaceOS assets, 'external' uses the
@@ -216,8 +170,6 @@ const app = {
     catering: {
         backend: 'native',
     },
-    space_display,
-    directory,
     explore,
     bookings: {
         no_approval: false,
@@ -240,7 +192,6 @@ const app = {
         auto_allocation: false,
         show_calendar_links: true,
         allow_recurrence: true,
-        hide_map: false,
         default_select_as_map: false,
         default_duration: 60,
     },
@@ -274,7 +225,6 @@ const app = {
     chat: {
         enabled: false,
     },
-    hide_contacts: false,
     schedule,
     virtual_concierge: {
         display: 'fullscreen',

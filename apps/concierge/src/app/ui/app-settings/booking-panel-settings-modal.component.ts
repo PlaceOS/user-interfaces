@@ -334,7 +334,7 @@ export class BookingPanelSettingsModalComponent
         hide_meeting_details: false as boolean,
         hide_meeting_title: false as boolean,
         min_duration: 15 as number,
-        max_duration: 60 as number,
+        max_duration: 480 as number,
         pending_before: 5 as number,
         pending_period: 15 as number,
         room_image: '' as string,

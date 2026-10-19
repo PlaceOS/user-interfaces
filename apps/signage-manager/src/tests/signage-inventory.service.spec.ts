@@ -23,7 +23,8 @@ vi.mock('@placeos/ts-client', { spy: true });
 describe('SignageInventoryService', () => {
     const settings = {
         get: vi.fn(),
-        signal: (_name: string, default_value?: unknown) => signal(default_value),
+        signal: (_name: string, default_value?: unknown) =>
+            signal(default_value),
     };
     const org = {
         initialised: signal(true),
@@ -57,9 +58,7 @@ describe('SignageInventoryService', () => {
             'canQueryLists',
         ).mockReturnValue(true);
         const empty_page = { data: [], total: 0, next: null };
-        vi.mocked(querySignagePlaylists).mockResolvedValue(
-            empty_page as never,
-        );
+        vi.mocked(querySignagePlaylists).mockResolvedValue(empty_page as never);
         vi.mocked(queryZones).mockResolvedValue(empty_page as never);
         vi.mocked(query).mockImplementation(((params: {
             fn: (raw: Partial<PlaceSystem>) => PlaceSystem;
@@ -76,6 +75,29 @@ describe('SignageInventoryService', () => {
         expect(displays.map(({ id }) => id)).toEqual(['d1']);
         expect(displays[0].signage_last_seen).toBe(0);
         expect(displays[0].name).toBe('R&amp;D');
+    });
+
+    it('shares one load until a save, and loads again after a failure', async () => {
+        const service = createService();
+        const context = TestBed.inject(SignageContextService);
+        vi.spyOn(context, 'canQueryLists').mockReturnValue(true);
+        const empty_page = { data: [], total: 0, next: null };
+        vi.mocked(querySignagePlaylists).mockResolvedValue(empty_page as never);
+        vi.mocked(query).mockResolvedValue(empty_page as never);
+        vi.mocked(queryZones)
+            .mockRejectedValueOnce(new Error('offline'))
+            .mockResolvedValue(empty_page as never);
+
+        await expect(service.loadSignageInventory()).rejects.toThrow();
+        await Promise.all([
+            service.loadSignageInventory(),
+            service.loadSignageInventory(),
+        ]);
+        expect(queryZones).toHaveBeenCalledTimes(2);
+
+        context.changed();
+        await service.loadSignageInventory();
+        expect(queryZones).toHaveBeenCalledTimes(3);
     });
 
     describe('content report', () => {

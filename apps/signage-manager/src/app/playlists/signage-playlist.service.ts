@@ -76,6 +76,8 @@ interface PlaylistMetaState {
 }
 
 const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
+/** Most playlist thumbnail and approval lookups to run at once */
+const PLAYLIST_META_CONCURRENCY = 4;
 
 /** A change that can give a display a new takeover schedule */
 interface TakeoverChange {
@@ -369,7 +371,7 @@ export class SignagePlaylistService {
         {},
     );
     private readonly _playlist_meta_queue: Record<string, SignagePlaylist> = {};
-    private _playlist_meta_processing = false;
+    private _playlist_meta_workers = 0;
 
     public readonly filtered_playlists = this._playlist_list.items;
 
@@ -1209,46 +1211,51 @@ export class SignagePlaylistService {
         );
     }
 
-    private async _processPlaylistMetaQueue() {
-        if (this._playlist_meta_processing) return;
-        this._playlist_meta_processing = true;
-        try {
-            while (Object.keys(this._playlist_meta_queue).length) {
-                const next_playlist = Object.values(
-                    this._playlist_meta_queue,
-                )[0];
-                delete this._playlist_meta_queue[next_playlist.id];
-                const playlist_updated_at = next_playlist.updated_at || 0;
+    /** Start workers for queued playlists, at most `PLAYLIST_META_CONCURRENCY` */
+    private _processPlaylistMetaQueue() {
+        let pending = Object.keys(this._playlist_meta_queue).length;
+        while (
+            pending-- > 0 &&
+            this._playlist_meta_workers < PLAYLIST_META_CONCURRENCY
+        ) {
+            this._playlist_meta_workers++;
+            void this._playlistMetaWorker().finally(
+                () => this._playlist_meta_workers--,
+            );
+        }
+    }
+
+    // Each pass takes one playlist off the queue, so it ends once it is empty
+    private async _playlistMetaWorker() {
+        while (Object.keys(this._playlist_meta_queue).length) {
+            const next_playlist = Object.values(this._playlist_meta_queue)[0];
+            delete this._playlist_meta_queue[next_playlist.id];
+            const playlist_updated_at = next_playlist.updated_at || 0;
+            this._playlist_meta_loading.update((state) => ({
+                ...state,
+                [next_playlist.id]: true,
+            }));
+            try {
+                const media = await listSignagePlaylistMedia(next_playlist.id);
+                const media_ids = playlistMediaIds(media);
+                this._setPlaylistMeta(next_playlist.id, {
+                    media_ids: media_ids.slice(0, 3),
+                    item_ids: media.items || media_ids,
+                    updated_at: playlist_updated_at,
+                    approved: media.approved,
+                    approval_requested: media.approval_requested,
+                });
+            } catch {
+                this._setPlaylistMeta(next_playlist.id, {
+                    media_ids: [],
+                    updated_at: playlist_updated_at,
+                });
+            } finally {
                 this._playlist_meta_loading.update((state) => ({
                     ...state,
-                    [next_playlist.id]: true,
+                    [next_playlist.id]: false,
                 }));
-                try {
-                    const media = await listSignagePlaylistMedia(
-                        next_playlist.id,
-                    );
-                    const media_ids = playlistMediaIds(media);
-                    this._setPlaylistMeta(next_playlist.id, {
-                        media_ids: media_ids.slice(0, 3),
-                        item_ids: media.items || media_ids,
-                        updated_at: playlist_updated_at,
-                        approved: media.approved,
-                        approval_requested: media.approval_requested,
-                    });
-                } catch {
-                    this._setPlaylistMeta(next_playlist.id, {
-                        media_ids: [],
-                        updated_at: playlist_updated_at,
-                    });
-                } finally {
-                    this._playlist_meta_loading.update((state) => ({
-                        ...state,
-                        [next_playlist.id]: false,
-                    }));
-                }
             }
-        } finally {
-            this._playlist_meta_processing = false;
         }
     }
 

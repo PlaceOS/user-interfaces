@@ -8,3 +8,5 @@ vanillaqr.min.*
 .angular
 
 /.nx/workspace-data
+# Vendored Needle speech engine
+apps/control/src/assets/needle

@@ -20,7 +20,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
     downloadFile,
-    i18n,
     jsonToCsv,
     nextValueFrom,
     OrganisationService,
@@ -183,7 +182,7 @@ const EMPTY = [];
                                             "
                                         ></div>
                                         <div class="truncate text-sm">
-                                            {{ type.name }}
+                                            {{ type.name | translate }}
                                         </div>
                                         <button
                                             icon
@@ -220,7 +219,7 @@ const EMPTY = [];
                                         setFilter(type.id, !$event)
                                     "
                                 >
-                                    {{ type.name }}
+                                    {{ type.name | translate }}
                                 </mat-checkbox>
                             }
                         </div>
@@ -417,10 +416,10 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
 
-    public readonly types = signal<any[]>([
-        { id: 'internal', name: 'Internal', color: '#D81B60' },
-        { id: 'external', name: 'External', color: '#1E88E5' },
-        { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
+    public readonly types = signal([
+        { id: 'internal', name: 'COMMON.TYPE_INTERNAL', color: '#D81B60' },
+        { id: 'external', name: 'COMMON.TYPE_EXTERNAL', color: '#1E88E5' },
+        { id: 'cancelled', name: 'COMMON.TYPE_CANCELLED', color: '#eeeeee' },
     ]);
 
     public get type_list() {
@@ -440,23 +439,6 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
-        this.types.set([
-            {
-                id: 'internal',
-                name: i18n('COMMON.TYPE_INTERNAL'),
-                color: '#D81B60',
-            },
-            {
-                id: 'external',
-                name: i18n('COMMON.TYPE_EXTERNAL'),
-                color: '#1E88E5',
-            },
-            {
-                id: 'cancelled',
-                name: i18n('COMMON.TYPE_CANCELLED'),
-                color: '#eeeeee',
-            },
-        ]);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

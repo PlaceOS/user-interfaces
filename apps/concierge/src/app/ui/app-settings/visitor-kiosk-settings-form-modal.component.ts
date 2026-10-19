@@ -16,14 +16,12 @@ import {
 } from '@placeos/common';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 
-import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import {
     FullscreenModalShellComponent,
-    IconComponent,
     SettingsToggleComponent,
 } from '@placeos/components';
 import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
@@ -38,6 +36,16 @@ import {
     MAX_DURATION_MINI_OPTIONS,
 } from './settings-option.constants';
 import { UploadButtonComponent } from './upload-button.component';
+
+/** Device tooltip fields that `explore.hide_device_fields` can hide */
+const DEVICE_FIELD_OPTIONS = [
+    { value: 'mac', label: 'MAC Address' },
+    { value: 'manufacturer', label: 'Manufacturer' },
+    { value: 'os', label: 'Operating System' },
+    { value: 'ssid', label: 'SSID' },
+    { value: 'username', label: 'Username' },
+    { value: 'user', label: 'User Type' },
+];
 
 @Component({
     selector: 'visitor-kiosk-settings-form-modal',
@@ -174,6 +182,20 @@ import { UploadButtonComponent } from './upload-button.component';
                             [formField]="form.hide_building_image"
                         ></settings-toggle>
                     </div>
+                    @if (model().induction_enabled) {
+                        <div>
+                            <label for="induction-details">
+                                Induction Details
+                            </label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <textarea
+                                    matInput
+                                    [formField]="form.induction_details"
+                                    placeholder="Site rules for visitors to accept"
+                                ></textarea>
+                            </mat-form-field>
+                        </div>
+                    }
                     <div>
                         <label for="standalone-visitor-location">
                             Standalone Visitor Location
@@ -208,7 +230,7 @@ import { UploadButtonComponent } from './upload-button.component';
                         </h3>
                         <div class="grid gap-4 md:grid-cols-3">
                             <div>
-                                <label for="label-width">Width (mm)</label>
+                                <label for="label-width">Width (em)</label>
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
@@ -223,7 +245,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </mat-form-field>
                             </div>
                             <div>
-                                <label for="label-height">Height (mm)</label>
+                                <label for="label-height">Height (em)</label>
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
@@ -238,7 +260,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </mat-form-field>
                             </div>
                             <div>
-                                <label for="label-scale">Scale</label>
+                                <label for="label-scale">Font Size (mm)</label>
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
@@ -368,82 +390,28 @@ import { UploadButtonComponent } from './upload-button.component';
                             </mat-form-field>
                         </div>
                     </div>
-                    @if (model().explore.show_legend) {
-                        <div
-                            class="border-base-300 relative rounded-sm border p-4"
-                        >
-                            <h3
-                                class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
+                    <div>
+                        <label for="hide-device-fields">
+                            Hidden Device Fields
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                [formField]="form.explore.hide_device_fields"
+                                placeholder="No hidden fields"
+                                multiple
                             >
-                                Legend
-                            </h3>
-                            @for (
-                                item of model().explore.legend || [];
-                                track item;
-                                let i = $index
-                            ) {
-                                <div class="mb-4 flex items-center space-x-4">
-                                    <div class="w-3/4 flex-1">
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="no-subscript w-full"
-                                        >
-                                            <input
-                                                matInput
-                                                placeholder="Legend Key"
-                                                [(ngModel)]="item[0]"
-                                                [ngModelOptions]="{
-                                                    standalone: true,
-                                                }"
-                                            />
-                                        </mat-form-field>
-                                    </div>
-                                    <div
-                                        class="flex w-12 items-center justify-center"
-                                        matTooltip="Legend Color"
-                                    >
-                                        <input
-                                            type="color"
-                                            class="border-base-content h-11 rounded-lg border"
-                                            [(ngModel)]="item[1]"
-                                            [ngModelOptions]="{
-                                                standalone: true,
-                                            }"
-                                        />
-                                    </div>
-                                    <button
-                                        icon
-                                        matRipple
-                                        class="border-error text-error h-12 w-12 rounded-sm border"
-                                        (click)="removeLegend(i)"
-                                    >
-                                        <icon>delete</icon>
-                                    </button>
-                                </div>
-                            }
-                            <button
-                                btn
-                                matRipple
-                                class="w-full"
-                                (click)="addLegend()"
-                            >
-                                Add Legend Item
-                            </button>
-                        </div>
-                    }
+                                @for (opt of DEVICE_FIELDS; track opt.value) {
+                                    <mat-option [value]="opt.value">{{
+                                        opt.label
+                                    }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
                     <div class="-mx-2 flex flex-wrap items-center">
-                        <settings-toggle
-                            label="Hide device fields"
-                            [formField]="form.explore.hide_device_fields"
-                            info="Hides the MAC address, manufacturer, OS and SSID fields from device info tooltips"
-                        ></settings-toggle>
                         <settings-toggle
                             label="Show Legend"
                             [formField]="form.explore.show_legend"
-                        ></settings-toggle>
-                        <settings-toggle
-                            label="Hide Zones"
-                            [formField]="form.explore.hide_zones"
                         ></settings-toggle>
                         <settings-toggle
                             label="Show Booking QR Code"
@@ -510,8 +478,6 @@ import { UploadButtonComponent } from './upload-button.component';
     imports: [
         FullscreenModalShellComponent,
         MatDialogModule,
-        MatRippleModule,
-        IconComponent,
         MatProgressSpinnerModule,
         SettingsToggleComponent,
         MatFormFieldModule,
@@ -539,24 +505,26 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
     public readonly zone = this._data.zone;
     public readonly MAX_DURATION_MINI = MAX_DURATION_MINI_OPTIONS;
     public readonly EXPLORE_FEATURE = EXPLORE_FEATURE_OPTIONS;
+    public readonly DEVICE_FIELDS = DEVICE_FIELD_OPTIONS;
     public readonly settings_key =
         this._settings.get('app.visitor_kiosk_metadata_key') ||
+        this._settings.get('app.visitor_kiosk_app') ||
         'visitor-kiosk_app';
 
     public readonly model = signal({
-        logo_light: '',
-        logo_dark: '',
-        default_route: '',
-        welcome_background: '',
+        logo_light: 'assets/logo-light.svg',
+        logo_dark: 'assets/logo-dark.svg',
+        default_route: 'welcome',
+        welcome_background: 'assets/img/skyline.webp',
         welcome_message: '',
         induction_enabled: false,
         induction_details: '',
         induction_after_details: false,
-        allow_self_registration: false,
+        allow_self_registration: true,
         allow_registration_time_options: false,
         allow_pass_number: false,
-        allow_printing_label: false,
-        allow_user_photo: false,
+        allow_printing_label: true,
+        allow_user_photo: true,
         allow_beverages: false,
         hide_explore: false,
         hide_building_image: false,
@@ -572,10 +540,8 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
             max_duration: 180,
         },
         explore: {
-            hide_device_fields: false,
-            show_legend: false,
-            hide_zones: false,
-            legend: [] as [string, string][],
+            hide_device_fields: [] as string[],
+            show_legend: true,
             colors: {} as Record<string, string>,
             show_booking_qr: false,
             disable: [] as string[],
@@ -625,26 +591,16 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         }
     }
 
-    public addLegend() {
-        const legend = [...(this.model().explore.legend || [])];
-        legend.push(['', '']);
-        this.model.update((m) => ({
-            ...m,
-            explore: { ...m.explore, legend },
-        }));
-    }
-
-    public removeLegend(index: number) {
-        const legend = [...(this.model().explore.legend || [])];
-        if (legend.length > index) legend.splice(index, 1);
-        this.model.update((m) => ({
-            ...m,
-            explore: { ...m.explore, legend },
-        }));
-    }
-
     private _patchModel(value: Record<string, unknown>) {
-        this.model.update((model) => applyAppSettings(model, value));
+        this.model.update((model) => {
+            const next = applyAppSettings(model, value);
+            // Older versions of this form saved `hide_device_fields` as a boolean
+            if (Array.isArray(next.explore.hide_device_fields)) return next;
+            return {
+                ...next,
+                explore: { ...next.explore, hide_device_fields: [] },
+            };
+        });
     }
 
     public async save() {

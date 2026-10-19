@@ -92,6 +92,33 @@ describe('ControlStateService', () => {
         expect(released).toContain('input/a');
     });
 
+    it('should keep source bindings when the same list is sent again', () => {
+        spectator.service.setID('sys-1');
+        TestBed.tick();
+        bindings['inputs'](['a', 'b']);
+        TestBed.tick();
+        // The server sends a new array with the same aliases on reconnect
+        bindings['inputs'](['a', 'b']);
+        TestBed.tick();
+        expect(released).not.toContain('input/a');
+    });
+
+    it('should rebind sources for a new system with the same list', () => {
+        spectator.service.setID('sys-1');
+        TestBed.tick();
+        bindings['inputs'](['a']);
+        TestBed.tick();
+        spectator.service.setID('sys-2');
+        TestBed.tick();
+        bindings['inputs'](['a']);
+        TestBed.tick();
+        expect(released).toContain('input/a');
+        expect(vi.mocked(client.getModule)).toHaveBeenCalledWith(
+            'sys-2',
+            'System',
+        );
+    });
+
     it('should return to bootstrap and forget the system when it does not exist', async () => {
         const router = spectator.inject(Router);
         const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);

@@ -8,12 +8,11 @@ The app reads zone settings under `enrolment_app` for the standard `/enrolment/`
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `name` | string | `"Enrolment"` | Name of the application. Used as the suffix on browser page titles. |
-| `title` | string | `"Enrolment Application"` | Base browser page title for the application. |
-| `description` | string | `"PlaceOS Enrolment UI written with Angular Framework"` | Description of the application. |
-| `short_name` | string | `"Enrolment"` | Short name of the application. Used as the app name for PlaceOS API metadata. |
-| `internal_user_domain` | string | – | Email domain that identifies users as internal staff (e.g. `"@yourcompany.com"`). When not set, the domain of the signed-in user's email address is used. |
+| `name` | string | `"Enrolment"` | If the URL pathname is empty, the app uses this name to make the settings metadata key. |
+| `short_name` | string | `"Enrolment"` | Prefix for console log messages. |
+| `internal_user_domain` | string | – | Email domain that identifies users as internal staff (e.g. `"@yourcompany.com"`). When not set, the domain of the signed-in user's email address is used. The app reads this value one time during startup. Zone settings that load later do not change it, so set it in the domain config `enrolment` object. |
 | `sentry_dsn` | string | – | Sentry DSN for error reporting. When set, application errors are reported to your Sentry instance. |
+| `prevent_space_init` | boolean | – | When `true`, the app does not load the bookable spaces at startup. When not set, the app loads all bookable spaces. The enrolment pages do not use this list. |
 
 ## Guest Form
 
@@ -31,19 +30,19 @@ The app reads zone settings under `enrolment_app` for the standard `/enrolment/`
 
 ## Branding
 
-Both logo settings accept an icon object with an image URL. The logo is shown in the coloured header bar at the top of the page — `logo_dark` is used with the normal (light) theme and `logo_light` is used when the dark theme is active.
+Each logo setting accepts an image URL string or an object with a `src` URL. The logo is shown in the coloured header bar at the top of the page — `logo_dark` is used with the normal (light) theme and `logo_light` is used when the dark theme is active. The dark theme needs `allow_dark_mode`.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `logo_light` | icon object | `{ "type": "img", "src": "assets/logo-light.svg" }` | Logo shown in the header when the dark theme is active. |
-| `logo_dark` | icon object | `{ "type": "img", "src": "assets/logo-dark.svg" }` | Logo shown in the header with the default light theme. |
+| `logo_light` | string or object | `{ "type": "img", "src": "assets/logo-light.svg" }` | Logo shown in the header when the dark theme is active. Needs `allow_dark_mode`. |
+| `logo_dark` | string or object | `{ "type": "img", "src": "assets/logo-dark.svg" }` | Logo shown in the header with the default light theme. |
+| `allow_dark_mode` | boolean | – | Allow the dark theme. When on, the app uses the theme saved in the user's settings. When off or not set, the app uses the light theme. |
 
 Example — use your own hosted logo:
 
 ```json
 {
     "logo_dark": {
-        "type": "img",
         "src": "https://example.com/assets/company-logo.svg"
     }
 }

@@ -23,6 +23,7 @@ import {
     type QueryResponse,
     queryZones,
     removeSystem,
+    showZone,
     SignagePlaylist,
 } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
@@ -393,6 +394,8 @@ export class SignageDisplayService {
                 ...this._zone_service.zoneTreeData(),
                 zone_ids: (zone: PlaceZone) =>
                     this._zone_service.zoneIdsWithAncestors([zone]),
+                load_zone: (zone_id: string) =>
+                    showZone(zone_id).then(decodeEntityNames, () => null),
                 onAdd: (data: Partial<PlaceSystem>) => addSignageDisplay(data),
                 onEdit: (id: string, data: Partial<PlaceSystem>) =>
                     updateSignageDisplay(id, data),

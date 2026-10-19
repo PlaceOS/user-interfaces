@@ -50,6 +50,7 @@ import { DesksStateService } from './desks-state.service';
                 position: relative;
                 height: 100%;
                 width: 100%;
+                padding-inline: 2rem;
             }
 
             [info] {

@@ -43,7 +43,6 @@ import {
     BLOCK_START_OPTIONS,
     BOOKABLE_HOUR_END_OPTIONS,
     BOOKABLE_HOUR_START_OPTIONS,
-    CACHE_DURATION_OPTIONS,
     EXPLORE_FEATURE_OPTIONS,
     MAX_DURATION_FULL_OPTIONS,
     MAX_DURATION_SHORT_OPTIONS,
@@ -684,33 +683,6 @@ import { errorText } from '../modal-actions';
                                         </mat-form-field>
                                     </div>
                                 </div>
-                                <div>
-                                    <label for="cache-duration">
-                                        Cache Period
-                                    </label>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <mat-select
-                                            [formField]="form.events.cache_duration_in_days"
-                                        >
-                                            @for (
-                                                opt of CACHE_DURATION;
-                                                track opt.value
-                                            ) {
-                                                <mat-option
-                                                    [value]="opt.value"
-                                                    >{{ opt.label }}</mat-option
-                                                >
-                                            }
-                                        </mat-select>
-                                        <mat-hint>
-                                            Number of days ahead to grab
-                                            bookings from the room driver
-                                        </mat-hint>
-                                    </mat-form-field>
-                                </div>
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
@@ -773,10 +745,6 @@ import { errorText } from '../modal-actions';
                                         [formField]="form.events.allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        label="Default bookings to all day"
-                                        [formField]="form.events.all_day_default"
-                                    ></settings-toggle>
-                                    <settings-toggle
                                         label="Disable booking requests"
                                         [formField]="form.events.booking_unavailable"
                                         info="Prevent making backend requests for bookings and give users links to create the booking in their own calendars"
@@ -792,10 +760,6 @@ import { errorText } from '../modal-actions';
                                     <settings-toggle
                                         label="Allow booking with assets"
                                         [formField]="form.events.has_assets"
-                                    ></settings-toggle>
-                                    <settings-toggle
-                                        label="Hide attendee actions"
-                                        [formField]="form.events.hide_user_actions"
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow booking multiple spaces"
@@ -853,10 +817,6 @@ import { errorText } from '../modal-actions';
                                     <settings-toggle
                                         label="Disable standalone bookings"
                                         [formField]="form.events.no_standalone"
-                                    ></settings-toggle>
-                                    <settings-toggle
-                                        label="Hide End Time option"
-                                        [formField]="form.events.hide_end_time"
                                     ></settings-toggle>
                                 </div>
                                 <div
@@ -1115,10 +1075,6 @@ import { errorText } from '../modal-actions';
                                         [formField]="form.desks.hide_checkin"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        label="Hide End Time option"
-                                        [formField]="form.desks.hide_end_time"
-                                    ></settings-toggle>
-                                    <settings-toggle
                                         label="Display times with building timezone"
                                         [formField]="form.desks.use_building_timezone"
                                     ></settings-toggle>
@@ -1241,7 +1197,7 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow booking with assets"
-                                        [formField]="form.bookings.allow_assets"
+                                        [formField]="form.bookings.has_assets"
                                     ></settings-toggle>
                                     <ng-container>
                                         <settings-toggle
@@ -1256,6 +1212,15 @@ import { errorText } from '../modal-actions';
                                             label="Allow international flag for visitors"
                                             [formField]="
                                                 form.visitors.allow_international
+                                            "
+                                        ></settings-toggle>
+                                    </ng-container>
+                                    <ng-container>
+                                        <settings-toggle
+                                            label="Allow visitors to be marked internal or external"
+                                            [formField]="
+                                                form.visitors
+                                                    .allow_visitor_internal_or_external
                                             "
                                         ></settings-toggle>
                                     </ng-container>
@@ -1553,12 +1518,39 @@ import { errorText } from '../modal-actions';
                                         </button>
                                     </div>
                                 }
+                                <div>
+                                    <label for="hide-device-fields">
+                                        Hidden Device Fields
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            [formField]="form.explore.hide_device_fields"
+                                            placeholder="None"
+                                            multiple
+                                        >
+                                            <mat-option value="mac">
+                                                MAC Address
+                                            </mat-option>
+                                            <mat-option value="manufacturer">
+                                                Manufacturer
+                                            </mat-option>
+                                            <mat-option value="os">OS</mat-option>
+                                            <mat-option value="ssid">SSID</mat-option>
+                                            <mat-option value="username">
+                                                Username
+                                            </mat-option>
+                                            <mat-option value="user">User</mat-option>
+                                        </mat-select>
+                                        <mat-hint>
+                                            Fields hidden from device info
+                                            tooltips
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
-                                    <settings-toggle
-                                        label="Hide device fields"
-                                        [formField]="form.explore.hide_device_fields"
-                                        info="Hides the MAC address, manufacturer, OS and SSID fields from device info tooltips"
-                                    ></settings-toggle>
                                     <settings-toggle
                                         label="Show Legend"
                                         [formField]="form.explore.show_legend"
@@ -1760,10 +1752,6 @@ import { errorText } from '../modal-actions';
                                     <settings-toggle
                                         label="Allow recurring parking bookings"
                                         [formField]="form.parking.allow_recurrence"
-                                    ></settings-toggle>
-                                    <settings-toggle
-                                        label="Hide End time option"
-                                        [formField]="form.parking.hide_end_time"
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Display times with building timezone"
@@ -1980,7 +1968,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
     public readonly MAX_DURATION_SHORT = MAX_DURATION_SHORT_OPTIONS;
     public readonly WEEK_START = WEEK_START_OPTIONS;
     public readonly SETUP_BREAKDOWN = SETUP_BREAKDOWN_OPTIONS;
-    public readonly CACHE_DURATION = CACHE_DURATION_OPTIONS;
     public readonly EXPLORE_FEATURE = EXPLORE_FEATURE_OPTIONS;
     public readonly BANNER_TYPE = BANNER_TYPE_OPTIONS;
 
@@ -1995,26 +1982,23 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         default_route: '',
         allow_support_ticket_images: false,
         basic_user_search: false,
-        hide_contacts: false,
-        colleagues_require_auth: false,
-        no_user_calendar: false,
+        colleagues_require_auth: true,
         hide_landing_sidebar: false,
         hide_landing_spaces: false,
         hide_landing_rooms: false,
         hide_colleagues: false,
         hide_landing_customise: false,
         hide_landing_widgets: [] as string[],
-        show_quick_links: false,
-        show_quick_book: false,
-        allow_dark_mode: true,
+        show_quick_links: true,
+        show_quick_book: true,
+        allow_dark_mode: false,
         show_changelog: true,
         global_search: true,
         use_imperial_units: false,
         external_support_url: '',
-        support_email: '',
+        support_email: 'support@place.tech',
         catering_provider: '',
         currency: 'USD',
-        departments: {} as Record<string, any>,
         week_start: 0,
         locales: [] as any[],
         hide_global_search_items: [] as string[],
@@ -2032,7 +2016,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             can_book_for_others: false,
             can_book_for_anyone: false,
             has_assets: false,
-            hide_user_actions: false,
             multiple_spaces: false,
             room_as_host: false,
             allow_externals: false,
@@ -2041,7 +2024,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             hide_attendees: false,
             hide_nearby_desks: false,
             allow_recurrence: false,
-            all_day_default: false,
             allow_multiday: false,
             use_bookings: false,
             allow_visibility: false,
@@ -2049,13 +2031,10 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             force_host: '',
             allow_daily_allday_recurrence: false,
             no_standalone: false,
-            allowed_future_days: 45,
+            allowed_future_days: 180,
             setup: 0,
             breakdown: 0,
-            max_duration: 360,
-            cache_duration_in_days: 14,
-            idle_timeout: 5,
-            hide_end_time: false,
+            max_duration: 480,
         },
         bookings: {
             allow_all_day: false,
@@ -2069,11 +2048,10 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             },
             all_day_default: false,
             use_building_timezone: false,
-            allow_assets: false,
+            has_assets: false,
             no_approval: false,
             can_book_for_others: false,
             multiple_visitors: false,
-            hide_end_time: false,
         },
         desks: {
             allow_all_day: false,
@@ -2094,13 +2072,11 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             default_select_as_map: false,
             show_calendar_links: false,
             auto_checkin: false,
-            available_period: 14,
+            available_period: 90,
             max_duration: 480,
             use_building_timezone: false,
-            hide_map: false,
             height_enabled: false,
             hide_checkin: false,
-            hide_end_time: false,
         },
         parking: {
             allow_all_day: false,
@@ -2115,23 +2091,21 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             auto_allocation: false,
             can_book_for_others: false,
             allow_recurrence: false,
-            default_select_as_map: false,
             show_calendar_links: false,
             auto_checkin: false,
-            available_period: 14,
+            available_period: 7,
             max_duration: 480,
             use_building_timezone: false,
-            hide_end_time: false,
         },
         lockers: {
-            allow_all_day: false,
+            allow_all_day: true,
             bookable_hours: {
                 start: null as number | null,
                 end: null as number | null,
             },
             all_day_default: false,
             show_calendar_links: false,
-            allow_time_changes: false,
+            allow_time_changes: true,
             use_building_timezone: false,
             max_duration: 480,
             hide_end_time: false,
@@ -2146,9 +2120,10 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             },
             show_calendar_links: false,
             allow_international: false,
+            allow_visitor_internal_or_external: false,
         },
         explore: {
-            hide_device_fields: false,
+            hide_device_fields: [] as string[],
             show_legend: false,
             hide_zones: false,
             hide_devices: true,

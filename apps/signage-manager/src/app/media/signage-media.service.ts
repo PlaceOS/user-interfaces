@@ -70,6 +70,7 @@ import {
     generateThumbnail,
     getMediaMetadata,
 } from './media-file.util';
+import { MediaPreviewService } from './media-preview.service';
 import {
     applyMediaView,
     DEFAULT_MEDIA_VIEW,
@@ -229,6 +230,7 @@ export class SignageMediaService {
     private readonly _context = inject(SignageContextService);
     private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _plugin_service = inject(SignagePluginService);
+    private readonly _preview = inject(MediaPreviewService);
     // Kept on the instance, so specs can stub the file processing
     private _generateThumbnail = generateThumbnail;
     private _getMediaMetadata = getMediaMetadata;
@@ -387,7 +389,9 @@ export class SignageMediaService {
                 (a, b) => b.created_at - a.created_at,
             ),
         );
-        this._media_tags.reload();
+        // Only an item with tags changes the tag counts. A bulk upload adds
+        // items without tags, one at a time.
+        if (item.tags?.length) this._media_tags.reload();
     }
 
     /** Take deleted media out of the loaded list and its total, in place, as
@@ -454,21 +458,8 @@ export class SignageMediaService {
         );
     }
 
-    public async previewMedia(item: SignageMedia) {
-        const plugin =
-            item.media_type === 'plugin' && item.plugin_id
-                ? await this._plugin_service.resolvePlugin(item.plugin_id)
-                : undefined;
-        const { MediaPreviewModalComponent } =
-            await import('../shared/media-preview-modal.component');
-        this._dialog.open(MediaPreviewModalComponent, {
-            data: {
-                media: item,
-                plugin,
-                group_id: this._context.api_group_id(),
-            },
-            panelClass: 'fullscreen-dialog',
-        });
+    public previewMedia(item: SignageMedia) {
+        return this._preview.previewMedia(item);
     }
 
     public async previewFileFromInput(event: Event) {
@@ -658,7 +649,8 @@ export class SignageMediaService {
                 ariaLabelledBy: 'image-gen-modal-title',
             });
             const result = await dialogClosed(ref);
-            this._context.changed();
+            // A cancel changes nothing, so the lists do not need a reload
+            if (result) this._context.changed();
             return result;
         } finally {
             this._image_gen_modal_open = false;

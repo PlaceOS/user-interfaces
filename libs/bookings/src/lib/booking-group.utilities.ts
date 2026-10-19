@@ -6,6 +6,7 @@ import {
     unique,
     User,
 } from '@placeos/common';
+import { toVisitorInternalOrExternal } from './booking-form.model';
 import { removeBooking } from './bookings.fn';
 
 /** Give each new group its own asset ID and preserve it during edits. */
@@ -39,6 +40,9 @@ export function visitorMemberPatch(
         international:
             (member as any).international ||
             !!member.extension_data?.international,
+        visitor_internal_or_external: toVisitorInternalOrExternal(
+            member.extension_data?.visitor_internal_or_external,
+        ),
         company: (member as any).company || member.organisation,
         phone: member.phone,
         zones: unique(
@@ -85,6 +89,9 @@ export function mapGroupMembers(type: BookingType, members: User[] = []) {
             international:
                 !!(member as any).international ||
                 !!member.extension_data?.international,
+            visitor_internal_or_external: toVisitorInternalOrExternal(
+                member.extension_data?.visitor_internal_or_external,
+            ),
         }));
 }
 
@@ -119,6 +126,14 @@ export function mapGroupMembersFromBookings(
                                   group_member?.international ||
                                   booking.extension_data?.international
                               ),
+                              visitor_internal_or_external:
+                                  group_member?.visitor_internal_or_external ===
+                                  'external'
+                                      ? 'external'
+                                      : toVisitorInternalOrExternal(
+                                            booking.extension_data
+                                                ?.visitor_internal_or_external,
+                                        ),
                           },
                       })
                     : new User({
@@ -154,6 +169,14 @@ export function mapGroupMembersFromExtension(
                         extension_data: {
                             ...(member.extension_data || {}),
                             international: !!member.international,
+                            ...(is_visitor
+                                ? {
+                                      visitor_internal_or_external:
+                                          toVisitorInternalOrExternal(
+                                              member.visitor_internal_or_external,
+                                          ),
+                                  }
+                                : {}),
                         },
                         international: is_visitor
                             ? !!member.international

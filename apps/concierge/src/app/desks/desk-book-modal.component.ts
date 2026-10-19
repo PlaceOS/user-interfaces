@@ -6,7 +6,6 @@ import {
     i18n,
     notifyError,
     notifySuccess,
-    SettingsService,
 } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
@@ -46,7 +45,6 @@ export class DeskBookModalComponent implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _dialog_ref =
         inject<MatDialogRef<DeskBookModalComponent>>(MatDialogRef);
-    private _settings = inject(SettingsService);
 
     public readonly event = output<DialogEvent>();
     public readonly loading = signal(false);
@@ -61,18 +59,6 @@ export class DeskBookModalComponent implements OnInit {
 
     public ngOnInit() {
         this._booking_form.newForm('desk');
-        if (!this.model().id) {
-            this.model.update((m) => ({
-                ...m,
-                duration:
-                    this._settings.get('app.desks.default_duration') || 60,
-                all_day: !!(
-                    this._settings.get('app.desks.all_day_default') ??
-                    this._settings.get('app.bookings.all_day_default')
-                ),
-            }));
-            this._booking_form.applyDurationSettings();
-        }
     }
 
     public async save() {

@@ -103,12 +103,11 @@ test.describe('US-SM-033: Navigate Using Sidebar', () => {
         await navigateWithMock(page, ALERTS_URL);
         await waitForSidebar(page);
 
-        const active_link = page.locator(
-            '[sidebar] a[routerLinkActive="bg-secondary-focus"]',
-        );
-        await expect(active_link.first()).toBeVisible({
+        const alerts_link = page.locator('[sidebar] a[aria-label="Alerts"]');
+        await expect(alerts_link).toHaveAttribute('aria-current', 'page', {
             timeout: ACTION_TIMEOUT,
         });
+        await expect(alerts_link).toHaveClass(/bg-secondary-focus/);
     });
 });
 

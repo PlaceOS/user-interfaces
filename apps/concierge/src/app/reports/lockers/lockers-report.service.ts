@@ -1,6 +1,5 @@
 import { formatDate } from '@angular/common';
 import { computed, inject, Injectable, resource, signal } from '@angular/core';
-import { queryLockerAssetsForZones } from '@placeos/assets';
 import {
     Booking,
     downloadFile,
@@ -53,30 +52,46 @@ export class LockersReportService {
         return days;
     });
 
-    private readonly _counts = resource({
-        params: () => this._options(),
-        defaultValue: {} as Record<string, number>,
-        loader: async ({ params: filters }) => {
-            let zones = (filters.zones || []).filter(
+    /**
+     * Values that select the locker counts. Equal values keep the same
+     * object, so date changes do not load the lockers again. Building,
+     * region, level and Generate Report changes do.
+     */
+    private readonly _params = computed(
+        () => {
+            const use_region = !!this._settings.get('app.use_region');
+            const building = this._org.active_building();
+            const region = this._org.active_region();
+            let zones = (this._options().zones || []).filter(
                 (z: unknown) => z !== -1 && z !== 'All',
             );
             if (!zones.length) {
                 zones = (
-                    this._settings.get('app.use_region')
-                        ? this._org.levelsForRegion()
-                        : this._org.levelsForBuilding()
+                    use_region
+                        ? this._org.levelsForRegion(region)
+                        : this._org.levelsForBuilding(building)
                 )
                     .filter((_) => _.tags.includes('lockers'))
                     .map((_) => _.id);
             }
-            if (!zones.length) return {};
-            const scope_id = this._settings.get('app.use_region')
-                ? this._org.region?.id
-                : this._org.building?.id;
-            if (!scope_id) return {};
-            const lockers = await queryLockerAssetsForZones([scope_id]).catch(
-                () => [],
-            );
+            return {
+                zones,
+                scope_id: use_region ? region?.id : building?.id,
+                version: this._report.inventory_version(),
+            };
+        },
+        { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
+    );
+
+    private readonly _counts = resource({
+        params: () => this._params(),
+        defaultValue: {} as Record<string, number>,
+        loader: async ({ params: { zones, scope_id } }) => {
+            if (!zones.length || !scope_id) return {};
+            // Shares the request that the report counts make at the same time
+            const lockers = await this._report
+                .queryLockers(scope_id)
+                .catch(() => []);
             const list = zones.map(
                 (z) =>
                     [

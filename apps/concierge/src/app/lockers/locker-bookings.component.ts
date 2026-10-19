@@ -24,7 +24,7 @@ import { LockerStateService } from './locker-state.service';
         @let more_pages = has_more_pages();
         <div class="h-4 w-full"></div>
         <div
-            class="flex h-full w-full flex-col pt-4"
+            class="w-fit min-w-full px-8 pt-4"
             [class.pb-16]="!loading() && more_pages"
             [class.pb-4]="!(!loading() && more_pages)"
         >
@@ -35,7 +35,7 @@ import { LockerStateService } from './locker-state.service';
                 [row_key]="rowKey"
                 [can_select]="canSelect"
                 [(selected)]="selected"
-                class="mr-4 block w-full min-w-6xl flex-1 overflow-auto text-sm"
+                class="block min-w-6xl text-sm"
                 [data]="bookings()"
                 [columns]="[
                     {
@@ -264,12 +264,12 @@ import { LockerStateService } from './locker-state.service';
         </div>
         @if (!loading() && more_pages) {
             <button
-                btn
                 matRipple
-                class="absolute bottom-2 left-4 z-20 w-32"
+                class="border-base-300 bg-base-100 fixed bottom-2 left-1/2 flex items-center gap-2 rounded-full border px-3 py-2 text-sm shadow-xl"
                 (click)="loadMore()"
             >
-                {{ 'COMMON.LOAD_MORE' | translate }}
+                <icon>arrow_cool_down</icon>
+                <div class="pr-1">{{ 'COMMON.LOAD_MORE' | translate }}</div>
             </button>
         }
         <booking-approval-bar

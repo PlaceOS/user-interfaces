@@ -276,6 +276,35 @@ describe('BookingFormService', () => {
         expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
     });
 
+    it('should share an in-flight resource list load between callers', async () => {
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
+
+        await Promise.all([
+            spectator.service.loadResourceList('desks'),
+            spectator.service.loadResourceList('desks'),
+        ]);
+        expect(ts_client.listChildMetadata).toHaveBeenCalledTimes(1);
+
+        // A load after the first one settles gets fresh data
+        await spectator.service.loadResourceList('desks');
+        expect(ts_client.listChildMetadata).toHaveBeenCalledTimes(2);
+    });
+
+    it('should stop the form loads on release and not start them on clear', () => {
+        const active = () => (spectator.service as any)._network_active();
+        spectator.service.newForm('desk');
+        expect(active()).toBe(true);
+
+        spectator.service.releaseNetwork();
+        spectator.service.clearForm();
+        expect(active()).toBe(false);
+
+        // A list call keeps the loads active until it resolves
+        void spectator.service.listResources();
+        spectator.service.releaseNetwork();
+        expect(active()).toBe(true);
+    });
+
     it('should debounce identical booked resource queries', async () => {
         booked_result = ['desk-1'];
         const query = {
@@ -870,6 +899,78 @@ describe('BookingFormService', () => {
         );
         expect(spectator.service.model().duration).toBe(240);
         vi.useRealTimers();
+    });
+
+    describe('configured default duration', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date(2026, 9, 15, 9, 0));
+            const get = spectator.inject(SettingsService).get as Mock;
+            get.mockImplementation((key: string) =>
+                key === 'app.desks.default_duration' ? 90 : undefined,
+            );
+        });
+
+        afterEach(() => vi.useRealTimers());
+
+        it('starts a new form with the configured default duration', () => {
+            spectator.service.newForm('desk');
+            vi.runAllTimers();
+            TestBed.tick();
+
+            const { date, duration, date_end } = spectator.service.model();
+            expect(duration).toBe(90);
+            expect(date_end).toBe(date + 90 * 60 * 1000);
+        });
+
+        it.each([
+            ['default_duration', 120, 'duration'],
+            ['all_day_default', true, 'all_day'],
+        ] as const)(
+            'falls back to app.bookings.%s',
+            (setting, value, field) => {
+                const get = spectator.inject(SettingsService).get as Mock;
+                get.mockImplementation((key: string) =>
+                    key === `app.bookings.${setting}` ? value : undefined,
+                );
+
+                spectator.service.newForm('desk');
+                vi.runAllTimers();
+                TestBed.tick();
+
+                expect(spectator.service.model()[field]).toBe(value);
+            },
+        );
+
+        it('keeps a duration the user chose over the default', () => {
+            const node = spectator.service.form.duration();
+            node.value.set(120);
+            node.markAsDirty();
+            TestBed.tick();
+
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+            vi.runAllTimers();
+            TestBed.tick();
+
+            expect(spectator.service.model().duration).toBe(120);
+        });
+
+        it('keeps the duration of an existing booking', () => {
+            spectator.service.newForm(
+                'desk',
+                new Booking({
+                    id: 'booking-1',
+                    booking_type: 'desk',
+                    date: new Date(2026, 9, 16, 9, 0).valueOf(),
+                    duration: 45,
+                }),
+            );
+            vi.runAllTimers();
+            TestBed.tick();
+
+            expect(spectator.service.model().duration).toBe(45);
+        });
     });
 
     it('should align loaded draft bookings to the start of bookable hours', () => {
@@ -3850,6 +3951,19 @@ describe('BookingFormService', () => {
             node.value.set(value);
             node.markAsDirty();
         }
+
+        it('does not start the form loads when a clear waits for the user', async () => {
+            const active = () => (spectator.service as any)._network_active();
+            spectator.service.releaseNetwork();
+            const deferred = deferCurrentUser();
+            try {
+                spectator.service.clearForm();
+                await deferred.release();
+                expect(active()).toBe(false);
+            } finally {
+                deferred.restore();
+            }
+        });
 
         it('keeps input the user entered before initialisation finished', async () => {
             const deferred = deferCurrentUser();

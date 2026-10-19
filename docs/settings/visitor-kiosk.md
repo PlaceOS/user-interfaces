@@ -8,13 +8,15 @@ Set settings in Backoffice zone metadata under `visitor-kiosk_app` for the stand
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
-| `name` | string | `Visitor-Kiosk` | Name of the application. |
-| `title` | string | `Visitor Kiosk` | Title shown in the browser tab. |
-| `description` | string | `Kiosk UI written with Angular Framework` | Description of the application. |
-| `short_name` | string | `KIOSK` | Short name for the application. |
-| `default_route` | string | – | Route the app redirects to after it initialises. Defaults to `welcome` when unset. |
+| `name` | string | `Visitor-Kiosk` | Application name sent with PlaceOS API requests. If you do not set it, the app uses `short_name`. |
+| `short_name` | string | `KIOSK` | Prefix for console log messages. The app also uses it as the API application name when `name` is not set. |
+| `default_route` | string | – | Route the app redirects to after it initialises. Defaults to `welcome` when unset. The Concierge form keeps this value but does not show a field for it. |
+| `inactivity_timeout_secs` | number | – | Number of **seconds** with no touch, click or key press before the kiosk returns to the welcome page. This stops the camera and removes visitor details from the screen. The welcome and setup pages stay open. Set to `0` to turn off the reset. Defaults to `120` when unset. The explore page uses the same setting to reset the map, but its fallback is `180` seconds. `0` also turns off the map reset. |
+| `use_24_hour_time` | boolean | – | Show times with a 24-hour clock on the check-in result page and the explore booking form. When not set, the app uses a 12-hour clock. |
 | `logo_light` | string | `assets/logo-light.svg` | URL of the logo shown when the app is using a light theme. |
 | `logo_dark` | string | `assets/logo-dark.svg` | URL of the logo shown when the app is using a dark theme. |
+
+The app does not set the browser page title from settings.
 
 ## Welcome Page
 
@@ -24,7 +26,22 @@ Set settings in Backoffice zone metadata under `visitor-kiosk_app` for the stand
 | `welcome_message` | string | – | HTML message displayed on the welcome page. When unset, a translated default message is shown. |
 | `hide_building_image` | boolean | `false` | Hide the building image panel on the welcome, check-in and registration pages. |
 | `hide_explore` | boolean | – | Hide the explore (building map) button on the welcome page. |
-| `chat.enabled` | boolean | `false` | Show the chat widget. |
+| `chat.enabled` | boolean | – | Show the chat widget. The widget does not show when you do not set a value. |
+
+## Banners
+
+| Setting | Type | Default | Description |
+| --- | --- | --- | --- |
+| `environment_bar` | string | – | CSS colour for thin identifier bars at the top and bottom of the app, for example `"#f59e0b"`. Leave unset to hide the bars. |
+| `banner` | object | – | Message banner at the top of the app. The user can close it. See below. |
+
+The `banner` object:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | string | Unique ID for the message. After a user closes a banner, it stays hidden until the `id` changes. |
+| `type` | `"info"`, `"warn"` or `"error"` | Colour style for the banner. Defaults to `"info"`. |
+| `content` | string | Message text to show. |
 
 ## Check-in & Registration
 
@@ -76,7 +93,7 @@ Show an induction (site rules / safety) acceptance step during check-in and regi
 
 ## Visitor Booking Options
 
-These control the time options on the self-registration form. Values under `visitors` override the matching values under `bookings`.
+These control the time options on the self-registration form. Values under `visitors` override the matching values under `bookings`. The `bookings` keys are legacy aliases. Use the `visitors` keys for new settings. The Concierge form writes only the `visitors` keys.
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -95,14 +112,27 @@ Example:
 
 ## Explore (Building Map)
 
-Settings for the map shown on the explore page (reached via the explore button on the welcome page).
+Settings for the map shown on the explore page (reached via the explore button on the welcome page). The explore page uses the Map Kiosk map view, so these keys work the same as in [Map Kiosk](map-kiosk.md).
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
 | `explore.colors` | object | See example below | Mapping of status keys to colour values. Keys are usually in the format `<type>-<status>`. |
-| `explore.can_select_building` | boolean | `false` | Allow the user to select different buildings to view. |
-| `explore.show_legend_group_names` | boolean | `true` | Show group names in the map legend. |
-| `explore.legend` | object | `{}` | Mapping of group names to the legend items (`{ "id", "name" }`) to display for that group. |
+| `explore.search_enabled` | boolean | – | Show the search bar on the explore page. The search bar does not show when you do not set a value. |
+| `explore.show_legend` | boolean | – | Show the legend on the explore page. The legend shows unless the value is `false`. |
+| `explore.show_booking_qr` | boolean | – | When a visitor selects a room to book, show a QR code to book on a personal device instead of the booking form. |
+| `explore.disable` | string[] | – | Map layers to turn off. This turns off the features, actions, labels and styles of each layer. Layer names include `devices`, `desks`, `lockers`, `parking`, `spaces`, `spaces-presence` and `zones`. A comma-separated string is also accepted. |
+| `explore.disable_features` | string[] | – | Map layers whose features are turned off. |
+| `explore.disable_actions` | string[] | – | Map layers whose click actions are turned off. |
+| `explore.disable_labels` | string[] | – | Map layers whose labels are turned off. |
+| `explore.disable_styles` | string[] | – | Map layers whose styles are turned off. |
+| `explore.hide_device_fields` | string[] | – | Fields to hide in device tooltips: `mac`, `manufacturer`, `os`, `ssid`, `username` and `user`. |
+| `explore.use_zone_polygons` | boolean | – | Draw zone areas with their polygon data. |
+| `explore.show_zone_labels` | boolean | – | Show labels for zone areas. |
+| `explore.show_zone_sensor_info` | boolean | – | Show sensor values in zone area labels. |
+| `explore.area_count_key` | string | – | Key of the zone area value to use as the people count. The map uses `count` when you do not set a value. |
+| `use_imperial_units` | boolean | – | Show zone sensor temperatures in Fahrenheit. |
+| `desks.enable_maps` | boolean | – | Let people book desks from the map. Desk booking is on unless the value is `false`. |
+| `desks.show_users` | boolean | – | Show the name of the person at a desk in the desk tooltip. Names show unless the value is `false`. |
 
 Default map colours:
 
@@ -130,27 +160,17 @@ Default map colours:
 }
 ```
 
-Example legend:
+Example:
 
 ```json
 {
     "explore": {
-        "show_legend_group_names": true,
-        "legend": {
-            "Rooms": [
-                { "id": "space-available", "name": "Available" },
-                { "id": "space-unavailable", "name": "In Use" }
-            ]
-        }
+        "search_enabled": true,
+        "disable": ["devices"],
+        "hide_device_fields": ["mac", "ssid"]
     }
 }
 ```
-
-## Home Page
-
-| Setting | Type | Default | Description |
-| --- | --- | --- | --- |
-| `home` | object | `{}` | Data associated with rendering the home page in the app. |
 
 ## Languages
 

@@ -188,6 +188,7 @@ import { SignageStateService } from './signage-state.service';
 })
 export class SignageMediaComponent extends AsyncHandler {
     private _state = inject(SignageStateService);
+    private readonly _uses_lists = this._state.use('playlists');
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 

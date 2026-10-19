@@ -22,15 +22,16 @@ const PROGRESS_ICONS: Record<string, string> = {
 /**
  * Mic button for the room voice assistant.
  * Tap to give a command without the wake phrase. Tap again to cancel.
- * Shows what the assistant hears and what it is doing.
+ * Shows when it hears speech, what it heard and what it is doing.
  */
 @Component({
     selector: 'voice-assistant',
     template: `
         @if (available()) {
             <div
-                class="relative m-4 flex h-12 w-12 items-center justify-center overflow-visible rounded-full transition-colors"
+                class="ring-success relative m-4 flex h-12 w-12 items-center justify-center overflow-visible rounded-full transition"
                 [class.bg-base-400]="state() === 'idle'"
+                [class.ring-4]="hearing()"
                 [class.bg-success]="state() === 'listening'"
                 [class.text-success-content]="state() === 'listening'"
                 [class.bg-info]="state() === 'processing'"
@@ -57,19 +58,22 @@ const PROGRESS_ICONS: Record<string, string> = {
                     }
                     <icon
                         class="relative text-2xl"
-                        [class.animate-pulse]="state() === 'processing'"
-                        >{{
-                            state() === 'processing' ? 'graphic_eq' : 'mic'
-                        }}</icon
+                        [class.animate-pulse]="
+                            state() === 'processing' || !ready()
+                        "
+                        >{{ icon() }}</icon
                     >
                 }
                 <button
                     matRipple
                     class="absolute inset-0 rounded-full opacity-0"
+                    [disabled]="!ready()"
                     [attr.aria-label]="
-                        state() === 'listening'
-                            ? 'Stop listening'
-                            : 'Give a voice command'
+                        !ready()
+                            ? 'Voice control is loading'
+                            : state() === 'listening'
+                              ? 'Stop listening'
+                              : 'Give a voice command'
                     "
                     [attr.aria-pressed]="state() === 'listening'"
                     (click)="activate(); $event.stopPropagation()"
@@ -108,6 +112,14 @@ export class VoiceAssistantComponent {
     public readonly enabled = input<boolean>(undefined);
     public readonly activate = () => this._service.activate();
     public readonly state = this._service.state;
+    /** Shows a ring while the microphone picks up speech, so people know they were heard */
+    public readonly hearing = this._service.hearing;
+    /** False while speech to text loads. The mic shows an hourglass and ignores taps. */
+    public readonly ready = this._service.ready;
+    public readonly icon = computed(() => {
+        if (!this.ready()) return 'hourglass_empty';
+        return this.state() === 'processing' ? 'graphic_eq' : 'mic';
+    });
     public readonly bars = new Array(MIC_LEVEL_BARS);
     /** Shows live microphone bars while listening. Falls back to a pulse without audio. */
     public readonly show_bars = computed(
@@ -123,13 +135,30 @@ export class VoiceAssistantComponent {
     public readonly status = computed(() => {
         const text = this._service.current_text();
         switch (this.state()) {
-            case 'listening':
+            case 'listening': {
+                // Live words show while the user speaks and until the full text is ready
+                const live = this._service.live_text();
+                const busy =
+                    this._service.hearing() || this._service.transcribing();
+                if (live && busy) {
+                    const words = live.replace(/[.,!?]+$/, '');
+                    return { icon: 'graphic_eq', message: `“${words}…”` };
+                }
+                if (this._service.hearing()) {
+                    return { icon: 'graphic_eq', message: 'Hearing you...' };
+                }
+                if (this._service.transcribing()) {
+                    return { icon: 'pending', message: 'Processing...' };
+                }
                 return { icon: 'hearing', message: text || 'Listening...' };
+            }
             case 'processing': {
                 const progress = this._service.progress();
                 return {
                     icon: PROGRESS_ICONS[progress?.function] || 'pending',
-                    message: progress?.message || text || 'Working on it...',
+                    message:
+                        progress?.message ||
+                        (text ? `“${text}”` : 'Working on it...'),
                 };
             }
             default:

@@ -8,45 +8,25 @@ Set settings in Backoffice zone metadata under `assistant-panel_app` for the sta
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `name` | string | `"Assistant"` | Name of the application. Appended to browser page titles and used as the fallback location for bookings. |
-| `title` | string | `"PlaceOS"` | Base browser page title for the application. |
-| `description` | string | `"Assistant UI"` | Description of the application. |
-| `short_name` | string | `"PlaceOS"` | Short name for the application. Used as the app name for PlaceOS API metadata and page titles. |
-| `general` | object | `{}` | General settings associated with the app. |
-| `prevent_space_init` | boolean | `true` | Whether to prevent loading the full list of bookable spaces on application startup. Leave this on unless the panel needs the full space list, as loading it can be slow in large organisations. |
+| `name` | string | `"Assistant"` | Application name sent with PlaceOS API requests. If you do not set it, the app uses `short_name`. |
+| `short_name` | string | `"PlaceOS"` | Prefix for console log messages. The app also uses it as the API application name when `name` is not set. |
 
-## Branding
+The app does not set the browser page title from settings.
 
-Both logo settings accept an icon object — see the example below.
+## Banners
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `logo` | icon object | `{ "type": "img", "src": "assets/logo-light.svg" }` | Application logo to display on light backgrounds. |
-| `logo_dark` | icon object | `{ "type": "img", "src": "assets/logo-dark.svg" }` | Application logo to display on dark backgrounds. |
+| `environment_bar` | string | – | CSS colour for thin identifier bars at the top and bottom of the panel, for example `"#f59e0b"`. Leave unset to hide the bars. |
+| `banner` | object | – | Message banner at the top of the panel. The user can close it. See below. |
 
-An icon object has a required `type` of either `"img"` (an image URL) or `"icon"` (an icon font glyph):
+The `banner` object:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `type` | `"img"` or `"icon"` | Type of icon to render. |
-| `src` | string | URL of the image to display (when `type` is `"img"`). |
-| `class` | string | CSS class to apply to the icon container element. |
-| `content` | string | Content to add to the icon container element (when `type` is `"icon"`). |
-
-Example — use your own hosted logo:
-
-```json
-{
-    "logo": {
-        "type": "img",
-        "src": "https://example.com/assets/company-logo.svg"
-    },
-    "logo_dark": {
-        "type": "img",
-        "src": "https://example.com/assets/company-logo-white.svg"
-    }
-}
-```
+| `id` | string | Unique ID for the message. After a user closes a banner, it stays hidden until the `id` changes. |
+| `type` | `"info"`, `"warn"` or `"error"` | Colour style for the banner. Defaults to `"info"`. |
+| `content` | string | Message text to show. |
 
 ## AI Assistant Chat
 

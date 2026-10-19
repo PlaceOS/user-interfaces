@@ -15,7 +15,7 @@ import {
     SignagePlaylist,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import { SignageMediaService } from '../media/signage-media.service';
+import { MediaPreviewService } from '../media/media-preview.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { SignageContextService } from '../signage-context.service';
 import { playlistMediaItems } from '../signage-playlist.util';
@@ -128,7 +128,7 @@ export class PlaylistApproveModalComponent {
         MatDialogRef<PlaylistApproveModalComponent>,
     );
     private readonly _context = inject(SignageContextService);
-    private readonly _media_service = inject(SignageMediaService);
+    private readonly _media_preview = inject(MediaPreviewService);
     private readonly _playlist_service = inject(SignagePlaylistService);
 
     public readonly loading = signal('');
@@ -233,6 +233,6 @@ export class PlaylistApproveModalComponent {
     }
 
     public previewItem(item: SignageMedia) {
-        this._media_service.previewMedia(item);
+        this._media_preview.previewMedia(item);
     }
 }

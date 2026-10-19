@@ -99,6 +99,9 @@ export class VisitorsReportService {
         const show_international = !!this._settings.get(
             'app.visitors.allow_international',
         );
+        const show_visitor_internal_or_external = !!this._settings.get(
+            'app.visitors.allow_visitor_internal_or_external',
+        );
         if (!bookings?.length) return;
         const is_same = isSameDay(options.start, options.end);
         const date = is_same
@@ -120,6 +123,14 @@ export class VisitorsReportService {
                             booking.extension_data?.international
                                 ? 'COMMON.YES'
                                 : 'COMMON.NO',
+                        );
+                    }
+                    if (show_visitor_internal_or_external) {
+                        b.visitor_internal_or_external = i18n(
+                            booking.extension_data
+                                ?.visitor_internal_or_external === 'external'
+                                ? 'COMMON.TYPE_EXTERNAL'
+                                : 'COMMON.TYPE_INTERNAL',
                         );
                     }
                     for (const key of REMOVE_KEYS) delete b[key];

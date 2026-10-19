@@ -27,7 +27,7 @@ import {
 } from './debug-overlay.component';
 import { DEBUG_STORAGE_KEY, isDebugEnabled } from './debug-state';
 import { registerSignageDiagnostics } from './diagnostics';
-import { time, validateMedia } from './media-helpers';
+import { isMediaValid, time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
 import { recordHeartbeat } from './watchdog';
@@ -422,7 +422,7 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
      */
     private _isOverridePassDone(playlist_id: string) {
         const last_valid = this.override_playlist()
-            .playlist.filter((item) => !validateMedia(item))
+            .playlist.filter((item) => isMediaValid(item))
             .at(-1);
         return !last_valid || last_valid.playlist === playlist_id;
     }

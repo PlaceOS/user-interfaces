@@ -249,27 +249,33 @@ const MAX_PAGES = 50;
 /**
  * List all bookings
  * @param q Parameters to pass to the API request
+ * @param options.signal Stops requests for more pages after an abort.
+ * The function then returns an empty list, so callers must discard it.
  */
 export async function queryAllBookings(
     q: BookingsQueryParams,
+    options: { signal?: AbortSignal } = {},
 ): Promise<Booking[]> {
+    const { signal } = options;
     try {
+        if (signal?.aborted) return [];
         let { data, next } = await query<Booking>({
             query_params: q,
             fn: (item) => new Booking(item),
             endpoint: BOOKINGS_ENDPOINT,
             path: '',
         });
-        let list = [...data];
+        const list = [...data];
         let count = 1;
         while (next && count <= MAX_PAGES) {
+            if (signal?.aborted) return [];
             const resp = await next();
             data = resp.data;
             next = resp.next;
-            list = [...list, ...data];
+            list.push(...data);
             count += 1;
         }
-        return unique(list, 'id');
+        return signal?.aborted ? [] : unique(list, 'id');
     } catch (_) {
         return [];
     }

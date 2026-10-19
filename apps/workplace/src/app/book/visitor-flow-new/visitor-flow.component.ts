@@ -3,7 +3,13 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BookingFlowView, BookingFormService } from '@placeos/bookings';
+import {
+    BookingFlowView,
+    BookingFormService,
+    mapGroupMembersFromBookings,
+    recentVisitorEntry,
+    toVisitorInternalOrExternal,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
@@ -19,7 +25,6 @@ import {
     openConfirmModal,
     TranslatePipe,
 } from '@placeos/components';
-import { recentVisitorEntry } from './recent-visitors';
 import { VisitorFlowDetailsComponent } from './visitor-flow-details.component';
 import { VisitorFlowInvitesComponent } from './visitor-flow-invites.component';
 import { VisitorFlowRecentComponent } from './visitor-flow-recent.component';
@@ -193,15 +198,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
             await this._booking_form.loadGroupSiblings(booking);
         if (!siblings?.length) return;
         this._existing_siblings = siblings;
-        const visitors = siblings.map(
-            (s) =>
-                new User({
-                    name: s.asset_name,
-                    email: s.asset_id,
-                    organisation: s.extension_data?.company,
-                    phone: s.extension_data?.phone,
-                }),
-        );
+        const visitors = mapGroupMembersFromBookings(siblings, true);
         this._model.update((m) => ({
             ...m,
             assets: visitors,
@@ -305,12 +302,24 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                             name: a.name,
                             company: a.organisation || a.company,
                             phone: a.phone,
+                            international: !!a.extension_data?.international,
+                            visitor_internal_or_external:
+                                toVisitorInternalOrExternal(
+                                    a.extension_data
+                                        ?.visitor_internal_or_external,
+                                ),
                         }),
                     ),
             ]);
         } else {
-            const { asset_id, asset_name, company, phone, international } =
-                value;
+            const {
+                asset_id,
+                asset_name,
+                company,
+                phone,
+                international,
+                visitor_internal_or_external,
+            } = value;
             this._settings.saveUserSetting('visitor-invitees', [
                 ...old_visitors.filter(
                     (v) => `${v}`.split('|')[0] !== asset_id,
@@ -321,6 +330,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                     company,
                     phone,
                     international,
+                    visitor_internal_or_external,
                 }),
             ]);
         }

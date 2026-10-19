@@ -170,27 +170,48 @@ export async function queryEventHistory(
     }
 }
 
+/** Upper bound for event pages. 500 pages of 200 events is 100,000 events. */
+export const MAX_EVENT_PAGES = 500;
+
+/**
+ * List all events
+ * @param q Parameters to pass to the API request
+ * @param options.signal Stops requests for more pages after an abort.
+ * The function then returns an empty list, so callers must discard it.
+ * @returns An empty list on a request error
+ * @throws When the list has more than `MAX_EVENT_PAGES` pages, so that
+ * callers do not show a part of the list as the full list
+ */
 export async function queryAllEvents(
     q: CalendarEventQueryParams,
+    options: { signal?: AbortSignal } = {},
 ): Promise<CalendarEvent[]> {
+    const { signal } = options;
+    const list: CalendarEvent[] = [];
+    let complete = false;
     try {
+        if (signal?.aborted) return [];
         let { data, next } = await query<CalendarEvent>({
             query_params: q,
             fn: (item) => new CalendarEvent(item),
             endpoint: EVENTS_ENDPOINT,
             path: '',
         });
-        let list = [...data];
-        while (next) {
-            const resp = await next();
-            data = resp.data;
-            next = resp.next;
-            list = [...list, ...data];
+        list.push(...data);
+        for (let page = 1; next && page < MAX_EVENT_PAGES; page++) {
+            if (signal?.aborted) return [];
+            ({ data, next } = await next());
+            list.push(...data);
         }
-        return list;
+        complete = !next;
     } catch (_) {
         return [];
     }
+    if (signal?.aborted) return [];
+    if (!complete) {
+        throw new Error(`Event list has more than ${MAX_EVENT_PAGES} pages`);
+    }
+    return list;
 }
 
 /**

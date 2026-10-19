@@ -4,35 +4,11 @@
     "properties": {
         "name": {
             "type": "string",
-            "description": "Name of the application. Appended to browser page titles and used as the fallback location for bookings"
-        },
-        "title": {
-            "type": "string",
-            "description": "Base browser page title for the application"
-        },
-        "description": {
-            "type": "string",
-            "description": "Description of the application"
+            "description": "Application name sent with PlaceOS API requests. Falls back to `short_name`"
         },
         "short_name": {
             "type": "string",
-            "description": "Short name for the application. Used as the app name for PlaceOS API metadata and page titles"
-        },
-        "logo": {
-            "$ref": "#/$defs/icon",
-            "description": "Application logo to display on light backgrounds"
-        },
-        "logo_dark": {
-            "$ref": "#/$defs/icon",
-            "description": "Application logo to display on dark backgrounds"
-        },
-        "general": {
-            "type": "object",
-            "description": "General settings associated with the app"
-        },
-        "prevent_space_init": {
-            "type": "boolean",
-            "description": "Whether to prevent loading the full list of bookable spaces on application startup"
+            "description": "Prefix for console log messages. Also used as the API application name when `name` is not set"
         },
         "chat": {
             "type": "object",
@@ -43,30 +19,27 @@
                     "description": "Whether to show the global AI assistant chat widget. Defaults to `false`"
                 }
             }
-        }
-    },
-    "$defs": {
-        "icon": {
+        },
+        "environment_bar": {
+            "type": "string",
+            "description": "CSS colour for thin identifier bars at the top and bottom of the app. Leave unset to hide the bars"
+        },
+        "banner": {
             "type": "object",
-            "required": ["type"],
+            "description": "Message banner shown at the top of the app. The user can close it",
             "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique ID for the banner. A closed banner stays hidden until the ID changes"
+                },
                 "type": {
                     "type": "string",
-                    "enum": ["img", "icon"],
-                    "enumNames": ["Image", "Icon"],
-                    "description": "Type of icon to render. Either `img` or `icon`"
-                },
-                "src": {
-                    "type": "string",
-                    "description": "URL of the image icon to display"
-                },
-                "class": {
-                    "type": "string",
-                    "description": "CSS class to apply to icon container element"
+                    "enum": ["info", "warn", "error"],
+                    "description": "Colour style for the banner. Defaults to `info`"
                 },
                 "content": {
                     "type": "string",
-                    "description": "Content to add to the icon container element"
+                    "description": "Message text to show in the banner"
                 }
             }
         }

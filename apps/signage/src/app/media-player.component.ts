@@ -1,5 +1,6 @@
 import {
     Component,
+    computed,
     ElementRef,
     input,
     linkedSignal,
@@ -62,6 +63,21 @@ const PLAY_THROUGH_MIN_LIMIT = 5 * 60 * 1000;
 const PLAY_THROUGH_MAX_LIMIT = 60 * 60 * 1000;
 /** Minimum spacing between attempts to resolve a URL that failed to resolve */
 const URL_RETRY_DELAY = 1000;
+/** Longest a transition waits for the incoming image or video to paint */
+const MEDIA_READY_TIMEOUT = 5 * 1000;
+
+/** Resolves when `promise` settles, either way, or after `timeout_ms` */
+function settleWithin(promise: Promise<unknown>, timeout_ms: number) {
+    return new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, timeout_ms);
+        promise
+            .catch(() => undefined)
+            .then(() => {
+                clearTimeout(timer);
+                resolve();
+            });
+    });
+}
 
 @Component({
     selector: 'media-player',
@@ -196,7 +212,7 @@ const URL_RETRY_DELAY = 1000;
                         [loop]="loop()"
                         [muted]="muted()"
                         [shuffle]="shuffle()"
-                        [progress]="progress()"
+                        [progress]="controls_progress()"
                         [duration]="duration()"
                         [playback_start]="progress_start()"
                         [playback_duration]="progress_duration()"
@@ -315,6 +331,19 @@ export class MediaPlayerComponent
 
     public readonly duration = signal(0);
     public readonly progress = signal(0);
+    /**
+     * Progress for the debug controls. Their bar works out progress itself
+     * while an item plays, so the 50 ms updates are only passed on when it
+     * cannot. Otherwise they would re-render the player 20 times a second.
+     */
+    public readonly controls_progress = computed(() =>
+        this.state() === 'PLAYING' &&
+        this.progress_start() > 0 &&
+        this.progress_duration() > 0 &&
+        !this.waiting_for_item()
+            ? 0
+            : this.progress(),
+    );
     public readonly progress_start = signal(0);
     public readonly progress_duration = signal(0);
     public readonly in_animation = signal(false);
@@ -1048,7 +1077,7 @@ export class MediaPlayerComponent
     private _clearOutput(output: 0 | 1) {
         const item = this._output_items[output];
         this._hideMediaElements(output);
-        if (item?.type === 'video') this._pauseOutputVideo(output);
+        this._releaseOutputVideo(output);
         this._web_element(output).nativeElement.removeAttribute('src');
         if (item) {
             this._item_output.delete(item.id);
@@ -1737,12 +1766,63 @@ export class MediaPlayerComponent
     private _transition(resume_on_end = true) {
         if (!this.active_item) return;
         if (this.state() === 'PLAYING') this.togglePause();
+        // A transition still running must not end during the wait below
+        this.clearTimeout('re-start');
         this.in_animation.set(true);
-        if (this.active_item.animation === MediaAnimation.Cut) {
+        const item = this.active_item;
+        const ready = this._mediaReady(item, this.pending_output());
+        if (!ready) {
+            this._startTransition(item, resume_on_end);
+            return;
+        }
+        // The outgoing item stays on screen until the incoming one can paint
+        const generation = this._display_generation;
+        ready.then(() => {
+            if (this._destroyed || generation !== this._display_generation) {
+                return;
+            }
+            this._startTransition(item, resume_on_end);
+        });
+    }
+
+    /**
+     * Resolves once an image is decoded or a video has its first frame, so a
+     * transition does not slide in an empty frame. Bounded, as a load error
+     * is handled elsewhere and must not hold the playlist. Undefined when the
+     * item can paint now: webpages and plugins are revealed once loaded.
+     */
+    private _mediaReady(
+        item: MediaPlayerItem,
+        output: 0 | 1,
+    ): Promise<void> | undefined {
+        if (item.type === 'webpage' || item.type === 'plugin') return;
+        if (item.type !== 'video') {
+            const image = this._image_element(output).nativeElement;
+            // Older players without decode() transition as before
+            if (typeof image.decode !== 'function') return;
+            return settleWithin(image.decode(), MEDIA_READY_TIMEOUT);
+        }
+        const video = this._video_element(output).nativeElement;
+        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) return;
+        const listening = new AbortController();
+        const loaded = new Promise<void>((resolve) => {
+            for (const type of ['loadeddata', 'error']) {
+                video.addEventListener(type, () => resolve(), {
+                    once: true,
+                    signal: listening.signal,
+                });
+            }
+        });
+        return settleWithin(loaded, MEDIA_READY_TIMEOUT).then(() =>
+            listening.abort(),
+        );
+    }
+
+    private _startTransition(item: MediaPlayerItem, resume_on_end: boolean) {
+        if (item.animation === MediaAnimation.Cut) {
             this._onTransitionEnd(resume_on_end, true);
             return;
         }
-        const item = this.active_item;
         const previous_output = this.active_output();
         const next_output = this.pending_output();
         const prev_container_el =
@@ -1793,7 +1873,8 @@ export class MediaPlayerComponent
         if (swap_outputs) this.active_output.set(this.pending_output());
         this._resetTransitionState();
         this._cleanupInactiveOutputs();
-        if (resume) this.togglePause();
+        // The shell may have resumed playback while the transition ran
+        if (resume && this.state() === 'PAUSED') this.togglePause();
     }
 
     private _resetTransitionState() {
@@ -1814,15 +1895,28 @@ export class MediaPlayerComponent
             const item = this._output_items[output];
             if (item?.type === 'webpage' || item?.type === 'plugin') {
                 this._clearOutput(output);
-            } else if (item?.type === 'video') {
-                this._pauseOutputVideo(output);
+            } else {
+                // Also when nothing is tracked here: a playlist change can
+                // drop the item while its video is still on screen, and it
+                // is only safe to unload once it has been swapped out
+                this._releaseOutputVideo(output);
             }
         }
     }
 
-    private _pauseOutputVideo(output: 0 | 1) {
-        this._video_element(output).nativeElement.pause();
+    /**
+     * Unload the video on an output that is off screen. A paused video keeps
+     * its decoder and buffers, and players often have only one or two hardware
+     * decoders. Keeping it gains nothing: showing the item again sets its
+     * source, which reloads it anyway.
+     */
+    private _releaseOutputVideo(output: 0 | 1) {
+        const video = this._video_element(output).nativeElement;
         this._last_video_speed.delete(output);
+        if (!video.hasAttribute('src')) return;
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
     }
 
     private _shouldTransition(

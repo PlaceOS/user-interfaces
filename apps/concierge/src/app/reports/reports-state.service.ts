@@ -38,7 +38,7 @@ import {
     requestSpacesForZone,
     SpacePipe,
 } from '@placeos/events';
-import { showMetadata } from '@placeos/ts-client';
+import { PlaceAsset, showMetadata } from '@placeos/ts-client';
 import {
     addDays,
     addMinutes,
@@ -104,8 +104,8 @@ export class ReportsStateService extends AsyncHandler {
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
     private _loading = signal<string>('');
     private _active_bookings = signal<(CalendarEvent | Booking)[]>([]);
-    /** Token used to discard responses from superseded booking loads */
-    private _load_token = 0;
+    /** Aborts the page chain of a superseded booking load */
+    private _load_controller?: AbortController;
 
     private _options = signal<ReportOptions>({
         start: new Date(),
@@ -142,19 +142,60 @@ export class ReportsStateService extends AsyncHandler {
 
     public readonly bookings = this._active_bookings.asReadonly();
 
+    /** Changes on each Generate Report, so the inventory loads again */
+    private readonly _inventory_version = signal(0);
+    public readonly inventory_version = this._inventory_version.asReadonly();
+    /** In-flight inventory requests, shared by loads that run together */
+    private readonly _inventory_requests = new Map<
+        string,
+        Promise<PlaceAsset[]>
+    >();
+
+    /**
+     * Values that select the report inventory. Equal values keep the same
+     * object, so date changes do not load the inventory again. Building,
+     * region, level and setting changes do.
+     */
+    private readonly _inventory = computed(
+        () => {
+            const { type, zones = [] } = this._options();
+            const use_region = !!this._settings.get('app.use_region');
+            const building = this._org.active_building();
+            const region = this._org.active_region();
+            const selected = zones.filter(
+                (z: unknown) => z !== -1 && z !== 'All',
+            );
+            const levels = selected.length
+                ? selected
+                : (use_region
+                      ? this._org.levelsForRegion(region)
+                      : this._org.levelsForBuilding(building)
+                  ).map((_) => _.id);
+            return {
+                type,
+                zones,
+                levels,
+                scope_id: use_region ? region?.id : building?.id,
+                space_scope_id:
+                    (use_region ? building?.parent_id : building?.id) ||
+                    building?.id,
+                use_assets: !!this._settings.get('app.desks.use_assets'),
+                version: this._inventory_version(),
+            };
+        },
+        { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
+    );
+
     /** List of bookable spaces for the active zones */
     private readonly _spaces = resource({
-        params: () => this._options().zones || [],
+        params: () => {
+            const { zones, space_scope_id, version } = this._inventory();
+            return { zones, space_scope_id, version };
+        },
         loader: async ({ params }) => {
-            const use_region = this._settings.get('app.use_region');
-            let zones = params;
-            if (!zones?.length) {
-                zones = [
-                    (use_region
-                        ? this._org.building?.parent_id
-                        : this._org.building?.id) || this._org.building?.id,
-                ];
-            }
+            const zones = params.zones.length
+                ? params.zones
+                : [params.space_scope_id];
             const lists = await Promise.all(
                 zones.map((id) =>
                     nextValueFrom(requestSpacesForZone(id)).catch(() => []),
@@ -168,36 +209,24 @@ export class ReportsStateService extends AsyncHandler {
     /** Total bookable resource counts per zone for the active filters */
     private readonly _counts = resource({
         params: () => {
-            const type = this._options().type;
+            const inventory = this._inventory();
+            // Only room counts use spaces, so other types skip their reloads
+            if (inventory.type !== 'events' && inventory.type !== 'catering') {
+                return { ...inventory, spaces: [] };
+            }
             const spaces = this._spaces.value();
-            return (type === 'events' || type === 'catering') && !spaces
-                ? undefined
-                : {
-                      type,
-                      zones: this._options().zones || [],
-                      spaces: spaces || [],
-                  };
+            return spaces ? { ...inventory, spaces } : undefined;
         },
         defaultValue: {} as HashMap<number>,
         loader: async ({ params }) => {
-            let zones = (params.zones || []).filter(
-                (z: unknown) => z !== -1 && z !== 'All',
-            );
-            if (!zones.length) {
-                zones = this._settings.get('app.use_region')
-                    ? this._org.levelsForRegion().map((_) => _.id)
-                    : this._org.levelsForBuilding().map((_) => _.id);
-            }
+            const { type, levels: zones, scope_id } = params;
             let list: [string, number][] = [];
-            if (params.type === 'events' || params.type === 'catering') {
+            if (type === 'events' || type === 'catering') {
                 list = zones.map((z) => [
                     z,
                     params.spaces.filter((s) => s.zones.includes(z)).length,
                 ]);
-            } else if (params.type === 'parking') {
-                const scope_id = this._settings.get('app.use_region')
-                    ? this._org.region?.id
-                    : this._org.building?.id;
+            } else if (type === 'parking') {
                 if (scope_id) {
                     const spaces = await queryParkingSpacesForZones([
                         scope_id,
@@ -208,10 +237,12 @@ export class ReportsStateService extends AsyncHandler {
                             .length,
                     ]);
                 }
+            } else if (type === 'lockers') {
+                list = await this._lockerCounts(zones);
             } else if (zones.length) {
                 list = await Promise.all(
                     zones.map((z) =>
-                        this._resourceCountForZone(z, params.type),
+                        this._resourceCountForZone(z, type, params.use_assets),
                     ),
                 );
             }
@@ -222,34 +253,87 @@ export class ReportsStateService extends AsyncHandler {
     });
     public readonly counts: Signal<HashMap<number>> = this._counts.value;
 
+    /**
+     * Load locker assets for a zone. Calls that run at the same time share
+     * one request. The result is not kept, so later loads get fresh data.
+     */
+    public queryLockers(zone_id: string) {
+        return this._sharedInventory(`lockers:${zone_id}`, () =>
+            queryLockerAssetsForZones([zone_id]),
+        );
+    }
+
+    private _sharedInventory(
+        key: string,
+        load: () => Promise<PlaceAsset[]>,
+    ): Promise<PlaceAsset[]> {
+        let request = this._inventory_requests.get(key);
+        if (!request) {
+            request = load().finally(() =>
+                this._inventory_requests.delete(key),
+            );
+            this._inventory_requests.set(key, request);
+        }
+        return request;
+    }
+
+    /**
+     * Count bookable lockers in the banks on each level. Loads the
+     * inventory once for each building, not once for each level.
+     */
+    private async _lockerCounts(
+        zone_ids: string[],
+    ): Promise<[string, number][]> {
+        const parent_ids = new Map<string, string>();
+        for (const level of this._org.levels) {
+            if (level.parent_id) parent_ids.set(level.id, level.parent_id);
+        }
+        const buildings = unique(
+            zone_ids.map((id) => parent_ids.get(id)).filter((id) => !!id),
+        );
+        const inventories = new Map(
+            await Promise.all(
+                buildings.map(
+                    async (id) =>
+                        [
+                            id,
+                            await Promise.all([
+                                this._sharedInventory(`banks:${id}`, () =>
+                                    queryLockerBankAssetsForZones([id]),
+                                ).catch(() => [] as PlaceAsset[]),
+                                this.queryLockers(id).catch(
+                                    () => [] as PlaceAsset[],
+                                ),
+                            ]),
+                        ] as const,
+                ),
+            ),
+        );
+        return zone_ids.map((zone_id) => {
+            const [banks, lockers] = inventories.get(
+                parent_ids.get(zone_id),
+            ) || [[], []];
+            const bank_ids = new Set(
+                banks
+                    .filter((bank) => bank.zones?.includes(zone_id))
+                    .map((bank) => bank.id),
+            );
+            const count = lockers.filter(
+                (locker) =>
+                    locker.bookable !== false && bank_ids.has(locker.parent_id),
+            ).length;
+            return [zone_id, count];
+        });
+    }
+
     private async _resourceCountForZone(
         zone_id: string,
         resource_type: ReportOptions['type'],
+        use_assets: boolean,
     ): Promise<[string, number]> {
         switch (resource_type) {
-            case 'lockers': {
-                const parent_id = this._org.levels.find(
-                    (level) => level.id === zone_id,
-                )?.parent_id;
-                if (!parent_id) return [zone_id, 0];
-                const banks = await queryLockerBankAssetsForZones([
-                    parent_id,
-                ]).catch(() => []);
-                const lockers = await queryLockerAssetsForZones([
-                    parent_id,
-                ]).catch(() => []);
-                const bank_ids = banks
-                    .filter((bank) => bank.zones?.includes(zone_id))
-                    .map((bank) => bank.id);
-                const count = lockers.filter(
-                    (locker) =>
-                        locker.bookable !== false &&
-                        bank_ids.includes(locker.parent_id),
-                ).length;
-                return [zone_id, count];
-            }
             case 'desks': {
-                if (this._settings.get('app.desks.use_assets')) {
+                if (use_assets) {
                     const desks = await queryDeskAssets(zone_id).catch(
                         () => [],
                     );
@@ -388,7 +472,9 @@ export class ReportsStateService extends AsyncHandler {
         super();
     }
 
+    /** Load the bookings and the inventory again for the active options */
     public generateReport() {
+        this._inventory_version.update((v) => v + 1);
         this.timeout('generate-report', () => this._loadBookings(), 500);
     }
 
@@ -434,58 +520,79 @@ export class ReportsStateService extends AsyncHandler {
             include_deleted: true,
             include_checked_out: true,
         };
-        const token = ++this._load_token;
+        this._load_controller?.abort();
+        const controller = new AbortController();
+        this._load_controller = controller;
+        const { signal } = controller;
         let list: (CalendarEvent | Booking)[] = [];
         let failed = false;
         try {
             switch (options.type) {
                 case 'desks':
-                    list = await queryAllBookings({
-                        ...bookings_query,
-                        zones,
-                        type: 'desk',
-                        limit: 200,
-                    });
+                    list = await queryAllBookings(
+                        {
+                            ...bookings_query,
+                            zones,
+                            type: 'desk',
+                            limit: 200,
+                        },
+                        { signal },
+                    );
                     break;
                 case 'parking':
-                    list = await queryAllBookings({
-                        ...bookings_query,
-                        zones,
-                        type: 'parking',
-                        limit: 200,
-                    });
+                    list = await queryAllBookings(
+                        {
+                            ...bookings_query,
+                            zones,
+                            type: 'parking',
+                            limit: 200,
+                        },
+                        { signal },
+                    );
                     break;
                 case 'lockers':
-                    list = await queryAllBookings({
-                        ...bookings_query,
-                        zones,
-                        type: 'locker',
-                        limit: 200,
-                    });
+                    list = await queryAllBookings(
+                        {
+                            ...bookings_query,
+                            zones,
+                            type: 'locker',
+                            limit: 200,
+                        },
+                        { signal },
+                    );
                     break;
                 case 'assets':
-                    list = await queryAllBookings({
-                        ...bookings_query,
-                        zones,
-                        type: 'asset-request',
-                        limit: 200,
-                    });
+                    list = await queryAllBookings(
+                        {
+                            ...bookings_query,
+                            zones,
+                            type: 'asset-request',
+                            limit: 200,
+                        },
+                        { signal },
+                    );
                     break;
                 case 'catering':
-                    list = await queryAllBookings({
-                        ...bookings_query,
-                        zones,
-                        type: 'catering-order',
-                        limit: 200,
-                    });
+                    list = await queryAllBookings(
+                        {
+                            ...bookings_query,
+                            zones,
+                            type: 'catering-order',
+                            limit: 200,
+                        },
+                        { signal },
+                    );
                     break;
                 case 'events':
-                    list = await queryAllEvents({
-                        ...query,
-                        zone_ids: zones,
-                        include_cancelled: true,
-                        limit: 200,
-                    });
+                    list = await queryAllEvents(
+                        {
+                            ...query,
+                            zone_ids: zones,
+                            include_cancelled: true,
+                            limit: 200,
+                        },
+                        { signal },
+                    );
                     break;
                 default:
                     list = [];
@@ -495,7 +602,7 @@ export class ReportsStateService extends AsyncHandler {
             failed = true;
         }
         // Discard the response if the options changed before it completed
-        if (token !== this._load_token) return;
+        if (signal.aborted) return;
         this._loading.set('');
         if (failed) {
             notifyError(i18n('COMMON.LOAD_ERROR'), i18n('COMMON.RETRY'), () =>
@@ -538,7 +645,7 @@ export class ReportsStateService extends AsyncHandler {
         // Clear stale bookings and cancel any in-flight load. The cancelled
         // load exits early, so clear its loading state here.
         this._active_bookings.set([]);
-        this._load_token++;
+        this._load_controller?.abort();
         this._loading.set('');
         this._options.set({ ...current, ...options });
     }

@@ -132,10 +132,19 @@ export class DeskQrCodeModalComponent {
         return `${window.location.origin}${path}`;
     }
 
+    /** Path after the Workplace URL. `{asset_id}` is replaced with the desk ID */
+    public get link_path(): string {
+        return (
+            this._settings.get('app.workplace_desk_action_path') ??
+            '/#/book/code?asset_id={asset_id}'
+        );
+    }
+
     public loadQrCode(item: any) {
-        const link = `${
-            this.kiosk_url
-        }/#/book/code?asset_id=${encodeURIComponent(item.id)}`;
+        const link = `${this.kiosk_url}${this.link_path.replace(
+            '{asset_id}',
+            encodeURIComponent(item.id),
+        )}`;
         item.qr_link = link;
         item.qr_code = generateQRCode(link);
         return item.qr_code;

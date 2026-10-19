@@ -12,6 +12,7 @@ import {
     chooseRowMenuItem,
     columnIndex,
     readTable,
+    rowCell,
     waitForRow,
 } from '../../../../e2e/support/concierge/simple-table.page';
 import { roleFor } from '../../../../e2e/support/env';
@@ -124,9 +125,13 @@ test.describe('concierge visitor management', () => {
         const row = table.rows.findIndex((r) =>
             r.some((c) => c.includes(email)),
         );
-        await adminPage
-            .locator('simple-table [role=table] > *:not([header])')
-            .nth(row * table.column_ids.length + columnIndex(table, 'notes'))
+        const notes = await rowCell(
+            adminPage,
+            row,
+            columnIndex(table, 'notes'),
+            table.column_ids.length,
+        );
+        await notes
             .locator('button')
             .click();
         const modal = adminPage.locator('visitor-notes-modal');
@@ -145,12 +150,12 @@ test.describe('concierge visitor management', () => {
         const index = refreshed.rows.findIndex((r) =>
             r.some((c) => c.includes(email)),
         );
-        const cell = adminPage
-            .locator('simple-table [role=table] > *:not([header])')
-            .nth(
-                index * refreshed.column_ids.length +
-                    columnIndex(refreshed, 'notes'),
-            );
+        const cell = await rowCell(
+            adminPage,
+            index,
+            columnIndex(refreshed, 'notes'),
+            refreshed.column_ids.length,
+        );
         await expect(
             cell.locator('icon').filter({ hasText: 'info_i' }),
         ).toBeVisible();

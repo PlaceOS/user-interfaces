@@ -271,11 +271,8 @@ export class TopMenuComponent {
         'feature_groups',
         {},
     );
-    public readonly default_page = settingSignal(
-        'app.default_route',
-        '/landing',
-    );
-    public readonly new_features = settingSignal('app.new_features', false);
+    public readonly default_page = settingSignal('default_route', '/landing');
+    public readonly new_features = settingSignal('new_features', false);
     public readonly menu_embeds = settingSignal<TopMenuEmbedItem[]>(
         'menu_embeds',
         [],

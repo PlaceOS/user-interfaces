@@ -18,19 +18,23 @@ import { CateringTopbarComponent } from './catering-topbar.component';
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <catering-topbar class="relative z-10"></catering-topbar>
-                <div class="flex h-1/2 flex-1 flex-col px-8">
+                <div class="flex h-1/2 flex-1 flex-col">
                     @if (page() === 'menu') {
                         <div
-                            class="bg-info mb-4 flex items-center justify-center rounded-sm p-2 text-sm text-white"
+                            class="bg-info mx-8 mb-4 flex items-center justify-center rounded-sm p-2 text-sm text-white"
                         >
                             {{ 'CATERING.MENU_EDIT_INFO' | translate }}
                         </div>
                     }
-                    <div class="flex h-1/2 w-full flex-1 overflow-auto">
+                    <div
+                        class="flex h-1/2 w-full flex-1 overflow-auto"
+                        [class.px-8]="page() !== 'orders'"
+                    >
                         @switch (page()) {
                             @case ('orders') {
                                 <catering-order-list
                                     class="flex-1"
+                                    [edge_to_edge]="true"
                                     [bulk_actions]="bulk_actions()"
                                 ></catering-order-list>
                             }

@@ -20,7 +20,7 @@ import {
     SignagePlaylistMedia,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import { SignageMediaService } from '../media/signage-media.service';
+import { MediaPreviewService } from '../media/media-preview.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { SignageContextService } from '../signage-context.service';
 import { playlistMediaItems } from '../signage-playlist.util';
@@ -234,7 +234,7 @@ export interface PlaylistRequestApprovalModalResult {
 })
 export class PlaylistRequestApprovalModalComponent {
     private readonly _context = inject(SignageContextService);
-    private readonly _media_service = inject(SignageMediaService);
+    private readonly _media_preview = inject(MediaPreviewService);
     private readonly _playlist_service = inject(SignagePlaylistService);
     public readonly data =
         inject<PlaylistRequestApprovalModalData>(MAT_DIALOG_DATA);
@@ -327,6 +327,6 @@ export class PlaylistRequestApprovalModalComponent {
     }
 
     public previewItem(item: SignageMedia) {
-        this._media_service.previewMedia(item);
+        this._media_preview.previewMedia(item);
     }
 }

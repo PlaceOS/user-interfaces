@@ -158,6 +158,25 @@ describe('[Booking API]', () => {
             );
             spy.mockReset();
         });
+
+        it('should not request more pages after the signal aborts', async () => {
+            const controller = new AbortController();
+            const next = vi.fn();
+            const spy = vi.spyOn(ts_client, 'query');
+            spy.mockImplementation(async () => {
+                controller.abort();
+                return { total: 4, data: [new Booking({ id: 'b-1' })], next };
+            });
+
+            const list = await queryAllBookings(
+                { period_start: 1, period_end: 2, type: 'desk' },
+                { signal: controller.signal },
+            );
+
+            expect(list).toEqual([]);
+            expect(next).not.toHaveBeenCalled();
+            spy.mockReset();
+        });
     });
 
     describe('showBooking', () => {

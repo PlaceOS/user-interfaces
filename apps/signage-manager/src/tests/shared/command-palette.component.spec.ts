@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ImageGenService } from '../../app/image-gen/image-gen.service';
-import { SignageMediaService } from '../../app/media/signage-media.service';
+import { MediaPreviewService } from '../../app/media/media-preview.service';
 import { CommandPaletteComponent } from '../../app/shared/command-palette.component';
 import { CommandPaletteService } from '../../app/shared/command-palette.service';
 import { SignageContextService } from '../../app/signage-context.service';
@@ -30,7 +30,7 @@ describe('CommandPaletteComponent', () => {
                     useValue: { searchAll: search_all },
                 },
                 {
-                    provide: SignageMediaService,
+                    provide: MediaPreviewService,
                     useValue: { previewMedia: preview_media },
                 },
                 {

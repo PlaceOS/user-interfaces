@@ -7,8 +7,10 @@ import {
 import {
     Booking,
     CalendarEvent,
+    LocaleService,
     OrganisationService,
     SettingsService,
+    setTranslationService,
     User,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -207,6 +209,38 @@ describe('UserReportService', () => {
             locker: 0,
             room: 2,
         });
+    });
+
+    it('should update the row text when the locale changes', async () => {
+        const mappings = signal<Record<string, string>>({
+            'RESOURCE.DESK': 'Desk',
+            'COMMON.YES': 'Yes',
+        });
+        setTranslationService({
+            get: (key: string) => mappings()[key] || key,
+        } as LocaleService);
+        try {
+            bookings = [
+                new Booking({
+                    booking_type: 'desk',
+                    date: start + 60 * 60 * 1000,
+                    checked_in: true,
+                }),
+            ];
+            spectator.service.setOptions({ start, end, user });
+            await settle();
+            expect(spectator.service.rows()[0]).toMatchObject({
+                type_name: 'Desk',
+                checked_in: 'Yes',
+            });
+            mappings.set({ 'RESOURCE.DESK': 'Bureau', 'COMMON.YES': 'Oui' });
+            expect(spectator.service.rows()[0]).toMatchObject({
+                type_name: 'Bureau',
+                checked_in: 'Oui',
+            });
+        } finally {
+            setTranslationService(undefined);
+        }
     });
 
     it('should download the listed bookings as CSV', async () => {

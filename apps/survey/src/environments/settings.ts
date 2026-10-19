@@ -1,14 +1,8 @@
-const general = {};
-
 const app = {
     name: 'Survey',
-    title: 'PlaceOS',
-    description: 'Survey UI',
     short_name: 'PlaceOS',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
-    general,
-    prevent_space_init: true,
     allow_dark_mode: true,
 };
 

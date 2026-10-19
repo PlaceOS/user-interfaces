@@ -4,31 +4,21 @@ The **Signage** app is the digital signage display player. It runs full-screen o
 
 Set settings in Backoffice zone metadata under `signage_app` for the standard `/signage/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
-## Branding
+## Application name
 
-These settings control how the app identifies itself in the browser and what logos it uses.
+These settings control the name that the app gives to the PlaceOS API and uses in console logs.
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
-| `name` | string | `"Signage"` | Name of the application. Used as the suffix of the browser page title and as a fallback application name for API storage keys. |
-| `title` | string | `"PlaceOS"` | Title of the application. |
-| `description` | string | `"Signage Panel"` | Description of the application. |
-| `short_name` | string | `"PlaceOS"` | Short name for the application. Used as the app name for local storage keys and as a fallback for the browser page title. |
-| `logo_light` | string | `"assets/logo-light.svg"` | Path or URL of the logo image to display on light backgrounds, e.g. the login screen. |
-| `logo_dark` | string | `"assets/logo-dark.svg"` | Path or URL of the logo image to display on dark backgrounds, e.g. the login screen. |
+| `name` | string | `"Signage"` | Application name for the PlaceOS API client. If the URL pathname is empty, the app also uses this name to make the settings metadata key. |
+| `short_name` | string | `"PlaceOS"` | Prefix for console log messages. The app also uses it as the API client application name if `name` is not set. |
 
 ## Playback
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
-| `default_animation_time` | number | `1000` | Duration in milliseconds of the media player's transition animation between playlist items. |
+| `default_animation_time` | number | `1000` | Duration in milliseconds of the media player's transition animation between playlist items. If the value is `0` or not set, the player uses `3000`. |
 | `templates_enabled` | boolean | `true` | Make template selection available during signage bootstrap. |
-
-## Other
-
-| Setting | Type | Default | Description |
-| --- | --- | --- | --- |
-| `diagnostics` | boolean | `true` | Whether diagnostics are enabled. Currently unused by the signage app. |
 
 ## Example
 
@@ -38,8 +28,6 @@ Example `signage_app` metadata details for the active building zone:
 {
     "name": "Lobby Signage",
     "short_name": "Lobby Signage",
-    "logo_light": "https://example.com/logos/company-light.svg",
-    "logo_dark": "https://example.com/logos/company-dark.svg",
     "default_animation_time": 500
 }
 ```

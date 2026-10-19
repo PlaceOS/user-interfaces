@@ -43,6 +43,32 @@ describe('StaffListingComponent', () => {
         expect('load-error').not.toExist();
     });
 
+    it('should show cards in steps and show the group of a chosen letter', () => {
+        const names = [
+            ...Array.from({ length: 150 }, (_, i) => `Alex ${i}`),
+            'Zoe',
+        ];
+        state.filtered_users.set(
+            names.map((name, i) => new StaffUser({ name, email: `${i}@x` })),
+        );
+        spectator.detectChanges();
+        expect(spectator.queryAll('staff-details')).toHaveLength(100);
+        expect(spectator.component.user_list()['z']).toHaveLength(1);
+
+        spectator.component.scrollTo('z');
+        spectator.detectChanges();
+        // Only the chosen letter and one step of cards before it show
+        expect(spectator.component.render_start()).toBe(50);
+        expect(spectator.queryAll('staff-details')).toHaveLength(101);
+        expect('#letter-z-0').toExist();
+
+        // Scrolling to the top shows the cards before them again
+        spectator.component.onScroll({});
+        spectator.detectChanges();
+        expect(spectator.component.render_start()).toBe(0);
+        expect(spectator.queryAll('staff-details')).toHaveLength(151);
+    });
+
     it('should show the retry control in place of the list when the directory failed', () => {
         state.users_error.set(true);
         spectator.detectChanges();

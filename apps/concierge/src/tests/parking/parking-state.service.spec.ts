@@ -329,6 +329,39 @@ describe('ParkingStateService', () => {
         expect(spectator.service.loading()).not.toContain('[BOOKINGS]');
     });
 
+    it('should add plate numbers by email and stop a superseded page chain', async () => {
+        (spectator.service as any)._users_resource.value.set([
+            { email: 'Staff@Example.com', plate_number: 'ABC123' },
+        ]);
+        const booking = new Booking({
+            id: 'booking-1',
+            user_email: 'staff@example.com',
+            extension_data: {},
+        });
+        const second_page = vi.fn();
+        const first_page = vi.fn().mockImplementation(async () => {
+            // A newer load starts while this page is in flight
+            (spectator.service as any)._load_token++;
+            return { data: [booking], total: 2, next: second_page };
+        });
+        (spectator.service as any)._first_page = first_page;
+
+        await (spectator.service as any)._loadPage(true);
+
+        expect(second_page).not.toHaveBeenCalled();
+        expect(spectator.service.bookings()).toEqual([]);
+
+        (spectator.service as any)._first_page = vi.fn().mockResolvedValue({
+            data: [booking],
+            total: 1,
+            next: null,
+        });
+        await (spectator.service as any)._loadPage(true);
+        expect(
+            spectator.service.bookings()[0].extension_data.plate_number,
+        ).toBe('ABC123');
+    });
+
     it('should stop loading pages when the reported total is reached', async () => {
         const booking = new Booking({
             id: 'booking-1',
@@ -714,6 +747,42 @@ describe('ParkingStateService', () => {
             expect.objectContaining({ id: 'space-2', zone_id: 'lvl-2' }),
         ]);
 
+        vi.useRealTimers();
+    });
+
+    it('should reuse the level space requests for the first spaces load', async () => {
+        vi.useFakeTimers();
+        (spectator.inject(OrganisationService) as any).levels = [
+            { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
+            { id: 'lvl-2', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        (ts_client.queryAssets as any).mockImplementation((q: any) =>
+            Promise.resolve({
+                data: [{ id: `space-${q?.zone_id}`, zone_id: q?.zone_id }],
+                total: 1,
+                next: null,
+            }),
+        );
+        (ts_client.queryAssets as any).mockClear();
+        // Recompute the levels for the new organisation levels
+        active_building.set({ ...current_building });
+        TestBed.flushEffects();
+        await vi.advanceTimersByTimeAsync(400);
+        TestBed.flushEffects();
+        await vi.advanceTimersByTimeAsync(50);
+
+        const zone_ids = (ts_client.queryAssets as any).mock.calls
+            .map(([q]: any) => q?.zone_id)
+            .filter((id: string) => id?.startsWith('lvl-'));
+        expect(zone_ids.sort()).toEqual(['lvl-1', 'lvl-2']);
+        expect(spectator.service.spaces().map((_) => _.id)).toEqual([
+            'space-lvl-1',
+            'space-lvl-2',
+        ]);
+        expect(spectator.service.bookable_levels().map((_) => _.id)).toEqual([
+            'lvl-1',
+            'lvl-2',
+        ]);
         vi.useRealTimers();
     });
 

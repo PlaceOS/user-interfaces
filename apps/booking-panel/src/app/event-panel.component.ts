@@ -209,9 +209,9 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
     public readonly logo = computed(
         () => (
             this._org.active_building(),
-            (this._settings.theme
-                ? this._settings.get('app.logo_light')
-                : this._settings.get('app.logo_dark')) || {}
+            (this._settings.theme_signal() === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
         ),
     );
 

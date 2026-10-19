@@ -37,9 +37,10 @@ import { VisitorsStateService } from './visitors-state.service';
         <simple-table
             [error]="load_error()"
             (retry)="retryLoad()"
-            class="z-0 block text-sm print:hidden"
-            [style.min-width]="72 + extra_width + 'rem'"
+            class="z-0 block px-8 text-sm print:hidden"
+            [min_width]="72 + extra_width + 'rem'"
             [data]="guests()"
+            [virtual_scroll]="true"
             [columns]="[
                 {
                     key: 'state',
@@ -100,6 +101,13 @@ import { VisitorsStateService } from './visitors-state.service';
                     name: 'International',
                     content: international_template,
                     show: allow_international,
+                    size: '7rem',
+                },
+                {
+                    key: 'visitor_internal_or_external',
+                    name: 'BOOKINGS.VISITOR_INTERNAL_OR_EXTERNAL' | translate,
+                    content: visitor_internal_or_external_template,
+                    show: allow_visitor_internal_or_external,
                     size: '7rem',
                 },
                 {
@@ -369,7 +377,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     "
                 >
                     <div class="flex items-center space-x-2 pr-2 pl-4">
-                        <div class="flex-1 text-left">
+                        <div class="flex-1 text-left whitespace-nowrap">
                             {{ bookingStatusLabel(row) | translate }}
                         </div>
                         @if (
@@ -434,6 +442,20 @@ import { VisitorsStateService } from './visitors-state.service';
                 } @else {
                     <span class="opacity-30">{{
                         'COMMON.NO' | translate
+                    }}</span>
+                }
+            </div>
+        </ng-template>
+        <ng-template #visitor_internal_or_external_template let-row="row">
+            <div class="px-4">
+                @if (
+                    row.extension_data?.visitor_internal_or_external ===
+                    'external'
+                ) {
+                    {{ 'COMMON.TYPE_EXTERNAL' | translate }}
+                } @else {
+                    <span class="opacity-30">{{
+                        'COMMON.TYPE_INTERNAL' | translate
                     }}</span>
                 }
             </div>
@@ -730,9 +752,16 @@ import { VisitorsStateService } from './visitors-state.service';
                 />
             </div>
         }
-        <div class="h-8 w-full"></div>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                display: block;
+                height: 100%;
+                min-height: 0;
+            }
+        `,
+    ],
     imports: [
         CommonModule,
         MatRippleModule,
@@ -803,6 +832,12 @@ export class GuestListingComponent extends AsyncHandler {
 
     public get allow_international() {
         return !!this._settings.get('app.visitors.allow_international');
+    }
+
+    public get allow_visitor_internal_or_external() {
+        return !!this._settings.get(
+            'app.visitors.allow_visitor_internal_or_external',
+        );
     }
 
     public readonly downloadVisitorList = () =>
@@ -923,7 +958,9 @@ export class GuestListingComponent extends AsyncHandler {
 
     private async _loadVisitorKioskConfig(bld: any) {
         const visitor_kiosk_app =
-            this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
+            this._settings.get('app.visitor_kiosk_metadata_key') ||
+            this._settings.get('app.visitor_kiosk_app') ||
+            'visitor-kiosk_app';
         const metadata: any = await showMetadata(bld.id, visitor_kiosk_app);
         const org_metadata: any = await showMetadata(
             this._org.organisation.id,

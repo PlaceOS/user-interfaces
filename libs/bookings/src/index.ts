@@ -3,6 +3,7 @@ export * from './lib/booking-details-modal.component';
 export * from './lib/booking-form.model';
 export * from './lib/booking-form.service';
 export * from './lib/booking-form.types';
+export * from './lib/booking-group.utilities';
 export * from './lib/booking.utilities';
 export * from './lib/bookings.fn';
 export * from './lib/desk-list-field.component';
@@ -17,6 +18,7 @@ export * from './lib/locker-select-modal/locker-select-modal.component';
 export * from './lib/parking-select-modal/parking-select-modal.component';
 export * from './lib/parking-space-list-field.component';
 export * from './lib/parking.service';
+export * from './lib/recent-visitors';
 
 export * from './lib/visitor-invite-form.component';
 export * from './lib/visitor-invite-success.component';

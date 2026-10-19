@@ -1,6 +1,7 @@
 import {
     Injectable,
     Injector,
+    OnDestroy,
     computed,
     effect,
     inject,
@@ -97,7 +98,7 @@ interface CacheItem<T> {
 @Injectable({
     providedIn: 'root',
 })
-export class OrganisationService {
+export class OrganisationService implements OnDestroy {
     private _service = inject(SettingsService);
     private _router = inject(Router);
     private _injector = inject(Injector);
@@ -898,6 +899,7 @@ export class OrganisationService {
         const global_settings = (
             await this._bulkMetadataDetails('settings', [org_id])
         )[org_id];
+        if (this._destroyed) return;
         this._settings = [global_settings, app_settings];
         // Cancel any pending debounced override so the org settings below are
         // the authoritative layer while the default building is selected.
@@ -1059,8 +1061,18 @@ export class OrganisationService {
     }
 
     private _override_timer: ReturnType<typeof setTimeout> | null = null;
+    private _destroyed = false;
+
+    /** Stop settings overrides so a late load cannot apply them after teardown */
+    public ngOnDestroy() {
+        this._destroyed = true;
+        if (this._override_timer) clearTimeout(this._override_timer);
+        this._override_timer = null;
+    }
+
     private _updateSettingOverrides() {
         if (this._override_timer) clearTimeout(this._override_timer);
+        if (this._destroyed) return;
         this._override_timer = setTimeout(
             () =>
                 this._service.setOverrides([

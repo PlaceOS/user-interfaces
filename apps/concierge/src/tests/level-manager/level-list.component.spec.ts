@@ -87,9 +87,9 @@ describe('LevelListComponent', () => {
         expect(notify_open).not.toHaveBeenCalled();
     });
 
-    it('should open the booking panel settings modal for the level', () => {
+    it('should open the booking panel settings modal for the level', async () => {
         const level = { id: 'lvl-1' };
-        spectator.component.editBookingPanelSettings(level);
+        await spectator.component.editBookingPanelSettings(level);
         expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
             BookingPanelSettingsModalComponent,
             { data: { zone: level } },

@@ -4,69 +4,29 @@
     "properties": {
         "name": {
             "type": "string",
-            "description": "Name of the application. Used in the browser tab title and as the name of the auth client"
-        },
-        "title": {
-            "type": "string",
-            "description": "Title for the application"
-        },
-        "description": {
-            "type": "string",
-            "description": "Description of the application"
+            "description": "Application name for the PlaceOS API client. If the URL pathname is empty, the app also uses this name to make the settings metadata key"
         },
         "short_name": {
             "type": "string",
-            "description": "Short name for the application"
+            "description": "Prefix for console log messages. The app also uses it as the API client application name if `name` is not set"
         },
-        "logo_light": {
+        "access_subsystem": {
             "type": "string",
-            "description": "URL of the logo image to display when using the light theme, e.g. on the login page"
+            "description": "Group subsystem that grants access to the app, when the authority's `use_group_subsystem_access` is on. Defaults to `support`"
         },
-        "logo_dark": {
-            "type": "string",
-            "description": "URL of the logo image to display when using the dark theme, e.g. on the login page"
-        },
-        "general": {
-            "type": "object",
-            "description": "General settings associated with the app"
-        },
-        "desks": {
-            "type": "object",
-            "description": "Data associated with desk booking flow",
-            "properties": {
-                "hide_reason": {
-                    "type": "boolean",
-                    "description": "Whether to disable ability for user to set a reason on the desk booking confirmation"
-                },
-                "can_set_host": {
-                    "type": "boolean",
-                    "description": "Whether user is allowed to make desk bookings for others"
-                }
-            }
-        },
-        "events": {
-            "type": "object",
-            "description": "Data associated with meeting booking flow",
-            "properties": {
-                "can_book_for_others": {
-                    "type": "boolean",
-                    "description": "Whether user is allowed to set another user as the host when booking a space from the explore map"
-                }
-            }
-        },
-        "explore": {
-            "type": "object",
-            "description": "Data associated with map rendering",
-            "properties": {
-                "search_enabled": {
-                    "type": "boolean",
-                    "description": "Whether searching is available on the explore map view"
-                }
-            }
-        },
-        "show_qr_for_booking": {
+        "allow_dark_mode": {
             "type": "boolean",
-            "description": "Whether to show a QR code for bookings"
+            "description": "Make the dark theme control available in the sidebar. When off or not set, the app uses the light theme"
+        },
+        "chat": {
+            "type": "object",
+            "description": "Chat widget settings",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Whether to show the chat widget. Defaults to off when not set"
+                }
+            }
         },
         "push_notification_defaults": {
             "type": "object",

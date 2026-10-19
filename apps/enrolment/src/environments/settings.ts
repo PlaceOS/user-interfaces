@@ -13,8 +13,6 @@ export const DEFAULT_SETTINGS: any = {
     },
     app: {
         name: 'Enrolment',
-        title: 'Enrolment Application',
-        description: 'PlaceOS Enrolment UI written with Angular Framework',
         short_name: 'Enrolment',
         logo_light: {
             type: 'img',

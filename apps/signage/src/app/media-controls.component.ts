@@ -1,9 +1,10 @@
 import {
+    AfterViewInit,
     Component,
     ElementRef,
     input,
+    OnChanges,
     OnDestroy,
-    OnInit,
     output,
     viewChild,
 } from '@angular/core';
@@ -38,7 +39,6 @@ export type MediaControlEvent =
             role="progressbar"
             aria-valuemin="0"
             aria-valuemax="100"
-            [attr.aria-valuenow]="progress()"
         >
             <div #bar class="bg-primary absolute inset-0 origin-left"></div>
         </div>
@@ -52,7 +52,9 @@ export type MediaControlEvent =
         `,
     ],
 })
-export class MediaProgressBarComponent implements OnInit, OnDestroy {
+export class MediaProgressBarComponent
+    implements OnChanges, AfterViewInit, OnDestroy
+{
     public readonly progress = input(0);
     public readonly playback_start = input(0);
     public readonly playback_duration = input(0);
@@ -63,7 +65,11 @@ export class MediaProgressBarComponent implements OnInit, OnDestroy {
     private _animation_frame = 0;
     private _destroyed = false;
 
-    public ngOnInit() {
+    public ngOnChanges() {
+        this._updateProgress();
+    }
+
+    public ngAfterViewInit() {
         this._updateProgress();
     }
 
@@ -72,11 +78,24 @@ export class MediaProgressBarComponent implements OnInit, OnDestroy {
         cancelAnimationFrame(this._animation_frame);
     }
 
+    /**
+     * Draw the bar. It only moves on its own while an item plays, so frames
+     * are only requested then; anything else changes an input, which draws
+     * it again.
+     */
     private _updateProgress = () => {
+        cancelAnimationFrame(this._animation_frame);
         if (this._destroyed) return;
         const progress = Math.min(100, Math.max(0, this._progress()));
         const bar = this._bar()?.nativeElement;
-        if (bar) bar.style.transform = `scaleX(${progress / 100})`;
+        if (bar) {
+            bar.style.transform = `scaleX(${progress / 100})`;
+            bar.parentElement?.setAttribute(
+                'aria-valuenow',
+                `${Math.round(progress)}`,
+            );
+        }
+        if (!this._isLive()) return;
         let synchronous_frame = true;
         this._animation_frame = requestAnimationFrame(() => {
             if (!synchronous_frame) this._updateProgress();
@@ -84,16 +103,22 @@ export class MediaProgressBarComponent implements OnInit, OnDestroy {
         synchronous_frame = false;
     };
 
-    private _progress() {
-        const playback_start = this.playback_start();
-        const playback_duration = this.playback_duration();
-        if (
+    /** Whether progress is worked out from the play time, frame by frame */
+    private _isLive() {
+        return (
             this.state() === 'PLAYING' &&
-            playback_start > 0 &&
-            playback_duration > 0 &&
+            this.playback_start() > 0 &&
+            this.playback_duration() > 0 &&
             !this.waiting()
-        ) {
-            return ((time() - playback_start) / playback_duration) * 100;
+        );
+    }
+
+    private _progress() {
+        if (this._isLive()) {
+            return (
+                ((time() - this.playback_start()) / this.playback_duration()) *
+                100
+            );
         }
         return this.progress() || 0;
     }

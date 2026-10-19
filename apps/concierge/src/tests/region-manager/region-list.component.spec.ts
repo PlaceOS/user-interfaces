@@ -76,9 +76,9 @@ describe('RegionListComponent', () => {
         expect(notify_open).not.toHaveBeenCalled();
     });
 
-    it('should open the concierge settings modal for the selected zone', () => {
+    it('should open the concierge settings modal for the selected zone', async () => {
         const zone = { id: 'r1' };
-        spectator.component.editConciergeSettings(zone);
+        await spectator.component.editConciergeSettings(zone);
         expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
             ConciergeSettingsFormModalComponent,
             { data: { zone } },

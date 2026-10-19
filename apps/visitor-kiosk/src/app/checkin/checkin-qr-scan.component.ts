@@ -28,6 +28,50 @@ const SCAN_INTERVAL_MS = 100;
 const CENTER_SCAN_INTERVAL_MS = 200;
 const CENTER_SCAN_RATIO = 2 / 3;
 const MAX_CENTER_SCAN_DIMENSION = 1080;
+/** Size of the low resolution grid that detects camera motion */
+const MOTION_GRID_COLUMNS = 32;
+const MOTION_GRID_ROWS = 18;
+/** Change in grid cell brightness (0-255) that counts as motion */
+const MOTION_THRESHOLD = 12;
+/** Time to keep decoding every scan after the last motion */
+const MOTION_HOLD_MS = 2000;
+/** Time between decodes while the camera image is still */
+const STILL_DECODE_INTERVAL_MS = 500;
+
+/** Brightness (0-255) of each pixel in RGBA image data */
+function lumaGrid(rgba: ArrayLike<number>): Uint8Array {
+    const grid = new Uint8Array(rgba.length / 4);
+    for (let i = 0; i < grid.length; i++) {
+        const offset = i * 4;
+        grid[i] = (rgba[offset] + 2 * rgba[offset + 1] + rgba[offset + 2]) >> 2;
+    }
+    return grid;
+}
+
+/** Largest brightness change between two grids of the same size */
+function gridChange(a: Uint8Array, b: Uint8Array): number {
+    let change = 0;
+    for (let i = 0; i < a.length; i++) {
+        change = Math.max(change, Math.abs(a[i] - b[i]));
+    }
+    return change;
+}
+
+/**
+ * Whether the scan loop decodes a frame. Decoding costs the most CPU, so it
+ * runs every scan only while the camera image moves. It continues for a
+ * short time after motion stops, then runs at a slow rate.
+ */
+function shouldDecode(
+    now: number,
+    last_decode: number,
+    last_motion: number,
+): boolean {
+    return (
+        now - last_motion < MOTION_HOLD_MS ||
+        now - last_decode >= STILL_DECODE_INTERVAL_MS
+    );
+}
 
 @Component({
     selector: '[checkin-qr-scan]',
@@ -213,6 +257,11 @@ export class CheckinQRScanComponent
     private _scan_pending = false;
     private _last_scan_time = -SCAN_INTERVAL_MS;
     private _last_center_scan_time = -CENTER_SCAN_INTERVAL_MS;
+    private _motion_context: CanvasRenderingContext2D | null = null;
+    /** Motion grid of the last decoded frame */
+    private _motion_reference: Uint8Array | null = null;
+    private _last_motion_time = -MOTION_HOLD_MS;
+    private _last_decode_time = -STILL_DECODE_INTERVAL_MS;
     private _destroyed = false;
 
     public ngAfterViewInit() {
@@ -230,6 +279,8 @@ export class CheckinQRScanComponent
         this._center_decoder?.clear();
         this._center_decoder = null;
         this._center_scan_context = null;
+        this._motion_context = null;
+        this._motion_reference = null;
         const video_el = this._video_el()?.nativeElement;
         if (video_el) video_el.srcObject = null;
     }
@@ -424,6 +475,7 @@ export class CheckinQRScanComponent
             return;
         this._last_scan_time = -SCAN_INTERVAL_MS;
         this._last_center_scan_time = -CENTER_SCAN_INTERVAL_MS;
+        this._motion_reference = null;
         this._cancel_scan_loop = frameLoop((timestamp) => {
             if (
                 this._scan_pending ||
@@ -432,11 +484,72 @@ export class CheckinQRScanComponent
             )
                 return;
             this._last_scan_time = timestamp;
+            if (!this.shouldDecodeFrame(video_el, timestamp)) return;
             this._scan_pending = true;
             void this.scanVideoFrame(camera, decoder, video_el, timestamp)
                 .catch(() => undefined)
                 .finally(() => (this._scan_pending = false));
         }, video_el);
+    }
+
+    /** Check the camera for motion, and whether to decode this frame */
+    private shouldDecodeFrame(video_el: HTMLVideoElement, timestamp: number) {
+        const grid = this.readMotionGrid(video_el);
+        // Decode every scan when motion cannot be measured
+        if (
+            !grid ||
+            !this._motion_reference ||
+            gridChange(grid, this._motion_reference) >= MOTION_THRESHOLD
+        ) {
+            this._last_motion_time = timestamp;
+        }
+        if (
+            !shouldDecode(
+                timestamp,
+                this._last_decode_time,
+                this._last_motion_time,
+            )
+        ) {
+            return false;
+        }
+        this._last_decode_time = timestamp;
+        this._motion_reference = grid;
+        return true;
+    }
+
+    /** Brightness grid of the current camera frame, or null when unavailable */
+    private readMotionGrid(video_el: HTMLVideoElement): Uint8Array | null {
+        if (!video_el.videoWidth || !video_el.videoHeight) return null;
+        try {
+            if (!this._motion_context) {
+                const canvas = document.createElement('canvas');
+                canvas.width = MOTION_GRID_COLUMNS;
+                canvas.height = MOTION_GRID_ROWS;
+                this._motion_context = canvas.getContext('2d', {
+                    alpha: false,
+                });
+                if (!this._motion_context) return null;
+                // Average the pixels in each cell to remove camera noise
+                this._motion_context.imageSmoothingQuality = 'high';
+            }
+            this._motion_context.drawImage(
+                video_el,
+                0,
+                0,
+                MOTION_GRID_COLUMNS,
+                MOTION_GRID_ROWS,
+            );
+            return lumaGrid(
+                this._motion_context.getImageData(
+                    0,
+                    0,
+                    MOTION_GRID_COLUMNS,
+                    MOTION_GRID_ROWS,
+                ).data,
+            );
+        } catch {
+            return null;
+        }
     }
 
     private async scanVideoFrame(

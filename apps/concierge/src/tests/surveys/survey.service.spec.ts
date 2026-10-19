@@ -170,4 +170,38 @@ describe('SurveyService', () => {
             expect.objectContaining({ panelClass: ['success'] }),
         );
     });
+
+    it('should load surveys at start and answers only on request, six at a time', async () => {
+        const surveys = Array.from(
+            { length: 10 },
+            (_, i) => new Survey({ id: i, building_id: 'bld-1' }),
+        );
+        vi.mocked(ts_client.querySurveys).mockResolvedValue(surveys);
+        let active = 0;
+        let max_active = 0;
+        vi.mocked(ts_client.queryAnswers).mockImplementation(
+            async ({ survey_id }: any) => {
+                max_active = Math.max(max_active, ++active);
+                await new Promise((resolve) => setTimeout(resolve, 5));
+                active--;
+                return [{ id: survey_id, survey_id }];
+            },
+        );
+        vi.mocked(ts_client.query).mockClear();
+        // The service waits 300ms after start before it loads
+        building_list.set([{ id: 'bld-1' }]);
+
+        await vi.waitFor(() =>
+            expect(spectator.service.survey_list()).toHaveLength(10),
+        );
+        expect(ts_client.queryAnswers).not.toHaveBeenCalled();
+        expect(ts_client.query).not.toHaveBeenCalled();
+
+        await spectator.service.loadAnswers();
+        await spectator.service.loadAnswers();
+
+        expect(ts_client.queryAnswers).toHaveBeenCalledTimes(10);
+        expect(max_active).toBe(6);
+        expect(spectator.service.answer_list()).toHaveLength(10);
+    });
 });

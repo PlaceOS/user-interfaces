@@ -11,8 +11,17 @@
                     "/index.html",
                     "/manifest.webmanifest",
                     "/*.css",
-                    "/*.js"
+                    "/main-*.js",
+                    "/polyfills-*.js"
                 ]
+            }
+        },
+        {
+            "name": "chunks",
+            "installMode": "lazy",
+            "updateMode": "prefetch",
+            "resources": {
+                "files": ["/*.js"]
             }
         },
         {

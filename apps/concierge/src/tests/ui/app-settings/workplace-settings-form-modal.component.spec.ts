@@ -122,7 +122,6 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         expect('force_host' in events).toBe(true);
         expect('setup' in events).toBe(true);
         expect('breakdown' in events).toBe(true);
-        expect('cache_duration_in_days' in events).toBe(true);
     });
 
     it('should have desks model group', () => {
@@ -187,7 +186,6 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         expect(spectator.component.MAX_DURATION_SHORT).toBeTruthy();
         expect(spectator.component.WEEK_START).toBeTruthy();
         expect(spectator.component.SETUP_BREAKDOWN).toBeTruthy();
-        expect(spectator.component.CACHE_DURATION).toBeTruthy();
         expect(spectator.component.EXPLORE_FEATURE).toBeTruthy();
         expect(spectator.component.BANNER_TYPE).toBeTruthy();
     });

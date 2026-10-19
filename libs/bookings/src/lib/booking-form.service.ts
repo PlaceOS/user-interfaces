@@ -255,7 +255,14 @@ export class BookingFormService extends AsyncHandler {
         'catering-order': settingSignal('favorites', [], true),
     };
     private _network_requested = false;
+    /** Whether a form is open. `releaseNetwork` clears it */
     private _network_consumed = signal(false);
+    /** Number of list and rule checks that wait for the form's resources */
+    private _network_holds = signal(0);
+    /** Whether the resource, rule and availability loads can run */
+    private readonly _network_active = computed(
+        () => this._network_consumed() || this._network_holds() > 0,
+    );
     private _booked_resource_requests = new Map<string, Promise<string[]>>();
     private _booked_resource_debounce: {
         query: Parameters<typeof bookedResourceList>[0];
@@ -421,6 +428,25 @@ export class BookingFormService extends AsyncHandler {
         this._network_requested = true;
         this._network_consumed.set(true);
     }
+
+    /**
+     * Stop the resource, rule and availability loads when the user leaves
+     * the booking flows. Opening or loading a form starts them again. Calls
+     * that wait for the loads keep them active until they resolve.
+     */
+    public releaseNetwork() {
+        this._network_consumed.set(false);
+    }
+
+    /** Keep the loads active while `work` runs */
+    private async _holdNetwork<T>(work: () => Promise<T>): Promise<T> {
+        this._network_holds.update((count) => count + 1);
+        try {
+            return await work();
+        } finally {
+            this._network_holds.update((count) => count - 1);
+        }
+    }
     private readonly _requests_ready = computed(() => {
         const region = this._org.active_region();
         const building = this._org.active_building();
@@ -461,7 +487,7 @@ export class BookingFormService extends AsyncHandler {
     /** Resource list for the active building and booking type */
     private readonly _resources_resource = resource({
         params: () =>
-            this._network_consumed() && this._requests_ready()
+            this._network_active() && this._requests_ready()
                 ? this._resource_params_debounced.value()
                 : undefined,
         loader: ({ params }) => this._loadResourcesForType(params.type),
@@ -497,7 +523,7 @@ export class BookingFormService extends AsyncHandler {
     /** Booking rules for the current buildings and booking type */
     private readonly _booking_rules_resource = resource({
         params: () =>
-            this._network_consumed() && this._requests_ready()
+            this._network_active() && this._requests_ready()
                 ? this._booking_rules_params_debounced.value()
                 : undefined,
         loader: ({ params }) => {
@@ -526,7 +552,7 @@ export class BookingFormService extends AsyncHandler {
     /** Whether the current user has an assigned desk in any active building */
     private readonly _has_assigned_desk_resource = resource({
         params: () => {
-            if (!this._network_consumed() || !this._requests_ready()) {
+            if (!this._network_active() || !this._requests_ready()) {
                 return undefined;
             }
             const buildings = this._org.building_list();
@@ -543,7 +569,7 @@ export class BookingFormService extends AsyncHandler {
     /** Resources available to book for the current form selection */
     private readonly _available_resource = resource({
         params: () => {
-            if (!this._network_consumed() || !this._requests_ready()) {
+            if (!this._network_active() || !this._requests_ready()) {
                 return undefined;
             }
             if (
@@ -604,38 +630,43 @@ export class BookingFormService extends AsyncHandler {
     /** Resolve with the resources for the current booking type once loaded */
     public async listResources(): Promise<BookingAsset[]> {
         this._startNetwork();
-        await firstValueWhere(
-            computed(() => this._resourcesReady()),
-            (ready) => ready,
-            this._injector,
-        );
-        return this.resources();
+        return this._holdNetwork(async () => {
+            await firstValueWhere(
+                computed(() => this._resourcesReady()),
+                (ready) => ready,
+                this._injector,
+            );
+            return this.resources();
+        });
     }
 
     /** Resolve with the available resources for the current selection */
     public async listAvailableResources(): Promise<BookingAsset[]> {
         this._startNetwork();
-        await firstValueWhere(
-            computed(
-                () =>
-                    this._resourcesReady() &&
-                    this._booking_rules_params_debounced.value() ===
-                        this._booking_rules_params() &&
-                    // Rules stay idle when there are no buildings to load.
-                    (!this._booking_rules_params() ||
-                        resourceSettled(this._booking_rules_resource)),
-            ),
-            (ready) => ready,
-            this._injector,
-        );
-        // Compute from the current model rather than waiting on the debounced
-        // availability resource, which ignores selection-only form changes.
-        return this._computeAvailableResources(
-            this._options(),
-            this.resources(),
-            this.booking_rules(),
-            this.model(),
-        );
+        return this._holdNetwork(async () => {
+            await firstValueWhere(
+                computed(
+                    () =>
+                        this._resourcesReady() &&
+                        this._booking_rules_params_debounced.value() ===
+                            this._booking_rules_params() &&
+                        // Rules stay idle when there are no buildings to load.
+                        (!this._booking_rules_params() ||
+                            resourceSettled(this._booking_rules_resource)),
+                ),
+                (ready) => ready,
+                this._injector,
+            );
+            // Compute from the current model rather than waiting on the
+            // debounced availability resource, which ignores selection-only
+            // form changes.
+            return this._computeAvailableResources(
+                this._options(),
+                this.resources(),
+                this.booking_rules(),
+                this.model(),
+            );
+        });
     }
 
     /**
@@ -880,7 +911,25 @@ export class BookingFormService extends AsyncHandler {
         return use_building_timezone ? this._org.building?.timezone || '' : '';
     }
 
+    /**
+     * Reset the form to `booking`, or to an empty booking of `type`.
+     * A booking without an `id` takes the configured `default_duration`, so
+     * set a different length on the model after this call.
+     */
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
+        this._resetForm(type, booking, true);
+    }
+
+    /**
+     * Reset the form to `booking`. Set `start_network` to start the resource,
+     * rule and availability loads. When the user is not loaded, the reset
+     * waits for the user and keeps the same choice.
+     */
+    private _resetForm(
+        type: BookingType,
+        booking: Booking,
+        start_network: boolean,
+    ) {
         if (!currentUserIsLoaded()) {
             // The form is already rendered and interactive at this point, so
             // anything typed or toggled before the user resolves would be
@@ -888,7 +937,7 @@ export class BookingFormService extends AsyncHandler {
             // as late as possible, so we take the user's final state.
             currentUserLoaded().then(() => {
                 this._captureUserEdits();
-                this.newForm(type, booking);
+                this._resetForm(type, booking, start_network);
             });
             return;
         }
@@ -897,7 +946,7 @@ export class BookingFormService extends AsyncHandler {
         // Never apply an existing booking's edit state to a different type
         // (e.g. editing parking then opening the desk form).
         if (isCrossTypeEdit(booking, type)) booking = new Booking({});
-        this._startNetwork();
+        if (start_network) this._startNetwork();
         this._calendar.loadCalendars();
         if (type !== this._options().type) {
             this._clearStoredForm();
@@ -933,6 +982,19 @@ export class BookingFormService extends AsyncHandler {
             ),
             { emitEvent: false },
         );
+        // A new booking takes the configured default length, not the 60
+        // minutes that `Booking` falls back to. Done before the replay, so a
+        // length the user chose still wins.
+        const default_duration = Number(this.setting('default_duration'));
+        if (!booking.id && default_duration > 0) {
+            this._patch({
+                duration: default_duration,
+                date_end: addMinutes(
+                    this.model().date,
+                    default_duration,
+                ).valueOf(),
+            });
+        }
         // Re-apply the user's own edits over the incoming booking. Done here,
         // before `applyDurationSettings`, so a restored `all_day` still drives
         // the time-sync window; and before `_syncWindowIfUnchanged`, which
@@ -1137,9 +1199,13 @@ export class BookingFormService extends AsyncHandler {
         this._options.set({ type: this._options().type });
     }
 
+    /**
+     * Reset the form and its stored state. This does not start the loads: a
+     * flow can clear the form while the user leaves it.
+     */
     public clearForm() {
         this._clearStoredForm();
-        this.newForm(this._options().type);
+        this._resetForm(this._options().type, new Booking({}), false);
     }
 
     private _clearStoredForm() {
@@ -1536,15 +1602,14 @@ export class BookingFormService extends AsyncHandler {
     /** Limit the end of a recurring booking to the type's available period. */
     private _clampRecurrenceEnd(value: Record<string, any>) {
         if (!value.recurrence_type || value.recurrence_type === 'none') return;
+        const type = value.booking_type;
+        // Parking uses `parking.*`, the other types use `<type>s.*`
+        const available_days =
+            this._settings.get(`app.${type}s.available_period`) ||
+            this._settings.get(`app.${type}.available_period`) ||
+            (type === 'parking' ? 7 : 90);
         const available_period = getUnixTime(
-            endOfDay(
-                addDays(
-                    Date.now(),
-                    this._settings.get(
-                        `app.${value.booking_type}s.available_period`,
-                    ) || 90,
-                ),
-            ),
+            endOfDay(addDays(Date.now(), available_days)),
         );
         if (!value.recurrence_end || value.recurrence_end > available_period) {
             value.recurrence_end = available_period;
@@ -2388,8 +2453,10 @@ export class BookingFormService extends AsyncHandler {
     ) {
         const user = await this._loadBookingRulesHost(host);
         if (!assets?.length) return true;
-        await this._whenSettled(this._booking_rules_resource);
-        const rules = this.booking_rules();
+        const rules = await this._holdNetwork(async () => {
+            await this._whenSettled(this._booking_rules_resource);
+            return this.booking_rules();
+        });
         const resource_rules = assets
             ?.filter((s) => s?.zone)
             ?.map((space) => {

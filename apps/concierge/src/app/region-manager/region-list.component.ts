@@ -11,10 +11,6 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
-import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
-import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
-import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
 
 @Component({
     selector: 'region-list',
@@ -182,25 +178,33 @@ export class RegionListComponent {
         if (success) notifySuccess('Region ID copied to clipboard.');
     };
 
-    public editWorkplaceSettings(zone) {
+    public async editWorkplaceSettings(zone) {
+        const { WorkplaceSettingsFormModalComponent } =
+            await import('../ui/app-settings/workplace-settings-form-modal.component');
         this._dialog.open(WorkplaceSettingsFormModalComponent, {
             data: { zone },
         });
     }
 
-    public editConciergeSettings(zone) {
+    public async editConciergeSettings(zone) {
+        const { ConciergeSettingsFormModalComponent } =
+            await import('../ui/app-settings/concierge-settings-form-modal.component');
         this._dialog.open(ConciergeSettingsFormModalComponent, {
             data: { zone },
         });
     }
 
-    public editBookingPanelSettings(zone) {
+    public async editBookingPanelSettings(zone) {
+        const { BookingPanelSettingsModalComponent } =
+            await import('../ui/app-settings/booking-panel-settings-modal.component');
         this._dialog.open(BookingPanelSettingsModalComponent, {
             data: { zone },
         });
     }
 
-    public editVisitorKioskSettings(zone) {
+    public async editVisitorKioskSettings(zone) {
+        const { VisitorKioskSettingsFormModalComponent } =
+            await import('../ui/app-settings/visitor-kiosk-settings-form-modal.component');
         this._dialog.open(VisitorKioskSettingsFormModalComponent, {
             data: { zone },
         });

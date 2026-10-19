@@ -205,7 +205,7 @@ export class ParkingRequestFormComponent
     );
     public readonly available_days = settingSignal(
         'parking.available_period',
-        14,
+        7,
     );
     public readonly submission_notes_html = computed(() =>
         settingSignal('parking.request_submission_notes_html', '')().trim(),

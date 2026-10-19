@@ -4,5 +4,5 @@
     "compilerOptions": {
         "types": ["vitest/globals", "node"]
     },
-    "exclude": ["jest.config.ts"]
+    "exclude": ["jest.config.ts", "src/**/*.worker.ts"]
 }

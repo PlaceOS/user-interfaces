@@ -25,6 +25,7 @@ import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 import {
     columnIndex,
     readTable,
+    rowCell,
     waitForAnyRow,
 } from '../../../../e2e/support/concierge/simple-table.page';
 
@@ -152,9 +153,13 @@ test.describe('concierge room management', () => {
         const actions = columnIndex(snapshot, 'actions');
 
         try {
-            await adminPage
-                .locator('simple-table [role=table] > *:not([header])')
-                .nth(actions)
+            const cell = await rowCell(
+                adminPage,
+                0,
+                actions,
+                snapshot.column_ids.length,
+            );
+            await cell
                 .locator('button, [matripple]')
                 .first()
                 .click();
@@ -248,9 +253,8 @@ test.describe('concierge room management', () => {
 
         try {
             const width = snapshot.column_ids.length;
-            await adminPage
-                .locator('simple-table [role=table] > *:not([header])')
-                .nth(row * width + actions)
+            const cell = await rowCell(adminPage, row, actions, width);
+            await cell
                 .locator('button, [matripple]')
                 .first()
                 .click();

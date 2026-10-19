@@ -1,3 +1,5 @@
+import { createEnvironmentInjector, EnvironmentInjector } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import {
     createServiceFactory,
@@ -103,6 +105,30 @@ describe('OrganisationService', () => {
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    // Late overrides touch the DOM after the test environment is gone
+    it('should not apply settings overrides after it is destroyed', async () => {
+        vi.useFakeTimers();
+        const set_overrides = vi.fn();
+        const injector = createEnvironmentInjector(
+            [
+                OrganisationService,
+                {
+                    provide: SettingsService,
+                    useValue: { get: vi.fn(), setOverrides: set_overrides },
+                },
+            ],
+            TestBed.inject(EnvironmentInjector),
+        );
+
+        // Startup loading schedules overrides on its own
+        injector.get(OrganisationService);
+        injector.destroy();
+        await vi.advanceTimersByTimeAsync(1000);
+
+        expect(set_overrides).not.toHaveBeenCalled();
+        vi.useRealTimers();
     });
 
     it('should stop waiting when geolocation does not respond', async () => {

@@ -27,6 +27,7 @@ import {
 } from './cron-helpers';
 import { MediaCacheService } from './media-cache.service';
 import {
+    isMediaValid,
     mediaAnimation,
     mockTimeState,
     time,
@@ -440,6 +441,27 @@ function playlistStartsWithin(
     );
 }
 
+/** Media of each display payload by id, built once per payload */
+const MEDIA_BY_ID = new WeakMap<SignageMedia[], Map<string, SignageMedia>>();
+
+/**
+ * The media item with `id`. Playlists are rebuilt several times on every
+ * schedule tick, so a scan of the whole list per item adds up on displays
+ * with a lot of media.
+ */
+function findMedia(media: SignageMedia[], id: string) {
+    let by_id = MEDIA_BY_ID.get(media);
+    if (!by_id) {
+        by_id = new Map();
+        // The first item with an id wins, as with a scan of the list
+        for (const item of media) {
+            if (!by_id.has(item.id)) by_id.set(item.id, item);
+        }
+        MEDIA_BY_ID.set(media, by_id);
+    }
+    return by_id.get(id);
+}
+
 function templateMappingCreatedAt(mapping: SignageTemplateMapping) {
     const created_at = Date.parse(mapping.created_at);
     return Number.isFinite(created_at) ? created_at : 0;
@@ -687,7 +709,8 @@ export class SignageService extends AsyncHandler {
         // Not modified since the last response that was applied
         if (result === null) return true;
         const { payload, validators } = result;
-        const display_signature = `${id}:${JSON.stringify(payload)}`;
+        const payload_json = JSON.stringify(payload);
+        const display_signature = `${id}:${payload_json}`;
         if (
             display_signature === this._display_signature &&
             this._display_data()
@@ -695,6 +718,9 @@ export class SignageService extends AsyncHandler {
             this._setValidators(validators);
             return !!validators;
         }
+        // Saved only when it changes. A backend that answers every poll in
+        // full would otherwise rewrite the same payload once a minute.
+        if (payload.id === id) this._saveOfflineDisplay(id, payload_json);
         const display = this._parseDisplay(payload);
         display.plugins = await this._withTimeout(
             this._resolveDisplayPlugins(display),
@@ -780,18 +806,17 @@ export class SignageService extends AsyncHandler {
             log.warn('Failed to fetch display details.', e);
         }
         if (!payload) payload = this._offlineDisplay(id);
-        if (payload.id === id) {
-            // Best effort: a full storage must not stop the display updating
-            try {
-                localStorage.setItem(
-                    displayCacheKey(id),
-                    JSON.stringify(payload),
-                );
-            } catch (e) {
-                log.warn('Unable to save display details for offline use.', e);
-            }
-        }
         return { payload, validators };
+    }
+
+    /** Keep the display details for offline use */
+    private _saveOfflineDisplay(id: string, payload_json: string) {
+        // Best effort: a full storage must not stop the display updating
+        try {
+            localStorage.setItem(displayCacheKey(id), payload_json);
+        } catch (e) {
+            log.warn('Unable to save display details for offline use.', e);
+        }
     }
 
     /** The display details saved for offline use; empty when there are none */
@@ -1385,7 +1410,7 @@ export class SignageService extends AsyncHandler {
             [playlist_id],
             () => true,
             'takeover',
-        ).some((item) => !validateMedia(item));
+        ).some((item) => isMediaValid(item));
     }
 
     /** Whether the current override is made of exactly these runs */
@@ -1563,9 +1588,7 @@ export class SignageService extends AsyncHandler {
         plugins: SignagePlugin[],
     ) {
         const { id, playlist_id, valid_from, valid_until } = reference;
-        const media_ref: SignageMedia | null = display.playlist_media.find(
-            (item) => item.id === id,
-        );
+        const media_ref = findMedia(display.playlist_media, id);
         if (!media_ref) return null;
         if (!this._canEmbedMedia(display, media_ref)) return null;
         const playlist: SignagePlaylist | undefined = this._playlistConfig(

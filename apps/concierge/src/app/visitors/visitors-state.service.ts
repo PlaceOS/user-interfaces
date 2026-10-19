@@ -5,6 +5,7 @@ import {
     effect,
     inject,
     signal,
+    untracked,
 } from '@angular/core';
 import { addDays, addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
 
@@ -51,6 +52,10 @@ export class VisitorsStateService extends AsyncHandler {
     private _settings = inject(SettingsService);
 
     private readonly _poll = signal(0);
+    /** Whether a visitors view is open. Loads only run while it is open. */
+    private readonly _active = signal(false);
+    /** Aborts the page chain of the previous load */
+    private _load_controller?: AbortController;
 
     private readonly _search = signal<string>('');
 
@@ -107,12 +112,30 @@ export class VisitorsStateService extends AsyncHandler {
         super();
         effect(() => {
             const { building, filters } = this._load_params_debounced.value();
-            if (!building) return;
+            // Not tracked: the view calls poll() after it opens to load
+            if (!untracked(this._active) || !building) return;
             this._load(building, filters);
         });
     }
 
+    /** Allow loads for the visitors view. Call poll() after this. */
+    public activate() {
+        this._active.set(true);
+    }
+
+    /** Stop loads and polling. Call when the view closes. */
+    public deactivate() {
+        this._active.set(false);
+        this.stopPolling();
+        this._load_controller?.abort();
+        this._load_controller = undefined;
+        this.loading.set(false);
+    }
+
     private async _load(building: Building, filters: VisitorFilters) {
+        this._load_controller?.abort();
+        const controller = new AbortController();
+        this._load_controller = controller;
         this.loading.set(true);
         const date = filters.date ? new Date(filters.date) : new Date();
         const start = addMinutes(startOfDay(date), this.tz_offset * 60);
@@ -126,10 +149,13 @@ export class VisitorsStateService extends AsyncHandler {
             include_checked_out: true,
             include_deleted: true,
             limit: 200,
-        }).catch(() => {
+        }, { signal: controller.signal }).catch(() => {
             failed = true;
             return [] as Booking[];
         });
+        // A newer load or a closed view owns the state now
+        if (controller.signal.aborted) return;
+        this._load_controller = undefined;
         this.load_error.set(failed);
         this.bookings.set(
             list.filter(

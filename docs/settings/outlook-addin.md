@@ -32,12 +32,8 @@ These options live at the root of the settings file (alongside `app`, not inside
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `name` | string | `"Workplace"` | Application name. Appended to browser page titles and recorded (with the app version) against bookings created through the add-in. |
-| `title` | string | `"Workplace Application"` | Title of the application. |
-| `description` | string | `"PlaceOS Workplace UI written with Angular Framework"` | Description of the application. |
-| `short_name` | string | `"WorkMate Outlook"` | Short name for the application. Registered as the app name during startup and used as a fallback for `name`. |
-| `logo_light` | string | `"assets/logo-light.svg"` | Logo image URL for light backgrounds. |
-| `logo_dark` | string | `"assets/logo-dark.svg"` | Logo image URL for dark backgrounds. |
+| `name` | string | `"Workplace"` | Application name. Recorded (with the app version) against bookings created through the add-in, and used in the `utm_source` of booking requests. If the URL pathname is empty, the app also uses this name to make the settings metadata key. |
+| `short_name` | string | `"WorkMate Outlook"` | Prefix for console log messages. Also the booking application name if `name` is not set. |
 
 ## Users & Attendees
 
@@ -52,7 +48,7 @@ These settings control the form shown when booking a meeting room for a calendar
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `events.has_catering` | boolean | `true` | Show the Catering step on the meeting form, letting the organiser add catering orders to the booking. |
-| `events.catering_enabled` | boolean | – | Alternative flag for the same Catering step — catering is shown if either this or `events.has_catering` is `true`. |
+| `events.catering_enabled` | boolean | – | Alias for `events.has_catering`. The form shows the Catering step if either key is `true`. |
 | `events.can_book_for_others` | boolean | `false` | Show a Host field on the meeting form so the person booking can select someone else as the meeting host. |
 | `events.allow_all_day` | boolean | – | Show an "All Day" checkbox next to the date field. Defaults to off. |
 | `events.hide_attendees` | boolean | – | Hide the Attendees step of the meeting form. Defaults to off (attendees are shown). |
@@ -61,7 +57,10 @@ These settings control the form shown when booking a meeting room for a calendar
 | `events.max_duration` | number | – | Maximum meeting duration in minutes. Defaults to `480` (8 hours). |
 | `events.bookable_hours` | object | – | Restrict start and end times to a window of the day, as 24-hour clock hours. When not set, any time of day can be selected. |
 | `events.custom_duration_options` | number[] | – | Replace the standard duration dropdown options with your own list of durations, in minutes. A value smaller than `events.min_duration` also lowers the effective minimum. |
-| `events.allow_assets` | boolean | – | Read by the meeting form but currently has no effect — the Assets (equipment request) step is always shown. |
+| `events.allow_assets` | boolean | – | Show the Assets (equipment request) step on the meeting form. Defaults to off. |
+| `events.multiple_spaces` | boolean | `false` | When `true`, users can select more than one room in the meeting form. The event form then uses the timezone of the event, or the browser timezone, and ignores `events.use_building_timezone`. |
+| `events.allow_multiple_spaces` | boolean | – | Legacy alias for `events.multiple_spaces`. The setting applies if either key is `true`. |
+| `events.use_building_timezone` | boolean | – | Use the timezone of the active building for meeting times. When the selected room is in a different building, the add-in saves the timezone of the room's building with the event. Has no effect when `events.multiple_spaces` is `true`. |
 
 Example — restrict meetings to office hours with fixed duration choices:
 
@@ -86,8 +85,12 @@ These settings control the desk booking form (keys under `desks`).
 | `desks.allow_all_day` | boolean | – | Show an "All Day" checkbox on the desk booking form. Defaults to off. |
 | `desks.can_book_lockers` | boolean | – | Show a "Require locker" checkbox so a locker can be requested along with the desk. Defaults to off. |
 | `desks.allow_assets` | boolean | – | Show a Request Asset step on the desk booking form for requesting equipment with the booking. Defaults to off. |
+| `desks.all_day_period` | object | – | Time window for all-day desk bookings, as hours of the day, e.g. `{ "start": 8, "end": 18 }`. The desk search shows this window for an all-day event. When not set, an all-day booking uses the full day. |
+| `desks.hide_user` | boolean | – | Hide the desk details on the desk map, such as the name of the person who booked the desk. Defaults to off. |
 
 Desk booking times are otherwise fixed by the app: durations from 1 to 10 hours in 1-hour steps.
+
+The booking form service reads `desks.all_day_period` from these keys in order, and uses the first value that is set: `desk.all_day_period`, `desks.all_day_period`, then `bookings.all_day_period`. Parking settings that the service reads use the same order, with `parking`, `parkings` and `bookings`.
 
 ## Parking
 
@@ -96,46 +99,19 @@ The calendar pane shows a Parking tab when `features` turns on parking or parkin
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `features` | string[] | `["spaces", "desks", "explore", "parking", "parking-requests", "help", "schedule"]` | `parking` lets the user choose a parking space. `parking-requests` lets the user request parking, and the parking team assigns a space. With both, the user selects one. With neither, the Parking tab is hidden. The add-in ignores the other values. |
-| `parking.require_plate_number` | boolean | `false` | Make the plate number required. |
-| `parking.assigned_resource_booking` | string | `"other_only"` | When this is not `allow`, a user with an assigned parking space cannot book more parking. The tab shows the assigned space instead. |
+| `parking.require_plate_number` | boolean | – | Make the plate number required. Defaults to off. |
+| `parking.assigned_resource_booking` | string | – | Rule for users with an assigned parking space: `allow`, `deny` or `other_only`. When not set, or set to a different value, the app uses `other_only`. When this is not `allow`, a user with an assigned parking space cannot book more parking. The tab shows the assigned space instead. |
 
-## Analytics
+## Spaces and Maps
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `analytics.tracking_id` | string | `""` | Google Analytics tracking ID. Leave empty to disable analytics. |
-| `analytics.enabled` | boolean | `true` | Present in the defaults but not checked by the app — analytics runs whenever `analytics.tracking_id` is set. |
+| `space_display.show_images` | boolean | `false` | Show the first photo of each space in the room search list. |
+| `use_region` | boolean | – | List the levels of the whole active region on the room and desk maps, instead of only the active building. The map shows the building name under each level. |
+| `explore.colors` | object | Status colours for spaces and zones | Map fill colours by status. The room map reads `space-free` and `space-busy`. The desk map reads `desk-free`, `desk-busy` and `desk-not-bookable`. Each map then tries the key without the prefix, such as `free`, and then a built-in colour. |
 
 ## Other Behaviour
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `has_uploads` | boolean | – | Enable the file uploads service on startup (cloud storage for attached files). Leave off unless your PlaceOS instance is configured for uploads. |
-
-## Unused Legacy Defaults
-
-The build-time defaults also include the settings below, carried over from the Workplace app. Nothing in the current Outlook Add-in reads them — they have no effect and can be ignored. They are listed here only so you can recognise them in the defaults.
-
-| Setting | Type | Default | Original purpose |
-|---------|------|---------|------------------|
-| `can_deliver` | boolean | `true` | Catering delivery option flag. |
-| `hide_contacts` | boolean | `false` | Hide contacts in user listings. |
-| `departments` | object | `{ "user": { "level": "bld-01_lvl-10", "centered_at": "table-10.008" } }` | Department-to-map-location hints. |
-| `general.banner` | object | `{ "id": "2", "type": "info", "content": "" }` | Global announcement banner. |
-| `general.copyright` | string | `"PlaceOS"` | Copyright text in the overlay menu. |
-| `general.position` | string | `"right"` | Overlay menu position. |
-| `help.tiles` | object[] | Four PlaceOS help links | Tiles for a Help/Support page (the add-in has no help page). |
-| `help.columns` | number | `2` | Column count for help tiles. |
-| `events.multiple_spaces` | boolean | `false` | Allow booking multiple rooms in one meeting — the add-in books one room per meeting. |
-| `events.desk_start` | number | `9` | Default desk booking start hour. |
-| `space_display.show_images` | boolean | `false` | Show photos in space listings. |
-| `directory.show_avatars` | boolean | `true` | Show user avatars in search results. |
-| `directory.min_search_length` | number | `3` | Minimum characters before running a user search. |
-| `schedule.legend` | object[] | Accepted / Pending / Rejected colours | Colour legend for a schedule page. |
-| `explore.colors` | object | Status colours for spaces and zones | Map status colouring — the add-in's map uses its own styling. |
-| `explore.can_select_building` | boolean | `true` | Allow changing building on a map view. |
-| `explore.show_legend_group_names` | boolean | `true` | Show group names on the map legend. |
-| `explore.legend` | object | Space status legend items | Map legend contents. |
-| `desks.can_book_for_others` | boolean | `true` | Host selection on desk bookings. |
-| `desks.allow_groups` | boolean | `true` | Group desk bookings. |
-| `desks.auto_allocation` | boolean | `false` | Automatic desk assignment. |

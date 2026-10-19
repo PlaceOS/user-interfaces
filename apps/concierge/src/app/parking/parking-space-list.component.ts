@@ -4,7 +4,7 @@ import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
+import { AsyncHandler, Booking, i18n, notifySuccess } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -15,7 +15,7 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-space-list',
     template: `
-        <div class="w-fit px-8">
+        <div class="w-fit min-w-full px-8">
             <mat-progress-bar
                 [class.opacity-0]="!loading().includes('spaces')"
                 class="w-full"
@@ -207,14 +207,21 @@ export class ParkingSpaceListComponent extends AsyncHandler {
 
     public readonly space_status = computed<Record<string, string>>(() => {
         const status: Record<string, string> = {};
+        // First active booking for each space, found in one pass
+        const active = new Map<string, Booking>();
+        for (const booking of this.bookings()) {
+            if (
+                booking.status === 'declined' ||
+                booking.status === 'cancelled' ||
+                booking.status === 'ended' ||
+                active.has(booking.asset_id)
+            ) {
+                continue;
+            }
+            active.set(booking.asset_id, booking);
+        }
         for (const space of this.spaces()) {
-            const booking = this.bookings().find(
-                (_) =>
-                    _.asset_id === space.id &&
-                    _.status !== 'declined' &&
-                    _.status !== 'cancelled' &&
-                    _.status !== 'ended',
-            );
+            const booking = active.get(space.id);
             if (space.assigned_to && !booking) {
                 status[space.id] = 'assigned_free';
             } else if (

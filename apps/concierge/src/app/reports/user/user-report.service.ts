@@ -6,6 +6,7 @@ import {
     downloadFile,
     i18n,
     jsonToCsv,
+    notifyError,
     OrganisationService,
     SettingsService,
     User,
@@ -36,6 +37,9 @@ export interface UserReportRow {
     checked_in: string;
     status: string;
 }
+
+/** Row as loaded. `checked_in` has a locale key until `rows` translates it */
+type LoadedUserReportRow = Omit<UserReportRow, 'type_name'>;
 
 /** Locale key for the name of each booking type in the report */
 const TYPE_NAMES: Record<UserReportType, string> = {
@@ -90,7 +94,7 @@ export class UserReportService {
     /** Loads the bookings when the user, the dates or the zone change */
     private readonly _rows = resource({
         params: () => this._params(),
-        defaultValue: [] as UserReportRow[],
+        defaultValue: [] as LoadedUserReportRow[],
         loader: async ({ params: { start, end, email, zone } }) => {
             if (!email || !zone) return [];
             const period = {
@@ -103,11 +107,15 @@ export class UserReportService {
             // the tenant forces the calendar host, `host_override` has the
             // user who made the booking.
             const [events, ...booking_lists] = await Promise.all([
+                // Tell the user when the room events are too many to load
                 queryAllEvents({
                     ...period,
                     zone_ids: zone,
                     include_cancelled: true,
                     limit: 200,
+                }).catch(() => {
+                    notifyError(i18n('COMMON.LOAD_ERROR'));
+                    return [] as CalendarEvent[];
                 }),
                 ...BOOKING_TYPES.map((type) =>
                     queryAllBookings({
@@ -137,7 +145,14 @@ export class UserReportService {
 
     public readonly options = this._options.asReadonly();
     public readonly loading = this._rows.isLoading;
-    public readonly rows = this._rows.value;
+    /** Loaded rows with locale text, which follows locale changes */
+    public readonly rows = computed<UserReportRow[]>(() =>
+        this._rows.value().map((row) => ({
+            ...row,
+            type_name: i18n(TYPE_NAMES[row.type]),
+            checked_in: row.checked_in && i18n(row.checked_in),
+        })),
+    );
 
     /** Number of bookings for each type */
     public readonly counts = computed(() => {
@@ -179,11 +194,10 @@ export class UserReportService {
         );
     }
 
-    private _bookingRow(booking: Booking): UserReportRow {
+    private _bookingRow(booking: Booking): LoadedUserReportRow {
         const type = booking.booking_type as UserReportType;
         return {
             type,
-            type_name: i18n(TYPE_NAMES[type]),
             name:
                 booking.asset_name ||
                 booking.extension_data?.asset_name ||
@@ -193,15 +207,14 @@ export class UserReportService {
             date: booking.date,
             duration: booking.duration,
             all_day: booking.is_all_day,
-            checked_in: i18n(booking.checked_in ? 'COMMON.YES' : 'COMMON.NO'),
+            checked_in: booking.checked_in ? 'COMMON.YES' : 'COMMON.NO',
             status: reportBookingStatus(booking),
         };
     }
 
-    private _eventRow(event: CalendarEvent): UserReportRow {
+    private _eventRow(event: CalendarEvent): LoadedUserReportRow {
         return {
             type: 'room',
-            type_name: i18n(TYPE_NAMES.room),
             name: event.system?.display_name || event.system?.name || '',
             location: this._org.locationWithID([...(event.system?.zones || [])])
                 .label,

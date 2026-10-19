@@ -14,6 +14,7 @@
                 "index": "apps/control/src/index.html",
                 "polyfills": [],
                 "tsConfig": "apps/control/tsconfig.app.json",
+                "webWorkerTsConfig": "apps/control/tsconfig.worker.json",
                 "fileReplacements": [
                     {
                         "replace": "libs/common/src/lib/settings.ts",
@@ -32,6 +33,12 @@
                         "glob": "oauth-resp.html",
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
+                    },
+                    {
+                        "input": "node_modules/@litertjs/core/wasm/",
+                        "output": "/assets/litert",
+                        "glob": "**",
+                        "ignore": ["**/*jspi*", "**/*threaded*"]
                     },
                     "apps/control/src/manifest.webmanifest"
                 ],
@@ -163,6 +170,7 @@
                 "outputPath": "dist/apps/control-test",
                 "browser": "apps/control/src/main.ts",
                 "tsConfig": "apps/control/tsconfig.spec.json",
+                "webWorkerTsConfig": "apps/control/tsconfig.worker.json",
                 "polyfills": []
             },
             "configurations": {

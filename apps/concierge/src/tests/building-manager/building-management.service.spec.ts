@@ -141,10 +141,10 @@ describe('BuildingManagementService', () => {
         expect(close).toHaveBeenCalled();
     });
 
-    it('should open the auto-release modal only for buildings with an id', () => {
-        spectator.service.setAutoRelease({ id: '' } as any);
+    it('should open the auto-release modal only for buildings with an id', async () => {
+        await spectator.service.setAutoRelease({ id: '' } as any);
         expect(dialog_open).not.toHaveBeenCalled();
-        spectator.service.setAutoRelease({ id: 'b1' } as any);
+        await spectator.service.setAutoRelease({ id: 'b1' } as any);
         expect(dialog_open).toHaveBeenCalled();
     });
 });

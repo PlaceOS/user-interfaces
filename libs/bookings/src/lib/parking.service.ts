@@ -9,18 +9,17 @@ import {
 import {
     AsyncHandler,
     currentUser,
-    Desk,
-    flatten,
     OrganisationService,
     SettingsService,
+    userSignal,
 } from '@placeos/common';
-import { listChildMetadata, PlaceAsset } from '@placeos/ts-client';
+import { PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { queryDeskAssetsForZones } from 'libs/assets/src/lib/desk-assets.fn';
 import {
     queryParkingSpacesForZones,
     queryParkingUsers,
 } from 'libs/assets/src/lib/parking-assets.fn';
+import { assignedDeskBuilding } from './booking-resource.loaders';
 import { queryBookings } from './bookings.fn';
 
 export type ParkingSpace = PlaceAsset;
@@ -119,10 +118,26 @@ export class ParkingService extends AsyncHandler {
         effect(() => {
             const bld = this._org.active_building();
             if (!bld?.id) return;
-            untracked(() => {
-                this._loadUsers(bld.id);
-                this._loadHomeBuilding();
-            });
+            untracked(() => this._loadUsers(bld.id));
+        });
+        // The home location scan reads desks in every building, so it runs
+        // only while the restriction is enabled. Settings change with the
+        // active building, so this also refreshes on a building change.
+        effect((onCleanup) => {
+            const restrict = !!this._settings.get(
+                'app.parking.restrict_home_location',
+            );
+            const use_assets = !!this._settings.get('app.desks.use_assets');
+            // Read the user here, so the scan runs again when the user loads
+            const email = userSignal()().email;
+            this._org.building_list();
+            this._org.active_building();
+            if (!restrict) return this._home_building_id.set(null);
+            let active = true;
+            onCleanup(() => (active = false));
+            untracked(() =>
+                assignedDeskBuilding(this._org, email, use_assets).then((id) => active && this._home_building_id.set(id)),
+            );
         });
         effect(() => {
             const spaces = this._spaces();
@@ -166,52 +181,5 @@ export class ParkingService extends AsyncHandler {
             )
             .filter((space) => !!space);
         this._booked_space.set(booked_spaces[0] || null);
-    }
-
-    private async _loadHomeBuilding() {
-        const buildings = this._org.building_list();
-        if (!buildings?.length) return;
-        const use_desk_assets = this._settings.get('app.desks.use_assets');
-        const results = await Promise.all(
-            buildings.map(async (bld) => {
-                if (use_desk_assets) {
-                    const level_ids = this._org
-                        .levelsForBuilding(bld)
-                        .map((level) => level.id);
-                    const desks = await queryDeskAssetsForZones(
-                        level_ids,
-                    ).catch(() => []);
-                    return { building_id: bld.id, desks };
-                }
-                return listChildMetadata(bld.id, { name: 'desks' })
-                    .then((data) => ({
-                        building_id: bld.id,
-                        desks: flatten<Desk>(
-                            data.map((meta) =>
-                                (meta?.metadata?.desks?.details instanceof Array
-                                    ? meta.metadata.desks.details
-                                    : []
-                                ).map(
-                                    (d) =>
-                                        new Desk({
-                                            ...d,
-                                            zone: meta.zone,
-                                        }),
-                                ),
-                            ),
-                        ),
-                    }))
-                    .catch(() => ({
-                        building_id: bld.id,
-                        desks: [] as Desk[],
-                    }));
-            }),
-        );
-        const email = currentUser()?.email?.toLowerCase();
-        if (!email) return this._home_building_id.set(null);
-        const match = results.find((r) =>
-            r.desks.some((d) => d.assigned_to?.toLowerCase() === email),
-        );
-        this._home_building_id.set(match?.building_id || null);
     }
 }

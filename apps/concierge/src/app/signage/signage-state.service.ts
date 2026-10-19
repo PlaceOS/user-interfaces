@@ -72,6 +72,11 @@ function cleanPlaylistPayload(playlist: Partial<SignagePlaylist>) {
 }
 
 import { confirmAction, errorText } from '../ui/modal-actions';
+import { ResourceDemand } from '../ui/resource-demand';
+
+/** Lists that load only while a view uses them */
+export type SignageList = 'media' | 'playlists' | 'displays' | 'zones';
+
 @Injectable({
     providedIn: 'root',
 })
@@ -87,13 +92,23 @@ export class SignageStateService extends AsyncHandler {
 
     public readonly loading = this._loading.asReadonly();
     public readonly has_changed = this._change.asReadonly();
+    /** Lists that the open views use. A list loads only when a view uses it. */
+    private readonly _demand = new ResourceDemand<SignageList>();
+
+    /**
+     * Load the lists while the calling view is open.
+     * Call in an injection context, for example a field initializer.
+     */
+    public use(...lists: SignageList[]) {
+        this._demand.use(...lists);
+    }
 
     /** List of signage media for the active building */
     private readonly _media = resource({
-        params: () => ({
+        params: this._demand.params('media', () => ({
             building: this._org.active_building()?.id,
             change: this._change(),
-        }),
+        })),
         defaultValue: [] as SignageMedia[],
         loader: async ({ params }) => {
             if (!params.building) return [];
@@ -105,10 +120,10 @@ export class SignageStateService extends AsyncHandler {
 
     /** List of signage playlists for the active building */
     private readonly _playlists = resource({
-        params: () => ({
+        params: this._demand.params('playlists', () => ({
             building: this._org.active_building()?.id,
             change: this._change(),
-        }),
+        })),
         defaultValue: [] as SignagePlaylist[],
         loader: async ({ params }) => {
             if (!params.building) return [];
@@ -123,11 +138,11 @@ export class SignageStateService extends AsyncHandler {
 
     /** List of signage displays for the active region/building */
     private readonly _displays = resource({
-        params: () => ({
+        params: this._demand.params('displays', () => ({
             region: this._org.active_region()?.id,
             building: this._org.active_building()?.id,
             change: this._change(),
-        }),
+        })),
         defaultValue: [] as PlaceSystem[],
         loader: async ({ params }) => {
             if (!params.building) return [];
@@ -154,10 +169,10 @@ export class SignageStateService extends AsyncHandler {
 
     /** List of signage zones */
     private readonly _zones = resource({
-        params: () => ({
+        params: this._demand.params('zones', () => ({
             building: this._org.active_building()?.id,
             change: this._change(),
-        }),
+        })),
         defaultValue: [] as PlaceZone[],
         loader: async () => {
             const list = await queryAllPages(

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
@@ -6,6 +6,7 @@ import { TeamQuickActionsComponent } from './team-quick-actions.component';
 import { TeamScheduleFiltersComponent } from './team-schedule-filters.component';
 import { TeamScheduleListComponent } from './team-schedule-list.component';
 import { TeamScheduleTableComponent } from './team-schedule-table.component';
+import { TeamScheduleService } from './team-schedule.service';
 
 @Component({
     selector: 'team-schedule',
@@ -47,5 +48,11 @@ export class TeamScheduleComponent {
     /** Set from the `hide_nav` URL parameter when the app is embedded */
     public get hide_nav() {
         return localStorage.getItem('PlaceOS.hide_nav') === 'true';
+    }
+
+    constructor() {
+        // Load the team members only while this page is open
+        const release = inject(TeamScheduleService).watch();
+        inject(DestroyRef).onDestroy(release);
     }
 }

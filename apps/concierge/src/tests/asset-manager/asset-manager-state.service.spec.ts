@@ -96,6 +96,22 @@ describe('AssetManagerStateService', () => {
         expect(spectator.service.extra_assets()).toBe(list);
     });
 
+    it('should load only the lists that a view uses', async () => {
+        TestBed.flushEffects();
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        expect(ts_client.queryAssetPurchaseOrders).not.toHaveBeenCalled();
+        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
+
+        TestBed.runInInjectionContext(() =>
+            spectator.service.use('purchase_orders'),
+        );
+        TestBed.flushEffects();
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        expect(ts_client.queryAssetPurchaseOrders).toHaveBeenCalledTimes(1);
+        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
+    });
+
     it('should group loaded products by category', async () => {
         // getGroupsWithAssets -> queryAssetTypes filters by visible category
         // ids, so both categories must be returned by queryAssetCategories.
@@ -115,6 +131,9 @@ describe('AssetManagerStateService', () => {
             total: 2,
             next: null,
         } as any);
+        TestBed.runInInjectionContext(() =>
+            spectator.service.use('products', 'categories'),
+        );
         TestBed.flushEffects();
         await new Promise((resolve) => setTimeout(resolve, 20));
         TestBed.flushEffects();
@@ -142,6 +161,9 @@ describe('AssetManagerStateService', () => {
             total: 1,
             next: null,
         } as any);
+        TestBed.runInInjectionContext(() =>
+            spectator.service.use('products', 'categories'),
+        );
         TestBed.flushEffects();
         await new Promise((resolve) => setTimeout(resolve, 20));
         TestBed.flushEffects();

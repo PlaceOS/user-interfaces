@@ -5,6 +5,7 @@ import {
     ElementRef,
     inject,
     OnInit,
+    Signal,
     signal,
 } from '@angular/core';
 import {
@@ -23,17 +24,23 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
+export type SpaceInfoStatus =
+    | 'free'
+    | 'busy'
+    | 'pending'
+    | 'reserved'
+    | 'not-bookable'
+    | 'unknown'
+    | '';
+
+/**
+ * Map feature data for a space tooltip. The values are signals, so the map
+ * keeps the component and the tooltip shows status and event changes.
+ */
 export interface SpaceInfoData {
-    space: Space;
-    events: CalendarEvent[];
-    status:
-        | 'free'
-        | 'busy'
-        | 'pending'
-        | 'reserved'
-        | 'not-bookable'
-        | 'unknown'
-        | '';
+    space: Signal<Space>;
+    events: Signal<CalendarEvent[]>;
+    status: Signal<SpaceInfoStatus>;
 }
 
 @Component({
@@ -221,10 +228,10 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
     public readonly y_pos = signal<'top' | 'bottom'>('top');
     public readonly x_pos = signal<'start' | 'end'>('start');
     /** Space to display details for */
-    public readonly space = signal(this._details.space || new Space());
+    public readonly space = this._details.space;
     /** List of upcoming events for space */
-    public readonly events = signal(this._details.events || []);
-    /** List of upcoming events for space */
+    public readonly events = this._details.events;
+    /** Current time, updated every five seconds */
     public readonly now = signal(Date.now());
     /** List of upcoming events for space */
     public readonly next = computed<CalendarEvent>(() => {
@@ -251,7 +258,7 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
     public readonly hide_meeting_details = signal(true);
     public readonly hide_meeting_title = signal(true);
     /** Current status of the space */
-    public readonly status = signal(this._details.status);
+    public readonly status = this._details.status;
 
     public readonly hide_features = settingSignal(
         'spaces.hide_features',

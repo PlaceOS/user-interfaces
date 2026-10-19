@@ -138,7 +138,7 @@ describe('BookingPanelSettingsModalComponent', () => {
     it('should have correct default model values', () => {
         const model = spectator.component.model();
         expect(model.min_duration).toBe(15);
-        expect(model.max_duration).toBe(60);
+        expect(model.max_duration).toBe(480);
         expect(model.pending_before).toBe(5);
         expect(model.pending_period).toBe(15);
         expect(model.show_qr_code).toBe(true);

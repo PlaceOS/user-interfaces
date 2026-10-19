@@ -34,6 +34,7 @@ describe('LandingAvailableNowComponent', () => {
     const hide_spaces = settingSignal<boolean>('hide_landing_spaces');
     const hide_rooms = settingSignal<boolean>('hide_landing_rooms');
     const free_space_list = signal<{ id: string; zones: string[] }[]>([]);
+    const release_statuses = vi.fn();
     const createComponent = createRoutingFactory({
         component: LandingAvailableNowComponent,
         stubsEnabled: false,
@@ -43,6 +44,7 @@ describe('LandingAvailableNowComponent', () => {
             MockProvider(LandingStateService, {
                 level_occupancy: signal(LEVELS),
                 free_space_list,
+                watchSpaceStatuses: vi.fn(() => release_statuses),
             } as any),
             MockProvider(SettingsService, {
                 get: vi.fn(),
@@ -177,6 +179,23 @@ describe('LandingAvailableNowComponent', () => {
         expect(levelRows()).toHaveLength(1);
         expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
         expect(ts_client.query).not.toHaveBeenCalled();
+    });
+
+    it('should watch live room statuses only while the rooms tab is open', async () => {
+        const state = spectator.inject(LandingStateService);
+        features.set(['desks', 'spaces']);
+        await settle();
+        expect(spectator.component.active_tab()).toBe('desks');
+        expect(state.watchSpaceStatuses).not.toHaveBeenCalled();
+
+        spectator.component.selected_tab.set('rooms');
+        await settle();
+        expect(state.watchSpaceStatuses).toHaveBeenCalledTimes(1);
+        expect(release_statuses).not.toHaveBeenCalled();
+
+        spectator.component.selected_tab.set('desks');
+        await settle();
+        expect(release_statuses).toHaveBeenCalledTimes(1);
     });
 
     it('should remove tabs with the landing settings', () => {

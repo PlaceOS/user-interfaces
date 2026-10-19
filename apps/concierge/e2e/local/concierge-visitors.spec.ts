@@ -49,6 +49,7 @@ import {
     columnIndex,
     confirmDialog,
     readTable,
+    rowCell,
     waitForRow,
 } from '../../../../e2e/support/concierge/simple-table.page';
 import { getBooking } from '../../../../e2e/support/api';
@@ -260,9 +261,13 @@ test.describe('concierge visitors', () => {
         const row = snapshot.rows.findIndex((r) =>
             r.some((cell) => cell.includes(visitor.email)),
         );
-        await adminPage
-            .locator('simple-table [role=table] > *:not([header])')
-            .nth(row * width + columnIndex(snapshot, 'actions'))
+        const actions = await rowCell(
+            adminPage,
+            row,
+            columnIndex(snapshot, 'actions'),
+            width,
+        );
+        await actions
             .locator('button, [matripple]')
             .first()
             .click();

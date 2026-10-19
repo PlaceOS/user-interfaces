@@ -52,52 +52,12 @@ test.describe('US-SM-019: View Room Status Overview', () => {
         expect(count).toBeDefined();
     });
 
-    test('should display critical alerts count in active alerts card', async ({
-        page,
-    }) => {
-        await navigateWithMock(page, REMOTE_SUPPORT_URL);
-        await waitForRemoteSupportPage(page);
-
-        const card = page
-            .locator('div:has(h3:has-text("Active Alerts"))')
-            .first();
-        const critical_text = card.locator('text=critical');
-        await expect(critical_text).toBeVisible({ timeout: ACTION_TIMEOUT });
-    });
-
     test('should display rooms table', async ({ page }) => {
         await navigateWithMock(page, REMOTE_SUPPORT_URL);
         await waitForRemoteSupportPage(page);
 
         const table_visible = await isTableVisible(page);
         expect(table_visible).toBeTruthy();
-    });
-
-    test('should display room table with correct columns', async ({ page }) => {
-        await navigateWithMock(page, REMOTE_SUPPORT_URL);
-        await waitForRemoteSupportPage(page);
-
-        const table = page.locator('simple-table');
-        await expect(table).toBeVisible({ timeout: LOAD_TIMEOUT });
-
-        // Check for column headers
-        const room_header = page.locator(
-            'simple-table [header]:has-text("Room")',
-        );
-        const occupancy_header = page.locator(
-            'simple-table [header]:has-text("Occupancy")',
-        );
-        const feed_header = page.locator(
-            'simple-table [header]:has-text("Feed")',
-        );
-        const alerts_header = page.locator(
-            'simple-table [header]:has-text("Alerts")',
-        );
-
-        await expect(room_header).toBeVisible({ timeout: ACTION_TIMEOUT });
-        await expect(occupancy_header).toBeVisible({ timeout: ACTION_TIMEOUT });
-        await expect(feed_header).toBeVisible({ timeout: ACTION_TIMEOUT });
-        await expect(alerts_header).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 });
 

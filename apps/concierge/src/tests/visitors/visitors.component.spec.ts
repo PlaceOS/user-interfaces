@@ -31,6 +31,8 @@ describe('VisitorsComponent', () => {
                 setSearchString: vi.fn(),
                 startPolling: vi.fn(),
                 stopPolling: vi.fn(),
+                activate: vi.fn(),
+                deactivate: vi.fn(),
             }),
             MockProvider(ActivatedRoute as any, {
                 snapshot: {
