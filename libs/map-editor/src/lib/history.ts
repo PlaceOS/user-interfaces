@@ -68,15 +68,32 @@ export class MapHistory {
         return [...this._redo].reverse().map((entry) => entry.label);
     }
 
+    private _position = 0;
+
+    /**
+     * How many changes deep the document is: up one per push or redo, down one
+     * per undo or drop. Unlike the stack length, trimming old entries leaves
+     * it alone.
+     */
+    public position(): number {
+        return this._position;
+    }
+
     /** Snapshot the document before a change. Clears the redo stack. */
     public push(label = ''): void {
+        this.commit(this.capture(label));
+    }
+
+    /** A snapshot of the document as it is now, for `commit` once a change has happened. */
+    public capture(label = ''): HistoryEntry {
         const root = this._doc.root.cloneNode(true) as Element;
-        this._undo.push({
-            root,
-            bytes: snapshotBytes(root),
-            label,
-            at: Date.now(),
-        });
+        return { root, bytes: snapshotBytes(root), label, at: Date.now() };
+    }
+
+    /** Records a snapshot from `capture` as the newest undo step. Clears the redo stack. */
+    public commit(entry: HistoryEntry): void {
+        this._position++;
+        this._undo.push(entry);
         this._redo = [];
         this._trim();
     }
@@ -84,6 +101,7 @@ export class MapHistory {
     public undo(): boolean {
         const entry = this._undo.pop();
         if (!entry) return false;
+        this._position--;
         this._redo.push(this._currentEntry(entry.label));
         this._doc.replaceRoot(entry.root);
         return true;
@@ -92,6 +110,7 @@ export class MapHistory {
     public redo(): boolean {
         const entry = this._redo.pop();
         if (!entry) return false;
+        this._position++;
         this._undo.push(this._currentEntry(entry.label));
         this._doc.replaceRoot(entry.root);
         return true;
@@ -99,7 +118,9 @@ export class MapHistory {
 
     /** Forget the most recent snapshot without restoring it. */
     public drop(): boolean {
-        return this._undo.pop() !== undefined;
+        if (this._undo.pop() === undefined) return false;
+        this._position--;
+        return true;
     }
 
     public clear(): void {

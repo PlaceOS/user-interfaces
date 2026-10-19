@@ -80,6 +80,29 @@ describe('MapAiThread', () => {
         expect(thread.can_send()).toBe(false);
     });
 
+    it('keeps the known quota when a refresh comes back without one', async () => {
+        const { thread, transport } = setup([]);
+        await thread.load();
+        transport.options.capabilities = { enabled: true };
+        await thread.submit('No changes needed');
+        await flush();
+        expect(thread.capabilities()?.quota).toBeDefined();
+        expect(thread.can_send()).toBe(true);
+    });
+
+    it('refreshes the quota when a send is refused for quota', async () => {
+        const { thread, transport } = setup([]);
+        await thread.load();
+        transport.options.edit = httpError(429, 'daily limit reached');
+        transport.options.capabilities = capabilities({
+            quota: { user_remaining_today: 0, domain_remaining_month: 941 },
+        });
+        await thread.submit('Recolour');
+        await flush();
+        expect(thread.capabilities()?.quota.user_remaining_today).toBe(0);
+        expect(thread.can_send()).toBe(false);
+    });
+
     it('sends the chosen model, remembered for the next thread', async () => {
         const stored: { choice: MapAiModelChoice | null } = { choice: null };
         const memory = {
@@ -370,6 +393,54 @@ describe('MapAiThread', () => {
         expect(thread.proposal()?.accepted).toEqual([0, 1]);
     });
 
+    it('keeps the picked reasons when the preview is undone from the toolbar', async () => {
+        const base = MapDocument.load(OFFICE);
+        const { thread, session, transport } = setup([
+            recolour(base, 'area-1.01-status', '#d1fae5'),
+        ]);
+        await thread.load();
+        await thread.submit('Recolour');
+        thread.toggleReason('wrong_elements');
+        session.undo();
+        thread.mapChanged();
+        await flush();
+        expect(transport.resolves[0].body).toMatchObject({
+            decision: 'rejected',
+            reasons: ['wrong_elements'],
+        });
+    });
+
+    it('leaves other edits alone when a preview with nothing on the map is undone', async () => {
+        const base = MapDocument.load(OFFICE);
+        const { thread, session, doc } = setup([
+            recolour(base, 'area-1.01-status', '#d1fae5'),
+        ]);
+        session.apply(
+            [recolour(base, 'area-1.02-status', '#fee2e2')],
+            'My edit',
+        );
+        await thread.load();
+        await thread.submit('Recolour');
+        await thread.toggle(0, false);
+        expect(doc.byId('area-1.01-status')?.getAttribute('fill')).toBeNull();
+        await thread.undo();
+        expect(doc.byId('area-1.02-status')?.getAttribute('fill')).toBe(
+            '#fee2e2',
+        );
+    });
+
+    it('remembers where removed elements stood so their pins stay on the map', async () => {
+        const base = MapDocument.load(OFFICE);
+        const { thread } = setup([
+            { op: 'delete', why: 'remove', target: target(base, 'plant-1') },
+        ]);
+        await thread.load();
+        await thread.submit('Remove the first plant');
+        const row = thread.proposal()?.rows[0];
+        expect(row?.applied).toBe(true);
+        expect(row?.box_before).toEqual([890, 390, 20, 20]);
+    });
+
     it('points added rows at the elements they create', async () => {
         const base = MapDocument.load(OFFICE);
         const { doc, thread } = setup([
@@ -615,6 +686,7 @@ describe('MapAiThread', () => {
             kind: 'error',
             error: { kind: 'timeout', retryable: true },
         });
+        thread.setDraft('half typed');
         expect(thread.turns()[thread.turns().length - 1]).toMatchObject({
             kind: 'status',
             text: DEFAULT_AI_STRINGS.states.timeout,

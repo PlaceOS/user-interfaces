@@ -18,6 +18,7 @@ import {
     WatchTimeoutError,
 } from './api';
 import { buildContext, mentionedEntries } from './context';
+import { unionBox } from './preview';
 import {
     buildProposal,
     decisionFor,
@@ -299,7 +300,9 @@ export class MapAiThread {
     private _queue: Promise<void> = Promise.resolve();
     /** Session version and undo depth right after the preview went on the map; -1 when none is tracked. */
     private _preview_version = -1;
-    private _preview_depth = 0;
+    private _preview_position = 0;
+    /** The preview changed the map, so taking it off means one undo. */
+    private _preview_on_map = false;
     /** The map as it was just before the preview went on, for re-validating a changed selection. */
     private _preview_base: ProposalBase | null = null;
 
@@ -498,14 +501,13 @@ export class MapAiThread {
                 this._transport,
             );
         } catch (error) {
-            this.dispatch({
-                type: 'submit_failed',
-                error: errorFromStatus(
-                    errorStatus(error),
-                    errorMessage(error),
-                    this.strings,
-                ),
-            });
+            const failure = errorFromStatus(
+                errorStatus(error),
+                errorMessage(error),
+                this.strings,
+            );
+            this.dispatch({ type: 'submit_failed', error: failure });
+            if (failure.kind === 'quota') void this._refreshQuota();
             return;
         }
         this.dispatch({ type: 'job_accepted', job, at: this._now() });
@@ -562,7 +564,10 @@ export class MapAiThread {
         const state = this._state();
         if (state.phase.kind !== 'error' && state.phase.kind !== 'cancelled')
             return Promise.resolve();
-        return this.submit(state.draft);
+        const last = [...state.turns]
+            .reverse()
+            .find((turn) => turn.kind === 'person');
+        return this.submit(last?.kind === 'person' ? last.instruction : '');
     }
 
     /** Asks the server to stop the running job; the watch reports the outcome. */
@@ -614,17 +619,24 @@ export class MapAiThread {
         const phase = this._state().phase;
         if (phase.kind !== 'applied' || this._preview_version < 0) return;
         if (this._session.version() === this._preview_version) return;
-        const undone =
-            (this._session.undoDepth?.() ?? this._preview_depth) <
-                this._preview_depth || !this._session.dirty();
-        this._preview_version = -1;
         this._preview_base = null;
+        if (!this._preview_on_map) {
+            this._preview_version = this._session.version();
+            return;
+        }
+        const undone =
+            this._session.historyPosition() < this._preview_position ||
+            !this._session.dirty();
+        this._preview_version = -1;
+        this._preview_on_map = false;
         const proposal = phase.proposal;
         void this._enqueue(async () => {
-            if (this._state().phase.kind !== 'applied') return;
+            const state = this._state();
+            if (state.phase.kind !== 'applied') return;
             if (undone) {
-                await this._resolveQuietly(proposal, 'rejected');
-                this.dispatch({ type: 'undone', proposal, reasons: [] });
+                const reasons = [...state.reasons];
+                await this._resolveQuietly(proposal, 'rejected', reasons);
+                this.dispatch({ type: 'undone', proposal, reasons });
                 return;
             }
             await this._resolveQuietly(proposal, decisionFor(proposal));
@@ -639,6 +651,7 @@ export class MapAiThread {
             if (phase.kind !== 'applied') return;
             const proposal = phase.proposal;
             this._preview_base = null;
+            this._preview_on_map = false;
             await this._resolveQuietly(proposal, decisionFor(proposal));
             this.dispatch({ type: 'kept', proposal });
         });
@@ -688,10 +701,16 @@ export class MapAiThread {
     private async _refreshQuota(): Promise<void> {
         try {
             const capabilities = await mapAICapabilities(this._transport);
+            const quota = capabilities?.quota;
+            if (
+                quota?.user_remaining_today === undefined ||
+                quota?.domain_remaining_month === undefined
+            )
+                return;
             this._state.update((state) => ({
                 ...state,
                 capabilities: state.capabilities
-                    ? { ...state.capabilities, quota: capabilities.quota }
+                    ? { ...state.capabilities, quota }
                     : null,
             }));
         } catch {
@@ -757,7 +776,8 @@ export class MapAiThread {
             { skip },
         );
         this._preview_version = this._session.version();
-        this._preview_depth = this._session.undoDepth?.() ?? 0;
+        this._preview_position = this._session.historyPosition();
+        this._preview_on_map = result.applied.length > 0;
         this._preview_base = base;
         const steps = new Map(result.applied.map((step) => [step.index, step]));
         const rows = proposal.rows.map((row) => {
@@ -768,6 +788,7 @@ export class MapAiThread {
                 ...row,
                 anchors: created.length ? created : row.anchors,
                 applied: steps.has(row.index),
+                box_before: unionBox(index, row.anchors),
             };
         });
         this.dispatch({ type: 'previewed', proposal: { ...proposal, rows } });
@@ -835,7 +856,8 @@ export class MapAiThread {
     }
 
     private _takePreviewOff(): void {
-        this._session.undo();
+        if (this._preview_on_map) this._session.undo();
+        this._preview_on_map = false;
         this._preview_base = null;
     }
 

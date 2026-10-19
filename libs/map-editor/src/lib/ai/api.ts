@@ -177,6 +177,39 @@ export function isTransientError(error: unknown): boolean {
     );
 }
 
+/** Seconds a long poll may run past its `wait` before it counts as a failed poll. */
+const POLL_GRACE_SECONDS = 10;
+
+/** Rejects with a status-less error, which counts as transient, if `promise` has not settled in `ms`. */
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        const timer = setTimeout(
+            () => reject(new Error('the job poll timed out')),
+            ms,
+        );
+        promise.then(
+            (value) => {
+                clearTimeout(timer);
+                resolve(value);
+            },
+            (error) => {
+                clearTimeout(timer);
+                reject(error);
+            },
+        );
+    });
+}
+
+function isJobBody(job: unknown): job is MapAIJob {
+    const value = job as Partial<MapAIJob> | null;
+    return (
+        !!value &&
+        typeof value.id === 'string' &&
+        typeof value.state === 'string' &&
+        typeof value.version === 'number'
+    );
+}
+
 export class WatchAbortedError extends Error {
     constructor() {
         super('the job watch was aborted');
@@ -259,7 +292,11 @@ export async function watchJob(
         if (now() > deadline) throw new WatchTimeoutError(id);
         let job: MapAIJob;
         try {
-            job = await showMapAIJob(id, { wait, since }, transport);
+            job = await withTimeout(
+                showMapAIJob(id, { wait, since }, transport),
+                (wait + POLL_GRACE_SECONDS) * 1000,
+            );
+            if (!isJobBody(job)) throw new Error('the job poll had no job');
         } catch (error) {
             if (options.signal?.aborted) throw new WatchAbortedError();
             if (!isTransientError(error)) throw error;

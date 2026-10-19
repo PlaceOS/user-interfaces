@@ -6,6 +6,7 @@ import {
     isFinalJob,
     isTransientError,
     mapAICapabilities,
+    MapAiTransport,
     queryMapAIJobs,
     resolveMapAIJob,
     showMapAIJob,
@@ -152,6 +153,48 @@ describe('map AI client', () => {
                 }),
             ).rejects.toBeInstanceOf(WatchGaveUpError);
             expect(failing.job_polls).toHaveLength(3);
+        });
+
+        it('backs off after a poll whose body is not a job', async () => {
+            const answers: unknown[] = [
+                {},
+                job({ id: 'j', state: 'done', version: 2 }),
+            ];
+            const transport = {
+                get: async () => answers.shift(),
+                post: async () => ({}),
+            } as unknown as MapAiTransport;
+            const waits: number[] = [];
+            const final = await watchJob('j', {
+                transport,
+                sleep: async (ms) => {
+                    waits.push(ms);
+                },
+            });
+            expect(final.state).toBe('done');
+            expect(waits).toEqual([1000]);
+        });
+
+        it('counts a poll that never answers as a failed poll', async () => {
+            vi.useFakeTimers();
+            const transport = new FakeTransport({
+                polls: [
+                    () => new Promise(() => undefined),
+                    job({ id: 'j', state: 'done', version: 2 }),
+                ],
+            });
+            const waits: number[] = [];
+            const watch = watchJob('j', {
+                transport,
+                wait: 5,
+                sleep: async (ms) => {
+                    waits.push(ms);
+                },
+            });
+            await vi.advanceTimersByTimeAsync(15_000);
+            await expect(watch).resolves.toMatchObject({ state: 'done' });
+            expect(waits).toEqual([1000]);
+            vi.useRealTimers();
         });
 
         it('rejects at once on a permanent failure', async () => {

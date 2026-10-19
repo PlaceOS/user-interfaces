@@ -49,8 +49,8 @@ export interface MapEditorSessionLike {
     redo(): boolean;
     readonly can_undo: Signal<boolean>;
     readonly can_redo: Signal<boolean>;
-    /** Entries on the undo stack. */
-    undoDepth?(): number;
+    /** How many changes deep the map is; see `MapHistory.position`. */
+    historyPosition(): number;
     /** Differs from the loaded document. */
     readonly dirty: Signal<boolean>;
 }

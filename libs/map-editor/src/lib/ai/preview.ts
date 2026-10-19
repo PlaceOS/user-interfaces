@@ -1,3 +1,5 @@
+import { BBox } from '../geometry';
+import { MapIndex } from '../map-index';
 import { OpCategory } from './describe';
 import { Proposal } from './proposal';
 import { format, MapEditorAiStrings } from './strings';
@@ -10,6 +12,8 @@ export interface PreviewMarker {
     category: OpCategory;
     /** Ticked, so applied to the map; an unticked row keeps its number but no outline. */
     applied: boolean;
+    /** Where the elements stood before the preview, used once the preview has removed them. */
+    box_before?: BBox | null;
 }
 
 export interface PreviewCount {
@@ -26,6 +30,28 @@ export interface PreviewSummary {
     markers: PreviewMarker[];
 }
 
+/** The box around every listed element in the index; null when none of them has one. */
+export function unionBox(
+    index: MapIndex,
+    anchors: readonly string[],
+): BBox | null {
+    let box: BBox | null = null;
+    for (const anchor of anchors) {
+        const bbox = index.by_anchor.get(anchor)?.bbox;
+        if (!bbox) continue;
+        if (!box) {
+            box = [...bbox] as BBox;
+            continue;
+        }
+        const x = Math.min(box[0], bbox[0]);
+        const y = Math.min(box[1], bbox[1]);
+        const x2 = Math.max(box[0] + box[2], bbox[0] + bbox[2]);
+        const y2 = Math.max(box[1] + box[3], bbox[1] + bbox[3]);
+        box = [x, y, x2 - x, y2 - y];
+    }
+    return box;
+}
+
 const COUNTED: readonly OpCategory[] = ['added', 'changed', 'removed'];
 
 /** The markers and counts for the proposal's actionable rows; null when there are none. */
@@ -40,6 +66,7 @@ export function previewSummary(
         anchors: [...row.anchors],
         category: row.category,
         applied: row.checked && !row.locked,
+        box_before: row.box_before ?? null,
     }));
     const on_map = rows.filter((row) => row.checked && !row.locked);
     const counts = COUNTED.map((category) => ({

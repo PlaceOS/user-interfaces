@@ -225,28 +225,25 @@ export class MapEditorSession implements MapEditorSessionLike {
         this._preview.set(summary);
     }
 
-    /** One history entry, then the ops, then a version bump. */
+    /** The ops, then one history entry and a version bump when any of them applied. */
     public apply(
         ops: readonly MapOp[],
         label: string,
         options: SessionApplyOptions = {},
     ): ApplyResult {
-        this.history.push(label);
+        const before = this.history.capture(label);
         const result = applyOps(this.doc, ops, {
             geometry: this.geometry,
             skip: options.skip,
         });
-        if (!result.applied.length) {
-            this.history.drop();
-            this._syncHistory();
-            return result;
-        }
+        if (!result.applied.length) return result;
+        this.history.commit(before);
         this._changed();
         return result;
     }
 
-    public undoDepth(): number {
-        return this.history.length;
+    public historyPosition(): number {
+        return this.history.position();
     }
 
     public undo(): boolean {

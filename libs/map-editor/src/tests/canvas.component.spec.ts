@@ -225,6 +225,45 @@ describe('MapEditorComponent', () => {
         ).toBe(0);
     });
 
+    it('pins a ticked removal where the element stood and does not outline an unticked one', async () => {
+        const shadow = viewport.shadowRoot as ShadowRoot;
+        const doc = host.session.doc;
+        const removed = anchor(doc, 'plant-1');
+        const kept = anchor(doc, 'plant-2');
+        host.session.apply(
+            [{ op: 'delete', why: '-', target: { a: removed, id: 'plant-1' } }],
+            'AI: remove a plant',
+        );
+        host.session.setPreview({
+            title: '',
+            note: '',
+            counts: [],
+            markers: [
+                {
+                    n: 1,
+                    anchors: [removed],
+                    category: 'removed',
+                    applied: true,
+                    box_before: [890, 390, 20, 20],
+                },
+                {
+                    n: 2,
+                    anchors: [kept],
+                    category: 'removed',
+                    applied: false,
+                    box_before: [920, 390, 20, 20],
+                },
+            ],
+        });
+        await settle(fixture);
+        const ticked = shadow.querySelector('g[data-preview="1"]');
+        expect(ticked?.querySelector('rect')?.getAttribute('x')).toBe('890');
+        expect(ticked?.querySelector('circle')?.getAttribute('cx')).toBe('890');
+        const unticked = shadow.querySelector('g[data-preview="2"]');
+        expect(unticked?.querySelector('circle')).toBeTruthy();
+        expect(unticked?.querySelector('rect')).toBeNull();
+    });
+
     it('clears the selection on Escape and keeps the key from the host', async () => {
         host.session.select([anchor(host.session.doc, 'plant-1')]);
         const event = key(viewport, { key: 'Escape' });

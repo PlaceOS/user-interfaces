@@ -1,3 +1,4 @@
+import { annotationPoints } from '../lib/ai/annotations';
 import {
     buildContext,
     contextEntry,
@@ -617,5 +618,41 @@ describe('canvas expansion context', () => {
                 (entry) => entry.kind === 'root',
             ),
         ).toBe(false);
+    });
+});
+
+describe('annotationPoints', () => {
+    it('covers an arrow pointing up and left only at its two ends', () => {
+        expect(
+            annotationPoints({
+                n: 1,
+                kind: 'arrow',
+                x: 990,
+                y: 490,
+                width: 190,
+                height: 190,
+                x2: 800,
+                y2: 300,
+            }),
+        ).toEqual([
+            [990, 490],
+            [800, 300],
+        ]);
+    });
+
+    it('covers both corners of a box', () => {
+        expect(
+            annotationPoints({
+                n: 1,
+                kind: 'box',
+                x: 10,
+                y: 20,
+                width: 30,
+                height: 40,
+            }),
+        ).toEqual([
+            [10, 20],
+            [40, 60],
+        ]);
     });
 });

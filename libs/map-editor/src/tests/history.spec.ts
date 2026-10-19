@@ -56,6 +56,9 @@ describe('MapHistory', () => {
         history.push('c');
         expect(history.length).toBe(2);
         expect(history.labels()).toEqual(['b', 'c']);
+        expect(history.position()).toBe(3);
+        history.undo();
+        expect(history.position()).toBe(2);
         expect(history.bytes).toBeLessThanOrEqual(one_snapshot * 2.5);
         const tiny = new MapHistory(doc, { byte_budget: 10 });
         tiny.push('only');

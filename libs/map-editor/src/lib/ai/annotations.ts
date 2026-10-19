@@ -24,7 +24,12 @@ export function annotationPoints(mark: MapAIAnnotation): [number, number][] {
     const points: [number, number][] = [...(mark.points || [])];
     if (mark.x !== undefined && mark.y !== undefined) {
         points.push([mark.x, mark.y]);
-        points.push([mark.x + (mark.width || 0), mark.y + (mark.height || 0)]);
+        // An arrow's width and height are absolute deltas, so only boxes and ellipses have this corner
+        if (mark.kind === 'box' || mark.kind === 'ellipse')
+            points.push([
+                mark.x + (mark.width || 0),
+                mark.y + (mark.height || 0),
+            ]);
     }
     if (mark.x2 !== undefined && mark.y2 !== undefined)
         points.push([mark.x2, mark.y2]);

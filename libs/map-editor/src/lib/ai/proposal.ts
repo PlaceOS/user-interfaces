@@ -1,4 +1,5 @@
 import { applyOps } from '../apply';
+import { BBox } from '../geometry';
 import { idsIn } from '../ids';
 import { MapDocument, Target } from '../map-document';
 import { MapOp, OpKind, targetsOf } from '../ops';
@@ -171,6 +172,8 @@ export interface ProposalRow {
     checked: boolean;
     /** Applied in the trial, or on the map once previewed. */
     applied: boolean;
+    /** Where the row's elements stood before the preview, for elements the preview removes. */
+    box_before?: BBox | null;
     affected?: number;
     note?: string;
     server_issue: string | null;

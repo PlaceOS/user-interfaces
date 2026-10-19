@@ -92,18 +92,20 @@ export class FakeSession implements MapEditorSessionLike {
         label: string,
         options?: SessionApplyOptions,
     ): ApplyResult {
-        this.history.push(label);
+        const before = this.history.capture(label);
         this.applied.push({ ops, label, options });
         const result = applyOps(this.doc, ops, {
             skip: options?.skip,
             geometry: this.geometry,
         });
+        if (!result.applied.length) return result;
+        this.history.commit(before);
         this._bump();
         return result;
     }
 
-    public undoDepth(): number {
-        return this.history.length;
+    public historyPosition(): number {
+        return this.history.position();
     }
 
     public undo(): boolean {

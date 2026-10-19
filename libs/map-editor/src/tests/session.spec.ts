@@ -123,6 +123,40 @@ describe('MapEditorSession', () => {
         expect(s.can_undo()).toBe(false);
     });
 
+    it('keeps redo when an edit after an undo applies nothing', () => {
+        const s = session();
+        const fill = (value: string) =>
+            s.apply(
+                [
+                    {
+                        op: 'set_attr',
+                        target: { id: 'area-1.01-status' },
+                        name: 'fill',
+                        value,
+                        why: 'test',
+                    },
+                ],
+                'Fill',
+            );
+        fill('#d1fae5');
+        s.undo();
+        expect(s.can_redo()).toBe(true);
+        s.apply(
+            [
+                {
+                    op: 'set_attr',
+                    target: { a: 'e99999' },
+                    name: 'fill',
+                    value: 'red',
+                    why: 'test',
+                },
+            ],
+            'Bad',
+        );
+        expect(s.can_redo()).toBe(true);
+        expect(s.historyPosition()).toBe(0);
+    });
+
     it('honours the skip set', () => {
         const s = session();
         const result = s.apply(

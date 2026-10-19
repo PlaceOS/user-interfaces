@@ -18,7 +18,7 @@ import {
     AnnotationTool,
     drawAnnotations,
 } from '../ai/annotations';
-import { PreviewMarker, PreviewSummary } from '../ai/preview';
+import { PreviewMarker, PreviewSummary, unionBox } from '../ai/preview';
 import { MapAIAnnotation } from '../ai/types';
 import { SVG_NS } from '../constants';
 import { MapIndex } from '../map-index';
@@ -763,7 +763,8 @@ export class MapEditorCanvasComponent implements AfterViewInit {
     ): void {
         const units_per_px = 1 / this.view().scale;
         for (const marker of preview.markers) {
-            const box = this._unionBox(index, marker.anchors);
+            const box =
+                unionBox(index, marker.anchors) ?? marker.box_before ?? null;
             if (!box) continue;
             const [x, y, width, height] = box;
             const hot = !!hover && marker.anchors.includes(hover);
@@ -774,7 +775,7 @@ export class MapEditorCanvasComponent implements AfterViewInit {
             group.setAttribute('data-preview', String(marker.n));
             group.setAttribute('data-category', marker.category);
             if (hot) group.setAttribute('data-hot', 'true');
-            if (marker.applied || marker.category === 'removed') {
+            if (marker.applied) {
                 const removed = marker.category === 'removed';
                 const outline = document.createElementNS(SVG_NS, 'rect');
                 outline.setAttribute('x', `${x}`);
@@ -823,27 +824,6 @@ export class MapEditorCanvasComponent implements AfterViewInit {
         }
     }
 
-    /** The box around every element a marker touches; null when none is in the map. */
-    private _unionBox(
-        index: MapIndex,
-        anchors: readonly string[],
-    ): [number, number, number, number] | null {
-        let box: [number, number, number, number] | null = null;
-        for (const anchor of anchors) {
-            const bbox = index.by_anchor.get(anchor)?.bbox;
-            if (!bbox) continue;
-            if (!box) {
-                box = [...bbox] as [number, number, number, number];
-                continue;
-            }
-            const x = Math.min(box[0], bbox[0]);
-            const y = Math.min(box[1], bbox[1]);
-            const x2 = Math.max(box[0] + box[2], bbox[0] + bbox[2]);
-            const y2 = Math.max(box[1] + box[3], bbox[1] + bbox[3]);
-            box = [x, y, x2 - x, y2 - y];
-        }
-        return box;
-    }
 
     /** One outline per element, or one around them all above MAX_SEPARATE_OUTLINES. */
     private _outlines(
@@ -858,7 +838,7 @@ export class MapEditorCanvasComponent implements AfterViewInit {
                 this._outline(overlay, index, anchor, kind, offset);
             return;
         }
-        const box = this._unionBox(index, anchors);
+        const box = unionBox(index, anchors);
         if (box) this._outlineBox(overlay, box, kind, offset);
     }
 
