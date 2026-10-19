@@ -166,6 +166,8 @@ import {
                     />
                     <span class="muted">{{ strings().apply_to_all }}</span>
                 </div>
+            } @else if (drawing()) {
+                <span class="hint">{{ strings().drawing_hint }}</span>
             } @else {
                 <span class="hint">{{ strings().no_selection }}</span>
             }
@@ -335,6 +337,8 @@ export class PropertiesStripComponent {
         Partial<MapEditorStrings>
     >(DEFAULT_MAP_EDITOR_STRINGS, { transform: resolveStrings });
     public readonly notifier = input<MapEditorNotifier>(new BrowserNotifier());
+    /** A mark tool is active, so clicks on the map draw rather than select. */
+    public readonly drawing = input(false);
 
     private readonly _resolver = computed(() => {
         const session = this.session();

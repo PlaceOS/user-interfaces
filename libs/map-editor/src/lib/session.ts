@@ -1,4 +1,4 @@
-import { Signal, signal } from '@angular/core';
+import { computed, Signal, signal } from '@angular/core';
 import { PreviewSummary } from './ai/preview';
 import {
     MapEditorSessionLike,
@@ -63,9 +63,12 @@ export class MapEditorSession implements MapEditorSessionLike {
     private readonly _annotations = signal<readonly MapAIAnnotation[]>([]);
     public readonly annotations = this._annotations.asReadonly();
     private _next_annotation = 1;
+    /** Undo depth of the map when each mark was drawn, in mark order. */
+    private _annotation_depths: number[] = [];
 
     public addAnnotation(mark: Omit<MapAIAnnotation, 'n'>): void {
         if (this._annotations().length >= 20) return;
+        this._annotation_depths.push(this.history.length);
         this._annotations.update((marks) => [
             ...marks,
             structuredClone({ ...mark, n: this._next_annotation++ }),
@@ -73,11 +76,37 @@ export class MapEditorSession implements MapEditorSessionLike {
     }
 
     public undoAnnotation(): void {
+        this._annotation_depths.pop();
         this._annotations.update((marks) => marks.slice(0, -1));
     }
 
     public clearAnnotations(): void {
+        this._annotation_depths = [];
         this._annotations.set([]);
+    }
+
+    /** Whether the newest mark came after the newest map change still on the undo stack. */
+    public readonly mark_is_latest = computed(() => {
+        this._version();
+        if (!this._annotations().length) return false;
+        return (this._annotation_depths.at(-1) ?? 0) >= this.history.length;
+    });
+
+    /** Something to undo, a mark or a map change. */
+    public readonly can_undo_latest = computed(
+        () => this._can_undo() || this._annotations().length > 0,
+    );
+
+    /** Undoes the newest mark or the newest map change, whichever came last. */
+    public undoLatest(): boolean {
+        if (this.mark_is_latest()) {
+            this.undoAnnotation();
+            return true;
+        }
+        if (this.undo()) return true;
+        if (!this._annotations().length) return false;
+        this.undoAnnotation();
+        return true;
     }
 
     private readonly _version = signal(0);

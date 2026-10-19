@@ -1,3 +1,4 @@
+import { MapAIAnnotation } from '../lib/ai/types';
 import { MemoryDraftStore } from '../lib/draft-store';
 import { AttributeGeometryProvider } from '../lib/geometry';
 import { MapDocument } from '../lib/map-document';
@@ -31,7 +32,41 @@ function recolour(doc: MapDocument, id: string, value: string): MapOp {
     };
 }
 
+const MARK: Omit<MapAIAnnotation, 'n'> = {
+    kind: 'ellipse',
+    colour: 'red',
+    x: 10,
+    y: 20,
+    width: 30,
+    height: 40,
+    hits: [],
+};
+
 describe('MapEditorSession', () => {
+    it('undoes marks and map changes in the order they were made', () => {
+        const s = session();
+        expect(s.can_undo_latest()).toBe(false);
+        s.addAnnotation(MARK);
+        expect(s.can_undo()).toBe(false);
+        expect(s.can_undo_latest()).toBe(true);
+        expect(s.mark_is_latest()).toBe(true);
+        s.apply([recolour(s.doc, 'table-01.001', 'red')], 'Recolour');
+        expect(s.mark_is_latest()).toBe(false);
+        s.addAnnotation(MARK);
+        expect(s.mark_is_latest()).toBe(true);
+
+        expect(s.undoLatest()).toBe(true);
+        expect(s.annotations()).toHaveLength(1);
+        expect(s.history.length).toBe(1);
+        expect(s.undoLatest()).toBe(true);
+        expect(s.history.length).toBe(0);
+        expect(s.annotations()).toHaveLength(1);
+        expect(s.mark_is_latest()).toBe(true);
+        expect(s.undoLatest()).toBe(true);
+        expect(s.annotations()).toHaveLength(0);
+        expect(s.undoLatest()).toBe(false);
+    });
+
     it('applies ops as one history entry and bumps the version', () => {
         const s = session();
         expect(s.version()).toBe(0);

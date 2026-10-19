@@ -55,10 +55,10 @@ import { PropertiesStripComponent } from './properties-strip.component';
                         <button
                             type="button"
                             class="tool"
-                            [disabled]="!session().can_undo()"
+                            [disabled]="!session().can_undo_latest()"
                             [title]="undoTitle()"
                             [attr.aria-label]="undoTitle()"
-                            (click)="session().undo()"
+                            (click)="session().undoLatest()"
                         >
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path [attr.d]="icons.undo" />
@@ -325,6 +325,7 @@ import { PropertiesStripComponent } from './properties-strip.component';
                     [session]="session()"
                     [strings]="strings()"
                     [notifier]="notifier()"
+                    [drawing]="annotation_tool() !== 'select'"
                 />
             </div>
             <aside class="panel">
@@ -744,11 +745,13 @@ export class MapEditorComponent {
         const name = strings[this.annotation_colour() as keyof MapEditorStrings];
         return `${strings.annotation_colour}: ${name}`;
     });
-    public readonly marksCount = computed(() =>
-        formatString(this.strings().marks_attached, {
-            count: this.session().annotations().length,
-        }),
-    );
+    public readonly marksCount = computed(() => {
+        const count = this.session().annotations().length;
+        const strings = this.strings();
+        return count === 1
+            ? strings.mark_attached
+            : formatString(strings.marks_attached, { count });
+    });
 
     private readonly _host = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -785,6 +788,7 @@ export class MapEditorComponent {
     });
 
     public readonly undoTitle = computed(() => {
+        if (this.session().mark_is_latest()) return this.strings().undo_mark;
         const label = this.session().undo_label();
         const base = this.strings().undo;
         return label ? `${base}: ${label}` : base;

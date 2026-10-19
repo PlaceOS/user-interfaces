@@ -601,12 +601,7 @@ export class MapEditorCanvasComponent implements AfterViewInit {
             case 'Z':
                 if (!modifier) handled = false;
                 else if (event.shiftKey) session.redo();
-                else if (
-                    this.annotation_tool() !== 'select' &&
-                    session.annotations().length
-                )
-                    session.undoAnnotation();
-                else session.undo();
+                else session.undoLatest();
                 break;
             case 'y':
             case 'Y':

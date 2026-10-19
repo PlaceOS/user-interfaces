@@ -16,6 +16,7 @@ export interface MapEditorStrings {
     show_marks: string;
     annotation_hint: string;
     marks_attached: string;
+    mark_attached: string;
     red: string;
     blue: string;
     green: string;
@@ -45,6 +46,7 @@ export interface MapEditorStrings {
     confirm_delete: string;
     confirm_rename: string;
     no_selection: string;
+    drawing_hint: string;
     multi_selected: string;
     tag: string;
     id: string;
@@ -80,6 +82,7 @@ export const DEFAULT_MAP_EDITOR_STRINGS: MapEditorStrings = {
     annotation_hint:
         'Refer to a mark’s colour or number in your prompt. Marks aren’t saved on the map. Hold Space to pan; Esc to select.',
     marks_attached: '{count} marks attached (maximum 20)',
+    mark_attached: '1 mark attached (maximum 20)',
     red: 'Red',
     blue: 'Blue',
     green: 'Green',
@@ -111,6 +114,8 @@ export const DEFAULT_MAP_EDITOR_STRINGS: MapEditorStrings = {
     confirm_delete: 'Delete anyway',
     confirm_rename: 'Rename anyway',
     no_selection: 'Click an element on the map to edit it',
+    drawing_hint:
+        'Drawing marks. To edit an element, pick Select or press Esc, then click it on the map',
     multi_selected: '{count} elements selected',
     tag: 'Element',
     id: 'ID',
