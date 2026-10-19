@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1792414324087,
+  "timestamp": 1792414362651,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -157,12 +157,24 @@
         "./assets/support/opera-logo.svg",
         "./assets/support/safari-logo.svg"
       ],
-      "patterns": [
-        "https:\\/\\/[^/]*\\.amazonaws\\.com\\/(?:.+\\/)?[^/]*\\.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
-      ]
+      "patterns": []
     }
   ],
-  "dataGroups": [],
+  "dataGroups": [
+    {
+      "name": "s3",
+      "patterns": [
+        "https:\\/\\/[^/]*\\.amazonaws\\.com\\/(?:.+\\/)?[^/]*\\.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
+      ],
+      "strategy": "performance",
+      "maxSize": 200,
+      "maxAge": 604800000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    }
+  ],
   "hashTable": {
     "./ar-DoPFYniv.js": "27f3d69913db2d2f028add4fa0498918bb159cc3",
     "./assets/boardroom.jpg": "9b1b67ca868d5f8d2d2ed8d958ccc34c6a5443d8",
@@ -285,7 +297,7 @@
     "./index.html": "9d946a45fa8128fd4a6cf5883064fe755bc0d2ba",
     "./it-CKncUqxZ.js": "b6b3105a4193fa883d8713fdecce08a8a4b7f301",
     "./ja-DngrQVLH.js": "38c64a0491a1e79c09fdc76f03eb35ef1f1a7d45",
-    "./main.js": "cc8cf6f356843e2f7a5a3dd79d98c187f29f2dc7",
+    "./main.js": "73487a64eb4e9eaeb6effd75579bcaf6543fadc6",
     "./manifest.webmanifest": "e9972f28130004e312c713398f75ef60aa75112a",
     "./native-domain-overlay.component-3WsfjnHN.js": "55c518e799ed548b066d26c0e1ff9ed3d9afd355",
     "./panel-view.component-DTmceA32.js": "e626b3d3b4f1cede2b031a88795aabf59664f52d",
