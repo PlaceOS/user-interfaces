@@ -152,7 +152,11 @@ export class ParkingMapComponent implements OnInit {
     public readonly features = computed(() => {
         const space_list = this._state.resources();
         const available = this._state.available_resources();
-        return this._settings.get('app.parkings.hide_user')
+        // `parkings.hide_user` is the legacy spelling
+        const hide_user =
+            this._settings.get('app.parking.hide_user') ??
+            this._settings.get('app.parkings.hide_user');
+        return hide_user
             ? []
             : space_list.map((space) => {
                   const status = available.find((_) => _.id === space.id)

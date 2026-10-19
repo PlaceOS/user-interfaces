@@ -667,10 +667,15 @@ export class BookingDetailsModalComponent {
         return !is_assigned && this.booking().booking_type !== 'parking';
     });
 
-    public readonly auto_checkin = settingSignal(
-        `${this.booking()?.type || 'bookings'}.auto_checkin`,
-        false,
-    );
+    /** Reads `<type>s.auto_checkin`, then the legacy `<type>.auto_checkin` */
+    public readonly auto_checkin = computed(() => {
+        const type = this.booking()?.type;
+        if (!type) return !!settingSignal('bookings.auto_checkin')();
+        return !!(
+            settingSignal(`${type}s.auto_checkin`)() ??
+            settingSignal(`${type}.auto_checkin`)()
+        );
+    });
     public readonly show_waitlist = this._settings.signal(
         'parking.show_waitlist',
         true,

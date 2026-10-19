@@ -326,15 +326,25 @@ export class ParkingFiltersComponent {
     );
     private readonly _available_period = this._settings.signal(
         'parking.available_period',
-        90,
+        7,
     );
     private readonly _use_24hr = this._settings.signal(
         'use_24_hour_time',
         false,
     );
-    private readonly _use_building_timezone = this._settings.signal(
-        'events.use_building_timezone',
+    // Match the parking forms, which read the bookings and parking keys
+    private readonly _parking_use_building_timezone = this._settings.signal(
+        'parking.use_building_timezone',
         false,
+    );
+    private readonly _booking_use_building_timezone = this._settings.signal(
+        'bookings.use_building_timezone',
+        false,
+    );
+    private readonly _use_building_timezone = computed(
+        () =>
+            this._parking_use_building_timezone() ||
+            this._booking_use_building_timezone(),
     );
 
     public readonly bookable_hours = this._bookable_hours;

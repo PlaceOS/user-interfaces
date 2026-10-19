@@ -1602,15 +1602,14 @@ export class BookingFormService extends AsyncHandler {
     /** Limit the end of a recurring booking to the type's available period. */
     private _clampRecurrenceEnd(value: Record<string, any>) {
         if (!value.recurrence_type || value.recurrence_type === 'none') return;
+        const type = value.booking_type;
+        // Parking uses `parking.*`, the other types use `<type>s.*`
+        const available_days =
+            this._settings.get(`app.${type}s.available_period`) ||
+            this._settings.get(`app.${type}.available_period`) ||
+            (type === 'parking' ? 7 : 90);
         const available_period = getUnixTime(
-            endOfDay(
-                addDays(
-                    Date.now(),
-                    this._settings.get(
-                        `app.${value.booking_type}s.available_period`,
-                    ) || 90,
-                ),
-            ),
+            endOfDay(addDays(Date.now(), available_days)),
         );
         if (!value.recurrence_end || value.recurrence_end > available_period) {
             value.recurrence_end = available_period;

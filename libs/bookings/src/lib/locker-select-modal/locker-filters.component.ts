@@ -331,14 +331,31 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
         'lockers.hide_end_time',
         false,
     );
-    private readonly _allow_time_changes = this._settings.signal(
+    private readonly _locker_allow_time_changes = this._settings.signal(
         'lockers.allow_time_changes',
-        false,
     );
-    private readonly _allow_all_day = this._settings.signal(
+    // Unset means on, as in the locker forms
+    private readonly _allow_time_changes = computed(
+        () => this._locker_allow_time_changes() !== false,
+    );
+    private readonly _locker_allow_all_day = this._settings.signal(
         'lockers.allow_all_day',
-        false,
     );
+    private readonly _booking_allow_all_day = this._settings.signal(
+        'bookings.allow_all_day',
+    );
+    // As in the locker forms: lockers, then bookings, then on. A cached
+    // setting signal keeps the default of the first caller when the key is
+    // unset, so read the signals only to track changes and use raw values.
+    private readonly _allow_all_day = computed(() => {
+        this._locker_allow_all_day();
+        this._booking_allow_all_day();
+        return (
+            this._settings.get<boolean>('app.lockers.allow_all_day') ??
+            this._settings.get<boolean>('app.bookings.allow_all_day') ??
+            true
+        );
+    });
     private readonly _available_period = this._settings.signal(
         'lockers.available_period',
         90,

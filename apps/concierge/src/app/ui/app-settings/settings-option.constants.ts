@@ -203,13 +203,6 @@ export const SETUP_BREAKDOWN_OPTIONS: SelectOption<number>[] = [
     { value: 120, label: '2 Hours' },
 ];
 
-// ── Cache Duration (days, includes "No cache" option) ──
-
-export const CACHE_DURATION_OPTIONS: SelectOption<number>[] = [
-    { value: -1, label: 'No cache' },
-    ...AVAILABLE_PERIOD_SHORT_OPTIONS,
-];
-
 // ── Explore / Map Feature Options ──
 
 export const EXPLORE_FEATURE_OPTIONS: SelectOption<string>[] = [

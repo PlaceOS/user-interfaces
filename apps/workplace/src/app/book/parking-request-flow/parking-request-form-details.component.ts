@@ -1474,7 +1474,7 @@ export class ParkingRequestFormDetailsComponent
 
     public readonly available_days = settingSignal(
         'parking.available_period',
-        14,
+        7,
     );
     public readonly allow_recurrence = settingSignal(
         'parking.allow_recurrence',

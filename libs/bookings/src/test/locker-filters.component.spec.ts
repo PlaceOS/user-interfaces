@@ -146,13 +146,14 @@ describe('LockerFiltersComponent', () => {
 
     it('should only allow all-day when both time changes and all-day are enabled', () => {
         const settings = spectator.inject(SettingsService);
-        expect(spectator.component.allow_all_day()).toBe(false);
+        // Unset means on, as in the locker forms
+        expect(spectator.component.allow_all_day()).toBe(true);
         (settings.get as Mock).mockImplementation((key: string) => {
-            if (key === 'app.lockers.allow_time_changes') return true;
+            if (key === 'app.lockers.allow_time_changes') return false;
             if (key === 'app.lockers.allow_all_day') return true;
             return undefined;
         });
-        expect(spectator.component.allow_all_day()).toBe(true);
+        expect(spectator.component.allow_all_day()).toBe(false);
     });
 
     it('should compute the end date from the available period', () => {

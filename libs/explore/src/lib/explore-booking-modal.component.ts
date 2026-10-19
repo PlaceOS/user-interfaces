@@ -215,7 +215,7 @@ export class ExploreBookingModalComponent implements OnInit {
         return this._event_form.model;
     }
 
-    public readonly max_duration = settingSignal('events.max_duration', 4 * 60);
+    public readonly max_duration = settingSignal('events.max_duration', 8 * 60);
 
     public readonly bookable_hours = settingSignal<BookableHoursRange | null>(
         'events.bookable_hours',

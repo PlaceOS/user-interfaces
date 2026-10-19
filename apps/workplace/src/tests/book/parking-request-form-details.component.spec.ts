@@ -642,6 +642,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
             { id: 'standard', name: 'Standard' },
         ]);
         spectator.component.hide_custom_shift.set(false);
+        spectator.component.available_days.set(14);
         await spectator.component.ngOnInit();
 
         spectator.component.setNumWeeks(2);

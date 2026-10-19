@@ -195,17 +195,20 @@ describe('ParkingMapComponent', () => {
         expect(features[1].data.status).toBe('busy');
     });
 
-    it('should hide features when hide_user setting is enabled', () => {
-        spectator = createComponent();
-        const settings_service = spectator.inject(SettingsService);
-        (settings_service.get as Mock).mockImplementation(
-            (key: string) => key === 'app.parkings.hide_user',
-        );
-        // Change resources after setting the mock so the `features` computed
-        // re-evaluates with the updated `hide_user` setting.
-        resources.set([asset({ id: 'p1', map_id: 'm-1' })]);
-        expect(spectator.component.features()).toEqual([]);
-    });
+    it.each(['app.parking.hide_user', 'app.parkings.hide_user'])(
+        'should hide features when %s is enabled',
+        (hide_key) => {
+            spectator = createComponent();
+            const settings_service = spectator.inject(SettingsService);
+            (settings_service.get as Mock).mockImplementation((key: string) =>
+                key === hide_key ? true : undefined,
+            );
+            // Change resources after setting the mock so the `features`
+            // computed re-evaluates with the updated `hide_user` setting.
+            resources.set([asset({ id: 'p1', map_id: 'm-1' })]);
+            expect(spectator.component.features()).toEqual([]);
+        },
+    );
 
     it('should build actions that select the associated parking space', () => {
         available.set([asset({ id: 'p1', map_id: 'm-1' })]);
