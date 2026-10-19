@@ -39,7 +39,6 @@ describe('LevelListComponent', () => {
         manager = {
             filtered_levels: signal([{ id: 'lvl-1' }]),
             editLevel: vi.fn(),
-            editLevelMap: vi.fn(),
             removeLevel: vi.fn(),
         };
         copy = vi.fn(() => true);

@@ -111,11 +111,7 @@ describe('MapManagementService', () => {
         expect(saved.map_id).toBe('/api/engine/v2/uploads/upload-9/url');
         expect(ts_client.updateZone).toHaveBeenCalledWith('l1', {
             id: 'l1',
-            display_name: 'L1',
-            parent_id: 'b1',
             map_id: '/api/engine/v2/uploads/upload-9/url',
-            name: 'Level 1',
-            tags: ['level'],
         });
         expect(org.addZone).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -139,6 +135,29 @@ describe('MapManagementService', () => {
             file_name: 'old.svg',
         });
         expect(metadata.details[1].upload_id).toBe('u1');
+    });
+
+    it('names the saved file after the current upload even when the list has not looked it up yet', async () => {
+        const uploaded = new BuildingLevel({
+            ...level,
+            id: 'l9',
+            map_id: '/api/engine/v2/uploads/u7/url',
+        });
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: [
+                {
+                    upload_id: 'u7',
+                    map_id: '/api/engine/v2/uploads/u7/url',
+                    at: 1,
+                    by: '',
+                    summary: '',
+                    file_name: 'ground-floor.svg',
+                },
+            ],
+        } as any);
+        await spectator.service.saveLevelMap(uploaded, '<svg/>', '');
+        const file: File = uploads.uploadFileToCompletion.mock.calls[0][0];
+        expect(file.name).toBe('ground-floor.svg');
     });
 
     it('still saves when the history write fails', async () => {

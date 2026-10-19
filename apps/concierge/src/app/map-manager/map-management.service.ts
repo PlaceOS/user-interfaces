@@ -11,7 +11,6 @@ import {
 import { getMapDetails } from '@placeos/components';
 import { ProtectedIdSource } from '@placeos/map-editor';
 import {
-    authority,
     PlaceZone,
     showMetadata,
     showZone,
@@ -56,7 +55,7 @@ export class MapManagementService {
     private readonly _map_names = signal<ReadonlyMap<string, string>>(
         new Map(),
     );
-    private readonly _names_requested = new Set<string>();
+    private readonly _name_lookups = new Map<string, Promise<void>>();
 
     /** Levels with a map, filtered by the current options. */
     public readonly rows = computed(() =>
@@ -81,11 +80,20 @@ export class MapManagementService {
         return this._map_names().get(map_id);
     }
 
-    private async _resolveMapName(level: BuildingLevel) {
+    /** Looks up the file name a level's map was saved under; one lookup per map URL. */
+    private _resolveMapName(level: BuildingLevel): Promise<void> {
         const url = level.map_id;
-        if (!url || this._names_requested.has(url)) return;
-        this._names_requested.add(url);
-        const metadata = await showMetadata(level.id, MAP_HISTORY_KEY).catch(
+        if (!url) return Promise.resolve();
+        let lookup = this._name_lookups.get(url);
+        if (!lookup) {
+            lookup = this._lookUpMapName(level.id, url);
+            this._name_lookups.set(url, lookup);
+        }
+        return lookup;
+    }
+
+    private async _lookUpMapName(level_id: string, url: string) {
+        const metadata = await showMetadata(level_id, MAP_HISTORY_KEY).catch(
             () => null,
         );
         const entries = Array.isArray(metadata?.details)
@@ -169,6 +177,7 @@ export class MapManagementService {
         markup: string,
         summary: string,
     ): Promise<SavedLevelMap> {
+        if (isApiUpload(level.map_id)) await this._resolveMapName(level);
         const file_name = mapFileName(
             level,
             level.map_id,
@@ -179,24 +188,8 @@ export class MapManagementService {
         });
         const upload_id = await this._uploads.uploadFileToCompletion(file);
         const map_id = `/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
-        const level_name =
-            level.name ||
-            `LEVEL ${authority()?.description} ${level.display_name || level.id}`;
-        const tags = level.tags?.length ? level.tags : ['level'];
-        const response = await updateZone(level.id, {
-            id: level.id,
-            display_name: level.display_name,
-            parent_id: level.parent_id,
-            map_id,
-            name: level_name,
-            tags,
-        });
-        const zone = {
-            ...level,
-            ...response,
-            map_id,
-            tags: response?.tags?.length ? response.tags : tags,
-        } as unknown as PlaceZone;
+        const response = await updateZone(level.id, { id: level.id, map_id });
+        const zone = new PlaceZone({ ...level, ...response, map_id });
         this._org.addZone(zone);
         this._map_names.update((map) => new Map(map).set(map_id, file_name));
         await this._recordHistory(level.id, {
