@@ -11,6 +11,40 @@ const ENTITY_TYPES: (PlaceOSEntityType | '')[] = [
     'zone',
 ];
 
+/** PlaceOS id shape for each entity type */
+const ENTITY_ID_PLACEHOLDERS: Record<PlaceOSEntityType, string> = {
+    system: 'sys-XXXXXXXX',
+    module: 'mod-XXXXXXXX',
+    zone: 'zone-XXXXXXXX',
+};
+
+const HEX_COLOR_RE = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+type EditableField =
+    | 'label'
+    | 'svg_id'
+    | 'entity_id'
+    | 'object_type'
+    | 'entity_type'
+    | 'fill_color'
+    | 'stroke_color'
+    | 'opacity'
+    | 'capacity'
+    | 'locked'
+    | 'tags'
+    | 'width'
+    | 'height'
+    | 'rotation';
+
+/** Fields with typed values that are validated, and reverted when invalid */
+type CheckedField =
+    | 'width'
+    | 'height'
+    | 'rotation'
+    | 'capacity'
+    | 'fill_color'
+    | 'stroke_color';
+
 /** Slug an object's label into a stable svg id */
 function generateSvgId(type: MapObjectType, label: string | null): string {
     const base = label
@@ -116,6 +150,9 @@ function generateSvgId(type: MapObjectType, label: string | null): string {
                                 readonly
                             />
                         </div>
+                        <p class="text-base-content/60 col-span-2 text-xs">
+                            Drag the object on the canvas to move it.
+                        </p>
                         <div>
                             <label for="pp-w">Width</label>
                             <input
@@ -123,8 +160,8 @@ function generateSvgId(type: MapObjectType, label: string | null): string {
                                 type="number"
                                 min="1"
                                 class="border-base-300 w-full rounded border px-2 py-1 text-xs"
-                                [value]="rounded(object.geometry.width)"
-                                (change)="set(object, 'width', asValue($event))"
+                                [value]="fieldText(object, 'width')"
+                                (change)="edit(object, 'width', $event)"
                             />
                         </div>
                         <div>
@@ -134,10 +171,8 @@ function generateSvgId(type: MapObjectType, label: string | null): string {
                                 type="number"
                                 min="1"
                                 class="border-base-300 w-full rounded border px-2 py-1 text-xs"
-                                [value]="rounded(object.geometry.height)"
-                                (change)="
-                                    set(object, 'height', asValue($event))
-                                "
+                                [value]="fieldText(object, 'height')"
+                                (change)="edit(object, 'height', $event)"
                             />
                         </div>
                     </div>
@@ -148,10 +183,10 @@ function generateSvgId(type: MapObjectType, label: string | null): string {
                             id="pp-rotation"
                             type="number"
                             min="0"
-                            max="360"
+                            max="359"
                             class="border-base-300 w-full rounded border px-2 py-1 text-xs"
-                            [value]="rounded(object.geometry.rotation)"
-                            (change)="set(object, 'rotation', asValue($event))"
+                            [value]="fieldText(object, 'rotation')"
+                            (change)="edit(object, 'rotation', $event)"
                         />
                     </div>
 
@@ -162,12 +197,11 @@ function generateSvgId(type: MapObjectType, label: string | null): string {
                                 id="pp-capacity"
                                 type="number"
                                 min="0"
+                                step="1"
                                 placeholder="0"
                                 class="border-base-300 w-full rounded border px-2 py-1 text-xs"
-                                [value]="object.capacity ?? ''"
-                                (change)="
-                                    set(object, 'capacity', asValue($event))
-                                "
+                                [value]="fieldText(object, 'capacity')"
+                                (change)="edit(object, 'capacity', $event)"
                             />
                         </div>
                     }
@@ -180,17 +214,17 @@ function generateSvgId(type: MapObjectType, label: string | null): string {
                                 type="color"
                                 class="border-base-300 h-7 w-10 rounded border"
                                 [value]="hexOf(object.fill_color, '#cccccc')"
-                                (input)="
-                                    set(object, 'fill_color', asValue($event))
+                                (input)="preview(object, 'fill_color', $event)"
+                                (change)="
+                                    commitPreview(object, 'fill_color', $event)
                                 "
                             />
                             <input
                                 class="border-base-300 min-w-0 flex-1 rounded border px-2 py-1 text-xs"
-                                [value]="object.fill_color ?? ''"
+                                aria-label="Fill colour hex"
+                                [value]="fieldText(object, 'fill_color')"
                                 placeholder="#cccccc"
-                                (change)="
-                                    set(object, 'fill_color', asValue($event))
-                                "
+                                (change)="edit(object, 'fill_color', $event)"
                             />
                         </div>
                     </div>
@@ -204,16 +238,22 @@ function generateSvgId(type: MapObjectType, label: string | null): string {
                                 class="border-base-300 h-7 w-10 rounded border"
                                 [value]="hexOf(object.stroke_color, '#333333')"
                                 (input)="
-                                    set(object, 'stroke_color', asValue($event))
+                                    preview(object, 'stroke_color', $event)
+                                "
+                                (change)="
+                                    commitPreview(
+                                        object,
+                                        'stroke_color',
+                                        $event
+                                    )
                                 "
                             />
                             <input
                                 class="border-base-300 min-w-0 flex-1 rounded border px-2 py-1 text-xs"
-                                [value]="object.stroke_color ?? ''"
+                                aria-label="Stroke colour hex"
+                                [value]="fieldText(object, 'stroke_color')"
                                 placeholder="#333333"
-                                (change)="
-                                    set(object, 'stroke_color', asValue($event))
-                                "
+                                (change)="edit(object, 'stroke_color', $event)"
                             />
                         </div>
                     </div>
@@ -230,7 +270,8 @@ function generateSvgId(type: MapObjectType, label: string | null): string {
                             step="0.05"
                             class="accent-primary w-full"
                             [value]="object.opacity"
-                            (input)="set(object, 'opacity', asValue($event))"
+                            (input)="preview(object, 'opacity', $event)"
+                            (change)="commitPreview(object, 'opacity', $event)"
                         />
                     </div>
 
@@ -269,7 +310,11 @@ function generateSvgId(type: MapObjectType, label: string | null): string {
                             id="pp-entity-id"
                             class="border-base-300 w-full rounded border px-2 py-1 text-xs disabled:opacity-40"
                             [value]="object.entity_id ?? ''"
-                            placeholder="sys-XXXXXXXX"
+                            [placeholder]="
+                                object.entity_type
+                                    ? entity_id_placeholders[object.entity_type]
+                                    : ''
+                            "
                             [disabled]="!object.entity_type"
                             (change)="set(object, 'entity_id', asValue($event))"
                         />
@@ -344,64 +389,148 @@ export class PropertiesPanelComponent {
     public readonly suggestedId = (object: MapObject) =>
         generateSvgId(object.object_type, object.label);
 
-    /** Colour inputs only accept `#rrggbb`, so fall back for rgba() values */
-    public readonly hexOf = (color: string | null, fallback: string) =>
-        color && /^#[0-9a-f]{6}$/i.test(color) ? color : fallback;
+    /** Colour inputs only accept `#rrggbb`, so expand `#rgb` and fall back for rgba() values */
+    public readonly hexOf = (color: string | null, fallback: string) => {
+        if (!color || !HEX_COLOR_RE.test(color)) return fallback;
+        return color.length === 4
+            ? `#${[...color.slice(1)].map((c) => c + c).join('')}`
+            : color;
+    };
 
-    public set(object: MapObject, field: string, value: unknown) {
-        const updates: Partial<MapObject> = {};
+    public readonly entity_id_placeholders = ENTITY_ID_PLACEHOLDERS;
+
+    /** `${object id}:${field}` of the slider or colour picker being dragged */
+    private _live_key = '';
+
+    /** Text shown in a validated field, so rejected input can revert to it */
+    public fieldText(object: MapObject, field: CheckedField): string {
+        switch (field) {
+            case 'width':
+            case 'height':
+            case 'rotation':
+                return String(this.rounded(object.geometry[field]));
+            case 'capacity':
+                return object.capacity == null ? '' : String(object.capacity);
+            case 'fill_color':
+            case 'stroke_color':
+                return object[field] ?? '';
+        }
+    }
+
+    /** Commits one field change as a single undo step */
+    public set(
+        object: MapObject,
+        field: EditableField,
+        value: string | boolean,
+    ) {
+        this._live_key = '';
+        const updates = this._updates(object, field, value);
+        if (!updates) return;
+        this.state.pushHistory();
+        this.state.updateObject(object.id, updates);
+    }
+
+    /**
+     * Commits a typed value. The field then shows the stored value, so input
+     * that is rejected reverts and input that is clamped shows the clamp.
+     */
+    public edit(object: MapObject, field: CheckedField, event: Event) {
+        const input = event.target as HTMLInputElement;
+        this.set(object, field, input.value);
+        const current =
+            this.state.objects().find((o) => o.id === object.id) ?? object;
+        input.value = this.fieldText(current, field);
+    }
+
+    /**
+     * Shows a slider or colour picker value while it drags. Only memory
+     * changes, and the history entry is recorded once, before the first tick.
+     */
+    public preview(object: MapObject, field: EditableField, event: Event) {
+        const updates = this._updates(object, field, this.asValue(event));
+        if (!updates) return;
+        const key = `${object.id}:${field}`;
+        if (this._live_key !== key) {
+            this.state.pushHistory();
+            this._live_key = key;
+        }
+        this.state.patchLocal(object.id, updates);
+    }
+
+    /** Persists the value a drag ends on, reusing the history entry `preview` made */
+    public commitPreview(
+        object: MapObject,
+        field: EditableField,
+        event: Event,
+    ) {
+        const updates = this._updates(object, field, this.asValue(event));
+        if (!updates) return;
+        if (this._live_key !== `${object.id}:${field}`)
+            this.state.pushHistory();
+        this._live_key = '';
+        this.state.updateObject(object.id, updates);
+    }
+
+    /** Turns a field value into an object update, or null when it is invalid */
+    private _updates(
+        object: MapObject,
+        field: EditableField,
+        value: string | boolean,
+    ): Partial<MapObject> | null {
+        const text = String(value).trim();
+        const number = text === '' ? NaN : Number(text);
         switch (field) {
             case 'label':
             case 'svg_id':
             case 'entity_id':
-            case 'group_id':
-                (updates as Record<string, unknown>)[field] = value as string;
-                break;
+                return { [field]: String(value) };
             case 'object_type':
-                updates.object_type = value as MapObjectType;
-                break;
+                return { object_type: text as MapObjectType };
             case 'entity_type':
-                updates.entity_type = (
-                    value === '' ? null : value
-                ) as PlaceOSEntityType | null;
-                break;
+                // Without a type the id means nothing, so it goes too
+                return text
+                    ? { entity_type: text as PlaceOSEntityType }
+                    : { entity_type: null, entity_id: null };
             case 'fill_color':
             case 'stroke_color':
-                (updates as Record<string, unknown>)[field] =
-                    (value as string) || null;
-                break;
+                if (text && !HEX_COLOR_RE.test(text)) return null;
+                // Store #rrggbb: SVG export reads six-digit hex only
+                return { [field]: text ? this.hexOf(text, text) : null };
             case 'opacity':
-                updates.opacity = Number(value);
-                break;
+                return Number.isFinite(number) ? { opacity: number } : null;
             case 'capacity':
-                updates.capacity = value === '' ? null : Number(value);
-                break;
+                if (!text) return { capacity: null };
+                return Number.isFinite(number)
+                    ? { capacity: Math.max(0, Math.round(number)) }
+                    : null;
             case 'locked':
-                updates.locked = value as boolean;
-                break;
-            case 'tags': {
-                const text = (value as string).trim();
-                updates.tags = text
-                    ? text
-                          .split(',')
-                          .map((tag) => tag.trim())
-                          .filter(Boolean)
-                    : [];
-                break;
-            }
+                return { locked: value === true };
+            case 'tags':
+                return {
+                    tags: text
+                        ? text
+                              .split(',')
+                              .map((tag) => tag.trim())
+                              .filter(Boolean)
+                        : [],
+                };
             case 'width':
             case 'height':
+                // An empty or non-positive size would collapse the object
+                return Number.isFinite(number) && number > 0
+                    ? { geometry: { ...object.geometry, [field]: number } }
+                    : null;
             case 'rotation':
-                updates.geometry = {
-                    ...object.geometry,
-                    [field]: Number(value),
-                };
-                break;
-            default:
-                return;
+                return Number.isFinite(number)
+                    ? {
+                          geometry: {
+                              ...object.geometry,
+                              rotation:
+                                  ((Math.round(number) % 360) + 360) % 360,
+                          },
+                      }
+                    : null;
         }
-        this.state.pushHistory();
-        this.state.updateObject(object.id, updates);
     }
 
     /** First click arms the delete, second confirms it */

@@ -1,11 +1,15 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 
 import { AsyncHandler } from '@placeos/common';
 
-import { PlaceOSService, PlaceOSUser } from '../data/placeos.service';
+import {
+    PlaceOSService,
+    PlaceOSSettings,
+    PlaceOSUser,
+} from '../data/placeos.service';
 
 type ConnectionStatus = 'idle' | 'loading' | 'connected' | 'error';
 
@@ -48,6 +52,12 @@ type ConnectionStatus = 'idle' | 'loading' | 'connected' | 'error';
                     </div>
                 }
 
+                <p class="text-base-content/60 mb-4 text-xs">
+                    A PlaceOS connection lets you publish floor plans to
+                    building levels and show live space availability in the
+                    kiosk.
+                </p>
+
                 @if (mode() === 'domain') {
                     <p class="text-base-content/60 text-xs">
                         Signed in through
@@ -85,22 +95,38 @@ type ConnectionStatus = 'idle' | 'loading' | 'connected' | 'error';
                                 [ngModelOptions]="{ standalone: true }"
                             />
                         </mat-form-field>
-                        <button
-                            btn
-                            class="mt-1"
-                            [disabled]="status() === 'loading' || !api_key()"
-                            (click)="save()"
-                        >
-                            {{
-                                status() === 'loading'
-                                    ? 'Connecting...'
-                                    : status() === 'connected'
-                                      ? 'Update Connection'
-                                      : 'Connect'
-                            }}
-                        </button>
+                        <div class="mt-1 flex flex-wrap gap-2">
+                            <button
+                                btn
+                                class="flex-1"
+                                [disabled]="
+                                    status() === 'loading' || !api_key()
+                                "
+                                (click)="save()"
+                            >
+                                {{
+                                    status() === 'loading'
+                                        ? 'Connecting...'
+                                        : status() === 'connected'
+                                          ? 'Update Connection'
+                                          : 'Connect'
+                                }}
+                            </button>
+                            @if (has_saved_key()) {
+                                <button
+                                    btn
+                                    class="inverse"
+                                    [disabled]="status() === 'loading'"
+                                    (click)="disconnect()"
+                                >
+                                    Disconnect
+                                </button>
+                            }
+                        </div>
                         @if (error(); as message) {
-                            <p class="text-error text-xs">{{ message }}</p>
+                            <p class="text-error text-xs" role="alert">
+                                {{ message }}
+                            </p>
                         }
                         @if (saved()) {
                             <p class="text-success text-xs">
@@ -129,28 +155,43 @@ export class SettingsComponent extends AsyncHandler {
     public readonly user = signal<PlaceOSUser | null>(null);
     public readonly error = signal('');
     public readonly saved = signal(false);
+    /** True when a domain and API key are stored */
+    public readonly has_saved_key = computed(
+        () => !!this._placeos.settings().api_key,
+    );
 
     constructor() {
         super();
         if (this._placeos.config.configured) this._test();
     }
 
+    /** Tests the entered credentials and stores them only if they work */
     public async save() {
         if (!this.api_key()) return;
-        this.status.set('loading');
         this.error.set('');
         this.saved.set(false);
-        this._placeos.setConfig(this.domain(), this.api_key());
-        const connected = await this._test();
-        if (connected) {
-            this.saved.set(true);
-            this.timeout('saved', () => this.saved.set(false), 3000);
-        }
+        const settings = { domain: this.domain(), api_key: this.api_key() };
+        const connected = await this._test(settings);
+        if (!connected) return;
+        this._placeos.setConfig(settings.domain, settings.api_key);
+        this.saved.set(true);
+        this.timeout('saved', () => this.saved.set(false), 3000);
     }
 
-    private async _test(): Promise<boolean> {
+    /** Forgets the stored credentials */
+    public disconnect() {
+        this._placeos.clearConfig();
+        this.domain.set('');
+        this.api_key.set('');
+        this.user.set(null);
+        this.error.set('');
+        this.saved.set(false);
+        this.status.set('idle');
+    }
+
+    private async _test(settings?: PlaceOSSettings): Promise<boolean> {
         this.status.set('loading');
-        const result = await this._placeos.testConnection();
+        const result = await this._placeos.testConnection(settings);
         if (result.ok && result.user) {
             this.user.set(result.user);
             this.status.set('connected');

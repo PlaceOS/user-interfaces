@@ -1,6 +1,13 @@
 import { inject } from '@angular/core';
-import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
+import {
+    ActivatedRouteSnapshot,
+    CanDeactivateFn,
+    Router,
+    Routes,
+} from '@angular/router';
+
 import { StoreService } from './data/store.service';
+import type { EditorComponent } from './editor/editor.component';
 
 /** Opens the floorplan for a PlaceOS level, which is how Concierge links here. */
 async function openLevel(route: ActivatedRouteSnapshot) {
@@ -16,6 +23,10 @@ async function openLevel(route: ActivatedRouteSnapshot) {
     }
 }
 
+/** Saves pending editor changes before any navigation away, Back included */
+const saveBeforeLeaving: CanDeactivateFn<EditorComponent> = (editor) =>
+    editor.canLeave();
+
 export const routes: Routes = [
     {
         path: 'level/:level_id',
@@ -26,6 +37,7 @@ export const routes: Routes = [
         path: 'editor/:floorplan_id',
         loadComponent: () =>
             import('./editor/editor.component').then((m) => m.EditorComponent),
+        canDeactivate: [saveBeforeLeaving],
     },
     {
         path: 'kiosk/:project_id',

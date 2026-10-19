@@ -11,7 +11,7 @@ import { EditorStateService } from './editor-state.service';
             <div
                 class="border-base-300 flex items-center justify-between border-b px-3 py-2.5"
             >
-                <span class="text-xs font-bold">Availability Preview</span>
+                <span class="text-xs font-bold">Preview</span>
                 <label class="flex items-center gap-1.5 text-xs">
                     <input
                         type="checkbox"

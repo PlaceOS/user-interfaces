@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { DbChanges, DbService } from '../app/data/db';
 import { PlaceOSService } from '../app/data/placeos.service';
 import { StoreService } from '../app/data/store.service';
+import { CanvasComponent } from '../app/editor/canvas.component';
 import { EditorStateService } from '../app/editor/editor-state.service';
 
 /** jsdom has no IndexedDB — back the store with a plain Map instead */
@@ -393,6 +394,76 @@ describe('EditorStateService', () => {
         expect(after).toHaveLength(before.length);
     });
 
+    it('deletes a multi-selection as one undo step', async () => {
+        const room = editor.objects()[0];
+        const desk = await editor.createObject({
+            object_type: 'desk',
+            label: 'Desk 1',
+            layer: 'desks',
+            geometry: { type: 'rect', x: 10, y: 10, width: 20, height: 20 },
+        });
+
+        await editor.deleteObjects([room.id, desk.id]);
+        expect(editor.objects()).toHaveLength(0);
+
+        editor.undo();
+        expect(editor.objects()).toHaveLength(2);
+        expect(await store.listObjects(floorplan_id)).toHaveLength(2);
+    });
+
+    it('duplicates a multi-selection as one undo step', async () => {
+        const second = await editor.createObject({
+            object_type: 'room',
+            label: 'Room 2',
+            layer: 'rooms',
+            geometry: { type: 'rect', x: 60, y: 0, width: 50, height: 50 },
+        });
+
+        const copies = await editor.duplicateObjects([
+            editor.objects()[0].id,
+            second.id,
+        ]);
+        expect(copies).toHaveLength(2);
+        expect(editor.objects()).toHaveLength(4);
+        expect(editor.multi_select()).toEqual(copies.map((c) => c.id));
+
+        editor.undo();
+        expect(editor.objects()).toHaveLength(2);
+    });
+
+    it('places a desk group as one undo step', async () => {
+        editor.startPlacing('desk-layout', 'row-4');
+        await editor.placeAt(200, 200);
+        expect(editor.objects()).toHaveLength(5);
+
+        editor.undo();
+        expect(editor.objects()).toHaveLength(1);
+    });
+
+    it('deletes a layer with its objects, and undo brings both back', async () => {
+        await editor.deleteLayer('rooms');
+        expect(editor.objects()).toHaveLength(0);
+        expect(editor.layers().some((l) => l.id === 'rooms')).toBe(false);
+
+        editor.undo();
+        expect(editor.objects()).toHaveLength(1);
+        expect(editor.visible_objects()).toHaveLength(1);
+    });
+
+    it('keeps the plan dirty and shows the error when a save fails', async () => {
+        await editor.updateObject(editor.objects()[0].id, { label: 'Moved' });
+        vi.spyOn(store, 'saveCanvasState').mockRejectedValueOnce(
+            new Error('Disk full'),
+        );
+
+        expect(await editor.flush()).toBe(false);
+        expect(editor.dirty()).toBe(true);
+        expect(editor.error()).toBe('Disk full');
+
+        expect(await editor.flush()).toBe(true);
+        expect(editor.error()).toBe('');
+    });
+
     it('hands the active layer on when the current one is deleted', () => {
         editor.setActiveLayer('zones');
         editor.deleteLayer('zones');
@@ -428,6 +499,27 @@ describe('EditorStateService', () => {
         expect(editor.multi_select()).toEqual([room.id, secondRoom.id]);
     });
 
+    it('extends a plain click selection with Shift-click', async () => {
+        const room = editor.objects()[0];
+        const secondRoom = await editor.createObject({
+            object_type: 'room',
+            label: 'Room 2',
+            layer: 'rooms',
+            geometry: { type: 'rect', x: 60, y: 0, width: 50, height: 50 },
+        });
+
+        editor.select(room.id);
+        editor.toggleMultiSelect(secondRoom.id);
+        expect(editor.multi_select()).toEqual([room.id, secondRoom.id]);
+    });
+
+    it('keeps a deleted default layer deleted after reopening', async () => {
+        await editor.deleteLayer('zones');
+        await editor.save();
+        await editor.load(floorplan_id);
+        expect(editor.layers().some((l) => l.id === 'zones')).toBe(false);
+    });
+
     it('saves the canvas state back to the floorplan', async () => {
         editor.setZoom(2);
         await editor.save();
@@ -441,5 +533,59 @@ describe('EditorStateService', () => {
     it('limits zoom to 80%', () => {
         editor.setZoom(0.5);
         expect(editor.zoom()).toBe(0.8);
+    });
+});
+
+describe('CanvasComponent pointer presses', () => {
+    let editor: EditorStateService;
+    let svg: SVGSVGElement;
+
+    /** jsdom lays nothing out, so every client point maps to canvas (0, 0) */
+    const press = (type: string, clientX = 0) =>
+        svg.dispatchEvent(
+            new MouseEvent(type, { button: 0, clientX, bubbles: true }),
+        );
+
+    beforeEach(async () => {
+        TestBed.configureTestingModule({
+            providers: [
+                provideZonelessChangeDetection(),
+                { provide: DbService, useClass: MapDbService },
+                EditorStateService,
+            ],
+        });
+        const store = TestBed.inject(StoreService);
+        editor = TestBed.inject(EditorStateService);
+        const floorplan = await store.addFloorplan('p1', 'Level 1');
+        await store.createObject(floorplan.id, {
+            label: 'Room 1',
+            object_type: 'room',
+            layer: 'rooms',
+            geometry: { type: 'rect', x: 0, y: 0, width: 50, height: 50 },
+        });
+        await editor.load(floorplan.id);
+
+        const fixture = TestBed.createComponent(CanvasComponent);
+        await fixture.whenStable();
+        svg = fixture.nativeElement.querySelector('svg');
+    });
+
+    it('selects without marking the plan dirty when the pointer does not travel', () => {
+        press('mousedown');
+        press('mousemove', 3);
+        press('mouseup', 3);
+
+        expect(editor.selected_id()).toBe(editor.objects()[0].id);
+        expect(editor.dirty()).toBe(false);
+        expect(editor.can_undo()).toBe(false);
+    });
+
+    it('commits a drag once the pointer passes the threshold', () => {
+        press('mousedown');
+        press('mousemove', 20);
+        press('mouseup', 20);
+
+        expect(editor.dirty()).toBe(true);
+        expect(editor.can_undo()).toBe(true);
     });
 });

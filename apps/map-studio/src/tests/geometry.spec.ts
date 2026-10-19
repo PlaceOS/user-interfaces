@@ -5,6 +5,8 @@ import {
     computeSnap,
     getHandlePos,
     pointInPolygon,
+    pointInRotatedRect,
+    rotatePoint,
 } from '../app/editor/geometry';
 
 const SQUARE = [
@@ -87,6 +89,28 @@ describe('getHandlePos', () => {
         expect(getHandlePos('se', 10, 20, 100, 50)).toEqual([110, 70]);
         expect(getHandlePos('n', 10, 20, 100, 50)).toEqual([60, 20]);
         expect(getHandlePos('w', 10, 20, 100, 50)).toEqual([10, 45]);
+    });
+});
+
+describe('pointInRotatedRect', () => {
+    // A long thin bar, 100x10, centred on (50, 5)
+    const bar = { x: 0, y: 0, width: 100, height: 10 };
+
+    it('follows the box once it is rotated', () => {
+        // Rotated 90 degrees the bar stands upright through its centre
+        expect(pointInRotatedRect({ x: 50, y: 40 }, bar, 90)).toBe(true);
+        expect(pointInRotatedRect({ x: 90, y: 5 }, bar, 90)).toBe(false);
+        expect(pointInRotatedRect({ x: 90, y: 5 }, bar)).toBe(true);
+    });
+
+    it('round-trips a point through rotatePoint', () => {
+        const center = { x: 10, y: 10 };
+        const turned = rotatePoint({ x: 20, y: 10 }, center, 90);
+        expect(turned.x).toBeCloseTo(10);
+        expect(turned.y).toBeCloseTo(20);
+        const back = rotatePoint(turned, center, -90);
+        expect(back.x).toBeCloseTo(20);
+        expect(back.y).toBeCloseTo(10);
     });
 });
 

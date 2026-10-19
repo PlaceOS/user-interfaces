@@ -352,6 +352,25 @@ describe('PlaceOSService', () => {
         expect(details()).toMatchObject({ svg_output: '<svg/>' });
     });
 
+    it('tests unsaved credentials and reports a rejected key plainly', async () => {
+        stubFetch(false);
+        await service.init();
+        vi.mocked(fetch).mockResolvedValueOnce({
+            ok: false,
+            status: 401,
+            text: async () => '{"error":"unauthorized"}',
+        } as Response);
+
+        const result = await service.testConnection({
+            domain: 'https://other.example.com',
+            api_key: 'wrong',
+        });
+
+        expect(result.ok).toBe(false);
+        expect(result.error).toContain('rejected the API key');
+        expect(service.config.configured).toBe(false);
+    });
+
     it('falls back to a domain and API key otherwise', async () => {
         const calls = stubFetch(false);
         await service.init();

@@ -144,6 +144,44 @@ export function getHandlePos(
     }
 }
 
+/**
+ * Rotates a point around a centre by the given degrees, clockwise in screen
+ * space as SVG `rotate()` is. Pass the negative angle to map a pointer into a
+ * rotated object's local, unrotated space.
+ */
+export function rotatePoint(
+    point: Point,
+    center: Point,
+    degrees: number,
+): Point {
+    if (!degrees) return point;
+    const radians = (degrees * Math.PI) / 180;
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
+    const dx = point.x - center.x;
+    const dy = point.y - center.y;
+    return {
+        x: center.x + dx * cos - dy * sin,
+        y: center.y + dx * sin + dy * cos,
+    };
+}
+
+/** Whether a point falls inside a box drawn rotated about its own centre */
+export function pointInRotatedRect(
+    point: Point,
+    box: { x: number; y: number; width: number; height: number },
+    rotation = 0,
+): boolean {
+    const center = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    const local = rotatePoint(point, center, -rotation);
+    return (
+        local.x >= box.x &&
+        local.x <= box.x + box.width &&
+        local.y >= box.y &&
+        local.y <= box.y + box.height
+    );
+}
+
 /** Bounding box of a set of points, in geometry field order */
 export function boundsOf(points: Point[]) {
     const xs = points.map((p) => p.x);

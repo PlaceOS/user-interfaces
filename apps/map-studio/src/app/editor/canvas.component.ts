@@ -5,6 +5,7 @@ import {
     HostListener,
     afterNextRender,
     computed,
+    effect,
     inject,
     signal,
     viewChild,
@@ -29,8 +30,11 @@ import {
     closestPointOnSegment,
     computeSnap,
     getHandlePos,
+    pointInRotatedRect,
+    rotatePoint,
 } from './geometry';
 import { composeSourceSvg, importedObject } from './source-svg';
+import { ToastService } from './toast.service';
 
 interface DragState {
     id: string;
@@ -45,6 +49,8 @@ interface ResizeState {
     origY: number;
     origW: number;
     origH: number;
+    /** Degrees the box is drawn rotated by; the pointer is mapped back by it */
+    rotation: number;
 }
 
 interface RotateState {
@@ -101,9 +107,9 @@ interface PanState {
     moved: boolean;
 }
 
-/** Wheel zoom steps, matching <dynamic-map> */
-const ZOOM_STEP_IN = 1.03;
-const ZOOM_STEP_OUT = 0.97;
+/** Zoom change per pixel of wheel delta, and the most one event may apply */
+const ZOOM_SENSITIVITY = 0.01;
+const MAX_WHEEL_DELTA = 10;
 /** Pointer travel, in px, before a click counts as a drag — as <dynamic-map> */
 const DRAG_THRESHOLD = 5;
 
@@ -114,7 +120,8 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
     template: `
         <div
             #container
-            class="bg-base-200 relative flex h-full w-full overflow-auto p-4"
+            class="bg-base-200 relative flex h-full w-full overflow-auto p-4 outline-none"
+            tabindex="-1"
             (wheel)="onWheel($event)"
         >
             <svg
@@ -225,6 +232,7 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                                 [attr.data-object-id]="object.id"
                                 [attr.opacity]="opacityOf(object)"
                                 [attr.transform]="rotationOf(object)"
+                                [style.cursor]="moveCursor(object)"
                             >
                                 <rect
                                     [attr.x]="object.geometry.x ?? 0"
@@ -345,7 +353,10 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                             </g>
                         }
                         @case ('circle') {
-                            <g [attr.data-object-id]="object.id">
+                            <g
+                                [attr.data-object-id]="object.id"
+                                [style.cursor]="moveCursor(object)"
+                            >
                                 <circle
                                     [attr.cx]="object.geometry.x ?? 0"
                                     [attr.cy]="object.geometry.y ?? 0"
@@ -391,7 +402,7 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                                     [attr.stroke]="strokeOf(object)"
                                     [attr.stroke-width]="strokeWidthOf(object)"
                                     [attr.opacity]="opacityOf(object)"
-                                    class="cursor-pointer"
+                                    [style.cursor]="moveCursor(object)"
                                 />
                                 @if (isPolygonEditable(object)) {
                                     @for (
@@ -680,11 +691,14 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 export class CanvasComponent {
     public readonly state = inject(EditorStateService);
     private readonly _sanitizer = inject(DomSanitizer);
+    private readonly _toasts = inject(ToastService);
 
     private readonly _canvas =
         viewChild.required<ElementRef<SVGSVGElement>>('canvas');
     private readonly _container =
         viewChild<ElementRef<HTMLDivElement>>('container');
+    private readonly _rename_input =
+        viewChild<ElementRef<HTMLInputElement>>('renameInput');
 
     public readonly handles = HANDLES;
 
@@ -716,6 +730,12 @@ export class CanvasComponent {
 
     private readonly _space_held = signal(false);
     private _pan_start: PanState | null = null;
+    /**
+     * Where an object drag, resize, rotate or vertex drag began. History and
+     * the storage commit wait until the pointer passes DRAG_THRESHOLD, so a
+     * plain click neither nudges the object nor marks the plan dirty.
+     */
+    private _press: { x: number; y: number; moved: boolean } | null = null;
 
     public readonly width = this.state.canvas_width;
     public readonly height = this.state.canvas_height;
@@ -736,6 +756,8 @@ export class CanvasComponent {
         inject(DestroyRef).onDestroy(() =>
             window.removeEventListener('mousemove', onMove),
         );
+        // Focus the rename box as soon as a double-click opens it
+        effect(() => this._rename_input()?.nativeElement.select());
     }
 
     /** The scrolling element, for the minimap to read and drive */
@@ -785,6 +807,40 @@ export class CanvasComponent {
         if (this.state.active_tool() === 'select') return 'default';
         return 'crosshair';
     });
+
+    /** Layers whose objects the select tool can pick */
+    private readonly _pickable_layers = computed(
+        () =>
+            new Set(
+                this.state
+                    .layers()
+                    .filter((l) => l.visible && !l.locked)
+                    .map((l) => l.id),
+            ),
+    );
+
+    /** True while a press on an object would start a drag */
+    private readonly _can_move = computed(
+        () =>
+            this.state.active_tool() === 'select' &&
+            !this.state.placing() &&
+            !this._space_held() &&
+            !this._panning() &&
+            !this._dragging(),
+    );
+
+    /** Move cursor over objects the select tool can drag, else inherit */
+    public moveCursor(object: MapObject) {
+        const cycles =
+            this.state.availability_enabled() &&
+            (object.object_type === 'room' || object.object_type === 'desk');
+        return this._can_move() &&
+            !cycles &&
+            !object.locked &&
+            this._pickable_layers().has(object.layer)
+            ? 'move'
+            : null;
+    }
 
     public readonly gridPath = computed(() => {
         const size = this.state.grid_size();
@@ -1206,7 +1262,64 @@ export class CanvasComponent {
 
     // ── Pointer interaction ─────────────────────────────────────────────────
 
+    /** Take focus off toolbar controls, so canvas keys act on the canvas */
+    private _focusCanvas() {
+        this._containerEl()?.focus({ preventScroll: true });
+    }
+
+    /** Remembers where an object interaction began; see {@link _press} */
+    private _startPress(event: MouseEvent, moved = false) {
+        this._press = { x: event.clientX, y: event.clientY, moved };
+    }
+
+    /**
+     * False until the press travels past the drag threshold. The first real
+     * move records history, just before the object starts to change.
+     */
+    private _pressMoved(event: MouseEvent): boolean {
+        const press = this._press;
+        if (!press || press.moved) return true;
+        if (
+            Math.abs(event.clientX - press.x) <= DRAG_THRESHOLD &&
+            Math.abs(event.clientY - press.y) <= DRAG_THRESHOLD
+        )
+            return false;
+        press.moved = true;
+        this.state.pushHistory();
+        return true;
+    }
+
+    /**
+     * Whether new objects may go on a layer. A locked layer refuses with a
+     * toast; a hidden one allows it but warns that the result will not show.
+     */
+    private _canDrawOn(layer_id: string): boolean {
+        const layer = this.state.layers().find((l) => l.id === layer_id);
+        if (!layer) {
+            this._toasts.show(
+                `The ${layer_id} layer was deleted. Add it again to draw on it.`,
+                'warning',
+            );
+            return false;
+        }
+        if (layer.locked) {
+            this._toasts.show(
+                `The ${layer.name} layer is locked. Unlock it to draw on it.`,
+                'warning',
+            );
+            return false;
+        }
+        if (!layer.visible) {
+            this._toasts.show(
+                `The ${layer.name} layer is hidden. New objects on it will not show.`,
+                'warning',
+            );
+        }
+        return true;
+    }
+
     public onMouseDown(event: MouseEvent) {
+        this._focusCanvas();
         // Middle button and space+drag pan from anywhere, as <dynamic-map> does
         if (event.button === 1 || (event.button === 0 && this._space_held())) {
             this._startPan(event, false);
@@ -1219,41 +1332,46 @@ export class CanvasComponent {
         const tool = this.state.active_tool();
 
         // An armed asset picker consumes the click
-        if (this.state.placing()) {
-            this.state.placeAt(x, y);
+        const placing = this.state.placing();
+        if (placing) {
+            if (this._canDrawOn(this.state.placeLayer(placing.kind)))
+                this.state.placeAt(x, y);
             event.preventDefault();
             return;
         }
 
         if (tool === 'wall') {
-            this._onWallClick({ x, y }, event.shiftKey);
+            if (this.wall_start() || this._canDrawOn('walls'))
+                this._onWallClick({ x, y }, event.shiftKey);
             event.preventDefault();
             return;
         }
 
         if (tool === 'polygon') {
-            this._onPolygonClick({ x, y }, event.shiftKey);
+            if (
+                this.outline_points().length ||
+                this._canDrawOn(this.state.active_layer_id())
+            )
+                this._onPolygonClick({ x, y }, event.shiftKey);
             event.preventDefault();
             return;
         }
 
         if (tool === 'rect') {
+            event.preventDefault();
+            if (!this._canDrawOn(this.state.active_layer_id())) return;
             this.rect_draw.set({
                 startX: x,
                 startY: y,
                 currentX: x,
                 currentY: y,
             });
-            event.preventDefault();
             return;
         }
 
         if (tool === 'pen') {
             const { width, height } = this.state.place_size();
-            const layer = this.state
-                .layers()
-                .find((l) => l.id === this.state.active_layer_id());
-            if (layer && !layer.locked) {
+            if (this._canDrawOn(this.state.active_layer_id())) {
                 this.state.createOnActiveLayer({
                     type: 'rect',
                     x: x - width / 2,
@@ -1270,11 +1388,14 @@ export class CanvasComponent {
         const hover = this._edge_hover();
         if (hover && hover.id === this.state.selected_id()) {
             this._insertVertex(hover);
+            // The new vertex is already a change, so it commits even unmoved
+            this._startPress(event, true);
             event.preventDefault();
             return;
         }
 
         if (this._startGroupResize(x, y) || this._startResize(x, y)) {
+            this._startPress(event);
             event.preventDefault();
             return;
         }
@@ -1292,7 +1413,15 @@ export class CanvasComponent {
                 return;
             }
             if (event.shiftKey || event.ctrlKey || event.metaKey) {
-                this.state.toggleMultiSelect(hit.id);
+                if (!this.state.toggleMultiSelect(hit.id)) {
+                    // Refused: keep the current selection as it is
+                    this._toasts.show(
+                        'Only objects on the same layer can be selected together.',
+                        'info',
+                    );
+                    event.preventDefault();
+                    return;
+                }
                 const selection = this.state.multi_select();
                 this.state.select(selection.at(-1) ?? null);
                 event.preventDefault();
@@ -1302,12 +1431,12 @@ export class CanvasComponent {
                 this.state.clearMultiSelect();
             this.state.select(hit.id);
             if (!hit.locked) {
-                this.state.pushHistory();
                 this._dragging.set({
                     id: hit.id,
                     offsetX: x - (hit.geometry.x ?? 0),
                     offsetY: y - (hit.geometry.y ?? 0),
                 });
+                this._startPress(event);
             }
             event.preventDefault();
             return;
@@ -1354,6 +1483,7 @@ export class CanvasComponent {
 
         const { x, y } = this._toCanvas(event.clientX, event.clientY);
         this.cursor_coords.set({ x, y });
+        if (!this._pressMoved(event)) return;
 
         const rotating = this._rotating();
         if (rotating) {
@@ -1437,40 +1567,43 @@ export class CanvasComponent {
             }
             return;
         }
+        // A press that never travelled changed nothing, so there is nothing to commit
+        const moved = this._press?.moved ?? false;
+        this._press = null;
+        const commit = (ids: string[]) => {
+            if (moved) for (const id of ids) this.state.commitGeometry(id);
+        };
         const rotating = this._rotating();
         if (rotating) {
-            this.state.commitGeometry(rotating.id);
+            commit([rotating.id]);
             this._rotating.set(null);
             return;
         }
         const groupRotating = this._group_rotating();
         if (groupRotating) {
-            for (const object of groupRotating.objects)
-                this.state.commitGeometry(object.id);
+            commit(groupRotating.objects.map((object) => object.id));
             this._group_rotating.set(null);
             return;
         }
         const dragging = this._dragging();
         if (dragging) {
-            for (const id of this.state.movingIds(dragging.id))
-                this.state.commitGeometry(id);
+            commit(this.state.movingIds(dragging.id));
             this._dragging.set(null);
             this.snap_guides.set([]);
         }
         const resizing = this._resizing();
         if (resizing) {
-            this.state.commitGeometry(resizing.id);
+            commit([resizing.id]);
             this._resizing.set(null);
         }
         const groupResizing = this._group_resizing();
         if (groupResizing) {
-            for (const object of groupResizing.objects)
-                this.state.commitGeometry(object.id);
+            commit(groupResizing.objects.map((object) => object.id));
             this._group_resizing.set(null);
         }
         const vertex = this._vertex_drag();
         if (vertex) {
-            this.state.commitGeometry(vertex.id);
+            commit([vertex.id]);
             this._vertex_drag.set(null);
         }
         const draw = this.rect_draw();
@@ -1493,21 +1626,34 @@ export class CanvasComponent {
         const svg = this._canvas().nativeElement;
         const rect = svg.getBoundingClientRect();
         const scale = rect.width / svg.viewBox.baseVal.width;
-        const container = this._containerEl().getBoundingClientRect();
+        const element = this._containerEl();
+        const container = element.getBoundingClientRect();
+        // The input sits in the scrolled content, so add the scroll offset
         this.editing.set({
             id: hit.id,
             value: hit.label ?? '',
-            left: rect.left - container.left + this.centerX(hit) * scale,
-            top: rect.top - container.top + this.centerY(hit) * scale,
+            left:
+                rect.left -
+                container.left +
+                element.scrollLeft +
+                this.centerX(hit) * scale,
+            top:
+                rect.top -
+                container.top +
+                element.scrollTop +
+                this.centerY(hit) * scale,
         });
         event.preventDefault();
     }
 
     /**
-     * Wheel zooms, anchored at the pointer, matching <dynamic-map>. There is no
-     * wheel scrolling — pan by dragging, as the viewer does.
+     * A plain wheel or two-finger swipe scrolls the canvas natively. A trackpad
+     * pinch, which browsers report as a wheel with ctrlKey, or Ctrl/Cmd+wheel
+     * zooms instead: scaled by deltaY and anchored at the pointer, as in
+     * <dynamic-map>.
      */
     public onWheel(event: WheelEvent) {
+        if (!event.ctrlKey && !event.metaKey) return;
         event.preventDefault();
         const container = this._containerEl();
         const svg = this._canvas().nativeElement;
@@ -1518,8 +1664,14 @@ export class CanvasComponent {
         // Where the cursor sits on the map, as a fraction of it
         const fraction_x = clamp01((event.clientX - map.left) / map.width);
         const fraction_y = clamp01((event.clientY - map.top) / map.height);
+        // Line-mode wheels report rows, not pixels
+        const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY;
+        const step = Math.max(
+            -MAX_WHEEL_DELTA,
+            Math.min(MAX_WHEEL_DELTA, delta),
+        );
         const before = this.state.zoom();
-        this.state.zoomBy(event.deltaY > 0 ? ZOOM_STEP_OUT : ZOOM_STEP_IN);
+        this.state.zoomBy(Math.exp(-step * ZOOM_SENSITIVITY));
         if (this.state.zoom() === before) return;
         // The canvas resizes on the next frame; scroll once it has.
         requestAnimationFrame(() => {
@@ -1547,7 +1699,8 @@ export class CanvasComponent {
     public startRotate(event: MouseEvent, object: MapObject) {
         event.stopPropagation();
         event.preventDefault();
-        this.state.pushHistory();
+        this._focusCanvas();
+        this._startPress(event);
         const centerX = this.centerX(object);
         const centerY = this.centerY(object);
         const handleY = this.rotateHandleY(object);
@@ -1566,7 +1719,8 @@ export class CanvasComponent {
     ) {
         event.stopPropagation();
         event.preventDefault();
-        this.state.pushHistory();
+        this._focusCanvas();
+        this._startPress(event);
         const centerX = bounds.x + bounds.width / 2;
         const centerY = bounds.y + bounds.height / 2;
         this._group_rotating.set({
@@ -1583,6 +1737,7 @@ export class CanvasComponent {
     public onVertexDown(event: MouseEvent, object: MapObject, index: number) {
         event.stopPropagation();
         event.preventDefault();
+        this._focusCanvas();
         const points = object.geometry.points ?? [];
         if (event.altKey) {
             if (points.length <= 3) return;
@@ -1597,7 +1752,7 @@ export class CanvasComponent {
             });
             return;
         }
-        this.state.pushHistory();
+        this._startPress(event);
         this._vertex_drag.set({ id: object.id, idx: index });
     }
 
@@ -1665,8 +1820,19 @@ export class CanvasComponent {
         this.state.patchMany(updates);
     }
 
-    private _applyResize(resizing: ResizeState, x: number, y: number) {
-        const { handle, origX, origY, origW, origH } = resizing;
+    private _applyResize(
+        resizing: ResizeState,
+        pointer_x: number,
+        pointer_y: number,
+    ) {
+        const { handle, origX, origY, origW, origH, rotation } = resizing;
+        // Resize in the box's own, unrotated space
+        const center = { x: origX + origW / 2, y: origY + origH / 2 };
+        const { x, y } = rotatePoint(
+            { x: pointer_x, y: pointer_y },
+            center,
+            -rotation,
+        );
         let nx = origX;
         let ny = origY;
         let nw = origW;
@@ -1681,6 +1847,15 @@ export class CanvasComponent {
             nh = origY + origH - ny;
         }
         if (handle.includes('s')) nh = Math.max(20, y - origY);
+        // The box turns about its own centre, which moved; shift it back so
+        // the edge opposite the handle stays put on screen
+        const turned = rotatePoint(
+            { x: nx + nw / 2, y: ny + nh / 2 },
+            center,
+            rotation,
+        );
+        nx = turned.x - nw / 2;
+        ny = turned.y - nh / 2;
         const object = this.state.objects().find((o) => o.id === resizing.id);
         if (!object) return;
         this.state.patchLocal(resizing.id, {
@@ -1800,7 +1975,6 @@ export class CanvasComponent {
                 bounds.height,
             );
             if (Math.abs(x - hx) < tolerance && Math.abs(y - hy) < tolerance) {
-                this.state.pushHistory();
                 this._group_resizing.set({
                     bounds,
                     handle,
@@ -1885,14 +2059,23 @@ export class CanvasComponent {
         const sy = selected.geometry.y ?? 0;
         const sw = selected.geometry.width ?? 100;
         const sh = selected.geometry.height ?? 100;
+        const rotation = selected.geometry.rotation ?? 0;
+        // Handles are drawn rotated with the box; test in its local space
+        const local = rotatePoint(
+            { x, y },
+            { x: sx + sw / 2, y: sy + sh / 2 },
+            -rotation,
+        );
         const tolerance = Math.max(
             15,
             Math.max(this.width(), this.height()) * 0.008,
         );
         for (const handle of HANDLES) {
             const [hx, hy] = getHandlePos(handle, sx, sy, sw, sh);
-            if (Math.abs(x - hx) < tolerance && Math.abs(y - hy) < tolerance) {
-                this.state.pushHistory();
+            if (
+                Math.abs(local.x - hx) < tolerance &&
+                Math.abs(local.y - hy) < tolerance
+            ) {
                 this._resizing.set({
                     id: selected.id,
                     handle,
@@ -1900,6 +2083,7 @@ export class CanvasComponent {
                     origY: sy,
                     origW: sw,
                     origH: sh,
+                    rotation,
                 });
                 return true;
             }
@@ -1928,12 +2112,14 @@ export class CanvasComponent {
                     hits.push({ object, area: Math.PI * r * r, onActive });
                 continue;
             }
-            const bx = g.x ?? 0;
-            const by = g.y ?? 0;
-            const bw = g.width ?? 100;
-            const bh = g.height ?? 100;
-            if (x >= bx && x <= bx + bw && y >= by && y <= by + bh)
-                hits.push({ object, area: bw * bh, onActive });
+            const box = {
+                x: g.x ?? 0,
+                y: g.y ?? 0,
+                width: g.width ?? 100,
+                height: g.height ?? 100,
+            };
+            if (pointInRotatedRect({ x, y }, box, g.rotation ?? 0))
+                hits.push({ object, area: box.width * box.height, onActive });
         }
         if (!hits.length) return null;
         const onActive = hits.filter((h) => h.onActive);
@@ -2038,6 +2224,7 @@ export class CanvasComponent {
         this.outline_points.set([...points, { x, y }]);
     }
 
+    /** Like the rect and wall tools, the polygon tool stays armed for the next shape */
     private _closePolygon(points: Point[]) {
         this.state.createOnActiveLayer({
             type: 'polygon',
@@ -2045,7 +2232,19 @@ export class CanvasComponent {
             ...boundsOf(points),
         });
         this.outline_points.set([]);
-        this.state.setTool('select');
+    }
+
+    /** Closes the polygon being drawn (Enter). Needs at least three points. */
+    public finishPolygon(): boolean {
+        const points = this.outline_points();
+        if (points.length < 3) return false;
+        this._closePolygon(points);
+        return true;
+    }
+
+    /** Drops the last point of the polygon being drawn (Backspace) */
+    public removeLastPoint() {
+        this.outline_points.update((points) => points.slice(0, -1));
     }
 
     private _onWallClick(point: Point, shift: boolean) {
@@ -2121,15 +2320,21 @@ export class CanvasComponent {
 
     // ── Space-bar panning ───────────────────────────────────────────────────
 
+    /** Whether keys aimed at this target belong to the canvas, not a control */
+    public ownsKey(target: EventTarget | null): boolean {
+        if (target === document.body) return true;
+        return (
+            target instanceof HTMLElement &&
+            target.tagName !== 'INPUT' &&
+            !!this._containerEl()?.contains(target)
+        );
+    }
+
     @HostListener('window:keydown', ['$event'])
     public onKeyDown(event: KeyboardEvent) {
         if (event.code !== 'Space' || event.repeat) return;
-        const target = event.target as HTMLElement;
-        if (
-            target instanceof HTMLInputElement ||
-            target instanceof HTMLTextAreaElement
-        )
-            return;
+        // Space on a button, select or the minimap keeps its own meaning
+        if (!this.ownsKey(event.target)) return;
         event.preventDefault();
         this._space_held.set(true);
     }

@@ -25,6 +25,23 @@ export interface PreflightCheck {
 
 const idOf = (object: MapObject) => object.svg_id || object.id;
 
+/** The id auto-number gives an object: `prefix` plus a 3-digit number */
+export const sequentialId = (prefix: string, number: number) =>
+    `${prefix}${String(number).padStart(3, '0')}`;
+
+/** Summary of the ids auto-number will produce, e.g. `room-001 … room-042` */
+export function sequentialIdRange(
+    prefix: string,
+    start: number,
+    count: number,
+): string {
+    if (count < 1) return '';
+    const first = sequentialId(prefix, start);
+    return count === 1
+        ? first
+        : `${first} … ${sequentialId(prefix, start + count - 1)}`;
+}
+
 /** Rooms and desks — the objects PlaceOS can bind a booking to */
 export const bookableObjects = (objects: MapObject[]) =>
     objects.filter((o) => o.object_type === 'room' || o.object_type === 'desk');
