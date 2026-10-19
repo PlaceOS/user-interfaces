@@ -18,12 +18,11 @@ For example, the key `logo_light` means:
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `name` | string | `"Control"` | Name of the application. Appended to browser page titles. |
-| `title` | string | `"PlaceOS"` | Base browser page title for the application. |
-| `description` | string | `"Room Control UI"` | Description of the application. |
-| `short_name` | string | `"PlaceOS"` | Short name for the application. Used as the app name for PlaceOS API metadata and as a fallback for page titles. |
-| `general` | object | `{}` | General settings associated with the app. |
+| `name` | string | `"Control"` | Application name sent with PlaceOS API requests. If you do not set it, the app uses `short_name`. |
+| `short_name` | string | `"PlaceOS"` | Prefix for console log messages. The app also uses it as the API application name when `name` is not set. |
 | `prevent_space_init` | boolean | `true` | Whether to prevent loading the full list of bookable spaces on application startup. Leave this on — the Control app only talks to the room's own System, and loading every space can be slow in large organisations. |
+
+The app does not set the browser page title from settings.
 
 ## Branding & Appearance
 
@@ -33,6 +32,7 @@ For example, the key `logo_light` means:
 | `logo_dark` | string or icon object | `"assets/logo-dark.svg"` | Logo shown in the same places when the dark theme is active. |
 | `allow_dark_mode` | boolean | `false` | Whether the app is allowed to use the dark theme. When off, the app always uses the light theme (and the light logo) regardless of the user's theme preference. |
 | `environment_bar` | string | — | CSS colour for thin identifier bars shown at the top and bottom of the app, useful for telling environments apart (e.g. `"#f59e0b"` for staging). Leave unset for no bars. |
+| `banner` | object | — | Message banner at the top of the app. The user can close it. See below. |
 
 Logo settings accept either a plain image URL string or an icon object:
 
@@ -43,25 +43,13 @@ Logo settings accept either a plain image URL string or an icon object:
 }
 ```
 
-## Support Contact
+The `banner` object:
 
-These details are shown in the help contact tooltip when a user asks for assistance. They have no build-time defaults — if unset, the app falls back to generic placeholder details (`your administrator`, `support@place.tech`, `0412345678`), so you should set them for your organisation.
-
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `support_contact` | string | — | Name of the person or team to contact for help with the room. |
-| `support_email` | string | — | Email address for room support. |
-| `support_phone` | string | — | Phone number for room support. |
-
-Example:
-
-```json
-{
-    "support_contact": "the AV Service Desk",
-    "support_email": "av-support@example.com",
-    "support_phone": "+61 2 9123 4567"
-}
-```
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique ID for the message. After a user closes a banner, it stays hidden until the `id` changes. |
+| `type` | `"info"`, `"warn"` or `"error"` | Colour style for the banner. Defaults to `"info"`. |
+| `content` | string | Message text to show. |
 
 ## Voice Assistant
 
