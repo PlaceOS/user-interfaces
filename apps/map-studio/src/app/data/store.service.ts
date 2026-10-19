@@ -4,9 +4,12 @@ import { DbService } from './db';
 import type { PlaceOSZone } from './placeos.service';
 import { PlaceOSService } from './placeos.service';
 import { analyzeSvg, SvgAnalysis } from './svg-import';
+import { makeThumbnail } from './thumbnail';
 import {
     EditorState,
     Floorplan,
+    FloorplanCanvas,
+    FloorplanSummary,
     FloorplanVersion,
     MapObject,
     MapObjectType,
@@ -15,6 +18,9 @@ import {
 } from './types';
 
 type ZoneReference = Pick<PlaceOSZone, 'id' | 'name' | 'display_name'>;
+
+/** Server metadata requests in flight at once during zone sync */
+const SYNC_CONCURRENCY = 6;
 
 function localFloorplanData(metadata: Partial<Floorplan> = {}) {
     const saved = { ...metadata };
@@ -30,6 +36,7 @@ function localFloorplanData(metadata: Partial<Floorplan> = {}) {
 const key = {
     project: (id: string) => `project:${id}`,
     floorplan: (id: string) => `floorplan:${id}`,
+    canvas: (id: string) => `canvas:${id}`,
     object: (floorplan_id: string, id: string) =>
         `object:${floorplan_id}:${id}`,
     objects: (floorplan_id: string) => `object:${floorplan_id}:`,
@@ -38,7 +45,24 @@ const key = {
         `version:${floorplan_id}:${`${version}`.padStart(8, '0')}`,
     versions: (floorplan_id: string) => `version:${floorplan_id}:`,
     image: (floorplan_id: string) => `image:${floorplan_id}`,
+    thumbnail: (floorplan_id: string) => `thumbnail:${floorplan_id}`,
 };
+
+/** Records that store `floorplan`: its summary and, apart, its canvas */
+function floorplanRecords(floorplan: Floorplan): [string, unknown][] {
+    const { canvas_state, svg_output, svg_source, svg_source_ids, ...summary } =
+        floorplan;
+    const canvas: FloorplanCanvas = {
+        canvas_state,
+        svg_output,
+        svg_source,
+        svg_source_ids,
+    };
+    return [
+        [key.floorplan(floorplan.id), summary],
+        [key.canvas(floorplan.id), canvas],
+    ];
+}
 
 const now = () => new Date().toISOString();
 
@@ -124,7 +148,7 @@ export class StoreService {
     public async listProjects(): Promise<Project[]> {
         const [projects, floorplans] = await Promise.all([
             this._db.list<Project>('project:'),
-            this._db.list<Floorplan>('floorplan:'),
+            this._db.list<FloorplanSummary>('floorplan:'),
         ]);
         return projects
             .map((project) => ({
@@ -158,7 +182,7 @@ export class StoreService {
     public async getProject(id: string): Promise<Project> {
         const project = await this._db.get<Project>(key.project(id));
         if (!project) throw new Error('Project not found');
-        const floorplans = (await this._db.list<Floorplan>('floorplan:'))
+        const floorplans = (await this._db.list<FloorplanSummary>('floorplan:'))
             .filter((f) => f.project_id === id)
             .sort((a, b) => a.floor_index - b.floor_index);
         return { ...project, floorplans };
@@ -181,7 +205,7 @@ export class StoreService {
     /** Removes the project along with every floorplan and object beneath it */
     public async deleteProject(id: string): Promise<void> {
         const floorplans = (
-            await this._db.list<Floorplan>('floorplan:')
+            await this._db.list<FloorplanSummary>('floorplan:')
         ).filter((f) => f.project_id === id);
         await Promise.all(floorplans.map((f) => this.deleteFloorplan(f.id)));
         await this._db.delete(key.project(id));
@@ -196,14 +220,17 @@ export class StoreService {
         level_zone_id?: string,
         metadata?: Partial<Floorplan>,
     ): Promise<Floorplan> {
-        const siblings = (await this._db.list<Floorplan>('floorplan:')).filter(
-            (f) => f.project_id === project_id,
-        );
+        // Only an unplaced floor needs the sibling count
+        const index =
+            floor_index ??
+            (await this._db.list<FloorplanSummary>('floorplan:')).filter(
+                (f) => f.project_id === project_id,
+            ).length;
         const floorplan: Floorplan = {
             id: uuid(),
             project_id,
             floor_name,
-            floor_index: floor_index ?? siblings.length,
+            floor_index: index,
             level_zone_id: level_zone_id || null,
             source_image_path: null,
             source_type: null,
@@ -221,13 +248,15 @@ export class StoreService {
             updated_at: now(),
             ...localFloorplanData(metadata),
         };
-        await this._db.set(key.floorplan(floorplan.id), floorplan);
-        if (floorplan.canvas_state?.objects) {
-            await this.replaceObjects(
-                floorplan.id,
-                floorplan.canvas_state.objects,
-            );
-        }
+        await this._db.write({
+            put: [
+                ...floorplanRecords(floorplan),
+                ...this._objectRecords(
+                    floorplan.id,
+                    floorplan.canvas_state?.objects ?? [],
+                ),
+            ],
+        });
         return floorplan;
     }
 
@@ -244,9 +273,11 @@ export class StoreService {
     }
 
     /** The local floorplan for a PlaceOS level, adding its building's floors first when it has none. */
-    public async floorplanForLevel(level_id: string): Promise<Floorplan> {
+    public async floorplanForLevel(
+        level_id: string,
+    ): Promise<FloorplanSummary> {
         const find = async () =>
-            (await this._db.list<Floorplan>('floorplan:')).find(
+            (await this._db.list<FloorplanSummary>('floorplan:')).find(
                 (floorplan) => floorplan.level_zone_id === level_id,
             );
         const existing = await find();
@@ -281,29 +312,48 @@ export class StoreService {
             const existing_levels = new Set(
                 project.floorplans?.map((floor) => floor.level_zone_id),
             );
-            for (const [floor_index, level] of levels.entries()) {
-                if (existing_levels.has(level.id)) continue;
-                const metadata = await this._placeos
-                    .getFloorplanMetadata(level.id)
-                    .catch(() => null);
-                const floorplan = await this.addFloorplan(
-                    project.id,
-                    level.display_name || level.name || level.id,
-                    floor_index,
-                    level.id,
-                    metadata ?? undefined,
+            const missing = [...levels.entries()].filter(
+                ([, level]) => !existing_levels.has(level.id),
+            );
+            // Fetch metadata a few levels at a time rather than one by one
+            for (let i = 0; i < missing.length; i += SYNC_CONCURRENCY) {
+                const batch = missing.slice(i, i + SYNC_CONCURRENCY);
+                const metadata = await Promise.all(
+                    batch.map(([, level]) =>
+                        this._placeos
+                            .getFloorplanMetadata(level.id)
+                            .catch(() => null),
+                    ),
                 );
-                project.floorplans?.push(floorplan);
-                existing_levels.add(level.id);
+                for (const [index, [floor_index, level]] of batch.entries()) {
+                    if (existing_levels.has(level.id)) continue;
+                    const floorplan = await this.addFloorplan(
+                        project.id,
+                        level.display_name || level.name || level.id,
+                        floor_index,
+                        level.id,
+                        metadata[index] ?? undefined,
+                    );
+                    project.floorplans?.push(floorplan);
+                    existing_levels.add(level.id);
+                }
             }
         }
         this.zone_sync_version.update((version) => version + 1);
     }
 
     public async getFloorplan(id: string): Promise<Floorplan> {
-        const floorplan = await this._db.get<Floorplan>(key.floorplan(id));
-        if (!floorplan) throw new Error('Floorplan not found');
-        return floorplan;
+        const [summary, canvas] = await Promise.all([
+            this._db.get<FloorplanSummary>(key.floorplan(id)),
+            this._db.get<FloorplanCanvas>(key.canvas(id)),
+        ]);
+        if (!summary) throw new Error('Floorplan not found');
+        return {
+            ...summary,
+            ...canvas,
+            canvas_state: canvas?.canvas_state ?? null,
+            svg_output: canvas?.svg_output ?? null,
+        };
     }
 
     public async getNewerServerFloorplan(
@@ -333,10 +383,20 @@ export class StoreService {
             ...localFloorplanData(metadata),
             id,
         };
-        await this._db.set(key.floorplan(id), updated);
-        if (updated.canvas_state?.objects) {
-            await this.replaceObjects(id, updated.canvas_state.objects);
-        }
+        await this._db.write({
+            ...(updated.canvas_state?.objects
+                ? {
+                      clear: key.objects(id),
+                      put: [
+                          ...floorplanRecords(updated),
+                          ...this._objectRecords(
+                              id,
+                              updated.canvas_state.objects,
+                          ),
+                      ],
+                  }
+                : { put: floorplanRecords(updated) }),
+        });
         return updated;
     }
 
@@ -346,7 +406,7 @@ export class StoreService {
     ): Promise<Floorplan> {
         const floorplan = await this.getFloorplan(id);
         const updated = { ...floorplan, ...updates, id, updated_at: now() };
-        await this._db.set(key.floorplan(id), updated);
+        await this._db.write({ put: floorplanRecords(updated) });
         if (updated.level_zone_id && this._placeos.mode() === 'domain') {
             const server_updated_at = await this._placeos
                 .saveFloorplanMetadata(updated.level_zone_id, updated)
@@ -362,7 +422,8 @@ export class StoreService {
                 );
             if (server_updated_at) {
                 updated.updated_at = server_updated_at;
-                await this._db.set(key.floorplan(id), updated);
+                // Only the timestamp changed, so the canvas need not be rewritten
+                await this._db.write({ put: [floorplanRecords(updated)[0]] });
             }
         }
         return updated;
@@ -372,8 +433,14 @@ export class StoreService {
         await Promise.all([
             this._db.deleteWhere(key.objects(id)),
             this._db.deleteWhere(key.versions(id)),
-            this._db.delete(key.image(id)),
-            this._db.delete(key.floorplan(id)),
+            this._db.write({
+                delete: [
+                    key.image(id),
+                    key.thumbnail(id),
+                    key.canvas(id),
+                    key.floorplan(id),
+                ],
+            }),
         ]);
     }
 
@@ -445,25 +512,42 @@ export class StoreService {
     /**
      * Stores the floor plan background image against the floorplan. The
      * reference app wrote these to disk; here the blob lives in IndexedDB and
-     * `source_image_path` holds an object URL minted on read.
+     * `source_image_path` holds its IndexedDB key.
      */
-    public async uploadSourceImage(
-        id: string,
-        file: File,
-    ): Promise<{ previewUrl: string }> {
-        await this._db.set(key.image(id), file);
-        const previewUrl = URL.createObjectURL(file);
+    public async uploadSourceImage(id: string, file: File): Promise<void> {
+        await this._db.write({
+            delete: [key.thumbnail(id)],
+            put: [[key.image(id), file]],
+        });
         await this.updateFloorplan(id, {
-            source_image_path: previewUrl,
+            source_image_path: key.image(id),
             source_type: file.type,
         });
-        return { previewUrl };
     }
 
-    /** Object URL for the stored background image, or null if there isn't one */
+    /**
+     * Object URL for the stored background image, or null if there isn't one.
+     * The caller owns the URL and must revoke it when done.
+     */
     public async getSourceImageUrl(id: string): Promise<string | null> {
         const blob = await this.getSourceImage(id);
         return blob ? URL.createObjectURL(blob) : null;
+    }
+
+    /**
+     * Object URL for a small copy of the background image, made and stored on
+     * first use. Previews use this so they never decode a full-size plan. The
+     * caller owns the URL and must revoke it when done.
+     */
+    public async getSourceThumbnailUrl(id: string): Promise<string | null> {
+        let thumbnail = await this._db.get<Blob>(key.thumbnail(id));
+        if (!thumbnail) {
+            const image = await this.getSourceImage(id);
+            if (!image) return null;
+            thumbnail = await makeThumbnail(image);
+            await this._db.set(key.thumbnail(id), thumbnail);
+        }
+        return URL.createObjectURL(thumbnail);
     }
 
     /** Raw source image used by local processing such as AI analysis. */
@@ -489,16 +573,20 @@ export class StoreService {
             svg_output: analysis.sourceSvg || svg_content,
             canvas_width: analysis.width,
             canvas_height: analysis.height,
-            source_image_path: URL.createObjectURL(blob),
+            source_image_path: key.image(id),
             source_type: 'image/svg+xml',
             source_map_id: map_id ?? floorplan.source_map_id ?? null,
             updated_at: now(),
         };
-        await Promise.all([
-            this._db.set(key.image(id), blob),
-            this._db.set(key.floorplan(id), updated),
-        ]);
-        await this.replaceObjects(id, this._objectsFromSvg(analysis));
+        await this._db.write({
+            clear: key.objects(id),
+            delete: [key.thumbnail(id)],
+            put: [
+                [key.image(id), blob],
+                ...floorplanRecords(updated),
+                ...this._objectRecords(id, this._objectsFromSvg(analysis)),
+            ],
+        });
         return updated;
     }
 
@@ -655,7 +743,17 @@ export class StoreService {
         floorplan_id: string,
         obj: Partial<MapObject>,
     ): Promise<MapObject> {
-        const object: MapObject = {
+        const object = this._toObject(floorplan_id, obj);
+        await this._db.set(key.object(floorplan_id, object.id), object);
+        return object;
+    }
+
+    /** A complete object from `obj`, with defaults for anything missing */
+    private _toObject(
+        floorplan_id: string,
+        obj: Partial<MapObject>,
+    ): MapObject {
+        return {
             id: obj.id || uuid(),
             floorplan_id,
             object_type: obj.object_type ?? 'zone',
@@ -677,8 +775,17 @@ export class StoreService {
             locked: obj.locked ?? false,
             visible: obj.visible ?? true,
         };
-        await this._db.set(key.object(floorplan_id, object.id), object);
-        return object;
+    }
+
+    /** Key/value pairs that store `objects` under the floorplan */
+    private _objectRecords(
+        floorplan_id: string,
+        objects: Partial<MapObject>[],
+    ): [string, MapObject][] {
+        return objects.map((obj) => {
+            const object = this._toObject(floorplan_id, obj);
+            return [key.object(floorplan_id, object.id), object];
+        });
     }
 
     public async updateObject(
@@ -701,13 +808,21 @@ export class StoreService {
         await this._db.delete(key.object(floorplan_id, id));
     }
 
+    /**
+     * Writes `objects` and removes `remove_ids` in one transaction. Returns the
+     * objects as stored, with defaults filled in.
+     */
     public async bulkUpsertObjects(
         floorplan_id: string,
         objects: Partial<MapObject>[],
-    ): Promise<void> {
-        await Promise.all(
-            objects.map((obj) => this.createObject(floorplan_id, obj)),
-        );
+        remove_ids: string[] = [],
+    ): Promise<MapObject[]> {
+        const records = this._objectRecords(floorplan_id, objects);
+        await this._db.write({
+            delete: remove_ids.map((id) => key.object(floorplan_id, id)),
+            put: records,
+        });
+        return records.map(([, object]) => object);
     }
 
     /** Replaces the stored objects for a floorplan with exactly `objects` */
@@ -715,8 +830,10 @@ export class StoreService {
         floorplan_id: string,
         objects: Partial<MapObject>[],
     ): Promise<void> {
-        await this._db.deleteWhere(key.objects(floorplan_id));
-        await this.bulkUpsertObjects(floorplan_id, objects);
+        await this._db.write({
+            clear: key.objects(floorplan_id),
+            put: this._objectRecords(floorplan_id, objects),
+        });
     }
 
     // ── CSV ─────────────────────────────────────────────────────────────────
@@ -754,6 +871,7 @@ export class StoreService {
 
         let imported = 0;
         let updated = 0;
+        const changed: Partial<MapObject>[] = [];
         for (const line of lines.slice(1)) {
             const values = parseCsvLine(line);
             const row: Record<string, unknown> = {};
@@ -768,16 +886,17 @@ export class StoreService {
             if (match) {
                 delete row['id'];
                 delete row['floorplan_id'];
-                await this.updateObject(floorplan_id, match.id, row);
+                const merged = { ...match, ...row, id: match.id };
+                // A later row for the same svg_id builds on this one
+                existing.set(match.svg_id as string, merged);
+                changed.push(merged);
                 updated++;
             } else {
-                await this.createObject(floorplan_id, {
-                    ...row,
-                    floorplan_id,
-                } as Partial<MapObject>);
+                changed.push({ ...row, floorplan_id } as Partial<MapObject>);
                 imported++;
             }
         }
+        await this.bulkUpsertObjects(floorplan_id, changed);
         return { imported, updated };
     }
 

@@ -13,6 +13,7 @@ const STATUS_FILLS: Record<string, string> = {
     occupied: 'rgba(244, 67, 54, 0.55)',
     'checked-in': 'rgba(33, 150, 243, 0.55)',
     'out-of-service': 'rgba(158, 158, 158, 0.45)',
+    unavailable: 'rgba(158, 158, 158, 0.45)',
     restricted: 'rgba(121, 85, 72, 0.45)',
 };
 
@@ -25,6 +26,7 @@ const DESK_FILLS: Record<string, string> = {
     occupied: 'rgba(244, 67, 54, 0.7)',
     'checked-in': 'rgba(33, 150, 243, 0.7)',
     'out-of-service': 'rgba(158, 158, 158, 0.6)',
+    unavailable: 'rgba(158, 158, 158, 0.6)',
     restricted: 'rgba(121, 85, 72, 0.6)',
 };
 
@@ -36,6 +38,7 @@ const STATUS_STROKES: Record<string, string> = {
     occupied: '#F44336',
     'checked-in': '#2196F3',
     'out-of-service': '#9E9E9E',
+    unavailable: '#9E9E9E',
     restricted: '#795548',
 };
 

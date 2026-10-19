@@ -17,6 +17,9 @@ const SETTINGS_KEY = 'MAP_BUILDER.placeos';
 const FLOORPLAN_METADATA_KEY = 'map-studio';
 const PLACEOS_REQUEST_TIMEOUT = 10 * 1000;
 const HANDOFF_MIN_DELAY_MS = 30 * 1000;
+/** Zones per request, and the most pages read for one query */
+const ZONE_PAGE_SIZE = 100;
+const ZONE_PAGE_LIMIT = 50;
 
 function withDeadline<T>(promise: Promise<T>, message: string): Promise<T> {
     return new Promise<T>((resolve, reject) => {
@@ -260,12 +263,23 @@ export class PlaceOSService {
 
     // ── Zones ───────────────────────────────────────────────────────────────
 
-    public getZones(tags?: string, parent_id?: string): Promise<PlaceOSZone[]> {
-        return this._request<PlaceOSZone[]>('/zones', {
-            limit: '100',
-            ...(tags ? { tags } : {}),
-            ...(parent_id ? { parent_id } : {}),
-        });
+    /** Every matching zone, reading one page after another */
+    public async getZones(
+        tags?: string,
+        parent_id?: string,
+    ): Promise<PlaceOSZone[]> {
+        const zones: PlaceOSZone[] = [];
+        for (let page = 0; page < ZONE_PAGE_LIMIT; page++) {
+            const results = await this._request<PlaceOSZone[]>('/zones', {
+                limit: `${ZONE_PAGE_SIZE}`,
+                offset: `${page * ZONE_PAGE_SIZE}`,
+                ...(tags ? { tags } : {}),
+                ...(parent_id ? { parent_id } : {}),
+            });
+            zones.push(...results);
+            if (results.length < ZONE_PAGE_SIZE) break;
+        }
+        return zones;
     }
 
     public async getActiveOrganisation(): Promise<PlaceOSZone | null> {
@@ -322,6 +336,10 @@ export class PlaceOSService {
         delete details.source_image_path;
         delete details.source_type;
         delete details.created_at;
+        // Imports keep the same SVG, often megabytes, in both fields. Send it
+        // once; reimport only reads svg_output when there is no svg_source.
+        if (details.svg_output === details.svg_source)
+            delete details.svg_output;
         details.updated_at = floorplan.updated_at || new Date().toISOString();
         const metadata = await updateMetadata(level_id, {
             id: level_id,

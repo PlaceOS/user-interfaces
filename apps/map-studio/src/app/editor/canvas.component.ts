@@ -1,7 +1,9 @@
 import {
     Component,
+    DestroyRef,
     ElementRef,
     HostListener,
+    afterNextRender,
     computed,
     inject,
     signal,
@@ -123,7 +125,6 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                 [style.cursor]="cursor()"
                 class="m-auto block shrink-0"
                 (mousedown)="onMouseDown($event)"
-                (mousemove)="onMouseMove($event)"
                 (mouseup)="onMouseUp()"
                 (dblclick)="onDoubleClick($event)"
             >
@@ -719,6 +720,24 @@ export class CanvasComponent {
     public readonly width = this.state.canvas_width;
     public readonly height = this.state.canvas_height;
 
+    /** Trusted asset markup by asset and colour, so bindings stay stable */
+    private readonly _art = new Map<string, SafeHtml>();
+
+    constructor() {
+        // Pointer moves are handled outside Angular's template listeners: a
+        // template listener would re-check every object on every move. The
+        // signals written here still refresh whatever reads them.
+        const onMove = (event: MouseEvent) => {
+            const canvas = this._canvas().nativeElement;
+            if (this._interacting() || canvas.contains(event.target as Node))
+                this.onMouseMove(event);
+        };
+        afterNextRender(() => window.addEventListener('mousemove', onMove));
+        inject(DestroyRef).onDestroy(() =>
+            window.removeEventListener('mousemove', onMove),
+        );
+    }
+
     /** The scrolling element, for the minimap to read and drive */
     public readonly containerEl = computed(
         () => this._container()?.nativeElement,
@@ -852,11 +871,11 @@ export class CanvasComponent {
     });
 
     public readonly groupBounds = computed(() => {
-        const ids = this.state.multi_select();
-        if (ids.length < 2) return null;
+        const ids = this.state.multi_select_ids();
+        if (ids.size < 2) return null;
         const objects = this.state
             .objects()
-            .filter((object) => ids.includes(object.id));
+            .filter((object) => ids.has(object.id));
         if (objects.length < 2) return null;
         const bounds = objects.map((object) => this._objectBounds(object));
         const x = Math.min(...bounds.map((item) => item.x));
@@ -907,7 +926,7 @@ export class CanvasComponent {
     }
 
     public isMultiSelected(object: MapObject) {
-        return this.state.multi_select().includes(object.id);
+        return this.state.multi_select_ids().has(object.id);
     }
 
     public fillOf(object: MapObject) {
@@ -1035,8 +1054,9 @@ export class CanvasComponent {
             ? FURNITURE_ASSETS.find((a) => a.id === type)
             : undefined;
         if (!asset) return null;
-        return this._sanitizer.bypassSecurityTrustHtml(
-            asset.svg.replace(/currentColor/g, object.stroke_color ?? '#333'),
+        const color = object.stroke_color ?? '#333';
+        return this._trusted(`furniture:${asset.id}:${color}`, () =>
+            asset.svg.replace(/currentColor/g, color),
         );
     }
 
@@ -1054,11 +1074,24 @@ export class CanvasComponent {
             ? AMENITY_ICONS.find((a) => a.id === icon)
             : undefined;
         if (!asset) return null;
-        return this._sanitizer.bypassSecurityTrustHtml(
+        return this._trusted(`amenity:${asset.id}`, () =>
             asset.svg
                 .replace(/currentColor/g, 'white')
                 .replace(/fill="#[^"]+"/g, 'fill="white"'),
         );
+    }
+
+    /**
+     * Cached trusted markup. A new SafeHtml on each check would rewrite every
+     * `[innerHTML]` binding, re-parsing the art of every object.
+     */
+    private _trusted(key: string, markup: () => string): SafeHtml {
+        let html = this._art.get(key);
+        if (!html) {
+            html = this._sanitizer.bypassSecurityTrustHtml(markup());
+            this._art.set(key, html);
+        }
+        return html;
     }
 
     public amenityTransform(object: MapObject) {
@@ -1609,9 +1642,10 @@ export class CanvasComponent {
         const dx = x0 - (object.geometry.x ?? 0);
         const dy = y0 - (object.geometry.y ?? 0);
         // Everything in the multi-selection moves by the same delta
-        for (const id of moving) {
-            const target = this.state.objects().find((o) => o.id === id);
-            if (!target) continue;
+        const updates = new Map<string, Partial<MapObject>>();
+        for (const target of this.state.objects()) {
+            const id = target.id;
+            if (!moving.has(id)) continue;
             const nx = id === dragging.id ? x0 : (target.geometry.x ?? 0) + dx;
             const ny = id === dragging.id ? y0 : (target.geometry.y ?? 0) + dy;
             // Polygons carry their own points, which must move with the origin
@@ -1626,8 +1660,9 @@ export class CanvasComponent {
                       })),
                   }
                 : { ...target.geometry, x: nx, y: ny };
-            this.state.patchLocal(id, { geometry });
+            updates.set(id, { geometry });
         }
+        this.state.patchMany(updates);
     }
 
     private _applyResize(resizing: ResizeState, x: number, y: number) {
@@ -1675,6 +1710,7 @@ export class CanvasComponent {
         if (handle.includes('s')) bottom = Math.max(y, top + 20);
         const sx = (right - left) / bounds.width;
         const sy = (bottom - top) / bounds.height;
+        const updates = new Map<string, Partial<MapObject>>();
         for (const object of resizing.objects) {
             const geometry = structuredClone(object.geometry);
             if (geometry.points) {
@@ -1694,8 +1730,9 @@ export class CanvasComponent {
                 if (geometry.width != null) geometry.width *= sx;
                 if (geometry.height != null) geometry.height *= sy;
             }
-            this.state.patchLocal(object.id, { geometry });
+            updates.set(object.id, { geometry });
         }
+        this.state.patchMany(updates);
     }
 
     private _applyGroupRotate(
@@ -1720,6 +1757,7 @@ export class CanvasComponent {
                 (point.x - rotating.centerX) * Math.sin(radians) +
                 (point.y - rotating.centerY) * Math.cos(radians),
         });
+        const updates = new Map<string, Partial<MapObject>>();
         for (const object of rotating.objects) {
             const geometry = structuredClone(object.geometry);
             if (geometry.points) {
@@ -1741,8 +1779,9 @@ export class CanvasComponent {
                         ((geometry.rotation ?? 0) + delta + 360) % 360;
                 }
             }
-            this.state.patchLocal(object.id, { geometry });
+            updates.set(object.id, { geometry });
         }
+        this.state.patchMany(updates);
     }
 
     private _startGroupResize(x: number, y: number): boolean {
@@ -1797,10 +1836,10 @@ export class CanvasComponent {
     }
 
     private _selectedSnapshots(): MapObject[] {
-        const ids = this.state.multi_select();
+        const ids = this.state.multi_select_ids();
         return this.state
             .objects()
-            .filter((object) => ids.includes(object.id))
+            .filter((object) => ids.has(object.id))
             .map((object) => structuredClone(object));
     }
 
@@ -2073,13 +2112,6 @@ export class CanvasComponent {
             this.rect_draw() ||
             this.selection_box()
         );
-    }
-
-    @HostListener('window:mousemove', ['$event'])
-    public onWindowMouseMove(event: MouseEvent) {
-        const canvas = this._canvas().nativeElement;
-        if (this._interacting() && !canvas.contains(event.target as Node))
-            this.onMouseMove(event);
     }
 
     @HostListener('window:mouseup')

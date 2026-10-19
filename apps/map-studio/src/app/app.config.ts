@@ -9,14 +9,19 @@ import { provideServiceWorker } from '@angular/service-worker';
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
-import { PlaceOSService } from './data/placeos.service';
+import { PlaceOSService, PlaceOSZone } from './data/placeos.service';
 import { StoreService } from './data/store.service';
+
+/** Level requests in flight at once during zone sync */
+const SYNC_CONCURRENCY = 6;
 
 async function initialisePlaceOS() {
     const placeos = inject(PlaceOSService);
     const store = inject(StoreService);
     await placeos.init();
     if (placeos.mode() !== 'domain') return;
+    // Kiosks only display existing floors and reload often
+    if (window.location.hash.startsWith('#/kiosk')) return;
 
     // Zone import can take a while on large deployments. It must not hold
     // Angular bootstrap open because the editor can render without it.
@@ -40,12 +45,18 @@ async function syncPlaceOSZones(
             building_lists.flat().map((zone) => [zone.id, zone]),
         );
         const zones = [...zones_by_id.values()];
-        const buildings = await Promise.all(
-            zones.map(async (zone) => ({
-                zone,
-                levels: await placeos.getZones('level', zone.id),
-            })),
-        );
+        const buildings: { zone: PlaceOSZone; levels: PlaceOSZone[] }[] = [];
+        // A few buildings at a time, so large deployments do not flood the API
+        for (let i = 0; i < zones.length; i += SYNC_CONCURRENCY) {
+            buildings.push(
+                ...(await Promise.all(
+                    zones.slice(i, i + SYNC_CONCURRENCY).map(async (zone) => ({
+                        zone,
+                        levels: await placeos.getZones('level', zone.id),
+                    })),
+                )),
+            );
+        }
         await store.syncPlaceOSZones(buildings);
     } catch (error) {
         console.warn('Failed to create projects from PlaceOS zones', error);

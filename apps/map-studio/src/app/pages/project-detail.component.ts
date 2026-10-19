@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -6,7 +6,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IconComponent } from '@placeos/components';
 
 import { StoreService } from '../data/store.service';
-import { Floorplan, Project } from '../data/types';
+import { FloorplanSummary, Project } from '../data/types';
 
 const BADGE_CLASSES: Record<string, string> = {
     draft: 'border-base-300 text-base-content/60 border',
@@ -248,8 +248,14 @@ export class ProjectDetailComponent {
     /** Object URLs for stored background images, keyed by floorplan id */
     public readonly previews = signal<Record<string, string>>({});
 
+    private _destroyed = false;
+
     constructor() {
         this.load();
+        inject(DestroyRef).onDestroy(() => {
+            this._destroyed = true;
+            this._revokePreviews(this.previews());
+        });
     }
 
     public readonly badgeClass = (status: string) =>
@@ -260,7 +266,7 @@ export class ProjectDetailComponent {
             (a, b) => a.floor_index - b.floor_index,
         );
 
-    public readonly previewFor = (floor: Floorplan) =>
+    public readonly previewFor = (floor: FloorplanSummary) =>
         this.previews()[floor.id] ?? null;
 
     public async load() {
@@ -299,7 +305,7 @@ export class ProjectDetailComponent {
         }
     }
 
-    public async removeFloor(floor: Floorplan) {
+    public async removeFloor(floor: FloorplanSummary) {
         const confirmed = confirm(
             `Delete floor "${floor.floor_name}"? This cannot be undone.`,
         );
@@ -312,23 +318,26 @@ export class ProjectDetailComponent {
         }
     }
 
-    private async _loadPreviews(floorplans: Floorplan[]) {
+    private async _loadPreviews(floorplans: FloorplanSummary[]) {
         const entries = await Promise.all(
             floorplans.map(
                 async (floor) =>
                     [
                         floor.id,
-                        await this._store.getSourceImageUrl(floor.id),
+                        await this._store.getSourceThumbnailUrl(floor.id),
                     ] as const,
             ),
         );
-        this.previews.set(
-            Object.fromEntries(
-                entries.filter(
-                    (entry): entry is [string, string] => !!entry[1],
-                ),
-            ),
+        const previews = Object.fromEntries(
+            entries.filter((entry): entry is [string, string] => !!entry[1]),
         );
+        if (this._destroyed) return this._revokePreviews(previews);
+        this._revokePreviews(this.previews());
+        this.previews.set(previews);
+    }
+
+    private _revokePreviews(previews: Record<string, string>) {
+        for (const url of Object.values(previews)) URL.revokeObjectURL(url);
     }
 
     private _message(error: unknown, fallback: string) {

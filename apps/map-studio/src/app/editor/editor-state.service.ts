@@ -155,6 +155,8 @@ export class EditorStateService extends AsyncHandler {
         id: string;
     } | null>(null);
 
+    // Objects are only ever replaced, never changed in place, so a snapshot
+    // is the array as it stood — no copy needed.
     private _undo_stack: MapObject[][] = [];
     private _redo_stack: MapObject[][] = [];
 
@@ -187,6 +189,11 @@ export class EditorStateService extends AsyncHandler {
         this._availability_states.asReadonly();
     public readonly multi_select = this._multi_select.asReadonly();
     public readonly placing = this._placing.asReadonly();
+
+    /** The multi-selection as a set, for constant-time membership checks */
+    public readonly multi_select_ids = computed(
+        () => new Set(this._multi_select()),
+    );
 
     public readonly selected = computed(
         () => this._objects().find((o) => o.id === this._selected_id()) ?? null,
@@ -242,6 +249,14 @@ export class EditorStateService extends AsyncHandler {
     );
 
     private _floorplan_id = '';
+
+    private _destroyed = false;
+
+    public override ngOnDestroy() {
+        super.ngOnDestroy();
+        this._setImageUrl(null);
+        this._destroyed = true;
+    }
 
     // ── Loading ─────────────────────────────────────────────────────────────
 
@@ -409,9 +424,21 @@ export class EditorStateService extends AsyncHandler {
         }
     }
 
+    /** Swaps the background image URL, revoking the one it replaces */
+    private _setImageUrl(url: string | null) {
+        // A load that lands after the editor closed has no one to show it to
+        if (this._destroyed) {
+            if (url) URL.revokeObjectURL(url);
+            return;
+        }
+        const previous = this._image_url();
+        if (previous && previous !== url) URL.revokeObjectURL(previous);
+        this._image_url.set(url);
+    }
+
     private async _loadImage(floorplan_id: string) {
         const url = await this._store.getSourceImageUrl(floorplan_id);
-        this._image_url.set(url);
+        this._setImageUrl(url);
         if (!url) {
             this._image_dims.set(null);
             return;
@@ -602,11 +629,60 @@ export class EditorStateService extends AsyncHandler {
         });
     }
 
+    /**
+     * Creates several objects as one undoable step and one storage write.
+     * Nothing is selected.
+     */
+    public async createObjects(
+        partials: Partial<MapObject>[],
+    ): Promise<MapObject[]> {
+        if (!partials.length) return [];
+        this.pushHistory();
+        const start = this._objects().length;
+        const created = await this._store.bulkUpsertObjects(
+            this._floorplan_id,
+            partials.map((partial, index) => ({
+                z_index: start + index,
+                opacity: 1,
+                visible: true,
+                locked: false,
+                ...partial,
+            })),
+        );
+        this._objects.update((list) => [...list, ...created]);
+        this.markDirty();
+        return created;
+    }
+
     /** Applies an in-memory change without touching history or storage */
     public patchLocal(id: string, updates: Partial<MapObject>) {
+        this.patchMany(new Map([[id, updates]]));
+    }
+
+    /**
+     * Applies in-memory changes to many objects in one pass, without touching
+     * history or storage. Drags call this on every pointer move.
+     */
+    public patchMany(updates: Map<string, Partial<MapObject>>) {
+        if (!updates.size) return;
         this._objects.update((list) =>
-            list.map((o) => (o.id === id ? { ...o, ...updates } : o)),
+            list.map((o) => {
+                const update = updates.get(o.id);
+                return update ? { ...o, ...update } : o;
+            }),
         );
+    }
+
+    /** Writes the in-memory state of these objects to storage in one go */
+    private _persist(ids: Iterable<string>, remove_ids: string[] = []) {
+        const wanted = new Set(ids);
+        return this._store
+            .bulkUpsertObjects(
+                this._floorplan_id,
+                this._objects().filter((o) => wanted.has(o.id)),
+                remove_ids,
+            )
+            .catch(() => undefined);
     }
 
     public async updateObject(id: string, updates: Partial<MapObject>) {
@@ -628,13 +704,22 @@ export class EditorStateService extends AsyncHandler {
     }
 
     public async deleteObject(id: string) {
+        await this.deleteObjects([id]);
+    }
+
+    /** Removes several objects as one undoable step */
+    public async deleteObjects(ids: string[]) {
+        if (!ids.length) return;
+        const removed = new Set(ids);
         this.pushHistory();
-        this._objects.update((list) => list.filter((o) => o.id !== id));
-        if (this._selected_id() === id) this._selected_id.set(null);
+        this._objects.update((list) => list.filter((o) => !removed.has(o.id)));
+        const selected = this._selected_id();
+        if (selected && removed.has(selected)) this._selected_id.set(null);
+        this._multi_select.update((list) =>
+            list.filter((id) => !removed.has(id)),
+        );
         this.markDirty();
-        await this._store
-            .deleteObject(this._floorplan_id, id)
-            .catch(() => undefined);
+        await this._persist([], ids);
     }
 
     public async duplicateObject(id: string): Promise<MapObject | null> {
@@ -656,17 +741,9 @@ export class EditorStateService extends AsyncHandler {
 
     public async bulkUpdate(ids: string[], updates: Partial<MapObject>) {
         this.pushHistory();
-        this._objects.update((list) =>
-            list.map((o) => (ids.includes(o.id) ? { ...o, ...updates } : o)),
-        );
+        this.patchMany(new Map(ids.map((id) => [id, updates])));
         this.markDirty();
-        await Promise.all(
-            ids.map((id) =>
-                this._store
-                    .updateObject(this._floorplan_id, id, updates)
-                    .catch(() => undefined),
-            ),
-        );
+        await this._persist(ids);
     }
 
     /** Adds or replaces the single editable outline generated by AI. */
@@ -722,37 +799,32 @@ export class EditorStateService extends AsyncHandler {
             (object) => !previous_ids.has(object.id),
         );
 
-        await Promise.all(
-            previous.map((object) =>
-                this._store.deleteObject(this._floorplan_id, object.id),
-            ),
-        );
-        const created = await Promise.all(
-            rooms.map((room, index) =>
-                this._store.createObject(this._floorplan_id, {
-                    object_type: 'room',
-                    svg_id: room.id,
-                    label: room.label,
-                    geometry: {
-                        type: 'rect',
-                        x: room.x,
-                        y: room.y,
-                        width: room.width,
-                        height: room.height,
-                    },
-                    layer: 'rooms',
-                    fill_color: '#7c3aed55',
-                    stroke_color: '#7c3aed',
-                    opacity: 1,
-                    z_index: 5 + index,
-                    locked: false,
-                    visible: true,
-                    metadata: {
-                        ai_detected: true,
-                        room_type: room.type,
-                    },
-                }),
-            ),
+        const created = await this._store.bulkUpsertObjects(
+            this._floorplan_id,
+            rooms.map((room, index) => ({
+                object_type: 'room',
+                svg_id: room.id,
+                label: room.label,
+                geometry: {
+                    type: 'rect',
+                    x: room.x,
+                    y: room.y,
+                    width: room.width,
+                    height: room.height,
+                },
+                layer: 'rooms',
+                fill_color: '#7c3aed55',
+                stroke_color: '#7c3aed',
+                opacity: 1,
+                z_index: 5 + index,
+                locked: false,
+                visible: true,
+                metadata: {
+                    ai_detected: true,
+                    room_type: room.type,
+                },
+            })),
+            [...previous_ids],
         );
         this._objects.set([...kept, ...created]);
         this._selected_id.set(null);
@@ -843,35 +915,34 @@ export class EditorStateService extends AsyncHandler {
             (o) => o.object_type === 'desk',
         ).length;
 
-        this.pushHistory();
         this._placing.set(null);
+        const desks: Partial<MapObject>[] = [];
         for (let row = 0; row < layout.rows; row++) {
             for (let col = 0; col < layout.cols; col++) {
                 const index = existing + row * layout.cols + col + 1;
-                await this.createObject(
-                    {
-                        object_type: 'desk',
-                        label: `Desk ${index}`,
-                        svg_id: `desk-${String(index).padStart(3, '0')}`,
-                        geometry: {
-                            type: 'rect',
-                            x: start_x + col * (layout.deskW + layout.gap),
-                            y: start_y + row * (layout.deskH + layout.gap),
-                            width: layout.deskW,
-                            height: layout.deskH,
-                        },
-                        layer: 'desks',
-                        ...this.colorsFor('desk'),
-                        group_id,
-                        metadata: {
-                            furnitureType: 'desk-single',
-                            groupId: group_id,
-                        },
+                desks.push({
+                    object_type: 'desk',
+                    label: `Desk ${index}`,
+                    svg_id: `desk-${String(index).padStart(3, '0')}`,
+                    geometry: {
+                        type: 'rect',
+                        x: start_x + col * (layout.deskW + layout.gap),
+                        y: start_y + row * (layout.deskH + layout.gap),
+                        width: layout.deskW,
+                        height: layout.deskH,
                     },
-                    { select: false },
-                );
+                    layer: 'desks',
+                    ...this.colorsFor('desk'),
+                    group_id,
+                    metadata: {
+                        furnitureType: 'desk-single',
+                        groupId: group_id,
+                    },
+                });
             }
         }
+        // One step, so a single undo removes the whole layout
+        await this.createObjects(desks);
     }
 
     // ── Availability preview ────────────────────────────────────────────────
@@ -926,16 +997,11 @@ export class EditorStateService extends AsyncHandler {
 
     public setMultiSelect(ids: string[]) {
         const objects = this._objects();
-        const layer = objects.find((object) => ids.includes(object.id))?.layer;
+        const wanted = new Set(ids);
+        const layer = objects.find((object) => wanted.has(object.id))?.layer;
+        const layer_of = new Map(objects.map((o) => [o.id, o.layer]));
         const selection = layer
-            ? ids.filter(
-                  (id, index) =>
-                      ids.indexOf(id) === index &&
-                      objects.some(
-                          (object) =>
-                              object.id === id && object.layer === layer,
-                      ),
-              )
+            ? [...wanted].filter((id) => layer_of.get(id) === layer)
             : [];
         this._multi_select.set(selection);
         this._selected_id.set(selection[0] ?? null);
@@ -946,9 +1012,8 @@ export class EditorStateService extends AsyncHandler {
         if (!object) return;
         this._multi_select.update((ids) => {
             if (ids.includes(id)) return ids.filter((item) => item !== id);
-            const selected = this._objects().find((item) =>
-                ids.includes(item.id),
-            );
+            // Every member shares one layer, so the first stands for all
+            const selected = this._objects().find((item) => item.id === ids[0]);
             return selected && selected.layer !== object.layer
                 ? ids
                 : [...ids, id];
@@ -985,16 +1050,20 @@ export class EditorStateService extends AsyncHandler {
         const isDefault = new RegExp(`^${type}\\s+\\d+$`, 'i');
 
         this.pushHistory();
+        const updates = new Map<string, Partial<MapObject>>();
         for (const [index, object] of matching.entries()) {
             const number = start_from + index;
-            const updates: Partial<MapObject> = {
+            const update: Partial<MapObject> = {
                 svg_id: `${prefix}${String(number).padStart(3, '0')}`,
             };
             if (!object.label || isDefault.test(object.label)) {
-                updates.label = `${name} ${number}`;
+                update.label = `${name} ${number}`;
             }
-            await this.updateObject(object.id, updates);
+            updates.set(object.id, update);
         }
+        this.patchMany(updates);
+        this.markDirty();
+        await this._persist(updates.keys());
     }
 
     // ── History ─────────────────────────────────────────────────────────────
@@ -1004,11 +1073,10 @@ export class EditorStateService extends AsyncHandler {
      * undone. Call this immediately *before* changing anything.
      */
     public pushHistory() {
-        const current = JSON.stringify(this._objects());
-        const top = this._undo_stack.at(-1);
+        const current = this._objects();
         // A click that changes nothing must not fill the stack
-        if (top && JSON.stringify(top) === current) return;
-        this._undo_stack.push(JSON.parse(current));
+        if (this._undo_stack.at(-1) === current) return;
+        this._undo_stack.push(current);
         if (this._undo_stack.length > HISTORY_LIMIT) this._undo_stack.shift();
         this._redo_stack = [];
         this._syncHistoryFlags();
@@ -1016,7 +1084,7 @@ export class EditorStateService extends AsyncHandler {
 
     public undo() {
         if (!this._undo_stack.length) return;
-        const current = this._cloneObjects();
+        const current = this._objects();
         const previous = this._undo_stack.pop() as MapObject[];
         this._redo_stack.push(current);
         this._applyHistory(previous, current);
@@ -1024,14 +1092,10 @@ export class EditorStateService extends AsyncHandler {
 
     public redo() {
         if (!this._redo_stack.length) return;
-        const current = this._cloneObjects();
+        const current = this._objects();
         const next = this._redo_stack.pop() as MapObject[];
         this._undo_stack.push(current);
         this._applyHistory(next, current);
-    }
-
-    private _cloneObjects(): MapObject[] {
-        return JSON.parse(JSON.stringify(this._objects()));
     }
 
     private _applyHistory(target: MapObject[], current: MapObject[]) {
@@ -1039,18 +1103,15 @@ export class EditorStateService extends AsyncHandler {
         this._selected_id.set(null);
         this.markDirty();
         this._syncHistoryFlags();
-        // Reconcile storage: drop what the target no longer has, re-write the rest
+        // Reconcile storage: drop what the target no longer has and re-write
+        // what differs. Any change replaces the object, so identity tells.
+        const before = new Map(current.map((o) => [o.id, o]));
         const kept = new Set(target.map((o) => o.id));
-        for (const object of current) {
-            if (!kept.has(object.id)) {
-                this._store
-                    .deleteObject(this._floorplan_id, object.id)
-                    .catch(() => undefined);
-            }
-        }
-        if (target.length) {
+        const removed = current.filter((o) => !kept.has(o.id)).map((o) => o.id);
+        const changed = target.filter((o) => before.get(o.id) !== o);
+        if (removed.length || changed.length) {
             this._store
-                .bulkUpsertObjects(this._floorplan_id, target)
+                .bulkUpsertObjects(this._floorplan_id, changed, removed)
                 .catch(() => undefined);
         }
     }

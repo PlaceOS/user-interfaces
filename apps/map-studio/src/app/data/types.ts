@@ -8,7 +8,7 @@ export interface Project {
     status: 'draft' | 'published' | 'archived';
     created_at: string;
     updated_at: string;
-    floorplans?: Floorplan[];
+    floorplans?: FloorplanSummary[];
 }
 
 export interface Floorplan {
@@ -36,6 +36,15 @@ export interface Floorplan {
     created_at: string;
     updated_at: string;
 }
+
+/** The heavy part of a floorplan, which storage keeps apart from the rest */
+export type FloorplanCanvas = Pick<
+    Floorplan,
+    'canvas_state' | 'svg_output' | 'svg_source' | 'svg_source_ids'
+>;
+
+/** Floorplan without its canvas, as listings load it */
+export type FloorplanSummary = Omit<Floorplan, keyof FloorplanCanvas>;
 
 export interface FloorplanVersion {
     id: string;
