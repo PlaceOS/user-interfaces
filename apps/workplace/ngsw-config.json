@@ -35,5 +35,18 @@
                 ]
             }
         }
+    ],
+    "dataGroups": [
+        {
+            "name": "s3",
+            "urls": [
+                "https://*.amazonaws.com/**/*.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
+            ],
+            "cacheConfig": {
+                "strategy": "performance",
+                "maxSize": 200,
+                "maxAge": "7d"
+            }
+        }
     ]
 }
