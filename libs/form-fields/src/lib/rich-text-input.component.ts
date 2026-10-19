@@ -380,15 +380,13 @@ export class RichTextInputComponent
             const file = file_input.files?.[0];
             if (!file) return;
             this._uploads
-                .uploadFile(file, true)
+                .uploadFileToCompletion(file, true)
                 .then((upload_id) => {
                     if (!upload_id) return;
                     const link = `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
                     this._setAuth();
-                    setTimeout(() => {
-                        this._insertUploadedFile(link, file, images_only);
-                        this._syncValue();
-                    }, 100);
+                    this._insertUploadedFile(link, file, images_only);
+                    this._syncValue();
                 })
                 .catch((error) => {
                     if (error instanceof UploadCancelledError) return;
