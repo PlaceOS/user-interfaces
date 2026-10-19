@@ -215,100 +215,153 @@ function objectIdOf(target: EventTarget | null) {
                     }
                 }
 
-                @for (object of shapes(); track object.id) {
-                    <g
-                        class="cursor-pointer"
-                        [attr.data-object-id]="object.id"
-                        (pointerenter)="onHover($event, object.id)"
-                        (pointerleave)="onHover($event, null)"
-                    >
-                        @switch (object.geometry.type) {
-                            @case ('rect') {
-                                <rect
-                                    [attr.x]="object.geometry.x ?? 0"
-                                    [attr.y]="object.geometry.y ?? 0"
-                                    [attr.width]="object.geometry.width ?? 50"
-                                    [attr.height]="object.geometry.height ?? 50"
-                                    [attr.fill]="fillOf(object)"
-                                    [attr.stroke]="strokeOf(object)"
-                                    [attr.stroke-width]="strokeWidthOf(object)"
-                                    rx="2"
-                                    [attr.opacity]="
-                                        object.id === emphasis() ? 1 : 0.9
-                                    "
-                                />
+                <!-- Back to front. Imported rooms and desks are drawn in the source
+                     image, so they get invisible targets under the drawn shapes of
+                     their kind: a zone never covers them, and a desk added on top wins. -->
+                @for (item of drawOrder(); track item.object.id) {
+                    @let object = item.object;
+                    @if (item.target) {
+                        <g
+                            class="cursor-pointer"
+                            fill="#000"
+                            fill-opacity="0"
+                            [attr.data-object-id]="object.id"
+                            (pointerenter)="onHover($event, object.id)"
+                            (pointerleave)="onHover($event, null)"
+                        >
+                            @switch (object.geometry.type) {
+                                @case ('polygon') {
+                                    <polygon [attr.points]="pointsOf(object)" />
+                                }
+                                @case ('circle') {
+                                    <circle
+                                        [attr.cx]="object.geometry.x ?? 0"
+                                        [attr.cy]="object.geometry.y ?? 0"
+                                        [attr.r]="object.geometry.r ?? 12"
+                                    />
+                                }
+                                @case ('path') {
+                                    <path [attr.d]="object.geometry.d" />
+                                }
+                                @default {
+                                    <rect
+                                        [attr.x]="object.geometry.x ?? 0"
+                                        [attr.y]="object.geometry.y ?? 0"
+                                        [attr.width]="
+                                            object.geometry.width ?? 0
+                                        "
+                                        [attr.height]="
+                                            object.geometry.height ?? 0
+                                        "
+                                    />
+                                }
                             }
-                            @case ('polygon') {
-                                <polygon
-                                    [attr.points]="pointsOf(object)"
-                                    [attr.fill]="fillOf(object)"
-                                    [attr.stroke]="strokeOf(object)"
-                                    [attr.stroke-width]="strokeWidthOf(object)"
-                                    [attr.opacity]="
-                                        object.id === emphasis() ? 1 : 0.9
-                                    "
-                                />
+                        </g>
+                    } @else {
+                        <g
+                            class="cursor-pointer"
+                            [attr.data-object-id]="object.id"
+                            (pointerenter)="onHover($event, object.id)"
+                            (pointerleave)="onHover($event, null)"
+                        >
+                            @switch (object.geometry.type) {
+                                @case ('rect') {
+                                    <rect
+                                        [attr.x]="object.geometry.x ?? 0"
+                                        [attr.y]="object.geometry.y ?? 0"
+                                        [attr.width]="
+                                            object.geometry.width ?? 50
+                                        "
+                                        [attr.height]="
+                                            object.geometry.height ?? 50
+                                        "
+                                        [attr.fill]="fillOf(object)"
+                                        [attr.stroke]="strokeOf(object)"
+                                        [attr.stroke-width]="
+                                            strokeWidthOf(object)
+                                        "
+                                        rx="2"
+                                        [attr.opacity]="
+                                            object.id === emphasis() ? 1 : 0.9
+                                        "
+                                    />
+                                }
+                                @case ('polygon') {
+                                    <polygon
+                                        [attr.points]="pointsOf(object)"
+                                        [attr.fill]="fillOf(object)"
+                                        [attr.stroke]="strokeOf(object)"
+                                        [attr.stroke-width]="
+                                            strokeWidthOf(object)
+                                        "
+                                        [attr.opacity]="
+                                            object.id === emphasis() ? 1 : 0.9
+                                        "
+                                    />
+                                }
+                                @case ('circle') {
+                                    <circle
+                                        [attr.cx]="object.geometry.x ?? 0"
+                                        [attr.cy]="object.geometry.y ?? 0"
+                                        [attr.r]="object.geometry.r ?? 12"
+                                        [attr.fill]="fillOf(object)"
+                                        [attr.stroke]="strokeOf(object)"
+                                        [attr.stroke-width]="
+                                            strokeWidthOf(object)
+                                        "
+                                    />
+                                }
                             }
-                            @case ('circle') {
-                                <circle
-                                    [attr.cx]="object.geometry.x ?? 0"
-                                    [attr.cy]="object.geometry.y ?? 0"
-                                    [attr.r]="object.geometry.r ?? 12"
-                                    [attr.fill]="fillOf(object)"
-                                    [attr.stroke]="strokeOf(object)"
-                                    [attr.stroke-width]="strokeWidthOf(object)"
-                                />
+                            @if (layouts().get(object.id); as layout) {
+                                @if (layout.label; as text) {
+                                    <text
+                                        [attr.x]="text.x"
+                                        [attr.y]="text.y"
+                                        text-anchor="middle"
+                                        dominant-baseline="central"
+                                        fill="#e6edf3"
+                                        [attr.font-size]="text.size"
+                                        font-weight="600"
+                                        class="pointer-events-none"
+                                    >
+                                        {{ text.text }}
+                                    </text>
+                                }
+                                @if (layout.status; as text) {
+                                    <text
+                                        [attr.x]="text.x"
+                                        [attr.y]="text.y"
+                                        text-anchor="middle"
+                                        dominant-baseline="central"
+                                        [attr.fill]="strokeOf(object)"
+                                        [attr.font-size]="text.size"
+                                        font-weight="700"
+                                        letter-spacing="0.5"
+                                        class="pointer-events-none"
+                                    >
+                                        {{ text.text }}
+                                    </text>
+                                }
+                                @if (layout.mark; as text) {
+                                    <text
+                                        [attr.x]="text.x"
+                                        [attr.y]="text.y"
+                                        text-anchor="middle"
+                                        dominant-baseline="central"
+                                        fill="#ffffff"
+                                        stroke="#0d1117"
+                                        [attr.stroke-width]="text.size * 0.15"
+                                        paint-order="stroke"
+                                        [attr.font-size]="text.size"
+                                        font-weight="700"
+                                        class="pointer-events-none"
+                                    >
+                                        {{ text.text }}
+                                    </text>
+                                }
                             }
-                        }
-                        @if (layouts().get(object.id); as layout) {
-                            @if (layout.label; as text) {
-                                <text
-                                    [attr.x]="text.x"
-                                    [attr.y]="text.y"
-                                    text-anchor="middle"
-                                    dominant-baseline="central"
-                                    fill="#e6edf3"
-                                    [attr.font-size]="text.size"
-                                    font-weight="600"
-                                    class="pointer-events-none"
-                                >
-                                    {{ text.text }}
-                                </text>
-                            }
-                            @if (layout.status; as text) {
-                                <text
-                                    [attr.x]="text.x"
-                                    [attr.y]="text.y"
-                                    text-anchor="middle"
-                                    dominant-baseline="central"
-                                    [attr.fill]="strokeOf(object)"
-                                    [attr.font-size]="text.size"
-                                    font-weight="700"
-                                    letter-spacing="0.5"
-                                    class="pointer-events-none"
-                                >
-                                    {{ text.text }}
-                                </text>
-                            }
-                            @if (layout.mark; as text) {
-                                <text
-                                    [attr.x]="text.x"
-                                    [attr.y]="text.y"
-                                    text-anchor="middle"
-                                    dominant-baseline="central"
-                                    fill="#ffffff"
-                                    stroke="#0d1117"
-                                    [attr.stroke-width]="text.size * 0.15"
-                                    paint-order="stroke"
-                                    [attr.font-size]="text.size"
-                                    font-weight="700"
-                                    class="pointer-events-none"
-                                >
-                                    {{ text.text }}
-                                </text>
-                            }
-                        }
-                    </g>
+                        </g>
+                    }
                 }
 
                 <!-- Amenities render on top as pins -->
@@ -569,6 +622,37 @@ export class FloorPlan2dComponent {
                 ) && !isWall(o),
         );
         return [...zones, ...rooms, ...desks, ...other];
+    });
+
+    /**
+     * What takes taps, back to front: zones, rooms, desks, then the rest.
+     * Imported rooms and desks live in the source image, so they come as
+     * invisible targets under the drawn shapes of their kind.
+     */
+    public readonly drawOrder = computed(() => {
+        const drawn = this.shapes();
+        const imported = this.floorplan().svg_source
+            ? this.objects().filter((o) => o.visible && importedObject(o))
+            : [];
+        const ofType = (list: MapObject[], ...types: string[]) =>
+            list.filter((o) => types.includes(o.object_type));
+        const shape = (object: MapObject) => ({ object, target: false });
+        const target = (object: MapObject) => ({ object, target: true });
+        return [
+            ...ofType(drawn, 'zone', 'area').map(shape),
+            ...ofType(imported, 'room').map(target),
+            ...ofType(drawn, 'room').map(shape),
+            ...ofType(imported, 'desk').map(target),
+            ...ofType(drawn, 'desk').map(shape),
+            ...drawn
+                .filter(
+                    (o) =>
+                        !['zone', 'area', 'room', 'desk'].includes(
+                            o.object_type,
+                        ),
+                )
+                .map(shape),
+        ];
     });
 
     /** Text for each shape, sized for the current zoom */
