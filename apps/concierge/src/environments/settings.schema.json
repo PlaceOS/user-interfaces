@@ -572,7 +572,7 @@
                 },
                 "available_period": {
                     "type": "number",
-                    "description": "Number of days into the future that lockers can be booked. In the locker booking form, falls back to `bookings.available_period`, then `7`. The locker select modal uses `90` when this key is not set and does not read `bookings.available_period`."
+                    "description": "Number of days into the future that lockers can be booked, in the locker booking form and the locker select modal. Falls back to `bookings.available_period`, then `90`."
                 }
             }
         },
