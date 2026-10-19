@@ -97,8 +97,8 @@ describe('map helpers', () => {
         expect(mapStudioUrl('https://studio.example.com')).toBe(
             'https://studio.example.com/',
         );
-        expect(mapStudioUrl('/map-studio/', 'fp 1')).toBe(
-            '/map-studio/#/editor/fp%201',
+        expect(mapStudioUrl('/map-studio/', 'zone 1')).toBe(
+            '/map-studio/#/level/zone%201',
         );
     });
 

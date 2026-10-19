@@ -17,6 +17,8 @@ export interface Floorplan {
     floor_name: string;
     floor_index: number;
     level_zone_id?: string | null;
+    /** The level `map_id` this floorplan was last imported from or published to. */
+    source_map_id?: string | null;
     source_image_path: string | null;
     source_type: string | null;
     background_opacity: number;

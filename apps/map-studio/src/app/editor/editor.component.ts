@@ -363,6 +363,10 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                 <div class="bg-error-light text-error px-4 py-2 text-sm">
                     {{ message }}
                 </div>
+            } @else if (state.server_save_error(); as message) {
+                <div class="bg-warning-light px-4 py-2 text-sm" server-save>
+                    {{ message }}
+                </div>
             }
 
             @if (state.loading()) {

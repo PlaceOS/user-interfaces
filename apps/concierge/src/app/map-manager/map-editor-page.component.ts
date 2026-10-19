@@ -319,7 +319,7 @@ export class MapEditorPageComponent implements OnInit, HasUnsavedChanges {
     }
 
     public openStudio() {
-        this._manager.openStudio();
+        this._manager.openStudio(this.level_id());
     }
 
     public async discard() {

@@ -174,6 +174,8 @@ export class EditorStateService extends AsyncHandler {
     public readonly last_saved = this._last_saved.asReadonly();
     public readonly loading = this._loading.asReadonly();
     public readonly error = this._error.asReadonly();
+    public readonly server_save_error =
+        this._store.server_save_error.asReadonly();
     public readonly image_url = this._image_url.asReadonly();
     public readonly image_dims = this._image_dims.asReadonly();
     public readonly place_size = this._place_size.asReadonly();
@@ -303,18 +305,17 @@ export class EditorStateService extends AsyncHandler {
             let objects = await this._store.listObjects(floorplan_id);
             let imported_svg = false;
             const svg_check_key = `map-studio.svg-import.${floorplan_id}`;
-            if (
-                floorplan.level_zone_id &&
+            const level_id = floorplan.level_zone_id;
+            const empty =
                 !floorplan.canvas_state &&
                 !floorplan.svg_output &&
                 !floorplan.source_image_path &&
-                !objects.length &&
-                !localStorage.getItem(svg_check_key)
-            ) {
-                const svg = await this._placeos
-                    .getLevelSvg(floorplan.level_zone_id)
+                !objects.length;
+            if (level_id && empty && !localStorage.getItem(svg_check_key)) {
+                const level_map = await this._placeos
+                    .getLevelMap(level_id)
                     .catch(() => null);
-                if (svg) {
+                if (level_map) {
                     localStorage.setItem(svg_check_key, 'checked');
                     if (
                         confirm(
@@ -323,10 +324,42 @@ export class EditorStateService extends AsyncHandler {
                     ) {
                         floorplan = await this._store.importLevelSvg(
                             floorplan_id,
-                            svg,
+                            level_map.svg,
+                            level_map.map_id,
                         );
                         objects = await this._store.listObjects(floorplan_id);
                         imported_svg = true;
+                    }
+                }
+            } else if (
+                level_id &&
+                !empty &&
+                this._placeos.mode() === 'domain'
+            ) {
+                const map_id = await this._placeos
+                    .getZone(level_id)
+                    .then((zone) => zone.map_id)
+                    .catch(() => '');
+                if (map_id && map_id !== floorplan.source_map_id) {
+                    const replace = confirm(
+                        "This level's map in PlaceOS is not the one this floorplan was made from. Import the current map?\n\nThis replaces the Studio draft. Cancel keeps the draft.",
+                    );
+                    const level_map = replace
+                        ? await this._placeos.getLevelMap(level_id)
+                        : null;
+                    if (level_map) {
+                        floorplan = await this._store.importLevelSvg(
+                            floorplan_id,
+                            level_map.svg,
+                            level_map.map_id,
+                        );
+                        objects = await this._store.listObjects(floorplan_id);
+                        imported_svg = true;
+                    } else if (!replace) {
+                        floorplan = await this._store.updateFloorplan(
+                            floorplan_id,
+                            { source_map_id: map_id },
+                        );
                     }
                 }
             }

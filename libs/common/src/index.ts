@@ -24,6 +24,7 @@ export * from './lib/settings.service';
 export * from './lib/shorten.fn';
 export * from './lib/teams-host';
 export * from './lib/timezone-helpers';
+export * from './lib/token-handoff';
 export * from './lib/uploads.service';
 export * from './lib/user-group-sync';
 export * from './lib/user-idle-time.service';

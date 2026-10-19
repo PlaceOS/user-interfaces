@@ -77,19 +77,17 @@ export function shortenMapUrl(url: string, max = 40): string {
 }
 
 /**
- * Where "Open in Map Studio" goes: the editor route when a floorplan id is
- * known, otherwise the studio's root.
+ * Where "Open in Map Studio" goes: Studio's route for a level when one is
+ * given, otherwise the studio's root.
  */
 export function mapStudioUrl(
     base: string | null | undefined,
-    floorplan_id?: string | null,
+    level_id?: string | null,
 ): string {
     let root =
         (base || DEFAULT_MAP_STUDIO_URL).trim() || DEFAULT_MAP_STUDIO_URL;
     if (!root.endsWith('/')) root = `${root}/`;
-    return floorplan_id
-        ? `${root}#/editor/${encodeURIComponent(floorplan_id)}`
-        : root;
+    return level_id ? `${root}#/level/${encodeURIComponent(level_id)}` : root;
 }
 
 /** The file name at the end of a map URL when it names an SVG file; null for upload URLs and the like. */

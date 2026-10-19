@@ -132,8 +132,8 @@ describe('EditorStateService', () => {
         const svg = '<svg viewBox="0 0 10 10"></svg>';
         vi.spyOn(
             TestBed.inject(PlaceOSService),
-            'getLevelSvg',
-        ).mockResolvedValue(svg);
+            'getLevelMap',
+        ).mockResolvedValue({ map_id: '/maps/level-2.svg', svg });
         const imported = vi
             .spyOn(store, 'importLevelSvg')
             .mockResolvedValue({ ...floorplan, svg_output: svg });
@@ -145,10 +145,69 @@ describe('EditorStateService', () => {
         expect(confirm_import).toHaveBeenCalledWith(
             expect.stringContaining('already has an SVG map'),
         );
-        expect(imported).toHaveBeenCalledWith(floorplan.id, svg);
+        expect(imported).toHaveBeenCalledWith(
+            floorplan.id,
+            svg,
+            '/maps/level-2.svg',
+        );
         expect(
             localStorage.getItem(`map-studio.svg-import.${floorplan.id}`),
         ).toBe('checked');
+        vi.unstubAllGlobals();
+    });
+
+    it("offers the level's current map when it is not the one the floorplan came from", async () => {
+        const placeos = TestBed.inject(PlaceOSService);
+        vi.spyOn(placeos, 'mode').mockReturnValue('domain');
+        vi.spyOn(placeos, 'saveFloorplanMetadata').mockResolvedValue(undefined);
+        vi.spyOn(store, 'getNewerServerFloorplan').mockResolvedValue(null);
+        const floorplan = await store.addFloorplan(
+            'p1',
+            'Level 3',
+            2,
+            'level-3',
+            {
+                source_map_id: '/maps/old.svg',
+            },
+        );
+        await store.createObject(floorplan.id, { label: 'Desk' });
+        vi.spyOn(placeos, 'getZone').mockResolvedValue({
+            map_id: '/maps/new.svg',
+        } as never);
+        const svg = '<svg viewBox="0 0 10 10"></svg>';
+        vi.spyOn(placeos, 'getLevelMap').mockResolvedValue({
+            map_id: '/maps/new.svg',
+            svg,
+        });
+        const imported = vi
+            .spyOn(store, 'importLevelSvg')
+            .mockResolvedValue({ ...floorplan, svg_output: svg });
+        const ask = vi.fn(() => false);
+        vi.stubGlobal('confirm', ask);
+
+        await editor.load(floorplan.id);
+        expect(ask).toHaveBeenCalledWith(
+            expect.stringContaining('not the one this floorplan was made from'),
+        );
+        expect(imported).not.toHaveBeenCalled();
+        expect((await store.getFloorplan(floorplan.id)).source_map_id).toBe(
+            '/maps/new.svg',
+        );
+
+        ask.mockClear();
+        await editor.load(floorplan.id);
+        expect(ask).not.toHaveBeenCalled();
+
+        await store.updateFloorplan(floorplan.id, {
+            source_map_id: '/maps/old.svg',
+        });
+        ask.mockReturnValue(true);
+        await editor.load(floorplan.id);
+        expect(imported).toHaveBeenCalledWith(
+            floorplan.id,
+            svg,
+            '/maps/new.svg',
+        );
         vi.unstubAllGlobals();
     });
 

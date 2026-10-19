@@ -5,6 +5,7 @@ import {
     currentUser,
     OrganisationService,
     SettingsService,
+    shareTokenWith,
     UploadsService,
 } from '@placeos/common';
 import { getMapDetails } from '@placeos/components';
@@ -124,15 +125,15 @@ export class MapManagementService {
         });
     }
 
-    public studioUrl(floorplan_id?: string | null): string {
-        return mapStudioUrl(
-            this._settings.get('app.map_studio_url'),
-            floorplan_id,
-        );
+    public studioUrl(level_id?: string | null): string {
+        return mapStudioUrl(this._settings.get('app.map_studio_url'), level_id);
     }
 
-    public openStudio(floorplan_id?: string | null) {
-        window.open(this.studioUrl(floorplan_id), '_blank', 'noopener');
+    /** Opens Map Studio in a new tab, signed in with this app's PlaceOS token, on the level when one is given. */
+    public openStudio(level_id?: string | null) {
+        const url = new URL(this.studioUrl(level_id), location.href);
+        const studio = window.open(url.href, '_blank');
+        if (studio) shareTokenWith(studio, url.origin);
     }
 
     /** The level's map as text, the way the viewer fetches it. */

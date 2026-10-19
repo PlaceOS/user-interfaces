@@ -41,6 +41,14 @@ const key = {
 };
 
 const now = () => new Date().toISOString();
+
+function serverSaveMessage(error: unknown): string {
+    const detail = error instanceof Error ? error.message : String(error ?? '');
+    const status = (error as { status?: number } | null)?.status;
+    return status === 413 || /\b413\b/.test(detail)
+        ? 'Saved in this browser only. The floorplan is too large to store in PlaceOS.'
+        : 'Saved in this browser only. PlaceOS did not accept the floorplan.';
+}
 const uuid = () => crypto.randomUUID();
 
 const CSV_COLUMNS = [
@@ -106,6 +114,9 @@ export class StoreService {
     private readonly _db = inject(DbService);
     private readonly _placeos = inject(PlaceOSService);
     public readonly zone_sync_version = signal(0);
+    /** Why the last floorplan save reached this browser but not PlaceOS; empty once one does. */
+    public readonly server_save_error = signal('');
+    private _zone_sync: Promise<void> = Promise.resolve();
 
     // ── Projects ────────────────────────────────────────────────────────────
 
@@ -220,8 +231,36 @@ export class StoreService {
         return floorplan;
     }
 
-    /** Creates the projects and floorplans missing from the PlaceOS zone tree. */
-    public async syncPlaceOSZones(
+    /**
+     * Creates the projects and floorplans missing from the PlaceOS zone tree.
+     * Calls run one after another, so concurrent syncs never add a floor twice.
+     */
+    public syncPlaceOSZones(
+        buildings: { zone: ZoneReference; levels: ZoneReference[] }[],
+    ): Promise<void> {
+        const run = this._zone_sync.then(() => this._syncZones(buildings));
+        this._zone_sync = run.catch(() => undefined);
+        return run;
+    }
+
+    /** The local floorplan for a PlaceOS level, adding its building's floors first when it has none. */
+    public async floorplanForLevel(level_id: string): Promise<Floorplan> {
+        const find = async () =>
+            (await this._db.list<Floorplan>('floorplan:')).find(
+                (floorplan) => floorplan.level_zone_id === level_id,
+            );
+        const existing = await find();
+        if (existing) return existing;
+        const level = await this._placeos.getZone(level_id);
+        const building = await this._placeos.getZone(level.parent_id);
+        const levels = await this._placeos.getZones('level', building.id);
+        await this.syncPlaceOSZones([{ zone: building, levels }]);
+        const added = await find();
+        if (!added) throw new Error('This level was not found in PlaceOS.');
+        return added;
+    }
+
+    private async _syncZones(
         buildings: { zone: ZoneReference; levels: ZoneReference[] }[],
     ): Promise<void> {
         const projects = await this.listProjects();
@@ -309,10 +348,18 @@ export class StoreService {
         const updated = { ...floorplan, ...updates, id, updated_at: now() };
         await this._db.set(key.floorplan(id), updated);
         if (updated.level_zone_id && this._placeos.mode() === 'domain') {
-            const server_updated_at = await this._placeos.saveFloorplanMetadata(
-                updated.level_zone_id,
-                updated,
-            );
+            const server_updated_at = await this._placeos
+                .saveFloorplanMetadata(updated.level_zone_id, updated)
+                .then(
+                    (saved) => {
+                        this.server_save_error.set('');
+                        return saved;
+                    },
+                    (error: unknown) => {
+                        this.server_save_error.set(serverSaveMessage(error));
+                        return undefined;
+                    },
+                );
             if (server_updated_at) {
                 updated.updated_at = server_updated_at;
                 await this._db.set(key.floorplan(id), updated);
@@ -428,6 +475,7 @@ export class StoreService {
     public async importLevelSvg(
         id: string,
         svg_content: string,
+        map_id?: string,
     ): Promise<Floorplan> {
         const floorplan = await this.getFloorplan(id);
         const analysis = analyzeSvg(svg_content);
@@ -443,6 +491,7 @@ export class StoreService {
             canvas_height: analysis.height,
             source_image_path: URL.createObjectURL(blob),
             source_type: 'image/svg+xml',
+            source_map_id: map_id ?? floorplan.source_map_id ?? null,
             updated_at: now(),
         };
         await Promise.all([

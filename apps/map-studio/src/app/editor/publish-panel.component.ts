@@ -6,6 +6,7 @@ import {
     PlaceOSSystem,
     PlaceOSZone,
 } from '../data/placeos.service';
+import { StoreService } from '../data/store.service';
 import { EditorStateService } from './editor-state.service';
 import { bookableObjects, buildSvg, preflightChecks } from './svg-export';
 import { ToastService } from './toast.service';
@@ -169,6 +170,7 @@ export class PublishPanelComponent {
     public readonly state = inject(EditorStateService);
     public readonly placeos = inject(PlaceOSService);
     private readonly _toasts = inject(ToastService);
+    private readonly _store = inject(StoreService);
 
     public readonly buildings = signal<PlaceOSZone[]>([]);
     public readonly levels = signal<PlaceOSZone[]>([]);
@@ -279,6 +281,12 @@ export class PublishPanelComponent {
             await this.placeos.updateZone(level, {
                 map_id: result.file_url,
             });
+            const floorplan = this.state.floorplan();
+            if (floorplan?.level_zone_id === level) {
+                await this._store.updateFloorplan(floorplan.id, {
+                    source_map_id: result.file_url,
+                });
+            }
             this.status.set('Published');
             this._toasts.show('Published to PlaceOS', 'success');
         } catch (error) {

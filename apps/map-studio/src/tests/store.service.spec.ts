@@ -58,6 +58,15 @@ describe('StoreService', () => {
         saveFloorplanMetadata: vi.fn(
             async (): Promise<string | undefined> => undefined,
         ),
+        getZone: vi.fn(async (id: string) =>
+            id === 'building-1'
+                ? { id, name: 'Sydney HQ', display_name: 'Sydney HQ' }
+                : { id, name: id, display_name: id, parent_id: 'building-1' },
+        ),
+        getZones: vi.fn(async () => [
+            { id: 'level-1', name: 'Level 1', display_name: 'Level 1' },
+            { id: 'level-2', name: 'Level 2', display_name: 'Level 2' },
+        ]),
     };
 
     beforeEach(() => {
@@ -178,6 +187,57 @@ describe('StoreService', () => {
         ).resolves.toBeNull();
     });
 
+    it("finds a level's floorplan, adding its building's floors once even while another sync runs", async () => {
+        const zone = (id: string, name: string) => ({
+            id,
+            name,
+            display_name: name,
+        });
+        const [, floorplan] = await Promise.all([
+            store.syncPlaceOSZones([
+                {
+                    zone: zone('building-1', 'Sydney HQ'),
+                    levels: [
+                        zone('level-1', 'Level 1'),
+                        zone('level-2', 'Level 2'),
+                    ],
+                },
+            ]),
+            store.floorplanForLevel('level-2'),
+        ]);
+
+        expect(floorplan.level_zone_id).toBe('level-2');
+        const projects = await store.listProjects();
+        expect(projects).toHaveLength(1);
+        expect(projects[0].floorplans).toHaveLength(2);
+        await expect(store.floorplanForLevel('level-2')).resolves.toMatchObject(
+            { id: floorplan.id },
+        );
+    });
+
+    it('keeps a save in this browser when PlaceOS refuses its copy', async () => {
+        const floorplan = await store.addFloorplan(
+            'project-1',
+            'Level 1',
+            0,
+            'level-1',
+        );
+        placeos.saveFloorplanMetadata.mockRejectedValueOnce({ status: 413 });
+
+        const saved = await store.updateFloorplan(floorplan.id, {
+            background_color: '#abcdef',
+        });
+
+        expect(saved.background_color).toBe('#abcdef');
+        expect((await store.getFloorplan(floorplan.id)).background_color).toBe(
+            '#abcdef',
+        );
+        expect(store.server_save_error()).toContain('too large');
+
+        await store.updateFloorplan(floorplan.id, { background_color: '#fff' });
+        expect(store.server_save_error()).toBe('');
+    });
+
     it('imports a level SVG into an existing local floorplan', async () => {
         const floorplan = await store.addFloorplan(
             'project-1',
@@ -190,9 +250,11 @@ describe('StoreService', () => {
         const imported = await store.importLevelSvg(
             floorplan.id,
             '<svg viewBox="0 0 800 600"><rect id="room-1" width="20" height="30"/></svg>',
+            '/maps/level-1.svg',
         );
 
         expect(imported).toMatchObject({
+            source_map_id: '/maps/level-1.svg',
             canvas_width: 800,
             canvas_height: 600,
             source_image_path: 'blob:level-svg',
