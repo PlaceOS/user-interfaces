@@ -22,7 +22,7 @@ import { DesksStateService } from './desks-state.service';
 @Component({
     selector: 'desk-bookings',
     template: `
-        <div class="h-full w-full overflow-auto pb-16">
+        <div class="w-fit min-w-full px-8 pb-16">
             <simple-table
                 [error]="load_error()"
                 (retry)="retryLoad()"

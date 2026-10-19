@@ -37,7 +37,7 @@ import { VisitorsStateService } from './visitors-state.service';
         <simple-table
             [error]="load_error()"
             (retry)="retryLoad()"
-            class="z-0 block text-sm print:hidden"
+            class="z-0 block px-8 text-sm print:hidden"
             [min_width]="72 + extra_width + 'rem'"
             [data]="guests()"
             [virtual_scroll]="true"

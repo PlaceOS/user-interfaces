@@ -79,7 +79,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     <div class="w-2 flex-1"></div>
                     <date-options (dateChange)="setDate($event)"></date-options>
                 </div>
-                <div class="mx-8 min-h-0 flex-1 overflow-hidden">
+                <div class="min-h-0 flex-1 overflow-hidden">
                     <guest-listings></guest-listings>
                 </div>
                 @if (loading()) {

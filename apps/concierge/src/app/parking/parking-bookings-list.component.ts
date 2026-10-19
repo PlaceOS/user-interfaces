@@ -83,7 +83,7 @@ interface ParkingBookingColumnTemplates {
 @Component({
     selector: '[parking-bookings-list]',
     template: `
-        <div class="w-fit px-8">
+        <div class="w-fit min-w-full px-8">
             <div
                 class="z-30 bg-base-100 border-base-300 fixed right-8 bottom-4 flex items-center justify-end gap-2 rounded-xl border px-2 py-1 shadow-lg"
             >

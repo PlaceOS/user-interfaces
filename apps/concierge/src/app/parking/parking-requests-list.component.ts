@@ -33,7 +33,7 @@ import {
 @Component({
     selector: 'parking-requests-list',
     template: `
-        <div class="w-fit px-8">
+        <div class="w-fit min-w-full px-8">
             <div class="flex items-center justify-end gap-2 px-2 py-1 text-xs">
                 @if (last_updated()) {
                     <span class="opacity-60">

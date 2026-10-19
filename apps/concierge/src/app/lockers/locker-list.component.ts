@@ -334,7 +334,14 @@ import { LockerStateService } from './locker-state.service';
             </ng-template>
         </ng-template>
     `,
-    styles: [],
+    styles: [
+        `
+            :host {
+                display: block;
+                padding-inline: 2rem;
+            }
+        `,
+    ],
     imports: [
         MatMenuModule,
         IconComponent,

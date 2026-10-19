@@ -37,74 +37,77 @@ import { SplitJoinPipe } from './split-join.pipe';
                     (dateChange)="setDate($event)"
                 ></date-options>
             </div>
-            <div class="h-1/2 w-full flex-1 overflow-auto pt-2">
-                <simple-table
-                    class="block min-w-328 text-sm"
-                    asset-requests
-                    [data]="requests()"
-                    [selectable]="bulk_actions()"
-                    [(selected)]="selected"
-                    [filter]="filters().search"
-                    [columns]="[
-                        {
-                            key: 'user_name',
-                            name:
-                                'APP.CONCIERGE.ASSETS_REQUESTS_USER'
-                                | translate,
-                            content: user_template,
-                        },
-                        {
-                            key: 'date',
-                            name:
-                                'APP.CONCIERGE.ASSETS_REQUESTS_TIME'
-                                | translate,
-                            content: date_template,
-                            size: '8rem',
-                        },
-                        {
-                            key: 'assets',
-                            name: 'RESOURCE.ASSETS' | translate,
-                            content: assets_template,
-                            sortable: false,
-                        },
-                        {
-                            key: 'level_code',
-                            name: 'RESOURCE.LEVEL' | translate,
-                            content: level_template,
-                            size: '9rem',
-                        },
-                        {
-                            key: 'description',
-                            name: 'COMMON.LOCATION' | translate,
-                        },
-                        {
-                            key: 'status',
-                            name:
-                                'APP.CONCIERGE.ASSETS_REQUESTS_APPROVAL'
-                                | translate,
-                            content: approval_template,
-                            size: '11rem',
-                        },
-                        {
-                            key: 'tracking',
-                            name:
-                                'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING'
-                                | translate,
-                            content: tracking_template,
-                            size: '12rem',
-                            sortable: false,
-                        },
-                    ]"
-                    [empty_message]="
-                        (filters().search
-                            ? 'APP.CONCIERGE.ASSETS_REQUESTS_SEARCH_EMPTY'
-                            : 'APP.CONCIERGE.ASSETS_REQUESTS_EMPTY'
-                        ) | translate
-                    "
-                    [sortable]="true"
-                    (row_clicked)="request.set($event)"
-                ></simple-table>
-                <div class="h-20 w-full"></div>
+            <!-- Bleed past the listing padding so the table scrolls to the edge. -->
+            <div class="-mx-8 h-1/2 flex-1 overflow-auto pt-2">
+                <div class="w-fit min-w-full px-8">
+                    <simple-table
+                        class="block min-w-328 text-sm"
+                        asset-requests
+                        [data]="requests()"
+                        [selectable]="bulk_actions()"
+                        [(selected)]="selected"
+                        [filter]="filters().search"
+                        [columns]="[
+                            {
+                                key: 'user_name',
+                                name:
+                                    'APP.CONCIERGE.ASSETS_REQUESTS_USER'
+                                    | translate,
+                                content: user_template,
+                            },
+                            {
+                                key: 'date',
+                                name:
+                                    'APP.CONCIERGE.ASSETS_REQUESTS_TIME'
+                                    | translate,
+                                content: date_template,
+                                size: '8rem',
+                            },
+                            {
+                                key: 'assets',
+                                name: 'RESOURCE.ASSETS' | translate,
+                                content: assets_template,
+                                sortable: false,
+                            },
+                            {
+                                key: 'level_code',
+                                name: 'RESOURCE.LEVEL' | translate,
+                                content: level_template,
+                                size: '9rem',
+                            },
+                            {
+                                key: 'description',
+                                name: 'COMMON.LOCATION' | translate,
+                            },
+                            {
+                                key: 'status',
+                                name:
+                                    'APP.CONCIERGE.ASSETS_REQUESTS_APPROVAL'
+                                    | translate,
+                                content: approval_template,
+                                size: '11rem',
+                            },
+                            {
+                                key: 'tracking',
+                                name:
+                                    'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING'
+                                    | translate,
+                                content: tracking_template,
+                                size: '12rem',
+                                sortable: false,
+                            },
+                        ]"
+                        [empty_message]="
+                            (filters().search
+                                ? 'APP.CONCIERGE.ASSETS_REQUESTS_SEARCH_EMPTY'
+                                : 'APP.CONCIERGE.ASSETS_REQUESTS_EMPTY'
+                            ) | translate
+                        "
+                        [sortable]="true"
+                        (row_clicked)="request.set($event)"
+                    ></simple-table>
+                    <div class="h-20 w-full"></div>
+                </div>
             </div>
         </div>
         <ng-template #user_template let-row="row">

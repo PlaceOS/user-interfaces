@@ -12,7 +12,7 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-fleet-list',
     template: `
-        <div class="w-fit px-8">
+        <div class="w-fit min-w-full px-8">
             <mat-progress-bar
                 [class.opacity-0]="!loading().includes('fleet')"
                 class="w-full"

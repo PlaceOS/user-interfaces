@@ -16,10 +16,8 @@ import { LockersTopbarComponent } from './locker-topbar.component';
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <lockers-topbar class="w-full"></lockers-topbar>
-                <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
-                    <div class="h-full w-full overflow-auto">
-                        <router-outlet></router-outlet>
-                    </div>
+                <div class="relative h-1/2 w-full flex-1 overflow-auto">
+                    <router-outlet></router-outlet>
                 </div>
                 @if (loading() && path() === 'events') {
                     <mat-progress-bar

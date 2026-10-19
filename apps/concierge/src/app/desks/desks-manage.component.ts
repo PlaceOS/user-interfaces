@@ -34,7 +34,7 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
     selector: 'desks-manage',
     template: `
         <div
-            class="h-full w-full overflow-hidden pb-4"
+            class="h-full w-full overflow-hidden px-8 pb-4"
             (dragenter)="handleDrag('enter', $event)"
             (window:dragend)="handleDrag('end', $event)"
         >
