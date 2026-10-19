@@ -351,9 +351,17 @@ export class CateringListFieldComponent
         resources?: readonly Space[];
     }>({});
     public readonly rooms = computed(() => this.options().resources || []);
-    public readonly multiple_spaces = this._settings.signal<boolean>(
+    private readonly _multiple_spaces = this._settings.signal<boolean>(
         'events.multiple_spaces',
         false,
+    );
+    /** `events.allow_multiple_spaces` is the legacy name of the setting. */
+    private readonly _allow_multiple_spaces = this._settings.signal<boolean>(
+        'events.allow_multiple_spaces',
+        false,
+    );
+    public readonly multiple_spaces = computed(
+        () => !!this._multiple_spaces() || !!this._allow_multiple_spaces(),
     );
     public readonly requires_room_selection = computed(
         () => this.rooms().length > 1 && !!this.multiple_spaces(),

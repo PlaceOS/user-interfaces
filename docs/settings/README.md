@@ -12,7 +12,7 @@ These pages describe application settings. Defaults come from each app's `src/en
 | Control | [control.md](control.md) | Room behaviour is mostly configured on the System, not app settings |
 | Map Kiosk | [map-kiosk.md](map-kiosk.md) | Wayfinding kiosk |
 | Visitor Kiosk | [visitor-kiosk.md](visitor-kiosk.md) | Visitor check-in kiosk |
-| Outlook Add-in | [outlook-addin.md](outlook-addin.md) | Includes list of legacy defaults no longer read |
+| Outlook Add-in | [outlook-addin.md](outlook-addin.md) | |
 | Signage | [signage.md](signage.md) | Display player |
 | Signage Manager | [signage-manager.md](signage-manager.md) | Playlist/media admin |
 | Stagehand | [stagehand.md](stagehand.md) | |
@@ -46,7 +46,7 @@ The shared loader checks these sources in order. The first value that is not `nu
 5. The organisation's application metadata.
 6. The app's build-time defaults.
 
-The organisation's `settings` metadata uses the same object format. It takes priority over the organisation's application metadata. Level metadata is not part of this override list. Survey disables region and building metadata loading by default. Enrolment also sets an override list from domain configuration during startup. See those app pages for the exceptions.
+The organisation's `settings` metadata uses the same object format. It takes priority over the organisation's application metadata. Level metadata is not part of this override list. Booking Panel, Signage Manager and Survey disable region and building metadata loading by default, so only the organisation sources apply. Enrolment also sets an override list from domain configuration during startup. See those app pages for the exceptions.
 
 The service resolves each requested key separately. `false`, `0`, an empty string and an empty array are valid overrides. An object or array returned for one key replaces the value from lower-priority sources; the service does not combine those values. For example, supply the full list when you override `features`.
 

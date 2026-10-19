@@ -258,6 +258,19 @@ describe('CateringListFieldComponent', () => {
         expect(spectator.component.requires_room_selection()).toBe(true);
     });
 
+    it('should require room selection when the legacy multiple spaces key is set', () => {
+        settings_service.get.mockImplementation(
+            (key: string) => key === 'app.events.allow_multiple_spaces',
+        );
+        spectator.setInput('options', {
+            date: Date.now(),
+            duration: 60,
+            resources: [room, second_room],
+        });
+
+        expect(spectator.component.requires_room_selection()).toBe(true);
+    });
+
     it('should keep the assigned room when duplicating an order', () => {
         const order = new CateringOrder({
             id: 'order-1',
