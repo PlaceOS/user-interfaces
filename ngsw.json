@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1792414146189,
+  "timestamp": 1792414494694,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -154,12 +154,24 @@
         "./assets/yolov8n_litert_model/metadata.yaml",
         "./assets/yolov8n_litert_model/model.tflite"
       ],
-      "patterns": [
-        "https:\\/\\/[^/]*\\.amazonaws\\.com\\/(?:.+\\/)?[^/]*\\.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
-      ]
+      "patterns": []
     }
   ],
-  "dataGroups": [],
+  "dataGroups": [
+    {
+      "name": "s3",
+      "patterns": [
+        "https:\\/\\/[^/]*\\.amazonaws\\.com\\/(?:.+\\/)?[^/]*\\.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
+      ],
+      "strategy": "performance",
+      "maxSize": 200,
+      "maxAge": 604800000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    }
+  ],
   "hashTable": {
     "./ar-LMOMQ4BE.js": "8f5c51d3f94ea8bf59bd05e479e3dca077572500",
     "./assets/favicon.svg": "c436de3e9508b6ea3e2791d60fd64160387cd9d2",
@@ -279,7 +291,7 @@
     "./index.html": "8f8f82c593afab407f562a15d5c720816145dd1b",
     "./it-DP3AYVRR.js": "ee62a3cf464843d157a1df98ecc7ab58712ba2a6",
     "./ja-KPFTZVOP.js": "b1b88a5e25fc6aad4bb41cdb86a03766fb9598a9",
-    "./main.js": "f6ed459dc7b4ef3e3c809bfa6e02c3f337941c64",
+    "./main.js": "1d86f49ce28b90787ea6558ae50829b8c8f1dae7",
     "./manifest.webmanifest": "0f9e03c270ee4bfa54fcd3632c7a13596b4c8303",
     "./native-domain-overlay.component-DQKr5C0O.js": "33ae1210e5de7399b1e7f5fbfc913392c332f392",
     "./panel-view.component-DVieBhQp.js": "3b4ea8dd5562c92d71e6b949a301c95ade88d26b",
