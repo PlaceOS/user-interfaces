@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1792316586218,
+  "timestamp": 1792374760716,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -44,7 +44,7 @@
         "./sentry-sdk-BtIQTiPq.js",
         "./settings-debug-panel-launcher.component-DC1CsuHs.js",
         "./settings-debug-panel.component-DUNzDfio.js",
-        "./settings.schema-9bIc9nld.js",
+        "./settings.schema-CjKPoGvP.js",
         "./snack-bar-DKss0wq5.js",
         "./squire-7BCJDNZA.js",
         "./src-C5gI3HOT.js",
@@ -263,13 +263,13 @@
     "./index.html": "3a44d8028f99a711a33047b69f961dd85921f06d",
     "./it-CKncUqxZ.js": "b6b3105a4193fa883d8713fdecce08a8a4b7f301",
     "./ja-DngrQVLH.js": "38c64a0491a1e79c09fdc76f03eb35ef1f1a7d45",
-    "./main.js": "b56e019dba3f14d3c148de7332a06e434afa798d",
+    "./main.js": "4c6ab7e50ed21963c325c1e119cfe9af116c01b3",
     "./manifest.webmanifest": "39df451c6d81fb831c7cf7df6ea3fade21510647",
     "./native-domain-overlay.component-EY-DhFUE.js": "1ead10563ea98c33ae3d2bed12c00346a4066b97",
     "./sentry-sdk-BtIQTiPq.js": "b23362411e4cdcd9a9b881aa398c8f3693cbd538",
     "./settings-debug-panel-launcher.component-DC1CsuHs.js": "239b7b18c51553df1237a9e06e8b8203634422d0",
     "./settings-debug-panel.component-DUNzDfio.js": "81e83ee055348bbab56032d20614e148a1906c27",
-    "./settings.schema-9bIc9nld.js": "1dd4a18629da1a68db4a42f36b06b440f8e59af3",
+    "./settings.schema-CjKPoGvP.js": "f2de589477d70a3bbbc395d9e75a4389be9e36cb",
     "./snack-bar-DKss0wq5.js": "522ee98290a08a0faeb759bc3da677134d7297f6",
     "./squire-7BCJDNZA.js": "94e1264d3bba40b17587c819229731d20b5a6776",
     "./src-C5gI3HOT.js": "a50aa6cf210b820f9a4926bd22cf03de18a6fde6",
