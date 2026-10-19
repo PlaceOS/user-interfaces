@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["floor-plan-2d.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                height: 100%;\n                width: 100%;\n            }\n\n            .highlight-ring {\n                animation: highlight-pulse 1.2s ease-in-out infinite;\n            }\n\n            @keyframes highlight-pulse {\n                50% {\n                    opacity: 0.3;\n                }\n            }\n\n            @media (prefers-reduced-motion: reduce) {\n                .highlight-ring {\n                    animation: none;\n                }\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,MACA,OAAA,KACA,MAAA,IACJ,CAEA,CAAA,eACI,UAAA,gBAAA,KAAA,YAAA,QACJ,CAEA,WAHI,gBAIA,IACI,QAAA,EACJ,CACJ,CAEA,OAAA,uBAAA,QACI,CAXJ,eAYQ,UAAA,IACJ,CACJ",
+  "names": []
+}
