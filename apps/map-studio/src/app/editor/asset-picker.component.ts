@@ -32,9 +32,11 @@ const ICONS: Record<PickerKind, string> = {
                     [class]="buttonClass(state.placing()?.kind === kind)"
                     [title]="'Place ' + labelFor(kind)"
                 >
-                    <icon class="text-base">{{ iconFor(kind) }}</icon>
+                    <icon class="text-base" aria-hidden="true">{{
+                        iconFor(kind)
+                    }}</icon>
                     {{ labelFor(kind) }}
-                    <icon class="text-sm">expand_more</icon>
+                    <icon class="text-sm" aria-hidden="true">expand_more</icon>
                 </button>
             }
         </div>

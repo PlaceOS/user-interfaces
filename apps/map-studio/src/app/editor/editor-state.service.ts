@@ -25,6 +25,7 @@ import {
 } from './constants';
 import type { Point } from './geometry';
 import { boundsOf } from './geometry';
+import { sequentialId } from './svg-export';
 
 export const DEFAULT_LAYERS: EditorLayer[] = [
     {
@@ -103,6 +104,25 @@ export const DEFAULT_LAYERS: EditorLayer[] = [
 
 const HISTORY_LIMIT = 50;
 
+/** Layer each kind of placed asset lands on */
+const PLACE_LAYERS = {
+    amenity: 'amenities',
+    furniture: 'background',
+    'desk-layout': 'desks',
+} as const;
+
+/**
+ * Version of the saved layer list. From version 2 the saved list is complete,
+ * so default layers missing from it were deleted on purpose.
+ */
+const LAYERS_VERSION = 2;
+
+/** One undo step: the objects, plus the layers so a deleted layer can return */
+interface HistoryEntry {
+    objects: MapObject[];
+    layers: EditorLayer[];
+}
+
 /** Default place-tool footprint per layer */
 const PLACE_SIZES: Record<string, { width: number; height: number }> = {
     desks: { width: 30, height: 20 },
@@ -112,7 +132,8 @@ const PLACE_SIZES: Record<string, { width: number; height: number }> = {
 /**
  * Editor document state: the floorplan, its objects and layers, the current
  * tool, and undo history. Persistence goes through {@link StoreService}, which
- * writes to IndexedDB.
+ * writes to IndexedDB. Each object edit is written at once; the canvas state
+ * snapshot autosaves 10 seconds after the last edit, or on {@link flush}.
  */
 @Injectable()
 export class EditorStateService extends AsyncHandler {
@@ -135,6 +156,7 @@ export class EditorStateService extends AsyncHandler {
     private readonly _last_saved = signal<Date | null>(null);
     private readonly _loading = signal(true);
     private readonly _error = signal('');
+    private readonly _project_name = signal('');
     private readonly _image_url = signal<string | null>(null);
     private readonly _image_dims = signal<{
         width: number;
@@ -155,10 +177,15 @@ export class EditorStateService extends AsyncHandler {
         id: string;
     } | null>(null);
 
-    // Objects are only ever replaced, never changed in place, so a snapshot
-    // is the array as it stood — no copy needed.
-    private _undo_stack: MapObject[][] = [];
-    private _redo_stack: MapObject[][] = [];
+    // Objects and layers are only ever replaced, never changed in place, so a
+    // snapshot holds the arrays as they stood — no copy needed.
+    private _undo_stack: HistoryEntry[] = [];
+    private _redo_stack: HistoryEntry[] = [];
+    /** Set while {@link batch} runs, so inner edits share its one history entry */
+    private _batching = false;
+    /** Bumped by every edit, so a save can tell whether newer edits landed */
+    private _change_count = 0;
+    private _save_task: Promise<void> | null = null;
 
     public readonly floorplan = this._floorplan.asReadonly();
     public readonly objects = this._objects.asReadonly();
@@ -178,6 +205,7 @@ export class EditorStateService extends AsyncHandler {
     public readonly error = this._error.asReadonly();
     public readonly server_save_error =
         this._store.server_save_error.asReadonly();
+    public readonly project_name = this._project_name.asReadonly();
     public readonly image_url = this._image_url.asReadonly();
     public readonly image_dims = this._image_dims.asReadonly();
     public readonly place_size = this._place_size.asReadonly();
@@ -380,6 +408,10 @@ export class EditorStateService extends AsyncHandler {
             }
             this._floorplan.set(floorplan);
             this._objects.set(objects);
+            this._store
+                .getProject(floorplan.project_id)
+                .then((project) => this._project_name.set(project.name))
+                .catch(() => this._project_name.set(''));
 
             const state = floorplan.canvas_state;
             if (state) {
@@ -388,12 +420,19 @@ export class EditorStateService extends AsyncHandler {
                 this._grid_enabled.set(state.gridEnabled ?? true);
                 this._snap_enabled.set(state.snapEnabled ?? true);
                 if (state.layers?.length) {
-                    // Merge in any default layer the saved state predates
+                    // Older saves may predate a default layer, so merge it in.
+                    // Newer saves are complete: a missing layer was deleted.
                     const saved = new Set(state.layers.map((l) => l.id));
-                    this._layers.set([
-                        ...state.layers,
-                        ...DEFAULT_LAYERS.filter((l) => !saved.has(l.id)),
-                    ]);
+                    this._layers.set(
+                        (state.layersVersion ?? 1) >= LAYERS_VERSION
+                            ? state.layers
+                            : [
+                                  ...state.layers,
+                                  ...DEFAULT_LAYERS.filter(
+                                      (l) => !saved.has(l.id),
+                                  ),
+                              ],
+                    );
                 }
             }
 
@@ -496,7 +535,7 @@ export class EditorStateService extends AsyncHandler {
     }
 
     // View settings ride along with the next real save — on their own they are
-    // not unsaved work, and flagging them makes the leave prompt cry wolf.
+    // not unsaved work, so they do not start an autosave.
     public setZoom(zoom: number) {
         this._zoom.set(Math.min(Math.max(zoom, 0.8), 10));
     }
@@ -521,7 +560,7 @@ export class EditorStateService extends AsyncHandler {
 
     public setLayers(layers: EditorLayer[]) {
         this._layers.set(layers);
-        this._dirty.set(true);
+        this.markDirty();
     }
 
     public updateLayer(id: string, updates: Partial<EditorLayer>) {
@@ -545,11 +584,22 @@ export class EditorStateService extends AsyncHandler {
         ]);
     }
 
-    public deleteLayer(id: string) {
-        const remaining = this._layers().filter((l) => l.id !== id);
+    /**
+     * Deletes a layer and the objects on it as one undo step. Undo brings both
+     * back. The last layer cannot be deleted.
+     */
+    public async deleteLayer(id: string) {
+        const layers = this._layers();
+        if (layers.length <= 1 || !layers.some((l) => l.id === id)) return;
+        const ids = this._objects()
+            .filter((o) => o.layer === id)
+            .map((o) => o.id);
+        if (ids.length) this.pushHistory();
+        const remaining = layers.filter((l) => l.id !== id);
         this.setLayers(remaining);
         if (this._active_layer_id() === id)
             this.setActiveLayer(remaining[0]?.id ?? 'rooms');
+        await this._removeObjects(ids);
     }
 
     /** Swap a layer with its neighbour in paint order */
@@ -710,13 +760,18 @@ export class EditorStateService extends AsyncHandler {
     /** Removes several objects as one undoable step */
     public async deleteObjects(ids: string[]) {
         if (!ids.length) return;
-        const removed = new Set(ids);
         this.pushHistory();
+        await this._removeObjects(ids);
+    }
+
+    /** Drops objects from memory, selection and storage, without history */
+    private async _removeObjects(ids: string[]) {
+        if (!ids.length) return;
+        const removed = new Set(ids);
         this._objects.update((list) => list.filter((o) => !removed.has(o.id)));
-        const selected = this._selected_id();
-        if (selected && removed.has(selected)) this._selected_id.set(null);
+        if (removed.has(this._selected_id() ?? '')) this._selected_id.set(null);
         this._multi_select.update((list) =>
-            list.filter((id) => !removed.has(id)),
+            list.filter((item) => !removed.has(item)),
         );
         this.markDirty();
         await this._persist([], ids);
@@ -737,6 +792,35 @@ export class EditorStateService extends AsyncHandler {
             svg_id,
             geometry,
         });
+    }
+
+    /** Duplicates several objects as one undo step and selects the copies */
+    public async duplicateObjects(ids: string[]): Promise<MapObject[]> {
+        const copies = await this.batch(async () => {
+            const created: MapObject[] = [];
+            for (const id of ids) {
+                const copy = await this.duplicateObject(id);
+                if (copy) created.push(copy);
+            }
+            return created;
+        });
+        if (copies.length > 1) this.setMultiSelect(copies.map((c) => c.id));
+        return copies;
+    }
+
+    /**
+     * Runs several edits as one undo step. History is recorded once, before
+     * `edit` starts; the edits inside do not add their own entries.
+     */
+    public async batch<T>(edit: () => Promise<T>): Promise<T> {
+        if (this._batching) return edit();
+        this.pushHistory();
+        this._batching = true;
+        try {
+            return await edit();
+        } finally {
+            this._batching = false;
+        }
     }
 
     public async bulkUpdate(ids: string[], updates: Partial<MapObject>) {
@@ -847,6 +931,11 @@ export class EditorStateService extends AsyncHandler {
         this._placing.set(null);
     }
 
+    /** Layer an armed asset of this kind is placed on */
+    public placeLayer(kind: 'amenity' | 'furniture' | 'desk-layout') {
+        return PLACE_LAYERS[kind];
+    }
+
     /** Drops whatever asset is armed at the given canvas point */
     public async placeAt(x: number, y: number): Promise<boolean> {
         const placing = this._placing();
@@ -869,7 +958,7 @@ export class EditorStateService extends AsyncHandler {
             label: asset?.label ?? 'Amenity',
             svg_id: `amenity-${String(count + 1).padStart(3, '0')}`,
             geometry: { type: 'circle', x, y, r: 12 },
-            layer: 'amenities',
+            layer: PLACE_LAYERS.amenity,
             fill_color: '#dc2626',
             stroke_color: '#ffffff',
             metadata: { icon: id },
@@ -893,7 +982,7 @@ export class EditorStateService extends AsyncHandler {
                 width: asset.w,
                 height: asset.h,
             },
-            layer: 'background',
+            layer: PLACE_LAYERS.furniture,
             fill_color: `${asset.color}88`,
             stroke_color: asset.color,
             metadata: { furnitureType: asset.id },
@@ -931,7 +1020,7 @@ export class EditorStateService extends AsyncHandler {
                         width: layout.deskW,
                         height: layout.deskH,
                     },
-                    layer: 'desks',
+                    layer: PLACE_LAYERS['desk-layout'],
                     ...this.colorsFor('desk'),
                     group_id,
                     metadata: {
@@ -1007,17 +1096,29 @@ export class EditorStateService extends AsyncHandler {
         this._selected_id.set(selection[0] ?? null);
     }
 
-    public toggleMultiSelect(id: string) {
+    /**
+     * Adds or removes one object from the multi-selection. Returns false when
+     * the object is refused because it sits on another layer.
+     */
+    public toggleMultiSelect(id: string): boolean {
         const object = this._objects().find((item) => item.id === id);
-        if (!object) return;
-        this._multi_select.update((ids) => {
-            if (ids.includes(id)) return ids.filter((item) => item !== id);
-            // Every member shares one layer, so the first stands for all
-            const selected = this._objects().find((item) => item.id === ids[0]);
-            return selected && selected.layer !== object.layer
-                ? ids
-                : [...ids, id];
-        });
+        if (!object) return false;
+        // A plain click selects without a multi-selection; Shift-click extends it
+        const selected_id = this._selected_id();
+        const current = this._multi_select();
+        const ids =
+            !current.length && selected_id && selected_id !== id
+                ? [selected_id]
+                : current;
+        if (ids.includes(id)) {
+            this._multi_select.set(ids.filter((item) => item !== id));
+            return true;
+        }
+        // Every member shares one layer, so the first stands for all
+        const first = this._objects().find((item) => item.id === ids[0]);
+        if (first && first.layer !== object.layer) return false;
+        this._multi_select.set([...ids, id]);
+        return true;
     }
 
     public clearMultiSelect() {
@@ -1054,7 +1155,7 @@ export class EditorStateService extends AsyncHandler {
         for (const [index, object] of matching.entries()) {
             const number = start_from + index;
             const update: Partial<MapObject> = {
-                svg_id: `${prefix}${String(number).padStart(3, '0')}`,
+                svg_id: sequentialId(prefix, number),
             };
             if (!object.label || isDefault.test(object.label)) {
                 update.label = `${name} ${number}`;
@@ -1070,37 +1171,48 @@ export class EditorStateService extends AsyncHandler {
 
     /**
      * Records the objects as they stand so the mutation about to happen can be
-     * undone. Call this immediately *before* changing anything.
+     * undone. Call this immediately *before* changing anything. Inside
+     * {@link batch} it does nothing, because the batch already recorded.
      */
     public pushHistory() {
-        const current = this._objects();
+        if (this._batching) return;
         // A click that changes nothing must not fill the stack
-        if (this._undo_stack.at(-1) === current) return;
-        this._undo_stack.push(current);
+        if (this._undo_stack.at(-1)?.objects === this._objects()) return;
+        this._undo_stack.push(this._snapshot());
         if (this._undo_stack.length > HISTORY_LIMIT) this._undo_stack.shift();
         this._redo_stack = [];
         this._syncHistoryFlags();
     }
 
     public undo() {
-        if (!this._undo_stack.length) return;
-        const current = this._objects();
-        const previous = this._undo_stack.pop() as MapObject[];
+        const previous = this._undo_stack.pop();
+        if (!previous) return;
+        const current = this._snapshot();
         this._redo_stack.push(current);
-        this._applyHistory(previous, current);
+        this._applyHistory(previous, current.objects);
     }
 
     public redo() {
-        if (!this._redo_stack.length) return;
-        const current = this._objects();
-        const next = this._redo_stack.pop() as MapObject[];
+        const next = this._redo_stack.pop();
+        if (!next) return;
+        const current = this._snapshot();
         this._undo_stack.push(current);
-        this._applyHistory(next, current);
+        this._applyHistory(next, current.objects);
     }
 
-    private _applyHistory(target: MapObject[], current: MapObject[]) {
+    private _snapshot(): HistoryEntry {
+        return { objects: this._objects(), layers: this._layers() };
+    }
+
+    private _applyHistory(entry: HistoryEntry, current: MapObject[]) {
+        const target = entry.objects;
         this._objects.set(target);
+        // Bring back layers deleted since the snapshot, so restored objects show
+        const layer_ids = new Set(this._layers().map((l) => l.id));
+        const missing = entry.layers.filter((l) => !layer_ids.has(l.id));
+        if (missing.length) this.setLayers([...this._layers(), ...missing]);
         this._selected_id.set(null);
+        this._multi_select.set([]);
         this.markDirty();
         this._syncHistoryFlags();
         // Reconcile storage: drop what the target no longer has and re-write
@@ -1125,13 +1237,47 @@ export class EditorStateService extends AsyncHandler {
 
     /** Flags unsaved work and restarts the auto-save countdown */
     public markDirty() {
+        this._change_count++;
         this._dirty.set(true);
         this.timeout('save', () => this.save(), 10_000);
     }
 
+    public clearError() {
+        this._error.set('');
+    }
+
+    /**
+     * Saves now if anything is pending, waiting out a save already running.
+     * Resolves true when every change is saved. Used before leaving the editor.
+     */
+    public async flush(): Promise<boolean> {
+        if (this._dirty() || this._saving()) await this.save();
+        return !this._dirty();
+    }
+
+    /**
+     * Writes the canvas state snapshot. Objects already reach storage on each
+     * edit; this saves layers, view settings and the snapshot itself. On
+     * failure the error shows and the plan stays dirty.
+     */
     public async save() {
         if (!this._floorplan_id) return;
+        // A save in flight may predate newer edits; wait, then save those
+        if (this._save_task) {
+            await this._save_task;
+            if (!this._dirty()) return;
+        }
+        this._save_task = this._writeState();
+        try {
+            await this._save_task;
+        } finally {
+            this._save_task = null;
+        }
+    }
+
+    private async _writeState() {
         this.clearTimeout('save');
+        const change = this._change_count;
         this._saving.set(true);
         try {
             const selected = this._selected_id();
@@ -1140,13 +1286,16 @@ export class EditorStateService extends AsyncHandler {
                 viewport: { x: 0, y: 0, zoom: this._zoom() },
                 selectedIds: selected ? [selected] : [],
                 layers: this._layers(),
+                layersVersion: LAYERS_VERSION,
                 gridEnabled: this._grid_enabled(),
                 snapEnabled: this._snap_enabled(),
                 gridSize: this._grid_size(),
             };
             await this._store.saveCanvasState(this._floorplan_id, state);
-            this._dirty.set(false);
+            // Edits made while writing stay pending for the next save
+            if (this._change_count === change) this._dirty.set(false);
             this._last_saved.set(new Date());
+            this._error.set('');
         } catch (error) {
             this._error.set(this._message(error, 'Failed to save'));
         } finally {

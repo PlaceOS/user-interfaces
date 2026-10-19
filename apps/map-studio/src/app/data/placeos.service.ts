@@ -59,6 +59,34 @@ export interface PlaceOSSettings {
     api_key: string;
 }
 
+/** Engine API response with a non-2xx status */
+export class PlaceOSRequestError extends Error {
+    constructor(
+        public readonly status: number,
+        message: string,
+    ) {
+        super(message);
+    }
+}
+
+/** Plain message for a failed connection test */
+function connectionMessage(error: unknown): string {
+    if (error instanceof PlaceOSRequestError) {
+        if (error.status === 401 || error.status === 403) {
+            return 'PlaceOS rejected the API key. Check the key and its permissions.';
+        }
+        if (error.status === 404) {
+            return 'No PlaceOS API was found at this domain. Check the domain.';
+        }
+        return `PlaceOS returned an error (${error.status}). Try again later.`;
+    }
+    // fetch rejects with a TypeError when the host cannot be reached
+    if (error instanceof TypeError) {
+        return 'Cannot reach the PlaceOS domain. Check the address and your network connection.';
+    }
+    return error instanceof Error ? error.message : 'Connection failed';
+}
+
 /**
  * `domain` when the app is served by a PlaceOS domain and the user is signed
  * in through it, `manual` when a domain and API key have to be entered.
@@ -234,14 +262,31 @@ export class PlaceOSService {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     }
 
-    /** Checks the stored credentials by fetching the current user */
-    public async testConnection(): Promise<{
+    /** Forgets the stored domain and API key */
+    public clearConfig(): void {
+        this._settings.set({ domain: '', api_key: '' });
+        localStorage.removeItem(SETTINGS_KEY);
+    }
+
+    /**
+     * Checks credentials by fetching the current user. Tests `settings` when
+     * given, without storing them, and the stored credentials otherwise.
+     */
+    public async testConnection(settings?: PlaceOSSettings): Promise<{
         ok: boolean;
         user?: PlaceOSUser;
         error?: string;
     }> {
         try {
-            const user = await this._request<PlaceOSUser>('/users/current');
+            const user = await this._request<PlaceOSUser>(
+                '/users/current',
+                {},
+                {},
+                settings && {
+                    ...settings,
+                    domain: settings.domain.replace(/\/$/, ''),
+                },
+            );
             return {
                 ok: true,
                 user: {
@@ -251,13 +296,7 @@ export class PlaceOSService {
                 },
             };
         } catch (error) {
-            return {
-                ok: false,
-                error:
-                    error instanceof Error
-                        ? error.message
-                        : 'Connection failed',
-            };
+            return { ok: false, error: connectionMessage(error) };
         }
     }
 
@@ -507,8 +546,9 @@ export class PlaceOSService {
         path: string,
         params: Record<string, string> = {},
         options: RequestInit = {},
+        settings: PlaceOSSettings = this._settings(),
     ): Promise<T> {
-        const { domain, api_key } = this._settings();
+        const { domain, api_key } = settings;
         const on_domain = this._mode() === 'domain';
         if (!on_domain && !api_key) throw new Error('PlaceOS not configured');
         const query = new URLSearchParams(params).toString();
@@ -527,7 +567,8 @@ export class PlaceOSService {
             async (response) => {
                 if (!response.ok) {
                     const detail = await response.text().catch(() => '');
-                    throw new Error(
+                    throw new PlaceOSRequestError(
+                        response.status,
                         `PlaceOS ${response.status}: ${detail || response.statusText}`,
                     );
                 }

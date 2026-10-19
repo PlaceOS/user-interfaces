@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { IconComponent } from '@placeos/components';
 
 import { EditorStateService } from './editor-state.service';
@@ -67,28 +67,19 @@ import { EditorStateService } from './editor-state.service';
                             </button>
                             <div class="flex items-center">
                                 <button
-                                    class="hover:bg-base-300 flex size-7 shrink-0 items-center justify-center rounded text-base"
-                                    [class]="
-                                        confirm_delete() === layer.id
-                                            ? 'text-error font-bold'
-                                            : 'text-base-content/40 hover:text-error'
-                                    "
+                                    class="text-base-content/40 hover:bg-base-300 hover:text-error flex size-7 shrink-0 items-center justify-center rounded text-base disabled:opacity-20"
                                     [title]="
-                                        confirm_delete() === layer.id
-                                            ? 'Confirm deleting ' + layer.name
-                                            : 'Delete ' + layer.name
-                                    "
-                                    [attr.aria-label]="
-                                        confirm_delete() === layer.id
-                                            ? 'Confirm deleting ' +
-                                              layer.name +
-                                              ' layer'
+                                        last_layer()
+                                            ? 'The last layer cannot be deleted'
                                             : 'Delete ' + layer.name + ' layer'
                                     "
+                                    [attr.aria-label]="
+                                        'Delete ' + layer.name + ' layer'
+                                    "
+                                    [disabled]="last_layer()"
                                     (click)="remove($event, layer.id)"
-                                    (blur)="confirm_delete.set('')"
                                 >
-                                    <icon>close</icon>
+                                    <icon aria-hidden="true">delete</icon>
                                 </button>
                                 <button
                                     class="text-base-content/40 hover:bg-base-300 hover:text-base-content flex size-7 shrink-0 items-center justify-center rounded text-base disabled:opacity-20"
@@ -186,7 +177,10 @@ export class LayerPanelComponent {
     public readonly state = inject(EditorStateService);
 
     public readonly new_name = signal('');
-    public readonly confirm_delete = signal('');
+
+    public readonly last_layer = computed(
+        () => this.state.layers().length <= 1,
+    );
 
     public readonly asValue = (event: Event) =>
         (event.target as HTMLInputElement).value;
@@ -215,15 +209,20 @@ export class LayerPanelComponent {
         });
     }
 
-    /** First click arms the delete, second confirms it */
+    /** Confirms with the object count, then deletes the layer and its objects */
     public remove(event: Event, id: string) {
         event.stopPropagation();
-        if (this.confirm_delete() !== id) {
-            this.confirm_delete.set(id);
-            return;
-        }
+        const layer = this.state.layers().find((l) => l.id === id);
+        if (!layer || this.last_layer()) return;
+        const count = this.state
+            .objects()
+            .filter((object) => object.layer === id).length;
+        const objects = count === 1 ? 'its 1 object' : `its ${count} objects`;
+        const message = count
+            ? `Delete the ${layer.name} layer and ${objects}? Undo restores them.`
+            : `Delete the empty ${layer.name} layer?`;
+        if (!confirm(message)) return;
         this.state.deleteLayer(id);
-        this.confirm_delete.set('');
     }
 
     public add() {

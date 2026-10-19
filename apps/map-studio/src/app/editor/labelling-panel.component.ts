@@ -3,6 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { MapObjectType } from '../data/types';
 import { OBJECT_TYPES } from './constants';
 import { EditorStateService } from './editor-state.service';
+import { sequentialId, sequentialIdRange } from './svg-export';
 import { ToastService } from './toast.service';
 
 interface ImportedId {
@@ -62,7 +63,7 @@ function loadStored(): ImportedId[] {
             <div
                 class="border-base-300 flex items-center justify-between border-b px-3 py-2.5"
             >
-                <span class="text-xs font-bold">Data Labelling</span>
+                <span class="text-xs font-bold">Labelling</span>
                 <span class="text-base-content/60 text-xs">
                     {{ assignedCount() }}/{{ totalCount() }} labelled
                 </span>
@@ -316,19 +317,23 @@ function loadStored(): ImportedId[] {
                             <input
                                 class="border-base-300 min-w-0 flex-2 rounded border px-2 py-1 text-xs"
                                 placeholder="Prefix"
+                                aria-label="ID prefix"
                                 [value]="auto_prefix()"
-                                (input)="auto_prefix.set(asValue($event))"
+                                (input)="custom_prefix.set(asValue($event))"
                             />
                             <input
                                 type="number"
                                 min="0"
+                                step="1"
                                 class="border-base-300 w-16 rounded border px-2 py-1 text-xs"
+                                aria-label="Start number"
                                 [value]="auto_start()"
-                                (input)="auto_start.set(+asValue($event))"
+                                (input)="setStart(asValue($event))"
                             />
                         </div>
                         <select
                             class="border-base-300 mt-1.5 w-full rounded border px-2 py-1 text-xs"
+                            aria-label="Object type to number"
                             (change)="auto_type.set(asValue($event))"
                         >
                             @for (type of object_types; track type) {
@@ -340,10 +345,24 @@ function loadStored(): ImportedId[] {
                                 </option>
                             }
                         </select>
+                        @if (auto_targets().length; as count) {
+                            <p class="text-base-content/60 mt-1.5 text-xs">
+                                {{ auto_preview() }}
+                                ({{ count }}
+                                {{ count === 1 ? 'object' : 'objects' }})
+                                @if (auto_overwrites(); as overwrites) {
+                                    <br />
+                                    <span class="text-warning-content">
+                                        Replaces {{ overwrites }} existing
+                                        {{ overwrites === 1 ? 'ID' : 'IDs' }}.
+                                    </span>
+                                }
+                            </p>
+                        }
                         <button
                             btn
                             class="mt-1.5 w-full"
-                            [disabled]="!countOf(auto_type())"
+                            [disabled]="!auto_targets().length"
                             (click)="autoNumber()"
                         >
                             Generate Sequential IDs
@@ -369,9 +388,41 @@ export class LabellingPanelComponent {
     public readonly search = signal('');
     public readonly filter_type = signal('');
     public readonly bulk_type = signal('');
-    public readonly auto_prefix = signal('desk-');
+    /** Prefix the user typed; until then the prefix follows the type */
+    public readonly custom_prefix = signal('');
     public readonly auto_start = signal(1);
     public readonly auto_type = signal<string>('desk');
+    public readonly auto_prefix = computed(
+        () => this.custom_prefix() || `${this.auto_type()}-`,
+    );
+
+    /** Objects auto-number rewrites, in the order it numbers them */
+    public readonly auto_targets = computed(() =>
+        this.state.objects().filter((o) => o.object_type === this.auto_type()),
+    );
+
+    public readonly auto_preview = computed(() =>
+        sequentialIdRange(
+            this.auto_prefix(),
+            this.auto_start(),
+            this.auto_targets().length,
+        ),
+    );
+
+    /** How many objects already carry an id that auto-number would change */
+    public readonly auto_overwrites = computed(
+        () =>
+            this.auto_targets().filter(
+                (o, index) =>
+                    !!o.svg_id &&
+                    o.svg_id !== o.id &&
+                    o.svg_id !==
+                        sequentialId(
+                            this.auto_prefix(),
+                            this.auto_start() + index,
+                        ),
+            ).length,
+    );
 
     public readonly asValue = (event: Event) =>
         (event.target as HTMLInputElement | HTMLSelectElement).value;
@@ -510,8 +561,22 @@ export class LabellingPanelComponent {
         this._toasts.show(`Set ${ids.length} objects to ${type}`, 'success');
     }
 
+    /** Start numbers are whole and never negative */
+    public setStart(value: string) {
+        this.auto_start.set(Math.max(0, Math.floor(Number(value)) || 0));
+    }
+
+    /** Renumbers every object of the chosen type, confirming before it overwrites ids */
     public async autoNumber() {
         const type = this.auto_type() as MapObjectType;
+        const overwrites = this.auto_overwrites();
+        if (
+            overwrites &&
+            !confirm(
+                `Replace ${overwrites} existing ${type} ${overwrites === 1 ? 'ID' : 'IDs'} with ${this.auto_preview()}?`,
+            )
+        )
+            return;
         await this.state.autoNumber(
             type,
             this.auto_prefix(),

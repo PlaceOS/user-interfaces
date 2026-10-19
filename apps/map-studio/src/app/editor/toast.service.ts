@@ -32,9 +32,14 @@ export class ToastService extends AsyncHandler {
 
     public readonly toasts = this._toasts.asReadonly();
 
+    /** Shows a toast. A repeat of a visible message restarts its timer instead of stacking. */
     public show(message: string, type: ToastType = 'info', duration = 3000) {
-        const id = ++this._next_id;
-        this._toasts.update((list) => [...list, { id, message, type }]);
+        const existing = this._toasts().find(
+            (t) => t.message === message && t.type === type,
+        );
+        const id = existing?.id ?? ++this._next_id;
+        if (!existing)
+            this._toasts.update((list) => [...list, { id, message, type }]);
         this.timeout(`toast-${id}`, () => this.dismiss(id), duration);
     }
 
@@ -50,18 +55,29 @@ export class ToastService extends AsyncHandler {
 @Component({
     selector: 'map-studio-toasts',
     template: `
+        <!-- Always rendered, so screen readers announce toasts as they arrive -->
         <div
             class="pointer-events-none fixed right-4 bottom-4 z-50 flex flex-col gap-2"
+            role="status"
+            aria-live="polite"
         >
             @for (toast of toasts.toasts(); track toast.id) {
                 <div
-                    class="flex max-w-90 min-w-52 items-center gap-2.5 rounded-lg border px-4 py-2.5 text-sm font-semibold shadow-md"
+                    class="pointer-events-auto flex max-w-90 min-w-52 items-center gap-2.5 rounded-lg border py-2.5 pr-2 pl-4 text-sm font-semibold shadow-md"
                     [class]="toasts.classFor(toast.type)"
                 >
-                    <icon class="text-lg">
+                    <icon class="text-lg" aria-hidden="true">
                         {{ toasts.iconFor(toast.type) }}
                     </icon>
-                    <span>{{ toast.message }}</span>
+                    <span class="flex-1">{{ toast.message }}</span>
+                    <button
+                        class="flex size-6 shrink-0 items-center justify-center rounded opacity-70 hover:opacity-100"
+                        aria-label="Dismiss notification"
+                        title="Dismiss"
+                        (click)="toasts.dismiss(toast.id)"
+                    >
+                        <icon aria-hidden="true">close</icon>
+                    </button>
                 </div>
             }
         </div>

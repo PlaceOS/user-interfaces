@@ -2,12 +2,12 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IconComponent } from '@placeos/components';
 
 import { StoreService } from '../data/store.service';
 import { analyzeSvg, SvgAnalysis } from '../data/svg-import';
-import { MapObjectType } from '../data/types';
+import { MapObjectType, Project } from '../data/types';
 
 type ImportStep = 'upload' | 'review' | 'map' | 'confirm';
 
@@ -95,13 +95,20 @@ interface ObjectMapping {
                         Import SVG Floor Plan
                     </h2>
                     <p class="text-base-content/60 mb-6 text-sm">
-                        Upload an SVG file to analyse its structure and import
-                        it as a floor plan.
+                        @if (target_project(); as project) {
+                            Upload an SVG file to add it as a new floor in
+                            <span class="font-semibold">{{ project.name }}</span
+                            >.
+                        } @else {
+                            Upload an SVG file to analyse its structure and
+                            import it as a floor plan.
+                        }
                     </p>
 
                     @if (error(); as message) {
                         <div
                             class="bg-error-light text-error border-error/30 mb-4 rounded border px-4 py-3 text-sm"
+                            role="alert"
                         >
                             {{ message }}
                         </div>
@@ -140,6 +147,21 @@ interface ObjectMapping {
                             (change)="onFileInput($event)"
                         />
                     </label>
+                    <p class="text-base-content/60 mt-3 text-xs">
+                        Have a PNG or JPG plan? Create a floor, open it in the
+                        editor, and upload the image there to trace it.
+                    </p>
+
+                    <div class="mt-6 flex justify-between">
+                        <a btn class="inverse" [routerLink]="cancel_link">
+                            Cancel
+                        </a>
+                        @if (analysis()) {
+                            <button btn (click)="step.set('review')">
+                                Next: Review
+                            </button>
+                        }
+                    </div>
                 }
 
                 @case ('review') {
@@ -255,7 +277,7 @@ interface ObjectMapping {
                             class="inverse min-h-0! px-3! py-1! text-xs"
                             (click)="excludeDecorative()"
                         >
-                            Exclude Decorative Only
+                            Exclude Decorative
                         </button>
                     </div>
 
@@ -295,6 +317,9 @@ interface ObjectMapping {
                                             <input
                                                 type="checkbox"
                                                 class="accent-primary h-4 w-4"
+                                                [attr.aria-label]="
+                                                    'Include ' + mapping.svgId
+                                                "
                                                 [checked]="!mapping.excluded"
                                                 (change)="
                                                     updateMapping(
@@ -313,6 +338,9 @@ interface ObjectMapping {
                                         <td class="px-3 py-2">
                                             <input
                                                 class="border-base-300 w-full rounded border px-2 py-1 text-xs"
+                                                [attr.aria-label]="
+                                                    'Label for ' + mapping.svgId
+                                                "
                                                 [value]="mapping.label"
                                                 [disabled]="mapping.excluded"
                                                 (input)="
@@ -330,6 +358,9 @@ interface ObjectMapping {
                                         <td class="px-3 py-2">
                                             <select
                                                 class="border-base-300 rounded border px-2 py-1 text-xs"
+                                                [attr.aria-label]="
+                                                    'Type for ' + mapping.svgId
+                                                "
                                                 [disabled]="mapping.excluded"
                                                 (change)="
                                                     updateMapping(
@@ -395,6 +426,7 @@ interface ObjectMapping {
                     @if (error(); as message) {
                         <div
                             class="bg-error-light text-error border-error/30 mb-4 rounded border px-4 py-3 text-sm"
+                            role="alert"
                         >
                             {{ message }}
                         </div>
@@ -409,7 +441,7 @@ interface ObjectMapping {
                         <div
                             class="grid [grid-template-columns:repeat(auto-fill,minmax(8.75rem,1fr))] gap-3"
                         >
-                            @for (entry of typeCounts(); track entry.type) {
+                            @for (entry of spaceCounts(); track entry.type) {
                                 <div
                                     class="bg-base-200 rounded-lg px-4 py-3.5 text-center"
                                 >
@@ -424,31 +456,59 @@ interface ObjectMapping {
                                 </div>
                             }
                         </div>
+                        @if (decorativeCount()) {
+                            <p class="text-base-content/60 mt-3 text-xs">
+                                Plus {{ decorativeCount() }} decorative
+                                {{
+                                    decorativeCount() === 1 ? 'shape' : 'shapes'
+                                }}
+                                that are not managed.
+                            </p>
+                        }
                     </div>
 
                     <div
                         class="bg-base-100 border-base-300 mb-5 rounded-lg border p-5 shadow-sm"
                     >
                         <h3 class="mb-4 text-sm font-semibold">
-                            Project Details
+                            {{
+                                target_project()
+                                    ? 'Floor Details'
+                                    : 'Project Details'
+                            }}
                         </h3>
+                        @if (target_project(); as project) {
+                            <p class="text-base-content/60 mb-4 text-sm">
+                                The floor is added to
+                                <span class="font-semibold">{{
+                                    project.name
+                                }}</span
+                                >.
+                            </p>
+                        }
                         <div class="grid gap-4 sm:grid-cols-2">
-                            <div>
-                                <label for="import-project">Project Name</label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="no-subscript w-full"
-                                >
-                                    <input
-                                        matInput
-                                        id="import-project"
-                                        required
-                                        placeholder="e.g. Sydney HQ"
-                                        [(ngModel)]="project_name"
-                                        [ngModelOptions]="{ standalone: true }"
-                                    />
-                                </mat-form-field>
-                            </div>
+                            @if (!target_project()) {
+                                <div>
+                                    <label for="import-project"
+                                        >Project Name</label
+                                    >
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="no-subscript w-full"
+                                    >
+                                        <input
+                                            matInput
+                                            id="import-project"
+                                            required
+                                            placeholder="e.g. Sydney HQ"
+                                            [(ngModel)]="project_name"
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        />
+                                    </mat-form-field>
+                                </div>
+                            }
                             <div>
                                 <label for="import-floor">Floor Name</label>
                                 <mat-form-field
@@ -476,7 +536,8 @@ interface ObjectMapping {
                             btn
                             [disabled]="
                                 importing() ||
-                                !project_name().trim() ||
+                                !includedCount() ||
+                                (!target_project() && !project_name().trim()) ||
                                 !floor_name().trim()
                             "
                             (click)="runImport()"
@@ -484,7 +545,11 @@ interface ObjectMapping {
                             {{
                                 importing()
                                     ? 'Importing...'
-                                    : 'Import ' + includedCount() + ' Spaces'
+                                    : 'Import ' +
+                                      includedCount() +
+                                      (includedCount() === 1
+                                          ? ' Space'
+                                          : ' Spaces')
                             }}
                         </button>
                     </div>
@@ -492,11 +557,14 @@ interface ObjectMapping {
             }
         </div>
     `,
-    imports: [FormsModule, IconComponent, MatFormField, MatInput],
+    imports: [FormsModule, IconComponent, MatFormField, MatInput, RouterLink],
 })
 export class ImportComponent {
     private readonly _store = inject(StoreService);
     private readonly _router = inject(Router);
+    /** Existing project to add the floor to, from `?project=<id>` */
+    private readonly _project_id =
+        inject(ActivatedRoute).snapshot.queryParamMap.get('project');
 
     public readonly steps = STEPS;
     public readonly object_types = OBJECT_TYPES;
@@ -512,8 +580,18 @@ export class ImportComponent {
     public readonly mappings = signal<ObjectMapping[]>([]);
     public readonly project_name = signal('');
     public readonly floor_name = signal('');
+    public readonly target_project = signal<Project | null>(null);
+    public readonly cancel_link = this._project_id
+        ? ['/project', this._project_id]
+        : ['/'];
 
     private _svg_content = '';
+    /** Layers whose state was last carried through to `mappings` */
+    private _applied_layers = new Set<string>();
+
+    constructor() {
+        if (this._project_id) this._loadProject(this._project_id);
+    }
 
     public readonly stepIndex = computed(() =>
         STEPS.findIndex((s) => s.key === this.step()),
@@ -541,6 +619,16 @@ export class ImportComponent {
         return [...counts.entries()].map(([type, count]) => ({ type, count }));
     });
 
+    /** Included objects tallied by type, without decorative shapes */
+    public readonly spaceCounts = computed(() =>
+        this.typeCounts().filter((entry) => entry.type !== 'decorative'),
+    );
+
+    public readonly decorativeCount = computed(
+        () =>
+            this.included().filter((m) => m.objectType === 'decorative').length,
+    );
+
     public readonly spaceLabel = (type: string) => SPACE_LABELS[type] ?? type;
 
     public readonly asValue = (event: Event) =>
@@ -567,7 +655,10 @@ export class ImportComponent {
     }
 
     public onFileInput(event: Event) {
-        const file = (event.target as HTMLInputElement).files?.[0];
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        // Clear so that picking the same file again still fires a change
+        input.value = '';
         if (file) this.handleFile(file);
     }
 
@@ -587,8 +678,15 @@ export class ImportComponent {
                 );
 
             const analysis = analyzeSvg(this._svg_content);
+            if (!analysis.objects.length) {
+                throw new Error(
+                    'No importable shapes were found in this SVG. Each room, desk or zone shape needs an id attribute.',
+                );
+            }
             this.analysis.set(analysis);
-            this.enabled_layers.set(new Set(analysis.layers.map((l) => l.id)));
+            const layers = new Set(analysis.layers.map((l) => l.id));
+            this.enabled_layers.set(layers);
+            this._applied_layers = new Set(layers);
             this.mappings.set(
                 analysis.objects.map((object) => ({
                     svgId: object.svgId,
@@ -600,6 +698,8 @@ export class ImportComponent {
             );
             this.step.set('review');
         } catch (error) {
+            this.analysis.set(null);
+            this.mappings.set([]);
             this.error.set(this._message(error, 'Failed to analyse SVG'));
         } finally {
             this.analyzing.set(false);
@@ -615,15 +715,22 @@ export class ImportComponent {
         });
     }
 
-    /** Carry the layer checkboxes through to the per-object exclusions */
+    /**
+     * Carry the layer checkboxes through to the per-object exclusions. Only
+     * rows on a layer that changed since the last pass are touched, so
+     * choices made on the Map step survive going Back and forward.
+     */
     public applyLayerFilter() {
         const enabled = this.enabled_layers();
+        const applied = this._applied_layers;
         this.mappings.update((mappings) =>
-            mappings.map((mapping) => ({
-                ...mapping,
-                excluded: !enabled.has(mapping.layer),
-            })),
+            mappings.map((mapping) =>
+                enabled.has(mapping.layer) === applied.has(mapping.layer)
+                    ? mapping
+                    : { ...mapping, excluded: !enabled.has(mapping.layer) },
+            ),
         );
+        this._applied_layers = new Set(enabled);
         this.step.set('map');
     }
 
@@ -643,22 +750,29 @@ export class ImportComponent {
 
     public excludeDecorative() {
         this.mappings.update((mappings) =>
-            mappings.map((mapping) => ({
-                ...mapping,
-                excluded: mapping.objectType === 'decorative',
-            })),
+            mappings.map((mapping) =>
+                mapping.objectType === 'decorative'
+                    ? { ...mapping, excluded: true }
+                    : mapping,
+            ),
         );
     }
 
     public async runImport() {
         const analysis = this.analysis();
         if (!analysis) return;
+        // A missing target project must not fall back to creating a new one
+        if (this._project_id && !this.target_project()) {
+            this.error.set('The project to import into was not found.');
+            return;
+        }
         this.importing.set(true);
         this.error.set('');
         try {
             const result = await this._store.importSvg({
                 svg_content: this._svg_content,
                 analysis,
+                project_id: this.target_project()?.id,
                 project_name: this.project_name().trim(),
                 floor_name: this.floor_name().trim(),
                 mappings: this.included().map((mapping) => ({
@@ -672,6 +786,14 @@ export class ImportComponent {
             this.error.set(this._message(error, 'Import failed'));
         } finally {
             this.importing.set(false);
+        }
+    }
+
+    private async _loadProject(id: string) {
+        try {
+            this.target_project.set(await this._store.getProject(id));
+        } catch (error) {
+            this.error.set(this._message(error, 'Project not found'));
         }
     }
 

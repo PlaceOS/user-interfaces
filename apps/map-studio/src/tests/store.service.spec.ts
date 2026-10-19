@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { DbChanges, DbService } from '../app/data/db';
 import { PlaceOSService } from '../app/data/placeos.service';
 import { StoreService } from '../app/data/store.service';
+import { analyzeSvg } from '../app/data/svg-import';
 
 /**
  * jsdom has no IndexedDB, so the persistence layer is backed by a plain Map.
@@ -166,6 +167,83 @@ describe('StoreService', () => {
             expect.objectContaining({ background_color: '#654321' }),
         );
         expect(saved.updated_at).toBe('2099-01-01T00:00:00.000Z');
+    });
+
+    it('does not recreate synced zones the user deleted', async () => {
+        const zone = (id: string) => ({ id, name: id, display_name: id });
+        const buildings = [
+            {
+                zone: zone('building-1'),
+                levels: [zone('level-1'), zone('level-2')],
+            },
+            { zone: zone('building-2'), levels: [zone('level-3')] },
+        ];
+        await store.syncPlaceOSZones(buildings);
+        const projects = await store.listProjects();
+        const first = projects.find((p) => p.building_zone_id === 'building-1');
+        const second = projects.find(
+            (p) => p.building_zone_id === 'building-2',
+        );
+        await store.deleteFloorplan(first!.floorplans![1].id);
+        await store.deleteProject(second!.id);
+
+        await store.syncPlaceOSZones(buildings);
+
+        const [project, ...rest] = await store.listProjects();
+        expect(rest).toHaveLength(0);
+        expect(project.floorplans?.map((f) => f.level_zone_id)).toEqual([
+            'level-1',
+        ]);
+    });
+
+    it('appends new floors after the highest floor index', async () => {
+        await store.addFloorplan('p1', 'Level 1', 0);
+        await store.addFloorplan('p1', 'Level 5', 4);
+        const added = await store.addFloorplan('p1', 'Level 6');
+        expect(added.floor_index).toBe(5);
+    });
+
+    it('imports an SVG into an existing project', async () => {
+        const project = await store.createProject('Sydney HQ');
+        await store.addFloorplan(project.id, 'Level 1');
+        const svg_content =
+            '<svg viewBox="0 0 800 600"><rect id="room-1" width="20" height="30"/></svg>';
+
+        const result = await store.importSvg({
+            svg_content,
+            analysis: analyzeSvg(svg_content),
+            project_id: project.id,
+            floor_name: 'Level 2',
+            mappings: [{ svgId: 'room-1', objectType: 'room' }],
+        });
+
+        expect(result.project_id).toBe(project.id);
+        const floorplan = await store.getFloorplan(result.floorplan_id);
+        expect(floorplan).toMatchObject({
+            floor_index: 1,
+            source_type: 'svg-import',
+            svg_source_ids: ['room-1'],
+        });
+        expect(floorplan.svg_source).toContain('room-1');
+        expect(await store.listProjects()).toHaveLength(1);
+    });
+
+    it('removes the new project when an SVG import fails', async () => {
+        const svg_content = '<svg viewBox="0 0 10 10"></svg>';
+        vi.spyOn(store, 'bulkUpsertObjects').mockRejectedValueOnce(
+            new Error('disk full'),
+        );
+
+        await expect(
+            store.importSvg({
+                svg_content,
+                analysis: analyzeSvg(svg_content),
+                project_name: 'Broken',
+                floor_name: 'Level 1',
+                mappings: [],
+            }),
+        ).rejects.toThrow('disk full');
+        expect(await store.listProjects()).toHaveLength(0);
     });
 
     it('detects and applies a newer server floorplan', async () => {

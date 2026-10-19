@@ -121,6 +121,8 @@ export interface EditorState {
     viewport: { x: number; y: number; zoom: number };
     selectedIds: string[];
     layers: EditorLayer[];
+    /** Format of `layers`; see LAYERS_VERSION in the editor state service */
+    layersVersion?: number;
     gridEnabled: boolean;
     snapEnabled: boolean;
     gridSize: number;

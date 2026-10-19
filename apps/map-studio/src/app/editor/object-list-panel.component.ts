@@ -45,6 +45,7 @@ const TYPE_ORDER = [
                 <input
                     class="border-base-300 bg-base-200 w-full rounded border px-2 py-1 text-xs"
                     placeholder="Filter objects..."
+                    aria-label="Filter objects"
                     [value]="filter()"
                     (input)="filter.set(asValue($event))"
                 />
@@ -58,12 +59,13 @@ const TYPE_ORDER = [
                         (keyup.enter)="toggle(group.type)"
                         tabindex="0"
                         role="button"
+                        [attr.aria-expanded]="!collapsed()[group.type]"
                     >
                         <span
                             class="inline-block text-base transition-transform"
                             [class.-rotate-90]="collapsed()[group.type]"
                         >
-                            <icon>expand_more</icon>
+                            <icon aria-hidden="true">expand_more</icon>
                         </span>
                         <span
                             class="h-2 w-2 shrink-0 rounded-sm"
@@ -108,7 +110,8 @@ const TYPE_ORDER = [
                                         class="text-sm opacity-50"
                                         title="Locked"
                                     >
-                                        <icon>lock</icon>
+                                        <icon aria-hidden="true">lock</icon>
+                                        <span class="sr-only">Locked</span>
                                     </span>
                                 }
                                 @if (!object.visible) {
@@ -116,7 +119,10 @@ const TYPE_ORDER = [
                                         class="text-sm opacity-40"
                                         title="Hidden"
                                     >
-                                        <icon>visibility_off</icon>
+                                        <icon aria-hidden="true">
+                                            visibility_off
+                                        </icon>
+                                        <span class="sr-only">Hidden</span>
                                     </span>
                                 }
                             </div>

@@ -19,8 +19,11 @@ import {
 
 type ZoneReference = Pick<PlaceOSZone, 'id' | 'name' | 'display_name'>;
 
-/** Server metadata requests in flight at once during zone sync */
+/** PlaceOS requests in flight at once during zone sync */
 const SYNC_CONCURRENCY = 6;
+
+/** Progress of the background import of PlaceOS buildings and levels */
+export type PlaceOSSyncState = 'idle' | 'syncing' | 'done' | 'error';
 
 function localFloorplanData(metadata: Partial<Floorplan> = {}) {
     const saved = { ...metadata };
@@ -46,6 +49,9 @@ const key = {
     versions: (floorplan_id: string) => `version:${floorplan_id}:`,
     image: (floorplan_id: string) => `image:${floorplan_id}`,
     thumbnail: (floorplan_id: string) => `thumbnail:${floorplan_id}`,
+    /** PlaceOS zone whose local project or floorplan the user deleted */
+    deleted_zone: (zone_id: string) => `deleted-zone:${zone_id}`,
+    deleted_zones: () => 'deleted-zone:',
 };
 
 /** Records that store `floorplan`: its summary and, apart, its canvas */
@@ -65,6 +71,14 @@ function floorplanRecords(floorplan: Floorplan): [string, unknown][] {
 }
 
 const now = () => new Date().toISOString();
+
+/** Thumbnail key to delete when an imported floor's SVG plan changes */
+function staleThumbnail(before: Floorplan, after: Floorplan): string[] {
+    return before.svg_source !== after.svg_source ||
+        before.svg_output !== after.svg_output
+        ? [key.thumbnail(after.id)]
+        : [];
+}
 
 function serverSaveMessage(error: unknown): string {
     const detail = error instanceof Error ? error.message : String(error ?? '');
@@ -141,6 +155,10 @@ export class StoreService {
     /** Why the last floorplan save reached this browser but not PlaceOS; empty once one does. */
     public readonly server_save_error = signal('');
     private _zone_sync: Promise<void> = Promise.resolve();
+    private readonly _placeos_sync = signal<PlaceOSSyncState>('idle');
+
+    /** State of the background PlaceOS zone sync started at boot */
+    public readonly placeos_sync = this._placeos_sync.asReadonly();
 
     // ── Projects ────────────────────────────────────────────────────────────
 
@@ -202,13 +220,21 @@ export class StoreService {
         });
     }
 
-    /** Removes the project along with every floorplan and object beneath it */
+    /**
+     * Removes the project along with every floorplan and object beneath it. A
+     * project made from a PlaceOS building is remembered so that the zone
+     * sync does not create it again.
+     */
     public async deleteProject(id: string): Promise<void> {
+        const project = await this._db.get<Project>(key.project(id));
         const floorplans = (
             await this._db.list<FloorplanSummary>('floorplan:')
         ).filter((f) => f.project_id === id);
         await Promise.all(floorplans.map((f) => this.deleteFloorplan(f.id)));
         await this._db.delete(key.project(id));
+        if (project?.building_zone_id) {
+            await this._forgetZone(project.building_zone_id);
+        }
     }
 
     // ── Floorplans ──────────────────────────────────────────────────────────
@@ -220,12 +246,16 @@ export class StoreService {
         level_zone_id?: string,
         metadata?: Partial<Floorplan>,
     ): Promise<Floorplan> {
-        // Only an unplaced floor needs the sibling count
+        // Only an unplaced floor needs the siblings. It goes after the last
+        // one, so a gap left by a delete does not give two floors one index.
         const index =
             floor_index ??
-            (await this._db.list<FloorplanSummary>('floorplan:')).filter(
-                (f) => f.project_id === project_id,
-            ).length;
+            Math.max(
+                -1,
+                ...(await this._db.list<FloorplanSummary>('floorplan:'))
+                    .filter((f) => f.project_id === project_id)
+                    .map((f) => f.floor_index),
+            ) + 1;
         const floorplan: Floorplan = {
             id: uuid(),
             project_id,
@@ -285,17 +315,78 @@ export class StoreService {
         const level = await this._placeos.getZone(level_id);
         const building = await this._placeos.getZone(level.parent_id);
         const levels = await this._placeos.getZones('level', building.id);
+        // Opening a level on purpose brings it back if it was deleted here
+        await this._db.delete(key.deleted_zone(level.id));
+        await this._db.delete(key.deleted_zone(building.id));
         await this.syncPlaceOSZones([{ zone: building, levels }]);
         const added = await find();
         if (!added) throw new Error('This level was not found in PlaceOS.');
         return added;
     }
 
+    /**
+     * Loads the building and level zones under the active PlaceOS
+     * organisation and creates the missing projects. Sets `placeos_sync` while
+     * it runs. Call it again to retry after an error.
+     */
+    public async syncFromPlaceOS(): Promise<void> {
+        if (this._placeos_sync() === 'syncing') return;
+        this._placeos_sync.set('syncing');
+        try {
+            const organisation = await this._placeos.getActiveOrganisation();
+            if (organisation) {
+                const regions = await this._placeos.getZones(
+                    'region',
+                    organisation.id,
+                );
+                const building_lists = await Promise.all(
+                    [organisation, ...regions].map((parent) =>
+                        this._placeos.getZones('building', parent.id),
+                    ),
+                );
+                const zones_by_id = new Map(
+                    building_lists.flat().map((zone) => [zone.id, zone]),
+                );
+                const zones = [...zones_by_id.values()];
+                const buildings: {
+                    zone: ZoneReference;
+                    levels: ZoneReference[];
+                }[] = [];
+                // A few buildings at a time, so large deployments do not flood the API
+                for (let i = 0; i < zones.length; i += SYNC_CONCURRENCY) {
+                    buildings.push(
+                        ...(await Promise.all(
+                            zones
+                                .slice(i, i + SYNC_CONCURRENCY)
+                                .map(async (zone) => ({
+                                    zone,
+                                    levels: await this._placeos.getZones(
+                                        'level',
+                                        zone.id,
+                                    ),
+                                })),
+                        )),
+                    );
+                }
+                await this.syncPlaceOSZones(buildings);
+            }
+            this._placeos_sync.set('done');
+        } catch (error) {
+            console.warn('Failed to create projects from PlaceOS zones', error);
+            this._placeos_sync.set('error');
+        }
+    }
+
+    /** Creates the missing projects and floorplans. Zones the user deleted locally are skipped. */
     private async _syncZones(
         buildings: { zone: ZoneReference; levels: ZoneReference[] }[],
     ): Promise<void> {
         const projects = await this.listProjects();
+        const deleted = new Set(
+            await this._db.list<string>(key.deleted_zones()),
+        );
         for (const { zone, levels } of buildings) {
+            if (deleted.has(zone.id)) continue;
             let project = projects.find(
                 (item) => item.building_zone_id === zone.id,
             );
@@ -313,7 +404,8 @@ export class StoreService {
                 project.floorplans?.map((floor) => floor.level_zone_id),
             );
             const missing = [...levels.entries()].filter(
-                ([, level]) => !existing_levels.has(level.id),
+                ([, level]) =>
+                    !existing_levels.has(level.id) && !deleted.has(level.id),
             );
             // Fetch metadata a few levels at a time rather than one by one
             for (let i = 0; i < missing.length; i += SYNC_CONCURRENCY) {
@@ -384,6 +476,7 @@ export class StoreService {
             id,
         };
         await this._db.write({
+            delete: staleThumbnail(floorplan, updated),
             ...(updated.canvas_state?.objects
                 ? {
                       clear: key.objects(id),
@@ -406,7 +499,10 @@ export class StoreService {
     ): Promise<Floorplan> {
         const floorplan = await this.getFloorplan(id);
         const updated = { ...floorplan, ...updates, id, updated_at: now() };
-        await this._db.write({ put: floorplanRecords(updated) });
+        await this._db.write({
+            put: floorplanRecords(updated),
+            delete: staleThumbnail(floorplan, updated),
+        });
         if (updated.level_zone_id && this._placeos.mode() === 'domain') {
             const server_updated_at = await this._placeos
                 .saveFloorplanMetadata(updated.level_zone_id, updated)
@@ -429,7 +525,15 @@ export class StoreService {
         return updated;
     }
 
+    /**
+     * Removes the floorplan, its objects, versions and image. A floorplan made
+     * from a PlaceOS level is remembered so that the zone sync does not create
+     * it again.
+     */
     public async deleteFloorplan(id: string): Promise<void> {
+        const floorplan = await this._db.get<FloorplanSummary>(
+            key.floorplan(id),
+        );
         await Promise.all([
             this._db.deleteWhere(key.objects(id)),
             this._db.deleteWhere(key.versions(id)),
@@ -442,6 +546,14 @@ export class StoreService {
                 ],
             }),
         ]);
+        if (floorplan?.level_zone_id) {
+            await this._forgetZone(floorplan.level_zone_id);
+        }
+    }
+
+    /** Records a deleted PlaceOS zone so `syncPlaceOSZones` skips it */
+    private async _forgetZone(zone_id: string): Promise<void> {
+        await this._db.set(key.deleted_zone(zone_id), zone_id);
     }
 
     public async saveCanvasState(
@@ -535,19 +647,27 @@ export class StoreService {
     }
 
     /**
-     * Object URL for a small copy of the background image, made and stored on
+     * Object URL for a small copy of the background image or imported SVG plan, made and stored on
      * first use. Previews use this so they never decode a full-size plan. The
      * caller owns the URL and must revoke it when done.
      */
     public async getSourceThumbnailUrl(id: string): Promise<string | null> {
         let thumbnail = await this._db.get<Blob>(key.thumbnail(id));
         if (!thumbnail) {
-            const image = await this.getSourceImage(id);
+            const image =
+                (await this.getSourceImage(id)) ?? (await this._sourceSvg(id));
             if (!image) return null;
             thumbnail = await makeThumbnail(image);
             await this._db.set(key.thumbnail(id), thumbnail);
         }
         return URL.createObjectURL(thumbnail);
+    }
+
+    /** Imported SVG floors keep their plan as markup, not as a stored image */
+    private async _sourceSvg(id: string): Promise<Blob | null> {
+        const canvas = await this._db.get<FloorplanCanvas>(key.canvas(id));
+        const svg = canvas?.svg_source || canvas?.svg_output;
+        return svg ? new Blob([svg], { type: 'image/svg+xml' }) : null;
     }
 
     /** Raw source image used by local processing such as AI analysis. */
@@ -593,51 +713,35 @@ export class StoreService {
     // ── SVG import ──────────────────────────────────────────────────────────
 
     /**
-     * Creates a project, floorplan and objects from an analysed SVG. Replaces
-     * the reference application's `POST /import/svg/confirm`.
+     * Creates a floorplan and objects from an analysed SVG. Adds the floorplan
+     * to `project_id` when given, or else to a new project named
+     * `project_name`. Nothing is left behind if a step fails. Replaces the
+     * reference application's `POST /import/svg/confirm`.
      */
     public async importSvg(options: {
         svg_content: string;
         analysis: SvgAnalysis;
-        project_name: string;
+        /** Existing project to add the floor to */
+        project_id?: string;
+        /** Name of the new project, used when `project_id` is not set */
+        project_name?: string;
         floor_name: string;
         /** SVG ids to import, with the type and label the user settled on */
         mappings: { svgId: string; objectType: string; label?: string }[];
         outline_points?: { x: number; y: number }[];
     }): Promise<{ project_id: string; floorplan_id: string; objects: number }> {
-        const {
-            svg_content,
-            analysis,
-            project_name,
-            floor_name,
-            mappings,
-            outline_points,
-        } = options;
+        const { svg_content, analysis, floor_name, mappings, outline_points } =
+            options;
 
         if (!analysis.sourceSvg)
             throw new Error('The file is not a valid SVG map.');
 
-        const project = await this.createProject(project_name);
-        const floorplan = await this.addFloorplan(project.id, floor_name, 0);
-
-        const has_outline = (outline_points?.length ?? 0) >= 3;
-        await this.updateFloorplan(floorplan.id, {
-            svg_source: analysis.sourceSvg,
-            svg_source_ids: analysis.objects.map((object) => object.svgId),
-            svg_output: analysis.sourceSvg || svg_content,
-            canvas_width: analysis.width,
-            canvas_height: analysis.height,
-            source_type: 'svg-import',
-        });
-
         const chosen = new Map(mappings.map((m) => [m.svgId, m]));
         const objects = this._objectsFromSvg(analysis, chosen);
-        await this.updateFloorplan(floorplan.id, {
-            svg_source_ids: objects.flatMap((object) =>
-                object.svg_id ? [object.svg_id] : [],
-            ),
-        });
-
+        const source_ids = objects.flatMap((object) =>
+            object.svg_id ? [object.svg_id] : [],
+        );
+        const has_outline = (outline_points?.length ?? 0) >= 3;
         if (has_outline) {
             const points = outline_points as { x: number; y: number }[];
             const xs = points.map((p) => p.x);
@@ -661,12 +765,28 @@ export class StoreService {
             });
         }
 
-        await this.bulkUpsertObjects(floorplan.id, objects);
-        return {
-            project_id: project.id,
-            floorplan_id: floorplan.id,
-            objects: objects.length,
-        };
+        const project_id =
+            options.project_id ??
+            (await this.createProject(options.project_name || floor_name)).id;
+        let floorplan_id = '';
+        try {
+            const floorplan = await this.addFloorplan(project_id, floor_name);
+            floorplan_id = floorplan.id;
+            await this.updateFloorplan(floorplan_id, {
+                svg_source: analysis.sourceSvg,
+                svg_source_ids: source_ids,
+                svg_output: analysis.sourceSvg || svg_content,
+                canvas_width: analysis.width,
+                canvas_height: analysis.height,
+                source_type: 'svg-import',
+            });
+            await this.bulkUpsertObjects(floorplan_id, objects);
+        } catch (error) {
+            if (!options.project_id) await this.deleteProject(project_id);
+            else if (floorplan_id) await this.deleteFloorplan(floorplan_id);
+            throw error;
+        }
+        return { project_id, floorplan_id, objects: objects.length };
     }
 
     private _objectsFromSvg(

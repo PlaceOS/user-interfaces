@@ -3,6 +3,7 @@ import {
     bookableObjects,
     buildSvg,
     preflightChecks,
+    sequentialIdRange,
 } from '../app/editor/svg-export';
 
 const object = (partial: Partial<MapObject>): MapObject => ({
@@ -324,5 +325,23 @@ describe('buildSvg', () => {
         expect(rect?.parentElement?.getAttribute('transform')).toBe(
             'rotate(45 50 25)',
         );
+    });
+});
+
+describe('sequentialIdRange', () => {
+    it('shows the first and last id with zero padding', () => {
+        expect(sequentialIdRange('room-', 1, 42)).toBe('room-001 … room-042');
+    });
+
+    it('shows a single id when there is one object', () => {
+        expect(sequentialIdRange('desk-', 7, 1)).toBe('desk-007');
+    });
+
+    it('stops padding past three digits', () => {
+        expect(sequentialIdRange('d', 998, 3)).toBe('d998 … d1000');
+    });
+
+    it('is empty when there is nothing to number', () => {
+        expect(sequentialIdRange('room-', 1, 0)).toBe('');
     });
 });

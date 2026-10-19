@@ -1,8 +1,10 @@
+import { A11yModule } from '@angular/cdk/a11y';
 import {
     Component,
     ElementRef,
     HostListener,
     computed,
+    effect,
     inject,
     signal,
     viewChild,
@@ -44,6 +46,8 @@ const TOOL_BTN_ACTIVE = 'bg-primary/10 text-primary border-primary/30';
 
 const SIDEBAR_KEY = 'map-studio.editor-sidebars';
 
+type RightTab = 'properties' | 'label' | 'validate' | 'preview' | 'publish';
+
 const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
     { id: 'select', label: 'Select', key: 'V', icon: 'arrow_selector_tool' },
     { id: 'rect', label: 'Rect', key: 'R', icon: 'crop_square' },
@@ -65,17 +69,19 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                     class="flex items-center gap-2 rounded-lg bg-white/15 px-3.5 py-1.5 text-sm font-semibold hover:bg-white/25"
                     (click)="leave()"
                 >
-                    <icon class="text-base">arrow_back</icon>
+                    <icon class="text-base" aria-hidden="true">arrow_back</icon>
                     Back
                 </button>
                 <span class="shrink-0 text-lg font-extrabold tracking-tight">
-                    PlaceOS
+                    Map Studio
                 </span>
-                <span
-                    class="hidden shrink-0 text-sm font-medium opacity-60 sm:inline"
-                >
-                    / Floor Plan Studio
-                </span>
+                @if (state.project_name(); as project) {
+                    <span
+                        class="hidden min-w-0 truncate text-sm font-medium opacity-60 sm:inline"
+                    >
+                        / {{ project }}
+                    </span>
+                }
                 <span class="min-w-0 truncate text-sm opacity-45">
                     / {{ state.floorplan()?.floor_name || 'Editor' }}
                 </span>
@@ -137,15 +143,67 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                                         ? tool.label + ' (' + tool.key + ')'
                                         : tool.label
                                 "
+                                [attr.aria-pressed]="
+                                    state.active_tool() === tool.id
+                                "
                                 (click)="pickTool(tool.id)"
                             >
-                                <icon class="text-base">
+                                <icon class="text-base" aria-hidden="true">
                                     {{ tool.icon }}
                                 </icon>
                                 {{ tool.label }}
                             </button>
                         }
                     </div>
+
+                    <!-- The layer new shapes go on, beside the tools that draw them -->
+                    <span
+                        id="active-layer-label"
+                        class="text-base-content/60 ml-1.5 shrink-0 text-xs font-medium"
+                    >
+                        Layer
+                    </span>
+                    <select
+                        id="active-layer"
+                        aria-labelledby="active-layer-label"
+                        class="border-base-300 shrink-0 rounded border p-2 text-xs"
+                        title="Layer that new shapes go on"
+                        (change)="state.setActiveLayer(asValue($event))"
+                    >
+                        @for (layer of state.sorted_layers(); track layer.id) {
+                            <option
+                                [value]="layer.id"
+                                [selected]="
+                                    layer.id === state.active_layer_id()
+                                "
+                            >
+                                {{ layer.name }}
+                            </option>
+                        }
+                    </select>
+                    @if (active_layer(); as layer) {
+                        @if (layer.locked) {
+                            <span
+                                class="text-warning flex shrink-0 items-center gap-0.5 text-xs font-medium"
+                                title="Unlock this layer in the Layers panel to draw on it"
+                            >
+                                <icon class="text-base" aria-hidden="true">
+                                    lock
+                                </icon>
+                                Locked
+                            </span>
+                        } @else if (!layer.visible) {
+                            <span
+                                class="text-warning flex shrink-0 items-center gap-0.5 text-xs font-medium"
+                                title="Show this layer in the Layers panel to see new shapes"
+                            >
+                                <icon class="text-base" aria-hidden="true">
+                                    visibility_off
+                                </icon>
+                                Hidden
+                            </span>
+                        }
+                    }
 
                     <span class="bg-base-300 mx-1.5 h-6 w-px shrink-0"></span>
 
@@ -202,13 +260,15 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                             [class]="toolClass(state.dirty())"
                             [title]="
                                 state.dirty()
-                                    ? 'Save changes (Ctrl+S)'
-                                    : 'No unsaved changes'
+                                    ? 'Changes save automatically. Save now (Ctrl+S)'
+                                    : 'All changes saved. Changes save automatically.'
                             "
                             [disabled]="state.saving() || !state.dirty()"
                             (click)="state.save()"
                         >
-                            <icon class="text-base">save</icon>
+                            <icon class="text-base" aria-hidden="true">
+                                save
+                            </icon>
                             {{ state.saving() ? 'Saving...' : 'Save' }}
                         </button>
                         <button
@@ -217,7 +277,9 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                             [disabled]="!state.can_undo()"
                             (click)="state.undo()"
                         >
-                            <icon class="text-base">undo</icon>
+                            <icon class="text-base" aria-hidden="true">
+                                undo
+                            </icon>
                             Undo
                         </button>
                         <button
@@ -226,7 +288,9 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                             [disabled]="!state.can_redo()"
                             (click)="state.redo()"
                         >
-                            <icon class="text-base">redo</icon>
+                            <icon class="text-base" aria-hidden="true">
+                                redo
+                            </icon>
                             Redo
                         </button>
                         <!-- sr-only, not hidden, so the input stays keyboard reachable -->
@@ -234,7 +298,9 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                             [class]="toolClass(false) + ' cursor-pointer'"
                             title="Upload a background image"
                         >
-                            <icon class="text-base">upload</icon>
+                            <icon class="text-base" aria-hidden="true">
+                                upload
+                            </icon>
                             Image
                             <input
                                 type="file"
@@ -262,7 +328,7 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                                 [disabled]="!state.image_url() || ai_busy()"
                                 (click)="detectAiOutline()"
                             >
-                                <icon class="text-base">
+                                <icon class="text-base" aria-hidden="true">
                                     {{
                                         ai_outline_analyzing()
                                             ? 'progress_activity'
@@ -285,7 +351,7 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                                 [disabled]="!state.image_url() || ai_busy()"
                                 (click)="detectAiRooms()"
                             >
-                                <icon class="text-base">
+                                <icon class="text-base" aria-hidden="true">
                                     {{
                                         ai_rooms_analyzing()
                                             ? 'progress_activity'
@@ -305,41 +371,26 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
 
                     <!-- View -->
                     <div class="flex shrink-0 items-center gap-1">
-                        <select
-                            id="active-layer"
-                            class="border-base-300 shrink-0 rounded border p-2 text-xs"
-                            title="Active layer"
-                            aria-label="Active layer"
-                            (change)="state.setActiveLayer(asValue($event))"
-                        >
-                            @for (
-                                layer of state.sorted_layers();
-                                track layer.id
-                            ) {
-                                <option
-                                    [value]="layer.id"
-                                    [selected]="
-                                        layer.id === state.active_layer_id()
-                                    "
-                                >
-                                    {{ layer.name }}
-                                </option>
-                            }
-                        </select>
                         <button
                             [class]="toolClass(state.snap_enabled())"
                             title="Toggle snapping"
+                            [attr.aria-pressed]="state.snap_enabled()"
                             (click)="state.toggleSnap()"
                         >
-                            <icon class="text-base">grid_goldenratio</icon>
+                            <icon class="text-base" aria-hidden="true">
+                                grid_goldenratio
+                            </icon>
                             Snap
                         </button>
                         <button
                             [class]="toolClass(state.grid_enabled())"
                             title="Toggle grid (G)"
+                            [attr.aria-pressed]="state.grid_enabled()"
                             (click)="state.toggleGrid()"
                         >
-                            <icon class="text-base">grid_on</icon>
+                            <icon class="text-base" aria-hidden="true">
+                                grid_on
+                            </icon>
                             Grid
                         </button>
                         @if (state.grid_enabled()) {
@@ -360,8 +411,19 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
             </header>
 
             @if (state.error(); as message) {
-                <div class="bg-error-light text-error px-4 py-2 text-sm">
-                    {{ message }}
+                <div
+                    class="bg-error-light text-error flex items-center gap-2 px-4 py-2 text-sm"
+                    role="alert"
+                >
+                    <span class="flex-1">{{ message }}</span>
+                    <button
+                        class="hover:bg-error/10 flex size-6 shrink-0 items-center justify-center rounded"
+                        title="Dismiss"
+                        aria-label="Dismiss error"
+                        (click)="state.clearError()"
+                    >
+                        <icon aria-hidden="true">close</icon>
+                    </button>
                 </div>
             } @else if (state.server_save_error(); as message) {
                 <div class="bg-warning-light px-4 py-2 text-sm" server-save>
@@ -387,13 +449,23 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                             class="bg-base-100 border-base-300 flex shrink-0 flex-col border-r"
                             [style.width.px]="left_width()"
                         >
-                            <div class="border-base-300 flex border-b">
+                            <div
+                                class="border-base-300 flex border-b"
+                                role="tablist"
+                                aria-label="Layers and objects"
+                            >
                                 <button
                                     class="flex-1 px-3 py-2 text-xs font-semibold"
                                     [class]="
                                         left_tab() === 'layers'
                                             ? 'border-primary border-b-2'
                                             : 'text-base-content/60'
+                                    "
+                                    role="tab"
+                                    id="editor-left-tab-layers"
+                                    aria-controls="editor-left-tabpanel"
+                                    [attr.aria-selected]="
+                                        left_tab() === 'layers'
                                     "
                                     (click)="left_tab.set('layers')"
                                 >
@@ -406,12 +478,25 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                                             ? 'border-primary border-b-2'
                                             : 'text-base-content/60'
                                     "
+                                    role="tab"
+                                    id="editor-left-tab-objects"
+                                    aria-controls="editor-left-tabpanel"
+                                    [attr.aria-selected]="
+                                        left_tab() === 'objects'
+                                    "
                                     (click)="left_tab.set('objects')"
                                 >
                                     Objects
                                 </button>
                             </div>
-                            <div class="min-h-0 flex-1">
+                            <div
+                                class="min-h-0 flex-1"
+                                id="editor-left-tabpanel"
+                                role="tabpanel"
+                                [attr.aria-labelledby]="
+                                    'editor-left-tab-' + left_tab()
+                                "
+                            >
                                 @if (left_tab() === 'layers') {
                                     <map-studio-layer-panel />
                                 } @else {
@@ -426,6 +511,19 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                     <!-- Canvas -->
                     <main class="relative min-w-0 flex-1">
                         <map-studio-canvas />
+                        @if (is_empty()) {
+                            <!-- First-run hint; clicks pass through to the canvas -->
+                            <div
+                                class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center p-6"
+                            >
+                                <p
+                                    class="bg-base-100/90 border-base-300 text-base-content/70 max-w-72 rounded-lg border px-4 py-3 text-center text-sm shadow"
+                                >
+                                    Upload an image to trace, or pick Rect or
+                                    Poly to start drawing.
+                                </p>
+                            </div>
+                        }
                         <!-- Zoom controls, matching <dynamic-map>'s overlay stack -->
                         <div
                             class="border-base-300 bg-base-100 absolute top-3 right-3 z-20 flex flex-col overflow-hidden rounded border shadow"
@@ -470,38 +568,73 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                             class="bg-base-100 border-base-300 flex shrink-0 flex-col border-l"
                             [style.width.px]="right_width()"
                         >
-                            <div class="border-base-300 flex border-b">
+                            <div
+                                class="border-base-300 flex overflow-x-auto border-b"
+                                role="tablist"
+                                aria-label="Editor details"
+                            >
                                 @for (tab of right_tabs; track tab.id) {
                                     <button
-                                        class="flex-1 px-1 py-2 text-xs font-semibold"
+                                        class="flex-1 px-2 py-2 text-xs font-semibold whitespace-nowrap"
                                         [class]="
                                             right_tab() === tab.id
                                                 ? 'border-primary border-b-2'
                                                 : 'text-base-content/60'
                                         "
+                                        role="tab"
+                                        [id]="'editor-tab-' + tab.id"
+                                        [attr.aria-controls]="
+                                            'editor-tabpanel-' + tab.id
+                                        "
+                                        [attr.aria-selected]="
+                                            right_tab() === tab.id
+                                        "
                                         [title]="tab.title"
-                                        (click)="right_tab.set(tab.id)"
+                                        (click)="openTab(tab.id)"
                                     >
                                         {{ tab.label }}
                                     </button>
                                 }
                             </div>
+                            <!-- Panels mount on first visit, then hide rather
+                                 than unmount, so validation results and publish
+                                 selections survive a tab switch -->
                             <div class="min-h-0 flex-1">
-                                @switch (right_tab()) {
-                                    @case ('properties') {
-                                        <map-studio-properties-panel />
-                                    }
-                                    @case ('label') {
-                                        <map-studio-labelling-panel />
-                                    }
-                                    @case ('validate') {
-                                        <map-studio-validation-panel />
-                                    }
-                                    @case ('preview') {
-                                        <map-studio-availability-panel />
-                                    }
-                                    @case ('publish') {
-                                        <map-studio-publish-panel />
+                                @for (tab of right_tabs; track tab.id) {
+                                    @if (visited_tabs().has(tab.id)) {
+                                        <div
+                                            class="h-full"
+                                            role="tabpanel"
+                                            [id]="'editor-tabpanel-' + tab.id"
+                                            [attr.aria-labelledby]="
+                                                'editor-tab-' + tab.id
+                                            "
+                                            [hidden]="right_tab() !== tab.id"
+                                        >
+                                            @switch (tab.id) {
+                                                @case ('properties') {
+                                                    <map-studio-properties-panel />
+                                                }
+                                                @case ('label') {
+                                                    <map-studio-labelling-panel />
+                                                }
+                                                @case ('validate') {
+                                                    <map-studio-validation-panel
+                                                        (reveal)="
+                                                            showInProperties(
+                                                                $event
+                                                            )
+                                                        "
+                                                    />
+                                                }
+                                                @case ('preview') {
+                                                    <map-studio-availability-panel />
+                                                }
+                                                @case ('publish') {
+                                                    <map-studio-publish-panel />
+                                                }
+                                            }
+                                        </div>
                                     }
                                 }
                             </div>
@@ -603,6 +736,10 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                         <span class="text-primary font-semibold">
                             Click to place {{ placing.id }} (Esc to cancel)
                         </span>
+                    } @else if (tool_hint(); as hint) {
+                        <span class="text-primary font-semibold">
+                            {{ hint }}
+                        </span>
                     }
                     <span class="ml-auto flex items-center gap-2">
                         <span class="capitalize">{{ state.mode() }} mode</span>
@@ -615,13 +752,15 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                                 state.floorplan()?.version
                             }}
                         </span>
-                        @if (state.dirty()) {
-                            <span class="font-semibold text-[#d97706]">
-                                Unsaved
-                            </span>
-                        } @else if (state.last_saved()) {
-                            <span class="text-success">Saved</span>
-                        }
+                        <span
+                            [class]="
+                                state.dirty() || state.saving()
+                                    ? 'font-semibold text-[#d97706]'
+                                    : 'text-success'
+                            "
+                        >
+                            {{ save_status() }}
+                        </span>
                         <span
                             aria-hidden="true"
                             class="bg-base-300 h-3 w-px shrink-0"
@@ -630,7 +769,7 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                             class="border-base-300 hover:bg-base-200 flex size-5.5 items-center justify-center rounded border bg-transparent text-xs font-bold"
                             title="Keyboard shortcuts (?)"
                             aria-label="Keyboard shortcuts"
-                            (click)="show_shortcuts.set(true)"
+                            (click)="openShortcuts()"
                         >
                             ?
                         </button>
@@ -646,27 +785,30 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                     <button
                         class="absolute inset-0 cursor-default bg-transparent"
                         aria-label="Close keyboard shortcuts"
-                        (click)="show_shortcuts.set(false)"
+                        tabindex="-1"
+                        (click)="closeShortcuts()"
                     ></button>
                     <section
                         class="bg-base-100 relative max-h-[80vh] w-[min(90%,32rem)] overflow-y-auto rounded-xl px-7 py-6 shadow-2xl"
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="shortcuts-title"
+                        cdkTrapFocus
                     >
                         <header class="mb-5 flex items-center justify-between">
                             <h2 id="shortcuts-title" class="text-lg font-bold">
                                 Keyboard Shortcuts
                             </h2>
                             <button
+                                #shortcuts_close
                                 class="hover:bg-base-200 rounded px-2 py-1 text-xl"
                                 aria-label="Close keyboard shortcuts"
-                                (click)="show_shortcuts.set(false)"
+                                (click)="closeShortcuts()"
                             >
                                 &times;
                             </button>
                         </header>
-                        @for (shortcut of shortcuts; track shortcut.key) {
+                        @for (shortcut of shortcuts; track shortcut.label) {
                             <div
                                 class="border-base-300 flex items-center justify-between border-b py-2 text-sm last:border-b-0"
                             >
@@ -687,6 +829,7 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
     `,
     imports: [
         AssetPickerComponent,
+        A11yModule,
         AvailabilityPanelComponent,
         CanvasComponent,
         IconComponent,
@@ -710,6 +853,10 @@ export class EditorComponent {
     public readonly canvas = viewChild(CanvasComponent);
     public readonly searchInput =
         viewChild<ElementRef<HTMLInputElement>>('search_input');
+    private readonly _shortcuts_close =
+        viewChild<ElementRef<HTMLButtonElement>>('shortcuts_close');
+    /** Where focus was before the shortcuts dialog opened, to return it after */
+    private _shortcuts_return: HTMLElement | null = null;
 
     public readonly tools = TOOLS;
     public readonly left_tab = signal<'layers' | 'objects'>('layers');
@@ -724,18 +871,35 @@ export class EditorComponent {
 
     public readonly shortcuts = [
         { key: 'V', label: 'Select' },
-        { key: 'Shift/Ctrl/⌘ click', label: 'Add or remove from selection' },
-        { key: 'Shift drag', label: 'Select objects in an area' },
         { key: 'R', label: 'Rectangle' },
         { key: 'O', label: 'Polygon' },
         { key: 'P', label: 'Place object' },
         { key: 'W', label: 'Wall' },
         { key: 'G', label: 'Toggle grid' },
-        { key: 'Ctrl/\u2318 S', label: 'Save' },
+        {
+            key: 'Shift/Ctrl/\u2318 click',
+            label: 'Add or remove from selection',
+        },
+        { key: 'Shift drag', label: 'Select objects in an area' },
+        { key: 'Shift', label: 'Constrain lines and angles while drawing' },
+        { key: 'Space drag or middle drag', label: 'Pan' },
+        { key: 'Pinch or Ctrl/\u2318 wheel', label: 'Zoom' },
+        { key: 'Double-click', label: 'Rename' },
+        { key: 'Click an edge', label: 'Add a polygon vertex' },
+        { key: 'Alt click a vertex', label: 'Delete a polygon vertex' },
+        { key: 'Enter', label: 'Close the polygon being drawn' },
+        { key: 'Backspace', label: 'Remove the last polygon point' },
+        {
+            key: 'Ctrl/\u2318 S',
+            label: 'Save now (changes also save automatically)',
+        },
         { key: 'Ctrl/\u2318 Z', label: 'Undo' },
-        { key: 'Ctrl/\u2318 Shift Z', label: 'Redo' },
+        { key: 'Ctrl/\u2318 Shift Z or Ctrl/\u2318 Y', label: 'Redo' },
+        { key: 'Ctrl/\u2318 D', label: 'Duplicate selected' },
+        { key: 'Ctrl/\u2318 F', label: 'Search' },
         { key: 'Delete', label: 'Delete selected' },
         { key: 'Esc', label: 'Deselect or cancel' },
+        { key: '?', label: 'Show keyboard shortcuts' },
     ];
 
     public readonly sidebar_min = SIDEBAR_MIN;
@@ -764,15 +928,66 @@ export class EditorComponent {
     });
 
     public readonly right_tabs = [
-        { id: 'properties' as const, label: 'Props', title: 'Properties' },
-        { id: 'label' as const, label: 'Label', title: 'Labelling' },
-        { id: 'validate' as const, label: 'Check', title: 'Validation' },
-        { id: 'preview' as const, label: 'Preview', title: 'Availability' },
-        { id: 'publish' as const, label: 'Publish', title: 'Publish & export' },
+        {
+            id: 'properties' as const,
+            label: 'Properties',
+            title: 'Properties of the selected object',
+        },
+        { id: 'label' as const, label: 'Labelling', title: 'Bulk labelling' },
+        {
+            id: 'validate' as const,
+            label: 'Validation',
+            title: 'Check the plan before you publish',
+        },
+        {
+            id: 'preview' as const,
+            label: 'Preview',
+            title: 'Availability preview',
+        },
+        {
+            id: 'publish' as const,
+            label: 'Publish',
+            title: 'Publish and export',
+        },
     ];
-    public readonly right_tab = signal<
-        'properties' | 'label' | 'validate' | 'preview' | 'publish'
-    >('properties');
+    public readonly right_tab = signal<RightTab>('properties');
+    /** Tabs opened at least once; their panels stay mounted from then on */
+    public readonly visited_tabs = signal<ReadonlySet<RightTab>>(
+        new Set(['properties']),
+    );
+
+    public readonly active_layer = computed(() =>
+        this.state.layers().find((l) => l.id === this.state.active_layer_id()),
+    );
+
+    /** No objects and no image: show the first-run hint */
+    public readonly is_empty = computed(
+        () => !this.state.objects().length && !this.state.image_url(),
+    );
+
+    public readonly save_status = computed(() => {
+        if (this.state.saving()) return 'Saving…';
+        return this.state.dirty() ? 'Changes pending' : 'All changes saved';
+    });
+
+    /** Status bar guidance for the tools that take several clicks */
+    public readonly tool_hint = computed(() => {
+        const canvas = this.canvas();
+        const tool = this.state.active_tool();
+        if (tool === 'polygon') {
+            const count = canvas?.outline_points().length ?? 0;
+            if (!count) return 'Click to place the first point';
+            if (count < 3)
+                return 'Click to add points (Shift constrains) · Backspace removes the last · Esc cancels';
+            return 'Click the first point or press Enter to close · Backspace removes the last point · Esc cancels';
+        }
+        if (tool === 'wall') {
+            return canvas?.wall_start()
+                ? 'Click to end the wall (Shift constrains) · Esc cancels'
+                : 'Click to start a wall';
+        }
+        return '';
+    });
 
     public readonly zoomPercent = computed(() =>
         Math.round(this.state.zoom() * 100),
@@ -789,6 +1004,8 @@ export class EditorComponent {
     public readonly round = Math.round;
 
     constructor() {
+        // Move focus into the shortcuts dialog as soon as it renders
+        effect(() => this._shortcuts_close()?.nativeElement.focus());
         this._restoreWidths();
         const id = this._route.snapshot.paramMap.get('floorplan_id') ?? '';
         this.state.load(id);
@@ -875,6 +1092,33 @@ export class EditorComponent {
         this.canvas()?.scrollIntoView(object);
     }
 
+    public openTab(tab: RightTab) {
+        this.right_tab.set(tab);
+        this.visited_tabs.update((tabs) =>
+            tabs.has(tab) ? tabs : new Set([...tabs, tab]),
+        );
+    }
+
+    /** Select an object, show its properties and bring it into view */
+    public showInProperties(object: MapObject) {
+        this.state.clearMultiSelect();
+        this.state.select(object.id);
+        this.openTab('properties');
+        this.canvas()?.scrollIntoView(object);
+    }
+
+    public openShortcuts() {
+        if (this.show_shortcuts()) return;
+        this._shortcuts_return = document.activeElement as HTMLElement | null;
+        this.show_shortcuts.set(true);
+    }
+
+    public closeShortcuts() {
+        this.show_shortcuts.set(false);
+        this._shortcuts_return?.focus();
+        this._shortcuts_return = null;
+    }
+
     /** Select a search hit, bring it into view and close the dropdown */
     public reveal(object: MapObject) {
         this.state.select(object.id);
@@ -882,19 +1126,28 @@ export class EditorComponent {
         this.canvas()?.scrollIntoView(object);
     }
 
-    /** Warn before dropping unsaved work on the way back to the project */
+    /** Back to the project. The route guard saves pending changes first. */
     public leave() {
-        if (
-            this.state.dirty() &&
-            !confirm('You have unsaved changes. Leave without saving?')
-        )
-            return;
         this._router.navigate(this.backLink());
     }
 
+    /**
+     * Called by the editor route's canDeactivate guard, so Back, in-app links
+     * and {@link leave} all save first. Asks only if the save failed.
+     */
+    public async canLeave(): Promise<boolean> {
+        if (await this.state.flush()) return true;
+        return confirm(
+            'Map Studio could not save the latest changes. Leave anyway?',
+        );
+    }
+
+    /** A page unload cannot wait, so start the save and ask the browser to hold */
     @HostListener('window:beforeunload', ['$event'])
     public onBeforeUnload(event: BeforeUnloadEvent) {
-        if (this.state.dirty()) event.preventDefault();
+        if (!this.state.dirty() && !this.state.saving()) return;
+        this.state.save();
+        event.preventDefault();
     }
 
     @HostListener('window:resize')
@@ -1011,18 +1264,40 @@ export class EditorComponent {
         return error instanceof Error ? error.message : fallback;
     }
 
+    /** The multi-selection when it holds the selected object, else the selected object */
+    private _selectionIds(): string[] {
+        const multi = this.state.multi_select();
+        const selected = this.state.selected_id();
+        // Search and the object list select one object without clearing the group
+        if (multi.length > 1 && (!selected || multi.includes(selected))) {
+            return multi;
+        }
+        return selected ? [selected] : [];
+    }
+
     @HostListener('window:keydown', ['$event'])
     public onKeyDown(event: KeyboardEvent) {
-        const target = event.target as HTMLElement;
-        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
-
+        // The shortcuts dialog is modal: only Escape reaches it, nothing edits
+        if (this.show_shortcuts()) {
+            if (event.key === 'Escape') this.closeShortcuts();
+            return;
+        }
         const mod = event.ctrlKey || event.metaKey;
 
+        // Ahead of the text-field check, so Save Page never opens from a field
         if (mod && event.key.toLowerCase() === 's') {
             event.preventDefault();
             if (this.state.dirty() && !this.state.saving()) this.state.save();
             return;
         }
+
+        const target = event.target as HTMLElement;
+        if (
+            ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) ||
+            target.isContentEditable
+        )
+            return;
+
         if (mod && event.key.toLowerCase() === 'z') {
             event.preventDefault();
             if (event.shiftKey) this.state.redo();
@@ -1041,17 +1316,13 @@ export class EditorComponent {
         }
         if (mod && event.key.toLowerCase() === 'd') {
             event.preventDefault();
-            const selected = this.state.selected_id();
-            if (selected) this.state.duplicateObject(selected);
+            const ids = this._selectionIds();
+            if (ids.length) this.state.duplicateObjects(ids);
             return;
         }
         if (mod) return;
 
         if (event.key === 'Escape') {
-            if (this.show_shortcuts()) {
-                this.show_shortcuts.set(false);
-                return;
-            }
             this.state.select(null);
             this.state.clearMultiSelect();
             this.state.cancelPlacing();
@@ -1061,20 +1332,30 @@ export class EditorComponent {
             return;
         }
         if (event.key === '?') {
-            this.show_shortcuts.set(true);
+            this.openShortcuts();
             return;
         }
+
+        // A focused button, select or other control keeps its own keys
+        const canvas = this.canvas();
+        const on_canvas = !!canvas?.ownsKey(target);
+
+        // While a polygon is being drawn, these keys edit it, not the selection
+        if (canvas?.outline_points().length && on_canvas) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                canvas.finishPolygon();
+                return;
+            }
+            if (event.key === 'Backspace' || event.key === 'Delete') {
+                event.preventDefault();
+                canvas.removeLastPoint();
+                return;
+            }
+        }
         if (event.key === 'Delete' || event.key === 'Backspace') {
-            const group = this.state.multi_select();
-            const selected = this.state.selected_id();
-            // Search and the object list select without clearing the group
-            const ids =
-                selected && group.length > 1 && group.includes(selected)
-                    ? [...group]
-                    : selected
-                      ? [selected]
-                      : [];
-            if (ids.length) {
+            const ids = this._selectionIds();
+            if (on_canvas && ids.length) {
                 event.preventDefault();
                 this.state.deleteObjects(ids);
             }

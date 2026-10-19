@@ -35,102 +35,113 @@ const clamp = (value: number, min: number, max: number) =>
 @Component({
     selector: 'map-studio-minimap',
     template: `
-        @if (collapsed()) {
+        @if (!has_content()) {
+            <!-- Nothing to navigate yet -->
+        } @else if (collapsed()) {
             <button
                 class="bg-base-100 border-base-300 text-base-content/60 absolute right-3 bottom-3 z-20 rounded border px-2 py-1 text-xs font-semibold shadow"
+                title="Show minimap"
                 (click)="collapsed.set(false)"
             >
                 Map
             </button>
         } @else {
-            <div
-                #frame
-                class="border-base-300 bg-base-200 absolute right-3 bottom-3 z-20 cursor-crosshair overflow-hidden rounded-lg border shadow-md"
-                [style.width.px]="minimapWidth"
-                [style.height.px]="minimapHeight()"
-                role="button"
-                tabindex="0"
-                aria-label="Navigate floor plan"
-                (click)="navigate($event)"
-                (keydown.enter)="navigate($event)"
-                (keydown.space)="$event.preventDefault(); navigate($event)"
-            >
+            <div class="absolute right-3 bottom-3 z-20">
+                <div
+                    #frame
+                    class="border-base-300 bg-base-200 cursor-crosshair overflow-hidden rounded-lg border shadow-md"
+                    [style.width.px]="minimapWidth"
+                    [style.height.px]="minimapHeight()"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Navigate floor plan"
+                    (click)="navigate($event)"
+                    (keydown.enter)="navigate($event)"
+                    (keydown.space)="$event.preventDefault(); navigate($event)"
+                >
+                    <svg
+                        [attr.width]="minimapWidth"
+                        [attr.height]="minimapHeight()"
+                        [attr.viewBox]="
+                            '0 0 ' +
+                            state.canvas_width() +
+                            ' ' +
+                            state.canvas_height()
+                        "
+                    >
+                        @if (source_image(); as href) {
+                            <image
+                                [attr.href]="href"
+                                x="0"
+                                y="0"
+                                [attr.width]="state.canvas_width()"
+                                [attr.height]="state.canvas_height()"
+                            />
+                        } @else if (state.image_url(); as href) {
+                            <image
+                                [attr.href]="href"
+                                x="0"
+                                y="0"
+                                [attr.width]="state.canvas_width()"
+                                [attr.height]="state.canvas_height()"
+                                opacity="0.7"
+                            />
+                        }
+                        @for (object of drawnObjects(); track object.id) {
+                            @switch (object.geometry.type) {
+                                @case ('rect') {
+                                    <rect
+                                        [attr.x]="object.geometry.x ?? 0"
+                                        [attr.y]="object.geometry.y ?? 0"
+                                        [attr.width]="
+                                            object.geometry.width ?? 10
+                                        "
+                                        [attr.height]="
+                                            object.geometry.height ?? 10
+                                        "
+                                        [attr.fill]="colorFor(object)"
+                                        opacity="0.75"
+                                    />
+                                }
+                                @case ('circle') {
+                                    <circle
+                                        [attr.cx]="object.geometry.x ?? 0"
+                                        [attr.cy]="object.geometry.y ?? 0"
+                                        [attr.r]="object.geometry.r ?? 5"
+                                        [attr.fill]="colorFor(object)"
+                                        opacity="0.6"
+                                    />
+                                }
+                                @case ('polygon') {
+                                    <polygon
+                                        [attr.points]="pointsOf(object)"
+                                        [attr.fill]="colorFor(object)"
+                                        opacity="0.6"
+                                    />
+                                }
+                            }
+                        }
+                        <rect
+                            [attr.x]="viewport().x"
+                            [attr.y]="viewport().y"
+                            [attr.width]="viewport().w"
+                            [attr.height]="viewport().h"
+                            fill="rgba(59,130,246,0.1)"
+                            stroke="#3b82f6"
+                            [attr.stroke-width]="viewportStroke()"
+                            rx="2"
+                        />
+                    </svg>
+                </div>
+                <!-- A sibling, not a child, of the role=button frame -->
                 <button
                     class="text-base-content/40 hover:text-base-content absolute top-0.5 right-0.5 z-10 text-sm"
                     title="Hide minimap"
-                    (click)="hide($event)"
+                    aria-label="Hide minimap"
+                    (click)="collapsed.set(true)"
                 >
-                    <icon>close</icon>
+                    <icon aria-hidden="true">close</icon>
                 </button>
-                <svg
-                    [attr.width]="minimapWidth"
-                    [attr.height]="minimapHeight()"
-                    [attr.viewBox]="
-                        '0 0 ' +
-                        state.canvas_width() +
-                        ' ' +
-                        state.canvas_height()
-                    "
-                >
-                    @if (source_image(); as href) {
-                        <image
-                            [attr.href]="href"
-                            x="0"
-                            y="0"
-                            [attr.width]="state.canvas_width()"
-                            [attr.height]="state.canvas_height()"
-                        />
-                    } @else if (state.image_url(); as href) {
-                        <image
-                            [attr.href]="href"
-                            x="0"
-                            y="0"
-                            [attr.width]="state.canvas_width()"
-                            [attr.height]="state.canvas_height()"
-                            opacity="0.7"
-                        />
-                    }
-                    @for (object of drawnObjects(); track object.id) {
-                        @switch (object.geometry.type) {
-                            @case ('rect') {
-                                <rect
-                                    [attr.x]="object.geometry.x ?? 0"
-                                    [attr.y]="object.geometry.y ?? 0"
-                                    [attr.width]="object.geometry.width ?? 10"
-                                    [attr.height]="object.geometry.height ?? 10"
-                                    [attr.fill]="colorFor(object)"
-                                    opacity="0.75"
-                                />
-                            }
-                            @case ('circle') {
-                                <circle
-                                    [attr.cx]="object.geometry.x ?? 0"
-                                    [attr.cy]="object.geometry.y ?? 0"
-                                    [attr.r]="object.geometry.r ?? 5"
-                                    [attr.fill]="colorFor(object)"
-                                    opacity="0.6"
-                                />
-                            }
-                            @case ('polygon') {
-                                <polygon
-                                    [attr.points]="pointsOf(object)"
-                                    [attr.fill]="colorFor(object)"
-                                    opacity="0.6"
-                                />
-                            }
-                        }
-                    }
-                    <rect
-                        [attr.x]="viewport().x"
-                        [attr.y]="viewport().y"
-                        [attr.width]="viewport().w"
-                        [attr.height]="viewport().h"
-                        fill="rgba(59,130,246,0.1)"
-                        stroke="#3b82f6"
-                        [attr.stroke-width]="viewportStroke()"
-                        rx="2"
-                    />
-                </svg>
             </div>
         }
     `,
@@ -157,6 +168,14 @@ export class MinimapComponent {
 
     /** Bumped on scroll/resize so the viewport box recomputes */
     private readonly _tick = signal(0);
+
+    /** False on an empty plan, where the minimap would only show a blank box */
+    public readonly has_content = computed(
+        () =>
+            !!this.state.objects().length ||
+            !!this.state.image_url() ||
+            !!this.source_image(),
+    );
 
     public readonly minimapHeight = computed(() =>
         Math.round(
@@ -237,11 +256,6 @@ export class MinimapComponent {
             container?.removeEventListener('scroll', refresh);
             window.removeEventListener('resize', refresh);
         });
-    }
-
-    public hide(event: Event) {
-        event.stopPropagation();
-        this.collapsed.set(true);
     }
 
     /** Scrolls the canvas so the clicked point sits in the middle */

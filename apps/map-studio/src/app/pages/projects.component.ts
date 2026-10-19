@@ -1,6 +1,14 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import {
+    Component,
+    effect,
+    ElementRef,
+    inject,
+    signal,
+    untracked,
+    viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatFormField } from '@angular/material/form-field';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { IconComponent } from '@placeos/components';
@@ -15,17 +23,11 @@ const formatDate = (iso: string) =>
         year: 'numeric',
     });
 
-const BADGE_CLASSES: Record<Project['status'], string> = {
-    draft: 'border-base-300 text-base-content/60 border',
-    published: 'bg-success-light text-success',
-    archived: 'bg-warning-light text-warning',
-};
-
 @Component({
     selector: 'map-studio-projects',
     template: `
         <div class="mx-auto max-w-[68.75rem]">
-            <div class="mb-7 flex items-center justify-between">
+            <div class="mb-7 flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h2 class="mb-1 text-2xl font-bold">Projects</h2>
                     <p class="text-base-content/60 text-sm">
@@ -34,7 +36,9 @@ const BADGE_CLASSES: Record<Project['status'], string> = {
                 </div>
                 <div class="flex gap-2.5">
                     <a btn class="inverse gap-1" routerLink="/import">
-                        <icon class="text-base">upload_file</icon>
+                        <icon class="text-base" aria-hidden="true">
+                            upload_file
+                        </icon>
                         Import SVG
                     </a>
                     <button
@@ -42,7 +46,7 @@ const BADGE_CLASSES: Record<Project['status'], string> = {
                         class="gap-1"
                         (click)="show_form.set(!show_form())"
                     >
-                        <icon class="text-base">
+                        <icon class="text-base" aria-hidden="true">
                             {{ show_form() ? 'close' : 'add' }}
                         </icon>
                         {{ show_form() ? 'Cancel' : 'New Project' }}
@@ -50,9 +54,39 @@ const BADGE_CLASSES: Record<Project['status'], string> = {
                 </div>
             </div>
 
+            @switch (placeos_sync()) {
+                @case ('syncing') {
+                    <div
+                        class="bg-base-100 border-base-300 text-base-content/60 mb-6 flex items-center gap-3 rounded border px-4 py-3 text-sm"
+                        role="status"
+                    >
+                        <div
+                            class="border-base-300 border-t-primary h-4 w-4 animate-spin rounded-full border-2"
+                        ></div>
+                        Syncing buildings from PlaceOS…
+                    </div>
+                }
+                @case ('error') {
+                    <div
+                        class="bg-error-light text-error border-error/30 mb-6 flex flex-wrap items-center justify-between gap-3 rounded border px-4 py-3 text-sm"
+                        role="alert"
+                    >
+                        Could not sync buildings from PlaceOS.
+                        <button
+                            btn
+                            class="inverse min-h-0! px-3! py-1! text-xs"
+                            (click)="retrySync()"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                }
+            }
+
             @if (error(); as message) {
                 <div
                     class="bg-error-light text-error border-error/30 mb-6 rounded border px-4 py-3 text-sm"
+                    role="alert"
                 >
                     {{ message }}
                 </div>
@@ -68,11 +102,13 @@ const BADGE_CLASSES: Record<Project['status'], string> = {
                             appearance="outline"
                             class="no-subscript w-full"
                         >
+                            <mat-label>Project name</mat-label>
                             <input
+                                #name_input
                                 matInput
                                 name="name"
                                 required
-                                placeholder="Project name e.g. Sydney HQ"
+                                placeholder="e.g. Sydney HQ"
                                 [(ngModel)]="form_name"
                                 [ngModelOptions]="{ standalone: true }"
                             />
@@ -81,10 +117,11 @@ const BADGE_CLASSES: Record<Project['status'], string> = {
                             appearance="outline"
                             class="no-subscript w-full"
                         >
+                            <mat-label>Building name</mat-label>
                             <input
                                 matInput
                                 name="building"
-                                placeholder="Building name e.g. Tower A"
+                                placeholder="e.g. Tower A"
                                 [(ngModel)]="form_building"
                                 [ngModelOptions]="{ standalone: true }"
                             />
@@ -120,52 +157,44 @@ const BADGE_CLASSES: Record<Project['status'], string> = {
                         Create your first project to start designing floor
                         plans.
                     </p>
-                    <button
-                        btn
-                        class="mx-auto gap-1"
-                        (click)="show_form.set(true)"
-                    >
-                        <icon class="text-base">add</icon>
-                        New Project
-                    </button>
+                    @if (!show_form()) {
+                        <button
+                            btn
+                            class="mx-auto gap-1"
+                            (click)="show_form.set(true)"
+                        >
+                            <icon class="text-base" aria-hidden="true">
+                                add
+                            </icon>
+                            New Project
+                        </button>
+                    }
                 </div>
             } @else {
                 <div
                     class="grid [grid-template-columns:repeat(auto-fill,minmax(18.75rem,1fr))] gap-5"
                 >
                     @for (project of projects(); track project.id) {
+                        <!-- The name link stretches over the card, so the whole card opens the project -->
                         <div
-                            class="bg-base-100 border-base-300 focus-within:ring-primary flex cursor-pointer flex-col rounded-lg border p-5 shadow-sm transition-shadow focus-within:ring-2 hover:shadow-md"
-                            role="link"
-                            tabindex="0"
-                            [attr.aria-label]="'Open ' + project.name"
-                            (click)="open(project)"
-                            (keydown.enter)="open(project)"
-                            (keydown.space)="
-                                $event.preventDefault(); open(project)
-                            "
+                            class="bg-base-100 border-base-300 has-[a:focus-visible]:ring-primary relative flex flex-col rounded-lg border p-5 shadow-sm transition-shadow hover:shadow-md has-[a:focus-visible]:ring-2"
                         >
-                            <div class="mb-3 flex items-start justify-between">
-                                <div class="min-w-0 flex-1">
-                                    <h3
-                                        class="mb-1 truncate text-base font-semibold"
-                                    >
-                                        <span>
-                                            {{ project.name }}
-                                        </span>
-                                    </h3>
-                                    @if (project.building_name) {
-                                        <p class="text-base-content/60 text-xs">
-                                            {{ project.building_name }}
-                                        </p>
-                                    }
-                                </div>
-                                <span
-                                    class="rounded-xl px-2.5 py-0.5 text-xs font-semibold capitalize"
-                                    [class]="badgeClass(project)"
+                            <div class="mb-3 min-w-0">
+                                <h3
+                                    class="mb-1 truncate text-base font-semibold"
                                 >
-                                    {{ project.status }}
-                                </span>
+                                    <a
+                                        class="no-underline after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
+                                        [routerLink]="['/project', project.id]"
+                                    >
+                                        {{ project.name }}
+                                    </a>
+                                </h3>
+                                @if (project.building_name) {
+                                    <p class="text-base-content/60 text-xs">
+                                        {{ project.building_name }}
+                                    </p>
+                                }
                             </div>
 
                             <div
@@ -188,9 +217,11 @@ const BADGE_CLASSES: Record<Project['status'], string> = {
                                 </div>
                                 <button
                                     btn
-                                    class="clear text-error! min-h-0! px-2.5! py-1! text-xs"
-                                    (click)="remove($event, project)"
-                                    (keydown)="$event.stopPropagation()"
+                                    class="clear text-error! relative z-10 min-h-0! px-2.5! py-1! text-xs"
+                                    [attr.aria-label]="
+                                        'Delete project ' + project.name
+                                    "
+                                    (click)="remove(project)"
                                 >
                                     Delete
                                 </button>
@@ -201,11 +232,20 @@ const BADGE_CLASSES: Record<Project['status'], string> = {
             }
         </div>
     `,
-    imports: [FormsModule, IconComponent, MatFormField, MatInput, RouterLink],
+    imports: [
+        FormsModule,
+        IconComponent,
+        MatFormField,
+        MatInput,
+        MatLabel,
+        RouterLink,
+    ],
 })
 export class ProjectsComponent {
     private readonly _store = inject(StoreService);
     private readonly _router = inject(Router);
+    private readonly _name_input =
+        viewChild<ElementRef<HTMLInputElement>>('name_input');
 
     public readonly projects = signal<Project[]>([]);
     public readonly loading = signal(true);
@@ -214,11 +254,15 @@ export class ProjectsComponent {
     public readonly creating = signal(false);
     public readonly form_name = signal('');
     public readonly form_building = signal('');
+    public readonly placeos_sync = this._store.placeos_sync;
 
     constructor() {
+        // Focus the name field each time the form opens
+        effect(() => this._name_input()?.nativeElement.focus());
+        // Load now, then reload quietly after each zone sync so new buildings appear
         effect(() => {
-            this._store.zone_sync_version();
-            void this.load();
+            const version = this._store.zone_sync_version();
+            untracked(() => void this.load(version > 0));
         });
     }
 
@@ -228,11 +272,9 @@ export class ProjectsComponent {
     public readonly updatedOn = (project: Project) =>
         formatDate(project.updated_at);
 
-    public readonly badgeClass = (project: Project) =>
-        BADGE_CLASSES[project.status] ?? BADGE_CLASSES.draft;
-
-    public async load() {
-        this.loading.set(true);
+    /** Reads the project list. `quiet` keeps the current list on screen. */
+    public async load(quiet = false) {
+        if (!quiet) this.loading.set(true);
         this.error.set('');
         try {
             this.projects.set(await this._store.listProjects());
@@ -243,20 +285,21 @@ export class ProjectsComponent {
         }
     }
 
+    public retrySync() {
+        this._store.syncFromPlaceOS();
+    }
+
     public async create(event: Event) {
         event.preventDefault();
         const name = this.form_name().trim();
         if (!name) return;
         this.creating.set(true);
         try {
-            await this._store.createProject(
+            const project = await this._store.createProject(
                 name,
                 this.form_building().trim() || undefined,
             );
-            this.form_name.set('');
-            this.form_building.set('');
-            this.show_form.set(false);
-            await this.load();
+            await this._router.navigate(['/project', project.id]);
         } catch (error) {
             this.error.set(this._message(error, 'Failed to create project'));
         } finally {
@@ -264,14 +307,12 @@ export class ProjectsComponent {
         }
     }
 
-    public open(project: Project) {
-        this._router.navigate(['/project', project.id]);
-    }
-
-    public async remove(event: Event, project: Project) {
-        event.stopPropagation();
+    public async remove(project: Project) {
+        const synced = project.building_zone_id
+            ? ' It will not be imported from PlaceOS again.'
+            : '';
         const confirmed = confirm(
-            `Delete project "${project.name}"? This cannot be undone.`,
+            `Delete project "${project.name}" and all of its floors? This cannot be undone.${synced}`,
         );
         if (!confirmed) return;
         try {
