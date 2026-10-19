@@ -4,35 +4,15 @@
     "properties": {
         "name": {
             "type": "string",
-            "description": "Name of the application. Used as the suffix of the browser page title and as a fallback application name for API storage keys"
-        },
-        "title": {
-            "type": "string",
-            "description": "Title of the application"
-        },
-        "description": {
-            "type": "string",
-            "description": "Description of the application"
+            "description": "Application name for the PlaceOS API client. If the URL pathname is empty, the app also uses this name to make the settings metadata key"
         },
         "short_name": {
             "type": "string",
-            "description": "Short name for the application. Used as the app name for local storage keys and as a fallback for the browser page title"
-        },
-        "logo_light": {
-            "type": "string",
-            "description": "Path or URL of the logo image to display on light backgrounds e.g. the login screen"
-        },
-        "logo_dark": {
-            "type": "string",
-            "description": "Path or URL of the logo image to display on dark backgrounds e.g. the login screen"
-        },
-        "diagnostics": {
-            "type": "boolean",
-            "description": "Whether diagnostics are enabled. Currently unused by the signage app"
+            "description": "Prefix for console log messages. The app also uses it as the API client application name if `name` is not set"
         },
         "default_animation_time": {
             "type": "number",
-            "description": "Duration in milliseconds of the media player's transition animation between playlist items. Defaults to `1000`"
+            "description": "Duration in milliseconds of the media player's transition animation between playlist items. Defaults to `1000`. If the value is `0` or not set, the player uses `3000`"
         },
         "templates_enabled": {
             "type": "boolean",

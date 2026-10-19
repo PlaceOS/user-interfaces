@@ -2,20 +2,19 @@
 
 The **Signage Manager** app is the administration UI for digital signage. It's where staff create and organise media, build playlists, and assign content to signage displays.
 
-Set settings in Backoffice zone metadata under `signage-manager_app` for the standard `/signage-manager/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
+Set settings in Backoffice zone metadata under `signage-manager_app` for the standard `/signage-manager/` URL. Use the organisation zone. The app sets `dont_load_metadata`, so it does not load region or building metadata. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## Branding
 
-These settings control how the app identifies itself in the browser and what logos it shows in the navigation sidebar.
+These settings control the application name and the logos in the navigation sidebar.
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
-| `name` | string | `"Signage Manager"` | Name of the application. Used as the browser tab title when no short name is set. |
-| `title` | string | `"PlaceOS"` | Title for the application. |
-| `description` | string | `"Signage Manager UI"` | Description of the application. |
-| `short_name` | string | `"Signage Manager"` | Short name for the application. Used as the browser tab title prefix and as the application name passed to the PlaceOS API client. |
+| `name` | string | `"Signage Manager"` | Application name for the PlaceOS API client. If the URL pathname is empty, the app also uses this name to make the settings metadata key. |
+| `short_name` | string | `"Signage Manager"` | Prefix for console log messages. The app also uses it as the API client application name if `name` is not set. |
 | `logo_light` | string or object | `"assets/logo-light.svg"` | Logo shown in the navigation sidebar when using the light theme. Either a URL string or an object with a `src` URL. |
-| `logo_dark` | string or object | `"assets/logo-dark.svg"` | Logo shown in the navigation sidebar when using the dark theme. Either a URL string or an object with a `src` URL. |
+| `logo_dark` | string or object | `"assets/logo-dark.svg"` | Logo shown in the navigation sidebar when using the dark theme. Either a URL string or an object with a `src` URL. Needs `allow_dark_mode`. |
+| `allow_dark_mode` | boolean | – | Allow the dark theme. When on, the app uses the theme saved in the user's settings. When off or not set, the app uses the light theme. |
 
 Logos can be a plain URL string, or an object form:
 
@@ -49,8 +48,8 @@ Example locale list:
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
-| `show_group_selector` | boolean | `false` | Show the signage group selector in the navigation sidebar and mobile navigation menu. When this is off, users can still change the group with the breadcrumbs in each section header. |
-| `show_media_group_tabs` | boolean | `false` | Show the signage group tabs above the media list. When this is off, users can still change the group with the breadcrumbs in the media header. |
+| `show_group_selector` | boolean | `false` | Show the signage group selector in the navigation sidebar and mobile navigation menu. If the value is not set at any level, the selector shows. When this is off, users can still change the group with the breadcrumbs in each section header. |
+| `show_media_group_tabs` | boolean | `false` | Show the signage group tabs above the media list. If the value is not set at any level, the tabs show. When this is off, users can still change the group with the breadcrumbs in the media header. |
 | `media_allow_extended_video_codecs` | boolean | `false` | Whether media upload validation accepts extended video codecs — AV1 (`av01`/`V_AV1`) and HEVC (`hev1`/`hvc1`) — in MP4 and WebM files, in addition to the default allowed codec set. Only enable this if your signage display hardware can decode these codecs. |
 | `signage_path` | string | – | Base URL path of the signage viewer application, used to build display preview links. When not set, `/signage` is used. |
 | `schedule_timezone_once_only` | boolean | `true` | Show the timezone selector above the timing fields for schedules that play once at an exact time, and inside the validity block for other schedules. Set to `false` to show it above the timing fields for both schedule types. |
@@ -60,9 +59,7 @@ Example locale list:
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
-| `access_subsystem` | string | `"signage"` | Group-permission subsystem used to authorise access to the app. Change this only when permissions are granted through a different subsystem. |
-| `default_animation_time` | number | `1000` | Default duration for UI animations in milliseconds. |
-| `diagnostics` | boolean | `true` | Whether diagnostics are enabled for the application. |
+| `access_subsystem` | string | `"signage"` | Group subsystem that grants access to the app, when the authority's `use_group_subsystem_access` is on. If not set, the app uses the name from the URL path. |
 
 ## Example
 
