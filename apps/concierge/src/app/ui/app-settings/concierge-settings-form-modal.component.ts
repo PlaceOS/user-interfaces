@@ -124,6 +124,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                 <mat-option value="visitors">
                                     Visitors
                                 </mat-option>
+                                <mat-option value="visitor-rules">
+                                    Visitor Rules
+                                </mat-option>
                                 <mat-option value="internal-users">
                                     User Directory
                                 </mat-option>
@@ -155,35 +158,36 @@ import { UploadButtonComponent } from './upload-button.component';
                                 <mat-option value="deals-n-offers">
                                     Deals & Offers
                                 </mat-option>
-                                <mat-option value="reports">
-                                    Reports
+                                <mat-option value="attendance-report">
+                                    Site Attendance Report
                                 </mat-option>
-                                @if (model().features.includes('reports')) {
-                                    <mat-option value="booking-report">
-                                        Room Report
-                                    </mat-option>
-                                    <mat-option value="desk-report">
-                                        Desk Report
-                                    </mat-option>
-                                    <mat-option value="catering-report">
-                                        Catering Report
-                                    </mat-option>
-                                    <mat-option value="parking-report">
-                                        Parking Report
-                                    </mat-option>
-                                    <mat-option value="contact-tracing-report">
-                                        Contact Tracing Report
-                                    </mat-option>
-                                    <mat-option value="assets-report">
-                                        Assets Report
-                                    </mat-option>
-                                    <mat-option value="visitors-report">
-                                        Visitors Report
-                                    </mat-option>
-                                    <mat-option value="user-report">
-                                        User Report
-                                    </mat-option>
-                                }
+                                <mat-option value="booking-report">
+                                    Room Report
+                                </mat-option>
+                                <mat-option value="desk-report">
+                                    Desk Report
+                                </mat-option>
+                                <mat-option value="catering-report">
+                                    Catering Report
+                                </mat-option>
+                                <mat-option value="parking-report">
+                                    Parking Report
+                                </mat-option>
+                                <mat-option value="lockers-report">
+                                    Lockers Report
+                                </mat-option>
+                                <mat-option value="contact-tracing-report">
+                                    Contact Tracing Report
+                                </mat-option>
+                                <mat-option value="assets-report">
+                                    Assets Report
+                                </mat-option>
+                                <mat-option value="visitors-report">
+                                    Visitors Report
+                                </mat-option>
+                                <mat-option value="user-report">
+                                    User Report
+                                </mat-option>
                             </mat-select>
                         </mat-form-field>
                     </div>
@@ -426,18 +430,6 @@ import { UploadButtonComponent } from './upload-button.component';
                             [formField]="form.use_24_hour_time"
                         ></settings-toggle>
                         <settings-toggle
-                            label="Delegated"
-                            [formField]="form.delegated"
-                        ></settings-toggle>
-                        <settings-toggle
-                            label="Force upload state"
-                            [formField]="form.force_upload_state"
-                        ></settings-toggle>
-                        <settings-toggle
-                            label="All uploads are private"
-                            [formField]="form.private_uploads"
-                        ></settings-toggle>
-                        <settings-toggle
                             label="Use region over building"
                             [formField]="form.use_region"
                         ></settings-toggle>
@@ -658,7 +650,11 @@ import { UploadButtonComponent } from './upload-button.component';
                                             [formField]="
                                                 form.events.available_period
                                             "
+                                            placeholder="No limit"
                                         >
+                                            <mat-option [value]="null"
+                                                >No limit</mat-option
+                                            >
                                             @for (
                                                 opt of AVAILABLE_PERIOD_SHORT;
                                                 track opt.value
@@ -671,8 +667,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-select>
                                         <mat-hint>
                                             Number of days ahead users can
-                                            create bookings from the room
-                                            booking manager
+                                            create group events
                                         </mat-hint>
                                     </mat-form-field>
                                 </div>
@@ -740,12 +735,6 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <settings-toggle
                                         label="Allow all day bookings"
                                         [formField]="form.events.allow_all_day"
-                                    ></settings-toggle>
-                                    <settings-toggle
-                                        label="Default to all day"
-                                        [formField]="
-                                            form.events.all_day_default
-                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow editing setup/breakdown times"
@@ -1058,6 +1047,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         <mat-option value="status">
                                             {{ 'COMMON.STATE' | translate }}
                                         </mat-option>
+                                        <mat-option value="notes">
+                                            {{ 'FORM.NOTES' | translate }}
+                                        </mat-option>
                                     </mat-select>
                                     <mat-hint>
                                         Hide selected columns on the visitor
@@ -1287,10 +1279,6 @@ import { UploadButtonComponent } from './upload-button.component';
                                         [formField]="
                                             form.bookings.use_building_timezone
                                         "
-                                    ></settings-toggle>
-                                    <settings-toggle
-                                        label="Allow booking with assets"
-                                        [formField]="form.bookings.has_assets"
                                     ></settings-toggle>
                                 </div>
                                 <div
@@ -1769,12 +1757,6 @@ import { UploadButtonComponent } from './upload-button.component';
                                         "
                                     ></settings-toggle>
                                     <settings-toggle
-                                        label="Show Calendar Links after booking"
-                                        [formField]="
-                                            form.lockers.show_calendar_links
-                                        "
-                                    ></settings-toggle>
-                                    <settings-toggle
                                         label="Hide End time option"
                                         [formField]="form.lockers.hide_end_time"
                                     ></settings-toggle>
@@ -1858,7 +1840,9 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         );
     });
     public readonly settings_key =
-        this._settings.get('app.concierge_metadata_key') || 'concierge_app';
+        this._settings.get('app.concierge_metadata_key') ||
+        this._settings.get('app.concierge_app') ||
+        'concierge_app';
 
     public readonly model = signal({
         logo_light: '',
@@ -1867,9 +1851,6 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         banner: {} as any,
         default_route: '',
         use_24_hour_time: false,
-        delegated: false,
-        force_upload_state: false,
-        private_uploads: false,
         week_start: 0,
         currency: 'USD',
         use_region: false,
@@ -1891,7 +1872,6 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
                 start: null as number | null,
                 end: null as number | null,
             },
-            all_day_default: false,
             allow_setup_breakdown: false,
             has_assets: false,
             hide_notes: false,
@@ -1900,16 +1880,17 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             strict_capacity_check: false,
             allow_multiday: false,
             use_building_timezone: false,
-            day_timeline_view: 'default',
-            block_start: 0,
-            block_end: 24,
-            block_height: 3,
-            max_duration: 360,
-            available_period: 14,
+            day_timeline_view: 'inverted',
+            block_start: 7,
+            block_end: 19,
+            block_height: 5,
+            max_duration: 480,
+            // Unset means no limit
+            available_period: null as number | null,
             can_book_for_others: false,
             can_book_for_anyone: false,
             allow_visibility: false,
-            allow_edit: true,
+            allow_edit: false,
         },
         desks: {
             max_assigned_count: 0,
@@ -1920,8 +1901,8 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
                 end: null as number | null,
             },
             has_parking: false,
-            allow_pass_number: false,
-            allow_printing_label: false,
+            allow_pass_number: true,
+            allow_printing_label: true,
             allow_international: false,
             allow_visitor_internal_or_external: false,
             show_calendar_links: false,
@@ -1929,7 +1910,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             hide_fields: [] as string[],
         },
         bookings: {
-            allow_all_day: true,
+            allow_all_day: false,
             all_day_period: {
                 start: null as number | null,
                 end: null as number | null,
@@ -1938,16 +1919,15 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
                 start: null as number | null,
                 end: null as number | null,
             },
-            has_assets: false,
             use_building_timezone: false,
-            available_period: 14,
+            available_period: 7,
             max_duration: 480,
         },
         reports: {
             attendance_include_weekends: false,
         },
         parking: {
-            allow_all_day: true,
+            allow_all_day: false,
             bookable_hours: {
                 start: null as number | null,
                 end: null as number | null,
@@ -1957,7 +1937,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             disable_styles: false,
             disable_bookings: false,
             show_requests: false,
-            show_waitlist: true,
+            show_waitlist: false,
             hide_bay_number: false,
             hide_level_selector_on_booking_list: false,
             hide_users: false,
@@ -1977,8 +1957,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
                 end: null as number | null,
             },
             all_day_default: false,
-            show_calendar_links: false,
-            available_period: 14,
+            available_period: 7,
             max_duration: 480,
             hide_end_time: false,
             disabled_start_time: false,

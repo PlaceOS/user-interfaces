@@ -958,7 +958,9 @@ export class GuestListingComponent extends AsyncHandler {
 
     private async _loadVisitorKioskConfig(bld: any) {
         const visitor_kiosk_app =
-            this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
+            this._settings.get('app.visitor_kiosk_metadata_key') ||
+            this._settings.get('app.visitor_kiosk_app') ||
+            'visitor-kiosk_app';
         const metadata: any = await showMetadata(bld.id, visitor_kiosk_app);
         const org_metadata: any = await showMetadata(
             this._org.organisation.id,

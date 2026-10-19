@@ -6,14 +6,6 @@
             "type": "string",
             "description": "Name of the application"
         },
-        "title": {
-            "type": "string",
-            "description": "Title shown in the browser tab"
-        },
-        "description": {
-            "type": "string",
-            "description": "Description of the application"
-        },
         "short_name": {
             "type": "string",
             "description": "Short name for the application"
@@ -28,7 +20,7 @@
         },
         "default_route": {
             "type": "string",
-            "description": "Route to use for the sidebar bookings link when no matching feature is enabled. e.g. `/book/rooms`"
+            "description": "Route that the app opens when the URL is `/` or does not match a page. e.g. `/book/rooms`. When empty, these URLs show a blank page."
         },
         "currency": {
             "type": "string",
@@ -58,11 +50,11 @@
         },
         "admin_group": {
             "type": "string",
-            "description": "Name of the user group that grants access to admin sections of the app. `placeos_admin` and `placeos_support` are always allowed. Defaults to `admin`"
+            "description": "Name of the user group that grants access to admin sections of the app. `placeos_admin` and `placeos_support` are also admin in the sidebar and parking pages. The signage playlist media list allows `placeos_admin` but not `placeos_support`. Defaults to `concierge_admins`. When unset in all settings, the app uses `admin`."
         },
         "features": {
             "type": "array",
-            "description": "List of features enabled in the app. e.g. `spaces`, `zones`, `desks`, `parking`, `visitors`, `assets`, `facilities`, `internal-users`, `points`, `surveys`, `catering`, `events`, `booking-report`, `attendance-report`, `contact-tracing-report`, `user-report`, `signage`, `email-templates`",
+            "description": "List of features enabled in the app. Each value shows the sidebar links with the same ID. Values: `spaces`, `desks`, `parking`, `parking-bookings`, `parking-manage`, `lockers`, `assets`, `catering`, `visitors`, `visitor-rules`, `zones`, `points`, `emergency-contacts`, `signage`, `points-of-interest`, `url-management`, `email-templates`, `deals-n-offers`, `internal-users`, `events`, `surveys`, `attendance-report`, `booking-report`, `desk-report`, `parking-report`, `lockers-report`, `catering-report`, `contact-tracing-report`, `assets-report`, `visitors-report`, `user-report`",
             "items": { "type": "string" }
         },
         "feature_groups": {
@@ -73,10 +65,6 @@
                 "items": { "type": "string" }
             }
         },
-        "delegated": {
-            "type": "boolean",
-            "description": "Whether the PlaceOS instance uses delegated calendar access. When set, event actions are hidden from the event details view."
-        },
         "has_uploads": {
             "type": "boolean",
             "description": "Whether file upload support (S3/cloud storage) is available in the app"
@@ -84,16 +72,6 @@
         "bulk_actions": {
             "type": "boolean",
             "description": "Whether staff can select several rows to approve or reject bookings and requests, or to change the status of catering orders"
-        },
-        "guests": {
-            "type": "object",
-            "description": "Settings associated with guest users",
-            "properties": {
-                "vaccine_check": {
-                    "type": "boolean",
-                    "description": "Whether vaccination checks are enabled for guests"
-                }
-            }
         },
         "custom_reports": {
             "type": "array",
@@ -104,6 +82,30 @@
             "type": "array",
             "description": "List of locales that can be selected for the application",
             "items": { "$ref": "#/$defs/locale" }
+        },
+        "banner": {
+            "type": "object",
+            "description": "Message banner shown at the top of the app. The banner shows when `content` or `message` is set. When a user closes the banner, it stays closed until the `id` changes.",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique ID of the banner message. The settings form sets it to the date and hour of the edit."
+                },
+                "type": {
+                    "type": "string",
+                    "enum": ["info", "warn", "error"],
+                    "enumNames": ["Info", "Warning", "Error"],
+                    "description": "Style of the banner. Defaults to `info`"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Text of the banner"
+                },
+                "message": {
+                    "type": "string",
+                    "description": "Alternative key for the text of the banner"
+                }
+            }
         },
         "group_events_calendar": {
             "type": "string",
@@ -125,25 +127,33 @@
             "type": "string",
             "description": "Name of the zone metadata key storing workplace app settings. Defaults to `workplace_app`"
         },
+        "workplace_desk_action_path": {
+            "type": "string",
+            "description": "Path added after the workplace URL for desk QR code links. The app replaces `{asset_id}` with the encoded desk ID. Defaults to `/#/book/code?asset_id={asset_id}`"
+        },
         "concierge_metadata_key": {
             "type": "string",
-            "description": "Name of the zone metadata key storing concierge app settings. Defaults to `concierge_app`"
+            "description": "Name of the zone metadata key storing concierge app settings. Used by the settings form, the induction settings and the support issue types list. When unset, the app reads the legacy `concierge_app` setting. Defaults to `concierge_app`"
         },
         "visitor_kiosk_metadata_key": {
             "type": "string",
-            "description": "Name of the zone metadata key storing visitor kiosk app settings. Defaults to `visitor-kiosk_app`"
+            "description": "Name of the zone metadata key storing visitor kiosk app settings. Used by the visitor kiosk settings form, the induction settings and the visitor listing. When unset, the induction settings and the visitor listing read the legacy `visitor_kiosk_app` setting. Defaults to `visitor-kiosk_app`"
         },
         "visitor_kiosk_app": {
             "type": "string",
-            "description": "Name of the zone metadata key read for visitor kiosk configuration (induction and visitor listing). Defaults to `visitor-kiosk_app`"
+            "description": "Legacy alias for `visitor_kiosk_metadata_key`"
         },
         "concierge_app": {
             "type": "string",
-            "description": "Name of the zone metadata key written to by the induction settings modal. Defaults to `concierge_app`"
+            "description": "Legacy alias for `concierge_metadata_key`"
         },
         "workplace_url_path": {
             "type": "string",
             "description": "URL path of the workplace app, used when generating desk QR code links. Defaults to `/workplace`"
+        },
+        "public_url_path": {
+            "type": "string",
+            "description": "URL path of the public app, used for public links to group events. Defaults to `/public`"
         },
         "kiosk_url_path": {
             "type": "string",
@@ -182,7 +192,19 @@
                 },
                 "max_duration": {
                     "type": "number",
-                    "description": "Maximum booking duration in minutes. Defaults to `480` (8 hours)"
+                    "description": "Maximum booking duration in minutes. Defaults to `480` (8 hours) for parking and locker bookings. Visitor invites use `180` when `visitors.max_duration` and this key are not set."
+                },
+                "duration_step": {
+                    "type": "number",
+                    "description": "Step in minutes between the durations of the visitor invite duration field. Fallback for `visitors.duration_step`. Defaults to `15`"
+                },
+                "can_book_for_anyone": {
+                    "type": "boolean",
+                    "description": "Whether users can select any staff user as the host of a visitor invite. Fallback for `visitors.can_book_for_anyone`"
+                },
+                "multiple_visitors": {
+                    "type": "boolean",
+                    "description": "Whether one visitor invite can include more than one visitor. Defaults to `false`"
                 },
                 "custom_duration_options": {
                     "type": "array",
@@ -195,11 +217,14 @@
                 },
                 "allow_all_day": {
                     "type": "boolean",
-                    "description": "Whether all day bookings are allowed. Defaults to `true`"
+                    "description": "Whether all day bookings are allowed. Fallback for `lockers.allow_all_day` and `visitors.allow_all_day`. When unset, locker bookings allow all day and visitor invites do not."
                 },
                 "all_day_default": {
                     "type": "boolean",
                     "description": "Whether the all day option is enabled by default for new bookings"
+                },
+                "all_day_period": {
+                    "$ref": "#/$defs/all_day_period"
                 }
             }
         },
@@ -253,19 +278,27 @@
                     "type": "string",
                     "enum": ["default", "inverted"],
                     "enumNames": ["Default", "Inverted"],
-                    "description": "Layout of the day timeline. `default` shows rooms on the vertical axis, `inverted` shows rooms on the horizontal axis. Defaults to `default`"
+                    "description": "Layout of the day timeline. `default` shows rooms as columns across the top and hours down the side. `inverted` shows rooms as rows in the left column and hours across the top. Defaults to `inverted`"
                 },
                 "block_start": {
                     "type": "number",
-                    "description": "Earliest hour of the day (0-24) shown on the day timeline. Defaults to `0`"
+                    "description": "Earliest hour of the day (0-24) shown on the day timeline. Defaults to `7`"
                 },
                 "block_end": {
                     "type": "number",
-                    "description": "Latest hour of the day (0-24) shown on the day timeline. Defaults to `24`"
+                    "description": "Latest hour of the day (0-24) shown on the day timeline. Defaults to `19`"
                 },
                 "block_height": {
                     "type": "number",
-                    "description": "Display height of each hour block on the day timeline. Defaults to `3`"
+                    "description": "Height in rem of each hour block on the `default` day timeline. The `inverted` view does not use it. Defaults to `5`"
+                },
+                "multiple_spaces": {
+                    "type": "boolean",
+                    "description": "Whether one meeting can use multiple rooms"
+                },
+                "allow_multiple_spaces": {
+                    "type": "boolean",
+                    "description": "Legacy alias for `multiple_spaces`. Either key set to `true` enables multiple room selection."
                 },
                 "custom_actions": {
                     "type": "array",
@@ -274,7 +307,7 @@
                 },
                 "allow_edit": {
                     "type": "boolean",
-                    "description": "Whether room bookings can be edited from the day view and booking lists"
+                    "description": "Whether room bookings can be edited from the day view and booking lists. Defaults to `false`"
                 },
                 "allow_deleting": {
                     "type": "boolean",
@@ -312,16 +345,52 @@
                     "type": "number",
                     "description": "Maximum event duration in minutes. Defaults to `480` (8 hours)"
                 },
+                "min_duration": {
+                    "type": "number",
+                    "description": "Minimum room booking duration in minutes. Defaults to `30`"
+                },
+                "default_duration": {
+                    "type": "number",
+                    "description": "Duration in minutes of a new room booking. Defaults to `60`"
+                },
+                "custom_duration_options": {
+                    "type": "array",
+                    "description": "Custom list of selectable room booking durations in minutes",
+                    "items": { "type": "number" }
+                },
+                "duration_step": {
+                    "type": "number",
+                    "description": "Step in minutes between the durations of the room booking duration field. Defaults to `30`"
+                },
                 "available_period": {
                     "type": "number",
-                    "description": "Number of days into the future that events can be booked. Unset for no limit."
+                    "description": "Number of days into the future that group events can be created, on the group events page. Unset for no limit. Room bookings use `allowed_future_days`."
+                },
+                "allowed_future_days": {
+                    "type": "number",
+                    "description": "Number of days into the future that users can select in the room booking form and the room selection filters. Defaults to `180`"
                 },
                 "bookable_hours": {
                     "$ref": "#/$defs/bookable_hours"
                 },
-                "all_day_default": {
+                "allow_all_day": {
                     "type": "boolean",
-                    "description": "Whether the all day option is enabled by default for new event bookings"
+                    "description": "Whether the room booking form shows the all day option. Defaults to `false`"
+                },
+                "all_day_period": {
+                    "$ref": "#/$defs/all_day_period"
+                },
+                "can_book_for_others": {
+                    "type": "boolean",
+                    "description": "Whether the room booking form lets users select a host from the users they can book for. Defaults to `false`"
+                },
+                "can_book_for_anyone": {
+                    "type": "boolean",
+                    "description": "Whether the room booking form lets users select any staff user as the host. Defaults to `false`"
+                },
+                "allow_visibility": {
+                    "type": "boolean",
+                    "description": "Whether the room booking form shows the visibility options. Defaults to `false`"
                 }
             }
         },
@@ -331,7 +400,7 @@
             "properties": {
                 "show_waitlist": {
                     "type": "boolean",
-                    "description": "Whether waitlisted parking bookings are shown in parking lists. Defaults to `true`"
+                    "description": "Whether waitlisted parking bookings are shown in parking lists. Defaults to `false`"
                 },
                 "show_requests": {
                     "type": "boolean",
@@ -363,7 +432,7 @@
                 },
                 "hide_users_and_vehicles": {
                     "type": "boolean",
-                    "description": "Whether to hide both the users and vehicles tabs on the parking view"
+                    "description": "Shorthand for `hide_users` and `hide_vehicles`. When `true`, the users and vehicles tabs are hidden, whatever the value of those keys."
                 },
                 "hide_availability_counter": {
                     "type": "boolean",
@@ -377,13 +446,33 @@
                     "type": "boolean",
                     "description": "Whether parking bookings can be edited from parking lists. Defaults to `true`"
                 },
+                "allow_editing_allocated": {
+                    "type": "boolean",
+                    "description": "Whether allocated parking bookings can be edited from the parking list. Falls back to `allow_editing`"
+                },
+                "can_book_for_anyone": {
+                    "type": "boolean",
+                    "description": "Whether the parking request form lets users select any staff user as the host. Defaults to `false`"
+                },
+                "request_submission_notes_html": {
+                    "type": "string",
+                    "description": "HTML content shown below the parking request form. Defaults to an empty string"
+                },
+                "show_users": {
+                    "type": "boolean",
+                    "description": "Whether the parking space details on the assign space map show the assigned user. Defaults to `false`"
+                },
+                "show_status_details": {
+                    "type": "boolean",
+                    "description": "Whether the parking space details on the assign space map show the status of the space. Defaults to `true`"
+                },
                 "allow_deleting": {
                     "type": "boolean",
                     "description": "Whether parking bookings can be deleted from parking lists. Defaults to `false`"
                 },
                 "allow_all_day": {
                     "type": "boolean",
-                    "description": "Whether all day parking bookings are allowed"
+                    "description": "Whether all day parking bookings are allowed in the parking booking form. Defaults to `false`. The parking space select modal shows the all day option when this key or `bookings.allow_all_day` is `true`."
                 },
                 "assign_space_on_approve": {
                     "type": "boolean",
@@ -405,7 +494,11 @@
                 },
                 "use_building_timezone": {
                     "type": "boolean",
-                    "description": "Whether parking dates and times are handled in the active building's timezone. Falls back to `bookings.use_building_timezone`"
+                    "description": "Whether parking dates and times are handled in the active building's timezone. The parking pages, the parking report and the parking space select modal use the building timezone when this key or `bookings.use_building_timezone` is `true`."
+                },
+                "hide_user": {
+                    "type": "boolean",
+                    "description": "Whether to hide the details of each parking space, such as its status and user, on the map of the parking space select modal. When unset, the modal reads the legacy `parkings.hide_user` key."
                 },
                 "bookable_hours": {
                     "$ref": "#/$defs/bookable_hours"
@@ -425,7 +518,7 @@
                 },
                 "available_period": {
                     "type": "number",
-                    "description": "Number of days into the future that parking can be booked. Falls back to `bookings.available_period`"
+                    "description": "Number of days into the future that parking can be booked. In the parking booking form, falls back to `bookings.available_period`, then `7`. The parking space select modal uses `7` when this key is not set and does not read `bookings.available_period`."
                 }
             }
         },
@@ -447,7 +540,15 @@
                 },
                 "allow_all_day": {
                     "type": "boolean",
-                    "description": "Whether all day locker bookings are allowed. Falls back to `bookings.allow_all_day`. Defaults to `true`"
+                    "description": "Whether all day locker bookings are allowed in the locker booking form and the locker select modal. Falls back to `bookings.allow_all_day`. Defaults to `true`"
+                },
+                "allow_time_changes": {
+                    "type": "boolean",
+                    "description": "Whether users can change the date and time in the locker select modal. Defaults to `true`. When `false`, the modal also hides the all day option."
+                },
+                "all_day_default": {
+                    "type": "boolean",
+                    "description": "Whether the all day option is enabled by default for new locker bookings. Falls back to `bookings.all_day_default`"
                 },
                 "bookable_hours": {
                     "$ref": "#/$defs/bookable_hours"
@@ -467,7 +568,7 @@
                 },
                 "available_period": {
                     "type": "number",
-                    "description": "Number of days into the future that lockers can be booked. Falls back to `bookings.available_period`. Defaults to `7`"
+                    "description": "Number of days into the future that lockers can be booked. In the locker booking form, falls back to `bookings.available_period`, then `7`. The locker select modal uses `90` when this key is not set and does not read `bookings.available_period`."
                 }
             }
         },
@@ -522,7 +623,47 @@
                 },
                 "allow_pass_number": {
                     "type": "boolean",
-                    "description": "Whether pass numbers can be set for visitors. Defaults to `true`"
+                    "description": "Whether pass numbers can be set for visitors in the visitor listing and the visitor invite form. Defaults to `true`"
+                },
+                "bookable_hours": {
+                    "$ref": "#/$defs/bookable_hours"
+                },
+                "show_calendar_links": {
+                    "type": "boolean",
+                    "description": "Whether calendar links show after a visitor invite is sent. Defaults to `false`"
+                },
+                "allow_all_day": {
+                    "type": "boolean",
+                    "description": "Whether the visitor invite form shows the all day option. Falls back to `bookings.allow_all_day`. Defaults to `false`"
+                },
+                "can_book_for_others": {
+                    "type": "boolean",
+                    "description": "Whether users can select a host from the users they can book for in the visitor invite form. Falls back to `bookings.can_book_for_others`"
+                },
+                "can_book_for_anyone": {
+                    "type": "boolean",
+                    "description": "Whether users can select any staff user as the host in the visitor invite form. Falls back to `bookings.can_book_for_anyone`. Takes priority over `can_book_for_others`"
+                },
+                "min_duration": {
+                    "type": "number",
+                    "description": "Minimum visitor invite duration in minutes. Falls back to `bookings.min_duration`, then `30`"
+                },
+                "max_duration": {
+                    "type": "number",
+                    "description": "Maximum visitor invite duration in minutes. Falls back to `bookings.max_duration`, then `180`"
+                },
+                "duration_step": {
+                    "type": "number",
+                    "description": "Step in minutes between the durations of the visitor invite duration field. Falls back to `bookings.duration_step`, then `15`"
+                },
+                "custom_duration_options": {
+                    "type": "array",
+                    "description": "Custom list of selectable visitor invite durations in minutes. Falls back to `bookings.custom_duration_options`",
+                    "items": { "type": "number" }
+                },
+                "use_building_timezone": {
+                    "type": "boolean",
+                    "description": "Whether visitor invite dates and times are handled in the active building's timezone. The invite form uses the building timezone when this key or `bookings.use_building_timezone` is `true`."
                 }
             }
         },
@@ -532,7 +673,7 @@
             "properties": {
                 "features": {
                     "type": "array",
-                    "description": "List of report types shown in the reports menu. Defaults to `attendance`, `desks`, `spaces`, `catering` and `contact-tracing`. Add `user` to show the report of the bookings of a single user",
+                    "description": "List of report cards shown on the reports menu page. Defaults to `attendance`, `desks`, `spaces`, `catering` and `contact-tracing`. The `/reports` route opens the desk report, so this page does not show at this time. The sidebar report links use the `*-report` values of `features`.",
                     "items": {
                         "type": "string",
                         "enum": [
@@ -639,6 +780,20 @@
                 }
             }
         },
+        "all_day_period": {
+            "type": "object",
+            "description": "Time window of an all day booking, as hours of the day (0-24). Set the two values. When a value is missing, an all day booking uses the full day.",
+            "properties": {
+                "start": {
+                    "type": "number",
+                    "description": "Start hour of an all day booking (0-23)."
+                },
+                "end": {
+                    "type": "number",
+                    "description": "End hour of an all day booking (1-24)."
+                }
+            }
+        },
         "logo": {
             "type": ["string", "object"],
             "description": "Logo to display. Either a URL string or an object with a `src` URL.",
@@ -686,6 +841,10 @@
                 "url": {
                     "type": "string",
                     "description": "URL of the report page to embed"
+                },
+                "icon": {
+                    "type": "string",
+                    "description": "Material Symbols icon name for the sidebar link. Defaults to `insert_chart`"
                 }
             }
         },

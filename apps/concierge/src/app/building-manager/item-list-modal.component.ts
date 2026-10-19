@@ -93,7 +93,9 @@ export class ItemListModalComponent implements OnInit {
         const metadata_key =
             this._settings.get('app.workplace_metadata_key') || 'workplace_app';
         const concierge_key =
-            this._settings.get('app.concierge_metadata_key') || 'concierge_app';
+            this._settings.get('app.concierge_metadata_key') ||
+            this._settings.get('app.concierge_app') ||
+            'concierge_app';
         // Save writes the list to both apps, so load from either. Otherwise
         // a list that only exists for concierge is replaced on save.
         const [workplace, concierge]: any[] = await Promise.all([
@@ -126,7 +128,9 @@ export class ItemListModalComponent implements OnInit {
         const metadata_key =
             this._settings.get('app.workplace_metadata_key') || 'workplace_app';
         const concierge_key =
-            this._settings.get('app.concierge_metadata_key') || 'concierge_app';
+            this._settings.get('app.concierge_metadata_key') ||
+            this._settings.get('app.concierge_app') ||
+            'concierge_app';
         this.loading.set(true);
         const items = this.item_list().filter((_) => _);
         try {

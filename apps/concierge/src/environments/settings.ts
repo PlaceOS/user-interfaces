@@ -2,8 +2,6 @@ const custom_reports = [];
 
 const app = {
     name: 'Concierge',
-    title: 'PlaceOS',
-    description: 'Concierge UI',
     short_name: 'Concierge',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
@@ -22,7 +20,6 @@ const app = {
         'parking',
         'visitors',
         'assets',
-        'facilities',
         'internal-users',
         'points',
         'surveys',
@@ -32,11 +29,8 @@ const app = {
         'attendance-report',
         'contact-tracing-report',
         'signage',
-        'events',
         'email-templates',
     ],
-    guests: { vaccine_check: true },
-    delegated: false,
     has_uploads: true,
     bulk_actions: false,
     custom_reports,
@@ -47,7 +41,7 @@ const app = {
         hide_user_list_download: false,
     },
     bookings: { can_book_for_others: true, use_building_timezone: false },
-    visitors: { all_visitors_action_window: 15 },
+    visitors: { all_visitors_action_window: 15, allow_pass_number: true },
     reports: { attendance_include_weekends: false },
     parking: {
         show_waitlist: false,

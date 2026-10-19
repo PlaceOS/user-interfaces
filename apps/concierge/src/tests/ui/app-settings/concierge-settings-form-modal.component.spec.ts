@@ -99,7 +99,6 @@ describe('ConciergeSettingsFormModalComponent', () => {
         expect('features' in model).toBe(true);
         expect('default_route' in model).toBe(true);
         expect('use_24_hour_time' in model).toBe(true);
-        expect('delegated' in model).toBe(true);
         expect('week_start' in model).toBe(true);
         expect('currency' in model).toBe(true);
     });
@@ -164,7 +163,6 @@ describe('ConciergeSettingsFormModalComponent', () => {
         expect('allow_all_day' in lockers).toBe(true);
         expect('bookable_hours' in lockers).toBe(true);
         expect('all_day_default' in lockers).toBe(true);
-        expect('show_calendar_links' in lockers).toBe(true);
     });
 
     it('should expose the zone from dialog data', () => {
@@ -267,6 +265,26 @@ describe('ConciergeSettingsFormModalComponent', () => {
             'zone-1',
             expect.objectContaining({
                 details: {
+                    edited_by: expect.any(Object),
+                },
+            }),
+        );
+    });
+
+    it('should save a toggle turned on from an unset default', async () => {
+        await spectator.component.ngOnInit();
+        // Room bookings treat an unset `events.allow_edit` as off
+        spectator.component.model.update((m) => ({
+            ...m,
+            events: { ...m.events, allow_edit: true },
+        }));
+        await spectator.component.save();
+
+        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
+            'zone-1',
+            expect.objectContaining({
+                details: {
+                    events: { allow_edit: true },
                     edited_by: expect.any(Object),
                 },
             }),

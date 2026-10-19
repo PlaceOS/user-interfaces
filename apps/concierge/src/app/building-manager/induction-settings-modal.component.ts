@@ -110,7 +110,9 @@ export class InductionSettingsModalComponent implements OnInit {
     public async loadSettings() {
         this.loading.set(i18n('APP.CONCIERGE.INDUCTION_LOADING'));
         const visitor_kiosk_app =
-            this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
+            this._settings.get('app.visitor_kiosk_metadata_key') ||
+            this._settings.get('app.visitor_kiosk_app') ||
+            'visitor-kiosk_app';
         try {
             const [bld_metadata, org_metadata, org_settings] =
                 await Promise.all([
@@ -139,9 +141,13 @@ export class InductionSettingsModalComponent implements OnInit {
     public async save() {
         this.loading.set(i18n('APP.CONCIERGE.INDUCTION_SAVING'));
         const visitor_kiosk_app =
-            this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
+            this._settings.get('app.visitor_kiosk_metadata_key') ||
+            this._settings.get('app.visitor_kiosk_app') ||
+            'visitor-kiosk_app';
         const concierge_app =
-            this._settings.get('app.concierge_app') || 'concierge_app';
+            this._settings.get('app.concierge_metadata_key') ||
+            this._settings.get('app.concierge_app') ||
+            'concierge_app';
         const induction = {
             induction_details: this.induction_details(),
             induction_enabled: this.is_enabled(),

@@ -49,6 +49,16 @@ describe('DeskQrCodeModalComponent', () => {
         expect(item.qr_code).toMatch(/^data:image\/svg\+xml,/);
     });
 
+    it('should build the qr link from the configured desk action path', () => {
+        settings['app.workplace_desk_action_path'] = '/#/desk/{asset_id}';
+        const item: any = { id: 'desk 1' };
+        spectator.component.loadQrCode(item);
+
+        expect(item.qr_link).toBe(
+            `${window.location.origin}/workplace/#/desk/desk%201`,
+        );
+    });
+
     it('should decorate each desk in the computed list', () => {
         const list = spectator.component.desks();
         expect(list[0].qr_link).toContain('asset_id=desk-1');
