@@ -1,7 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { DbService } from '../app/data/db';
+import { DbChanges, DbService } from '../app/data/db';
 import { PlaceOSService } from '../app/data/placeos.service';
 import { StoreService } from '../app/data/store.service';
 
@@ -37,6 +37,12 @@ class MapDbService implements Partial<DbService> {
 
     public async deleteWhere(prefix: string) {
         this._matching(prefix).forEach((key) => this._records.delete(key));
+    }
+
+    public async write(changes: DbChanges) {
+        if (changes.clear) await this.deleteWhere(changes.clear);
+        changes.delete?.forEach((key) => this._records.delete(key));
+        changes.put?.forEach(([key, value]) => this._records.set(key, value));
     }
 }
 
@@ -94,6 +100,24 @@ describe('StoreService', () => {
         await store.deleteProject(project.id);
         expect(await store.listProjects()).toHaveLength(0);
         expect(await store.listObjects(floorplan.id)).toHaveLength(0);
+    });
+
+    it('keeps the canvas out of project listings', async () => {
+        const project = await store.createProject('Sydney HQ');
+        const floorplan = await store.addFloorplan(project.id, 'Level 1');
+        await store.updateFloorplan(floorplan.id, {
+            svg_output: '<svg/>',
+            svg_source: '<svg/>',
+        });
+
+        const [listed] = (await store.listProjects())[0].floorplans ?? [];
+        expect(listed).not.toHaveProperty('svg_output');
+        expect(listed).not.toHaveProperty('svg_source');
+        expect(listed).not.toHaveProperty('canvas_state');
+        await expect(store.getFloorplan(floorplan.id)).resolves.toMatchObject({
+            svg_output: '<svg/>',
+            svg_source: '<svg/>',
+        });
     });
 
     it('creates missing projects and floorplans from PlaceOS zones once', async () => {
@@ -245,8 +269,6 @@ describe('StoreService', () => {
             0,
             'level-1',
         );
-        vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:level-svg');
-
         const imported = await store.importLevelSvg(
             floorplan.id,
             '<svg viewBox="0 0 800 600"><rect id="room-1" width="20" height="30"/></svg>',
@@ -257,7 +279,7 @@ describe('StoreService', () => {
             source_map_id: '/maps/level-1.svg',
             canvas_width: 800,
             canvas_height: 600,
-            source_image_path: 'blob:level-svg',
+            source_image_path: `image:${floorplan.id}`,
             source_type: 'image/svg+xml',
         });
         await expect(store.listObjects(floorplan.id)).resolves.toEqual([

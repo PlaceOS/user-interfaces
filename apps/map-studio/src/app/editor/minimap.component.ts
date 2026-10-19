@@ -1,5 +1,6 @@
 import {
     Component,
+    DestroyRef,
     ElementRef,
     computed,
     effect,
@@ -223,11 +224,18 @@ export class MinimapComponent {
             requestAnimationFrame(refresh);
         });
         // The container is an input, so wait a tick before subscribing
+        let container: HTMLElement | undefined;
+        let destroyed = false;
         queueMicrotask(() => {
-            this.container()?.addEventListener('scroll', refresh, {
-                passive: true,
-            });
+            if (destroyed) return;
+            container = this.container();
+            container?.addEventListener('scroll', refresh, { passive: true });
             window.addEventListener('resize', refresh);
+        });
+        inject(DestroyRef).onDestroy(() => {
+            destroyed = true;
+            container?.removeEventListener('scroll', refresh);
+            window.removeEventListener('resize', refresh);
         });
     }
 

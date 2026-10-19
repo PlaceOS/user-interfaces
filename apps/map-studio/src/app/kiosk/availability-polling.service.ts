@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 
 import { AsyncHandler } from '@placeos/common';
 
-import { PlaceOSService } from '../data/placeos.service';
+import { PlaceOSService, PlaceOSSystem } from '../data/placeos.service';
 import { AvailabilityState, MapObject } from '../data/types';
 
 const ROOM_STATES: AvailabilityState[] = [
@@ -68,6 +68,12 @@ export class AvailabilityPollingService extends AsyncHandler {
         if (this._placeos.config.configured && this._zone_id) {
             try {
                 const systems = await this._placeos.getSystems(this._zone_id);
+                // First system wins when two share a map id
+                const by_map_id = new Map<string, PlaceOSSystem>();
+                for (const system of systems) {
+                    if (!by_map_id.has(system.map_id))
+                        by_map_id.set(system.map_id, system);
+                }
                 const states: Record<string, AvailabilityState> = {};
                 for (const object of this._objects) {
                     if (
@@ -75,16 +81,16 @@ export class AvailabilityPollingService extends AsyncHandler {
                         object.object_type !== 'desk'
                     )
                         continue;
-                    const system = systems.find(
-                        (s) => s.map_id === (object.svg_id || object.id),
-                    );
-                    states[object.id] = system
-                        ? system.bookable
-                            ? 'free'
-                            : 'out-of-service'
-                        : object.object_type === 'room'
-                          ? 'free'
-                          : 'available';
+                    const system = by_map_id.get(object.svg_id || object.id);
+                    const room = object.object_type === 'room';
+                    states[object.id] =
+                        system && !system.bookable
+                            ? room
+                                ? 'out-of-service'
+                                : 'unavailable'
+                            : room
+                              ? 'free'
+                              : 'available';
                 }
                 this._states.set(states);
                 this._simulated.set(false);

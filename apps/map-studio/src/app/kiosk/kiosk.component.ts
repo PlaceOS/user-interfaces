@@ -427,10 +427,30 @@ export class KioskComponent extends AsyncHandler {
             this._store.listObjects(id),
             this._store.getSourceImageUrl(id),
         ]);
+        // Another floor was picked, or the kiosk closed, while this one loaded
+        if (this._destroyed || this.floorplan_id() !== id) {
+            if (image_url) URL.revokeObjectURL(image_url);
+            return;
+        }
         this.floorplan.set(floorplan);
         this.objects.set(objects);
-        this.image_url.set(image_url);
-        this.polling.start(objects);
+        this._setImageUrl(image_url);
+        this.polling.start(objects, floorplan.level_zone_id ?? '');
+    }
+
+    /** Swaps the floor image URL, revoking the one it replaces */
+    private _setImageUrl(url: string | null) {
+        const previous = this.image_url();
+        if (previous && previous !== url) URL.revokeObjectURL(previous);
+        this.image_url.set(url);
+    }
+
+    private _destroyed = false;
+
+    public override ngOnDestroy() {
+        super.ngOnDestroy();
+        this._destroyed = true;
+        this._setImageUrl(null);
     }
 
     public pickFloor(id: string) {

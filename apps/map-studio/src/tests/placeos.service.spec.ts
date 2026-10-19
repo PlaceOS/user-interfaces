@@ -74,6 +74,21 @@ function stubFetch(authority_ok: boolean) {
                 ok: true,
                 json: async () => [{ id: 'org-1' }, { id: 'org-2' }],
             };
+        if (url.includes('/zones?') && url.includes('tags=level')) {
+            // Two full pages, then a short one
+            const offset = Number(
+                new URL(url, 'http://x').searchParams.get('offset'),
+            );
+            const size = offset < 200 ? 100 : 5;
+            return {
+                ok: true,
+                json: async () =>
+                    Array.from({ length: size }, (_, i) => ({
+                        id: `level-${offset + i}`,
+                    })),
+            };
+        }
+        if (url.includes('/zones?')) return { ok: true, json: async () => [] };
         if (url.includes('/LLM_1/chat'))
             return {
                 ok: true,
@@ -298,6 +313,43 @@ describe('PlaceOSService', () => {
                 },
             }),
         );
+    });
+
+    it('reads every page of zones', async () => {
+        const calls = stubFetch(true);
+        await service.init();
+
+        const levels = await service.getZones('level', 'building-1');
+
+        expect(levels).toHaveLength(205);
+        expect(
+            calls.filter(([url]) => url.includes('tags=level')),
+        ).toHaveLength(3);
+    });
+
+    it('sends an imported SVG once, not as both source and output', async () => {
+        const details = () =>
+            (
+                vi.mocked(updateMetadata).mock.calls.at(-1)?.[1] as {
+                    details: Record<string, unknown>;
+                }
+            ).details;
+        const floorplan = { id: 'local', floor_name: 'Level 1' };
+
+        await service.saveFloorplanMetadata('level-1', {
+            ...floorplan,
+            svg_source: '<svg/>',
+            svg_output: '<svg/>',
+        } as never);
+        expect(details()).toMatchObject({ svg_source: '<svg/>' });
+        expect(details()).not.toHaveProperty('svg_output');
+
+        // Older imports have no source, and reimport reads the output
+        await service.saveFloorplanMetadata('level-1', {
+            ...floorplan,
+            svg_output: '<svg/>',
+        } as never);
+        expect(details()).toMatchObject({ svg_output: '<svg/>' });
     });
 
     it('falls back to a domain and API key otherwise', async () => {

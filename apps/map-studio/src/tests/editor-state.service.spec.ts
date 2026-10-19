@@ -1,7 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { DbService } from '../app/data/db';
+import { DbChanges, DbService } from '../app/data/db';
 import { PlaceOSService } from '../app/data/placeos.service';
 import { StoreService } from '../app/data/store.service';
 import { EditorStateService } from '../app/editor/editor-state.service';
@@ -34,6 +34,12 @@ class MapDbService implements Partial<DbService> {
 
     public async deleteWhere(prefix: string) {
         this._matching(prefix).forEach((key) => this._records.delete(key));
+    }
+
+    public async write(changes: DbChanges) {
+        if (changes.clear) await this.deleteWhere(changes.clear);
+        changes.delete?.forEach((key) => this._records.delete(key));
+        changes.put?.forEach(([key, value]) => this._records.set(key, value));
     }
 }
 
@@ -264,6 +270,17 @@ describe('EditorStateService', () => {
         const id = editor.objects()[0].id;
         await editor.deleteObject(id);
         expect(editor.objects()).toHaveLength(0);
+
+        editor.undo();
+        expect(editor.objects()).toHaveLength(1);
+        expect(await store.listObjects(floorplan_id)).toHaveLength(1);
+    });
+
+    it('places a desk layout as one undoable step', async () => {
+        editor.startPlacing('desk-layout', 'row-4');
+        await editor.placeAt(100, 100);
+        expect(editor.objects()).toHaveLength(5);
+        expect(await store.listObjects(floorplan_id)).toHaveLength(5);
 
         editor.undo();
         expect(editor.objects()).toHaveLength(1);

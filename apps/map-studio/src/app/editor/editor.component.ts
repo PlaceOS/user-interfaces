@@ -1065,10 +1065,18 @@ export class EditorComponent {
             return;
         }
         if (event.key === 'Delete' || event.key === 'Backspace') {
+            const group = this.state.multi_select();
             const selected = this.state.selected_id();
-            if (selected) {
+            // Search and the object list select without clearing the group
+            const ids =
+                selected && group.length > 1 && group.includes(selected)
+                    ? [...group]
+                    : selected
+                      ? [selected]
+                      : [];
+            if (ids.length) {
                 event.preventDefault();
-                this.state.deleteObject(selected);
+                this.state.deleteObjects(ids);
             }
             return;
         }
