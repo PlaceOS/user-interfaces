@@ -2,7 +2,7 @@
  * Page object for `/landing` — the `landing-new` home page.
  *
  * The home page that this one replaced (`app-landing`, `landing-upcoming`,
- * `landing-quick-book`) is no longer routed. None of those elements exist
+ * `landing-quick-book`) has been removed. None of those elements exist
  * here.
  *
  * ## The page shows ONE next booking

@@ -495,10 +495,6 @@
                     "type": "number",
                     "description": "Minimum desk booking duration in minutes. Overrides app.bookings.min_duration. Defaults to 30"
                 },
-                "needs_reason": {
-                    "type": "boolean",
-                    "description": "Whether desk bookings require a reason to be entered"
-                },
                 "use_building_timezone": {
                     "type": "boolean",
                     "description": "Whether desk booking times should use the building's timezone. Overrides app.bookings.use_building_timezone"
@@ -916,10 +912,6 @@
         "group_events_calendar": {
             "type": "string",
             "description": "ID (email) of the calendar used to list group events"
-        },
-        "idle_timeout": {
-            "type": "number",
-            "description": "Minutes of user inactivity on the meeting form before prompting to discard changes. Defaults to 5"
         },
         "use_region": {
             "type": "boolean",

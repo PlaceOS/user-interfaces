@@ -238,7 +238,6 @@ export class AppSettingsModalComponent implements OnInit {
         'show_quick_links',
         'hide_availability',
         'hide_colleagues',
-        'hide_landing_sidebar',
         'hide_rooms',
         'hide_spaces',
     ];
@@ -271,7 +270,6 @@ export class AppSettingsModalComponent implements OnInit {
         show_quick_links: 'Show Quick Links',
         hide_availability: 'Hide Availability Section',
         hide_colleagues: 'Hide Colleagues Listing',
-        hide_landing_sidebar: 'Hide Sidebar',
         hide_rooms: 'Hide Rooms Section',
         hide_spaces: 'Hide Spaces Section',
 
@@ -293,7 +291,6 @@ export class AppSettingsModalComponent implements OnInit {
             show_quick_links: false,
             hide_availability: false,
             hide_colleagues: false,
-            hide_landing_sidebar: false,
             hide_rooms: false,
             hide_spaces: false,
         } as Record<string, boolean>,

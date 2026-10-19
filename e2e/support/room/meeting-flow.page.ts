@@ -2,7 +2,7 @@
  * Page object for `/book/meeting/form` — the `meeting-flow-new` booking flow.
  *
  * This is the page object for the meeting flow. The flow it replaced
- * (`meeting-flow-form` and the room picker modal) is no longer routed.
+ * (`meeting-flow-form` and the room picker modal) has been removed.
  *
  * ## Three steps on one route
  *

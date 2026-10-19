@@ -38,7 +38,6 @@ These options live at the root of the settings file (alongside `app`, not inside
 | `use_geolocation` | boolean | `false` | Use the device's location to select the closest building when the app loads. |
 | `new_features` | boolean | `true` | Show hints in the UI when new features are added. |
 | `week_start` | number | – | First day of the week for schedule and calendar views. `0` is Sunday through `6` for Saturday. |
-| `idle_timeout` | number | – | Minutes of inactivity on the meeting form before the user is prompted to discard their changes. Falls back to `5`. |
 | `global_search` | boolean | – | Show the global search bar in the top bar. Shown when not set; set to `false` to hide it. |
 | `hide_global_search_items` | string[] | – | Result types to hide from the global search. Valid values are `contacts`, `desks`, `emergency_contacts`, `features`, `mapspeople`, `points_of_interest`, `spaces` and `users`. |
 | `hide_colleagues` | boolean | – | Hide the colleagues card on the landing page. The favourites card takes the full row. |
@@ -264,7 +263,6 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `desks.auto_checkin` | boolean | – | Treat a desk booking as checked in when the desk detects a person. Affects the Explore map and the booking details modal. The legacy key `desk.auto_checkin` is also read. |
 | `desks.enable_maps` | boolean | – | Let users book desks from the Explore map. On when not set; set to `false` to turn it off. |
 | `desks.height_enabled` | boolean | – | Show the desk height controls in the user controls and the desk booking details. |
-| `desks.needs_reason` | boolean | – | Require users to enter a reason for their desk booking. |
 | `desks.hide_reason` | boolean | – | Hide the ability to enter a reason for a desk booking. |
 | `desks.show_calendar_links` | boolean | `true` | Show "add to calendar" links on the desk booking success view. |
 | `desks.use_building_timezone` | boolean | – | Display and book desk times using the building's timezone. Overrides `bookings.use_building_timezone`. |
