@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1792414149444,
+  "timestamp": 1792414474590,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -152,12 +152,24 @@
         "./assets/support/opera-logo.svg",
         "./assets/support/safari-logo.svg"
       ],
-      "patterns": [
-        "https:\\/\\/[^/]*\\.amazonaws\\.com\\/(?:.+\\/)?[^/]*\\.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
-      ]
+      "patterns": []
     }
   ],
-  "dataGroups": [],
+  "dataGroups": [
+    {
+      "name": "s3",
+      "patterns": [
+        "https:\\/\\/[^/]*\\.amazonaws\\.com\\/(?:.+\\/)?[^/]*\\.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
+      ],
+      "strategy": "performance",
+      "maxSize": 200,
+      "maxAge": 604800000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    }
+  ],
   "hashTable": {
     "./ar-LMOMQ4BE.js": "8f5c51d3f94ea8bf59bd05e479e3dca077572500",
     "./assets/favicon.svg": "6d5d13a9caf078d3a94d74e001f6885ce5dedb15",
@@ -275,7 +287,7 @@
     "./index.html": "4603351d9a2f69f42ef3bb598d48529a35720c79",
     "./it-DP3AYVRR.js": "ee62a3cf464843d157a1df98ecc7ab58712ba2a6",
     "./ja-KPFTZVOP.js": "b1b88a5e25fc6aad4bb41cdb86a03766fb9598a9",
-    "./main.js": "a96267fb923840dcfe7093b9b37aa625039da875",
+    "./main.js": "c101b59c87f553247dd320e1cce837979c02c4af",
     "./manifest.webmanifest": "852815a261f514ed7e85a07b70485a74ee439fa6",
     "./native-domain-overlay.component-ClS7Va9p.js": "162059ebbf6d84ecb7b28d6dac6b4b1f416622e9",
     "./parking.component-Cy9x116o.js": "39489fa9297806ad0762efcbdc00ee3b5517b04a",
