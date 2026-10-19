@@ -1,9 +1,5 @@
-const general = {};
-
 const desks = {
     use_assets: false,
-    hide_reason: true,
-    can_set_host: true,
 };
 
 const events = {
@@ -12,18 +8,14 @@ const events = {
 
 const app = {
     name: 'MapKiosk',
-    title: 'PlaceOS',
-    description: 'Map Kiosk UI',
     short_name: 'PlaceOS',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
-    general,
     desks,
     events,
     explore: {
         search_enabled: true,
     },
-    show_qr_for_booking: true,
 };
 
 /**

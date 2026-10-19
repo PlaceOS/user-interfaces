@@ -315,7 +315,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _space_pipe = inject(SpacePipe);
 
-    /** Number of seconds after a user action to reset the kiosk state */
+    /** Number of seconds after a user action to reset the kiosk state. `0` turns the reset off. */
     public reset_delay = 180;
     public readonly show_levels = signal(true);
     public readonly show_legend = signal(false);
@@ -356,7 +356,6 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     public readonly legend_visible = computed(
         () => this._settings.signal('explore.show_legend')() !== false,
     );
-    public readonly hide_zones = this._settings.signal('explore.hide_zones');
     /** Signal for the active map */
     public readonly url = this._state.map_url;
     /** Signal for the active map */
@@ -394,9 +393,9 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     });
 
     @HostListener('window:mousedown') public onMouse = () =>
-        this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
+        this._restartReset();
     @HostListener('window:touchstart') public onTouch = () =>
-        this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
+        this._restartReset();
 
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setLevel = (lvl) => this._state.setLevel(lvl.id);
@@ -434,7 +433,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         }
         this._desks.setOptions({ custom: true });
         this.reset_delay =
-            this._settings.get('app.inactivity_timeout_secs') || 180;
+            this._settings.get('app.inactivity_timeout_secs') ?? 180;
         this.resetKiosk(false);
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
@@ -577,6 +576,12 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         this.timeout('update_location', () => {
             this._state.setFeatures('_located', [feature]);
         });
+    }
+
+    /** Restart the reset timer. A `reset_delay` of `0` or less turns the reset off. */
+    private _restartReset() {
+        if (!(this.reset_delay > 0)) return this.clearTimeout('reset');
+        this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
     }
 
     public resetKiosk(navigate = true) {

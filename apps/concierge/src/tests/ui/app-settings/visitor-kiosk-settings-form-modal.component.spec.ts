@@ -130,7 +130,6 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
         expect(explore).toBeTruthy();
         expect('hide_device_fields' in explore).toBe(true);
         expect('show_legend' in explore).toBe(true);
-        expect('hide_zones' in explore).toBe(true);
         expect('disable' in explore).toBe(true);
         expect('disable_actions' in explore).toBe(true);
         expect('disable_labels' in explore).toBe(true);
@@ -284,29 +283,25 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
         );
     });
 
-    it('should add legend item', () => {
-        // Set a mutable array first
-        spectator.component.model.update((m) => ({
-            ...m,
-            explore: { ...m.explore, legend: [] },
-        }));
-        spectator.component.addLegend();
-        expect(spectator.component.model().explore.legend.length).toBe(1);
+    it('should reset a boolean hide_device_fields to an empty list', async () => {
+        (ts_client.showMetadata as any).mockResolvedValue({
+            details: { explore: { hide_device_fields: true } },
+        });
+        await spectator.component.ngOnInit();
+        expect(spectator.component.model().explore.hide_device_fields).toEqual(
+            [],
+        );
     });
 
-    it('should remove legend item', () => {
-        spectator.component.model.update((m) => ({
-            ...m,
-            explore: {
-                ...m.explore,
-                legend: [
-                    ['a', '#000'],
-                    ['b', '#fff'],
-                ],
-            },
-        }));
-        spectator.component.removeLegend(0);
-        expect(spectator.component.model().explore.legend.length).toBe(1);
+    it('should keep a list of hidden device fields', async () => {
+        (ts_client.showMetadata as any).mockResolvedValue({
+            details: { explore: { hide_device_fields: ['mac', 'ssid'] } },
+        });
+        await spectator.component.ngOnInit();
+        expect(spectator.component.model().explore.hide_device_fields).toEqual([
+            'mac',
+            'ssid',
+        ]);
     });
 
     it('should set default visitor label size values', () => {

@@ -4,19 +4,11 @@
     "properties": {
         "name": {
             "type": "string",
-            "description": "Name of the application"
-        },
-        "title": {
-            "type": "string",
-            "description": "Title to display in the browser tab"
-        },
-        "description": {
-            "type": "string",
-            "description": "Description of the application"
+            "description": "Application name sent with PlaceOS API requests. Falls back to `short_name`"
         },
         "short_name": {
             "type": "string",
-            "description": "Short name for the application"
+            "description": "Prefix for console log messages. Also used as the API application name when `name` is not set"
         },
         "default_route": {
             "type": "string",
@@ -80,15 +72,15 @@
             "properties": {
                 "width": {
                     "type": "number",
-                    "description": "Width of the printed label in millimetres. Defaults to `25`"
+                    "description": "Width of the printed label in `em`, relative to the font size set by `scale`. Defaults to `25`"
                 },
                 "height": {
                     "type": "number",
-                    "description": "Height of the printed label in millimetres. Defaults to `15`"
+                    "description": "Height of the printed label in `em`, relative to the font size set by `scale`. Defaults to `15`"
                 },
                 "scale": {
                     "type": "number",
-                    "description": "Render scale for the printed label. Defaults to `4`"
+                    "description": "Font size of the printed label in millimetres. A larger value also makes the label wider and higher. Defaults to `4`"
                 }
             }
         },
@@ -140,10 +132,6 @@
                 }
             }
         },
-        "home": {
-            "type": "object",
-            "description": "Data associated with rendering the home page in the app"
-        },
         "explore": {
             "type": "object",
             "description": "Data associated with map rendering on the explore page",
@@ -153,23 +141,109 @@
                     "description": "Mapping of keys to their color values. Keys are usually in the format `<type>-<status>`",
                     "additionalProperties": { "type": "string" }
                 },
-                "can_select_building": {
+                "search_enabled": {
                     "type": "boolean",
-                    "description": "Whether user is allowed to select different buildings to view"
+                    "description": "Whether to show the search bar on the explore page. The search bar is hidden when not set"
                 },
-                "show_legend_group_names": {
+                "show_legend": {
                     "type": "boolean",
-                    "description": "Whether to show group names in the map legend"
+                    "description": "Whether to show the legend on the explore page. The legend is hidden only when set to `false`"
                 },
-                "legend": {
-                    "type": "object",
-                    "description": "Mapping of group names to the legend items to display for that group",
-                    "additionalProperties": {
-                        "type": "array",
-                        "items": { "$ref": "#/$defs/identity" }
+                "show_booking_qr": {
+                    "type": "boolean",
+                    "description": "Whether a room booking shows a QR code to book on a personal device, instead of the booking form"
+                },
+                "disable": {
+                    "$ref": "#/$defs/map_layers",
+                    "description": "Map layers to turn off: features, actions, labels and styles"
+                },
+                "disable_features": {
+                    "$ref": "#/$defs/map_layers",
+                    "description": "Map layers whose features are turned off"
+                },
+                "disable_actions": {
+                    "$ref": "#/$defs/map_layers",
+                    "description": "Map layers whose click actions are turned off"
+                },
+                "disable_labels": {
+                    "$ref": "#/$defs/map_layers",
+                    "description": "Map layers whose labels are turned off"
+                },
+                "disable_styles": {
+                    "$ref": "#/$defs/map_layers",
+                    "description": "Map layers whose styles are turned off"
+                },
+                "hide_device_fields": {
+                    "type": "array",
+                    "description": "Fields to hide in device tooltips",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "mac",
+                            "manufacturer",
+                            "os",
+                            "ssid",
+                            "username",
+                            "user"
+                        ]
                     }
+                },
+                "use_zone_polygons": {
+                    "type": "boolean",
+                    "description": "Whether to draw zone areas with their polygon data"
+                },
+                "show_zone_labels": {
+                    "type": "boolean",
+                    "description": "Whether to show labels for zone areas"
+                },
+                "show_zone_sensor_info": {
+                    "type": "boolean",
+                    "description": "Whether to show sensor values in zone area labels"
+                },
+                "area_count_key": {
+                    "type": "string",
+                    "description": "Key of the zone area value to use as the people count. Defaults to `count`"
                 }
             }
+        },
+        "desks": {
+            "type": "object",
+            "description": "Desk settings for the explore page",
+            "properties": {
+                "enable_maps": {
+                    "type": "boolean",
+                    "description": "Whether people can book desks from the map. On unless set to `false`"
+                },
+                "show_users": {
+                    "type": "boolean",
+                    "description": "Whether desk tooltips show the name of the person at the desk. On unless set to `false`"
+                }
+            }
+        },
+        "use_24_hour_time": {
+            "type": "boolean",
+            "description": "Whether to show times with a 24-hour clock"
+        },
+        "use_imperial_units": {
+            "type": "boolean",
+            "description": "Whether zone sensor labels show temperatures in Fahrenheit"
+        },
+        "chat": {
+            "type": "object",
+            "description": "Settings for the chat assistant",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Whether to show the global chat widget. Off when not set"
+                }
+            }
+        },
+        "environment_bar": {
+            "type": "string",
+            "description": "CSS colour for thin identifier bars at the top and bottom of the app. Leave unset to hide the bars"
+        },
+        "banner": {
+            "$ref": "#/$defs/banner"
         },
         "locales": {
             "type": "array",
@@ -178,17 +252,27 @@
         }
     },
     "$defs": {
-        "identity": {
+        "map_layers": {
+            "type": "array",
+            "description": "Map layer names, such as `devices`, `desks`, `lockers`, `parking`, `spaces`, `spaces-presence` and `zones`",
+            "items": { "type": "string" }
+        },
+        "banner": {
             "type": "object",
-            "required": ["id", "name"],
+            "description": "Message banner shown at the top of the app. The user can close it",
             "properties": {
                 "id": {
                     "type": "string",
-                    "description": "Unique identifier for this object"
+                    "description": "Unique ID for the banner. A closed banner stays hidden until the ID changes"
                 },
-                "name": {
+                "type": {
                     "type": "string",
-                    "description": "Display string for the object"
+                    "enum": ["info", "warn", "error"],
+                    "description": "Colour style for the banner. Defaults to `info`"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Message text to show in the banner"
                 }
             }
         },

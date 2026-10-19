@@ -1,5 +1,3 @@
-const home = {};
-
 /*===========================*\
 ||    EXPLORE MAP SETTINGS   ||
 \*===========================*/
@@ -24,9 +22,6 @@ const explore = {
         'zone-medium': '#ffb300',
         'zone-high': '#e53935',
     },
-    can_select_building: false,
-    show_legend_group_names: true,
-    legend: {},
 };
 
 /**
@@ -34,8 +29,6 @@ const explore = {
  */
 const app = {
     name: 'Visitor-Kiosk',
-    title: 'Visitor Kiosk',
-    description: 'Kiosk UI written with Angular Framework',
     short_name: 'KIOSK',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
@@ -44,7 +37,6 @@ const app = {
     allow_user_photo: true,
     hide_building_image: false,
     explore,
-    home,
     welcome_background: 'assets/img/skyline.webp',
     locales: [
         { id: 'en-AU', name: 'LANGUAGE.ENGLISH', local: 'English', flag: '🇦🇺' },
