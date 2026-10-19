@@ -32,8 +32,11 @@ import {
     SettingsToggleComponent,
 } from '@placeos/components';
 import {
-    appSettingOverrides,
     applyAppSettings,
+    applyBookingFallbacks,
+    appSettingOverrides,
+    AppSettings,
+    LOCKER_BOOKING_FALLBACKS,
     mergeAppSettings,
 } from './app-settings.utilities';
 import {
@@ -486,10 +489,6 @@ import { errorText } from '../modal-actions';
                             [formField]="form.colleagues_require_auth"
                         ></settings-toggle>
                         <settings-toggle
-                            label="Hide landing sidebar"
-                            [formField]="form.hide_landing_sidebar"
-                        ></settings-toggle>
-                        <settings-toggle
                             label="Hide landing spaces"
                             [formField]="form.hide_landing_spaces"
                         ></settings-toggle>
@@ -778,10 +777,6 @@ import { errorText } from '../modal-actions';
                                         [formField]="form.events.strict_capacity_check"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        label="Allow Visibility options"
-                                        [formField]="form.events.allow_visibility"
-                                    ></settings-toggle>
-                                    <settings-toggle
                                         label="Disable notes field"
                                         [formField]="form.events.hide_notes"
                                     ></settings-toggle>
@@ -1042,14 +1037,6 @@ import { errorText } from '../modal-actions';
                                         label="Allow requesting assets with booking"
                                         [formField]="form.desks.has_assets"
                                     ></settings-toggle>
-                                    <!-- <settings-toggle
-                                                                                                      label="Hide reason field for desk booking"
-                                                                                                      [formField]="form.desks.hide_reason"
-                                                                                                    ></settings-toggle>
-                                                                                                    <settings-toggle
-                                                                                                      label="Require a reason for desk booking"
-                                                                                                      [formField]="form.desks.needs_reason"
-                                                                                                    ></settings-toggle> -->
                                     <settings-toggle
                                         label="Allow Recurring Desk bookings"
                                         [formField]="form.desks.allow_recurrence"
@@ -1943,6 +1930,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
 
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
+    /** Form values right after loading, used to find user changes on save. */
+    public initial_settings: AppSettings = {};
     public readonly loading = signal('');
     public readonly shown_group = signal<string>('');
     public readonly currency_filter = signal('');
@@ -1983,7 +1972,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         allow_support_ticket_images: false,
         basic_user_search: false,
         colleagues_require_auth: true,
-        hide_landing_sidebar: false,
         hide_landing_spaces: false,
         hide_landing_rooms: false,
         hide_colleagues: false,
@@ -2026,7 +2014,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             allow_recurrence: false,
             allow_multiday: false,
             use_bookings: false,
-            allow_visibility: false,
             use_building_timezone: false,
             force_host: '',
             allow_daily_allday_recurrence: false,
@@ -2067,7 +2054,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             can_book_lockers: false,
             has_assets: false,
             hide_reason: false,
-            needs_reason: false,
             allow_recurrence: false,
             default_select_as_map: false,
             show_calendar_links: false,
@@ -2181,14 +2167,22 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
                     : {};
             const metadata = await this._getMetadata(zone.id);
             this.existing_settings = mergeAppSettings(
-                this.model(),
                 DEFAULT_SETTINGS.app,
                 org_metadata,
                 parent_metadata,
             );
             this._patchModel(this.existing_settings);
             this._patchModel(metadata || {});
+            this.model.update((model) =>
+                applyBookingFallbacks(
+                    model,
+                    mergeAppSettings(this.existing_settings, metadata),
+                    'lockers',
+                    LOCKER_BOOKING_FALLBACKS,
+                ),
+            );
             this.old_settings = metadata;
+            this.initial_settings = this.model();
         } catch (e) {
             // Saving defaults over settings that failed to load would lose
             // them, so close instead.
@@ -2223,6 +2217,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         const new_settings = appSettingOverrides(
             working_settings,
             this.existing_settings,
+            this.initial_settings,
+            this.old_settings,
         );
         const user = currentUser();
         new_settings.edited_by = {

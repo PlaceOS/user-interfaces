@@ -29,6 +29,7 @@ import { errorText } from '../modal-actions';
 import {
     applyAppSettings,
     appSettingOverrides,
+    AppSettings,
     mergeAppSettings,
 } from './app-settings.utilities';
 import {
@@ -501,6 +502,8 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
 
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
+    /** Form values right after loading, used to find user changes on save. */
+    public initial_settings: AppSettings = {};
     public readonly loading = signal('');
     public readonly zone = this._data.zone;
     public readonly MAX_DURATION_MINI = MAX_DURATION_MINI_OPTIONS;
@@ -573,7 +576,6 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
                     : {};
             const metadata = await this._getMetadata(zone.id);
             this.existing_settings = mergeAppSettings(
-                this.model(),
                 DEFAULT_SETTINGS.app,
                 org_metadata,
                 parent_metadata,
@@ -581,6 +583,7 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
             this._patchModel(this.existing_settings);
             this._patchModel(metadata || {});
             this.old_settings = metadata;
+            this.initial_settings = this.model();
         } catch (e) {
             // Saving defaults over settings that failed to load would lose
             // them, so close instead.
@@ -613,6 +616,8 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         const new_settings = appSettingOverrides(
             working_settings,
             this.existing_settings,
+            this.initial_settings,
+            this.old_settings,
         );
         const user = currentUser();
         new_settings.edited_by = {
