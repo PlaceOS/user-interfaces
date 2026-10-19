@@ -328,6 +328,14 @@ describe('validateProposal', () => {
         expect(rule.row.affected).toBe(3);
         expect(rule.row.locked).toBe(true);
         expect(rule.row.issues[1].message).toBe('hides 2 bound element(s)');
+        const stray = await single({
+            op: 'set_style_rule',
+            why: '',
+            selector: 'body',
+            declarations: [{ name: 'visibility', value: 'hidden' }],
+        });
+        expect(stray.codes).toEqual(['no_match']);
+        expect(stray.row.checked_by_default).toBe(false);
         const moved = await single({
             op: 'transform',
             why: '',
@@ -941,6 +949,37 @@ describe('validateProposal', () => {
             doc,
         );
         expect(clean.codes).toEqual([]);
+    });
+
+    it('warns when a numbered copy or a group takes a bound id', async () => {
+        const doc = MapDocument.load(OFFICE, {
+            geometry,
+            protected: new ProtectedIdSet([
+                { id: 'table-01.004', kind: 'desk', label: 'Desk 1.004' },
+                { id: 'desk-bank', kind: 'other', label: 'Desk bank' },
+            ]),
+        });
+        const result = await validateProposal(doc, [
+            {
+                op: 'duplicate',
+                why: 'one more',
+                target: { id: 'table-01.003' },
+                translate: [40, 0],
+                id_pattern: 'table-01.{n:03}',
+            },
+            {
+                op: 'group',
+                why: 'group the plants',
+                targets: [{ id: 'plant-1' }, { id: 'plant-2' }],
+                new_id: 'desk-bank',
+            },
+        ]);
+        expect(result.ops[0].issues.map((entry) => entry.message)).toContain(
+            '"table-01.004" is a bound id',
+        );
+        expect(result.ops[1].issues.map((entry) => entry.code)).toContain(
+            'takes_protected_id',
+        );
     });
 
     it('validates a realistic batch on a real map without collateral', async () => {

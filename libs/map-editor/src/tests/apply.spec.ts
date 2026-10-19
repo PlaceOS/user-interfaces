@@ -980,6 +980,29 @@ describe('applyOps', () => {
                     markup: '<script>x</script>',
                 }).rejected,
             ).toBeDefined();
+            expect(
+                one(doc, {
+                    op: 'replace_element',
+                    why: '',
+                    target: { id: 'bg' },
+                    markup: '<g><style>body{visibility:hidden}</style></g>',
+                }).rejected?.reason,
+            ).toMatch(/<style> is not allowed/);
+        });
+
+        it('keeps the markup root id of an anonymous target off its children', () => {
+            const doc = MapDocument.load(
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="1" y="1" width="5" height="5"/></svg>',
+            );
+            const rect = doc.root.querySelector('rect') as Element;
+            expect(
+                one(doc, {
+                    op: 'replace_element',
+                    why: '',
+                    target: { a: doc.anchorOf(rect) },
+                    markup: '<g id="dup"><rect id="dup" width="5" height="5"/></g>',
+                }).rejected?.reason,
+            ).toMatch(/"dup" already exists/);
         });
     });
 

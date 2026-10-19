@@ -666,6 +666,14 @@ class Validator {
                 }
                 const matched = elementsMatching(this.trial.root, selector);
                 step.validation.affected = matched.length;
+                if (!matched.length) {
+                    push(
+                        'error',
+                        'no_match',
+                        'the selector matches nothing in this map',
+                    );
+                    return;
+                }
                 push(
                     'info',
                     'affects',
@@ -1290,6 +1298,30 @@ class Validator {
         created: string[],
     ): void {
         const op = step.op;
+        const adds =
+            op.op === 'duplicate' ||
+            op.op === 'insert_shape' ||
+            op.op === 'group';
+        const named = 'new_id' in op ? op.new_id : undefined;
+        const taken = [
+            ...new Set(
+                (adds ? created : []).flatMap((anchor) => {
+                    const element = this.trial.byAnchor(anchor);
+                    return element
+                        ? protectedIdsIn(element, this._protected)
+                        : [];
+                }),
+            ),
+        ].filter((id) => id !== named || op.op === 'group');
+        if (taken.length) {
+            step.validation.issues.push(
+                issue(
+                    'warning',
+                    'takes_protected_id',
+                    `${taken.map((id) => `"${id}"`).join(', ')} ${taken.length === 1 ? 'is a bound id' : 'are bound ids'}`,
+                ),
+            );
+        }
         if (op.op === 'replace_element') {
             const element = this.trial.byAnchor(anchors[0]);
             const id = element?.getAttribute('id');

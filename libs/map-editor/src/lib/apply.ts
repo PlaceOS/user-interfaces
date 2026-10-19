@@ -5,6 +5,7 @@ import {
     MAX_DUPLICATE_COUNT,
     MAX_REPLACEMENT_MARKUP_BYTES,
     MAX_TRANSFORM_TARGETS,
+    REPLACEMENT_DENIED_TAGS,
     SHAPE_GEOMETRY_ATTRS,
     SHAPE_KINDS,
     STYLE_PROPERTY_ALLOW_LIST,
@@ -941,6 +942,16 @@ function replaceElement(doc: MapDocument, op: ReplaceElementOp): Outcome {
     const purified = purifyMarkup(op.markup);
     if (!purified.element)
         return { ok: false, reason: purified.error || 'markup rejected' };
+    for (const element of [
+        purified.element,
+        ...Array.from(purified.element.querySelectorAll('*')),
+    ]) {
+        if (REPLACEMENT_DENIED_TAGS.has(element.localName.toLowerCase()))
+            return {
+                ok: false,
+                reason: `<${element.localName}> is not allowed`,
+            };
+    }
     const replacement = doc.root.ownerDocument.importNode(
         purified.element,
         true,
@@ -964,6 +975,7 @@ function replaceElement(doc: MapDocument, op: ReplaceElementOp): Outcome {
         if (issue) return { ok: false, reason: issue };
         if (existing.has(markup_id))
             return { ok: false, reason: `id "${markup_id}" already exists` };
+        existing.add(markup_id);
     }
     for (const descendant of Array.from(replacement.querySelectorAll('[id]'))) {
         const id = descendant.getAttribute('id') || '';
