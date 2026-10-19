@@ -6,6 +6,7 @@
 - Treat the development proxy as access to an external PlaceOS system. Use a local backend or mock mode unless the user explicitly requests live access.
 - Read project names, targets, dependencies, and versions from the workspace configuration. Do not rely on copied lists or version numbers in documentation.
 - Commit changes only when the user explicitly asks. Use the current working branch unless the task names another branch.
+- Use `feat/*`, `fix/*`, `perf/*`, or `refactor/*` for branch names
 
 ## Read when relevant
 
