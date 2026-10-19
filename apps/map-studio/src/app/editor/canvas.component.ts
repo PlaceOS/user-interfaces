@@ -786,16 +786,35 @@ export class CanvasComponent {
             ),
     );
 
+    /** True while a drag, resize, rotate or vertex drag is under way. */
+    private readonly _pointer_editing = computed(
+        () =>
+            !!this._dragging() ||
+            !!this._resizing() ||
+            !!this._rotating() ||
+            !!this._group_resizing() ||
+            !!this._group_rotating() ||
+            !!this._vertex_drag(),
+    );
+    private _last_source_image: string | null = null;
+
+    /**
+     * The imported map with object edits applied, as an image. It is held
+     * while a pointer edit is under way and composed again on release, since
+     * composing parses and serialises the whole source SVG.
+     */
     public readonly sourceImage = computed(() => {
         const floor = this.state.floorplan();
-        if (!floor?.svg_source) return null;
+        if (!floor?.svg_source) return (this._last_source_image = null);
+        if (this._pointer_editing() && this._last_source_image)
+            return this._last_source_image;
         const visible = new Set(
             this.state.visible_objects().map((object) => object.id),
         );
         const objects = this.state
             .objects()
             .map((object) => ({ ...object, visible: visible.has(object.id) }));
-        return `data:image/svg+xml,${encodeURIComponent(composeSourceSvg(floor.svg_source, objects, floor.svg_source_ids))}`;
+        return (this._last_source_image = `data:image/svg+xml,${encodeURIComponent(composeSourceSvg(floor.svg_source, objects, floor.svg_source_ids))}`);
     });
 
     public readonly guideImage = computed(() => {
