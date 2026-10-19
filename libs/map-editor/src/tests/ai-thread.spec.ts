@@ -370,6 +370,46 @@ describe('MapAiThread', () => {
         expect(thread.proposal()?.accepted).toEqual([0, 1]);
     });
 
+    it('points added rows at the elements they create', async () => {
+        const base = MapDocument.load(OFFICE);
+        const { doc, thread } = setup([
+            {
+                op: 'insert_shape',
+                why: 'adds a box',
+                parent: target(base, 'rooms'),
+                kind: 'rect',
+                attrs: [
+                    { name: 'x', value: '300' },
+                    { name: 'y', value: '300' },
+                    { name: 'width', value: '20' },
+                    { name: 'height', value: '20' },
+                ],
+                new_id: 'ai-box',
+            },
+            {
+                op: 'duplicate',
+                why: 'copies the plants',
+                target: target(base, 'plants'),
+                translate: [0, 50],
+                new_id: 'plants-copy',
+            },
+        ]);
+        await thread.load();
+        await thread.submit('Add a box and copy the plants');
+        const anchorOf = (id: string) => doc.anchorOf(doc.byId(id)!);
+        expect(thread.proposal()?.rows[0].anchors).toEqual([
+            anchorOf('ai-box'),
+        ]);
+        expect(thread.proposal()?.rows[1].anchors).toEqual([
+            anchorOf('plants-copy'),
+        ]);
+        await thread.toggle(0, false);
+        expect(thread.proposal()?.rows[0].anchors).toEqual([]);
+        expect(thread.proposal()?.rows[1].anchors).toEqual([
+            anchorOf('plants-copy'),
+        ]);
+    });
+
     it('toggles two complete 41-piece plant copies independently', async () => {
         const markup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500"><desc>${'existing metadata '.repeat(3000)}</desc><g id="plants">${Array.from({ length: 41 }, (_, i) => `<rect x="${10 + i / 2}" y="20" width="1" height="2" fill="green"/>`).join('')}</g></svg>`;
         const doc = MapDocument.load(markup);

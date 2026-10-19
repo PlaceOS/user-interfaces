@@ -10,7 +10,6 @@ export function opCategory(op: MapOp): OpCategory {
     switch (op.op) {
         case 'insert_shape':
         case 'duplicate':
-        case 'group':
             return 'added';
         case 'delete':
             return 'removed';

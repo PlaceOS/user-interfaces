@@ -275,7 +275,9 @@ function resolvedAnchors(op: MapOp, doc: MapDocument): string[] {
         }
         return [...anchors];
     }
-    for (const target of referencedTargets(op)) {
+    const targets =
+        op.op === 'insert_shape' ? targetsOf(op) : referencedTargets(op);
+    for (const target of targets) {
         const resolution = doc.resolve(target);
         if (resolution.ok) {
             const anchor = doc.anchorOf(resolution.element);

@@ -252,6 +252,13 @@ describe('describeOp', () => {
         expect(
             opCategory({ op: 'set_text', why, target: { id: 'x' }, text: '' }),
         ).toBe('changed');
+        expect(
+            opCategory({
+                op: 'group',
+                why,
+                targets: [{ id: 'x' }, { id: 'y' }],
+            }),
+        ).toBe('changed');
         expect(opGlyph('added')).toBe('+');
         expect(opGlyph('removed')).toBe('−');
     });

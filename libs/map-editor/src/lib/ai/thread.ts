@@ -1,5 +1,6 @@
 import { computed, signal, Signal, WritableSignal } from '@angular/core';
 import { MapIndex } from '../map-index';
+import { OpKind } from '../ops';
 import { annotationCandidates } from './annotations';
 import {
     cancelMapAIJob,
@@ -134,6 +135,13 @@ export interface MapAiThreadOptions {
 }
 
 const BUSY_MESSAGE = /busy|running right now|try again/i;
+
+/** Ops whose row points at the elements they create once previewed. */
+const CREATES: ReadonlySet<OpKind> = new Set([
+    'insert_shape',
+    'duplicate',
+    'group',
+]);
 
 /** The person-facing error for a failed request, by HTTP status. */
 export function errorFromStatus(
@@ -751,11 +759,17 @@ export class MapAiThread {
         this._preview_version = this._session.version();
         this._preview_depth = this._session.undoDepth?.() ?? 0;
         this._preview_base = base;
-        const applied = new Set(result.applied.map((step) => step.index));
-        const rows = proposal.rows.map((row) => ({
-            ...row,
-            applied: applied.has(row.index),
-        }));
+        const steps = new Map(result.applied.map((step) => [step.index, step]));
+        const rows = proposal.rows.map((row) => {
+            const created = CREATES.has(row.kind)
+                ? this._topmost(steps.get(row.index)?.created ?? [])
+                : [];
+            return {
+                ...row,
+                anchors: created.length ? created : row.anchors,
+                applied: steps.has(row.index),
+            };
+        });
         this.dispatch({ type: 'previewed', proposal: { ...proposal, rows } });
     }
 
@@ -808,6 +822,16 @@ export class MapAiThread {
         if (base) this._takePreviewOff();
         this.dispatch({ type: 'rows_changed', proposal: rebuilt });
         this._preview(rebuilt);
+    }
+
+    /** The anchors whose parent element is not in the list too. */
+    private _topmost(anchors: readonly string[]): string[] {
+        const set = new Set(anchors);
+        const doc = this._session.doc;
+        return anchors.filter((anchor) => {
+            const parent = doc.byAnchor(anchor)?.parentElement;
+            return !parent || !set.has(doc.anchorOf(parent));
+        });
     }
 
     private _takePreviewOff(): void {

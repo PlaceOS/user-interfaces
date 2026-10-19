@@ -77,6 +77,12 @@ const SECTION_ORDER: readonly OpCategory[] = [
     'none',
 ];
 
+/** "5", "5 and 6", "5, 6 and 7". */
+function listOf(numbers: readonly number[]): string {
+    if (numbers.length < 2) return numbers.join('');
+    return `${numbers.slice(0, -1).join(', ')} and ${numbers.at(-1)}`;
+}
+
 /** "claude-opus-5-5" reads "Claude Opus 5.5" and "gpt-5.4-mini" reads "GPT-5.4 mini"; other ids are shown as they are. */
 export function readableModel(model: string): string {
     const claude = /^claude-([a-z]+)-(\d+)-(\d+)$/.exec(model);
@@ -846,6 +852,9 @@ export function readableModel(model: string): string {
                                 {{ needsText(row) }}
                             </span>
                         }
+                        @if (row.dependents.length) {
+                            <span needs>{{ neededByText(row) }}</span>
+                        }
                         @if (row.note) {
                             <span>{{ row.note }}</span>
                         }
@@ -1013,6 +1022,17 @@ export function readableModel(model: string): string {
             }
 
             /* Thread */
+
+            /* Hosts such as Concierge turn text selection off for every element. */
+            .thread,
+            .thread * {
+                user-select: text;
+            }
+
+            .thread button,
+            .thread button * {
+                user-select: none;
+            }
 
             .thread {
                 display: flex;
@@ -2178,6 +2198,17 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
         return row.depends_on
             .map((index) => format(thread.strings.needs, { n: index + 1 }))
             .join(', ');
+    }
+
+    public neededByText(row: ProposalRow): string {
+        const thread = this.thread();
+        if (!thread) return '';
+        const numbers = row.dependents.map((index) => index + 1);
+        if (numbers.length === 1)
+            return format(thread.strings.needed_by_one, { n: numbers[0] });
+        return format(thread.strings.needed_by_many, {
+            list: listOf(numbers),
+        });
     }
 
     public cardTitle(proposal: Proposal): string {

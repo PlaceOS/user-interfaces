@@ -59,6 +59,10 @@ export interface MapEditorAiStrings {
     unticked_note: string;
     /** `{n}` is the 1-based position of the change this one needs. */
     needs: string;
+    /** `{n}` is the 1-based position of the one change that needs this one. */
+    needed_by_one: string;
+    /** `{list}` is the 1-based positions of the changes that need this one. */
+    needed_by_many: string;
     /** `{count}` elements a style rule reaches. */
     affects: string;
     before: string;
@@ -198,6 +202,8 @@ export const DEFAULT_AI_STRINGS: MapEditorAiStrings = {
     locked_note: 'Cannot be applied',
     unticked_note: 'Unticked; tick to apply it',
     needs: 'needs change {n}',
+    needed_by_one: 'change {n} needs this',
+    needed_by_many: 'changes {list} need this',
     affects: 'affects {count} elements',
     before: 'Before',
     after: 'After',
