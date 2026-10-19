@@ -1929,7 +1929,10 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
             const session = this.session();
             const thread = this.thread();
             const proposal = thread?.proposal() ?? null;
-            const previewed = this.phase().kind === 'applied';
+            const phase = this.phase();
+            const previewed =
+                phase.kind === 'applied' ||
+                (phase.kind === 'reviewing' && !!phase.on_map);
             const summary =
                 thread && proposal && previewed
                     ? previewSummary(proposal, thread.strings)

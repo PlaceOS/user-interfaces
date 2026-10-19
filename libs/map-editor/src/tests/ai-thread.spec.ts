@@ -343,6 +343,33 @@ describe('MapAiThread', () => {
         expect(thread.turns()[1]).toMatchObject({ outcome: 'not_applied' });
     });
 
+    it('swaps the preview in one step when a changed selection is validated', async () => {
+        const base = MapDocument.load(OFFICE);
+        const { thread, session } = setup([
+            recolour(base, 'area-1.01-status', '#d1fae5'),
+            recolour(base, 'area-1.02-status', '#fee2e2'),
+        ]);
+        await thread.load();
+        await thread.submit('Recolour both');
+        const undo = session.undo.bind(session);
+        const apply = session.apply.bind(session);
+        let between = false;
+        const seen: boolean[] = [];
+        session.undo = () => {
+            between = true;
+            queueMicrotask(() => seen.push(between));
+            return undo();
+        };
+        session.apply = (...args) => {
+            between = false;
+            return apply(...args);
+        };
+        await thread.toggle(1, false);
+        await thread.toggle(1, true);
+        expect(seen).toEqual([false, false]);
+        expect(thread.proposal()?.accepted).toEqual([0, 1]);
+    });
+
     it('toggles two complete 41-piece plant copies independently', async () => {
         const markup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500"><desc>${'existing metadata '.repeat(3000)}</desc><g id="plants">${Array.from({ length: 41 }, (_, i) => `<rect x="${10 + i / 2}" y="20" width="1" height="2" fill="green"/>`).join('')}</g></svg>`;
         const doc = MapDocument.load(markup);

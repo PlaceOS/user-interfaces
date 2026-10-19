@@ -346,6 +346,12 @@ export function groupRows(
     });
 }
 
+/** The parts of a session a proposal is built and validated against. */
+export type ProposalBase = Pick<
+    MapEditorSessionLike,
+    'doc' | 'index' | 'protected' | 'render_check' | 'geometry'
+>;
+
 /**
  * The review model for a finished job: one row per op with its words, the
  * validator's verdict and the dependency links, plus the batch result for
@@ -354,7 +360,7 @@ export function groupRows(
  */
 export async function buildProposal(
     job: MapAIJob,
-    session: MapEditorSessionLike,
+    session: ProposalBase,
     strings: MapEditorAiStrings,
     options: BuildProposalOptions = {},
 ): Promise<Proposal> {

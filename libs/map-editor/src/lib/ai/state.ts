@@ -37,7 +37,13 @@ export type MapAiPhase =
           started_at: number;
           cancelling: boolean;
       }
-    | { kind: 'reviewing'; proposal: Proposal; validating: boolean }
+    | {
+          kind: 'reviewing';
+          proposal: Proposal;
+          validating: boolean;
+          /** The earlier preview is still on the map while the new selection is checked. */
+          on_map?: boolean;
+      }
     | { kind: 'applied'; proposal: Proposal }
     | { kind: 'error'; error: MapAiError }
     | { kind: 'cancelled'; job: MapAIJob | null };
@@ -188,7 +194,7 @@ export type MapAiEvent =
           error: MapAiError;
           at: number;
       }
-    | { type: 'validating' }
+    | { type: 'validating'; on_map?: boolean }
     | { type: 'proposal'; proposal: Proposal; at: number }
     | { type: 'previewed'; proposal: Proposal }
     | { type: 'rows_changed'; proposal: Proposal }
@@ -435,7 +441,12 @@ export function reduce(
             if (!proposal) return state;
             return {
                 ...state,
-                phase: { kind: 'reviewing', proposal, validating: true },
+                phase: {
+                    kind: 'reviewing',
+                    proposal,
+                    validating: true,
+                    on_map: event.on_map,
+                },
             };
         }
         case 'proposal': {

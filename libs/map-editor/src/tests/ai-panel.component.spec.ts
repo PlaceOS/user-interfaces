@@ -120,6 +120,44 @@ describe('MapEditorAiPanelComponent', () => {
         );
     });
 
+    it('keeps every map marker while a changed selection is checked', async () => {
+        const sequence = jobSequence({
+            ops: [
+                recolour(doc, 'area-1.01-status', '#d1fae5'),
+                recolour(doc, 'area-1.02-status', '#fee2e2'),
+            ],
+        });
+        const fixture = await mount(
+            new FakeTransport({
+                edit: sequence.accepted,
+                polls: sequence.polls,
+            }),
+        );
+        const thread = fixture.componentInstance.thread()!;
+        await thread.submit('Recolour both');
+        await settle(fixture);
+        const dispatch = thread.dispatch.bind(thread);
+        thread.dispatch = (event) => {
+            dispatch(event);
+            if (event.type === 'validating') fixture.detectChanges();
+        };
+        session.previews.length = 0;
+        (
+            fixture.nativeElement.querySelector(
+                '[row][data-index="1"] input[type="checkbox"]',
+            ) as HTMLInputElement
+        ).click();
+        await settle(fixture);
+        const markers = session.previews.map((summary) =>
+            summary
+                ? summary.markers
+                      .map((marker) => `${marker.n}:${marker.applied}`)
+                      .join(' ')
+                : null,
+        );
+        expect(markers).toEqual(['1:true 2:true', '1:true 2:false']);
+    });
+
     it('renders nothing visible when the deployment has no map AI', async () => {
         const fixture = await mount(
             new FakeTransport({ capabilities: httpError(404, 'not found') }),

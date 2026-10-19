@@ -22,6 +22,7 @@ import {
     decisionFor,
     heldAfter,
     Proposal,
+    ProposalBase,
     ProposalGroup,
     ProposalRow,
     resolvePayload,
@@ -291,6 +292,8 @@ export class MapAiThread {
     /** Session version and undo depth right after the preview went on the map; -1 when none is tracked. */
     private _preview_version = -1;
     private _preview_depth = 0;
+    /** The map as it was just before the preview went on, for re-validating a changed selection. */
+    private _preview_base: ProposalBase | null = null;
 
     constructor(
         private readonly _session: MapEditorSessionLike,
@@ -607,6 +610,7 @@ export class MapAiThread {
             (this._session.undoDepth?.() ?? this._preview_depth) <
                 this._preview_depth || !this._session.dirty();
         this._preview_version = -1;
+        this._preview_base = null;
         const proposal = phase.proposal;
         void this._enqueue(async () => {
             if (this._state().phase.kind !== 'applied') return;
@@ -626,6 +630,7 @@ export class MapAiThread {
             const phase = this._state().phase;
             if (phase.kind !== 'applied') return;
             const proposal = phase.proposal;
+            this._preview_base = null;
             await this._resolveQuietly(proposal, decisionFor(proposal));
             this.dispatch({ type: 'kept', proposal });
         });
@@ -638,7 +643,7 @@ export class MapAiThread {
             const proposal = proposalOf(state);
             if (!proposal) return;
             this._preview_version = -1;
-            if (state.phase.kind === 'applied') this._session.undo();
+            if (state.phase.kind === 'applied') this._takePreviewOff();
             const chips = [...(reasons ?? state.reasons)];
             await this._resolveQuietly(proposal, 'rejected', chips);
             this.dispatch({ type: 'undone', proposal, reasons: chips });
@@ -730,6 +735,14 @@ export class MapAiThread {
                 .filter((row) => !accepted.has(row.index))
                 .map((row) => row.index),
         );
+        const index = this._session.index();
+        const base: ProposalBase = {
+            doc: this._session.doc.clone(),
+            index: () => index,
+            protected: this._session.protected,
+            render_check: this._session.render_check,
+            geometry: this._session.geometry,
+        };
         const result = this._session.apply(
             proposal.ops,
             `AI: ${proposal.summary || this.strings.title}`,
@@ -737,6 +750,7 @@ export class MapAiThread {
         );
         this._preview_version = this._session.version();
         this._preview_depth = this._session.undoDepth?.() ?? 0;
+        this._preview_base = base;
         const applied = new Set(result.applied.map((step) => step.index));
         const rows = proposal.rows.map((row) => ({
             ...row,
@@ -757,18 +771,19 @@ export class MapAiThread {
         const accepted = next(proposal);
         const held = heldAfter(proposal, accepted, unticked);
         this._preview_version = -1;
-        if (state.phase.kind === 'applied') this._session.undo();
-        this.dispatch({ type: 'validating' });
+        const base = state.phase.kind === 'applied' ? this._preview_base : null;
+        if (state.phase.kind === 'applied' && !base) this._takePreviewOff();
+        this.dispatch({ type: 'validating', on_map: !!base });
         const rebuilt = await buildProposal(
             proposal.job,
-            this._session,
+            base ?? this._session,
             this.strings,
             { accepted, dependencies: proposal.dependencies, held },
         );
         if (rebuilt.verdict === 'blocked' && state.phase.kind === 'applied') {
             const restored = await buildProposal(
                 proposal.job,
-                this._session,
+                base ?? this._session,
                 this.strings,
                 {
                     accepted: new Set(proposal.accepted),
@@ -776,6 +791,7 @@ export class MapAiThread {
                     held: proposal.held,
                 },
             );
+            if (base) this._takePreviewOff();
             this.dispatch({ type: 'rows_changed', proposal: restored });
             this._preview(restored);
             const reason = rebuilt.batch_issues
@@ -789,8 +805,14 @@ export class MapAiThread {
             this.dispatch({ type: 'announce', text });
             return;
         }
+        if (base) this._takePreviewOff();
         this.dispatch({ type: 'rows_changed', proposal: rebuilt });
         this._preview(rebuilt);
+    }
+
+    private _takePreviewOff(): void {
+        this._session.undo();
+        this._preview_base = null;
     }
 
     private async _resolveQuietly(

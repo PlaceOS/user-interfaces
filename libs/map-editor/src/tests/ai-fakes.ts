@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { MapAiTransport } from '../lib/ai/api';
+import { PreviewSummary } from '../lib/ai/preview';
 import {
     MapEditorSessionLike,
     SessionApplyOptions,
@@ -52,6 +53,8 @@ export class FakeSession implements MapEditorSessionLike {
         label: string;
         options?: SessionApplyOptions;
     }[] = [];
+    /** Every summary the panel handed to `setPreview`, in order. */
+    public readonly previews: (PreviewSummary | null)[] = [];
     private _index: MapIndex | null = null;
     private _index_version = -1;
 
@@ -59,6 +62,10 @@ export class FakeSession implements MapEditorSessionLike {
         this.geometry = doc.geometry;
         this.protected = doc.protected;
         this.history = new MapHistory(doc);
+    }
+
+    public setPreview(summary: PreviewSummary | null): void {
+        this.previews.push(summary);
     }
 
     public index(): MapIndex {
