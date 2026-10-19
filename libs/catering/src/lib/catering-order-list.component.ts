@@ -47,6 +47,7 @@ import {
             @if (load_error()) {
                 <div
                     load-error
+                    [class.mx-8]="edge_to_edge()"
                     class="bg-error text-error-content mb-2 flex items-center space-x-2 rounded-sm px-4 py-2 text-sm"
                 >
                     <icon class="text-xl">cloud_off</icon>
@@ -68,7 +69,10 @@ import {
                     }
                 </div>
             }
-            <div class="mb-2 flex items-center gap-2 py-1">
+            <div
+                class="mb-2 flex items-center gap-2 py-1"
+                [class.px-8]="edge_to_edge()"
+            >
                 @for (option of status_filters; track option.id) {
                     <button
                         matRipple
@@ -115,70 +119,72 @@ import {
                     }}
                 </button>
             </div>
-            <simple-table
-                class="block w-full min-w-6xl text-sm"
-                [data]="order_list()"
-                [columns]="[
-                    {
-                        key: 'state',
-                        name: ' ',
-                        size: '4rem',
-                        sortable: false,
-                        content: state_template,
-                    },
-                    {
-                        key: 'caterer',
-                        name: 'CATERING.CATERER' | translate,
-                        show: !filters()?.caterer && caterers().length > 1,
-                    },
-                    {
-                        key: 'deliver_at',
-                        name: 'COMMON.TIME' | translate,
-                        content: time_template,
-                    },
-                    {
-                        key: 'event',
-                        name: 'COMMON.LOCATION' | translate,
-                        content: location_template,
-                        sortable: false,
-                    },
-                    {
-                        key: 'event',
-                        name: 'FORM.HOST' | translate,
-                        content: host_template,
-                        sortable: false,
-                    },
-                    {
-                        key: 'charge_code',
-                        name: 'CATERING.CHARGE_CODE' | translate,
-                    },
-                    {
-                        key: 'invoice_number',
-                        name: 'CATERING.INVOICE_NUMBER' | translate,
-                        empty: 'CATERING.ORDERS_INVOICE_EMPTY' | translate,
-                    },
-                    {
-                        key: 'status',
-                        name: 'COMMON.STATUS' | translate,
-                        content: status_template,
-                        size: '15rem',
-                    },
-                    {
-                        key: 'actions',
-                        name: ' ',
-                        size: can_print() ? '9rem' : '6.5rem',
-                        content: actions_template,
-                        sortable: false,
-                    },
-                ]"
-                [sortable]="true"
-                [selectable]="bulk_actions()"
-                [(selected)]="selected"
-                [show_children]="show_children()"
-                [child_template]="child_template"
-                [empty_message]="'CATERING.ORDERS_EMPTY' | translate"
-            >
-            </simple-table>
+            <div class="w-fit min-w-full" [class.px-8]="edge_to_edge()">
+                <simple-table
+                    class="block w-full min-w-6xl text-sm"
+                    [data]="order_list()"
+                    [columns]="[
+                        {
+                            key: 'state',
+                            name: ' ',
+                            size: '4rem',
+                            sortable: false,
+                            content: state_template,
+                        },
+                        {
+                            key: 'caterer',
+                            name: 'CATERING.CATERER' | translate,
+                            show: !filters()?.caterer && caterers().length > 1,
+                        },
+                        {
+                            key: 'deliver_at',
+                            name: 'COMMON.TIME' | translate,
+                            content: time_template,
+                        },
+                        {
+                            key: 'event',
+                            name: 'COMMON.LOCATION' | translate,
+                            content: location_template,
+                            sortable: false,
+                        },
+                        {
+                            key: 'event',
+                            name: 'FORM.HOST' | translate,
+                            content: host_template,
+                            sortable: false,
+                        },
+                        {
+                            key: 'charge_code',
+                            name: 'CATERING.CHARGE_CODE' | translate,
+                        },
+                        {
+                            key: 'invoice_number',
+                            name: 'CATERING.INVOICE_NUMBER' | translate,
+                            empty: 'CATERING.ORDERS_INVOICE_EMPTY' | translate,
+                        },
+                        {
+                            key: 'status',
+                            name: 'COMMON.STATUS' | translate,
+                            content: status_template,
+                            size: '15rem',
+                        },
+                        {
+                            key: 'actions',
+                            name: ' ',
+                            size: can_print() ? '9rem' : '6.5rem',
+                            content: actions_template,
+                            sortable: false,
+                        },
+                    ]"
+                    [sortable]="true"
+                    [selectable]="bulk_actions()"
+                    [(selected)]="selected"
+                    [show_children]="show_children()"
+                    [child_template]="child_template"
+                    [empty_message]="'CATERING.ORDERS_EMPTY' | translate"
+                >
+                </simple-table>
+            </div>
             <ng-template #state_template let-row="row">
                 @let urgency = urgencyOf(row);
                 <div class="p-2">
@@ -461,6 +467,11 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     public readonly can_print = input(false);
     /** Whether orders can be selected to change their status in bulk */
     public readonly bulk_actions = input(true);
+    /**
+     * Whether the table scrolls to the edges of the host. The list adds the
+     * page side padding inside the scroll area, so the host must not pad it.
+     */
+    public readonly edge_to_edge = input(false);
 
     /** List of filtered orders */
     public readonly order_list = this._orders.filtered;
