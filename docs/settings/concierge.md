@@ -131,7 +131,7 @@ These act as fallbacks for the desk, parking and locker booking flows — a valu
 | `bookings.can_book_for_anyone` | boolean | – | Let users select any staff user as the host of a visitor invite. Fallback for `visitors.can_book_for_anyone`. |
 | `bookings.multiple_visitors` | boolean | – | Let one visitor invite include more than one visitor. Defaults to `false`. |
 | `bookings.custom_duration_options` | number[] | – | Custom list of selectable booking durations, in minutes. |
-| `bookings.available_period` | number | – | Number of days into the future that bookings can be made. Defaults to `7`. |
+| `bookings.available_period` | number | – | Number of days into the future that bookings can be made. Parking and lockers use it when their own key is not set. When neither key is set, parking uses `7` and lockers use `90`. |
 | `bookings.allow_all_day` | boolean | – | Allow all day bookings. Fallback for `lockers.allow_all_day` and `visitors.allow_all_day`. When no key is set, locker bookings allow all day and visitor invites do not. |
 | `bookings.all_day_default` | boolean | – | Pre-select the all day option for new bookings. |
 | `bookings.all_day_period` | object | – | Time window of an all day booking, as `start` and `end` hours of the day (0-24). Set the two values. When a value is missing, an all day booking uses the full day. Desk, parking, locker and visitor bookings can use `<type>.all_day_period` to override it. |
@@ -274,7 +274,7 @@ Each custom column requires a `field` (the booking extension data field to displ
 | `lockers.min_duration` | number | – | Minimum locker booking duration in minutes. Falls back to `bookings.min_duration`. Defaults to `30`. |
 | `lockers.max_duration` | number | – | Maximum locker booking duration in minutes. Falls back to `bookings.max_duration`. Defaults to `480` (8 hours). |
 | `lockers.custom_duration_options` | number[] | – | Custom list of selectable locker booking durations, in minutes. Falls back to `bookings.custom_duration_options`. |
-| `lockers.available_period` | number | – | Number of days into the future that lockers can be booked. In the locker booking form, falls back to `bookings.available_period`, then `7`. The locker select modal uses `90` when this key is not set. It does not read `bookings.available_period`. |
+| `lockers.available_period` | number | – | Number of days into the future that lockers can be booked, in the locker booking form and the locker select modal. Falls back to `bookings.available_period`, then `90`. |
 
 ## Visitors
 

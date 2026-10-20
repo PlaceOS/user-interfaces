@@ -3721,7 +3721,7 @@ describe('BookingFormService', () => {
     describe('initialisation after the user has already loaded', () => {
         /**
          * The case the flows actually hit. Every booking flow renders its form
-         * on first paint but initialises it late: `NewDeskFlowComponent.ngOnInit`
+         * on first paint but initialises it late: `ParkingFlowComponent.ngOnInit`
          * awaits org initialisation plus a 300ms settle, then calls `loadForm`
          * and — for a fresh booking — `newForm`, back to back.
          *

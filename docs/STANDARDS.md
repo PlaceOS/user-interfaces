@@ -26,10 +26,10 @@ This document outlines the coding standards, conventions, and patterns used thro
 | Variables | `snake_case` | `_app_name`, `_overrides`, `_timers` |
 | Functions | `camelCase` | `setMocks()`, `getLoadingMessage()` |
 | Classes/Types/Interfaces | `PascalCase` | `PlaceOS_Service`, `BookingFormService`, `Booking` |
-| Files/Directories | `kebab-case` | `booking-form.service.ts`, `landing-quick-book.component.ts` |
+| Files/Directories | `kebab-case` | `booking-form.service.ts`, `landing-quick-actions.component.ts` |
 | CSS Classes/IDs | `kebab-case` | `border-base-300`, `bg-base-100` |
 | Constants | `CAPS_CASE` | `BOOKING_TYPES`, `BOOKING_URLS`, `EMPTY_SPACE` |
-| Component Selectors | `kebab-case` with prefix | `app-root`, `placeos-booking`, `landing-quick-book` |
+| Component Selectors | `kebab-case` with prefix | `app-root`, `placeos-booking`, `landing-quick-actions` |
 
 ### Private Members
 

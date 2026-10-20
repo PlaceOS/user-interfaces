@@ -37,11 +37,13 @@ These options live at the root of the settings file (alongside `app`, not inside
 | `use_24_hour_time` | boolean | `false` | Display times using a 24-hour clock. |
 | `use_geolocation` | boolean | `false` | Use the device's location to select the closest building when the app loads. |
 | `new_features` | boolean | `true` | Show hints in the UI when new features are added. |
+| `use_legacy_flows` | boolean | – | Use the legacy home page and the legacy desk, meeting and visitor booking flows. The legacy pages also read `hide_landing_sidebar` and `idle_timeout`. |
 | `week_start` | number | – | First day of the week for schedule and calendar views. `0` is Sunday through `6` for Saturday. |
-| `idle_timeout` | number | – | Minutes of inactivity on the meeting form before the user is prompted to discard their changes. Falls back to `5`. |
+| `idle_timeout` | number | – | Minutes of inactivity on the legacy meeting form before the user is prompted to discard their changes. Falls back to `5`. Needs `use_legacy_flows`. |
 | `global_search` | boolean | – | Show the global search bar in the top bar. Shown when not set; set to `false` to hide it. |
 | `hide_global_search_items` | string[] | – | Result types to hide from the global search. Valid values are `contacts`, `desks`, `emergency_contacts`, `features`, `mapspeople`, `points_of_interest`, `spaces` and `users`. |
 | `hide_colleagues` | boolean | – | Hide the colleagues card on the landing page. The favourites card takes the full row. |
+| `hide_landing_sidebar` | boolean | – | Hide the colleagues and favourites sidebar on the legacy landing page. Needs `use_legacy_flows`. |
 | `hide_landing_spaces` | boolean | – | Hide the Desks and Lockers tabs of the Available Now card on the landing page. |
 | `hide_landing_rooms` | boolean | – | Hide the Rooms tab of the Available Now card on the landing page. The card is hidden when no tab is left. |
 | `hide_landing_customise` | boolean | – | Stop users from changing the layout of the landing page. The **Edit home screen** button is hidden, and each user gets the default layout. A saved layout is kept, but it is not used. |
@@ -264,7 +266,6 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `desks.auto_checkin` | boolean | – | Treat a desk booking as checked in when the desk detects a person. Affects the Explore map and the booking details modal. The legacy key `desk.auto_checkin` is also read. |
 | `desks.enable_maps` | boolean | – | Let users book desks from the Explore map. On when not set; set to `false` to turn it off. |
 | `desks.height_enabled` | boolean | – | Show the desk height controls in the user controls and the desk booking details. |
-| `desks.needs_reason` | boolean | – | Require users to enter a reason for their desk booking. |
 | `desks.hide_reason` | boolean | – | Hide the ability to enter a reason for a desk booking. |
 | `desks.show_calendar_links` | boolean | `true` | Show "add to calendar" links on the desk booking success view. |
 | `desks.use_building_timezone` | boolean | – | Display and book desk times using the building's timezone. Overrides `bookings.use_building_timezone`. |
@@ -357,7 +358,7 @@ Request types (`forced_time` locks the form to a fixed window and hides the shif
 |---------|------|---------|-------------|
 | `lockers.allow_all_day` | boolean | – | Make the "all day" option available for locker bookings. Falls back to `bookings.allow_all_day`, then `true`. |
 | `lockers.allow_time_changes` | boolean | – | Allow users to change the time of locker bookings. On when not set; set to `false` to turn it off. |
-| `lockers.available_period` | number | – | Number of days ahead available in the date selector of the locker selection modal. Falls back to `90`. |
+| `lockers.available_period` | number | – | Number of days ahead available in the date selector of the locker selection modal. Falls back to `bookings.available_period`, then `90`. |
 | `lockers.hide_user` | boolean | – | Hide the users of lockers on the locker selection map. |
 | `lockers.disabled_date_select` | boolean | – | Disable date selection on the locker form. |
 | `lockers.disabled_start_time` | boolean | – | Disable start time selection on the locker form. |
