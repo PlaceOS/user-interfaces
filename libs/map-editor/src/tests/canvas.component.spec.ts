@@ -264,6 +264,50 @@ describe('MapEditorComponent', () => {
         expect(unticked?.querySelector('rect')).toBeNull();
     });
 
+    it('spreads pins that share a corner and points each back to it', async () => {
+        const shadow = viewport.shadowRoot as ShadowRoot;
+        const plant = anchor(host.session.doc, 'plant-1');
+        host.session.setPreview({
+            title: '',
+            note: '',
+            counts: [],
+            markers: [1, 2, 3].map((n) => ({
+                n,
+                anchors: [plant],
+                category: 'changed' as const,
+                applied: true,
+            })),
+        });
+        await settle(fixture);
+        const pin = (n: number) =>
+            shadow.querySelector(`g[data-preview="${n}"] > circle`);
+        const xs = [1, 2, 3].map((n) => Number(pin(n)?.getAttribute('cx')));
+        expect(new Set(xs).size).toBe(3);
+        expect(shadow.querySelector('g[data-leader="1"]')).toBeNull();
+        const layers = [
+            ...shadow.querySelectorAll('svg.map-editor-overlay > g'),
+        ];
+        expect(
+            layers.indexOf(
+                shadow.querySelector('g[data-preview-leaders]') as Element,
+            ),
+        ).toBeLessThan(
+            layers.indexOf(
+                shadow.querySelector('g[data-preview="1"]') as Element,
+            ),
+        );
+        for (const n of [2, 3]) {
+            const leader = shadow.querySelector(`g[data-leader="${n}"] line`);
+            expect(leader?.getAttribute('x1')).toBe(
+                shadow
+                    .querySelector(`g[data-preview="${n}"] rect`)
+                    ?.getAttribute('x'),
+            );
+            expect(leader?.getAttribute('x2')).toBe(String(xs[n - 1]));
+        }
+        expect(host.session.doc.serialise()).not.toContain('data-preview');
+    });
+
     it('clears the selection on Escape and keeps the key from the host', async () => {
         host.session.select([anchor(host.session.doc, 'plant-1')]);
         const event = key(viewport, { key: 'Escape' });

@@ -31,6 +31,7 @@ import {
     moveOps,
 } from './edits';
 import { candidatesFor, pickTarget } from './hit-test';
+import { spreadPins } from './pins';
 import {
     BrowserNotifier,
     DEFAULT_MAP_EDITOR_STRINGS,
@@ -75,6 +76,9 @@ const PREVIEW_COLOURS: Record<string, string> = {
 };
 const removed_dash = (marker: PreviewMarker) =>
     marker.category === 'removed' ? 'stroke-dasharray:4 3;' : '';
+/** Preview pin radius and the minimum distance between pin centres, in screen pixels. */
+const PIN_RADIUS_PX = 11;
+const PIN_SPACING_PX = 30;
 const NUDGE_UNITS = 1;
 const NUDGE_UNITS_FAST = 10;
 
@@ -318,10 +322,7 @@ export class MapEditorCanvasComponent implements AfterViewInit {
             this.annotations_visible.set(true);
             const [x, y] = this._mapPoint(event);
             const kind = this.annotation_tool() as
-                | 'ellipse'
-                | 'box'
-                | 'path'
-                | 'arrow';
+                'ellipse' | 'box' | 'path' | 'arrow';
             this._mark.set({
                 n: 0,
                 kind,
@@ -762,11 +763,21 @@ export class MapEditorCanvasComponent implements AfterViewInit {
         hover: string | null,
     ): void {
         const units_per_px = 1 / this.view().scale;
-        for (const marker of preview.markers) {
+        const located = preview.markers.flatMap((marker) => {
             const box =
                 unionBox(index, marker.anchors) ?? marker.box_before ?? null;
-            if (!box) continue;
+            return box ? [{ marker, box }] : [];
+        });
+        const pins = spreadPins(
+            located.map(({ box }) => [box[0], box[1]] as const),
+            units_per_px * PIN_SPACING_PX,
+        );
+        const leaders = document.createElementNS(SVG_NS, 'g');
+        leaders.setAttribute('data-preview-leaders', '');
+        overlay.appendChild(leaders);
+        located.forEach(({ marker, box }, i) => {
             const [x, y, width, height] = box;
+            const [pin_x, pin_y] = pins[i];
             const hot = !!hover && marker.anchors.includes(hover);
             const colour =
                 PREVIEW_COLOURS[marker.category] || PREVIEW_COLOURS.changed;
@@ -800,18 +811,37 @@ export class MapEditorCanvasComponent implements AfterViewInit {
                 }
                 group.appendChild(outline);
             }
-            const radius = units_per_px * 11;
+            if (pin_x !== x || pin_y !== y) {
+                const leader = document.createElementNS(SVG_NS, 'line');
+                leader.setAttribute('x1', `${x}`);
+                leader.setAttribute('y1', `${y}`);
+                leader.setAttribute('x2', `${pin_x}`);
+                leader.setAttribute('y2', `${pin_y}`);
+                leader.setAttribute(
+                    'style',
+                    `stroke:${stroke};stroke-width:1.5;vector-effect:non-scaling-stroke;pointer-events:none`,
+                );
+                const dot = document.createElementNS(SVG_NS, 'circle');
+                dot.setAttribute('cx', `${x}`);
+                dot.setAttribute('cy', `${y}`);
+                dot.setAttribute('r', `${units_per_px * 3}`);
+                dot.setAttribute('style', `fill:${stroke};pointer-events:none`);
+                const pointer = document.createElementNS(SVG_NS, 'g');
+                pointer.setAttribute('data-leader', String(marker.n));
+                pointer.append(leader, dot);
+                leaders.appendChild(pointer);
+            }
             const pin = document.createElementNS(SVG_NS, 'circle');
-            pin.setAttribute('cx', `${x}`);
-            pin.setAttribute('cy', `${y}`);
-            pin.setAttribute('r', `${radius}`);
+            pin.setAttribute('cx', `${pin_x}`);
+            pin.setAttribute('cy', `${pin_y}`);
+            pin.setAttribute('r', `${units_per_px * PIN_RADIUS_PX}`);
             pin.setAttribute(
                 'style',
                 `fill:${hot ? PRIMARY : 'var(--base-100, #fff)'};stroke:${stroke};stroke-width:2;vector-effect:non-scaling-stroke;${removed_dash(marker)}pointer-events:none`,
             );
             const label = document.createElementNS(SVG_NS, 'text');
-            label.setAttribute('x', `${x}`);
-            label.setAttribute('y', `${y}`);
+            label.setAttribute('x', `${pin_x}`);
+            label.setAttribute('y', `${pin_y}`);
             label.setAttribute('text-anchor', 'middle');
             label.setAttribute('dominant-baseline', 'central');
             label.setAttribute(
@@ -821,9 +851,8 @@ export class MapEditorCanvasComponent implements AfterViewInit {
             label.textContent = String(marker.n);
             group.append(pin, label);
             overlay.appendChild(group);
-        }
+        });
     }
-
 
     /** One outline per element, or one around them all above MAX_SEPARATE_OUTLINES. */
     private _outlines(
