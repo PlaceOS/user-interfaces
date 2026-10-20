@@ -17,6 +17,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    settingSignal,
     SettingsService,
     User,
 } from '@placeos/common';
@@ -150,6 +151,11 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     public readonly view = this._booking_form.view;
     public readonly loading = signal(false);
 
+    public readonly reason_required = settingSignal(
+        'visitors.reason_required',
+        false,
+    );
+
     private get _form() {
         return this._booking_form.form;
     }
@@ -213,6 +219,10 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         const is_multiple = this.is_multiple();
         const visitor_reason =
             this._model()?.title || this._model()?.description || 'Visit';
+
+        if (this.reason_required() && !this._model()?.title?.trim()) {
+            return notifyError(i18n('BOOKINGS.VISITOR_REASON'));
+        }
 
         // Validate form
         if (!this._form().valid()) {

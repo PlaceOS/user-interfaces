@@ -13,7 +13,7 @@ import {
     generateBookingForm,
     InviteVisitorFormComponent,
 } from '@placeos/bookings';
-import { SettingsService, User } from '@placeos/common';
+import { SettingsService, settingSignal, User } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
@@ -107,6 +107,7 @@ describe('VisitorFlowNewComponent', () => {
     });
 
     beforeEach(() => {
+        settingSignal('visitors.reason_required').set(false);
         save_user_setting = vi.fn();
         clear_form = vi.fn();
         post_form = vi.fn(() => Promise.resolve());
@@ -286,6 +287,58 @@ describe('VisitorFlowNewComponent', () => {
             expect(post_group).toHaveBeenCalled();
             expect(post_form).not.toHaveBeenCalled();
         });
+
+        it('should not require a reason when the setting is off', async () => {
+            settingSignal('visitors.reason_required').set(false);
+            model.update((m) => ({
+                ...m,
+                ...visit_time(),
+                title: '',
+                asset_id: 'visitor.one@example.com',
+                asset_name: 'Visitor One',
+            }));
+
+            await spectator.component.confirmBooking();
+
+            expect(post_form).toHaveBeenCalled();
+        });
+
+        it.each([false, true])(
+            'should reject a blank reason when the setting is on with multiple=%s',
+            async (multiple) => {
+                settingSignal('visitors.reason_required').set(true);
+                options.set({ type: 'visitor', group: multiple });
+                model.update((m) => ({
+                    ...m,
+                    ...visit_time(),
+                    title: '',
+                    asset_id: multiple
+                        ? 'multiple@place.tech'
+                        : 'visitor.one@example.com',
+                    asset_name: 'Visitor One',
+                    assets: [
+                        {
+                            email: 'visitor.one@example.com',
+                            name: 'Visitor One',
+                        },
+                    ],
+                }));
+
+                for (const title of ['', '   ']) {
+                    model.update((m) => ({ ...m, title }));
+                    await spectator.component.confirmBooking();
+                    expect(post_form).not.toHaveBeenCalled();
+                    expect(post_group).not.toHaveBeenCalled();
+                    expect(save_user_setting).not.toHaveBeenCalled();
+                }
+
+                model.update((m) => ({ ...m, title: 'Supplier meeting' }));
+                await spectator.component.confirmBooking();
+                expect(
+                    multiple ? post_group : post_form,
+                ).toHaveBeenCalledTimes(1);
+            },
+        );
     });
 
     it('should allow navigation without prompting when the edit form has no unsaved changes', async () => {

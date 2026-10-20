@@ -7,7 +7,7 @@ import {
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FormField } from '@angular/forms/signals';
+import { form, FormField, required, validate } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -209,18 +209,23 @@ type VisitorFormType = 'single' | 'group';
                     </div>
                 }
                 <div class="flex flex-col">
-                    <label for="reason">{{
-                        'BOOKINGS.VISITOR_REASON' | translate
-                    }}</label>
+                    <label for="reason"
+                        >{{ 'BOOKINGS.VISITOR_REASON' | translate }}
+                        @if (reason_required()) {
+                            <span>*</span>
+                        }
+                    </label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            [formField]="form.title"
+                            id="reason"
+                            [formField]="reason_form.title"
                             [placeholder]="
                                 'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
                                     | translate
                             "
                         />
+                        <mat-error>{{ 'COMMON.REQUIRED' | translate }}</mat-error>
                     </mat-form-field>
                 </div>
             </div>
@@ -340,6 +345,19 @@ export class VisitorFlowDetailsComponent implements OnInit {
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
     public readonly buildings = this._org.active_buildings;
 
+    public readonly reason_required = settingSignal(
+        'visitors.reason_required',
+        false,
+    );
+    public readonly reason_form = form(this._booking_form.model, (p) => {
+        required(p.title, { when: () => this.reason_required() });
+        validate(p.title, ({ value }) =>
+            this.reason_required() && !value()?.trim()
+                ? { kind: 'required' }
+                : undefined,
+        );
+    });
+
     public get form() {
         return this._booking_form.form;
     }
@@ -368,7 +386,10 @@ export class VisitorFlowDetailsComponent implements OnInit {
         this._booking_form.setOptions({ group: is_group });
         const zones = this.model()?.zones || [];
         if (!this.model().id)
-            this.model.update((m) => ({ ...m, title: 'Visit' }));
+            this.model.update((m) => ({
+                ...m,
+                title: this.reason_required() ? '' : 'Visit',
+            }));
         if (!this.model()?.user_email) {
             this.model.update((m) => ({ ...m, user: currentUser() }));
         }
