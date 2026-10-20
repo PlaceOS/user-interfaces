@@ -7,6 +7,7 @@
 - Read project names, targets, dependencies, and versions from the workspace configuration. Do not rely on copied lists or version numbers in documentation.
 - Commit changes only when the user explicitly asks. Use the current working branch unless the task names another branch.
 - Use `feat/*`, `fix/*`, `perf/*`, or `refactor/*` for branch names
+- Don't add dependencies unless absolutely required and Angular doesn't provide the feature.
 
 ## Read when relevant
 
