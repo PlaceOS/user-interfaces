@@ -12,8 +12,25 @@ describe('VisitorReportListComponent', () => {
     let spectator: Spectator<VisitorReportListComponent>;
     let bookings: ReturnType<typeof signal<unknown[]>>;
     let allow_international: boolean;
+    let allow_international_events: boolean;
+    let allow_internal_or_external: boolean;
+    let allow_internal_or_external_events: boolean;
 
     const day = new Date('2026-04-06T09:00:00').valueOf();
+
+    const settings = () => ({
+        get: vi.fn((key: string) => {
+            if (key === 'app.visitors.allow_international')
+                return allow_international;
+            if (key === 'app.events.allow_international')
+                return allow_international_events;
+            if (key === 'app.visitors.allow_visitor_internal_or_external')
+                return allow_internal_or_external;
+            if (key === 'app.events.allow_attendee_internal_or_external')
+                return allow_internal_or_external_events;
+            return undefined;
+        }),
+    });
 
     const createComponent = createComponentFactory({
         component: VisitorReportListComponent,
@@ -27,25 +44,20 @@ describe('VisitorReportListComponent', () => {
                 provide: VisitorsReportService,
                 useValue: { bookings: (bookings = signal<unknown[]>([])) },
             },
-            {
-                provide: SettingsService,
-                useValue: {
-                    get: vi.fn(() => allow_international),
-                },
-            },
+            { provide: SettingsService, useValue: settings() },
         ],
     });
 
     beforeEach(() => {
         bookings = signal<unknown[]>([]);
         allow_international = false;
+        allow_international_events = false;
+        allow_internal_or_external = false;
+        allow_internal_or_external_events = false;
         spectator = createComponent({
             providers: [
                 { provide: VisitorsReportService, useValue: { bookings } },
-                {
-                    provide: SettingsService,
-                    useValue: { get: vi.fn(() => allow_international) },
-                },
+                { provide: SettingsService, useValue: settings() },
             ],
         });
     });
@@ -91,5 +103,23 @@ describe('VisitorReportListComponent', () => {
         expect(
             spectator.component.table_metric_guide.map((i) => i.label),
         ).toContain('International');
+    });
+
+    it('should include the international column when only the events setting is enabled', () => {
+        allow_international_events = true;
+        expect(spectator.component.allow_international).toBe(true);
+        expect(
+            spectator.component.table_metric_guide.map((i) => i.label),
+        ).toContain('International');
+    });
+
+    it('should include the internal/external column when only the events setting is enabled', () => {
+        allow_internal_or_external_events = true;
+        expect(spectator.component.allow_visitor_internal_or_external).toBe(
+            true,
+        );
+        expect(
+            spectator.component.table_metric_guide.map((i) => i.label),
+        ).toContain('Internal or external');
     });
 });

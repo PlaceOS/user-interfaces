@@ -143,12 +143,20 @@ export class VisitorReportListComponent {
 
     public readonly print = input(false);
     public get allow_international() {
-        return !!this._settings.get('app.visitors.allow_international');
+        return (
+            !!this._settings.get('app.visitors.allow_international') ||
+            !!this._settings.get('app.events.allow_international')
+        );
     }
 
     public get allow_visitor_internal_or_external() {
-        return !!this._settings.get(
-            'app.visitors.allow_visitor_internal_or_external',
+        return (
+            !!this._settings.get(
+                'app.visitors.allow_visitor_internal_or_external',
+            ) ||
+            !!this._settings.get(
+                'app.events.allow_attendee_internal_or_external',
+            )
         );
     }
 

@@ -99,6 +99,19 @@ export interface EventExtensionData {
     view_access: 'PRIVATE' | 'OPEN' | 'PUBLIC';
     /** Copy of the event permission kept in the stored metadata */
     permission?: string;
+    /**
+     * Per-attendee visitor flags, keyed by lower-cased email. Stored on the
+     * event because attendee `extension_data` is stripped before the
+     * Graph/CalendarEvent API payload is built.
+     */
+    attendee_flags?: Record<
+        string,
+        | {
+              international?: boolean;
+              visitor_internal_or_external?: 'internal' | 'external';
+          }
+        | undefined
+    >;
 }
 
 export interface EventListQueryParams {

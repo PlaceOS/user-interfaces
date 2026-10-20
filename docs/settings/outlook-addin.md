@@ -52,6 +52,8 @@ These settings control the form shown when booking a meeting room for a calendar
 | `events.can_book_for_others` | boolean | `false` | Show a Host field on the meeting form so the person booking can select someone else as the meeting host. |
 | `events.allow_all_day` | boolean | – | Show an "All Day" checkbox next to the date field. Defaults to off. |
 | `events.hide_attendees` | boolean | – | Hide the Attendees step of the meeting form. Defaults to off (attendees are shown). |
+| `events.allow_international` | boolean | – | Show a checkbox next to the attendee list that flags each attendee as international. The flag is stored on the event and shown in the visitor report for synced visitor bookings. |
+| `events.allow_attendee_internal_or_external` | boolean | – | Show a control next to the attendee list that marks each attendee as internal (default) or external. The type is stored on the event and shown in the visitor report for synced visitor bookings. |
 | `events.hide_notes` | boolean | – | Hide the Notes step of the meeting form. Defaults to off (notes are shown). |
 | `events.min_duration` | number | – | Minimum meeting duration in minutes. Defaults to `30`. Also affects the spacing of selectable start times. |
 | `events.max_duration` | number | – | Maximum meeting duration in minutes. Defaults to `480` (8 hours). |

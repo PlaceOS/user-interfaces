@@ -181,6 +181,8 @@ Settings for meeting room bookings and the day view.
 | `events.hide_notes` | boolean | – | Hide the notes field in the event booking form. |
 | `events.has_assets` | boolean | – | Allow assets to be requested as part of event bookings. |
 | `events.allow_externals` | boolean | – | Allow external attendees to be added to event bookings. |
+| `events.allow_international` | boolean | – | Show a checkbox in the event booking form that flags each attendee as international. The flag is stored on the event and shown in the visitor report and visitor listings for synced visitor bookings. |
+| `events.allow_attendee_internal_or_external` | boolean | – | Show a control in the event booking form that marks each attendee as internal (default) or external. The type is stored on the event and shown in the visitor report and visitor listings for synced visitor bookings. |
 | `events.allow_multiday` | boolean | – | Allow events to span multiple days. |
 | `events.strict_capacity_check` | boolean | – | Strictly limit attendee counts to the capacity of the selected space. |
 | `events.max_duration` | number | – | Maximum event duration in minutes. Defaults to `480` (8 hours). |

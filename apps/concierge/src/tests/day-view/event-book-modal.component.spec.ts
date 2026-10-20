@@ -32,6 +32,13 @@ describe('EventBookModalComponent', () => {
             MockProvider(MatDialogRef, { close: vi.fn() }),
             MockProvider(SettingsService, {
                 get: vi.fn((key: string) => settings_values[key]),
+                signal: vi.fn((key: string, default_value?: unknown) =>
+                    signal(
+                        key in settings_values
+                            ? settings_values[key]
+                            : default_value,
+                    ),
+                ),
             }),
             MockProvider(CateringOrderStateService, {
                 charge_codes,

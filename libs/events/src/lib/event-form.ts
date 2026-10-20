@@ -67,6 +67,65 @@ export interface EventFormValue {
     meeting_provider: any;
 }
 
+/** Per-attendee visitor flags stored on the event extension data, keyed by lower-cased email. */
+export interface AttendeeFlags {
+    international?: boolean;
+    visitor_internal_or_external?: 'internal' | 'external';
+}
+
+/**
+ * Copy the flags stored on the event extension data onto each matching
+ * attendee's `extension_data`, so the form controls show the saved values.
+ */
+function withAttendeeFlags(
+    attendees: User[],
+    flags: Record<string, AttendeeFlags>,
+) {
+    if (!flags) return attendees;
+    return attendees.map((user) => {
+        const stored = flags[(user.email || '').toLowerCase()];
+        if (!stored) return user;
+        const extension_data = { ...user.extension_data };
+        if ('international' in stored)
+            extension_data.international = !!stored.international;
+        if ('visitor_internal_or_external' in stored)
+            extension_data.visitor_internal_or_external =
+                stored.visitor_internal_or_external === 'external'
+                    ? 'external'
+                    : 'internal';
+        return new User({ ...(user as any), extension_data });
+    });
+}
+
+/**
+ * Collect the visitor flags held on each attendee's `extension_data`, keyed
+ * by lower-cased email. Attendees without either key are left out.
+ */
+export function attendeeFlagsFrom(
+    attendees: User[],
+): Record<string, AttendeeFlags> {
+    const flags: Record<string, AttendeeFlags> = {};
+    for (const attendee of attendees || []) {
+        const email = (attendee.email || '').toLowerCase();
+        const ext = attendee.extension_data || {};
+        if (!email) continue;
+        if (
+            !('international' in ext) &&
+            !('visitor_internal_or_external' in ext)
+        )
+            continue;
+        const entry: AttendeeFlags = {};
+        if ('international' in ext) entry.international = !!ext.international;
+        if ('visitor_internal_or_external' in ext)
+            entry.visitor_internal_or_external =
+                ext.visitor_internal_or_external === 'external'
+                    ? 'external'
+                    : 'internal';
+        flags[email] = entry;
+    }
+    return flags;
+}
+
 /** Build the raw event form value from a calendar event. */
 export function eventFormValue(
     event: CalendarEvent = new CalendarEvent(),
@@ -82,7 +141,10 @@ export function eventFormValue(
         organiser: event.organiser || ({ email: event.host || '' } as User),
         creator: event.creator || currentUser()?.email || '',
         calendar: event.calendar || '',
-        attendees: event.attendees || [],
+        attendees: withAttendeeFlags(
+            event.attendees || [],
+            event.extension_data?.attendee_flags,
+        ),
         resources: event.resources || [],
         title: event.title || '',
         body: event.body || '',

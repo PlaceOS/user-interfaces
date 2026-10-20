@@ -39,6 +39,8 @@ import {
 } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
+import { toVisitorInternalOrExternal } from './booking-form.model';
+
 export interface WaitlistWeekStart {
     /** Day of the week the waitlist week starts on. `0` is Sunday */
     day?: number;
@@ -973,6 +975,36 @@ function linkedBookingChanges(
 }
 
 /**
+ * Lift the international and internal/external flags off a visitor onto the
+ * booking extension data, where the visitor report reads them. Only keys the
+ * visitor already carries are included, so flags are never invented.
+ * @param item Visitor being booked
+ */
+function visitorFlagExtension(item: BookableResource) {
+    const user = item as BookableResource & {
+        international?: boolean;
+        visitor_internal_or_external?: string;
+        extension_data?: Record<string, any>;
+    };
+    const ext = user.extension_data || {};
+    const flags: {
+        international?: boolean;
+        visitor_internal_or_external?: 'internal' | 'external';
+    } = {};
+    if ('international' in ext || 'international' in user)
+        flags.international = !!(ext.international ?? user.international);
+    if (
+        'visitor_internal_or_external' in ext ||
+        'visitor_internal_or_external' in user
+    )
+        flags.visitor_internal_or_external = toVisitorInternalOrExternal(
+            ext.visitor_internal_or_external ??
+                user.visitor_internal_or_external,
+        );
+    return flags;
+}
+
+/**
  * Sync the bookings linked to an event with the event's current resources of
  * the given type. Bookings for resources still on the event are updated in
  * place so their ids, approval state and check-in survive an edit; bookings are
@@ -1037,6 +1069,7 @@ export async function createBookingsForEvent(
                     name: resource_name,
                     location_id: assigned_space?.id || event.location,
                     details: item,
+                    ...(type === 'visitor' ? visitorFlagExtension(item) : {}),
                 },
                 zones: assigned_space?.zones || zones,
             });

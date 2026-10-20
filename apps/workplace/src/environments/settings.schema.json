@@ -275,6 +275,10 @@
                     "type": "boolean",
                     "description": "Whether international phone numbers are accepted for visitors"
                 },
+                "allow_visitor_internal_or_external": {
+                    "type": "boolean",
+                    "description": "Whether each invited visitor can be marked internal or external"
+                },
                 "allow_pass_number": {
                     "type": "boolean",
                     "description": "Whether a pass number field is shown for each visitor"
@@ -330,6 +334,14 @@
                 "allow_externals": {
                     "type": "boolean",
                     "description": "Whether external (non-directory) attendees can be added to meetings"
+                },
+                "allow_international": {
+                    "type": "boolean",
+                    "description": "Whether each attendee can be flagged as international on the meeting form"
+                },
+                "allow_attendee_internal_or_external": {
+                    "type": "boolean",
+                    "description": "Whether each attendee can be marked internal or external on the meeting form"
                 },
                 "allow_recurrence": {
                     "type": "boolean",

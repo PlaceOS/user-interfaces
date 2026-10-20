@@ -55,6 +55,7 @@ import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { CalendarService } from './calendar.service';
 import {
+    attendeeFlagsFrom,
     eventFormValue,
     generateEventForm,
     type EventFormValue,
@@ -1051,6 +1052,12 @@ export class EventFormService extends AsyncHandler {
             };
             if (this._model().host !== host)
                 ext.host_override = this._model().host;
+            // Per-attendee visitor flags are stored on the event so they
+            // survive an edit; the attendee objects themselves are stripped
+            // of extension data before the event is sent to the calendar.
+            const attendee_flags = attendeeFlagsFrom(this._model().attendees);
+            if (Object.keys(attendee_flags).length)
+                ext.attendee_flags = attendee_flags;
             const value = this._model();
             let created_event = await this._performBooking(
                 new CalendarEvent({

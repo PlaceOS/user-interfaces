@@ -96,12 +96,14 @@ export class VisitorsReportService {
     public async downloadReport() {
         const options = this._options();
         const bookings = this.bookings();
-        const show_international = !!this._settings.get(
-            'app.visitors.allow_international',
-        );
-        const show_visitor_internal_or_external = !!this._settings.get(
-            'app.visitors.allow_visitor_internal_or_external',
-        );
+        const show_international =
+            !!this._settings.get('app.visitors.allow_international') ||
+            !!this._settings.get('app.events.allow_international');
+        const show_visitor_internal_or_external =
+            !!this._settings.get('app.visitors.allow_visitor_internal_or_external') ||
+            !!this._settings.get(
+                'app.events.allow_attendee_internal_or_external',
+            );
         if (!bookings?.length) return;
         const is_same = isSameDay(options.start, options.end);
         const date = is_same

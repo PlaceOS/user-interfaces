@@ -221,6 +221,7 @@ interface SpaceLocation {
                         [formField]="form.attendees"
                         [time]="form_value().date"
                         [guests]="allow_externals()"
+                        [flags]="true"
                     >
                         <button
                             btn
