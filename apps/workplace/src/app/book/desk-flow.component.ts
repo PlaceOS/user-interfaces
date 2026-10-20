@@ -83,8 +83,13 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                 });
             }
         }
-        const param = this._route.snapshot.paramMap;
-        if (param.has('step')) this._state.setView(param.get('step') as any);
+        this.subscription(
+            'route.params',
+            this._route.paramMap.subscribe((param) => {
+                if (param.has('step'))
+                    this._state.setView(param.get('step') as any);
+            }),
+        );
         const params = this._route.snapshot.queryParamMap;
         if (params.has('success')) {
             this._state.setView(params.get('success') as any);

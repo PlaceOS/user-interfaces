@@ -5,6 +5,7 @@ import {
     RedirectComponent,
     UnauthorisedComponent,
 } from '@placeos/components';
+import { legacyFlowsGuard } from './legacy-flows.guard';
 
 export const routes: Routes = [
     { path: '-', component: RedirectComponent },
@@ -72,6 +73,15 @@ export const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
             import('./deals/deals.routes').then((m) => m.ROUTES),
+    },
+    {
+        path: 'landing',
+        title: 'Home',
+        canMatch: [legacyFlowsGuard],
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        loadChildren: () =>
+            import('./landing/landing.routes').then((m) => m.ROUTES),
     },
     {
         path: 'landing',

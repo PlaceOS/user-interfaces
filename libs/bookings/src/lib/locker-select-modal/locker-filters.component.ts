@@ -356,10 +356,23 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
             true
         );
     });
-    private readonly _available_period = this._settings.signal(
+    private readonly _locker_available_period = this._settings.signal(
         'lockers.available_period',
-        90,
     );
+    private readonly _booking_available_period = this._settings.signal(
+        'bookings.available_period',
+    );
+    // As in the Concierge locker form: lockers, then bookings, then 90 days.
+    // Raw values for the same reason as `_allow_all_day`.
+    private readonly _available_period = computed(() => {
+        this._locker_available_period();
+        this._booking_available_period();
+        return (
+            this._settings.get<number>('app.lockers.available_period') ||
+            this._settings.get<number>('app.bookings.available_period') ||
+            90
+        );
+    });
     private readonly _use_24hr = this._settings.signal(
         'use_24_hour_time',
         false,

@@ -29,8 +29,6 @@ import {
     ServiceWorkerUpdateCardComponent,
 } from '@placeos/components';
 
-import { SpacesService } from '@placeos/events';
-
 import * as MOCKS from '@placeos/mocks';
 import { PlaceAuthority, token } from '@placeos/ts-client';
 @Component({
@@ -84,7 +82,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _spaces = inject(SpacesService);
     private _cache = inject(SwUpdate);
     private _snackbar = lazySnackbar();
     private _clipboard = inject(Clipboard);

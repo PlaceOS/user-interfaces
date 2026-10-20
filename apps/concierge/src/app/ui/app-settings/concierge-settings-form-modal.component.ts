@@ -33,7 +33,10 @@ import {
 import { errorText } from '../modal-actions';
 import {
     applyAppSettings,
+    applyBookingFallbacks,
     appSettingOverrides,
+    AppSettings,
+    LOCKER_BOOKING_FALLBACKS,
     mergeAppSettings,
 } from './app-settings.utilities';
 import {
@@ -1178,7 +1181,11 @@ import { UploadButtonComponent } from './upload-button.component';
                                             [formField]="
                                                 form.bookings.available_period
                                             "
+                                            placeholder="Not set"
                                         >
+                                            <mat-option [value]="null"
+                                                >Not set</mat-option
+                                            >
                                             @for (
                                                 opt of AVAILABLE_PERIOD_EXTENDED;
                                                 track opt.value
@@ -1191,7 +1198,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-select>
                                         <mat-hint>
                                             Number of days ahead the user is
-                                            able to book
+                                            able to book. Parking and lockers
+                                            use this when their own period is
+                                            not set
                                         </mat-hint>
                                     </mat-form-field>
                                 </div>
@@ -1661,7 +1670,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             "
                                         >
                                             @for (
-                                                opt of AVAILABLE_PERIOD_SHORT;
+                                                opt of AVAILABLE_PERIOD_EXTENDED;
                                                 track opt.value
                                             ) {
                                                 <mat-option
@@ -1830,6 +1839,8 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
 
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
+    /** Form values right after loading, used to find user changes on save. */
+    public initial_settings: AppSettings = {};
     public readonly zone = this._data.zone;
     public readonly AVAILABLE_PERIOD_SHORT = AVAILABLE_PERIOD_SHORT_OPTIONS;
     public readonly AVAILABLE_PERIOD_EXTENDED =
@@ -1938,7 +1949,8 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
                 end: null as number | null,
             },
             use_building_timezone: false,
-            available_period: 7,
+            // Unset so parking and lockers keep their own fallbacks
+            available_period: null as number | null,
             max_duration: 480,
         },
         reports: {
@@ -1975,7 +1987,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
                 end: null as number | null,
             },
             all_day_default: false,
-            available_period: 7,
+            available_period: 90,
             max_duration: 480,
             hide_end_time: false,
             disabled_start_time: false,
@@ -2013,14 +2025,22 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
                     : {};
             const metadata = await this._getMetadata(zone.id);
             this.existing_settings = mergeAppSettings(
-                this.model(),
                 DEFAULT_SETTINGS.app,
                 org_metadata,
                 parent_metadata,
             );
             this._patchModel(this.existing_settings);
             this._patchModel(metadata || {});
+            this.model.update((model) =>
+                applyBookingFallbacks(
+                    model,
+                    mergeAppSettings(this.existing_settings, metadata),
+                    'lockers',
+                    LOCKER_BOOKING_FALLBACKS,
+                ),
+            );
             this.old_settings = metadata;
+            this.initial_settings = this.model();
         } catch (e) {
             // Saving defaults over settings that failed to load would lose
             // them, so close instead.
@@ -2055,6 +2075,8 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         const new_settings = appSettingOverrides(
             working_settings,
             this.existing_settings,
+            this.initial_settings,
+            this.old_settings,
         );
 
         const user = currentUser();

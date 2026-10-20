@@ -237,7 +237,7 @@ export class LockerBookingModalComponent
                 Date.now(),
                 this._settings.get('app.lockers.available_period') ||
                     this._settings.get('app.bookings.available_period') ||
-                    7,
+                    90,
             ),
         );
     }

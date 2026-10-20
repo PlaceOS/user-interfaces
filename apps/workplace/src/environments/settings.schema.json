@@ -507,10 +507,6 @@
                     "type": "number",
                     "description": "Minimum desk booking duration in minutes. Overrides app.bookings.min_duration. Defaults to 30"
                 },
-                "needs_reason": {
-                    "type": "boolean",
-                    "description": "Whether desk bookings require a reason to be entered"
-                },
                 "use_building_timezone": {
                     "type": "boolean",
                     "description": "Whether desk booking times should use the building's timezone. Overrides app.bookings.use_building_timezone"
@@ -882,6 +878,10 @@
             "type": "boolean",
             "description": "Whether new feature hints should be shown in the UI"
         },
+        "use_legacy_flows": {
+            "type": "boolean",
+            "description": "Whether the home page and the desk, meeting and visitor booking flows use their legacy versions"
+        },
         "basic_user_search": {
             "type": "boolean",
             "description": "Whether colleague search should use basic user directory queries instead of the staff search API"
@@ -931,7 +931,7 @@
         },
         "idle_timeout": {
             "type": "number",
-            "description": "Minutes of user inactivity on the meeting form before prompting to discard changes. Defaults to 5"
+            "description": "Minutes of user inactivity on the legacy meeting form before prompting to discard changes. Defaults to 5"
         },
         "use_region": {
             "type": "boolean",

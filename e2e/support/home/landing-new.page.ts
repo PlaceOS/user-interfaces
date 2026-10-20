@@ -2,8 +2,8 @@
  * Page object for `/landing` — the `landing-new` home page.
  *
  * The home page that this one replaced (`app-landing`, `landing-upcoming`,
- * `landing-quick-book`) is no longer routed. None of those elements exist
- * here.
+ * `landing-quick-book`) opens only when `use_legacy_flows` is set. None of
+ * those elements exist here.
  *
  * ## The page shows ONE next booking
  *
