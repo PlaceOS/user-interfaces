@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -233,6 +234,20 @@ interface SpaceLocation {
                             <div class="fle sm:hidden">Availability</div>
                         </button>
                     </a-user-list-field>
+                    @if (can_notify_new_attendees_only()) {
+                        <mat-checkbox
+                            name="notify-new-attendees-only"
+                            [(ngModel)]="notify_new_attendees_only"
+                            [ngModelOptions]="{
+                                standalone: true,
+                            }"
+                        >
+                            {{
+                                'CALENDAR_EVENT.NOTIFY_NEW_ATTENDEES_ONLY'
+                                    | translate
+                            }}
+                        </mat-checkbox>
+                    }
                 }
                 @if (show_capacity_warning()) {
                     <div
@@ -405,6 +420,7 @@ interface SpaceLocation {
         UserListFieldComponent,
         FormsModule,
         FormField,
+        MatCheckboxModule,
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
@@ -426,6 +442,10 @@ export class MeetingFlowOptionsComponent {
 
     public readonly form_value = this._event_form.model;
     public readonly loading = signal(false);
+    public readonly can_notify_new_attendees_only =
+        this._event_form.can_notify_new_attendees_only;
+    public readonly notify_new_attendees_only =
+        this._event_form.notify_new_attendees_only;
     public readonly allow_externals = settingSignal(
         'events.allow_externals',
         false,

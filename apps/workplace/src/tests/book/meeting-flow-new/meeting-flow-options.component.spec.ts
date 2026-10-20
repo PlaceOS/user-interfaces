@@ -58,6 +58,8 @@ describe('MeetingFlowOptionsComponent', () => {
                     return {
                         model,
                         form: refs.form,
+                        can_notify_new_attendees_only: signal(false),
+                        notify_new_attendees_only: signal(false),
                         postForm: (post_form = vi.fn(() => Promise.resolve())),
                         openEventLinkModal: (open_link_modal = vi.fn()),
                     };
@@ -248,6 +250,18 @@ describe('MeetingFlowOptionsComponent', () => {
         }));
         await spectator.component.confirmBooking();
         expect(post_form).toHaveBeenCalled();
+    });
+
+    it('should show the notification option beside attendee edits', () => {
+        spectator.detectChanges();
+        expect(
+            spectator.query('[name="notify-new-attendees-only"]'),
+        ).not.toExist();
+        (spectator.component.can_notify_new_attendees_only as any).set(true);
+        spectator.detectChanges();
+        expect(
+            spectator.query('[name="notify-new-attendees-only"]'),
+        ).toExist();
     });
 
     it('should hide the attendees field when the setting hides it', () => {
