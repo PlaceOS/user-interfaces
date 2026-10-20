@@ -64,7 +64,11 @@ export default defineConfig({
         // so the only thing to wait on is the stack itself.
         {
             name: 'local',
-            testDir: './e2e/local',
+            testDir: './e2e',
+            testMatch: [
+                '**/local/**/*.@(spec|test).?(c|m)[jt]s?(x)',
+                '**/settings/**/*.@(spec|test).?(c|m)[jt]s?(x)',
+            ],
             dependencies: ['preflight'],
             use: { ...devices['Desktop Chrome'] },
         },
@@ -84,7 +88,7 @@ export default defineConfig({
         {
             name: 'mock',
             testDir: './e2e',
-            testIgnore: ['**/local/**'],
+            testIgnore: ['**/local/**', '**/settings/**'],
             use: { ...devices['Desktop Chrome'] },
         },
     ],
