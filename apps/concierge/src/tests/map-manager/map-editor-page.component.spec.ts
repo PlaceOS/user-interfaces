@@ -85,7 +85,7 @@ describe('MapEditorPageComponent', () => {
             loadMapText: vi.fn(async () => MAP),
             protectedIdSources: vi.fn(() => ({})),
             uploadMapSnapshot: vi.fn(async () => 'upload-1'),
-            openStudio: vi.fn(),
+            studioUrl: vi.fn(() => '/map-studio/'),
             currentMapId: vi.fn(async () => level.map_id),
             saveLevelMap: vi.fn(),
         };

@@ -3,7 +3,6 @@ import { tokenExpiry } from './teams-host';
 
 const TOKEN_REQUEST = 'placeos:token-request';
 const TOKEN_REPLY = 'placeos:token';
-const CLOSED_CHECK_MS = 5 * 1000;
 
 /** A PlaceOS access token passed from one app window to another. */
 export interface HandedToken {
@@ -13,14 +12,19 @@ export interface HandedToken {
 }
 
 /**
- * Answers token requests from a window this app opened, for as long as that
- * window stays open. Only messages from `target` at `origin` are answered.
+ * Answers token requests from windows that this app opened, such as from a
+ * link with `target="_blank"` and `rel="opener"`. Only messages from such a
+ * window at `origin()` are answered. `origin` is read for each message, so it
+ * can follow a setting that loads later.
  * @returns a function that stops answering
  */
-export function shareTokenWith(target: Window, origin: string): () => void {
+export function answerTokenRequests(origin: () => string): () => void {
     const answer = async (event: MessageEvent) => {
-        if (event.source !== target || event.origin !== origin) return;
         if (event.data?.type !== TOKEN_REQUEST) return;
+        const target = event.source as Window | null;
+        // `opener` is readable on windows of other origins
+        if (!target || target.opener !== window) return;
+        if (event.origin !== origin()) return;
         const current = await freshToken();
         if (!current) return;
         const reply: HandedToken & { type: string } = {
@@ -28,17 +32,10 @@ export function shareTokenWith(target: Window, origin: string): () => void {
             token: current,
             expires_at: tokenExpiry(current),
         };
-        target.postMessage(reply, origin);
+        target.postMessage(reply, event.origin);
     };
-    const stop = () => {
-        window.removeEventListener('message', answer);
-        clearInterval(watch);
-    };
-    const watch = setInterval(() => {
-        if (target.closed) stop();
-    }, CLOSED_CHECK_MS);
     window.addEventListener('message', answer);
-    return stop;
+    return () => window.removeEventListener('message', answer);
 }
 
 /**

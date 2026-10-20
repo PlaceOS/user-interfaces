@@ -108,6 +108,7 @@ import { UploadButtonComponent } from './upload-button.component';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select [formField]="form.features" multiple>
                                 <mat-option value="zones"> Zones </mat-option>
+                                <mat-option value="maps"> Maps </mat-option>
                                 <mat-option value="spaces"> Rooms </mat-option>
                                 <mat-option value="assets">Assets</mat-option>
                                 <mat-option value="desks">Desks</mat-option>

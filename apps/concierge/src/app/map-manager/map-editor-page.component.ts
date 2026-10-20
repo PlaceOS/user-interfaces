@@ -158,14 +158,21 @@ function localised(
                         {{ dirty() ? strings.unsaved : strings.saved }}
                     </p>
                 }
-                <button btn matRipple class="clear" (click)="openStudio()">
+                <a
+                    btn
+                    matRipple
+                    class="clear"
+                    target="_blank"
+                    rel="opener"
+                    [href]="studio_url()"
+                >
                     <div class="flex items-center space-x-2">
                         <icon>open_in_new</icon>
                         <div class="pr-2 max-md:sr-only">
                             {{ 'APP.CONCIERGE.MAPS_OPEN_STUDIO' | translate }}
                         </div>
                     </div>
-                </button>
+                </a>
                 <button
                     btn
                     matRipple
@@ -245,6 +252,10 @@ export class MapEditorPageComponent implements OnInit, HasUnsavedChanges {
     private readonly _destroy = inject(DestroyRef);
 
     public readonly level_id = signal('');
+    /** Map Studio on this level. `rel="opener"` lets Studio ask for the token */
+    public readonly studio_url = computed(() =>
+        this._manager.studioUrl(this.level_id()),
+    );
     public readonly level = signal<BuildingLevel | null>(null);
     public readonly session = signal<MapEditorSession | null>(null);
     public readonly loading = signal('');
@@ -316,10 +327,6 @@ export class MapEditorPageComponent implements OnInit, HasUnsavedChanges {
         } finally {
             this.loading.set('');
         }
-    }
-
-    public openStudio() {
-        this._manager.openStudio(this.level_id());
     }
 
     public async discard() {

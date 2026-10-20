@@ -38,11 +38,13 @@ import { MapManagementService } from './map-management.service';
                     </h2>
                     <div class="w-2 flex-1"></div>
                     <searchbar (modelChange)="setSearch($event)"></searchbar>
-                    <button
+                    <a
                         btn
                         matRipple
                         class="w-52 whitespace-nowrap"
-                        (click)="openStudio()"
+                        target="_blank"
+                        rel="opener"
+                        [href]="studio_url()"
                     >
                         <div class="flex items-center space-x-2">
                             <icon>open_in_new</icon>
@@ -52,7 +54,7 @@ import { MapManagementService } from './map-management.service';
                                 }}
                             </div>
                         </div>
-                    </button>
+                    </a>
                 </div>
                 <div class="bg-base-100 flex h-20 items-center space-x-2 px-8">
                     <mat-form-field
@@ -205,14 +207,19 @@ import { MapManagementService } from './map-management.service';
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="openStudio()">
+                    <a
+                        mat-menu-item
+                        target="_blank"
+                        rel="opener"
+                        [href]="levelStudioUrl(row)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">open_in_new</icon>
                             <span>{{
                                 'APP.CONCIERGE.MAPS_OPEN_STUDIO' | translate
                             }}</span>
                         </div>
-                    </button>
+                    </a>
                     <button mat-menu-item (click)="editLevel(row)">
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">tune</icon>
@@ -304,6 +311,8 @@ export class MapManagerComponent implements OnDestroy {
     public readonly broken = signal<ReadonlySet<string>>(new Set());
 
     public readonly building_count = computed(() => this.buildings().length);
+    /** Map Studio links use `rel="opener"` so Studio can ask for the token */
+    public readonly studio_url = computed(() => this._manager.studioUrl());
 
     public setSearch(search: string) {
         this._manager.setSearchString(search);
@@ -317,12 +326,13 @@ export class MapManagerComponent implements OnDestroy {
         this._router.navigate(['/map-management', row.id]);
     }
 
-    public editLevel(row: MapRow) {
-        this._manager.editLevel(row.level);
+    /** Map Studio on the level of the row */
+    public levelStudioUrl(row: MapRow) {
+        return this._manager.studioUrl(row.id);
     }
 
-    public openStudio() {
-        this._manager.openStudio();
+    public editLevel(row: MapRow) {
+        this._manager.editLevel(row.level);
     }
 
     public markBroken(id: string) {

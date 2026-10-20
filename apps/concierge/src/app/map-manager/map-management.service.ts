@@ -1,11 +1,11 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    answerTokenRequests,
     BuildingLevel,
     currentUser,
     OrganisationService,
     SettingsService,
-    shareTokenWith,
     UploadsService,
 } from '@placeos/common';
 import { getMapDetails } from '@placeos/components';
@@ -73,6 +73,11 @@ export class MapManagementService {
                 if (isApiUpload(row.map_id)) this._resolveMapName(row.level);
             }
         });
+        // Map Studio tabs open from links and ask this app for its token.
+        // Answer for the life of the app, as Studio asks again before expiry
+        answerTokenRequests(
+            () => new URL(this.studioUrl(), location.href).origin,
+        );
     }
 
     /** The file name the map was last saved under, when known. */
@@ -133,15 +138,9 @@ export class MapManagementService {
         });
     }
 
+    /** Map Studio URL, on the level when one is given. */
     public studioUrl(level_id?: string | null): string {
         return mapStudioUrl(this._settings.get('app.map_studio_url'), level_id);
-    }
-
-    /** Opens Map Studio in a new tab, signed in with this app's PlaceOS token, on the level when one is given. */
-    public openStudio(level_id?: string | null) {
-        const url = new URL(this.studioUrl(level_id), location.href);
-        const studio = window.open(url.href, '_blank');
-        if (studio) shareTokenWith(studio, url.origin);
     }
 
     /** The level's map as text, the way the viewer fetches it. */

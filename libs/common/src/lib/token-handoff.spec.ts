@@ -2,7 +2,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 
-import { requestTokenFromOpener, shareTokenWith } from './token-handoff';
+import { answerTokenRequests, requestTokenFromOpener } from './token-handoff';
 
 /** Unsigned JWT with the given `exp` claim in seconds */
 function jwt(exp: number) {
@@ -10,11 +10,16 @@ function jwt(exp: number) {
     return `header.${payload}.signature`;
 }
 
-/** A real window to stand in for another tab, so it can be a message source. */
-function otherWindow(): Window {
+/**
+ * A real window to stand in for another tab, so it can be a message source.
+ * With `opened`, the window reports this window as its opener.
+ */
+function otherWindow(opened = true): Window {
     const frame = document.createElement('iframe');
     document.body.appendChild(frame);
-    return frame.contentWindow as Window;
+    const other = frame.contentWindow as Window;
+    if (opened) Object.defineProperty(other, 'opener', { value: window });
+    return other;
 }
 
 function message(source: Window, origin: string, data: unknown) {
@@ -23,7 +28,7 @@ function message(source: Window, origin: string, data: unknown) {
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe('shareTokenWith', () => {
+describe('answerTokenRequests', () => {
     const studio_origin = 'http://localhost:4201';
     let stop: () => void;
 
@@ -35,14 +40,14 @@ describe('shareTokenWith', () => {
         document.body.innerHTML = '';
     });
 
-    it('answers a token request from the window it opened', async () => {
+    it('answers a token request from a window it opened', async () => {
         const token = jwt(Math.floor(Date.now() / 1000) + 3600);
         vi.mocked(ts_client.authorise).mockResolvedValue(token);
         const studio = otherWindow();
         const post = vi
             .spyOn(studio, 'postMessage')
             .mockImplementation(() => undefined);
-        stop = shareTokenWith(studio, studio_origin);
+        stop = answerTokenRequests(() => studio_origin);
         message(studio, studio_origin, { type: 'placeos:token-request' });
         await flush();
         expect(post).toHaveBeenCalledWith(
@@ -55,16 +60,16 @@ describe('shareTokenWith', () => {
         );
     });
 
-    it('ignores requests from other windows and other origins', async () => {
+    it('ignores windows it did not open and other origins', async () => {
         vi.mocked(ts_client.authorise).mockResolvedValue(
             jwt(Math.floor(Date.now() / 1000) + 3600),
         );
         const studio = otherWindow();
-        const stranger = otherWindow();
+        const stranger = otherWindow(false);
         const post = vi
             .spyOn(studio, 'postMessage')
             .mockImplementation(() => undefined);
-        stop = shareTokenWith(studio, studio_origin);
+        stop = answerTokenRequests(() => studio_origin);
         message(stranger, studio_origin, { type: 'placeos:token-request' });
         message(studio, 'http://evil.test', { type: 'placeos:token-request' });
         await flush();
@@ -85,7 +90,7 @@ describe('shareTokenWith', () => {
         const post = vi
             .spyOn(studio, 'postMessage')
             .mockImplementation(() => undefined);
-        stop = shareTokenWith(studio, studio_origin);
+        stop = answerTokenRequests(() => studio_origin);
         message(studio, studio_origin, { type: 'placeos:token-request' });
         await flush();
         expect(ts_client.invalidateToken).toHaveBeenCalledTimes(1);
