@@ -295,6 +295,25 @@ describe('ConciergeSettingsFormModalComponent', () => {
         );
     });
 
+    it('should save a booking period chosen from unset', async () => {
+        await spectator.component.ngOnInit();
+        expect(spectator.component.model().bookings.available_period).toBe(
+            null,
+        );
+        spectator.component.form.bookings.available_period().value.set(7);
+        await spectator.component.save();
+
+        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
+            'zone-1',
+            expect.objectContaining({
+                details: {
+                    bookings: { available_period: 7 },
+                    edited_by: expect.any(Object),
+                },
+            }),
+        );
+    });
+
     it('should save only stored settings when nothing changed', async () => {
         mockMetadata({
             'org-1': { bookings: { available_period: 30 } },

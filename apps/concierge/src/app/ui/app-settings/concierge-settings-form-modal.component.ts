@@ -1166,7 +1166,11 @@ import { UploadButtonComponent } from './upload-button.component';
                                             [formField]="
                                                 form.bookings.available_period
                                             "
+                                            placeholder="Not set"
                                         >
+                                            <mat-option [value]="null"
+                                                >Not set</mat-option
+                                            >
                                             @for (
                                                 opt of AVAILABLE_PERIOD_EXTENDED;
                                                 track opt.value
@@ -1179,7 +1183,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-select>
                                         <mat-hint>
                                             Number of days ahead the user is
-                                            able to book
+                                            able to book. Parking and lockers
+                                            use this when their own period is
+                                            not set
                                         </mat-hint>
                                     </mat-form-field>
                                 </div>
@@ -1926,7 +1932,8 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
                 end: null as number | null,
             },
             use_building_timezone: false,
-            available_period: 7,
+            // Unset so parking and lockers keep their own fallbacks
+            available_period: null as number | null,
             max_duration: 480,
         },
         reports: {
