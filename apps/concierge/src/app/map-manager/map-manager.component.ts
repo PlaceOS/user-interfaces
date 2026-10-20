@@ -90,7 +90,7 @@ import { MapManagementService } from './map-management.service';
                 <div class="content-area relative flex-1">
                     <div class="absolute inset-0 overflow-auto px-8">
                         <simple-table
-                            class="block min-w-3xl text-sm"
+                            class="block min-w-4xl text-sm"
                             [data]="rows()"
                             [empty_message]="
                                 'APP.CONCIERGE.MAPS_EMPTY' | translate
@@ -126,7 +126,7 @@ import { MapManagementService } from './map-management.service';
                                     key: 'actions',
                                     name: ' ',
                                     content: action_template,
-                                    size: '13rem',
+                                    size: '6.25rem',
                                     sortable: false,
                                 },
                             ]"
@@ -166,12 +166,22 @@ import { MapManagementService } from './map-management.service';
             </button>
         </ng-template>
         <ng-template #url_template let-row="row" let-data="data">
-            <div class="flex items-center gap-1 px-2">
-                <span class="truncate font-mono text-xs" [title]="row.map_id">
-                    {{ row.map_label }}
-                </span>
+            <div class="flex w-full items-center gap-1 px-2">
+                <div
+                    class="flex-1 truncate font-mono text-xs"
+                    [title]="row.map_id"
+                >
+                    <a
+                        [href]="row.map_id"
+                        target="_blank"
+                        class="text-info underline"
+                    >
+                        {{ row.map_label }}
+                    </a>
+                </div>
                 <button
                     icon
+                    default
                     matRipple
                     [matTooltip]="'APP.CONCIERGE.MAPS_COPY_URL' | translate"
                     (click)="copyToClipboard(row.map_id)"
@@ -181,19 +191,15 @@ import { MapManagementService } from './map-management.service';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center justify-end gap-2 p-2">
+            <div class="flex w-full items-center justify-end gap-2 p-2">
                 <button
-                    btn
+                    icon
+                    default
                     matRipple
-                    class="w-32 whitespace-nowrap"
                     (click)="editMap(row)"
+                    [matTooltip]="'APP.CONCIERGE.MAPS_EDIT' | translate"
                 >
-                    <div class="flex items-center space-x-2">
-                        <icon>edit</icon>
-                        <div class="pr-2">
-                            {{ 'APP.CONCIERGE.MAPS_EDIT' | translate }}
-                        </div>
-                    </div>
+                    <icon>edit</icon>
                 </button>
                 <button icon default matRipple [matMenuTriggerFor]="menu">
                     <icon>more_vert</icon>
