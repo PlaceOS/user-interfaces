@@ -133,7 +133,7 @@ describe('sanitiseTree', () => {
             );
         });
 
-        it('survives DOMPurify for its defs, style and text', () => {
+        it('survives purifyMarkup for its defs, style and text', () => {
             const doc = loadMap(name);
             const serializer = new XMLSerializer();
             for (const selector of ['defs', 'text', 'g']) {
@@ -210,12 +210,38 @@ describe('purifyMarkup', () => {
         expect(purified.report.removed.length).toBeGreaterThan(5);
     });
 
+    it('removes SVG elements outside the allow-list and refuses a root outside it', () => {
+        const purified = purifyMarkup(
+            '<g><feImage href="#t"/><unknownThing/><rect id="r"/></g>',
+        );
+        expect(
+            Array.from(purified.element?.querySelectorAll('*') || []).map(
+                (e) => e.localName,
+            ),
+        ).toEqual(['rect']);
+        expect(purified.report.removed.map((entry) => entry.tag)).toEqual([
+            'feImage',
+            'unknownThing',
+        ]);
+        expect(purifyMarkup('<use href="#t"/>').error).toMatch(/not allowed/);
+    });
+
+    it('strips link pings', () => {
+        const purified = purifyMarkup(
+            '<a href="#t" ping="https://evil/audit"><rect/></a>',
+        );
+        expect(purified.element?.hasAttribute('ping')).toBe(false);
+        expect(purified.element?.getAttribute('href')).toBe('#t');
+    });
+
     it('rejects markup that is not exactly one element', () => {
         expect(purifyMarkup('<rect/><rect/>').error).toMatch(
             /exactly one element/,
         );
         expect(purifyMarkup('just text').error).toMatch(/exactly one element/);
         expect(purifyMarkup('<script>x</script>').error).toBeDefined();
+        expect(purifyMarkup('<rect>').error).toMatch(/not well-formed/);
+        expect(purifyMarkup('<?pi x?><rect/>').element?.localName).toBe('rect');
         expect(purifyMarkup('<rect id="a"/>').element?.getAttribute('id')).toBe(
             'a',
         );

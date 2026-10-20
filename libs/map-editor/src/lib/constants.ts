@@ -120,6 +120,63 @@ export const DENIED_TAGS: ReadonlySet<string> = new Set([
     'mpath',
 ]);
 
+/**
+ * Tags replacement markup may contain; compared lower-cased. `purifyMarkup`
+ * removes every other element, so unknown or new SVG elements do not pass.
+ */
+export const MARKUP_ALLOWED_TAGS: ReadonlySet<string> = new Set([
+    'a',
+    'circle',
+    'clippath',
+    'defs',
+    'desc',
+    'ellipse',
+    'feblend',
+    'fecolormatrix',
+    'fecomponenttransfer',
+    'fecomposite',
+    'feconvolvematrix',
+    'fediffuselighting',
+    'fedisplacementmap',
+    'fedistantlight',
+    'fedropshadow',
+    'feflood',
+    'fefunca',
+    'fefuncb',
+    'fefuncg',
+    'fefuncr',
+    'fegaussianblur',
+    'femerge',
+    'femergenode',
+    'femorphology',
+    'feoffset',
+    'fepointlight',
+    'fespecularlighting',
+    'fespotlight',
+    'fetile',
+    'feturbulence',
+    'filter',
+    'g',
+    'image',
+    'line',
+    'lineargradient',
+    'marker',
+    'mask',
+    'path',
+    'pattern',
+    'polygon',
+    'polyline',
+    'radialgradient',
+    'rect',
+    'stop',
+    'style',
+    'symbol',
+    'text',
+    'textpath',
+    'title',
+    'tspan',
+]);
+
 /** Tags refused in replacement markup on top of the deny-list. */
 export const REPLACEMENT_DENIED_TAGS: ReadonlySet<string> = new Set([
     ...DENIED_TAGS,
