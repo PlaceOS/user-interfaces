@@ -248,6 +248,124 @@ describe('InviteVisitorFormComponent', () => {
         expect('host-select-field').not.toExist();
     });
 
+    it('should expose the internal or external setting for template display', () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.visitors.allow_visitor_internal_or_external',
+        );
+
+        expect(spectator.component.allow_visitor_internal_or_external()).toBe(
+            true,
+        );
+        (settings.get as Mock).mockImplementation(() => undefined);
+    });
+
+    it('should default a single visitor to internal', () => {
+        expect(spectator.component.model().visitor_internal_or_external).toBe(
+            'internal',
+        );
+    });
+
+    it('should set the internal or external type for a single visitor', () => {
+        const service = spectator.inject(BookingFormService);
+
+        spectator.component.setSingleVisitorInternalOrExternal('external');
+
+        expect(service.model().visitor_internal_or_external).toBe('external');
+    });
+
+    it('should track internal or external type per visitor and update the assets', () => {
+        const service = spectator.inject(BookingFormService);
+        const visitor = new User({
+            email: 'dave@example.com',
+            name: 'Dave',
+        });
+        service.model.update((m) => ({ ...m, assets: [visitor] }));
+
+        spectator.component.setVisitorInternalOrExternal(visitor, 'external');
+
+        expect(
+            spectator.component.visitor_internal_or_external()[
+                'dave@example.com'
+            ],
+        ).toBe('external');
+        expect(
+            service.model().assets[0].extension_data
+                ?.visitor_internal_or_external,
+        ).toBe('external');
+    });
+
+    it('should carry the internal or external type when a suggested visitor is selected', () => {
+        const service = spectator.inject(BookingFormService);
+
+        spectator.component.setVisitor({
+            email: 'carol@example.com',
+            name: 'Carol',
+            visitor_internal_or_external: 'external',
+        });
+
+        expect(service.model().visitor_internal_or_external).toBe('external');
+    });
+
+    it('should load saved visitors with their internal or external type', async () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation((key: string) =>
+            key === 'visitor-invitees'
+                ? ['erin@example.com|Erin|Umbrella|1||external']
+                : undefined,
+        );
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.filtered_visitors()).toEqual([
+            expect.objectContaining({
+                email: 'erin@example.com',
+                visitor_internal_or_external: 'external',
+            }),
+        ]);
+        (settings.get as Mock).mockImplementation(() => undefined);
+    });
+
+    it('should save the internal or external type for group visitors', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation((key: string) =>
+            key === 'app.bookings.multiple_visitors' ? true : undefined,
+        );
+        await spectator.component.ngOnInit();
+        service.model.update((m) => ({
+            ...m,
+            asset_id: 'multiple@place.tech',
+            asset_name: 'Multiple Visitors',
+            title: 'Visit',
+            assets: [
+                new User({
+                    name: 'Visitor One',
+                    email: 'visitor.one@example.com',
+                }),
+            ],
+        }));
+
+        spectator.component.setVisitorInternalOrExternal(
+            service.model().assets[0],
+            'external',
+        );
+        await spectator.component.sendInvite();
+
+        const group_call = (service.setOptions as Mock).mock.calls.find(
+            ([options]) => options?.group,
+        );
+        expect(group_call[0].members[0].extension_data).toEqual(
+            expect.objectContaining({
+                visitor_internal_or_external: 'external',
+            }),
+        );
+        const [, visitors] = (settings.saveUserSetting as Mock).mock.calls[0];
+        expect(`${visitors[0]}`.endsWith('|external')).toBe(true);
+        (settings.get as Mock).mockImplementation(() => undefined);
+    });
+
     it('should reflect updated form date for time and duration fields', async () => {
         const service = spectator.inject(BookingFormService);
         // ngOnInit registers the model.date → form_date sync listener.
