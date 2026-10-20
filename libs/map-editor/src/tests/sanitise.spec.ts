@@ -226,6 +226,16 @@ describe('purifyMarkup', () => {
         expect(purifyMarkup('<use href="#t"/>').error).toMatch(/not allowed/);
     });
 
+    it('strips attributes with external or escaped url values', () => {
+        const purified = purifyMarkup(
+            '<g fill="url(http://evil/p#g)" cursor="u\\72l(http://evil/c)" stroke="url(#g)" data-note="url(x)"><rect/></g>',
+        );
+        expect(purified.element?.hasAttribute('fill')).toBe(false);
+        expect(purified.element?.hasAttribute('cursor')).toBe(false);
+        expect(purified.element?.getAttribute('stroke')).toBe('url(#g)');
+        expect(purified.element?.getAttribute('data-note')).toBe('url(x)');
+    });
+
     it('strips link pings', () => {
         const purified = purifyMarkup(
             '<a href="#t" ping="https://evil/audit"><rect/></a>',

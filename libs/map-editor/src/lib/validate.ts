@@ -385,8 +385,8 @@ export function markupDenyListIssue(markup: string): string | null {
                     return `${name} must reference an id in the document`;
                 }
             }
-            if (lower === 'style' && isUnsafeCssValue(value))
-                return 'style contains an unsafe value';
+            if (!lower.startsWith('data-') && isUnsafeCssValue(value))
+                return `${name} contains an unsafe value`;
         }
     }
     return null;

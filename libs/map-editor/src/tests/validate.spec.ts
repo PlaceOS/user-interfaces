@@ -819,7 +819,7 @@ describe('validateProposal', () => {
         }
     });
 
-    it('refuses a <style> or <use> inside replacement markup', async () => {
+    it('refuses a <style>, <use> or external paint inside replacement markup', async () => {
         const styled = await single({
             op: 'replace_element',
             why: '',
@@ -835,6 +835,13 @@ describe('validateProposal', () => {
             markup: '<g><use href="#plant-1"/></g>',
         });
         expect(used.codes).toEqual(['denied_markup']);
+        const painted = await single({
+            op: 'replace_element',
+            why: '',
+            target: { id: 'plant-2' },
+            markup: '<circle cx="930" cy="400" r="10" fill="url(http://evil/p#g)"/>',
+        });
+        expect(painted.codes).toEqual(['denied_markup']);
     });
 
     it('warns when replacement markup wraps a bound id in a group that paints itself', async () => {

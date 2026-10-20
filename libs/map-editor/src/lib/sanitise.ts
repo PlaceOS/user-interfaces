@@ -83,7 +83,8 @@ function isAllowedReference(tag: string, value: string): boolean {
 /**
  * Strip the deny-list from a subtree in place: scripts, foreign content,
  * animation, event handlers, link pings, external references and unsafe
- * style text.
+ * style text. Presentation attributes are CSS values, so any non-`data-*`
+ * attribute with an unsafe value (such as `fill="url(http://…)"`) goes too.
  * Editor attributes present in the source are stripped too. With `allowed`,
  * elements whose lower-cased tag is not in the set are removed as well.
  */
@@ -169,6 +170,15 @@ export function sanitiseTree(
                 if (cleaned.text.trim())
                     element.setAttribute(name, cleaned.text);
                 else element.removeAttribute(name);
+            } else if (!lower.startsWith('data-') && isUnsafeCssValue(value)) {
+                removed.push({
+                    kind: 'attribute',
+                    tag,
+                    name,
+                    value: value.slice(0, 80),
+                    reason: 'unsafe attribute value',
+                });
+                element.removeAttribute(name);
             }
         }
         if (tag === 'style') {
