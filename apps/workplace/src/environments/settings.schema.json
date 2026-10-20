@@ -866,6 +866,10 @@
             "type": "boolean",
             "description": "Whether new feature hints should be shown in the UI"
         },
+        "use_legacy_flows": {
+            "type": "boolean",
+            "description": "Whether the home page and the desk, meeting and visitor booking flows use their legacy versions"
+        },
         "basic_user_search": {
             "type": "boolean",
             "description": "Whether colleague search should use basic user directory queries instead of the staff search API"
@@ -912,6 +916,10 @@
         "group_events_calendar": {
             "type": "string",
             "description": "ID (email) of the calendar used to list group events"
+        },
+        "idle_timeout": {
+            "type": "number",
+            "description": "Minutes of user inactivity on the legacy meeting form before prompting to discard changes. Defaults to 5"
         },
         "use_region": {
             "type": "boolean",

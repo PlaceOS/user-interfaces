@@ -37,10 +37,13 @@ These options live at the root of the settings file (alongside `app`, not inside
 | `use_24_hour_time` | boolean | `false` | Display times using a 24-hour clock. |
 | `use_geolocation` | boolean | `false` | Use the device's location to select the closest building when the app loads. |
 | `new_features` | boolean | `true` | Show hints in the UI when new features are added. |
+| `use_legacy_flows` | boolean | – | Use the legacy home page and the legacy desk, meeting and visitor booking flows. The legacy pages also read `hide_landing_sidebar` and `idle_timeout`. |
 | `week_start` | number | – | First day of the week for schedule and calendar views. `0` is Sunday through `6` for Saturday. |
+| `idle_timeout` | number | – | Minutes of inactivity on the legacy meeting form before the user is prompted to discard their changes. Falls back to `5`. Needs `use_legacy_flows`. |
 | `global_search` | boolean | – | Show the global search bar in the top bar. Shown when not set; set to `false` to hide it. |
 | `hide_global_search_items` | string[] | – | Result types to hide from the global search. Valid values are `contacts`, `desks`, `emergency_contacts`, `features`, `mapspeople`, `points_of_interest`, `spaces` and `users`. |
 | `hide_colleagues` | boolean | – | Hide the colleagues card on the landing page. The favourites card takes the full row. |
+| `hide_landing_sidebar` | boolean | – | Hide the colleagues and favourites sidebar on the legacy landing page. Needs `use_legacy_flows`. |
 | `hide_landing_spaces` | boolean | – | Hide the Desks and Lockers tabs of the Available Now card on the landing page. |
 | `hide_landing_rooms` | boolean | – | Hide the Rooms tab of the Available Now card on the landing page. The card is hidden when no tab is left. |
 | `hide_landing_customise` | boolean | – | Stop users from changing the layout of the landing page. The **Edit home screen** button is hidden, and each user gets the default layout. A saved layout is kept, but it is not used. |

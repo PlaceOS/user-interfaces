@@ -1,5 +1,6 @@
 import { CanDeactivateFn, Routes } from '@angular/router';
 
+import { legacyFlowsGuard } from '../legacy-flows.guard';
 import type { VisitorFlowNewComponent } from './visitor-flow-new/visitor-flow.component';
 
 const canDeactivateVisitorFlow: CanDeactivateFn<VisitorFlowNewComponent> = (
@@ -40,6 +41,15 @@ export const ROUTES: Routes = [
             { path: 'desks', redirectTo: 'desk/form' },
             {
                 path: 'desk/:step',
+                canMatch: [legacyFlowsGuard],
+                loadComponent: () =>
+                    import('./desk-flow.component').then(
+                        (m) => m.NewDeskFlowComponent,
+                    ),
+                title: 'Desk Booking',
+            },
+            {
+                path: 'desk/:step',
                 loadComponent: () =>
                     import('./desk-flow-new/desk-flow.component').then(
                         (m) => m.DeskFlowNewComponent,
@@ -47,6 +57,15 @@ export const ROUTES: Routes = [
                 title: 'Desk Booking',
             },
             { path: 'meeting', redirectTo: 'meeting/form' },
+            {
+                path: 'meeting/:step',
+                canMatch: [legacyFlowsGuard],
+                loadComponent: () =>
+                    import('./meeting-flow.component').then(
+                        (m) => m.BookMeetingFlowComponent,
+                    ),
+                title: 'Meeting Booking',
+            },
             {
                 path: 'meeting/:step',
                 loadComponent: () =>
@@ -76,6 +95,15 @@ export const ROUTES: Routes = [
                 title: 'Parking Request',
             },
             { path: 'visitor', redirectTo: 'visitor/form' },
+            {
+                path: 'visitor/:step',
+                canMatch: [legacyFlowsGuard],
+                loadComponent: () =>
+                    import('./visitor-flow.component').then(
+                        (m) => m.VisitorFlowComponent,
+                    ),
+                title: 'Visitor Booking',
+            },
             {
                 path: 'visitor/:step',
                 loadComponent: () =>
