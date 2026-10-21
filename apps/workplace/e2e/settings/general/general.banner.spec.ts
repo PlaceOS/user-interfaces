@@ -1,4 +1,3 @@
-// NOT RUN — awaiting manual validation. Source-only preparation; no execution.
 // Setting: banner (banner.id, banner.type, banner.content). Helpers below are copied unchanged from
 // general.environment-bar.spec.ts (accepted); both settings live in GlobalBannerComponent.
 import type { BrowserContext, Page } from '@playwright/test';

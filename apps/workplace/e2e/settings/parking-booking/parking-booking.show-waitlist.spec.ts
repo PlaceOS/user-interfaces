@@ -7,7 +7,6 @@ import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-reado
 // Migrated unchanged from apps/workplace/e2e/local/claude-wpa-next25-parking-booking-draft.spec.ts (accepted: wpa-next25-P1..P4/P7); only this setting's tests.
 
 
-// CLAUDE OWNED DRAFT. NOT RUN. No accepted coverage credit until a controlled run passes.
 // Target: 11 parking booking-form / display keys. Routes: /#/book/parking/form,
 // /#/book/parking/success, /#/book/parking-request/success, /#/your-bookings.
 // Nothing is submitted. Synthetic data is served only by GET browser routes or

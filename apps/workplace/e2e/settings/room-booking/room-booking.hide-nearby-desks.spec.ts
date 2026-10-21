@@ -4,7 +4,7 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// DRAFT / NOT EXECUTED. events.hide_nearby_desks gates the "book nearby desk"
+// events.hide_nearby_desks gates the "book nearby desk"
 // button on the meeting success screen (meeting-flow-success.component.ts:132-137,
 // template :78 `@if (space?.email && allow_desk_booking)`, where
 // allow_desk_booking = features includes 'desks' && hide_nearby_desks !== true).

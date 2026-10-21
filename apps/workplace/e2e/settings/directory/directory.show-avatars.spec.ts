@@ -4,7 +4,7 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// DRAFT / NOT EXECUTED. Consumers: directory/user-list.component.ts:
+// Consumers: directory/user-list.component.ts:
 // min_search_length gates its 400ms search (`query.length < min` -> no
 // search); show_avatars (show_image) gates a-user-avatar.
 // searchStaff (users/staff.fn.ts) GETs people?q=...&fields=... and maps a raw array.

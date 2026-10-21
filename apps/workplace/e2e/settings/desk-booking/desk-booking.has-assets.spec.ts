@@ -1,4 +1,3 @@
-// NOT RUN — awaiting manual validation. Preparation only: no checks or runtime execution.
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
 import type { Locator, Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
@@ -224,7 +223,6 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 
 
 // Current runtime: desk-flow-new/desk-flow-details.component.ts.
-// New setting scenarios below are NOT RUN — awaiting manual validation.
 // Auto-allocation is pinned only to expose the desktop details controls. Never
 // click the parent's confirmation action, select a resource, or save a booking.
 async function openDesk(page: Page, audit: Audit, overrides: Settings) {

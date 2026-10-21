@@ -1,4 +1,3 @@
-// NOT RUN — awaiting manual validation. Source-only preparation; no execution.
 // Setting: visitors.allow_visitor_internal_or_external. Helpers below are copied unchanged from visitor-invite.multiple-visitors.spec.ts (accepted).
 // Runtime: book.routes.ts visitor/:step loads visitor-flow-new (visitor-flow-invites / visitor-flow-success).
 import type { Locator, Page, Route } from '@playwright/test';

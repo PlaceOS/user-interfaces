@@ -4,7 +4,7 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// DRAFT / NOT EXECUTED. explore.show_legend and explore.legend
+// explore.show_legend and explore.legend
 // (libs/explore/src/lib/explore-map-view.component.ts:106-144, 237, 249-252):
 // `@if (show_legend() && legend().length)` renders a [legend] panel; more than
 // three [label, colour] pairs give a collapsed toggle button, three or fewer an

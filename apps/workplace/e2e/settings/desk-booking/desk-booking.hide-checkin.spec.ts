@@ -13,7 +13,7 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// DRAFT / NOT EXECUTED. Source: desk-flow-form.show_reserved_desk_overlay;
+// Source: desk-flow-form.show_reserved_desk_overlay;
 // BookingFormService.settingForType / assignedResourceBooking;
 // BookingDetailsModal.can_checkin; GroupEventsStateService.calendar.
 // All fixtures below are browser-only GET responses. No fixture is saved;

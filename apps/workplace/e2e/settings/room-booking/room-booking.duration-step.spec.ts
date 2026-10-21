@@ -1,4 +1,3 @@
-// NOT RUN — awaiting manual validation. Source-only preparation; no execution.
 // Setting: events.duration_step. Helpers below are copied unchanged from room-booking.use-bookings.spec.ts (accepted).
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
 import type { Locator, Page, Route } from '@playwright/test';

@@ -7,7 +7,6 @@ import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-reado
 
 // Migrated unchanged from apps/workplace/e2e/local/codex-wpa-next20-landing-schedule-draft.spec.ts (accepted: wpa-batch10c (+ visitor rerun)); only this setting's tests.
 
-// CODEX OWNED DRAFT (continued by Claude). NOT RUN. No accepted coverage credit.
 // Baseline reconciliation: 45 ledger PASS keys + desks.use_assets + 28 recent
 // WPA keys = 74. All target keys below are active ledger entries outside that
 // union and outside Copilot's ten room/visitor expansion targets.

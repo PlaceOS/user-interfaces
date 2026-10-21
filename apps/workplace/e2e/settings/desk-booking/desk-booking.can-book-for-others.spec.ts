@@ -223,7 +223,6 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 
 
 // Current runtime: desk-flow-new/desk-flow-details.component.ts.
-// DRAFT adaptation: not runtime validated. Backend localhost:9443 was unavailable.
 // Auto-allocation is pinned only to expose the desktop details controls. Never
 // click the parent's confirmation action, select a resource, or save a booking.
 async function openDesk(page: Page, audit: Audit, overrides: Settings) {

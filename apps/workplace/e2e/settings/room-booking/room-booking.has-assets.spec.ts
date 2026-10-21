@@ -1,4 +1,3 @@
-// NOT RUN — awaiting manual validation. Preparation only: no checks or runtime execution.
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
 import type { Locator, Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';

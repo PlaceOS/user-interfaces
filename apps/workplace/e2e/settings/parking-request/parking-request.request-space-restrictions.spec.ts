@@ -6,7 +6,6 @@ import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-reado
 
 // Migrated unchanged from apps/workplace/e2e/local/claude-wpa-next25-parking-request-draft.spec.ts (accepted: wpa-next25-P1/P5/P6/P7); only this setting's tests.
 
-// CLAUDE OWNED DRAFT. NOT RUN. No accepted coverage credit until a controlled run passes.
 // Target: 13 parking REQUEST form keys (route /#/book/parking-request/form).
 // Consumer: apps/workplace/src/app/book/parking-request-flow/
 //   parking-request-form-details.component.ts:1343-1403, 1600-1617 (signals),

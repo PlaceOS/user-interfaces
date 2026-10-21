@@ -7,7 +7,6 @@ import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-reado
 // Migrated unchanged from apps/workplace/e2e/local/claude-wpa-next25-lockers-draft.spec.ts (accepted: wpa-next25-L1..L4 (+ reruns)); only this setting's tests.
 
 
-// CLAUDE OWNED DRAFT. NOT RUN. No accepted coverage credit until a controlled run passes.
 // Target: 8 lockers.* keys. Routes: /#/book/locker/form, /#/book/locker/success.
 // Nothing is submitted; the success page reads a browser-only sessionStorage seed.
 type Settings = Record<string, unknown>;

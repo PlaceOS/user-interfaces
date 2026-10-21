@@ -4,7 +4,7 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// DRAFT / NOT EXECUTED. SettingsService._applyTheme and topbar.logo select
+// SettingsService._applyTheme and topbar.logo select
 // light/dark branding. app.component's @defer and ChatComponent.can_show gate
 // the chat launcher. No theme control or chat control is clicked.
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
