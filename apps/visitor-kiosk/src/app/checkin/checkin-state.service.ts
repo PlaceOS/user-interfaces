@@ -8,6 +8,7 @@ import {
     notifyError,
     notifySuccess,
     OrganisationService,
+    withTimeout,
 } from '@placeos/common';
 import { addMinutes, getUnixTime, isSameDay } from 'date-fns';
 
@@ -20,6 +21,9 @@ import {
 } from '@placeos/bookings';
 import { SpacePipe } from '@placeos/events';
 import { showGuest } from '@placeos/users';
+
+/** Time to wait for a guest and event lookup before the kiosk shows an error */
+const LOOKUP_TIMEOUT_MS = 10_000;
 
 export interface CheckinGuestDetails {
     host: string;
@@ -67,6 +71,8 @@ export class CheckinStateService {
     public readonly error = this._error.asReadonly();
 
     public metadata = '';
+    /** ID of the latest lookup. Results from older lookups are ignored. */
+    private _lookup_id = 0;
 
     constructor() {
         // Keep every key defined so signal-forms never drops a sub-field bound
@@ -104,20 +110,33 @@ export class CheckinStateService {
         this._error.set(message);
     }
 
-    /** Load guest and event data */
+    /**
+     * Load guest and event data into the check-in state.
+     * Rejects if the lookup takes longer than `LOOKUP_TIMEOUT_MS`, or if a
+     * newer lookup starts first.
+     */
     public async loadGuestAndEvent(email: string, event_id?: string) {
+        const id = ++this._lookup_id;
+        const result = await withTimeout(
+            this._findGuestAndEvent(email, event_id),
+            LOOKUP_TIMEOUT_MS,
+            'Request timed out. Please try again.',
+        );
+        if (id !== this._lookup_id) throw new Error('Lookup was replaced.');
+        this._guest.set(result.guest);
+        this._booking.set(result.event);
+        this.form.set(guestDetailsForm(result.guest, result.event.user_email));
+        return result;
+    }
+
+    /** Find the guest and their event. Does not change the check-in state. */
+    private async _findGuestAndEvent(email: string, event_id?: string) {
         const guest = await showGuest(email);
         if (!guest.booking && event_id) {
             const event = await showBooking(event_id);
-            this._guest.set(guest);
-            this._booking.set(event);
-            this.form.set(guestDetailsForm(guest, event.user_email));
             return { guest, event };
         }
         if (guest.booking) {
-            this._guest.set(guest);
-            this._booking.set(guest.booking);
-            this.form.set(guestDetailsForm(guest, guest.booking.user_email));
             return { guest, event: guest.booking };
         }
         // Without a zone, the API lists only the kiosk account's own bookings
@@ -139,9 +158,6 @@ export class CheckinStateService {
         if (todays_events.length <= 0) {
             throw new Error(i18n('APP.VISITOR_KIOSK.NOT_FOUND', { email }));
         }
-        this._guest.set(guest);
-        this._booking.set(todays_events[0]);
-        this.form.set(guestDetailsForm(guest, todays_events[0].user_email));
         return { guest, event: todays_events[0] };
     }
 

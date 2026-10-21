@@ -306,53 +306,17 @@ export class CheckinQRScanComponent
             return;
         }
         if (!/^\d+$/.test(event_id)) event_id = undefined;
-        await this._checkin
-            .loadGuestAndEvent(visitor_email, event_id)
-            .catch((err) => {
-                this.handleError(err.message || err);
+        try {
+            await this._checkin.loadGuestAndEvent(visitor_email, event_id);
+            if (!this._destroyed) this._routeForEvent();
+        } catch (err) {
+            if (this._destroyed) return;
+            this.handleError(err instanceof Error ? err.message : err);
+        } finally {
+            if (!this._destroyed) {
                 this.checking_code.set(false);
-                throw err;
-            });
-        const event = this._checkin.event();
-        if (!event) {
-            this.handleError('Unable to find visitor booking.');
-            this.checking_code.set(false);
-            return;
-        }
-        if (event.rejected) {
-            this.handleError('Your meeting has been rejected.');
-            this.checking_code.set(false);
-            return;
-        }
-        if (event.checked_out_at) {
-            this.handleError('Your meeting has already finished.');
-            this.checking_code.set(false);
-            return;
-        }
-        if (this.flow === 'checkout') {
-            if (!event.checked_in_at) {
-                this.handleError('You have not checked in yet.');
-                this.checking_code.set(false);
-                return;
             }
-            this._router.navigate(['/checkout', 'confirm']);
-            return;
         }
-        if (event.checked_in_at) {
-            this.handleError('You are already checked in.');
-            this.checking_code.set(false);
-            return;
-        }
-        if (
-            this.is_induction_enabled() &&
-            event?.induction !== 'accepted' &&
-            !this.induction_after_details()
-        ) {
-            this._router.navigate(['/checkin', 'induction']);
-        } else {
-            this._router.navigate(['/checkin', 'details']);
-        }
-        this.checking_code.set(false);
     }
 
     public async checkEmail(email: string) {
@@ -366,42 +330,46 @@ export class CheckinQRScanComponent
         this.checking_code.set(true);
         try {
             await this._checkin.loadGuestAndEvent(email);
-        } catch {
+            if (!this._destroyed) this._routeForEvent();
+        } catch (err) {
+            if (this._destroyed) return;
             this.handleError(
-                'Unable to find visitor or a meeting associated with the given email address.',
+                err instanceof Error
+                    ? err.message
+                    : 'Unable to find visitor or a meeting associated with the given email address.',
             );
-            this.checking_code.set(false);
-            return;
+        } finally {
+            if (!this._destroyed) {
+                this.checking_code.set(false);
+            }
         }
+    }
+
+    /** Send the visitor to the next step for the loaded event, or show an error */
+    private _routeForEvent() {
         const event = this._checkin.event();
         if (!event) {
             this.handleError('Unable to find visitor booking.');
-            this.checking_code.set(false);
             return;
         }
         if (event.rejected) {
             this.handleError('Your meeting has been rejected.');
-            this.checking_code.set(false);
             return;
         }
         if (event.checked_out_at) {
             this.handleError('Your meeting has already finished.');
-            this.checking_code.set(false);
             return;
         }
         if (this.flow === 'checkout') {
             if (!event.checked_in_at) {
                 this.handleError('You have not checked in yet.');
-                this.checking_code.set(false);
                 return;
             }
-            this.checking_code.set(false);
             this._router.navigate(['/checkout', 'confirm']);
             return;
         }
         if (event.checked_in_at) {
             this.handleError('You are already checked in.');
-            this.checking_code.set(false);
             return;
         }
         if (
@@ -413,7 +381,6 @@ export class CheckinQRScanComponent
         } else {
             this._router.navigate(['/checkin', 'details']);
         }
-        this.checking_code.set(false);
     }
 
     private async setupQRReader() {
