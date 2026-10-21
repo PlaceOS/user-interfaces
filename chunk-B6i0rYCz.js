@@ -1,0 +1,3 @@
+var r={international:[`app.visitors.allow_international`,`app.events.allow_international`],visitor_internal_or_external:[`app.visitors.allow_visitor_internal_or_external`,`app.events.allow_attendee_internal_or_external`]};function i(e,a,n){return r[n].some(t=>!!e.get(t))?!0:(a||[]).some(t=>n===`international`?!!t.extension_data?.international:t.extension_data?.visitor_internal_or_external===`external`)}export{i as t};
+//# debugId=790b4b0c-92f8-5867-bd33-89ee6979ed92
+//# sourceMappingURL=chunk-B6i0rYCz.js.map

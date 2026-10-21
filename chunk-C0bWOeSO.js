@@ -1,3 +1,0 @@
-import{f as Ce,nr as ns}from"./chunk-1EQRFgKO.js";function l(n,t,o){let[s,e]=Ce(o?.in,n,t),c=r(s,e),g=Math.abs(ns(s,e));s.setDate(s.getDate()-c*g);let u=c*(g-+(r(s,e)===-c));return u===0?0:u}function r(n,t){let o=n.getFullYear()-t.getFullYear()||n.getMonth()-t.getMonth()||n.getDate()-t.getDate()||n.getHours()-t.getHours()||n.getMinutes()-t.getMinutes()||n.getSeconds()-t.getSeconds()||n.getMilliseconds()-t.getMilliseconds();return o<0?-1:o>0?1:o}export{l as t};
-//# debugId=bec68b28-303d-5c4b-bac7-b3f7e8baaf38
-//# sourceMappingURL=chunk-C0bWOeSO.js.map
