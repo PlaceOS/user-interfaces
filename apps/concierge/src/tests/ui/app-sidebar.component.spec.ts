@@ -1,5 +1,5 @@
-import { signal } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { Component, signal } from '@angular/core';
+import { provideRouter, Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
@@ -17,6 +17,9 @@ vi.hoisted(() =>
     localStorage.setItem('PLACEOS.concierge.sidebar_rail', 'false'),
 );
 
+@Component({ template: '' })
+class BlankComponent {}
+
 describe('ApplicationSidebarComponent', () => {
     let spectator: Spectator<ApplicationSidebarComponent>;
     let app_settings: Record<string, unknown>;
@@ -28,7 +31,13 @@ describe('ApplicationSidebarComponent', () => {
         shallow: true,
         detectChanges: false,
         providers: [
-            provideRouter([]),
+            provideRouter([
+                { path: 'users/staff', component: BlankComponent },
+                {
+                    path: 'users/staff/emergency-contacts',
+                    component: BlankComponent,
+                },
+            ]),
             MockProvider(SettingsService, {
                 get: ((name: string) =>
                     app_settings[name]) as SettingsService['get'],
@@ -165,5 +174,26 @@ describe('ApplicationSidebarComponent', () => {
             localStorage.getItem('PLACEOS.concierge.sidebar_rail'),
         ).toBe('true');
         spectator.component.toggleRail();
+    });
+
+    it('should mark the staff link active with query params but not on its child page', async () => {
+        app_settings['app.features'] = ['internal-users', 'emergency-contacts'];
+        const router = spectator.inject(Router);
+        const staff_link = () =>
+            spectator.query('a[href="/users/staff"]') as HTMLElement;
+
+        const visit = async (url: string) => {
+            await router.navigateByUrl(url);
+            spectator.detectChanges();
+            // The active class updates in a microtask after navigation
+            await spectator.fixture.whenStable();
+            spectator.detectChanges();
+        };
+
+        await visit('/users/staff?zone_ids=lvl-1');
+        expect(staff_link()).toHaveClass('active');
+
+        await visit('/users/staff/emergency-contacts');
+        expect(staff_link()).not.toHaveClass('active');
     });
 });

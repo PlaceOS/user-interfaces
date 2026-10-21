@@ -105,7 +105,7 @@ const EMPTY = [];
                         [class.bg-secondary!]="view() === 'timeline'"
                         [class.text-secondary-content]="view() === 'timeline'"
                         [class.opacity-70]="view() !== 'timeline'"
-                        [matTooltip]="'COMMON.DAY' | translate"
+                        [matTooltip]="'APP.CONCIERGE.VIEW_TIMELINE' | translate"
                         (click)="setView('timeline')"
                     >
                         <icon class="text-2xl">view_timeline</icon>

@@ -36,6 +36,8 @@ interface SidebarLink {
     name: string;
     route: string[];
     icon: string;
+    /** Only show as active on the route itself, not on its child routes. Query params are ignored */
+    exact?: boolean;
 }
 
 /** Collapsible group of links. Shows when one or more of its links show */
@@ -249,6 +251,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 name: 'APP.CONCIERGE.MENU_USER_LIST',
                 route: ['/users/staff'],
                 icon: 'assignment_ind',
+                exact: true,
             },
             {
                 id: 'events',
@@ -388,6 +391,12 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                             [class.justify-center]="rail()"
                             [routerLink]="link.route"
                             routerLinkActive="active"
+                            [routerLinkActiveOptions]="{
+                                paths: link.exact ? 'exact' : 'subset',
+                                queryParams: 'subset',
+                                matrixParams: 'ignored',
+                                fragment: 'ignored',
+                            }"
                             [attr.aria-label]="
                                 rail() ? (link.name | translate) : null
                             "
@@ -463,9 +472,6 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 <icon class="text-2xl">{{
                     rail() ? 'left_panel_open' : 'left_panel_close'
                 }}</icon>
-            </button>
-            <button btn icon matRipple>
-                <icon class="text-2xl">notifications</icon>
             </button>
         </div>
     `,

@@ -253,7 +253,7 @@ export class VisitorsStateService extends AsyncHandler {
                 content: `Decline attendance of ${
                     item.asset_name || item.asset_id
                 } to their meeting?`,
-                icon: { content: 'event_available' },
+                icon: { content: 'event_busy' },
             },
             this._dialog,
         );
@@ -266,7 +266,7 @@ export class VisitorsStateService extends AsyncHandler {
             details.close();
             throw e;
         });
-        notifySuccess(`Successfully declining visitor`);
+        notifySuccess(`Successfully declined visitor`);
         this.poll();
         details.close();
     }
