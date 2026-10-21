@@ -16,8 +16,7 @@ Set settings in Backoffice zone metadata under `concierge_app` for the standard 
 | `currency` | string | `"USD"` | Default currency code for pricing, e.g. on catering orders. |
 | `use_24_hour_time` | boolean | `false` | Display times using a 24 hour clock. |
 | `week_start` | number | – | Day of the week that calendars and week views start on: `0` for Sunday through `6` for Saturday. Defaults to `0`. |
-| `use_region` | boolean | – | Scope data to the active region instead of the active building. Affects desks, parking, lockers, visitors, signage, reports and other listings. |
-| `hide_sidebar` | boolean | – | Hide the application sidebar. Currently applied on the signage management view. |
+| `use_region` | boolean | – | Scope data to the active region instead of the active building. Affects desks, parking, lockers, visitors, reports and other listings. |
 | `banner` | object | – | Message banner shown at the top of the app. Set `content` (or `message`) to the text and `type` to `info`, `warn` or `error`. `type` defaults to `info`. When a user closes the banner, it stays closed until `id` changes. The settings form sets `id` to the date and hour of the edit. |
 
 ```json
@@ -56,7 +55,7 @@ Each locale entry requires an `id` and `name`:
 |---|---|---|---|
 | `features` | string[] | See [feature values](#feature-values) | List of features enabled in the app. Each value shows the sidebar links with the same ID. A sidebar group shows when one or more of its links show. |
 | `feature_groups` | object | – | Maps feature names to the user groups allowed to access them, e.g. `parking-requests`. Features without an entry are available to all users. |
-| `admin_group` | string | `"concierge_admins"` | Name of the user group that grants access to admin sections of the app, such as the management group of the sidebar. Members of `placeos_admin` and `placeos_support` are also admin in the sidebar and the parking pages. The signage playlist media list allows `placeos_admin` but not `placeos_support`. When no settings source sets it, the app uses `admin`. |
+| `admin_group` | string | `"concierge_admins"` | Name of the user group that grants access to admin sections of the app, such as the management group of the sidebar. Members of `placeos_admin` and `placeos_support` are also admin in the sidebar and the parking pages. When no settings source sets it, the app uses `admin`. |
 | `has_uploads` | boolean | `true` | Whether file upload support (S3/cloud storage) is available in the app. |
 | `bulk_actions` | boolean | `false` | Let staff select several rows and apply one action to all of them. Desk, parking and locker bookings, parking requests and asset requests get approve and reject actions. Catering orders get a status action. |
 | `map_studio_url` | string | – | Where the `Open in Map Studio` links in Map Management go. Defaults to `/map-studio/`. |
@@ -79,7 +78,6 @@ Each locale entry requires an `id` and `name`:
 | `maps` | Map management | Yes |
 | `points` | Points management | Yes |
 | `emergency-contacts` | Emergency contacts | No |
-| `signage` | Signage management | Yes |
 | `points-of-interest` | Map features | No |
 | `url-management` | URL management | No |
 | `email-templates` | Email templates | Yes |
@@ -377,6 +375,5 @@ Settings for linking Concierge to the other PlaceOS applications and metadata so
 | `workplace_url_path` | string | – | URL path of the Workplace app, used when generating desk QR code links. Defaults to `/workplace`. |
 | `public_url_path` | string | – | URL path of the Public app, used for public links to group events. Defaults to `/public`. |
 | `kiosk_url_path` | string | – | URL path of the Map Kiosk app, used when generating point of interest and short URL links. Defaults to `/map-kiosk`. |
-| `signage_path` | string | – | URL path of the Signage app, used when generating signage display URLs. Defaults to `/signage`. |
 | `control_path` | string | – | URL path of the room control app, used for links from the room manager listing. |
 | `short_url_public_key` | string | – | Public key used when generating short URLs for points of interest. |

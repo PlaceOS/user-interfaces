@@ -153,9 +153,6 @@ import { UploadButtonComponent } from './upload-button.component';
                                 <mat-option value="emergency-contacts">
                                     Emergency Contacts
                                 </mat-option>
-                                <mat-option value="signage">
-                                    Digital Signage
-                                </mat-option>
                                 <mat-option value="email-templates">
                                     Email Templates
                                 </mat-option>
@@ -341,16 +338,6 @@ import { UploadButtonComponent } from './upload-button.component';
                                     matInput
                                     [formField]="form.control_path"
                                     placeholder="/control"
-                                />
-                            </mat-form-field>
-                        </div>
-                        <div>
-                            <label for="signage-path">Signage URL Path</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <input
-                                    matInput
-                                    [formField]="form.signage_path"
-                                    placeholder="/signage"
                                 />
                             </mat-form-field>
                         </div>
@@ -1885,7 +1872,6 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         kiosk_url_path: '',
         short_url_public_key: '',
         control_path: '',
-        signage_path: '',
         workplace_url_path: '',
         public_url_path: '',
         admin_group: '',

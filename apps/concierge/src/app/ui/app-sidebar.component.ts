@@ -204,12 +204,6 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 icon: 'contact_emergency',
             },
             {
-                id: 'signage',
-                name: 'APP.CONCIERGE.MENU_MANAGE_SIGNAGE',
-                route: ['/signage'],
-                icon: 'tv',
-            },
-            {
                 id: 'points-of-interest',
                 name: 'APP.CONCIERGE.MENU_MANAGE_MAP_FEATURES',
                 route: ['/points-of-interest'],

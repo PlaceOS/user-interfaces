@@ -29,7 +29,6 @@ const app = {
         'booking-report',
         'attendance-report',
         'contact-tracing-report',
-        'signage',
         'email-templates',
     ],
     has_uploads: true,

@@ -188,13 +188,5 @@ export const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
-    {
-        path: 'signage',
-        title: 'Signage',
-        loadChildren: () =>
-            import('./signage/signage.routes').then((m) => m.ROUTES),
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-    },
     { path: '**', redirectTo: '-' },
 ];
