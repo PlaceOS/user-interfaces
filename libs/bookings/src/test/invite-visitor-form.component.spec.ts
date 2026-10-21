@@ -302,6 +302,9 @@ describe('InviteVisitorFormComponent', () => {
         spectator.component.setVisitor({
             email: 'carol@example.com',
             name: 'Carol',
+            company: '',
+            phone: '',
+            international: false,
             visitor_internal_or_external: 'external',
         });
 
@@ -363,6 +366,39 @@ describe('InviteVisitorFormComponent', () => {
         );
         const [, visitors] = (settings.saveUserSetting as Mock).mock.calls[0];
         expect(`${visitors[0]}`.endsWith('|external')).toBe(true);
+        (settings.get as Mock).mockImplementation(() => undefined);
+    });
+
+    it('should keep the saved internal or external type for group visitors from the history', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation((key: string) => {
+            if (key === 'app.bookings.multiple_visitors') return true;
+            if (key === 'visitor-invitees')
+                return ['visitor.one@example.com|Visitor One||0||external'];
+            return undefined;
+        });
+        await spectator.component.ngOnInit();
+        service.model.update((m) => ({
+            ...m,
+            asset_id: 'multiple@place.tech',
+            asset_name: 'Multiple Visitors',
+            title: 'Visit',
+            // The user list parses only the first 4 history fields.
+            assets: [
+                new User({
+                    name: 'Visitor One',
+                    email: 'visitor.one@example.com',
+                }),
+            ],
+        }));
+
+        await spectator.component.sendInvite();
+
+        const [, visitors] = (settings.saveUserSetting as Mock).mock.calls[0];
+        expect(visitors.at(-1)).toBe(
+            'visitor.one@example.com|Visitor One||0||external',
+        );
         (settings.get as Mock).mockImplementation(() => undefined);
     });
 
@@ -1004,6 +1040,52 @@ describe('InviteVisitorFormComponent', () => {
 
         expect(service.model().assets).toHaveLength(1);
         expect(service.model().assets[0].email).toBe('visitor.two@example.com');
+    });
+
+    it('should use the sibling internal or external type when the sibling lookup lands late', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        let resolve_siblings: (_: Booking[]) => void;
+        (service.loadGroupSiblings as Mock).mockImplementation(
+            () => new Promise((resolve) => (resolve_siblings = resolve)),
+        );
+        (service as any).booking = new Booking({
+            id: 'booking-parent',
+            extension_data: {
+                group_members: [
+                    { name: 'Visitor One', email: 'visitor.one@example.com' },
+                ],
+            },
+        });
+        service.model.update((m) => ({
+            ...m,
+            id: 'booking-parent',
+            booking_type: 'visitor',
+            date: Date.now(),
+            duration: 60,
+            asset_id: 'visitor.one@example.com',
+            asset_name: 'Visitor One',
+        }));
+
+        await spectator.component.ngOnInit();
+        resolve_siblings([
+            new Booking({
+                id: 'booking-parent',
+                asset_name: 'Visitor One',
+                asset_id: 'visitor.one@example.com',
+                extension_data: { visitor_internal_or_external: 'external' },
+            }),
+        ]);
+        await wait(0);
+
+        expect(
+            spectator.component.visitor_internal_or_external()[
+                'visitor.one@example.com'
+            ],
+        ).toBe('external');
     });
 
     it('should drop duplicate visitors when seeding the list from a booking', async () => {

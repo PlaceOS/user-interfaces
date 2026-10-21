@@ -6,9 +6,9 @@ import {
     Injector,
     input,
     linkedSignal,
+    OnInit,
     output,
     signal,
-    OnInit,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required, validate } from '@angular/forms/signals';
@@ -53,13 +53,22 @@ import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-f
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { BookingFormService } from './booking-form.service';
 import {
     bookingHostUser,
     toVisitorInternalOrExternal,
     VisitorInternalOrExternal,
 } from './booking-form.model';
-import { parseRecentVisitors, recentVisitorEntry } from './recent-visitors';
+import { BookingFormService } from './booking-form.service';
+import {
+    mapGroupMembersFromBookings,
+    mapGroupMembersFromExtension,
+} from './booking-group.utilities';
+import {
+    normaliseVisitorEmail,
+    parseRecentVisitors,
+    RecentVisitor,
+    recentVisitorEntry,
+} from './recent-visitors';
 
 @Component({
     selector: `invite-visitor-form`,
@@ -739,8 +748,8 @@ export class InviteVisitorFormComponent implements OnInit {
     public readonly buildings = this._org.building_list;
     public readonly last_success = signal(this._service.last_success);
     public readonly last_count = signal(0);
-    private visitors = [];
-    public readonly filtered_visitors = signal<any[]>([]);
+    private visitors: RecentVisitor[] = [];
+    public readonly filtered_visitors = signal<RecentVisitor[]>([]);
     public readonly visitor_international = signal<Record<string, boolean>>({});
     public readonly visitor_internal_or_external = signal<
         Record<string, VisitorInternalOrExternal>
@@ -964,7 +973,7 @@ export class InviteVisitorFormComponent implements OnInit {
             }));
     }
 
-    public setVisitor(item) {
+    public setVisitor(item: RecentVisitor) {
         this.model.update((m) => ({
             ...m,
             asset_id: item.email,
@@ -972,9 +981,7 @@ export class InviteVisitorFormComponent implements OnInit {
             company: item.company,
             phone: item.phone,
             international: !!item.international,
-            visitor_internal_or_external: toVisitorInternalOrExternal(
-                item.visitor_internal_or_external,
-            ),
+            visitor_internal_or_external: item.visitor_internal_or_external,
         }));
     }
 
@@ -1018,7 +1025,10 @@ export class InviteVisitorFormComponent implements OnInit {
     }
 
     public setSingleVisitorInternalOrExternal(type: VisitorInternalOrExternal) {
-        this.model.update((m) => ({ ...m, visitor_internal_or_external: type }));
+        this.model.update((m) => ({
+            ...m,
+            visitor_internal_or_external: type,
+        }));
     }
 
     public setVisitorInternalOrExternal(
@@ -1195,8 +1205,9 @@ export class InviteVisitorFormComponent implements OnInit {
             if (this.multiple()) {
                 // Populate quickly from cached booking extension data, then
                 // refresh from sibling bookings without blocking form display.
-                const extension_visitors = this._visitorsFromGroupMembers(
+                const extension_visitors = mapGroupMembersFromExtension(
                     booking_ref?.extension_data?.group_members || [],
+                    true,
                 );
                 if (extension_visitors.length) {
                     this._setLoadedVisitors(extension_visitors);
@@ -1252,56 +1263,16 @@ export class InviteVisitorFormComponent implements OnInit {
         this._existing_siblings =
             await this._service.loadGroupSiblings(booking_ref);
         if (!this._existing_siblings.length) return;
-        const visitors = this._existing_siblings.map((s) => {
-            const group_member = (s.extension_data?.group_members || []).find(
-                (member) => member?.email === s.asset_id,
-            );
-            return new User({
-                name: group_member?.name || s.asset_name || s.asset_id,
-                email: s.asset_id,
-                organisation:
-                    group_member?.company || s.extension_data?.company,
-                phone: group_member?.phone || s.extension_data?.phone,
-                extension_data: {
-                    international: !!(
-                        group_member?.international ||
-                        s.extension_data?.international
-                    ),
-                    visitor_internal_or_external:
-                        toVisitorInternalOrExternal(
-                            group_member?.visitor_internal_or_external ||
-                                s.extension_data?.visitor_internal_or_external,
-                        ),
-                },
-            });
-        });
+        const visitors = mapGroupMembersFromBookings(
+            this._existing_siblings,
+            true,
+        );
         // The lookup is fired without blocking form display, so the user may
         // have already added or removed a visitor by the time it lands. Only
         // overwrite the list this component seeded itself. (PPT-2634)
         const current = this.model().assets as User[];
         if (this._loaded_visitors && current !== this._loaded_visitors) return;
         this._setLoadedVisitors(visitors);
-    }
-
-    private _visitorsFromGroupMembers(members: any[] = []) {
-        return (members || [])
-            .filter((member) => !!member?.email)
-            .map(
-                (member) =>
-                    new User({
-                        name: member.name || member.email,
-                        email: member.email,
-                        organisation: member.company || '',
-                        phone: member.phone || '',
-                        extension_data: {
-                            international: !!member.international,
-                            visitor_internal_or_external:
-                                toVisitorInternalOrExternal(
-                                    member.visitor_internal_or_external,
-                                ),
-                        },
-                    }),
-            );
     }
 
     private async _bookForOne() {
@@ -1420,12 +1391,12 @@ export class InviteVisitorFormComponent implements OnInit {
     private getVisitorInternalOrExternal(
         item: User,
     ): VisitorInternalOrExternal {
-        const key = item?.email || item?.id;
-        if (key && key in this.visitor_internal_or_external()) {
-            return this.visitor_internal_or_external()[key];
-        }
+        // Visitors from the user list have no stored type. Use the history.
         return toVisitorInternalOrExternal(
-            item?.extension_data?.visitor_internal_or_external,
+            item?.extension_data?.visitor_internal_or_external ??
+                this.visitors.find(
+                    (_) => _.email === normaliseVisitorEmail(item?.email),
+                )?.visitor_internal_or_external,
         );
     }
 
