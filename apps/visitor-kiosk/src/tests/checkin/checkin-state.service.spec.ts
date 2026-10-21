@@ -83,6 +83,26 @@ describe('CheckinStateService', () => {
         );
     });
 
+    it('ignores a guest lookup that times out', async () => {
+        vi.useFakeTimers();
+        let resolveGuest: (value: unknown) => void;
+        vi.mocked(get).mockImplementationOnce(
+            () => new Promise((resolve) => (resolveGuest = resolve)) as any,
+        );
+        const lookup = expect(
+            spectator.service.loadGuestAndEvent('a@b.com', 'event-1234'),
+        ).rejects.toThrow('Request timed out');
+
+        await vi.advanceTimersByTimeAsync(10_000);
+        await lookup;
+        resolveGuest({});
+        await vi.runAllTimersAsync();
+
+        expect(spectator.service.event()).toBeNull();
+        expect(spectator.service.guest()).toBeNull();
+        vi.useRealTimers();
+    });
+
     it('should allow updating guests', async () => {
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
         await spectator.service.updateGuest({ one: true });

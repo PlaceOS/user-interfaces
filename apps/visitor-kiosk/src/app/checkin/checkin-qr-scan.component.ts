@@ -263,8 +263,6 @@ export class CheckinQRScanComponent
     private _last_motion_time = -MOTION_HOLD_MS;
     private _last_decode_time = -STILL_DECODE_INTERVAL_MS;
     private _destroyed = false;
-    private _check_timeout: ReturnType<typeof setTimeout> | null = null;
-    private readonly _check_timeout_ms = 10000;
 
     public ngAfterViewInit() {
         this._checkin.metadata = '';
@@ -274,7 +272,6 @@ export class CheckinQRScanComponent
     public ngOnDestroy() {
         this._destroyed = true;
         this.stopQRReader();
-        this._clearCheckTimeout();
         this._camera?.stop();
         this._camera = null;
         this._decoder?.clear();
@@ -288,29 +285,10 @@ export class CheckinQRScanComponent
         if (video_el) video_el.srcObject = null;
     }
 
-    private _startCheckTimeout() {
-        this._clearCheckTimeout();
-        if (this._destroyed) return;
-        this._check_timeout = setTimeout(() => {
-            if (this._destroyed || !this.checking_code()) return;
-            this.handleError('Request timed out. Please try again.');
-            this.checking_code.set(false);
-            void this.setupQRReader();
-        }, this._check_timeout_ms);
-    }
-
-    private _clearCheckTimeout() {
-        if (this._check_timeout) {
-            clearTimeout(this._check_timeout);
-            this._check_timeout = null;
-        }
-    }
-
     public async checkQRCode(raw_text: string) {
         if (this.checking_code()) return;
         this.stopQRReader();
         this.checking_code.set(true);
-        this._startCheckTimeout();
         const chunks = raw_text.split(',');
         let [visit_block, , event_id] = chunks;
         const visit_parts = visit_block.split(':');
@@ -323,7 +301,6 @@ export class CheckinQRScanComponent
         ).trim();
         if (!visitor_email && !event_id) {
             notifyError('Invalid QRCode');
-            this._clearCheckTimeout();
             void this.setupQRReader();
             this.checking_code.set(false);
             return;
@@ -331,46 +308,11 @@ export class CheckinQRScanComponent
         if (!/^\d+$/.test(event_id)) event_id = undefined;
         try {
             await this._checkin.loadGuestAndEvent(visitor_email, event_id);
+            if (!this._destroyed) this._routeForEvent();
+        } catch (err) {
             if (this._destroyed) return;
-            const event = this._checkin.event();
-            if (!event) {
-                this.handleError('Unable to find visitor booking.');
-                return;
-            }
-            if (event.rejected) {
-                this.handleError('Your meeting has been rejected.');
-                return;
-            }
-            if (event.checked_out_at) {
-                this.handleError('Your meeting has already finished.');
-                return;
-            }
-            if (this.flow === 'checkout') {
-                if (!event.checked_in_at) {
-                    this.handleError('You have not checked in yet.');
-                    return;
-                }
-                this._router.navigate(['/checkout', 'confirm']);
-                return;
-            }
-            if (event.checked_in_at) {
-                this.handleError('You are already checked in.');
-                return;
-            }
-            if (
-                this.is_induction_enabled() &&
-                event?.induction !== 'accepted' &&
-                !this.induction_after_details()
-            ) {
-                this._router.navigate(['/checkin', 'induction']);
-            } else {
-                this._router.navigate(['/checkin', 'details']);
-            }
-        } catch (err: any) {
-            if (this._destroyed) return;
-            this.handleError(err?.message || err);
+            this.handleError(err instanceof Error ? err.message : err);
         } finally {
-            this._clearCheckTimeout();
             if (!this._destroyed) {
                 this.checking_code.set(false);
             }
@@ -386,55 +328,58 @@ export class CheckinQRScanComponent
         )
             return;
         this.checking_code.set(true);
-        this._startCheckTimeout();
         try {
             await this._checkin.loadGuestAndEvent(email);
-            if (this._destroyed) return;
-            const event = this._checkin.event();
-            if (!event) {
-                this.handleError('Unable to find visitor booking.');
-                return;
-            }
-            if (event.rejected) {
-                this.handleError('Your meeting has been rejected.');
-                return;
-            }
-            if (event.checked_out_at) {
-                this.handleError('Your meeting has already finished.');
-                return;
-            }
-            if (this.flow === 'checkout') {
-                if (!event.checked_in_at) {
-                    this.handleError('You have not checked in yet.');
-                    return;
-                }
-                this._router.navigate(['/checkout', 'confirm']);
-                return;
-            }
-            if (event.checked_in_at) {
-                this.handleError('You are already checked in.');
-                return;
-            }
-            if (
-                event.induction !== 'accepted' &&
-                this.is_induction_enabled() &&
-                !this.induction_after_details()
-            ) {
-                this._router.navigate(['/checkin', 'induction']);
-            } else {
-                this._router.navigate(['/checkin', 'details']);
-            }
-        } catch (err: any) {
+            if (!this._destroyed) this._routeForEvent();
+        } catch (err) {
             if (this._destroyed) return;
             this.handleError(
-                err?.message ||
-                    'Unable to find visitor or a meeting associated with the given email address.',
+                err instanceof Error
+                    ? err.message
+                    : 'Unable to find visitor or a meeting associated with the given email address.',
             );
         } finally {
-            this._clearCheckTimeout();
             if (!this._destroyed) {
                 this.checking_code.set(false);
             }
+        }
+    }
+
+    /** Send the visitor to the next step for the loaded event, or show an error */
+    private _routeForEvent() {
+        const event = this._checkin.event();
+        if (!event) {
+            this.handleError('Unable to find visitor booking.');
+            return;
+        }
+        if (event.rejected) {
+            this.handleError('Your meeting has been rejected.');
+            return;
+        }
+        if (event.checked_out_at) {
+            this.handleError('Your meeting has already finished.');
+            return;
+        }
+        if (this.flow === 'checkout') {
+            if (!event.checked_in_at) {
+                this.handleError('You have not checked in yet.');
+                return;
+            }
+            this._router.navigate(['/checkout', 'confirm']);
+            return;
+        }
+        if (event.checked_in_at) {
+            this.handleError('You are already checked in.');
+            return;
+        }
+        if (
+            event.induction !== 'accepted' &&
+            this.is_induction_enabled() &&
+            !this.induction_after_details()
+        ) {
+            this._router.navigate(['/checkin', 'induction']);
+        } else {
+            this._router.navigate(['/checkin', 'details']);
         }
     }
 
