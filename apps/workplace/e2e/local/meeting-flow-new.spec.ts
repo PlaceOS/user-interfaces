@@ -124,8 +124,9 @@ test.describe('room booking — the new flow', () => {
         staffPage,
     }) => {
         const flow = new MeetingFlow(staffPage);
-        // The error notice is the signal of a refusal. "The flow is still on
-        // this step" is also true before the click, so it proves nothing alone.
+        // An error is the signal of a refusal: inline on the title, a notice
+        // for the room. "The flow is still on this step" is also true before
+        // the click, so it proves nothing alone.
         const refusal = staffPage.locator('mat-snack-bar-container.error');
         const posts: string[] = [];
         staffPage.on('request', (request) => {
@@ -136,14 +137,15 @@ test.describe('room booking — the new flow', () => {
         // Step 0 -> 1 needs a title.
         await flow.open();
         await expect(flow.title).toHaveValue('');
+        await expect(flow.titleError).toHaveCount(0);
         await flow.searchRooms.click();
-        await expect(refusal, 'no title: the flow shows an error notice').toBeVisible();
+        await expect(flow.titleError, 'no title: the title shows an error').toBeVisible();
+        await expect(flow.title, 'no title: the title gets the focus').toBeFocused();
         await expect(flow.details, 'no title: the flow stays on the details').toBeVisible();
         await expect(flow.roomSelect).toHaveCount(0);
 
-        // Step 1 -> 2 needs a room. The notice of the first refusal must go
-        // before the click, or it passes for the notice of this one.
-        await expect(refusal, 'the first notice did not go').toHaveCount(0);
+        // Step 1 -> 2 needs a room.
+        await expect(refusal, 'no notice is open before the room step').toHaveCount(0);
         await flow.title.fill(uniqueTitle('E2E New Room None'));
         await flow.searchRooms.click();
         await expect(flow.rooms.first(), 'the room list should offer rooms').toBeVisible({

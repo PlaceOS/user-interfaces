@@ -26,7 +26,7 @@ test.describe('Team Schedule', () => {
             timeout: LOAD_TIMEOUT,
         });
         await expect(
-            page.locator('team-schedule-filters input[placeholder="Search..."]'),
+            page.locator('team-schedule-filters mat-form-field input'),
         ).toBeVisible();
     });
 

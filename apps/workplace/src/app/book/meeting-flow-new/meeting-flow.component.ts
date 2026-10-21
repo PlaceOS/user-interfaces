@@ -38,6 +38,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                         </h3>
                         <div class="flex items-center justify-center space-x-2">
                             <a
+                                name="step-details"
                                 matRipple
                                 class="flex items-center space-x-2 rounded p-2"
                                 [routerLink]="[]"
