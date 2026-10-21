@@ -510,11 +510,17 @@ export class EventsStateService extends AsyncHandler {
         const resource_name = event.space?.display_name || event.location;
         const details = await openConfirmModal(
             {
-                title: i18n('APP.CONCIERGE.BOOKING_REMOVE_TITLE'),
-                content: i18n('APP.CONCIERGE.BOOKING_REMOVE_MSG', {
-                    name: resource_name,
-                    time,
-                }),
+                title: i18n(
+                    series
+                        ? 'APP.CONCIERGE.BOOKING_REMOVE_SERIES_TITLE'
+                        : 'APP.CONCIERGE.BOOKING_REMOVE_TITLE',
+                ),
+                content: i18n(
+                    series
+                        ? 'APP.CONCIERGE.BOOKING_REMOVE_SERIES_MSG'
+                        : 'APP.CONCIERGE.BOOKING_REMOVE_MSG',
+                    { name: resource_name, time },
+                ),
 
                 icon: { class: 'material-symbols-rounded', content: 'delete' },
             },

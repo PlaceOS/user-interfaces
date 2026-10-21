@@ -277,21 +277,25 @@ export class AssetManagerStateService extends AsyncHandler {
 
     /** Currently active asset */
     private readonly _active_product = resource({
-        params: () => ({
-            active_item: this._options().active_item,
-            building: this._org.active_building()?.id,
-            change: this._change(),
-        }),
-        defaultValue: null as AssetGroup | null,
-        loader: async ({ params }) => {
-            if (!params.active_item || !params.building) return null;
-            return showGroupFull(params.active_item, {
-                zone_id: params.building,
-            });
+        // Stay idle until both values are known, so `resolved` with a null
+        // value means the asset was not found or failed to load.
+        params: () => {
+            const active_item = this._options().active_item;
+            const building = this._org.active_building()?.id;
+            if (!active_item || !building) return undefined;
+            return { active_item, building, change: this._change() };
         },
+        defaultValue: null as AssetGroup | null,
+        // Resolve to null on failure. Reading the value of a failed resource throws.
+        loader: async ({ params }) =>
+            showGroupFull(params.active_item, {
+                zone_id: params.building,
+            }).catch(() => null),
     });
     public readonly active_product: Signal<AssetGroup | null> =
         this._active_product.value;
+    /** Load status of the active asset. Used to tell "loading" from "not found". */
+    public readonly active_product_status = this._active_product.status;
 
     /** List of requests for the currently active asset */
     public readonly active_product_requests = computed(() => {

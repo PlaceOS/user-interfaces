@@ -254,7 +254,7 @@ import { EventsStateService } from './events-state.service';
                                     </div>
                                 </button>
                             }
-                            @if (row.recurring_event_id) {
+                            @if (can_delete() && row.recurring_event_id) {
                                 <button
                                     mat-menu-item
                                     (click)="cancel(row, true)"

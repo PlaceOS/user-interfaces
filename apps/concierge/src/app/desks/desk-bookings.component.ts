@@ -17,7 +17,10 @@ import {
     canChangeDeskBooking,
     isDeskBookingRejected,
 } from './desk-booking-actions';
-import { DesksStateService } from './desks-state.service';
+import {
+    DESK_BOOKING_SEARCH_KEYS,
+    DesksStateService,
+} from './desks-state.service';
 
 @Component({
     selector: 'desk-bookings',
@@ -29,15 +32,7 @@ import { DesksStateService } from './desks-state.service';
                 class="block min-w-368 text-sm"
                 [data]="bookings()"
                 [filter]="filters().search"
-                [filter_on]="[
-                    'user_name',
-                    'asset_name',
-                    'user_email',
-                    'asset_id',
-                    'status',
-                    'group',
-                    'title',
-                ]"
+                [filter_on]="search_keys"
                 [columns]="[
                     {
                         key: 'date',
@@ -442,6 +437,7 @@ export class DeskBookingsComponent implements OnInit {
 
     public loading = signal<string>('');
     public readonly filters = this._state.filters;
+    public readonly search_keys = DESK_BOOKING_SEARCH_KEYS;
     public readonly has_more_pages = this._state.has_more_pages;
     public readonly can_delete = settingSignal('desks.allow_deleting', false);
     public readonly bookings = computed(() => {

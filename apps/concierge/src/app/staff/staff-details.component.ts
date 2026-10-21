@@ -33,7 +33,7 @@ import { StaffStateService } from './staff-state.service';
                 <div class="flex items-center">
                     <action-icon
                         [matTooltip]="
-                            (onsite() ? 'COMMON.CHECK_IN' : 'COMMON.CHECK_OUT')
+                            (onsite() ? 'COMMON.CHECK_OUT' : 'COMMON.CHECK_IN')
                                 | translate
                         "
                         [loading]="loading()"

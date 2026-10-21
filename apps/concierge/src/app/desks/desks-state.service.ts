@@ -95,6 +95,30 @@ export interface DeskQrItem {
     qr_link?: string;
 }
 
+/** Booking fields that the desk bookings search matches. */
+export const DESK_BOOKING_SEARCH_KEYS = [
+    'user_name',
+    'asset_name',
+    'user_email',
+    'asset_id',
+    'status',
+    'group',
+    'title',
+];
+
+/**
+ * True when the booking matches the search text. Uses the same rule as the
+ * bookings table filter, so bulk actions only affect the rows on screen.
+ */
+export function matchesDeskSearch(booking: Booking, search?: string) {
+    const text = search?.toLowerCase();
+    if (!text) return true;
+    const fields = booking as unknown as Record<string, unknown>;
+    return DESK_BOOKING_SEARCH_KEYS.some((key) =>
+        `${JSON.stringify(fields[key])}`.toLowerCase().includes(text),
+    );
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -771,15 +795,20 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async rejectAllDesks() {
-        const list = this.bookings().filter((desk) =>
-            canChangeDeskBooking(this._normaliseBooking(desk)),
+        const search = this._filters().search;
+        const list = this.bookings().filter(
+            (desk) =>
+                matchesDeskSearch(desk, search) &&
+                canChangeDeskBooking(this._normaliseBooking(desk)),
         );
         if (list.length <= 0)
             return notifyInfo('No desks to reject for the selected date');
         const resp = await openConfirmModal(
             {
                 title: i18n('APP.CONCIERGE.DESKS_REJECT_ALL_TITLE'),
-                content: i18n('APP.CONCIERGE.DESKS_REJECT_ALL_MSG'),
+                content: i18n('APP.CONCIERGE.DESKS_REJECT_ALL_MSG', {
+                    count: list.length,
+                }),
                 icon: {
                     type: 'icon',
                     class: 'material-symbols-rounded',

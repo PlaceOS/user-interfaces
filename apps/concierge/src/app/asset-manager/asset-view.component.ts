@@ -588,18 +588,17 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        this.timeout(
-            'no_asset',
-            () => this._router.navigate([this._state.base_route]),
-            1000,
-        );
-        // Clear the loading state and fallback navigation once the active
-        // product has resolved.
+        // Wait for the asset request to finish. Go back to the list only
+        // when the server has no such asset or the request failed.
         const ref = effect(
             () => {
-                if (!this._state.active_product()) return;
-                this.clearTimeout('no_asset');
-                this.loading.set(false);
+                const status = this._state.active_product_status();
+                if (this._state.active_product()) {
+                    this.loading.set(false);
+                } else if (status === 'resolved') {
+                    notifyError('Unable to find the selected asset.');
+                    this._router.navigate([this._state.base_route]);
+                } else return;
                 ref.destroy();
             },
             { injector: this._injector },
