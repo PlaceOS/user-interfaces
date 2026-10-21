@@ -22,7 +22,6 @@ import { LockerStateService } from './locker-state.service';
     selector: 'locker-bookings',
     template: `
         @let more_pages = has_more_pages();
-        <div class="h-4 w-full"></div>
         <div
             class="w-fit min-w-full px-8 pt-4"
             [class.pb-16]="!loading() && more_pages"

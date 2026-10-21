@@ -76,8 +76,8 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
             matRipple
             data-shortcut="today"
             (dblclick)="setDate()"
-            class="display hover:bg-base-200 relative mx-4 flex h-12 items-center justify-center rounded-sm leading-none"
-            [class.w-30]="display_mode() === 'day'"
+            class="display hover:bg-base-200 relative mx-2 flex h-12 items-center justify-center rounded-sm leading-none"
+            [class.w-36]="display_mode() === 'day'"
             [class.w-48]="display_mode() === 'week'"
         >
             @if (is_today()) {
