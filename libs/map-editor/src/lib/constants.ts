@@ -26,6 +26,7 @@ export const ATTR_ALLOW_LIST: ReadonlySet<string> = new Set([
     'font-family',
     'font-weight',
     'text-anchor',
+    'dominant-baseline',
 ]);
 
 /** Properties `set_style_rule` declarations may carry. */

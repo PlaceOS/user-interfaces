@@ -45,6 +45,8 @@ export interface MapEditorAiStrings {
     questions_title: string;
     /** Shown under a question from the model. */
     questions_hint: string;
+    /** `{count}` changes the server rejected and the AI corrected when asked again. */
+    repaired_note: string;
     keep: string;
     undo: string;
     reason_prompt: string;
@@ -189,6 +191,7 @@ export const DEFAULT_AI_STRINGS: MapEditorAiStrings = {
     questions_title: 'The AI has a question',
     questions_hint:
         'Click the element on the map to select it, then answer below; the selection is sent with your reply.',
+    repaired_note: 'Rejected changes corrected automatically: {count}',
     keep: 'Keep',
     undo: 'Undo',
     reason_prompt: 'What was wrong?',

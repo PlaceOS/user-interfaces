@@ -126,6 +126,33 @@ describe('validateProposal', () => {
         }
     });
 
+    it('accepts a dominant-baseline keyword on an inserted label and rejects any other value', async () => {
+        const label = (baseline: string): MapOp => ({
+            op: 'insert_shape',
+            why: '',
+            kind: 'text',
+            text: 'Sydney Room 1',
+            parent: { id: 'bg' },
+            attrs: [
+                { name: 'x', value: '50' },
+                { name: 'y', value: '50' },
+                { name: 'text-anchor', value: 'middle' },
+                { name: 'dominant-baseline', value: baseline },
+            ],
+            new_id: 'ai-label',
+        });
+        const doc = MapDocument.load(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g id="bg"><rect x="0" y="0" width="100" height="100"/></g></svg>`,
+            { geometry },
+        );
+        const ok = await single(label('middle'), {}, doc);
+        expect(ok.codes).toEqual([]);
+        expect(ok.row.locked).toBe(false);
+        const bad = await single(label('centre'), {}, doc);
+        expect(bad.codes).toEqual(['bad_value']);
+        expect(bad.row.locked).toBe(true);
+    });
+
     it('rejects a bad colour such as "#f28c28."', async () => {
         const bad = await single({
             op: 'set_attr',
