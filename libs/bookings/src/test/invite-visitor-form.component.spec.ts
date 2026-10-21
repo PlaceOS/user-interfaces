@@ -18,7 +18,7 @@ import { BookingFormService } from '../lib/booking-form.service';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { SettingsService } from '@placeos/common';
+import { settingSignal, SettingsService } from '@placeos/common';
 import { InviteVisitorFormComponent } from '../lib/invite-visitor-form.component';
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -133,6 +133,7 @@ describe('InviteVisitorFormComponent', () => {
     });
 
     beforeEach(() => {
+        settingSignal('visitors.reason_required').set(false);
         spectator = createComponent();
     });
 
@@ -293,7 +294,7 @@ describe('InviteVisitorFormComponent', () => {
     it('should keep the default reason when the setting is off', async () => {
         await spectator.component.ngOnInit();
         expect(spectator.component.model().title).toBe('Visit');
-        expect(spectator.component.reason_form.title().required()).toBe(false);
+        expect(spectator.component.form.title().required()).toBe(false);
     });
 
     it.each([false, true])(
@@ -306,9 +307,11 @@ describe('InviteVisitorFormComponent', () => {
                     key === 'app.visitors.reason_required' ||
                     (multiple && key === 'app.bookings.multiple_visitors'),
             );
+            // The booking form reads the setting from the shared signal.
+            settingSignal('visitors.reason_required').set(true);
             await spectator.component.ngOnInit();
             expect(service.model().title).toBe('');
-            expect(spectator.component.reason_form.title().required()).toBe(
+            expect(spectator.component.form.title().required()).toBe(
                 true,
             );
             service.model.update((m) => ({
@@ -325,10 +328,10 @@ describe('InviteVisitorFormComponent', () => {
                 await spectator.component.sendInvite();
                 expect(service.postForm).not.toHaveBeenCalled();
                 expect(service.postFormForVisitorGroup).not.toHaveBeenCalled();
-                expect(spectator.component.reason_form.title().invalid()).toBe(
+                expect(spectator.component.form.title().invalid()).toBe(
                     true,
                 );
-                expect(spectator.component.reason_form.title().touched()).toBe(
+                expect(spectator.component.form.title().touched()).toBe(
                     true,
                 );
             }

@@ -330,6 +330,8 @@ describe('VisitorFlowNewComponent', () => {
                     expect(post_form).not.toHaveBeenCalled();
                     expect(post_group).not.toHaveBeenCalled();
                     expect(save_user_setting).not.toHaveBeenCalled();
+                    expect(form.title().invalid()).toBe(true);
+                    expect(form.title().touched()).toBe(true);
                 }
 
                 model.update((m) => ({ ...m, title: 'Supplier meeting' }));

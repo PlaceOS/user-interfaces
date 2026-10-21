@@ -78,6 +78,7 @@ describe('VisitorFlowDetailsComponent', () => {
                     model.update((m) => ({
                         ...m,
                         id: '',
+                        booking_type: 'visitor',
                         asset_id: '',
                         asset_name: '',
                         company: '',
@@ -228,7 +229,7 @@ describe('VisitorFlowDetailsComponent', () => {
 
         expect(spectator.component.reason_required()).toBe(false);
         expect(model().title).toBe('Visit');
-        expect(spectator.component.reason_form.title().required()).toBe(false);
+        expect(form.title().required()).toBe(false);
     });
 
     it('should require a reason and start with an empty reason when the setting is on', () => {
@@ -239,6 +240,13 @@ describe('VisitorFlowDetailsComponent', () => {
 
         expect(spectator.component.reason_required()).toBe(true);
         expect(model().title).toBe('');
-        expect(spectator.component.reason_form.title().required()).toBe(true);
+        expect(form.title().required()).toBe(true);
+    });
+
+    it('should mark the booking form dirty when the user edits the reason', () => {
+        spectator.typeInElement('Supplier meeting', '#reason');
+
+        expect(model().title).toBe('Supplier meeting');
+        expect(form().dirty()).toBe(true);
     });
 });

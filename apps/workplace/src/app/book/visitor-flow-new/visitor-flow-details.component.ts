@@ -7,7 +7,7 @@ import {
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { form, FormField, required, validate } from '@angular/forms/signals';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -219,7 +219,7 @@ type VisitorFormType = 'single' | 'group';
                         <input
                             matInput
                             id="reason"
-                            [formField]="reason_form.title"
+                            [formField]="form.title"
                             [placeholder]="
                                 'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
                                     | translate
@@ -349,14 +349,6 @@ export class VisitorFlowDetailsComponent implements OnInit {
         'visitors.reason_required',
         false,
     );
-    public readonly reason_form = form(this._booking_form.model, (p) => {
-        required(p.title, { when: () => this.reason_required() });
-        validate(p.title, ({ value }) =>
-            this.reason_required() && !value()?.trim()
-                ? { kind: 'required' }
-                : undefined,
-        );
-    });
 
     public get form() {
         return this._booking_form.form;
