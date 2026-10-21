@@ -1,5 +1,12 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, i18n, notifyError } from '@placeos/common';
@@ -23,7 +30,10 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                     >
                         <h3 class="mb-4 text-2xl font-medium">
                             {{
-                                'CALENDAR_EVENT.MEETING_FLOW_HEADER' | translate
+                                (form_value()?.id
+                                    ? 'APP.WORKPLACE.MEETING_BOOK_EDIT_HEADER'
+                                    : 'CALENDAR_EVENT.MEETING_FLOW_HEADER'
+                                ) | translate
                             }}
                         </h3>
                         <div class="flex items-center justify-center space-x-2">
@@ -32,6 +42,10 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                 class="flex items-center space-x-2 rounded p-2"
                                 [routerLink]="[]"
                                 [queryParams]="{ view: 0 }"
+                                [attr.aria-label]="'COMMON.DETAILS' | translate"
+                                [attr.aria-current]="
+                                    view() === 0 ? 'step' : null
+                                "
                             >
                                 <div
                                     class="flex h-8 w-8 items-center justify-center rounded-full"
@@ -50,9 +64,18 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                 </div>
                             </a>
                             <div class="h-0.5 w-16 bg-base-200"></div>
-                            <a
+                            <button
+                                type="button"
+                                name="step-select-room"
                                 matRipple
                                 class="flex cursor-pointer items-center space-x-2 rounded p-2"
+                                [attr.aria-label]="
+                                    'CALENDAR_EVENT.MEETING_FLOW_STEP_SELECT_ROOM'
+                                        | translate
+                                "
+                                [attr.aria-current]="
+                                    view() === 1 ? 'step' : null
+                                "
                                 (click)="navigateToView(1)"
                             >
                                 <div
@@ -73,11 +96,20 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                             | translate
                                     }}
                                 </div>
-                            </a>
+                            </button>
                             <div class="h-0.5 w-16 bg-base-200"></div>
-                            <a
+                            <button
+                                type="button"
+                                name="step-confirm"
                                 matRipple
                                 class="flex cursor-pointer items-center space-x-2 rounded p-2"
+                                [attr.aria-label]="
+                                    'CALENDAR_EVENT.MEETING_FLOW_STEP_CONFIRM'
+                                        | translate
+                                "
+                                [attr.aria-current]="
+                                    view() === 2 ? 'step' : null
+                                "
                                 (click)="navigateToView(2)"
                             >
                                 <div
@@ -98,7 +130,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                             | translate
                                     }}
                                 </div>
-                            </a>
+                            </button>
                         </div>
                     </div>
                     <div class="w-full">
@@ -146,6 +178,8 @@ export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _event_form = inject(EventFormService);
+    /** Scroll container of the flow steps */
+    private readonly _scroller = viewChild(CdkScrollable);
 
     public readonly view = signal(0);
     public readonly flow_view = this._event_form.view;
@@ -175,6 +209,13 @@ export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
             notifyError(i18n('CALENDAR_EVENT.ERROR_ROOM_REQUIRED'));
             return;
         }
+        if (
+            target_view === 2 &&
+            this._event_form.unavailable_resources().length
+        ) {
+            notifyError(i18n('CALENDAR_EVENT.SELECTED_ROOM_UNAVAILABLE'));
+            return;
+        }
 
         // Navigate if requirements are met
         this._router.navigate([], {
@@ -201,8 +242,11 @@ export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('view')) {
-                    if (Number.isNaN(+params.get('view'))) return;
-                    this.view.set(+params.get('view'));
+                    const view = +params.get('view');
+                    if (Number.isNaN(view) || view === this.view()) return;
+                    this.view.set(view);
+                    // Show each new step from its top
+                    this._scroller()?.scrollTo({ top: 0 });
                 }
             }),
         );

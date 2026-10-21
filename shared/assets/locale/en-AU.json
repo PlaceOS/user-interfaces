@@ -1771,7 +1771,12 @@
         "ERROR_ROOM_REQUIRED": "Please select a meeting room before continuing",
         "CATERING": "Catering",
         "NOTES_HEADER": "Notes",
-        "CATERING_CHARGE_CODE": "Charge Code"
+        "CATERING_CHARGE_CODE": "Charge Code",
+        "ROOM_CLOSED": "Closed",
+        "SPACE_LIST_PAGE": "Page {{ page }} of {{ total }}",
+        "SPACE_FAVOURITE": "Favourite {{ name }}",
+        "FILTER_REMOVE": "Remove filter {{ name }}",
+        "SELECTED_ROOM_UNAVAILABLE": "The selected room is not available at the selected time. Select a different room or time."
     },
     "CATERING": {
         "MENU": "Catering Menu",

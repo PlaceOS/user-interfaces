@@ -59,6 +59,8 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                     icon
                     matRipple
                     class="sm:hidden"
+                    [attr.aria-label]="'COMMON.FILTERS' | translate"
+                    [attr.aria-expanded]="filters_open()"
                     (click)="filters_open.set(!filters_open())"
                 >
                     <icon>{{ filters_open() ? 'close' : 'filter_list' }}</icon>
@@ -355,7 +357,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                         'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
                                             | translate
                                                 : {
-                                                      count: capacity || 2,
+                                                      count: capacity,
                                                   }
                                     }}
                                 }
@@ -368,6 +370,10 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                         matRipple
                                         name="remove-space-filter"
                                         class="-mr-4"
+                                        [attr.aria-label]="
+                                            'CALENDAR_EVENT.FILTER_REMOVE'
+                                                | translate: { name: feat }
+                                        "
                                         (click)="removeFeature(feat)"
                                     >
                                         <icon>close</icon>
@@ -395,7 +401,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                 [class.inverse]="view() !== 'map'"
                                 (click)="setMapView()"
                             >
-                                <icon class="text-2xl">Map</icon>
+                                <icon class="text-2xl">map</icon>
                                 <div class="pr-2">
                                     {{ 'COMMON.MAP' | translate }}
                                 </div>
@@ -408,6 +414,21 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                         [class.h-[600px]]="view() === 'map'"
                         [class.min-h-[600px]]="view() === 'map'"
                     >
+                        @if (unavailable_selection().length) {
+                            <div
+                                unavailable-warning
+                                role="alert"
+                                class="bg-warning text-warning-content mb-2 flex items-center space-x-2 rounded-lg p-2 text-sm"
+                            >
+                                <icon class="text-xl">warning</icon>
+                                <p>
+                                    {{
+                                        'CALENDAR_EVENT.SELECTED_ROOM_UNAVAILABLE'
+                                            | translate
+                                    }}
+                                </p>
+                            </div>
+                        }
                         @if (view() === 'map') {
                             <meeting-flow-space-map
                                 [selected_spaces]="selected()"
@@ -434,7 +455,12 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                     <h3 class="px-2 text-xl font-medium">
                         {{ 'COMMON.FILTERS' | translate }}
                     </h3>
-                    <button icon matRipple (click)="filters_open.set(false)">
+                    <button
+                        icon
+                        matRipple
+                        [attr.aria-label]="'COMMON.CLOSE' | translate"
+                        (click)="filters_open.set(false)"
+                    >
                         <icon>close</icon>
                     </button>
                 </div>
@@ -659,7 +685,13 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
             >
                 {{ 'COMMON.BACK' | translate }}
             </a>
-            <button btn matRipple class="w-40" (click)="continue()">
+            <button
+                btn
+                matRipple
+                class="w-40"
+                [disabled]="unavailable_selection().length > 0"
+                (click)="continue()"
+            >
                 {{ 'COMMON.CONTINUE' | translate }}
             </button>
         </div>
@@ -802,6 +834,9 @@ export class MeetingFlowSpaceSelectComponent {
             this.form_value()?.resources.length > 0,
     );
 
+    public readonly unavailable_selection =
+        this._event_form.unavailable_resources;
+
     public readonly options = this._event_form.options;
     public readonly filters = this._event_form.filters;
 
@@ -936,6 +971,7 @@ export class MeetingFlowSpaceSelectComponent {
             notifyError(i18n('CALENDAR_EVENT.ERROR_ROOM_REQUIRED'));
             return;
         }
+        if (this.unavailable_selection().length) return;
 
         this._router.navigate([], {
             relativeTo: this._route,

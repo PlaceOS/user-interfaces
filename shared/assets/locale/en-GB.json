@@ -698,7 +698,12 @@
         "SETUP_DURATION": "Setup Duration",
         "BREAKDOWN_DURATION": "Breakdown Duration",
         "FIRST_INSTANCE_CLASH": "The first event in the series clashes with an existing booking",
-        "RECURRING_CLASHES_NOT_ALLOWED": "Recurring events with {{ count }} clashing instance(s) are not allowed"
+        "RECURRING_CLASHES_NOT_ALLOWED": "Recurring events with {{ count }} clashing instance(s) are not allowed",
+        "ROOM_CLOSED": "Closed",
+        "SPACE_LIST_PAGE": "Page {{ page }} of {{ total }}",
+        "SPACE_FAVOURITE": "Favourite {{ name }}",
+        "FILTER_REMOVE": "Remove filter {{ name }}",
+        "SELECTED_ROOM_UNAVAILABLE": "The selected room is not available at the selected time. Select a different room or time."
     },
     "CATERING": {
         "MENU": "Catering Menu",

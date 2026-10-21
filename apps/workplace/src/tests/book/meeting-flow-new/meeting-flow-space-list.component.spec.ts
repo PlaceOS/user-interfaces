@@ -13,6 +13,8 @@ describe('MeetingFlowSpaceListComponent', () => {
     let loading: ReturnType<typeof signal<boolean>>;
     let available_spaces: ReturnType<typeof signal<any[]>>;
     let room_alerts: ReturnType<typeof signal<Record<string, any>>>;
+    let load_failed: ReturnType<typeof signal<boolean>>;
+    let reload_spaces: any;
     let save_user_setting: any;
 
     const makeSpaces = (count: number) =>
@@ -53,6 +55,8 @@ describe('MeetingFlowSpaceListComponent', () => {
                     loading,
                     available_spaces,
                     room_alerts,
+                    spaces_load_failed: load_failed,
+                    reloadSpaces: (reload_spaces = vi.fn()),
                 }),
             },
             MockProvider(SettingsService, {
@@ -66,6 +70,7 @@ describe('MeetingFlowSpaceListComponent', () => {
         loading = signal(false);
         available_spaces = signal(makeSpaces(3));
         room_alerts = signal({});
+        load_failed = signal(false);
         settingSignal<string[]>(SETTING_KEYS.FAVORITE_ROOMS, [], true).set([]);
         spectator = createComponent();
     });
@@ -148,6 +153,22 @@ describe('MeetingFlowSpaceListComponent', () => {
         room_alerts.set({ 'space-0': ['closed', 'Room is closed'] });
         spectator.detectChanges();
         const first_button = spectator.query('button[name="select-space"]');
-        expect(first_button).toHaveClass('pointer-events-none');
+        expect(first_button).toBeDisabled();
+        expect(first_button.querySelector('[closed]')).toExist();
+    });
+
+    it('should hide the capacity of spaces with an unknown capacity', () => {
+        available_spaces.set([{ ...makeSpaces(1)[0], capacity: 0 }]);
+        spectator.detectChanges();
+        expect(spectator.query('[capacity]')).not.toExist();
+    });
+
+    it('should show a retry action in place of the empty state when loading fails', () => {
+        available_spaces.set([]);
+        load_failed.set(true);
+        spectator.detectChanges();
+        expect(spectator.query('[empty]')).not.toExist();
+        spectator.click('[load-error] button');
+        expect(reload_spaces).toHaveBeenCalled();
     });
 });

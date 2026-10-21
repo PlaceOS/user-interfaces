@@ -129,6 +129,22 @@ describe('MeetingFlowDetailsComponent', () => {
         });
     });
 
+    it('should mark the title field as invalid when searching without a title', () => {
+        event = new CalendarEvent({ id: '', title: '', date: Date.now() });
+        spectator = createComponent();
+        const navigate = vi.spyOn(spectator.router, 'navigate');
+        expect(spectator.component.title_error.isErrorState(null, null)).toBe(
+            false,
+        );
+
+        spectator.component.searchRooms();
+
+        expect(spectator.component.title_error.isErrorState(null, null)).toBe(
+            true,
+        );
+        expect(navigate).not.toHaveBeenCalled();
+    });
+
     it('should limit the date to the allowed future days setting', () => {
         spectator = createComponent();
         settingSignal('events.allowed_future_days').set(30);
