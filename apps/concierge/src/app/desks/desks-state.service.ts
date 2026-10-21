@@ -58,6 +58,7 @@ import {
     addHours,
     addMinutes,
     endOfDay,
+    format,
     getUnixTime,
     startOfDay,
     subDays,
@@ -733,6 +734,11 @@ export class DesksStateService extends AsyncHandler {
                     series
                         ? 'APP.CONCIERGE.DESKS_BOOKING_DELETE_SERIES_CONTENT'
                         : 'APP.CONCIERGE.DESKS_BOOKING_DELETE_CONTENT',
+                    {
+                        desk: booking.asset_name || booking.asset_id,
+                        name: booking.user_name || booking.user_email,
+                        date: format(booking.date, 'dd MMM yyyy'),
+                    },
                 ),
                 icon: { content: 'event_busy' },
             },

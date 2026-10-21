@@ -1000,7 +1000,9 @@ export class GuestListingComponent extends AsyncHandler {
     }
 
     public async setPass(row: Booking, pass = '') {
-        await this._state.setExt(row, 'pass_number', pass || null);
+        if (!(await this._state.setExt(row, 'pass_number', pass || null))) {
+            return;
+        }
         this.pass_number.set('');
         notifySuccess(i18n('APP.CONCIERGE.VISITORS_SAVED_PASS'));
     }

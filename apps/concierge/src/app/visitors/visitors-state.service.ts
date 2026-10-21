@@ -33,6 +33,7 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
+import { confirmAction, errorText } from '../ui/modal-actions';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 import { VisitorNotesModalComponent } from './visitor-notes-modal.component';
 
@@ -203,14 +204,21 @@ export class VisitorsStateService extends AsyncHandler {
         this.clearInterval('poll');
     }
 
+    /** Set a field of the visitor booking's extension data. Shows an error and resolves false on failure. */
     public async setExt<T = any>(guest: Booking, field: string, value: T) {
         const extension_data = { ...guest.extension_data };
         extension_data[field] = value;
-        await updateBooking(guest.id, {
-            ...guest.toJSON(),
-            extension_data,
-        });
+        try {
+            await updateBooking(guest.id, {
+                ...guest.toJSON(),
+                extension_data,
+            });
+        } catch (e) {
+            notifyError(`Failed to update visitor. ${errorText(e)}`);
+            return false;
+        }
         this.poll();
+        return true;
     }
 
     public async approveVisitor(item: Booking) {
@@ -309,6 +317,18 @@ export class VisitorsStateService extends AsyncHandler {
                 _.linked_event?.event_id === event_id,
         );
         if (!event_bookings.length) return;
+        if (!state) {
+            const details = await openConfirmModal(
+                {
+                    title: 'Check out all visitors',
+                    content: `Check out ${event_bookings.length} visitors from ${event_bookings[0].user_name}'s meeting?`,
+                    icon: { content: 'logout' },
+                },
+                this._dialog,
+            );
+            details.close();
+            if (details.reason !== 'done') return;
+        }
         await Promise.all(
             event_bookings.map((_) =>
                 setBookingCheckedIn(_, state).catch((e) => {
@@ -358,13 +378,29 @@ export class VisitorsStateService extends AsyncHandler {
     public async emailVisitor(item: Booking) {
         const mod = this._org.module('visitor_access', 'VisitorAccess');
         if (!mod) return;
-        await mod.execute('grant_and_notify_access', [
-            item.asset_id,
-            item.asset_name,
-            item.booked_by_email,
-            item.title,
-            item.booking_start,
-        ]);
-        notifySuccess(i18n('APP.CONCIERGE.VISITOR_EMAIL_SUCCESS'));
+        await confirmAction(
+            this._dialog,
+            {
+                title: 'Grant access',
+                content: `Grant access to ${
+                    item.asset_name || item.asset_id
+                } and email them an access QR code?`,
+                icon: { content: 'mail' },
+            },
+            {
+                loading: 'Sending access details...',
+                action: async () => {
+                    await mod.execute('grant_and_notify_access', [
+                        item.asset_id,
+                        item.asset_name,
+                        item.booked_by_email,
+                        item.title,
+                        item.booking_start,
+                    ]);
+                    notifySuccess(i18n('APP.CONCIERGE.VISITOR_EMAIL_SUCCESS'));
+                },
+                error: (e) => `Failed to grant visitor access. ${errorText(e)}`,
+            },
+        );
     }
 }
