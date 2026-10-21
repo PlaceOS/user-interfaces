@@ -4,6 +4,7 @@ import {
     BuildingLevel,
     OrganisationService,
     SettingsService,
+    Space,
 } from '@placeos/common';
 import { EventFormService, SpacePipe } from '@placeos/events';
 import { MeetingFlowSuccessComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-success.component';
@@ -85,6 +86,16 @@ describe('MeetingFlowSuccessComponent', () => {
         hide_nearby_desks = true;
         spectator.detectChanges();
         expect(spectator.query('button')).not.toExist();
+    });
+
+    it('should show a booked room as requested', () => {
+        expect(spectator.query('img[src$="success.svg"]')).not.toExist();
+    });
+
+    it('should show a meeting without a room as booked', () => {
+        spectator.component.space.set(new Space());
+        spectator.detectChanges();
+        expect(spectator.query('img[src$="success.svg"]')).toExist();
     });
 
     it("should show the resolved space's level", () => {

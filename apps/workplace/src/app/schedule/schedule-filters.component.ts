@@ -42,6 +42,11 @@ import {
                                     item.type +
                                     '-filter-mobile'
                                 "
+                                [attr.aria-label]="
+                                    'CALENDAR_EVENT.FILTER_REMOVE'
+                                        | translate
+                                            : { name: item.name | translate }
+                                "
                                 (click)="toggleType(item.type, true)"
                             >
                                 <icon>close</icon>
@@ -56,7 +61,12 @@ import {
                         <icon class="text-base-content/50 text-xl"
                             >perm_contact_calendar</icon
                         >
-                        <div class="px-2">Bookings for Others</div>
+                        <div class="px-2">
+                            {{
+                                'APP.WORKPLACE.SCHEDULE_FILTER_BOOKINGS_FOR_OTHERS'
+                                    | translate
+                            }}
+                        </div>
                         <div
                             class="bg-base-200 flex h-5 w-5 items-center justify-center rounded-full font-mono text-[0.625rem] opacity-50"
                         >
@@ -66,6 +76,15 @@ import {
                             icon
                             matRipple
                             name="schedule-remove-bookings-for-others-filter"
+                            [attr.aria-label]="
+                                'CALENDAR_EVENT.FILTER_REMOVE'
+                                    | translate
+                                        : {
+                                              name:
+                                                  'APP.WORKPLACE.SCHEDULE_FILTER_BOOKINGS_FOR_OTHERS'
+                                                  | translate,
+                                          }
+                            "
                             (click)="toggleBookingsForOthers()"
                         >
                             <icon>close</icon>
@@ -81,6 +100,7 @@ import {
                 btn
                 matRipple
                 name="schedule-open-filter-edit"
+                [attr.aria-label]="'COMMON.FILTERS' | translate"
                 class="h-10 min-h-10 min-w-10 sm:min-h-12 sm:w-24"
                 (click)="openFilters()"
             >
@@ -110,6 +130,10 @@ import {
                                 item.type +
                                 '-filter-mobile'
                             "
+                            [attr.aria-label]="
+                                'CALENDAR_EVENT.FILTER_REMOVE'
+                                    | translate: { name: item.name | translate }
+                            "
                             (click)="toggleType(item.type, true)"
                         >
                             <icon>close</icon>
@@ -124,7 +148,12 @@ import {
                     <icon class="text-base-content/50 text-xl"
                         >perm_contact_calendar</icon
                     >
-                    <div class="px-2">Bookings for Others</div>
+                    <div class="px-2">
+                        {{
+                            'APP.WORKPLACE.SCHEDULE_FILTER_BOOKINGS_FOR_OTHERS'
+                                | translate
+                        }}
+                    </div>
                     <div
                         class="bg-base-200 flex h-5 w-5 items-center justify-center rounded-full font-mono text-[0.625rem] opacity-50"
                     >
@@ -134,6 +163,15 @@ import {
                         icon
                         matRipple
                         name="schedule-remove-bookings-for-others-filter-mobile"
+                        [attr.aria-label]="
+                            'CALENDAR_EVENT.FILTER_REMOVE'
+                                | translate
+                                    : {
+                                          name:
+                                              'APP.WORKPLACE.SCHEDULE_FILTER_BOOKINGS_FOR_OTHERS'
+                                              | translate,
+                                      }
+                        "
                         (click)="toggleBookingsForOthers()"
                     >
                         <icon>close</icon>

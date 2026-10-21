@@ -90,6 +90,7 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
                             target="_blank"
                             rel="noopener noreferrer"
                             [matTooltip]="route.name"
+                            [attr.aria-label]="route.name"
                             matTooltipPosition="below"
                         >
                             <ng-container
@@ -105,6 +106,7 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
                             [routerLink]="route.route"
                             routerLinkActive="text-secondary active"
                             [matTooltip]="route.name"
+                            [attr.aria-label]="route.name"
                             matTooltipPosition="below"
                         >
                             <ng-container
@@ -124,8 +126,14 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
             <div
                 class="absolute inset-y-0 -right-20 left-0 flex items-center justify-end"
             >
-                <button icon default matRipple [matMenuTriggerFor]="menu">
-                    <icon>menu</icon>
+                <button
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="menu_label()"
+                >
+                    <icon aria-hidden="true">menu</icon>
                 </button>
             </div>
         }
@@ -158,12 +166,17 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
             }
         </mat-menu>
         <ng-template #route_contents let-route="route">
-            <icon filled class="text-xl" [class.mx-auto]="hide_text()">{{
-                route.icon
-            }}</icon>
+            <icon
+                filled
+                class="text-xl"
+                aria-hidden="true"
+                [class.mx-auto]="hide_text()"
+                >{{ route.icon }}</icon
+            >
             <icon
                 outline
                 className="material-symbols-outlined"
+                aria-hidden="true"
                 [class.mx-auto]="hide_text()"
                 class="m-0! text-xl"
             >
@@ -175,10 +188,13 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
         </ng-template>
         <ng-template #mobile_route_contents let-route="route">
             <div class="flex items-center space-x-2">
-                <icon filled class="text-xl">{{ route.icon }}</icon>
+                <icon filled class="text-xl" aria-hidden="true">{{
+                    route.icon
+                }}</icon>
                 <icon
                     outline
                     className="material-symbols-outlined"
+                    aria-hidden="true"
                     class="text-xl"
                 >
                     {{ route.icon }}
@@ -418,6 +434,7 @@ export class TopMenuComponent {
     });
 
     public readonly trackRoute = (route: TopMenuRoute) => route.id;
+    public readonly menu_label = computed(() => i18n('APP.WORKPLACE.MENU'));
 
     private _check_menu_timer: ReturnType<typeof setTimeout> | null = null;
 

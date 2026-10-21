@@ -122,4 +122,16 @@ describe('requestSpacesForZone', () => {
         await requestSpacesForZone('zone-b').toPromise();
         expect(ts_client.querySystems).toHaveBeenCalledTimes(1);
     });
+
+    it('should query again after a failed request', async () => {
+        (ts_client.querySystems as any)
+            .mockRejectedValueOnce(new Error('offline'))
+            .mockResolvedValueOnce({ data: [{ id: 'sys-zone-c' }] });
+        await expect(
+            requestSpacesForZone('zone-c').toPromise(),
+        ).rejects.toThrow('offline');
+        const spaces = await requestSpacesForZone('zone-c').toPromise();
+        expect(ts_client.querySystems).toHaveBeenCalledTimes(2);
+        expect(spaces[0].id).toBe('sys-zone-c');
+    });
 });

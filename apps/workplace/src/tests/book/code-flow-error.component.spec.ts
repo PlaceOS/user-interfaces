@@ -20,8 +20,8 @@ describe('CodeFlowErrorComponent', () => {
     it('should default to the generic error state', () => {
         expect(spectator.component.type()).toBe('other');
         expect(spectator.component.asset_type()).toBe('resource');
-        expect(spectator.query('p')?.textContent).toContain(
-            'You do not have a booking',
+        expect(spectator.component.copy().message).toBe(
+            'APP.WORKPLACE.CODE_NO_BOOKING_MSG',
         );
     });
 
@@ -43,8 +43,8 @@ describe('CodeFlowErrorComponent', () => {
     it('should show the wrong-resource message', () => {
         spectator.setRouteQueryParam('type', 'wrong_resource');
         spectator.detectChanges();
-        expect(spectator.query('p')?.textContent).toContain(
-            'different resource',
+        expect(spectator.component.copy().message).toBe(
+            'APP.WORKPLACE.CODE_WRONG_RESOURCE_MSG',
         );
     });
 
@@ -52,9 +52,10 @@ describe('CodeFlowErrorComponent', () => {
         spectator.setRouteQueryParam('type', 'not_started');
         spectator.setRouteQueryParam('asset_id', 'desk-7');
         spectator.detectChanges();
-        expect(spectator.query('p')?.textContent).toContain(
-            'has not started yet',
-        );
+        expect(spectator.component.copy()).toEqual({
+            title: 'APP.WORKPLACE.CODE_NOT_STARTED_TITLE',
+            message: 'APP.WORKPLACE.CODE_NOT_STARTED_MSG',
+        });
         const try_again = spectator
             .queryAll('a[btn]')
             .find((l) => l.getAttribute('href')?.includes('/book/code'));

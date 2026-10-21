@@ -24,6 +24,10 @@ import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { EventDetailsModalComponent } from '../lib/event-details-modal.component';
 
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
+
 describe('EventDetailsModalComponent', () => {
     let spectator: Spectator<EventDetailsModalComponent>;
     const edit_fn = vi.fn();
@@ -176,6 +180,19 @@ describe('EventDetailsModalComponent', () => {
             spectator.detectChanges();
             expect('[host]').toHaveText('Fallback Host');
         });
+    });
+
+    it('should not show the room as checked in when the check-in fails', async () => {
+        vi.mocked(ts_client.getModule).mockReturnValueOnce({
+            execute: vi.fn().mockRejectedValue(new Error('offline')),
+        } as any);
+        spectator.component.space.set(new Space({ id: 'sys-1' } as any));
+        spectator.component.room_status.set('pending');
+
+        await spectator.component.checkin();
+
+        expect(spectator.component.room_status()).toBe('pending');
+        expect(spectator.component.checking_in()).toBe(false);
     });
 
     it('should show attendees', () => {

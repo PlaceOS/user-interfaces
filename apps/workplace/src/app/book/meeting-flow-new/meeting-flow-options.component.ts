@@ -15,7 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AssetListFieldComponent } from '@placeos/assets';
 import {
     CateringListFieldComponent,
@@ -230,9 +230,11 @@ interface SpaceLocation {
                             (click)="findAvailableTime()"
                         >
                             <div class="hidden sm:flex">
-                                {{ 'Find Available time' }}
+                                {{ 'CALENDAR_EVENT.FIND_AVAILABILITY' | translate }}
                             </div>
-                            <div class="fle sm:hidden">Availability</div>
+                            <div class="flex sm:hidden">
+                                {{ 'COMMON.AVAILABILITY' | translate }}
+                            </div>
                         </button>
                     </a-user-list-field>
                     @if (can_notify_new_attendees_only()) {
@@ -371,8 +373,17 @@ interface SpaceLocation {
             </div>
         </div>
         <div
-            class="sticky bottom-0 mt-4 flex justify-end rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
+            class="sticky bottom-0 mt-4 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
         >
+            <a
+                btn
+                matRipple
+                class="inverse w-40 cursor-pointer"
+                [routerLink]="[]"
+                [queryParams]="{ view: 1 }"
+            >
+                {{ 'COMMON.BACK' | translate }}
+            </a>
             <button
                 btn
                 matRipple
@@ -429,6 +440,7 @@ interface SpaceLocation {
         CateringListFieldComponent,
         AssetListFieldComponent,
         RichTextInputComponent,
+        RouterModule,
     ],
 })
 export class MeetingFlowOptionsComponent {

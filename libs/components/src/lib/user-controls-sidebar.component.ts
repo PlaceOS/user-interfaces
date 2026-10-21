@@ -1,6 +1,7 @@
 import { Component, HostListener, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
 import { UserControlsComponent } from './user-controls.component';
 
 @Component({
@@ -13,6 +14,7 @@ import { UserControlsComponent } from './user-controls.component';
             type="button"
             name="user-controls"
             class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full"
+            [attr.aria-label]="'COMMON.USER_CONTROLS' | translate"
             (click)="open()"
         >
             <ng-content>
@@ -42,6 +44,7 @@ import { UserControlsComponent } from './user-controls.component';
                             matRipple
                             type="button"
                             class="absolute top-[calc(env(safe-area-inset-top)+0.5rem)] right-[calc(env(safe-area-inset-right)+0.5rem)]"
+                            [attr.aria-label]="'COMMON.CLOSE' | translate"
                             (click)="close()"
                         >
                             <icon class="text-2xl">close</icon>
@@ -51,7 +54,12 @@ import { UserControlsComponent } from './user-controls.component';
             </div>
         }
     `,
-    imports: [MatRippleModule, IconComponent, UserControlsComponent],
+    imports: [
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        UserControlsComponent,
+    ],
 })
 export class UserControlsSidebarComponent {
     private _close_timeout: ReturnType<typeof setTimeout> | null = null;

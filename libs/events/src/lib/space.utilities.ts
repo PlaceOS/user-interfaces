@@ -8,8 +8,8 @@ import {
     Space,
 } from '@placeos/common';
 import { PlaceSystem, PlaceZone, querySystems } from '@placeos/ts-client';
-import { from, Observable, of } from 'rxjs';
-import { map, shareReplay, tap } from 'rxjs/operators';
+import { from, Observable, of, throwError } from 'rxjs';
+import { catchError, map, shareReplay, tap } from 'rxjs/operators';
 import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
 import { updateSpaceList } from './space.pipe';
 
@@ -154,6 +154,11 @@ export function requestSpacesForZone(id: string): Observable<Space[]> {
     ).pipe(
         map((_) => (_.data || []).map((_) => new Space(_ as any))),
         tap((_) => updateSpaceList(_)),
+        // Drop a failed request so that a retry queries the API again
+        catchError((e) => {
+            delete SPACE_LIST_REQUESTS[id];
+            return throwError(() => e);
+        }),
         shareReplay(1),
     );
     return SPACE_LIST_REQUESTS[id];

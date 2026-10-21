@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import {
     firstTruthyValueFrom,
@@ -150,13 +151,34 @@ import { DealsService } from './deals.service';
                             </button>
                         </div>
                     }
-                    @if (deal_list?.length <= 0) {
+                    @if (deal_list?.length <= 0 && loading()) {
+                        <div
+                            class="col-span-6 flex w-full flex-col items-center justify-center space-y-4 p-16"
+                        >
+                            <mat-spinner [diameter]="32"></mat-spinner>
+                            <p class="opacity-60">
+                                {{ 'COMMON.LOADING' | translate }}...
+                            </p>
+                        </div>
+                    } @else if (deal_list?.length <= 0 && failed()) {
+                        <div
+                            role="alert"
+                            class="col-span-6 flex w-full flex-col items-center justify-center space-y-4 p-16 text-center"
+                        >
+                            <icon class="text-5xl opacity-60">error</icon>
+                            <p>{{ 'COMMON.LOAD_ERROR' | translate }}</p>
+                            <button btn matRipple (click)="reload()">
+                                <icon>refresh</icon>
+                                <div>{{ 'COMMON.RETRY' | translate }}</div>
+                            </button>
+                        </div>
+                    } @else if (deal_list?.length <= 0) {
                         <div
                             class="bg-base-200 col-span-6 flex w-full flex-col items-center justify-center rounded-lg p-16"
                         >
                             <img
                                 src="assets/icons/no-deals.svg"
-                                alt="No Deals or Offers Available"
+                                alt=""
                                 class="mb-8 w-48"
                             />
                             <div
@@ -174,7 +196,7 @@ import { DealsService } from './deals.service';
                                             | translate
                                     }}
                                 </p>
-                                <button btn matRipple>
+                                <button btn matRipple (click)="reload()">
                                     <icon>refresh</icon>
                                     <div>
                                         {{ 'COMMON.REFRESH' | translate }}
@@ -196,6 +218,7 @@ import { DealsService } from './deals.service';
         TranslatePipe,
         MatRippleModule,
         MatMenuModule,
+        MatProgressSpinnerModule,
         TopbarComponent,
         FooterMenuComponent,
         VirtualConciergeButtonComponent,
@@ -232,6 +255,9 @@ export class DealsComponent implements OnInit {
             ),
     );
     public readonly view = (d) => this._service.viewDeal(d);
+    public readonly loading = this._service.loading;
+    public readonly failed = this._service.failed;
+    public readonly reload = () => this._service.reload();
 
     public sort(type: string) {
         this.sort_type.set(type);

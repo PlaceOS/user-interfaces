@@ -26,7 +26,12 @@ import {
         <div
             class="border-base-200 mb-4 flex items-center space-x-2 border-b text-xl"
         >
-            <button icon matRipple (click)="dismiss()">
+            <button
+                icon
+                matRipple
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                (click)="dismiss()"
+            >
                 <icon>chevron_left</icon>
             </button>
             <h2 class="w-1/2 flex-1 text-center">
@@ -67,7 +72,12 @@ import {
                     <div class="bg-base-300 rounded-full p-1 text-2xl">
                         <icon>perm_contact_calendar</icon>
                     </div>
-                    <div class="flex-1 font-medium">Bookings for Others</div>
+                    <div class="flex-1 font-medium">
+                        {{
+                            'APP.WORKPLACE.SCHEDULE_FILTER_BOOKINGS_FOR_OTHERS'
+                                | translate
+                        }}
+                    </div>
                     <div class="font-mono text-xs">
                         {{ counts()['bookings-for-others'] || 0 }}
                     </div>

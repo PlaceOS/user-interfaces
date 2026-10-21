@@ -13,6 +13,7 @@ import {
 import {
     AsyncHandler,
     Booking,
+    errorMessage,
     getInvalidSignalFields,
     i18n,
     notifyError,
@@ -215,7 +216,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
             this._model()?.title || this._model()?.description || 'Visit';
 
         if (this._form.title().invalid()) {
-            return notifyError(i18n('BOOKINGS.VISITOR_REASON'));
+            return notifyError(i18n('BOOKINGS.VISITOR_REASON_REQUIRED'));
         }
 
         // Validate form
@@ -258,11 +259,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
             );
             this._router.navigate(['/book/visitor/success']);
         } catch (e) {
-            notifyError(
-                typeof e === 'string'
-                    ? e
-                    : i18n(`BOOKINGS.VISITOR_BOOKING_ERROR`),
-            );
+            notifyError(errorMessage(e) || i18n('BOOKINGS.ERROR_GENERIC'));
         } finally {
             this.loading.set(false);
         }

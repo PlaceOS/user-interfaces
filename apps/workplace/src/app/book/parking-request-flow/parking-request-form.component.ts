@@ -1,13 +1,14 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 
 import { Router } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
-    getInvalidSignalFields,
+    errorMessage,
     i18n,
     notifyError,
     OrganisationService,
@@ -17,10 +18,12 @@ import {
 } from '@placeos/common';
 import {
     IconComponent,
+    openConfirmModal,
     SanitizePipe,
     TranslatePipe,
 } from '@placeos/components';
 import { roundToNearestMinutes, startOfDay } from 'date-fns';
+import { notifyInvalidBookingFields } from '../booking-invalid-fields';
 import { ParkingRequestFormDetailsComponent } from './parking-request-form-details.component';
 
 @Component({
@@ -60,6 +63,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
 
                     <!-- Form Details -->
                     <parking-request-form-details
+                        #details
                         [form]="form"
                         [model_input]="model"
                         [show_special_needs]="show_special_needs()"
@@ -122,14 +126,14 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                     >
                         <icon class="text-xl">close</icon>
                         <div class="pr-2">
-                            {{ 'BOOKINGS.PARKING_CANCEL' | translate }}
+                            {{ 'FORM.CLEAR' | translate }}
                         </div>
                     </button>
                     <button
                         btn
                         matRipple
                         (click)="submitRequest()"
-                        [disabled]="loading()"
+                        [disabled]="loading() || details.uploading()"
                     >
                         <div class="flex items-center space-x-2">
                             @if (loading()) {
@@ -191,6 +195,7 @@ export class ParkingRequestFormComponent
     private _settings = inject(SettingsService);
     private _router = inject(Router);
     private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
 
     public readonly loading = signal(false);
     /** Whether the parking record of the user has the special needs flag */
@@ -211,7 +216,21 @@ export class ParkingRequestFormComponent
         settingSignal('parking.request_submission_notes_html', '')().trim(),
     );
 
-    public readonly clearForm = () => this._state.resetForm();
+    /** Ask the user to confirm, then clear the request details */
+    public readonly clearForm = async () => {
+        const result = await openConfirmModal(
+            {
+                title: i18n('FORM.CLEAR'),
+                content: i18n('BOOKINGS.PARKING_CLEAR_MSG'),
+                confirm_text: i18n('COMMON.CLEAR'),
+                icon: { content: 'warning' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        result.close();
+        this._state.resetForm();
+    };
 
     public get form() {
         return this._state.form;
@@ -321,17 +340,16 @@ export class ParkingRequestFormComponent
             extension_data,
         }));
         if (!this.form().valid())
-            return notifyError(
-                `Some fields are invalid. [${getInvalidSignalFields(
-                    this.form,
-                    this.model,
-                ).join(', ')}]`,
+            return notifyInvalidBookingFields(
+                this.form,
+                this.model,
+                'RESOURCE.PARKING_SPACE',
             );
         const plate_number = this.model().plate_number;
         this.loading.set(true);
         try {
             const r = await this._state.postForm().catch((_) => {
-                notifyError(`Unable to submit parking request. ${_}`);
+                notifyError(errorMessage(_) || i18n('BOOKINGS.ERROR_GENERIC'));
                 return null;
             });
             if (!r) return;

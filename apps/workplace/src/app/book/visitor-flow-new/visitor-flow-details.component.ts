@@ -119,7 +119,9 @@ type VisitorFormType = 'single' | 'group';
                                     standalone: true,
                                 }"
                                 name="building"
-                                placeholder="Select building"
+                                [placeholder]="
+                                    'COMMON.BUILDING_SELECT' | translate
+                                "
                             >
                                 @for (bld of buildings(); track bld) {
                                     <mat-option [value]="bld.id">

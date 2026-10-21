@@ -40,7 +40,10 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                     <div class="space-y-2 pb-4">
                         <div class="font-medium">
-                            {{ space.name || 'Meeting Resource' }}
+                            {{
+                                space.name ||
+                                    ('RESOURCE.PARKING_SPACE' | translate)
+                            }}
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
                             <icon class="text-blue-500">place</icon>
@@ -92,6 +95,8 @@ const EMPTY_FAVS: string[] = [];
                         type="button"
                         class="absolute top-1 right-1"
                         [class.text-info]="favorites().includes(space?.id)"
+                        [attr.aria-label]="'COMMON.FAVOURITES' | translate"
+                        [attr.aria-pressed]="favorites().includes(space?.id)"
                         (click)="toggleFavourite(space)"
                     >
                         <icon

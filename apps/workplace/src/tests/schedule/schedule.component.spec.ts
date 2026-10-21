@@ -45,6 +45,7 @@ describe('ScheduleComponent', () => {
                 bookings,
                 filtered_bookings: bookings,
                 loading: signal(false),
+                failed: signal(false),
                 date: signal(0),
                 end_date: signal(null),
                 toggleType: vi.fn(),

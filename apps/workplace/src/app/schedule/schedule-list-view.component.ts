@@ -61,7 +61,7 @@ const MAX_LIST_DAYS = 366;
                     }
                 }
             }
-        } @else {
+        } @else if (!loading() && !failed()) {
             <div
                 class="flex w-full flex-col items-center justify-center space-y-4 p-8"
             >
@@ -92,6 +92,8 @@ export class ScheduleListViewComponent {
     public readonly end_date = input<number | null>(null);
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
     public readonly loading = input(false);
+    /** Whether a request failed. The parent shows the error instead of the empty state */
+    public readonly failed = input(false);
     public readonly isEvent = (
         i: Booking | CalendarEvent,
     ): i is CalendarEvent => i instanceof CalendarEvent;
@@ -105,9 +107,11 @@ export class ScheduleListViewComponent {
     public readonly end_fn = (i: Booking) => this._state.end(i);
     public readonly refresh_fn = () => this._state.triggerPoll();
 
-    /** Days in the selected date or date range that have bookings */
+    /**
+     * Days in the selected date or date range that have bookings.
+     * The list stays while new data loads, so it does not flash empty.
+     */
     public readonly booking_dates = computed(() => {
-        if (this.loading()) return [];
         const bookings = [...(this.bookings() || [])].sort(
             (a, b) => a.date - b.date,
         );

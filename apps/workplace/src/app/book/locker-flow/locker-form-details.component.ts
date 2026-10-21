@@ -55,15 +55,18 @@ import {
                     </h3>
                     <div class="flex flex-wrap items-center sm:space-x-2">
                         <div class="min-w-[256px] flex-1">
-                            <label for="date">
+                            <label for="locker-building">
                                 {{ 'RESOURCE.BUILDING' | translate
                                 }}<span>*</span>
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
+                                    id="locker-building"
                                     [(ngModel)]="building"
                                     [ngModelOptions]="{ standalone: true }"
-                                    placeholder="Select Building"
+                                    [placeholder]="
+                                        'COMMON.BUILDING_SELECT' | translate
+                                    "
                                 >
                                     @for (b of buildings(); track b) {
                                         <mat-option [value]="b">
@@ -94,8 +97,10 @@ import {
                         </div>
                     </div>
                     @if (!model().all_day) {
-                        <div class="flex items-center space-x-2">
-                            <div class="w-1/3 flex-1">
+                        <div
+                            class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
+                        >
+                            <div class="flex-1">
                                 <label for="start-time">
                                     {{ 'FORM.TIME_START' | translate
                                     }}<span>*</span>
@@ -120,7 +125,7 @@ import {
                                 ></a-time-field>
                             </div>
                             @if (!hide_end) {
-                                <div class="relative w-1/3 flex-1">
+                                <div class="relative flex-1">
                                     <label for="end-time">
                                         {{ 'FORM.TIME_END' | translate
                                         }}<span>*</span>

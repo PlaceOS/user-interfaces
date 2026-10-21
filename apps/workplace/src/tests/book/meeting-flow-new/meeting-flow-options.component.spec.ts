@@ -1,7 +1,7 @@
 import { Injector, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CateringOrderStateService } from '@placeos/catering';
 import {
@@ -91,6 +91,7 @@ describe('MeetingFlowOptionsComponent', () => {
                 },
             } as any),
             MockProvider(Router, { navigate: (navigate = vi.fn()) } as any),
+            MockProvider(ActivatedRoute, {}),
         ],
     });
 

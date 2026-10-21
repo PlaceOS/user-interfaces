@@ -25,7 +25,20 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
     selector: 'desk-flow-select-list',
     template: `
         @if (!loading()) {
-            @if (available_items()?.length) {
+            @if (load_failed()) {
+                <div
+                    load-error
+                    role="alert"
+                    class="flex flex-col items-center justify-center space-y-4 p-16"
+                >
+                    <p class="text-center">
+                        {{ 'COMMON.LOAD_ERROR' | translate }}
+                    </p>
+                    <button btn matRipple class="inverse" (click)="retry()">
+                        {{ 'COMMON.RETRY' | translate }}
+                    </button>
+                </div>
+            } @else if (available_items()?.length) {
                 <div class="mb-2 text-sm font-medium">
                     {{
                         'COMMON.RESULTS_COUNT'
@@ -116,6 +129,19 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
                                 [class.text-info]="
                                     favourites().includes(item.id)
                                 "
+                                [attr.aria-label]="
+                                    'CALENDAR_EVENT.SPACE_FAVOURITE'
+                                        | translate
+                                            : {
+                                                  name:
+                                                      item.display_name ||
+                                                      item.name ||
+                                                      item.id,
+                                              }
+                                "
+                                [attr.aria-pressed]="
+                                    favourites().includes(item.id)
+                                "
                                 (click)="toggleFavourite(item)"
                             >
                                 <icon
@@ -149,12 +175,20 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
                         </div>
                         <div class="flex-1"></div>
                         <div class="p-2">
-                            Page {{ active_page() + 1 }} of {{ max_pages() }}
+                            {{
+                                'CALENDAR_EVENT.SPACE_LIST_PAGE'
+                                    | translate
+                                        : {
+                                              page: active_page() + 1,
+                                              total: max_pages(),
+                                          }
+                            }}
                         </div>
                         <button
                             icon
                             matRipple
                             [disabled]="active_page() <= 0"
+                            [attr.aria-label]="'COMMON.PREVIOUS' | translate"
                             (click)="page.set(active_page() - 1)"
                             class="rounded-xl border border-base-300"
                         >
@@ -164,6 +198,7 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
                             icon
                             matRipple
                             [disabled]="active_page() + 1 >= max_pages()"
+                            [attr.aria-label]="'COMMON.NEXT' | translate"
                             (click)="page.set(active_page() + 1)"
                             class="rounded-xl border border-base-300"
                         >
@@ -222,6 +257,8 @@ export class DeskFlowSelectListComponent {
     public readonly item_selected = output<Space>();
 
     public readonly loading = this._booking_form.loading;
+    public readonly load_failed = this._booking_form.load_failed;
+    public readonly retry = () => this._booking_form.reloadResources();
 
     private readonly _available_items = this._booking_form.available_resources;
 

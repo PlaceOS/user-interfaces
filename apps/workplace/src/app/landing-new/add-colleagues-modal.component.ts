@@ -34,7 +34,13 @@ import { LandingStateService } from '../landing/landing-state.service';
                 <h2 class="px-2 text-xl font-medium">
                     {{ 'APP.WORKPLACE.COLLEAGUES_ADD' | translate }}
                 </h2>
-                <button icon matRipple class="h-10 w-10" (click)="dismiss()">
+                <button
+                    icon
+                    matRipple
+                    class="h-10 w-10"
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                    (click)="dismiss()"
+                >
                     <icon>close</icon>
                 </button>
             </header>
@@ -61,7 +67,9 @@ import { LandingStateService } from '../landing/landing-state.service';
                         [placeholder]="
                             'APP.WORKPLACE.COLLEAGUE_SEARCH' | translate
                         "
-                        [disabled]="loading_users()"
+                        [attr.aria-label]="
+                            'APP.WORKPLACE.COLLEAGUE_SEARCH' | translate
+                        "
                     />
                     @if (loading_users()) {
                         <mat-spinner matSuffix diameter="24"></mat-spinner>
@@ -74,6 +82,14 @@ import { LandingStateService } from '../landing/landing-state.service';
                     @if (loading_users()) {
                         <div class="flex items-center justify-center py-8">
                             <mat-spinner [diameter]="32"></mat-spinner>
+                        </div>
+                    } @else if (search_failed()) {
+                        <div
+                            search-error
+                            class="flex flex-col items-center justify-center rounded-xl bg-base-200 py-16 text-sm opacity-60"
+                        >
+                            <icon class="mb-2 text-4xl">error</icon>
+                            <div>{{ 'COMMON.LOAD_ERROR' | translate }}</div>
                         </div>
                     } @else if (user_list.length > 0) {
                         <div class="mb-4 space-y-2">
@@ -144,7 +160,7 @@ import { LandingStateService } from '../landing/landing-state.service';
                         <p>
                             {{
                                 (search_term
-                                    ? 'APP.WORKPLACE.COLLEAGUE_SEARCH_NO_MATCH'
+                                    ? 'APP.WORKPLACE.COLLEAGUE_SEARCH_MIN_LENGTH'
                                     : 'APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
                                 ) | translate
                             }}
@@ -181,6 +197,10 @@ import { LandingStateService } from '../landing/landing-state.service';
                                 <button
                                     icon
                                     matRipple
+                                    [attr.aria-label]="
+                                        'COMMON.REMOVE_ITEM'
+                                            | translate: { item: user.name }
+                                    "
                                     (click)="toggleUser(user)"
                                     [disabled]="loading()"
                                 >
@@ -266,6 +286,7 @@ export class AddColleaguesModalComponent
 
     public readonly loading_users = computed(() => !!this._loading_state());
     public readonly available_users = computed(() => this._search_results());
+    public readonly search_failed = this._state.search_failed;
     public readonly existing_contacts = computed(() =>
         this._existing_contacts(),
     );

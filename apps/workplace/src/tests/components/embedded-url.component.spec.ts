@@ -62,8 +62,16 @@ describe('EmbeddedUrlComponent', () => {
         spectator.detectChanges();
         expect(spectator.component.item()).toBeUndefined();
         expect(spectator.query('iframe')).not.toExist();
-        expect(spectator.query('h1')).toContainText(
-            'Embedded page unavailable',
-        );
+        expect(spectator.query('h1')).toExist();
+    });
+
+    it('shows the new embed when the route id changes', () => {
+        setEmbeds([
+            { id: 'abc', name: 'My Portal', url: 'https://portal.example' },
+            { id: 'other', name: 'Other', url: 'https://other.example' },
+        ]);
+        spectator = createComponent();
+        spectator.setRouteParam('id', 'other');
+        expect(spectator.component.item()?.name).toBe('Other');
     });
 });

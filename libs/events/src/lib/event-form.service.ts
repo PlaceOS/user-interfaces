@@ -309,6 +309,10 @@ export class EventFormService extends AsyncHandler {
         injector: this._injector,
         equal: Object.is,
     });
+    /** Whether the last bookable space list request failed */
+    private readonly _spaces_failed = signal(false);
+    /** Signal for whether the bookable space list failed to load */
+    public readonly spaces_load_failed = this._spaces_failed.asReadonly();
     /** Bookable spaces for the active zone */
     private readonly _spaces_resource = resource({
         params: () =>
@@ -326,11 +330,13 @@ export class EventFormService extends AsyncHandler {
                         ...loaded,
                         [zone_id]: spaces,
                     }));
+                    this._spaces_failed.set(false);
                     return { zone_id, spaces };
                 })
-                .catch(
-                    () => null as { zone_id: string; spaces: Space[] } | null,
-                )
+                .catch(() => {
+                    this._spaces_failed.set(true);
+                    return null as { zone_id: string; spaces: Space[] } | null;
+                })
                 .finally(() => this.removeLoadingTag(Tags.ListingRooms));
         },
     });
@@ -450,6 +456,27 @@ export class EventFormService extends AsyncHandler {
     public readonly available_spaces = computed<Space[]>(() => {
         return this._available_resource.value() ?? [];
     });
+
+    /**
+     * Selected rooms that the current filters show but that are not available
+     * for the selected time. Availability is only known for the rooms that
+     * the filters show, so hidden rooms are not checked.
+     */
+    public readonly unavailable_resources = computed(() => {
+        if (this.loading() || this._spaces_failed()) return [];
+        const filtered = new Set(this.filtered_spaces().map(({ id }) => id));
+        const available = new Set(
+            this.available_spaces().map(({ id }) => id),
+        );
+        return (this._model().resources || []).filter(
+            ({ id }) => filtered.has(id) && !available.has(id),
+        );
+    });
+
+    /** Load the space list again after a failure */
+    public reloadSpaces() {
+        this._spaces_resource.reload();
+    }
 
     public loadLastSuccess() {
         const event = new CalendarEvent(
@@ -588,10 +615,10 @@ export class EventFormService extends AsyncHandler {
         if (!zone_id) return Promise.resolve([]);
         const existing = this._space_requests.get(zone_id);
         if (existing) return existing;
-        const request = new Promise<Space[]>((resolve) => {
+        const request = new Promise<Space[]>((resolve, reject) => {
             requestSpacesForZone(zone_id).subscribe({
                 next: (list) => resolve(list || []),
-                error: () => resolve([]),
+                error: (e) => reject(e),
             });
         }).finally(() => this._space_requests.delete(zone_id));
         this._space_requests.set(zone_id, request);

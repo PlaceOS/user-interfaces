@@ -14,6 +14,7 @@ describe('MeetingFlowNewComponent', () => {
     let spectator: SpectatorRouting<MeetingFlowNewComponent>;
     let flow_view: ReturnType<typeof signal<string>>;
     let model: ReturnType<typeof signal<any>>;
+    let unavailable_resources: ReturnType<typeof signal<any[]>>;
     const snackbar = {
         open: vi.fn(() => ({
             dismiss: vi.fn(),
@@ -35,6 +36,7 @@ describe('MeetingFlowNewComponent', () => {
                 useFactory: () => ({
                     view: flow_view,
                     model,
+                    unavailable_resources,
                     loadForm: vi.fn(),
                     setView: vi.fn(),
                 }),
@@ -47,6 +49,7 @@ describe('MeetingFlowNewComponent', () => {
         setNotifyOutlet(snackbar as any, true);
         flow_view = signal('form');
         model = signal({ title: 'Weekly Sync', resources: [] });
+        unavailable_resources = signal([]);
         spectator = createComponent();
         vi.spyOn(spectator.inject(Router), 'navigate').mockResolvedValue(
             true,
@@ -111,6 +114,14 @@ describe('MeetingFlowNewComponent', () => {
             [],
             expect.objectContaining({ queryParams: { view: 2 } }),
         );
+    });
+
+    it('should block navigating to confirm with an unavailable space', () => {
+        model.set({ title: 'Sync', resources: [{ id: 'space-1' }] });
+        unavailable_resources.set([{ id: 'space-1' }]);
+        spectator.component.navigateToView(2);
+        expect(snackbar.open).toHaveBeenCalled();
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
     });
 
     it('should step forwards and clamp backwards navigation at zero', () => {

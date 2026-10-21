@@ -4,7 +4,10 @@ import {
 } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { DateRangeCalendarComponent } from '@placeos/form-fields';
+import {
+    DateCalendarComponent,
+    DateRangeCalendarComponent,
+} from '@placeos/form-fields';
 import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 import { addDays, isSameDay, startOfDay, subDays } from 'date-fns';
 import { ScheduleTopbarComponent } from '../../app/schedule/schedule-topbar.component';
@@ -20,6 +23,7 @@ describe('ScheduleTopbarComponent', () => {
         declarations: [
             MockPipe(TranslatePipe, (key) => key),
             MockComponent(IconComponent),
+            MockComponent(DateCalendarComponent),
             MockComponent(DateRangeCalendarComponent),
         ],
         providers: [MockProvider(SettingsService, { get: settings_get })],

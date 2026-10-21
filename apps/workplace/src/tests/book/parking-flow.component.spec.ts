@@ -106,9 +106,9 @@ describe('NewParkingFlowComponent', () => {
         deny_parking_access.set(true);
         spectator.detectChanges();
         expect(spectator.query('parking-flow-form')).toBeNull();
-        expect(spectator.fixture.nativeElement.textContent).toContain(
-            'not allowed to book parking',
-        );
+        expect(
+            spectator.query('img[src="assets/icons/permission-none.svg"]'),
+        ).not.toBeNull();
     });
 
     it('should show the home-location restriction when the active location is home', () => {

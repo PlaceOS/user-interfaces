@@ -38,7 +38,15 @@ import { GroupEventsStateService } from './group-events-state.service';
                         class="border-base-400 m-1 flex items-center rounded-3xl border pr-1 pl-4"
                     >
                         <div class="mr-2 flex-1 text-sm">{{ tag }}</div>
-                        <button icon matRipple (click)="removeTag(tag)">
+                        <button
+                            icon
+                            matRipple
+                            [attr.aria-label]="
+                                'CALENDAR_EVENT.FILTER_REMOVE'
+                                    | translate: { name: tag }
+                            "
+                            (click)="removeTag(tag)"
+                        >
                             <icon>close</icon>
                         </button>
                     </div>

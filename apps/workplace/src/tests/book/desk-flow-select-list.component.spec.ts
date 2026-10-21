@@ -17,6 +17,7 @@ describe('DeskFlowSelectListComponent', () => {
         providers: [
             MockProvider(BookingFormService, {
                 loading: signal(''),
+                load_failed: signal(false),
                 available_resources: (() => {
                     available_resources = signal<any[]>([]);
                     return available_resources;

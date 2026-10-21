@@ -52,6 +52,7 @@ describe('TeamScheduleTableComponent', () => {
                 booked_count: signal(0),
                 select_mode: signal(false),
                 loading: signal(false),
+                failed: signal(false),
                 refresh,
                 toggleMemberSelection: toggle_selection,
                 isMemberSelected: is_selected,

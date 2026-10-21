@@ -35,6 +35,8 @@ describe('DealsComponent', () => {
         providers: [
             MockProvider(DealsService, {
                 deals,
+                loading: signal(false),
+                failed: signal(false),
                 viewDeal: view_deal,
             } as any),
             MockProvider(OrganisationService, {

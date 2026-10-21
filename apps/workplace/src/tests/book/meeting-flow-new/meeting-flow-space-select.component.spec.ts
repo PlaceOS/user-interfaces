@@ -23,6 +23,7 @@ describe('MeetingFlowSpaceSelectComponent', () => {
     let filters: ReturnType<typeof signal<any>>;
     let spaces: ReturnType<typeof signal<any[]>>;
     let available_spaces: ReturnType<typeof signal<any[]>>;
+    let unavailable_resources: ReturnType<typeof signal<any[]>>;
     let set_options: any;
     let set_filters: any;
     let navigate: any;
@@ -77,6 +78,8 @@ describe('MeetingFlowSpaceSelectComponent', () => {
                         filters,
                         spaces,
                         available_spaces,
+                        unavailable_resources,
+                        spaces_load_failed: signal(false),
                         loading: signal(false),
                         room_alerts: signal({}),
                         setOptions: (set_options = vi.fn()),
@@ -133,6 +136,7 @@ describe('MeetingFlowSpaceSelectComponent', () => {
         available_spaces = signal([
             { id: 'space-1', zones: ['level-1'], features: ['whiteboard'] },
         ]);
+        unavailable_resources = signal([]);
         settingSignal('use_region', false).set(false);
         spectator = createComponent();
         org = spectator.inject(OrganisationService);
@@ -275,6 +279,17 @@ describe('MeetingFlowSpaceSelectComponent', () => {
             [],
             expect.objectContaining({ queryParams: { view: 2 } }),
         );
+    });
+
+    it('should block continuing when the selected room is no longer available', () => {
+        navigate.mockClear();
+        model.set({ resources: [{ id: 'space-3' }] });
+        unavailable_resources.set([{ id: 'space-3' }]);
+        spectator.detectChanges();
+
+        expect(spectator.query('[unavailable-warning]')).toExist();
+        spectator.component.continue();
+        expect(navigate).not.toHaveBeenCalled();
     });
 
     it('should assign the active building and region through setters', () => {

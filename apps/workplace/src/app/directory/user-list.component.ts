@@ -10,6 +10,7 @@ import { AsyncHandler, SettingsService, User } from '@placeos/common';
 import {
     IconComponent,
     SafePipe,
+    TranslatePipe,
     UserAvatarComponent,
 } from '@placeos/components';
 import { searchStaff } from '@placeos/users';
@@ -17,7 +18,20 @@ import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 
-const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
+/** Group for names that do not start with a letter from A to Z */
+const OTHER_GROUP = '#';
+const LETTERS = [...`ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split(''), OTHER_GROUP];
+
+/** Group of a name: its first letter without accents, or `#` */
+function nameGroup(name: string) {
+    const letter = (name || '')
+        .trim()
+        .charAt(0)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase();
+    return LETTERS.includes(letter) ? letter : OTHER_GROUP;
+}
 
 @Component({
     selector: '[a-directory-user-list]',
@@ -37,7 +51,9 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                         <input
                             matInput
                             [(ngModel)]="search"
-                            placeholder="Search for a person..."
+                            [placeholder]="
+                                'COMMON.SELECT_USER_SEARCH' | translate
+                            "
                         />
                         @if (loading()) {
                             <mat-spinner
@@ -48,7 +64,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                         }
                     </mat-form-field>
                 </div>
-                <main class="h-1/2 w-full flex-1">
+                <main class="h-1/2 w-full flex-1 overflow-auto">
                     @let user_list = search_results();
                     @let grouped_users = grouped_results();
                     @if (user_list.length) {
@@ -100,7 +116,10 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                                                     user: user.email,
                                                 }"
                                             >
-                                                Locate
+                                                {{
+                                                    'APP.WORKPLACE.DIRECTORY_LOCATE'
+                                                        | translate
+                                                }}
                                             </a>
                                             @if (user.phone) {
                                                 <a
@@ -112,7 +131,10 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                                                             | safe: 'url'
                                                     "
                                                 >
-                                                    Call
+                                                    {{
+                                                        'APP.WORKPLACE.DIRECTORY_CALL'
+                                                            | translate
+                                                    }}
                                                 </a>
                                             }
                                         </div>
@@ -120,7 +142,18 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                                 }
                             }
                         }
-                    } @else {
+                    } @else if (failed()) {
+                        <div
+                            role="alert"
+                            class="flex flex-col items-center space-y-4 p-8 text-center"
+                        >
+                            <icon class="text-5xl">error</icon>
+                            <div>{{ 'COMMON.LOAD_ERROR' | translate }}</div>
+                            <button btn (click)="retry()">
+                                {{ 'COMMON.RETRY' | translate }}
+                            </button>
+                        </div>
+                    } @else if (!loading()) {
                         @let search_str = search();
                         <div class="flex flex-col items-center p-8">
                             <icon class="text-5xl">{{
@@ -131,8 +164,10 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                             <div class="text">
                                 {{
                                     search_str?.length >= min_search_length
-                                        ? ' No matches for "' + search_str + '"'
-                                        : 'Type above to search for users'
+                                        ? ('APP.WORKPLACE.COLLEAGUE_SEARCH_NO_MATCH'
+                                          | translate: { text: search_str })
+                                        : ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                                          | translate)
                                 }}
                             </div>
                         </div>
@@ -172,6 +207,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
         MatInputModule,
         FormsModule,
         RouterModule,
+        TranslatePipe,
     ],
 })
 export class DirectoryUserListComponent extends AsyncHandler {
@@ -179,6 +215,10 @@ export class DirectoryUserListComponent extends AsyncHandler {
 
     /** Whether space list is being filtered */
     public readonly loading = signal(false);
+    /** Whether the last search failed */
+    public readonly failed = signal(false);
+    /** Changed to run the search again */
+    private _retry = signal(0);
     /** Whether to show menu */
     public show_menu: boolean;
     /** List of values to group users by */
@@ -196,19 +236,28 @@ export class DirectoryUserListComponent extends AsyncHandler {
         super();
         effect((onCleanup) => {
             const query = this.search();
+            this._retry();
             const timeout = setTimeout(async () => {
+                this.failed.set(false);
                 if (query.length < this.min_search_length) {
                     this.search_results.set([]);
                     this.loading.set(false);
                     return;
                 }
                 this.loading.set(true);
-                const list = await searchStaff(query).catch(() => []);
+                const list = await searchStaff(query).catch(() => {
+                    this.failed.set(true);
+                    return [];
+                });
                 this.search_results.set(list);
                 this.loading.set(false);
             }, 400);
             onCleanup(() => clearTimeout(timeout));
         });
+    }
+
+    public retry() {
+        this._retry.update((count) => count + 1);
     }
 
     /** Minimum length of the search string needed to initial a search */
@@ -222,14 +271,14 @@ export class DirectoryUserListComponent extends AsyncHandler {
     }
 
     private buildGroups(users: User[]) {
-        const grouped_users: Record<string, User[]> = {};
+        const grouped_users: Record<string, User[]> = Object.fromEntries(
+            LETTERS.map((letter) => [letter, []]),
+        );
         const sorted = [...users].sort((a, b) =>
             a.name.localeCompare(b.name),
         );
-        for (const letter of this.letters) {
-            grouped_users[letter] = sorted.filter((f) =>
-                f.name.startsWith(letter),
-            );
+        for (const user of sorted) {
+            grouped_users[nameGroup(user.name)].push(user);
         }
         return grouped_users;
     }

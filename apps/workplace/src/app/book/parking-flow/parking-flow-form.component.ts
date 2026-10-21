@@ -8,15 +8,10 @@ import {
     ParkingService,
     ParkingSpaceListFieldComponent,
 } from '@placeos/bookings';
-import {
-    AsyncHandler,
-    currentUser,
-    getInvalidSignalFields,
-    notifyError,
-    SettingsService,
-} from '@placeos/common';
+import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { roundToNearestMinutes } from 'date-fns';
+import { notifyInvalidBookingFields } from '../booking-invalid-fields';
 import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component';
 import { ParkingFormDetailsComponent } from './parking-form-details.component';
 
@@ -55,6 +50,8 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                                 icon
                                 type="button"
                                 matRipple
+                                [attr.aria-label]="'COMMON.DETAILS' | translate"
+                                [attr.aria-expanded]="!hide_block.details"
                                 (click)="
                                     hide_block.details = !hide_block.details
                                 "
@@ -91,6 +88,10 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                                 icon
                                 type="button"
                                 matRipple
+                                [attr.aria-label]="
+                                    'RESOURCE.PARKING_SPACE' | translate
+                                "
+                                [attr.aria-expanded]="!hide_block.space"
                                 (click)="hide_block.space = !hide_block.space"
                             >
                                 <icon>{{
@@ -200,11 +201,10 @@ export class ParkingFlowFormComponent extends AsyncHandler implements OnInit {
             }));
         }
         if (!this.form().valid())
-            return notifyError(
-                `Some fields are invalid. [${getInvalidSignalFields(
-                    this.form,
-                    this.model,
-                ).join(', ')}]`,
+            return notifyInvalidBookingFields(
+                this.form,
+                this.model,
+                'RESOURCE.PARKING_SPACE',
             );
         this.sheet_ref = this._bottom_sheet.open(
             NewParkingFlowConfirmComponent,

@@ -78,8 +78,10 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
                         class="h-64 w-64"
                     />
                     <p>
-                        Your user account is not allowed to book parking in this
-                        building.
+                        {{
+                            'EXPLORE.PARKING_PERMISSIONS_ERROR'
+                                | translate: { name: building_name }
+                        }}
                     </p>
                 </div>
             }
@@ -116,6 +118,11 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     public readonly is_home_location = this._parking.is_home_location;
     public readonly view = this._state.view;
     public readonly ready = signal(false);
+
+    public get building_name() {
+        const building = this._org.building;
+        return building?.display_name || building?.name || '';
+    }
 
     public get last_success() {
         return this._state.last_success;

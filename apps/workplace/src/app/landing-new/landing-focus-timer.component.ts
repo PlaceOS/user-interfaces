@@ -35,6 +35,7 @@ import { FOCUS_DURATIONS, FocusTimerService } from './focus-timer.service';
                         class="hover:bg-base-300 min-h-10 flex-1 px-1 text-sm"
                         [class.clear]="duration() !== minutes"
                         [attr.aria-pressed]="duration() === minutes"
+                        [disabled]="running()"
                         (click)="timer.setDuration(minutes)"
                     >
                         {{

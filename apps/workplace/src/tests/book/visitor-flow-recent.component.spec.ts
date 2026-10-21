@@ -99,4 +99,13 @@ describe('VisitorFlowRecentComponent', () => {
             visitor_internal_or_external: 'external',
         });
     });
+
+    it('should not save a company guessed from the email domain', () => {
+        get_setting.mockReturnValue(['visitor.one@gmail.com|Visitor One']);
+
+        spectator.component.ngOnInit();
+        spectator.component.selectVisitor(spectator.component.visitors()[0]);
+
+        expect(model().company).toBe('');
+    });
 });
