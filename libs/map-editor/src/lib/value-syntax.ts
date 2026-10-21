@@ -30,6 +30,20 @@ const NUMBER = /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/;
 const LENGTH =
     /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?(?:px|pt|pc|mm|cm|in|em|rem|ex|%)?$/;
 const CLASS_TOKEN = /^-?[A-Za-z_][A-Za-z0-9_-]*$/;
+/** `dominant-baseline` keywords from SVG 2, plus the two SVG 1.1 edge keywords browsers still honour. */
+const DOMINANT_BASELINES = new Set([
+    'auto',
+    'alphabetic',
+    'central',
+    'hanging',
+    'ideographic',
+    'mathematical',
+    'middle',
+    'text-after-edge',
+    'text-before-edge',
+    'text-bottom',
+    'text-top',
+]);
 const UNSAFE_TEXT = /url\(|expression\(|behavior:|javascript:|<|>|[\r\n]/i;
 
 function cssSupports(property: string, value: string): boolean | null {
@@ -141,6 +155,10 @@ export function attributeValueIssue(
             return ['start', 'middle', 'end'].includes(value.trim())
                 ? null
                 : `"${value}" is not a text anchor`;
+        case 'dominant-baseline':
+            return DOMINANT_BASELINES.has(value.trim())
+                ? null
+                : `"${value}" is not a dominant baseline`;
         default:
             if (name.startsWith('data-')) {
                 return /[<>]/.test(value)
