@@ -10,8 +10,8 @@
  * a dialog whose decline button also deletes is a worse bug than one that fails
  * to delete, and only the second test can catch it.
  *
- * Both read the backend afterwards. The card leaving the screen proves nothing
- * on its own — the app removes it optimistically.
+ * Both read the backend afterwards, so the result does not rest on the screen
+ * alone.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { listBookings, deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
@@ -63,8 +63,7 @@ test.describe('cancelling a visitor invite from the app', () => {
             await page.startCancel(booking_id);
             await page.acceptConfirm();
 
-            // The backend is the judge. The card disappearing is the app being
-            // optimistic, and it does that whether or not the call succeeded.
+            // The backend is the judge.
             await expect(async () => {
                 expect(
                     await isLive(staffApi, booking_id!),
@@ -72,10 +71,11 @@ test.describe('cancelling a visitor invite from the app', () => {
                 ).toBe(false);
             }).toPass({ timeout: 30_000 });
 
+            // Cancelled bookings stay in the schedule as history (PPT-2656).
             await expect(
                 page.card(booking_id),
-                'and its card must leave the schedule',
-            ).toBeHidden({ timeout: 30_000 });
+                'and its card must show as cancelled',
+            ).toHaveAttribute('cancelled', '', { timeout: 30_000 });
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id).catch(() => null);
             await deleteGuest(staffApi, visitor.email);
