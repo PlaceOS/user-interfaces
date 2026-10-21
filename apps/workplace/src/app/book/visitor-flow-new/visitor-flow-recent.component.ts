@@ -22,11 +22,15 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         <div
                             class="bg-brand-content absolute inset-0 opacity-20"
                         ></div>
-                        <div>Quick Action</div>
+                        <div>
+                            {{ 'BOOKINGS.VISITOR_RECENT_QUICK_ACTION' | translate }}
+                        </div>
                     </div>
                     <div class="flex items-center space-x-2">
                         <icon>history</icon>
-                        <div class="text-sm">Recent Visitors</div>
+                        <div class="text-sm">
+                            {{ 'BOOKINGS.VISITOR_RECENT_LABEL' | translate }}
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -34,11 +38,12 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         {{ 'BOOKINGS.VISITOR_RECENT' | translate }}
                     </h3>
                     <p class="text-sm">
-                        @if (is_single()) {
-                            Quickly re-invite visitors you've previously booked.
-                        } @else {
-                            Select visitors to invite. Click to toggle.
-                        }
+                        {{
+                            (is_single()
+                                ? 'BOOKINGS.VISITOR_RECENT_SINGLE_MSG'
+                                : 'BOOKINGS.VISITOR_RECENT_GROUP_MSG'
+                            ) | translate
+                        }}
                     </p>
                 </div>
                 @if (recent_visitors().length > 0) {
@@ -90,10 +95,13 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         <icon class="text-4xl opacity-60">person_search</icon>
                         <div class="">
                             <div class="text-sm font-medium">
-                                No recent visitors
+                                {{ 'BOOKINGS.VISITOR_RECENT_EMPTY' | translate }}
                             </div>
                             <div class="text-xs opacity-80">
-                                Your visitor history will appear here
+                                {{
+                                    'BOOKINGS.VISITOR_RECENT_EMPTY_MSG'
+                                        | translate
+                                }}
                             </div>
                         </div>
                     </div>
@@ -167,15 +175,6 @@ export class VisitorFlowRecentComponent implements OnInit {
             .join(' ');
     }
 
-    private extractCompanyFromEmail(email: string): string {
-        const domain = email.split('@')[1];
-        if (!domain) return '';
-        // Get the domain name without TLD
-        const companyName = domain.split('.')[0];
-        // Capitalize first letter
-        return companyName.charAt(0).toUpperCase() + companyName.slice(1);
-    }
-
     private enrichVisitorData(visitor: RecentVisitor): RecentVisitor {
         const enriched = { ...visitor };
 
@@ -189,14 +188,9 @@ export class VisitorFlowRecentComponent implements OnInit {
             enriched.name = this.extractNameFromEmail(enriched.email);
         }
 
-        // Extract company from email domain if not provided, null, or empty
-        if (
-            (!enriched.company ||
-                enriched.company === 'null' ||
-                enriched.company === 'undefined') &&
-            enriched.email
-        ) {
-            enriched.company = this.extractCompanyFromEmail(enriched.email);
+        // Only keep a stored company. Do not guess one from the email domain.
+        if (enriched.company === 'null' || enriched.company === 'undefined') {
+            enriched.company = '';
         }
 
         return enriched;

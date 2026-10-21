@@ -21,8 +21,10 @@ import {
     BookingType,
     CalendarEvent,
     currentUser,
+    i18n,
     notifyError,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     checkinEventGuest,
     EventFormService,
@@ -53,50 +55,58 @@ import { scanForQRCode } from '@placeos/common/qr-code';
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center text-center text-white"
                 >
-                    @if (is_scanning()) {
-                        <div
-                            class="relative z-10 flex flex-col items-center justify-end"
+                    <div
+                        class="relative z-10 flex flex-col items-center justify-end"
+                    >
+                        <h2
+                            class="mb-1 text-3xl uppercase subpixel-antialiased"
                         >
-                            <h2
-                                class="mb-1 text-3xl uppercase subpixel-antialiased"
-                            >
-                                Scan QR Code
-                            </h2>
-                            <span class="mb-4">
-                                Scan the QR code outside a PlaceOS room or
-                                space.
-                            </span>
-                        </div>
-                    }
-                    @if (!is_scanning()) {
-                        <div
-                            class="relative z-10 flex flex-col items-center justify-end"
-                        >
-                            <h2
-                                class="mb-1 text-3xl uppercase subpixel-antialiased"
-                            >
-                                Enter Room ID
-                            </h2>
-                            <span class="mb-4">
-                                Enter the room ID number outisde a PlaceOS room
-                                or space.
-                            </span>
-                        </div>
-                    }
+                            {{
+                                (is_scanning()
+                                    ? 'APP.WORKPLACE.CODE_SCAN_TITLE'
+                                    : 'APP.WORKPLACE.CODE_ENTER_TITLE'
+                                ) | translate
+                            }}
+                        </h2>
+                        <span class="mb-4">
+                            {{
+                                (is_scanning()
+                                    ? 'APP.WORKPLACE.CODE_SCAN_MSG'
+                                    : 'APP.WORKPLACE.CODE_ENTER_MSG'
+                                ) | translate
+                            }}
+                        </span>
+                    </div>
                     <div class="flex items-center justify-center">
                         <div
                             box
                             class="m-8 flex h-64 w-64 items-center justify-center space-x-2 rounded-2xl p-8 transition-all"
                             [class.input]="!is_scanning()"
                         >
-                            <span class="uppercase">Booking ID</span>
+                            <label for="room-code" class="uppercase">
+                                {{ 'COMMON.CODE' | translate }}
+                            </label>
                             <input
                                 matInput
+                                id="room-code"
                                 class="w-full border-none bg-none text-left text-3xl"
                                 [(ngModel)]="room_code"
-                                name="booking-id"
+                                name="room-code"
                                 placeholder="e.g. 12102910"
+                                (keydown.enter)="submitCode()"
                             />
+                            <button
+                                icon
+                                matRipple
+                                type="button"
+                                [attr.aria-label]="
+                                    'COMMON.CHECK_IN' | translate
+                                "
+                                [disabled]="!room_code().trim()"
+                                (click)="submitCode()"
+                            >
+                                <icon class="text-2xl">arrow_forward</icon>
+                            </button>
                         </div>
                     </div>
                     <div
@@ -112,7 +122,7 @@ import { scanForQRCode } from '@placeos/common/qr-code';
                             "
                             (click)="is_scanning.set(true)"
                         >
-                            Scan Code
+                            {{ 'APP.WORKPLACE.CODE_SCAN_TITLE' | translate }}
                         </button>
                         <button
                             matRipple
@@ -124,7 +134,7 @@ import { scanForQRCode } from '@placeos/common/qr-code';
                             "
                             (click)="is_scanning.set(false)"
                         >
-                            Enter Code
+                            {{ 'APP.WORKPLACE.CODE_ENTER_TITLE' | translate }}
                         </button>
                     </div>
                 </div>
@@ -134,7 +144,7 @@ import { scanForQRCode } from '@placeos/common/qr-code';
                 class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Checking in booking...</p>
+                <p>{{ 'APP.WORKPLACE.CODE_CHECKING_IN' | translate }}</p>
             </div>
         }
     `,
@@ -171,7 +181,11 @@ import { scanForQRCode } from '@placeos/common/qr-code';
                 display: initial;
             }
 
-            [box] span {
+            [box].input > button[icon] {
+                display: flex;
+            }
+
+            [box] label {
                 font-family: var(--heading-font);
                 font-weight: 500;
                 text-transform: uppercase;
@@ -184,6 +198,8 @@ import { scanForQRCode } from '@placeos/common/qr-code';
         MatRippleModule,
         MatProgressSpinnerModule,
         FormsModule,
+        IconComponent,
+        TranslatePipe,
     ],
 })
 export class BookCodeFlowComponent
@@ -201,6 +217,9 @@ export class BookCodeFlowComponent
     public readonly loading = signal(false);
 
     public readonly room_code = signal<string>('');
+    /** Last scanned QR code that is not a PlaceOS link. Scans repeat many
+     * times each second, so this stops a repeated error message. */
+    private _last_invalid_qr = '';
     /** Canvas for QR code processing */
     private _canvas: HTMLCanvasElement;
     /** Canvas context */
@@ -237,22 +256,33 @@ export class BookCodeFlowComponent
         this.timeout('initialise', () => this._startScanning());
     }
 
+    /** Check in to the booking for the resource code that the user typed */
+    public submitCode() {
+        const code = this.room_code().trim();
+        if (!code || this.loading()) return;
+        this._checkinBooking(code);
+    }
+
     private handleQrCode(result: string) {
         if (this.loading()) return;
         const url = result;
         const hashindex = url.indexOf('/#/');
-        // could just whole page redirect to url
-        if (hashindex > 0) {
-            const regex = /[?&]([^=#]+)=([^&#]*)/g;
-            const params = {};
-            let match;
-            while ((match = regex.exec(url))) {
-                params[match[1]] = match[2];
-            }
-            this._router.navigate([url.split('/#')[1].split('?')[0]], {
-                queryParams: params,
-            });
+        if (hashindex <= 0) {
+            if (url === this._last_invalid_qr) return;
+            this._last_invalid_qr = url;
+            notifyError(i18n('APP.WORKPLACE.CODE_QR_INVALID'));
+            return;
         }
+        // could just whole page redirect to url
+        const regex = /[?&]([^=#]+)=([^&#]*)/g;
+        const params = {};
+        let match;
+        while ((match = regex.exec(url))) {
+            params[match[1]] = match[2];
+        }
+        this._router.navigate([url.split('/#')[1].split('?')[0]], {
+            queryParams: params,
+        });
     }
 
     private async _checkinBooking(
@@ -261,44 +291,36 @@ export class BookCodeFlowComponent
     ) {
         this.loading.set(true);
         this.unsub('scan_for_qr_code');
-        let bookings = await queryBookings({
+        const current_bookings = await queryBookings({
             period_start: getUnixTime(Date.now()),
             period_end: getUnixTime(addMinutes(Date.now(), 5)),
             type,
             email: currentUser().email,
         }).catch((_) => [] as Booking[]);
-        const item = bookings.find((_) => _.asset_id === asset_id);
+        const item = current_bookings.find((_) => _.asset_id === asset_id);
         if (item) {
             await setBookingCheckedIn(item, true).catch((_) => {
-                notifyError(
-                    `Unable to checkin booking with resource "${asset_id}"`,
-                );
+                notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
                 this.loading.set(false);
                 throw _;
             });
             this._router.navigate(['/book', 'code', 'success']);
         } else {
-            bookings = await queryBookings({
+            const later_bookings = await queryBookings({
                 period_start: getUnixTime(Date.now()),
                 period_end: getUnixTime(endOfDay(Date.now())),
                 type,
                 email: currentUser().email,
             }).catch((_) => [] as Booking[]);
-            let item = bookings.find((_) => _.asset_id === asset_id);
-            if (item) {
+            if (later_bookings.find((_) => _.asset_id === asset_id)) {
                 this._router.navigate(['/book', 'code', 'error'], {
                     queryParams: { type: 'not_started', asset_id },
                 });
                 return;
             }
-            bookings = await queryBookings({
-                period_start: getUnixTime(Date.now()),
-                period_end: getUnixTime(addMinutes(Date.now(), 5)),
-                type,
-                email: currentUser().email,
-            }).catch((_) => [] as Booking[]);
-            item = bookings.find((_) => _.asset_id === asset_id);
-            if (item) {
+            // A current booking that is not for this resource means the user
+            // scanned the wrong resource.
+            if (current_bookings.length) {
                 this._router.navigate(['/book', 'code', 'error'], {
                     queryParams: { type: 'wrong_resource', asset_id },
                 });
@@ -326,16 +348,23 @@ export class BookCodeFlowComponent
         );
         if (item) {
             await checkinEventGuest(item.id, email, true).catch((_) => {
-                notifyError(
-                    `Unable to checkin event with resource "${space_id}"`,
-                );
+                notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
                 this.loading.set(false);
                 throw _;
             });
             this._router.navigate(['/book', 'code', 'success']);
             this.loading.set(false);
         } else {
-            const space = await showSystem(space_id);
+            let space: Awaited<ReturnType<typeof showSystem>>;
+            try {
+                space = await showSystem(space_id);
+            } catch {
+                this.loading.set(false);
+                this._router.navigate(['/book', 'code', 'error'], {
+                    queryParams: { type: 'space_error' },
+                });
+                return;
+            }
             if (space) {
                 this._event_form.newForm(new CalendarEvent({ system: space }));
             }
@@ -365,6 +394,10 @@ export class BookCodeFlowComponent
                     }),
                 );
             })
-            .catch((e) => console.error('Unable to fetch media devices!', e));
+            .catch((e) => {
+                console.error('Unable to fetch media devices!', e);
+                this.is_scanning.set(false);
+                notifyError(i18n('APP.WORKPLACE.CODE_CAMERA_ERROR'));
+            });
     }
 }

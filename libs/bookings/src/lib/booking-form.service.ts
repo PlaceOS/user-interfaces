@@ -1923,6 +1923,7 @@ export class BookingFormService extends AsyncHandler {
         const form = this.model() as any;
         const group_name = groupName();
         const booking_ids: string[] = [];
+        const invited: User[] = [];
         let parent_id = '';
         let first_booking: Booking = null;
         try {
@@ -1952,11 +1953,24 @@ export class BookingFormService extends AsyncHandler {
                     throw `${visitor.name || visitor.email}: ${this._error_message(error)}`;
                 });
                 if (bkn?.id) booking_ids.push(bkn.id);
+                if (bkn?.id) invited.push(visitor);
                 if (bkn?.id && !first_booking) first_booking = bkn;
             }
         } catch (error) {
-            if (rollback_on_group_error && booking_ids.length) {
-                await rollbackGroupBookings(booking_ids);
+            const rolled_back = rollback_on_group_error && booking_ids.length;
+            if (rolled_back) await rollbackGroupBookings(booking_ids);
+            // Each member patch clears the visitor list on the form. Restore
+            // the visitors without an invite so that a retry invites only them
+            const remaining = rolled_back
+                ? members
+                : members.filter((_) => !invited.includes(_));
+            this._patch({ assets: remaining });
+            this.setOptions({ members: remaining });
+            if (!rolled_back && invited.length) {
+                throw i18n('BOOKINGS.VISITOR_GROUP_PARTIAL', {
+                    names: invited.map((_) => _.name || _.email).join(', '),
+                    error: this._error_message(error),
+                });
             }
             throw this._error_message(error);
         }

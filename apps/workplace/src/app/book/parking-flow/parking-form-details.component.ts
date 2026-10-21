@@ -28,11 +28,12 @@ import { addDays, endOfDay } from 'date-fns';
             <div>
                 <div class="flex flex-wrap items-center sm:space-x-2">
                     <div class="min-w-[256px] flex-1">
-                        <label for="title">
+                        <label for="parking-building">
                             {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                id="parking-building"
                                 [ngModel]="building()"
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
@@ -43,20 +44,29 @@ import { addDays, endOfDay } from 'date-fns';
                                     </mat-option>
                                 }
                             </mat-select>
-                            <mat-error>Building is required</mat-error>
+                            <mat-error>{{
+                                'COMMON.BUILDING_REQUIRED' | translate
+                            }}</mat-error>
                         </mat-form-field>
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center sm:space-x-2">
                     <div class="min-w-[256px] flex-1">
-                        <label for="title">
-                            {{ 'FORM.TITLE' | translate }}<span>*</span>
+                        <label for="parking-title">
+                            {{ 'FORM.TITLE' | translate }}
+                            @if (form().title().required()) {
+                                <span>*</span>
+                            }
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
+                                id="parking-title"
                                 [formField]="form().title"
-                                placeholder="e.g. Team Meeting"
+                                [placeholder]="
+                                    'BOOKINGS.PARKING_TITLE_PLACEHOLDER'
+                                        | translate
+                                "
                             />
                             <mat-error>{{
                                 'FORM.TITLE_REQUIRED' | translate
@@ -85,8 +95,10 @@ import { addDays, endOfDay } from 'date-fns';
                     </div>
                 </div>
                 @if (!model().all_day) {
-                    <div class="flex items-center space-x-2">
-                        <div class="w-1/3 flex-1">
+                    <div
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
+                    >
+                        <div class="flex-1">
                             <label for="start-time"
                                 >{{ 'FORM.TIME_START' | translate
                                 }}<span>*</span></label
@@ -108,7 +120,7 @@ import { addDays, endOfDay } from 'date-fns';
                                 [timezone]="timezone"
                             ></a-time-field>
                         </div>
-                        <div class="relative w-1/3 flex-1">
+                        <div class="relative flex-1">
                             <label for="end-time">
                                 {{ 'FORM.TIME_END' | translate }}<span>*</span>
                             </label>
@@ -138,10 +150,14 @@ import { addDays, endOfDay } from 'date-fns';
                 <div class="flex flex-col">
                     <label for="plate-number">
                         {{ 'BOOKINGS.PARKING_PLATE_NUMBER' | translate }}
+                        @if (form().plate_number().required()) {
+                            <span>*</span>
+                        }
                     </label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
+                            id="plate-number"
                             [formField]="form().plate_number"
                             [placeholder]="
                                 'BOOKINGS.PARKING_PLATE_NUMBER_PLACEHOLDER'

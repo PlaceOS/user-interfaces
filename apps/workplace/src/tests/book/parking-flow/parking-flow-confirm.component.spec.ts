@@ -102,18 +102,25 @@ describe('NewParkingFlowConfirmComponent', () => {
     });
 
     it('should notify the user and not dismiss when posting the booking fails', async () => {
-        post_form.mockRejectedValueOnce('boom');
+        post_form.mockRejectedValueOnce({
+            message: 'Bay 1 is not available',
+            status: 409,
+        });
 
         await spectator.component.postForm();
 
-        expect(
-            notify_open.mock.calls.some(
-                (c) =>
-                    typeof c[0] === 'string' &&
-                    c[0].includes('Unable to complete booking.'),
-            ),
-        ).toBe(true);
+        expect(notify_open.mock.calls.map((c) => c[0])).toContain(
+            'Bay 1 is not available',
+        );
         expect(dismiss).not.toHaveBeenCalled();
+    });
+
+    it('should ignore a second confirm while the first one is posting', async () => {
+        const first = spectator.component.postForm();
+        await spectator.component.postForm();
+        await first;
+
+        expect(post_form).toHaveBeenCalledTimes(1);
     });
 
     it('should pass the value through when dismissing directly', () => {

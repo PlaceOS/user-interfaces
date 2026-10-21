@@ -34,6 +34,7 @@ import {
     currentUser,
     getFormTimeSyncHandle,
     getTimeInTimezone,
+    i18n,
     notifyError,
     OrganisationService,
     settingSignal,
@@ -154,14 +155,25 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         [timezone]="timezone"
                     ></a-date-field>
                     @if (allow_recurrence()) {
-                        <div class="space-y-2">
-                            <div
-                                class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
+                        <div
+                            class="space-y-2"
+                            role="radiogroup"
+                            [attr.aria-label]="
+                                'BOOKINGS.PARKING_BOOKING_FREQUENCY' | translate
+                            "
+                        >
+                            <button
+                                type="button"
+                                role="radio"
+                                class="flex w-full cursor-pointer items-start gap-3 rounded-lg border p-4 text-left transition-colors"
                                 [class.border-info]="
                                     booking_frequency() === 'single'
                                 "
                                 [class.border-base-300]="
                                     booking_frequency() !== 'single'
+                                "
+                                [attr.aria-checked]="
+                                    booking_frequency() === 'single'
                                 "
                                 (click)="setBookingFrequency('single')"
                             >
@@ -194,175 +206,169 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         }}
                                     </div>
                                 </div>
-                            </div>
+                            </button>
                             <div
-                                class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
+                                class="rounded-lg border transition-colors"
                                 [class.border-info]="
                                     booking_frequency() === 'daily'
                                 "
                                 [class.border-base-300]="
                                     booking_frequency() !== 'daily'
                                 "
-                                (click)="setBookingFrequency('daily')"
                             >
-                                <div
-                                    class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
-                                    [class.border-info]="
+                                <button
+                                    type="button"
+                                    role="radio"
+                                    class="flex w-full cursor-pointer items-start gap-3 p-4 text-left"
+                                    [attr.aria-checked]="
                                         booking_frequency() === 'daily'
                                     "
-                                    [class.border-base-300]="
-                                        booking_frequency() !== 'daily'
-                                    "
+                                    (click)="setBookingFrequency('daily')"
                                 >
-                                    @if (booking_frequency() === 'daily') {
-                                        <div
-                                            class="bg-info h-2.5 w-2.5 rounded-full"
-                                        ></div>
-                                    }
-                                </div>
-                                <div class="flex-1">
-                                    <div class="font-medium">
-                                        {{
-                                            'BOOKINGS.PARKING_FREQUENCY_DAILY'
-                                                | translate
-                                        }}
+                                    <div
+                                        class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
+                                        [class.border-info]="
+                                            booking_frequency() === 'daily'
+                                        "
+                                        [class.border-base-300]="
+                                            booking_frequency() !== 'daily'
+                                        "
+                                    >
+                                        @if (booking_frequency() === 'daily') {
+                                            <div
+                                                class="bg-info h-2.5 w-2.5 rounded-full"
+                                            ></div>
+                                        }
                                     </div>
-                                    <div class="text-sm opacity-60">
-                                        {{
-                                            'BOOKINGS.PARKING_FREQUENCY_DAILY_DESC'
-                                                | translate
-                                        }}
+                                    <div class="flex-1">
+                                        <div class="font-medium">
+                                            {{
+                                                'BOOKINGS.PARKING_FREQUENCY_DAILY'
+                                                    | translate
+                                            }}
+                                        </div>
+                                        <div class="text-sm opacity-60">
+                                            {{
+                                                'BOOKINGS.PARKING_FREQUENCY_DAILY_DESC'
+                                                    | translate
+                                            }}
+                                        </div>
                                     </div>
-                                    @if (booking_frequency() === 'daily') {
-                                        <div
-                                            class="border-base-300 mt-3 space-y-3 rounded-lg border p-3"
-                                        >
+                                </button>
+                                @if (booking_frequency() === 'daily') {
+                                    <div
+                                        class="border-base-300 mr-4 mb-4 ml-12 space-y-3 rounded-lg border p-3"
+                                    >
+                                        <div class="text-sm font-medium">
+                                            {{
+                                                'BOOKINGS.PARKING_FREQUENCY_SELECT_DAYS'
+                                                    | translate
+                                            }}
+                                        </div>
+                                        <div class="flex flex-wrap gap-2">
+                                            @for (
+                                                day of WEEKDAY_OPTIONS;
+                                                track day.index
+                                            ) {
+                                                <button
+                                                    type="button"
+                                                    class="flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors"
+                                                    [class.border-info]="
+                                                        isDaySelected(day.index)
+                                                    "
+                                                    [class.bg-info]="
+                                                        isDaySelected(day.index)
+                                                    "
+                                                    [class.text-info-content]="
+                                                        isDaySelected(day.index)
+                                                    "
+                                                    [class.border-base-300]="
+                                                        !isDaySelected(
+                                                            day.index
+                                                        )
+                                                    "
+                                                    (click)="
+                                                        $event.stopPropagation();
+                                                        toggleDay(day.index)
+                                                    "
+                                                >
+                                                    {{ day.date | date: 'EEE' }}
+                                                </button>
+                                            }
+                                        </div>
+                                        @if (max_weeks() > 1) {
                                             <div class="text-sm font-medium">
                                                 {{
-                                                    'BOOKINGS.PARKING_FREQUENCY_SELECT_DAYS'
+                                                    'BOOKINGS.PARKING_FREQUENCY_NUM_WEEKS'
                                                         | translate
                                                 }}
                                             </div>
-                                            <div class="flex gap-2">
+                                            <div class="flex flex-wrap gap-2">
                                                 @for (
-                                                    day of WEEKDAY_OPTIONS;
-                                                    track day.index
+                                                    w of week_options();
+                                                    track w
                                                 ) {
                                                     <button
                                                         type="button"
-                                                        class="flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors"
+                                                        class="flex h-10 min-w-10 items-center justify-center rounded-full border-2 px-3 text-sm font-medium transition-colors"
                                                         [class.border-info]="
-                                                            isDaySelected(
-                                                                day.index
-                                                            )
+                                                            num_weeks() === w
                                                         "
                                                         [class.bg-info]="
-                                                            isDaySelected(
-                                                                day.index
-                                                            )
+                                                            num_weeks() === w
                                                         "
                                                         [class.text-info-content]="
-                                                            isDaySelected(
-                                                                day.index
-                                                            )
+                                                            num_weeks() === w
                                                         "
                                                         [class.border-base-300]="
-                                                            !isDaySelected(
-                                                                day.index
-                                                            )
+                                                            num_weeks() !== w
                                                         "
                                                         (click)="
                                                             $event.stopPropagation();
-                                                            toggleDay(day.index)
+                                                            setNumWeeks(w)
                                                         "
                                                     >
                                                         {{
-                                                            day.date
-                                                                | date: 'EEE'
+                                                            (w === 1
+                                                                ? 'BOOKINGS.PARKING_FREQUENCY_WEEK'
+                                                                : 'BOOKINGS.PARKING_FREQUENCY_WEEKS'
+                                                            )
+                                                                | translate
+                                                                    : {
+                                                                          weeks: w,
+                                                                      }
                                                         }}
                                                     </button>
                                                 }
                                             </div>
-                                            @if (max_weeks() > 1) {
+                                        }
+                                        <div class="text-sm font-medium">
+                                            {{
+                                                'BOOKINGS.PARKING_FREQUENCY_DATES_HEADER'
+                                                    | translate
+                                            }}
+                                        </div>
+                                        <div class="space-y-1">
+                                            @for (
+                                                day of weekdays;
+                                                track $index
+                                            ) {
                                                 <div
-                                                    class="text-sm font-medium"
+                                                    class="flex items-center gap-2 text-sm"
                                                 >
+                                                    <div
+                                                        class="bg-success h-2 w-2 rounded-full"
+                                                    ></div>
                                                     {{
-                                                        'BOOKINGS.PARKING_FREQUENCY_NUM_WEEKS'
-                                                            | translate
+                                                        day
+                                                            | date
+                                                                : 'EEEE, d MMMM yyyy'
                                                     }}
                                                 </div>
-                                                <div class="flex gap-2">
-                                                    @for (
-                                                        w of week_options();
-                                                        track w
-                                                    ) {
-                                                        <button
-                                                            type="button"
-                                                            class="flex h-10 min-w-10 items-center justify-center rounded-full border-2 px-3 text-sm font-medium transition-colors"
-                                                            [class.border-info]="
-                                                                num_weeks() ===
-                                                                w
-                                                            "
-                                                            [class.bg-info]="
-                                                                num_weeks() ===
-                                                                w
-                                                            "
-                                                            [class.text-info-content]="
-                                                                num_weeks() ===
-                                                                w
-                                                            "
-                                                            [class.border-base-300]="
-                                                                num_weeks() !==
-                                                                w
-                                                            "
-                                                            (click)="
-                                                                $event.stopPropagation();
-                                                                setNumWeeks(w)
-                                                            "
-                                                        >
-                                                            {{
-                                                                (w === 1
-                                                                    ? 'BOOKINGS.PARKING_FREQUENCY_WEEK'
-                                                                    : 'BOOKINGS.PARKING_FREQUENCY_WEEKS'
-                                                                )
-                                                                    | translate
-                                                                        : {
-                                                                              weeks: w,
-                                                                          }
-                                                            }}
-                                                        </button>
-                                                    }
-                                                </div>
                                             }
-                                            <div class="text-sm font-medium">
-                                                {{
-                                                    'BOOKINGS.PARKING_FREQUENCY_DATES_HEADER'
-                                                        | translate
-                                                }}
-                                            </div>
-                                            <div class="space-y-1">
-                                                @for (
-                                                    day of weekdays;
-                                                    track $index
-                                                ) {
-                                                    <div
-                                                        class="flex items-center gap-2 text-sm"
-                                                    >
-                                                        <div
-                                                            class="bg-success h-2 w-2 rounded-full"
-                                                        ></div>
-                                                        {{
-                                                            day
-                                                                | date
-                                                                    : 'EEEE, d MMMM yyyy'
-                                                        }}
-                                                    </div>
-                                                }
-                                            </div>
                                         </div>
-                                    }
-                                </div>
+                                    </div>
+                                }
                             </div>
                         </div>
                     }
@@ -378,15 +384,26 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                     </div>
                 </div>
                 <div class="space-y-3 p-4">
-                    <div class="space-y-2">
+                    <div
+                        class="space-y-2"
+                        role="radiogroup"
+                        [attr.aria-label]="
+                            'BOOKINGS.PARKING_REQUEST_TYPE' | translate
+                        "
+                    >
                         @for (type of request_types(); track trackById(type)) {
-                            <div
-                                class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
+                            <button
+                                type="button"
+                                role="radio"
+                                class="flex w-full cursor-pointer items-start gap-3 rounded-lg border p-4 text-left transition-colors"
                                 [class.border-info]="
                                     model().request_type === type.id
                                 "
                                 [class.border-base-300]="
                                     model().request_type !== type.id
+                                "
+                                [attr.aria-checked]="
+                                    model().request_type === type.id
                                 "
                                 (click)="setRequestType(type.id)"
                             >
@@ -423,7 +440,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         {{ type.description | translate }}
                                     </div>
                                 </div>
-                            </div>
+                            </button>
                         }
                     </div>
                     @if (show_host_select()) {
@@ -511,8 +528,17 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         | translate
                                 }}
                             </div>
+                            <input
+                                id="p2-supporting-docs"
+                                type="file"
+                                class="peer sr-only"
+                                multiple
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                [disabled]="uploading()"
+                                (change)="onSupportingDocsSelected($event)"
+                            />
                             <label
-                                class="border-base-300 hover:border-info flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
+                                class="border-base-300 hover:border-info peer-focus-visible:ring-info flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors peer-focus-visible:ring-2"
                                 for="p2-supporting-docs"
                             >
                                 <icon class="mt-0.5 text-xl">upload_file</icon>
@@ -531,14 +557,6 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                     </div>
                                 </div>
                             </label>
-                            <input
-                                id="p2-supporting-docs"
-                                type="file"
-                                class="hidden"
-                                multiple
-                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                (change)="onSupportingDocsSelected($event)"
-                            />
                             @if (supporting_doc_names().length) {
                                 <div class="mt-3 space-y-2">
                                     @for (
@@ -558,6 +576,12 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                                     icon
                                                     type="button"
                                                     matRipple
+                                                    [attr.aria-label]="
+                                                        ('COMMON.PREVIEW'
+                                                            | translate) +
+                                                        ' ' +
+                                                        file_name
+                                                    "
                                                     (click)="
                                                         previewSupportingDoc(
                                                             $index
@@ -570,6 +594,13 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                                     icon
                                                     type="button"
                                                     matRipple
+                                                    [attr.aria-label]="
+                                                        'COMMON.REMOVE_ITEM'
+                                                            | translate
+                                                                : {
+                                                                      item: file_name,
+                                                                  }
+                                                    "
                                                     (click)="
                                                         removeSupportingDoc(
                                                             $index
@@ -852,18 +883,30 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 {{ region_name }}
                             </div>
                         }
-                        <div class="space-y-2">
+                        <div
+                            class="space-y-2"
+                            role="radiogroup"
+                            [attr.aria-label]="
+                                'BOOKINGS.PARKING_LOCATION_PREFERENCE'
+                                    | translate
+                            "
+                        >
                             @for (
                                 bld of building_list();
                                 track trackById(bld)
                             ) {
-                                <div
-                                    class="flex min-h-15 cursor-pointer items-center gap-3 rounded-lg border px-4 py-2 transition-colors"
+                                <button
+                                    type="button"
+                                    role="radio"
+                                    class="flex min-h-15 w-full cursor-pointer items-center gap-3 rounded-lg border px-4 py-2 text-left transition-colors"
                                     [class.border-info]="
                                         building()?.id === bld.id
                                     "
                                     [class.border-base-300]="
                                         building()?.id !== bld.id
+                                    "
+                                    [attr.aria-checked]="
+                                        building()?.id === bld.id
                                     "
                                     (click)="setBuilding(bld)"
                                 >
@@ -974,7 +1017,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             </div>
                                         }
                                     </div>
-                                </div>
+                                </button>
                             }
                         </div>
                         @if (!hide_prefer_toggle()) {
@@ -1551,6 +1594,8 @@ export class ParkingRequestFormDetailsComponent
     public readonly start_time_mins = signal<number>(480);
     public readonly end_time_mins = signal<number>(1020);
     public readonly supporting_doc_names = signal<string[]>([]);
+    /** Whether supporting documents are uploading */
+    public readonly uploading = signal(false);
     public readonly custom_start_time_mins = signal<number>(480);
     public readonly custom_end_time_mins = signal<number>(600);
     public readonly shift_options = computed(() => {
@@ -2169,29 +2214,38 @@ export class ParkingRequestFormDetailsComponent
     }
 
     public async onSupportingDocsSelected(event: Event) {
+        if (this.uploading()) return;
         const input = event.target as HTMLInputElement;
         const files = Array.from(input.files || []);
-        const valid_files = files.filter(
-            (file) => file.size <= 10 * 1024 * 1024,
-        );
-        if (valid_files.length !== files.length) {
-            notifyError('Some files exceeded 10MB and were skipped.');
-        }
+        const valid_files = files.filter((file) => {
+            if (file.size <= 10 * 1024 * 1024) return true;
+            notifyError(
+                i18n('BOOKINGS.P2_FILE_TOO_LARGE', { name: file.name }),
+            );
+            return false;
+        });
         const model = this.model;
         const existing_urls: string[] = model?.().attachments || [];
         const existing_names = this.supporting_doc_names();
         const new_urls: string[] = [];
         const uploaded_names: string[] = [];
+        this.uploading.set(true);
         for (const file of valid_files) {
             const upload_id = await this._uploads
                 .uploadFile(file, true)
                 .catch(() => '');
-            if (!upload_id) continue;
+            if (!upload_id) {
+                notifyError(
+                    i18n('BOOKINGS.P2_UPLOAD_FAILED', { name: file.name }),
+                );
+                continue;
+            }
             uploaded_names.push(file.name);
             new_urls.push(
                 `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`,
             );
         }
+        this.uploading.set(false);
         const names = [...existing_names, ...uploaded_names];
         const urls = [...existing_urls, ...new_urls];
         this.supporting_doc_names.set(names);

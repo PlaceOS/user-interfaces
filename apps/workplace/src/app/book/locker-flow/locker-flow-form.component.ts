@@ -6,14 +6,10 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import {
-    OrganisationService,
-    getInvalidSignalFields,
-    i18n,
-    notifyError,
-} from '@placeos/common';
+import { OrganisationService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
+import { notifyInvalidBookingFields } from '../booking-invalid-fields';
 import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component';
 import { LockerFormDetailsComponent } from './locker-form-details.component';
 
@@ -78,13 +74,10 @@ export class BookLockerFlowFormComponent implements OnInit {
 
     public readonly viewConfirm = () => {
         if (!this.form().valid())
-            return notifyError(
-                i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidSignalFields(
-                        this.form,
-                        this.model,
-                    ).join(', '),
-                }),
+            return notifyInvalidBookingFields(
+                this.form,
+                this.model,
+                'RESOURCE.LOCKER',
             );
         this.sheet_ref = this._bottom_sheet.open(
             BookLockerFlowConfirmComponent,

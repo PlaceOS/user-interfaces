@@ -48,7 +48,7 @@ import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-succes
             <div
                 class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
             >
-                <img src="assets/icons/parking-success.svg" class="h-64 w-64" />
+                <img src="assets/icons/locker-success.svg" class="h-64 w-64" />
                 <p>
                     {{
                         'APP.WORKPLACE.LOCKER_ASSIGNED'

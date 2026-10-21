@@ -609,7 +609,19 @@
         "ASSETS_DELIVER_TIME": "Deliver After",
         "ASSETS_AVAILABLE": "{{ count }} available",
         "RULES_HIDDEN_1": "The selected {{ type }} is unavailable for the selected time or duration",
-        "RULES_HIDDEN": "Some of the selected {{ type }}s are unavailable for the selected time or duration"
+        "RULES_HIDDEN": "Some of the selected {{ type }}s are unavailable for the selected time or duration",
+        "PARKING_CLEAR_MSG": "Clear all the details in this parking request?",
+        "PARKING_TITLE_PLACEHOLDER": "e.g. Client visit",
+        "P2_FILE_TOO_LARGE": "{{ name }} is larger than 10MB and was not added.",
+        "P2_UPLOAD_FAILED": "Could not upload {{ name }}. Try again.",
+        "VISITOR_REASON_REQUIRED": "A reason for the visit is required",
+        "VISITOR_RECENT_QUICK_ACTION": "Quick Action",
+        "VISITOR_RECENT_LABEL": "Recent Visitors",
+        "VISITOR_RECENT_SINGLE_MSG": "Quickly re-invite visitors you've previously booked.",
+        "VISITOR_RECENT_GROUP_MSG": "Select visitors to invite. Click to toggle.",
+        "VISITOR_RECENT_EMPTY": "No recent visitors",
+        "VISITOR_RECENT_EMPTY_MSG": "Your visitor history will appear here",
+        "VISITOR_GROUP_PARTIAL": "Invites were sent to {{ names }}. The other visitors were not invited: {{ error }}. Submit again to invite them."
     },
     "CALENDAR_EVENT": {
         "CATERING_ORDER_AT_DATE": "Order for {{ date }} at {{ time }}",
@@ -959,7 +971,21 @@
             "WORLD_CLOCK_TITLE": "World Clock",
             "WORLD_CLOCK_HINT": "The time now in your cities.",
             "WORLD_CLOCK_LOCAL": "Your time",
-            "WORLD_CLOCK_ADD": "Add a city"
+            "WORLD_CLOCK_ADD": "Add a city",
+            "CODE_SCAN_TITLE": "Scan QR Code",
+            "CODE_SCAN_MSG": "Scan the QR code outside a PlaceOS room or space.",
+            "CODE_ENTER_TITLE": "Enter Code",
+            "CODE_ENTER_MSG": "Enter the code shown outside a PlaceOS room or space.",
+            "CODE_CHECKING_IN": "Checking in booking...",
+            "CODE_CAMERA_ERROR": "Unable to access the camera. Enter the code instead.",
+            "CODE_QR_INVALID": "This QR code is not a PlaceOS code.",
+            "CODE_NOT_STARTED_TITLE": "Booking not started",
+            "CODE_NOT_STARTED_MSG": "Your booking has not started yet. Try again when the booking starts.",
+            "CODE_WRONG_RESOURCE_MSG": "Your booking is for a different resource.",
+            "CODE_NO_BOOKING_MSG": "You do not have a booking. Would you like to book this desk?",
+            "CODE_SPACE_ERROR_MSG": "Unable to load the details of this space. Try again later.",
+            "LOCKER_SUCCESS_MSG_ALLDAY": "Your locker booking for \"{{ name }}\" at {{ place }} has been successfully booked for all day on {{ date }}",
+            "PARKING_SUCCESS_MSG_ALLDAY": "Your parking space reservation for \"{{ name }}\" has been successfully booked for all day on {{ date }}"
         },
         "CONCIERGE": {
             "MENU_BOOKINGS": "Bookings",

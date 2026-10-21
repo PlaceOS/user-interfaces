@@ -3550,6 +3550,38 @@ describe('BookingFormService', () => {
         expect(savedBookings()).toEqual([]);
     });
 
+    it('should drop invited visitors after a partial visitor group failure', async () => {
+        const alice = new User({ email: 'alice@example.com' });
+        const bob = new User({ email: 'bob@example.com' });
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
+        );
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [alice, bob],
+        });
+        vi.spyOn(
+            spectator.service as any,
+            'createGroupContainerBooking',
+        ).mockResolvedValue(new Booking({ id: 'group-1' }));
+        vi.spyOn(spectator.service, 'postForm')
+            .mockResolvedValueOnce(new Booking({ id: 'visitor-1' }))
+            .mockRejectedValueOnce('Refused');
+
+        await expect(
+            spectator.service.postFormForVisitorGroup(),
+        ).rejects.toBeTruthy();
+
+        expect(spectator.service.options().members).toEqual([bob]);
+        expect(spectator.service.model().assets).toEqual([bob]);
+    });
+
     it('should keep overlapping visitor groups separate for the same host', async () => {
         Object.defineProperty(spectator.inject(PaymentsService), 'enabled', {
             value: false,
