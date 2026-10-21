@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { IconComponent, SafePipe } from '@placeos/components';
+import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 
 interface SidebarEmbedData {
     url: string;
@@ -16,6 +16,7 @@ interface SidebarEmbedData {
         >
             <iframe
                 class="block h-full w-full border-0"
+                [title]="'APP.WORKPLACE.EMBED_TITLE' | translate"
                 [src]="embed_url() | safe: 'resource'"
             ></iframe>
         </div>
@@ -26,6 +27,7 @@ interface SidebarEmbedData {
             class="sidebar-embed__close border-base-300 bg-base-100 fixed top-2 z-10 rounded border"
             [class.sidebar-embed__close--left]="close_button_side() === 'left'"
             [class.sidebar-embed__close--right]="close_button_side() === 'right'"
+            [attr.aria-label]="'COMMON.CLOSE' | translate"
         >
             <icon>close</icon>
         </button>
@@ -58,7 +60,13 @@ interface SidebarEmbedData {
             }
         `,
     ],
-    imports: [IconComponent, MatRippleModule, SafePipe, MatDialogModule],
+    imports: [
+        IconComponent,
+        MatRippleModule,
+        SafePipe,
+        TranslatePipe,
+        MatDialogModule,
+    ],
 })
 export class SidebarEmbedComponent {
     private _data: SidebarEmbedData = inject(MAT_DIALOG_DATA);

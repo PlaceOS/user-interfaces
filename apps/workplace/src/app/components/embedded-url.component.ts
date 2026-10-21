@@ -1,8 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { settingSignal } from '@placeos/common';
-import { SafePipe } from '@placeos/components';
+import { SafePipe, TranslatePipe } from '@placeos/components';
 import { FooterMenuComponent } from './footer-menu.component';
 import type { TopMenuEmbedItem } from './top-menu.component';
 import { TopbarComponent } from './topbar.component';
@@ -30,13 +31,21 @@ import { TopbarComponent } from './topbar.component';
                             class="bg-base-100 max-w-md rounded-xl p-8 text-center shadow"
                         >
                             <h1 class="mb-2 text-xl font-medium">
-                                Embedded page unavailable
+                                {{
+                                    'APP.WORKPLACE.EMBED_UNAVAILABLE_TITLE'
+                                        | translate
+                                }}
                             </h1>
                             <p class="opacity-60">
-                                This menu item is no longer configured.
+                                {{
+                                    'APP.WORKPLACE.EMBED_UNAVAILABLE_MSG'
+                                        | translate
+                                }}
                             </p>
                             <a btn matRipple class="mt-6" [routerLink]="['/']">
-                                Return home
+                                {{
+                                    'APP.WORKPLACE.BOOKING_FINISHED' | translate
+                                }}
                             </a>
                         </div>
                     </div>
@@ -58,6 +67,7 @@ import { TopbarComponent } from './topbar.component';
     imports: [
         RouterModule,
         SafePipe,
+        TranslatePipe,
         MatRippleModule,
         TopbarComponent,
         FooterMenuComponent,
@@ -65,9 +75,11 @@ import { TopbarComponent } from './topbar.component';
 })
 export class EmbeddedUrlComponent {
     private readonly _route = inject(ActivatedRoute);
-    private readonly _id = signal(
-        this._route.snapshot.paramMap.get('id') || '',
-    );
+    /** The route stays active between embeds, so read the ID on each change */
+    private readonly _params = toSignal(this._route.paramMap, {
+        initialValue: this._route.snapshot.paramMap,
+    });
+    private readonly _id = computed(() => this._params().get('id') || '');
 
     public readonly items = settingSignal<TopMenuEmbedItem[]>(
         'menu_embeds',

@@ -266,7 +266,10 @@
         "CLEAR_SELECTION": "Clear selection",
         "BULK_LOADING": "Updating items ({{ count }})...",
         "BULK_SUCCESS": "Items updated: {{ count }}",
-        "BULK_PARTIAL": "{{ failed }} of {{ total }} items did not update."
+        "BULK_PARTIAL": "{{ failed }} of {{ total }} items did not update.",
+        "SIGN_IN_PROMPT": "Sign in to continue.",
+        "SIGN_IN": "Sign in",
+        "USER_CONTROLS": "User controls"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -621,7 +624,8 @@
         "VISITOR_RECENT_GROUP_MSG": "Select visitors to invite. Click to toggle.",
         "VISITOR_RECENT_EMPTY": "No recent visitors",
         "VISITOR_RECENT_EMPTY_MSG": "Your visitor history will appear here",
-        "VISITOR_GROUP_PARTIAL": "Invites were sent to {{ names }}. The other visitors were not invited: {{ error }}. Submit again to invite them."
+        "VISITOR_GROUP_PARTIAL": "Invites were sent to {{ names }}. The other visitors were not invited: {{ error }}. Submit again to invite them.",
+        "ROOMS_LOADING": "Loading rooms..."
     },
     "CALENDAR_EVENT": {
         "CATERING_ORDER_AT_DATE": "Order for {{ date }} at {{ time }}",
@@ -870,13 +874,13 @@
             "QUICK_LINK_DESKS": "Book a desk",
             "QUICK_LINK_PARKING": "Book parking",
             "QUICK_LINK_LOCKERS": "Book a locker",
-            "FAVOURITES_COUNT": "{{ count }} favorite(s)",
+            "FAVOURITES_COUNT": "{{ count }} favorites",
             "FAVOURITES_REMOVE": "Remove favorite",
             "FAVOURITES_EMPTY": "No favorites",
             "FAVOURITES_SHOW": "Show only favorites",
             "CAPACITY": "Capacity {{ count }}",
             "COLLEAGUES": "Colleagues",
-            "COLLEAGUES_COUNT": "{{ count }} Colleague(s)",
+            "COLLEAGUES_COUNT": "{{ count }} people",
             "COLLEAGUES_EMPTY": "No colleagues",
             "COLLEAGUE_NEW_MEETING": "Create Meeting",
             "COLLEAGUE_REMOVE": "Remove Colleague",
@@ -1020,7 +1024,20 @@
             "CONTROL_LOCATE": "Find",
             "CONTROL_LOCATION_UNKNOWN": "Unable to determine location",
             "DIRECTORY_LOCATE": "Locate",
-            "DIRECTORY_CALL": "Call"
+            "DIRECTORY_CALL": "Call",
+            "MENU": "Menu",
+            "COLLEAGUE_SEARCH_MIN_LENGTH": "Type at least 3 characters to search.",
+            "COLLEAGUES_REMOVE_ERROR": "Failed to remove colleague. Please try again.",
+            "COLLEAGUE_OPTIONS": "Options for {{ name }}",
+            "EMBED_UNAVAILABLE_TITLE": "Embedded page unavailable",
+            "EMBED_UNAVAILABLE_MSG": "This menu item is no longer configured.",
+            "EMBED_TITLE": "Embedded page",
+            "GLOBAL_SEARCH_LABEL": "Search for people or spaces",
+            "SEARCH_TYPE_FEATURE": "Place",
+            "UPCOMING_STARTS_IN_TIME": "Starts in {{ time }}",
+            "UPCOMING_ENDS_IN_TIME": "Ends in {{ time }}",
+            "FAVOURITES_COUNT_1": "{{ count }} favorite",
+            "COLLEAGUES_COUNT_1": "{{ count }} person"
         },
         "CONCIERGE": {
             "MENU_BOOKINGS": "Bookings",

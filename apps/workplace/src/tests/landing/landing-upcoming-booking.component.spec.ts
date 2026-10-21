@@ -53,6 +53,7 @@ describe('LandingUpcomingBookingComponent', () => {
                     editBooking: vi.fn(),
                     remove: vi.fn(),
                     end: vi.fn(),
+                    loading: signal(false),
                 },
             },
             MockProvider(OrganisationService, {
@@ -136,6 +137,16 @@ describe('LandingUpcomingBookingComponent', () => {
             await spectator.component.checkIn();
 
             expect(checkInUrl()).toContain('/booking-1/check_in?state=true');
+        });
+
+        it('should send one request when check in is pressed twice', async () => {
+            await Promise.all([
+                spectator.component.checkIn(),
+                spectator.component.checkIn(),
+            ]);
+
+            expect(ts_client.post).toHaveBeenCalledTimes(1);
+            expect(spectator.component.checking_in()).toBe(false);
         });
     });
 

@@ -14,6 +14,7 @@ import {
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
+    TranslatePipe,
 } from '@placeos/components';
 import { ChatComponent } from '@placeos/components/chat';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
@@ -27,6 +28,7 @@ import { mocksInit } from '@placeos/mocks';
         GlobalLoadingComponent,
         SettingsDebugPanelLauncherComponent,
         ChatComponent,
+        TranslatePipe,
     ],
     template: `
         <global-banner />
@@ -44,14 +46,14 @@ import { mocksInit } from '@placeos/mocks';
                 <div
                     class="border-base-300 bg-base-100 w-[24rem] max-w-full rounded-lg border p-4 text-center text-sm shadow-sm"
                 >
-                    <p>Sign in to continue.</p>
+                    <p>{{ 'COMMON.SIGN_IN_PROMPT' | translate }}</p>
                     <button
                         btn
                         type="button"
                         class="mt-3 w-full"
                         (click)="signInWithTeams()"
                     >
-                        Sign in
+                        {{ 'COMMON.SIGN_IN' | translate }}
                     </button>
                 </div>
             </div>

@@ -9,6 +9,7 @@ import { BookingFormService } from '@placeos/bookings';
 import {
     Booking,
     i18n,
+    notifyError,
     notifySuccess,
     settingSignal,
     User,
@@ -92,6 +93,7 @@ import { landingFeatures } from './landing-features';
                             [class.border-secondary]="isSelected(user)"
                         >
                             <mat-checkbox
+                                [aria-label]="user.name"
                                 [checked]="isSelected(user)"
                                 (change)="toggleSelection(user)"
                                 (click)="$event.stopPropagation()"
@@ -110,7 +112,15 @@ import { landingFeatures } from './landing-features';
                                     >{{ user.email }}</a
                                 >
                             </div>
-                            <button icon matRipple [matMenuTriggerFor]="menu">
+                            <button
+                                icon
+                                matRipple
+                                [matMenuTriggerFor]="menu"
+                                [attr.aria-label]="
+                                    'APP.WORKPLACE.COLLEAGUE_OPTIONS'
+                                        | translate: { name: user.name }
+                                "
+                            >
                                 <icon>more_vert</icon>
                             </button>
                             <mat-menu #menu="matMenu">
@@ -207,7 +217,7 @@ import { landingFeatures } from './landing-features';
                 <div
                     class="bg-base-200 flex h-48 w-full flex-col items-center justify-center space-y-2 rounded-xl p-8"
                 >
-                    <img src="assets/icons/no-contacts.svg" />
+                    <img src="assets/icons/no-contacts.svg" alt="" />
                     <p class="text-center text-sm opacity-60">
                         {{ 'APP.WORKPLACE.COLLEAGUES_EMPTY' | translate }}
                     </p>
@@ -337,7 +347,13 @@ export class LandingColleaguesNewComponent {
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.COLLEAGUES_REMOVE_LOADING'));
-        await this._state.removeContact(user);
+        try {
+            await this._state.removeContact(user);
+        } catch {
+            notifyError(i18n('APP.WORKPLACE.COLLEAGUES_REMOVE_ERROR'));
+            resp.close();
+            return;
+        }
         this._team_schedule.refresh();
         // Remove from selection if selected
         if (this.isSelected(user)) {

@@ -32,6 +32,7 @@ describe('LandingFavouritesNewComponent', () => {
                 space_list: signal([
                     { id: 'space-1', name: 'Room 1', email: 'r1@x', zones: [] },
                 ]) as any,
+                loading_spaces: signal(false),
             }),
             MockProvider(EventFormService, {
                 newForm: vi.fn(),

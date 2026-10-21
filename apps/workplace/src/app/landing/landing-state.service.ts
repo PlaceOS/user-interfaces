@@ -60,6 +60,8 @@ export class LandingStateService extends AsyncHandler {
     private _space_list = signal<Space[]>([]);
     private _space_statuses = signal<unknown[]>([]);
     private _search_results = signal<StaffUser[]>([]);
+    /** Whether the last user search failed */
+    private _search_failed = signal(false);
     // `any` stays here: explore.component.ts reads event and booking fields
     // from this list with no type guard.
     private _upcoming_events = signal<any[]>([]);
@@ -99,6 +101,7 @@ export class LandingStateService extends AsyncHandler {
     public loading = this._loading.asReadonly();
     public loading_spaces = this._loading_spaces.asReadonly();
     public readonly search_results = this._search_results.asReadonly();
+    public readonly search_failed = this._search_failed.asReadonly();
     public level_occupancy = this._level_occupancy.asReadonly();
 
     public search_fn = async (q: string) =>
@@ -116,6 +119,7 @@ export class LandingStateService extends AsyncHandler {
             if (!bld) return;
             let active = true;
             onCleanup(() => (active = false));
+            this._loading_spaces.set(true);
             const metadata = await showMetadata(
                 bld.id,
                 `room_booking_rules`,
@@ -124,6 +128,7 @@ export class LandingStateService extends AsyncHandler {
                 .toPromise()
                 .catch(() => []);
             if (!active) return;
+            this._loading_spaces.set(false);
             this._booking_rules.set(
                 metadata?.details instanceof Array ? metadata.details : [],
             );
@@ -148,16 +153,25 @@ export class LandingStateService extends AsyncHandler {
             }
             onCleanup(() => this.unsubWith('bind:'));
         });
+        let search_id = 0;
         effect((onCleanup) => {
             const { search } = this._options();
+            const id = ++search_id;
             const timeout = setTimeout(async () => {
                 this._loading.set(
                     i18n('APP.WORKPLACE.COLLEAGUE_SEARCH_LOADING'),
                 );
+                let failed = false;
                 const results = search
-                    ? await this.search_fn(search).catch(() => [])
+                    ? await this.search_fn(search).catch(() => {
+                          failed = true;
+                          return [] as StaffUser[];
+                      })
                     : [];
+                // Ignore the response of a search that a newer one replaced
+                if (id !== search_id) return;
                 this._search_results.set(results);
+                this._search_failed.set(failed);
                 this._loading.set('');
             }, 500);
             onCleanup(() => clearTimeout(timeout));

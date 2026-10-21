@@ -4,9 +4,11 @@ import {
     computed,
     inject,
     resource,
+    ResourceRef,
     Signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { BookingAsset, BookingFormService } from '@placeos/bookings';
@@ -25,6 +27,11 @@ import {
 import { EventFormService } from '@placeos/events';
 import { LandingStateService } from '../landing/landing-state.service';
 import { landingFeatures } from './landing-features';
+
+/** Value of a resource list, or an empty list when it has no value */
+function resourceList(ref: ResourceRef<BookingAsset[] | undefined>) {
+    return ref.hasValue() ? ref.value() : ([] as BookingAsset[]);
+}
 
 export interface FavoriteEntry {
     id: string;
@@ -45,14 +52,16 @@ export interface FavoriteEntry {
                 <h3 class="text-lg font-medium">
                     {{ 'COMMON.FAVOURITES' | translate }}
                 </h3>
-                <div class="text-sm">
-                    {{
-                        'APP.WORKPLACE.FAVOURITES_COUNT'
-                            | translate
-                                : { count: favourites().length }
-                                : favourites().length
-                    }}
-                </div>
+                @if (!loading()) {
+                    <div class="text-sm">
+                        {{
+                            'APP.WORKPLACE.FAVOURITES_COUNT'
+                                | translate
+                                    : { count: favourites().length }
+                                    : favourites().length
+                        }}
+                    </div>
+                }
             </div>
             @if (favourites().length) {
                 <div
@@ -69,11 +78,13 @@ export interface FavoriteEntry {
                                     @if (item.images?.length) {
                                         <img
                                             auth
+                                            alt=""
                                             class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                                             [source]="item.images[0]"
                                         />
                                     } @else {
                                         <img
+                                            alt=""
                                             class="m-auto"
                                             [src]="
                                                 'assets/icons/' +
@@ -126,6 +137,10 @@ export interface FavoriteEntry {
                                         'APP.WORKPLACE.FAVOURITES_REMOVE'
                                             | translate
                                     "
+                                    [attr.aria-label]="
+                                        'APP.WORKPLACE.FAVOURITES_REMOVE'
+                                            | translate
+                                    "
                                     (click)="removeFavourite(item)"
                                 >
                                     <icon class="text-error">delete</icon>
@@ -143,13 +158,25 @@ export interface FavoriteEntry {
                         </div>
                     }
                 </div>
+            } @else if (loading()) {
+                <div
+                    favourites-loading
+                    class="flex min-h-64 w-full flex-1 items-center justify-center rounded-xl bg-base-200 p-8"
+                >
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                </div>
             } @else {
                 <div
                     class="flex min-h-64 w-full flex-1 flex-col items-center justify-center space-y-2 rounded-xl bg-base-200 p-8"
                 >
-                    <img src="assets/icons/no-favourites.svg" />
+                    <img src="assets/icons/no-favourites.svg" alt="" />
                     <p class="text-center text-sm opacity-60">
-                        {{ 'APP.WORKPLACE.FAVOURITES_EMPTY' | translate }}
+                        {{
+                            (failed()
+                                ? 'COMMON.LOAD_ERROR'
+                                : 'APP.WORKPLACE.FAVOURITES_EMPTY'
+                            ) | translate
+                        }}
                     </p>
                 </div>
             }
@@ -162,6 +189,7 @@ export interface FavoriteEntry {
         LevelPipe,
         MatRippleModule,
         MatTooltipModule,
+        MatProgressSpinnerModule,
         AuthenticatedImageDirective,
     ],
 })
@@ -226,22 +254,39 @@ export class LandingFavouritesNewComponent {
         params: () => this._desks_scope(),
         loader: () => this._booking_form.loadResourceList('desks'),
     });
-    public readonly all_desks = computed(
-        () => this._desks_resource.value() ?? ([] as BookingAsset[]),
+    public readonly all_desks = computed(() =>
+        resourceList(this._desks_resource),
     );
     private readonly _parking_resource = resource({
         params: () => this._parking_scope(),
         loader: () => this._booking_form.loadResourceList('parking-spaces'),
     });
-    public readonly all_parking = computed(
-        () => this._parking_resource.value() ?? ([] as BookingAsset[]),
+    public readonly all_parking = computed(() =>
+        resourceList(this._parking_resource),
     );
     private readonly _lockers_resource = resource({
         params: () => this._lockers_scope(),
         loader: () => this._booking_form.loadResourceList('lockers'),
     });
-    public readonly all_lockers = computed(
-        () => this._lockers_resource.value() ?? ([] as BookingAsset[]),
+    public readonly all_lockers = computed(() =>
+        resourceList(this._lockers_resource),
+    );
+    private readonly _resources = [
+        this._desks_resource,
+        this._parking_resource,
+        this._lockers_resource,
+    ];
+    /** Whether a favourite list is loading, so the list can be incomplete */
+    public readonly loading = computed(
+        () =>
+            this._resources.some((_) => _.isLoading()) ||
+            (!!this.fav_space_ids()?.length &&
+                this.features().includes('spaces') &&
+                this._state.loading_spaces()),
+    );
+    /** Whether a favourite list did not load */
+    public readonly failed = computed(() =>
+        this._resources.some((_) => !!_.error()),
     );
 
     public readonly favourites = computed(() => {

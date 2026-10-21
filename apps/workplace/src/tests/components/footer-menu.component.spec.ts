@@ -6,7 +6,10 @@ import {
 import {
     Building,
     OrganisationService,
+    setCurrentUser,
+    settingSignal,
     SettingsService,
+    StaffUser,
 } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -34,16 +37,28 @@ describe('FooterMenuComponent', () => {
         detectChanges: false,
     });
 
+    const features = settingSignal<string[]>('features', []);
+    const feature_groups = settingSignal<Record<string, string[]>>(
+        'feature_groups',
+        {},
+    );
+
     const setSettings = (map: Record<string, unknown>) => {
         const settings = spectator.inject(SettingsService);
         settings.get.mockImplementation((key: string) => map[key]);
     };
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        features.set([]);
+        feature_groups.set({});
+        setCurrentUser(new StaffUser({ id: 'me', groups: ['staff'] }));
+        spectator = createComponent();
+        setSettings({});
+    });
 
     it('counts enabled features and valid menu embeds together', () => {
+        features.set(['desks', 'spaces']);
         setSettings({
-            'app.features': ['desks', 'spaces'],
             'app.menu_embeds': [{ id: 'a', name: 'A', url: 'u' }],
         });
         expect(spectator.component.features().length).toBe(2);
@@ -65,24 +80,43 @@ describe('FooterMenuComponent', () => {
     });
 
     it('hides the footer bar when there is at most one navigation item', () => {
-        setSettings({ 'app.features': ['desks'] });
+        features.set(['desks']);
         spectator.detectChanges();
         expect('[name="footer-nav-home"]').not.toExist();
     });
 
     it('shows the footer bar when there is more than one navigation item', () => {
-        setSettings({ 'app.features': ['desks', 'spaces'] });
+        features.set(['desks', 'spaces']);
         spectator.detectChanges();
         expect('[name="footer-nav-home"]').toExist();
     });
 
     it('renders book shortcuts for enabled features when the panel is open', () => {
-        setSettings({ 'app.features': ['spaces', 'parking'] });
+        features.set(['spaces', 'parking']);
         spectator.component.show_book_items.set(true);
         spectator.detectChanges();
         expect('[name="footer-nav-spaces"]').toExist();
         expect('[name="footer-nav-parking"]').toExist();
         expect('[name="footer-nav-visitor-invite"]').not.toExist();
+    });
+
+    it('hides features that are limited to other user groups', () => {
+        features.set(['spaces', 'desks', 'parking']);
+        feature_groups.set({ parking: ['parking-users'] });
+        spectator.component.show_book_items.set(true);
+        spectator.detectChanges();
+        expect('[name="footer-nav-spaces"]').toExist();
+        expect('[name="footer-nav-parking"]').not.toExist();
+    });
+
+    it('does not render the explore link when explore is disabled', () => {
+        features.set(['desks', 'spaces']);
+        spectator.detectChanges();
+        expect('[name="footer-nav-explore"]').not.toExist();
+
+        features.set(['desks', 'explore']);
+        spectator.detectChanges();
+        expect('[name="footer-nav-explore"]').toExist();
     });
 
     it('resolves dark mode from the allow_dark_mode setting and active theme', () => {
