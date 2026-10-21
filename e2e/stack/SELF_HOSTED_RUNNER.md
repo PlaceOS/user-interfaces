@@ -71,8 +71,11 @@ benefit on a headless box. **Colima** gives a normal `docker` + `docker compose`
 against a Lima VM, entirely from the CLI, startable over SSH.
 
 ```bash
-brew install colima docker docker-compose oven-sh/bun/bun node@24
+brew install colima docker docker-compose node@24
 ```
+
+Bun is not provisioned here: the workflow installs the version pinned in its
+`setup-bun` step into `~/.bun/bin`, the same version the other workflows pin.
 
 **Register the compose plugin** — brew installs it but does not wire it up, and every
 script here uses `docker compose` (v2 subcommand syntax). Docker Desktop bundled this,
@@ -146,7 +149,8 @@ logs in front of you, Ctrl-C to stop.
 
 | Choice | Why |
 |---|---|
-| **No `actions/cache`, `setup-node` or `setup-bun`** | Those are right on a hosted runner that starts from a bare VM. Here they were the biggest cost in the job: the first run spent **9.1 min** uploading `node_modules` and **3.1 min** saving the bun cache out of 19.2 min total, while the suite itself took 1.0 min. The workspace and toolchain persist on this machine, so the toolchain is provisioned once (step 1) and nothing is shipped to a remote cache. |
+| **No `actions/cache` or `setup-node`** | Those are right on a hosted runner that starts from a bare VM. Here they were the biggest cost in the job: the first run spent **9.1 min** uploading `node_modules` and **3.1 min** saving the bun cache out of 19.2 min total, while the suite itself took 1.0 min. The workspace and toolchain persist on this machine, so the toolchain is provisioned once (step 1) and nothing is shipped to a remote cache. |
+| **`setup-bun` with `no-cache`** | `bun.lock` follows the bun version that wrote it, so the runner has to match the version the other workflows pin; a machine-provisioned bun fell behind and failed `--frozen-lockfile` with `Unknown lockfile version`. It installs to `~/.bun/bin`, reuses that when the version matches, and uploads nothing. Bump `bun-version` here with the other workflows. |
 | **Reclaim step** | A self-hosted machine is not a fresh VM. A previous aborted run can leave the stack up or port 4214 held, and that failure looks nothing like its cause. |
 | **No `vm.max_map_count` bump** | Required on hosted Linux, meaningless here — the value lives in Colima's VM and is already high. Restore it if reverting to `ubuntu-latest`. |
 | **`E2E_WORKERS: 4`** | The same as the local default. The machine also hosts ~10 containers, a dev server and the browsers, and four workers already use all of it: a trial with six took the same time, because each test ran about 50% slower. |
@@ -198,5 +202,5 @@ stack-bring-up failure.
 
 1. `runs-on: [self-hosted, placeos-e2e]` → `runs-on: ubuntu-latest`
 2. Restore the `sudo sysctl -w vm.max_map_count=262144` step.
-3. Restore `actions/cache` + `setup-node` + `setup-bun` (a bare VM needs them).
+3. Restore `actions/cache` + `setup-node`, and drop `no-cache` from `setup-bun` (a bare VM needs them).
 4. The reclaim step becomes unnecessary but harmless.
