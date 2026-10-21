@@ -1,0 +1,3 @@
+import{W as Ls}from"./chunk-Ch0wt_rJ.js";function n(o,s){return Ls(o,`${s}_booking_rules`).then(t=>t?.details instanceof Array?t.details:[]).catch(()=>[])}var d={free:`#43a047`,pending:`#ffb300`,reserved:`#e65100`,busy:`#e53935`,"signs-of-life":`#1565c0`,"not-bookable":`#757575`,unknown:`#757575`};export{n,d as t};
+//# debugId=2d90af3d-a5bb-5fe2-9ed4-29edd28885a5
+//# sourceMappingURL=chunk-CzHdir4a.js.map

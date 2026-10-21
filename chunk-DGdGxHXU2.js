@@ -1,3 +1,0 @@
-import{Br as xr,Or as v,Ur as ys,an as aa,f as Ce,nr as ns}from"./chunk-1EQRFgKO.js";function y(r,o){let e=v(r,o?.in).getDay();return e===0||e===6}function _(r,o,e){let[i,n]=Ce(e?.in,r,o);if(!ys(i)||!ys(n))return NaN;let m=ns(i,n),d=m<0?-1:1,l=Math.trunc(m/7),a=l*5,t=aa(n,l*7);for(;!xr(i,t);)a+=y(t,e)?0:d,t=aa(t,d);return a===0?0:a}export{_ as t};
-//# debugId=19e1aa06-1a4f-5ba3-b13e-0100346e54f7
-//# sourceMappingURL=chunk-DGdGxHXU2.js.map
