@@ -407,11 +407,10 @@ export class SignagePlaylistMediaListComponent {
     public readonly editItem = (item: SignageMedia) =>
         this._state.editMedia(item);
 
-    public readonly removePlaylist = () => {
+    public readonly removePlaylist = async () => {
         const playlist = this.selected_playlist();
-        if (playlist) {
-            this._state.removePlaylist(playlist);
-            this._router.navigate(['/signage/media', {}]);
+        if (playlist && (await this._state.removePlaylist(playlist))) {
+            this._router.navigate(['/signage/media']);
         }
     };
 
@@ -423,7 +422,8 @@ export class SignagePlaylistMediaListComponent {
         const playlist_id = this.playlist();
         const list = this._state.playlists();
         const item = list.find((_) => _.id === playlist_id);
-        if (!item && playlist_id) {
+        // The list is empty while it reloads, so wait before leaving
+        if (!item && playlist_id && !this._state.playlists_loading()) {
             this._router.navigate(['/signage/media', {}]);
         }
         return item;

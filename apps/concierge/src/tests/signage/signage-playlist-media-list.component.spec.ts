@@ -27,6 +27,7 @@ describe('SignagePlaylistMediaListComponent', () => {
         providers: [
             MockProvider(SignageStateService, {
                 playlists: signal([{ id: 'p1', name: 'News' }]) as any,
+                playlists_loading: signal(false),
                 media: signal([]),
                 has_changed: signal(0),
                 editPlaylist: vi.fn(),
@@ -127,14 +128,37 @@ describe('SignagePlaylistMediaListComponent', () => {
         expect(state.updatePlaylistMedia).not.toHaveBeenCalled();
     });
 
-    it('should remove the playlist and return to the media list', () => {
+    it('should return to the media list once the playlist is removed', async () => {
         spectator.setInput('playlist', 'p1');
+        vi.mocked(state.removePlaylist).mockResolvedValue(true);
 
-        spectator.component.removePlaylist();
+        await spectator.component.removePlaylist();
 
         expect(state.removePlaylist).toHaveBeenCalledWith(
             expect.objectContaining({ id: 'p1' }),
         );
+        expect(router.navigate).toHaveBeenCalledWith(['/signage/media']);
+    });
+
+    it('should stay on the playlist when removal is cancelled', async () => {
+        spectator.setInput('playlist', 'p1');
+        vi.mocked(state.removePlaylist).mockResolvedValue(false);
+
+        await spectator.component.removePlaylist();
+
+        expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should wait for playlists to load before leaving a missing playlist', () => {
+        state.playlists.set([]);
+        state.playlists_loading.set(true);
+        spectator.setInput('playlist', 'p-new');
+
+        spectator.component.selected_playlist();
+        expect(router.navigate).not.toHaveBeenCalled();
+
+        state.playlists_loading.set(false);
+        spectator.component.selected_playlist();
         expect(router.navigate).toHaveBeenCalledWith(['/signage/media', {}]);
     });
 });

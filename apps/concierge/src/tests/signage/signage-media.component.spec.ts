@@ -108,9 +108,8 @@ describe('SignageMediaComponent', () => {
     it('should navigate to the new playlist after creation', async () => {
         await spectator.component.addPlaylist();
 
-        expect(router.navigate).toHaveBeenCalledWith([
-            '/signage/media',
-            { query: { playlist: 'new' } },
-        ]);
+        expect(router.navigate).toHaveBeenCalledWith(['/signage/media'], {
+            queryParams: { playlist: 'new' },
+        });
     });
 });

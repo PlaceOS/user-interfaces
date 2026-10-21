@@ -13,14 +13,9 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import {
-    DateFieldComponent,
-    DurationFieldComponent,
-    TimeFieldComponent,
-} from '@placeos/form-fields';
+import { DateFieldComponent } from '@placeos/form-fields';
 import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { CronInputFieldComponent } from 'libs/form-fields/src/lib/cron-input-field.component';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -210,145 +205,6 @@ import { SignageStateService } from './signage-state.service';
                         ></a-date-field>
                     </div>
                 </div>
-                <div
-                    class="border-base-300 relative mb-12 space-y-2 rounded-sm border px-4 pt-4"
-                >
-                    <label
-                        for="schedule"
-                        class="bg-base-100 absolute top-0 left-2 m-0 flex w-auto min-w-0 -translate-y-1/2 items-center space-x-2 px-2"
-                    >
-                        <div>Schedule</div>
-                    </label>
-                    <mat-form-field
-                        appearance="outline"
-                        class="no-subscript w-full"
-                    >
-                        <mat-select
-                            [(ngModel)]="schedule"
-                            [ngModelOptions]="{ standalone: true }"
-                        >
-                            <mat-option value="">No schedule</mat-option>
-                            <mat-option value="between"
-                                >Play Between</mat-option
-                            >
-                            <mat-option
-                                value="exact"
-                                (click)="
-                                    model.update((m) => ({
-                                        ...m,
-                                        play_duration: 30,
-                                    }))
-                                "
-                                >Set Date & Time</mat-option
-                            >
-                            <mat-option
-                                value="recurring"
-                                (click)="
-                                    model.update((m) => ({
-                                        ...m,
-                                        play_duration: 30,
-                                    }))
-                                "
-                                >Recurring Schedule</mat-option
-                            >
-                        </mat-select>
-                    </mat-form-field>
-                    <div class="pt-2">
-                        @if (schedule() === 'between') {
-                            <div class="flex space-x-4">
-                                <div class="flex-1">
-                                    <label for="play-from">{{
-                                        'APP.CONCIERGE.PLAY_FROM' | translate
-                                    }}</label>
-                                    <a-time-field
-                                        class="w-full"
-                                        [no_past_times]="false"
-                                        [formField]="form.play_from"
-                                    ></a-time-field>
-                                </div>
-                                <div class="flex-1">
-                                    <label for="play-until">{{
-                                        'APP.CONCIERGE.PLAY_UNTIL' | translate
-                                    }}</label>
-                                    <a-time-field
-                                        class="w-full"
-                                        [no_past_times]="false"
-                                        [from]="model().play_from"
-                                        [formField]="form.play_until"
-                                    ></a-time-field>
-                                </div>
-                            </div>
-                        } @else if (schedule() === 'exact') {
-                            <div class="flex space-x-4">
-                                <div class="flex-1">
-                                    <label for="play-at">{{
-                                        'APP.CONCIERGE.PLAY_AT' | translate
-                                    }}</label>
-                                    <a-date-field
-                                        class="w-full"
-                                        [formField]="form.play_at"
-                                    ></a-date-field>
-                                </div>
-                                <div class="flex-1">
-                                    <label for="play-at-time">&nbsp;</label>
-                                    <a-time-field
-                                        name="play-at-time"
-                                        class="w-full"
-                                        [ngModel]="model().play_at"
-                                        (ngModelChange)="
-                                            model.update((m) => ({
-                                                ...m,
-                                                play_at: $event,
-                                            }))
-                                        "
-                                        [ngModelOptions]="{ standalone: true }"
-                                    ></a-time-field>
-                                </div>
-                            </div>
-                            <label for="play-duration">{{
-                                'APP.CONCIERGE.PLAY_DURATION' | translate
-                            }}</label>
-                            <a-duration-field
-                                class="w-full"
-                                [formField]="form.play_duration"
-                            ></a-duration-field>
-                            <settings-toggle
-                                [formField]="form.play_once"
-                                class="mb-4"
-                            >
-                                {{ 'APP.CONCIERGE.PLAY_ONCE' | translate }}
-                            </settings-toggle>
-                        } @else if (schedule() === 'recurring') {
-                            <div class="flex space-x-4">
-                                <div class="flex-1">
-                                    <label for="name">{{
-                                        'APP.CONCIERGE.PLAY_CRON' | translate
-                                    }}</label>
-                                    <cron-input-field
-                                        [formField]="form.play_cron"
-                                    />
-                                </div>
-                                <div class="flex-1">
-                                    <label for="play-duration">{{
-                                        'APP.CONCIERGE.PLAY_DURATION'
-                                            | translate
-                                    }}</label>
-                                    <a-duration-field
-                                        name="play-duration"
-                                        class="w-full"
-                                        formControlName="play_duration"
-                                    ></a-duration-field>
-                                </div>
-                            </div>
-                            <settings-toggle
-                                [formField]="form.play_once"
-                                class="mb-4"
-                            >
-                                {{ 'APP.CONCIERGE.PLAY_ONCE' | translate }}
-                            </settings-toggle>
-                        }
-                    </div>
-                </div>
             </form>
         </fullscreen-modal-shell>
     `,
@@ -357,10 +213,7 @@ import { SignageStateService } from './signage-state.service';
         TranslatePipe,
         FullscreenModalShellComponent,
         SettingsToggleComponent,
-        DurationFieldComponent,
         FormField,
-        CronInputFieldComponent,
-        TimeFieldComponent,
         DateFieldComponent,
         MatFormFieldModule,
         MatSelectModule,
@@ -381,9 +234,6 @@ export class SignagePlaylistModalComponent implements OnInit {
     public readonly loading = signal(false);
     public readonly playlist = this._data;
     public readonly media = this._state.media;
-    public readonly schedule = signal<'' | 'between' | 'exact' | 'recurring'>(
-        '',
-    );
 
     public readonly model = signal({
         id: this.playlist.id || '',
@@ -396,19 +246,13 @@ export class SignagePlaylistModalComponent implements OnInit {
         default_duration: 15 * 1000,
         valid_from: 0,
         valid_until: 0,
-        play_duration: 0,
-        play_from: 0,
-        play_until: 0,
-        play_once: false,
-        play_at: Date.now(),
-        play_cron: '* * * * *',
     });
     public readonly form = form(this.model, (p) => {
         required(p.name);
     });
 
     public ngOnInit() {
-        const p = this.playlist as any;
+        const p = this.playlist;
         this.model.update((m) => ({
             ...m,
             id: p.id ?? m.id,
@@ -421,15 +265,7 @@ export class SignagePlaylistModalComponent implements OnInit {
             default_duration: p.default_duration ?? m.default_duration,
             valid_from: (p.valid_from || 0) * 1000,
             valid_until: (p.valid_until || 0) * 1000,
-            play_duration: p.play_duration ?? m.play_duration,
-            play_from: p.play_from ?? m.play_from,
-            play_until: p.play_until ?? m.play_until,
-            play_once: p.play_once ?? m.play_once,
-            play_at: p.play_at ?? m.play_at,
-            play_cron: p.play_cron ?? m.play_cron,
         }));
-        const { play_at, play_cron } = this.model();
-        this.schedule.set(play_cron ? 'recurring' : play_at ? 'exact' : '');
         if (!this.model().orientation)
             this.model.update((m) => ({ ...m, orientation: 'unspecified' }));
     }
@@ -438,22 +274,8 @@ export class SignagePlaylistModalComponent implements OnInit {
         this.form().markAsTouched();
         if (!this.form().valid()) return;
         this.loading.set(true);
+        // This modal does not edit `schedules`, so it does not send them.
         const form_value = { ...this.model() };
-        if (this.schedule() === 'between') {
-            form_value.play_at = 0;
-            form_value.play_cron = '';
-            delete form_value.play_once;
-        } else if (this.schedule() === 'exact') {
-            form_value.play_cron = '';
-        } else if (this.schedule() === 'recurring') {
-            form_value.play_at = 0;
-        } else {
-            form_value.play_at = 0;
-            form_value.play_cron = '';
-        }
-        delete form_value.play_from;
-        delete form_value.play_until;
-        delete form_value.play_duration;
         if (form_value.valid_from) {
             form_value.valid_from = getUnixTime(
                 startOfDay(form_value.valid_from),

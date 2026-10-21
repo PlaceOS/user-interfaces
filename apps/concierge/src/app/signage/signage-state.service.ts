@@ -135,6 +135,8 @@ export class SignageStateService extends AsyncHandler {
     });
     public readonly playlists: Signal<SignagePlaylist[]> =
         this._playlists.value;
+    /** True while playlists load. The list is empty during a reload. */
+    public readonly playlists_loading = this._playlists.isLoading;
 
     /** List of signage displays for the active region/building */
     private readonly _displays = resource({
@@ -221,7 +223,13 @@ export class SignageStateService extends AsyncHandler {
                     ? await this._generateThumbnail(file, 1024, 720)
                     : '',
                 playlist_id,
-                onAdd: (f, m) => this.addMedia(f, m),
+                onAdd: async (f, m) => {
+                    const new_media = await this.addMedia(f, m);
+                    if (playlist_id && new_media?.id) {
+                        await this._appendToPlaylist(playlist_id, new_media.id);
+                    }
+                    return new_media;
+                },
                 preview: (item) => this.previewMedia(item),
             },
         });
@@ -267,18 +275,20 @@ export class SignageStateService extends AsyncHandler {
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_SUCCESS'));
     }
 
+    /** Create or update a playlist. Returns the saved playlist. */
     public async savePlaylist(playlist: Partial<SignagePlaylist>) {
         const clean_playlist = cleanPlaylistPayload(playlist);
-        const call = clean_playlist.id
+        const saved = await (clean_playlist.id
             ? updateSignagePlaylist(clean_playlist.id, clean_playlist, 'put')
-            : addSignagePlaylist(clean_playlist);
-        await call;
+            : addSignagePlaylist(clean_playlist));
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_SAVE_SUCCESS'));
         this._change.set(Date.now());
+        return saved;
     }
 
+    /** Ask, then remove the playlist. Returns true when it was removed. */
     public async removePlaylist(playlist: SignagePlaylist) {
-        if (!playlist?.id) return;
+        if (!playlist?.id) return false;
         const result = await openConfirmModal(
             {
                 title: i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE'),
@@ -289,11 +299,18 @@ export class SignageStateService extends AsyncHandler {
             },
             this._dialog,
         );
-        if (result.reason !== 'done') return;
-        await removeSignagePlaylist(playlist.id);
+        if (result.reason !== 'done') return false;
+        try {
+            await removeSignagePlaylist(playlist.id);
+        } catch (e) {
+            notifyError(`Failed to remove playlist. ${errorText(e)}`);
+            return false;
+        } finally {
+            result.close();
+        }
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE_SUCCESS'));
         this._change.set(Date.now());
-        result.close();
+        return true;
     }
 
     public async updatePlaylistMedia(playlist_id: string, list: string[]) {
@@ -351,12 +368,19 @@ export class SignageStateService extends AsyncHandler {
                 throw e;
             });
             if (playlist_id && new_media.id) {
-                const media_list = await listSignagePlaylistMedia(playlist_id);
-                const new_media_list = [...media_list.items, new_media.id];
-                await updateSignagePlaylistMedia(playlist_id, new_media_list);
+                await this._appendToPlaylist(playlist_id, new_media.id);
             }
             ref.close();
         });
+    }
+
+    /** Add the media item to the end of the playlist. */
+    private async _appendToPlaylist(playlist_id: string, media_id: string) {
+        const media_list = await listSignagePlaylistMedia(playlist_id);
+        await updateSignagePlaylistMedia(playlist_id, [
+            ...media_list.items,
+            media_id,
+        ]);
     }
 
     public async addMediaFromLink(

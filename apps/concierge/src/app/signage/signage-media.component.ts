@@ -216,11 +216,10 @@ export class SignageMediaComponent extends AsyncHandler {
 
     public readonly addPlaylist = async () => {
         const result = await this._state.editPlaylist();
-        if (result) {
-            this._router.navigate([
-                '/signage/media',
-                { query: { playlist: result.id } },
-            ]);
+        if (result?.id) {
+            this._router.navigate(['/signage/media'], {
+                queryParams: { playlist: result.id },
+            });
         }
     };
     public readonly previewMedia = (item) => this._state.previewMedia(item);
