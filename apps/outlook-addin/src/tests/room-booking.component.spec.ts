@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Injector } from '@angular/core';
+import { Injector, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -60,7 +60,11 @@ describe('RoomBookingComponent', () => {
                 },
                 deps: [Injector],
             },
-            MockProvider(SettingsService, { get: vi.fn() }),
+            MockProvider(SettingsService, {
+                get: vi.fn(),
+                signal: (_name: string, default_value?: unknown) =>
+                    signal(default_value),
+            } as Partial<SettingsService>),
         ],
         stubsEnabled: false,
         routes: [

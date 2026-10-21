@@ -144,11 +144,8 @@ describe('LandingDeskWeekComponent', () => {
     });
 
     it('should not move beyond the available booking window', () => {
-        spectator.component.available_days.set(3);
-        // Jump far enough forward that the next week is out of range.
-        spectator.component.selected_date.set(
-            addDays(Date.now(), 2).valueOf(),
-        );
+        // Only today is bookable, so the next week is always out of range.
+        spectator.component.available_days.set(0);
         expect(spectator.component.can_go_next_week()).toBe(false);
         const before = spectator.component.selected_date();
         spectator.component.nextWeek();
