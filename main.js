@@ -3,7 +3,7 @@ import {
 } from "./chunk-2ZTKNM6C.js";
 import {
   subMonths
-} from "./chunk-KX64IMIY.js";
+} from "./chunk-FUXUI2QB.js";
 import {
   subMinutes
 } from "./chunk-C6PFSWHI.js";
@@ -16,9 +16,9 @@ import {
 } from "./chunk-4OYHMPFZ.js";
 import {
   generateMockSpace
-} from "./chunk-SEYHFZYZ.js";
+} from "./chunk-PJTOWFBM.js";
 import "./chunk-OFW7WDFE.js";
-import "./chunk-LM3Y2XY2.js";
+import "./chunk-U6AQW4LJ.js";
 import {
   subDays
 } from "./chunk-I6MB2EED.js";
@@ -58,7 +58,7 @@ import {
   settingSignal,
   user_groups_loaded,
   watchUserGroupSync
-} from "./chunk-NAPLFNKH.js";
+} from "./chunk-DOLIX6FW.js";
 import {
   AsyncHandler
 } from "./chunk-ZBK6XVOU.js";
@@ -403,7 +403,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-6AQZEKBI.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-X7OOVOXS.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -528,7 +528,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-6AQZEKBI.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-X7OOVOXS.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9187,11 +9187,11 @@ function mocksInit() {
 // apps/concierge/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-MDMRGJC5.js").then((m) => m.ChatComponent)
+  import("./chat.component-CRDF6N3L.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-FKNLGZJG.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-MM2RZ44T.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9268,9 +9268,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-MDMRGJC5.js").then((m) => m.ChatComponent),
+    import("./chat.component-CRDF6N3L.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-FKNLGZJG.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-MM2RZ44T.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9320,112 +9320,112 @@ var routes = [
   {
     path: "book/rooms",
     title: "Room Bookings",
-    loadChildren: () => import("./day-view.routes-IAKYL46F.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./day-view.routes-OJLRP2JP.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "facilities",
     title: "Facilities",
-    loadChildren: () => import("./facilities.routes-LOPKCTFN.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./facilities.routes-UKFFZ6DD.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/visitors",
     title: "Visitors",
-    loadChildren: () => import("./visitors.routes-OJIOSJH6.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./visitors.routes-QVGVEKCL.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/assets",
     title: "Assets",
-    loadChildren: () => import("./asset-manager.routes-GWH2SLY2.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./asset-manager.routes-DAPOZZL4.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/desks",
     title: "Desk Bookings",
-    loadChildren: () => import("./desks.routes-3ENNYJKP.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./desks.routes-23UDE56C.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/lockers",
     title: "Locker Bookings",
-    loadChildren: () => import("./lockers.routes-SIJNOICS.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./lockers.routes-7LBCT6CV.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "reports",
     title: "Reports",
-    loadChildren: () => import("./reports.routes-YIPYS26Z.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./reports.routes-CGIBNTQM.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "entertainment/events",
     title: "Events",
-    loadChildren: () => import("./events.routes-IC4STMDC.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./events.routes-BMH5FDLG.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "users/staff",
     title: "Staff",
-    loadChildren: () => import("./staff.routes-J67QCGZ2.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./staff.routes-KZF26ALL.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/catering",
     title: "Catering",
-    loadChildren: () => import("./catering.routes-5C5LQU2F.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./catering.routes-AJHK5YJ7.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-management",
     title: "Points Management",
-    loadChildren: () => import("./points.routes-NGRYN742.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./points.routes-RTGAHPWS.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/parking",
     title: "Parking Bookings",
-    loadChildren: () => import("./parking.routes-6BTQJL5W.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./parking.routes-WFH3OPKY.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "surveys",
     title: "Surveys",
-    loadChildren: () => import("./surveys.routes-ZPKK52BJ.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./surveys.routes-ZX7X2CQ4.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "room-management",
     title: "Room Management",
-    loadChildren: () => import("./room-manager.routes-NYZMRZPC.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./room-manager.routes-3Z2G2GQH.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "map-management",
     title: "Map Management",
-    loadChildren: () => import("./map-manager.routes-GZNKWRLJ.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./map-manager.routes-RH65D5DV.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "zone-management",
     title: "Zone Management",
-    loadChildren: () => import("./zone-manager.routes-QSMQYJFC.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./zone-manager.routes-J7QDDH3W.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -9444,35 +9444,35 @@ var routes = [
   {
     path: "email-templates",
     title: "Email Templates",
-    loadChildren: () => import("./email-templates.routes-VP6AACKF.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./email-templates.routes-V4JJAQ2E.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
-    loadChildren: () => import("./deals.routes-WA4ZVT7U.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./deals.routes-32GPIE7F.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-of-interest",
     title: "Points of Interest",
-    loadChildren: () => import("./poi-manager.routes-EDPWGTJV.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./poi-manager.routes-XEDJA7DW.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "url-management",
     title: "URL Management",
-    loadChildren: () => import("./url-manager.routes-ZWWD45TF.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./url-manager.routes-MGC4IPQT.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "signage",
     title: "Signage",
-    loadChildren: () => import("./signage.routes-DA3XOAGH.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./signage.routes-GZIEW3ZR.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
