@@ -14,6 +14,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, Booking } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
@@ -56,6 +57,25 @@ type ScheduleView = 'day' | 'week' | 'list';
                     class="sticky top-0 z-20"
                     [bookings]="b_list()"
                 ></schedule-filters>
+                @if (failed()) {
+                    <div
+                        role="alert"
+                        class="bg-error text-error-content m-2 flex items-center gap-2 rounded p-2 text-sm"
+                    >
+                        <icon class="text-xl">error</icon>
+                        <p class="flex-1">
+                            {{ 'COMMON.LOAD_ERROR' | translate }}
+                        </p>
+                        <button
+                            btn
+                            matRipple
+                            class="inverse min-h-10"
+                            (click)="retry()"
+                        >
+                            {{ 'COMMON.RETRY' | translate }}
+                        </button>
+                    </div>
+                }
                 @if (view() === 'day') {
                     <schedule-day-view
                         [date]="date()"
@@ -77,6 +97,7 @@ type ScheduleView = 'day' | 'week' | 'list';
                             [end_date]="end_date()"
                             [bookings]="bookings()"
                             [loading]="loading()"
+                            [failed]="failed()"
                             class="space-y-3"
                         />
                     </div>
@@ -111,6 +132,8 @@ type ScheduleView = 'day' | 'week' | 'list';
         MatProgressBarModule,
         MatFormFieldModule,
         MatSelectModule,
+        IconComponent,
+        TranslatePipe,
         FooterMenuComponent,
         VirtualConciergeButtonComponent,
         ScheduleFiltersComponent,
@@ -138,6 +161,8 @@ export class ScheduleComponent
         ),
     );
     public readonly loading = this._state.loading;
+    public readonly failed = this._state.failed;
+    public readonly retry = () => this._state.triggerPoll();
 
     public readonly view = signal<ScheduleView>('day');
     public readonly date = this._state.date;

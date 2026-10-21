@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -56,12 +56,17 @@ import { TeamScheduleService } from './team-schedule.service';
                 >
                     <!-- Favorite Star / Selection Checkbox -->
                     @if (select_mode()) {
+                        @let select_label =
+                            (isMemberSelected(member)
+                                ? 'APP.WORKPLACE.TEAM_SCHEDULE_DESELECT'
+                                : 'APP.WORKPLACE.TEAM_SCHEDULE_SELECT'
+                            ) | translate: { name: member.user.name };
                         <button
                             class="shrink-0"
                             (click)="toggleMemberSelection(member)"
-                            [matTooltip]="
-                                isMemberSelected(member) ? 'Deselect' : 'Select'
-                            "
+                            [matTooltip]="select_label"
+                            [attr.aria-label]="select_label"
+                            [attr.aria-pressed]="isMemberSelected(member)"
                         >
                             @if (isMemberSelected(member)) {
                                 <icon class="text-primary text-2xl"
@@ -74,14 +79,16 @@ import { TeamScheduleService } from './team-schedule.service';
                             }
                         </button>
                     } @else {
+                        @let favourite_label =
+                            (member.is_favorite
+                                ? 'COMMON.FAVOURITES_REMOVE'
+                                : 'COMMON.FAVOURITES_ADD'
+                            ) | translate;
                         <button
                             class="shrink-0"
                             (click)="toggleFavorite(member)"
-                            [matTooltip]="
-                                member.is_favorite
-                                    ? 'Remove from favorites'
-                                    : 'Add to favorites'
-                            "
+                            [matTooltip]="favourite_label"
+                            [attr.aria-label]="favourite_label"
                         >
                             @if (member.is_favorite) {
                                 <icon class="text-warning text-2xl">star</icon>
@@ -120,12 +127,21 @@ import { TeamScheduleService } from './team-schedule.service';
 
                     <!-- Status Icon / Book Nearby -->
                     @if (getMemberStatus(member); as status) {
+                        @let is_past = active_day()?.is_past;
+                        @let status_name =
+                            getLocationStyle(status.status).name | translate;
                         @if (status.status === 'office' && status.booking) {
                             <button
-                                class="bg-info-light/30 hover:bg-info-light/40 flex shrink-0 flex-col rounded-lg px-3 py-2 transition-colors"
+                                class="bg-info-light/30 hover:bg-info-light/40 flex shrink-0 flex-col rounded-lg px-3 py-2 transition-colors disabled:cursor-default"
+                                [disabled]="is_past"
                                 (click)="bookNearby(member)"
-                                matTooltip="Book nearby"
+                                [matTooltip]="
+                                    'APP.WORKPLACE.TEAM_SCHEDULE_BOOK_NEARBY'
+                                        | translate
+                                "
+                                [matTooltipDisabled]="is_past"
                             >
+                                <span class="sr-only">{{ status_name }}</span>
                                 <div class="flex items-center gap-1 text-xs">
                                     <icon class="text-brand-200 text-sm"
                                         >location_on</icon
@@ -142,23 +158,24 @@ import { TeamScheduleService } from './team-schedule.service';
                                 </div>
                             </button>
                         } @else {
+                            <!-- Not disabled on past days, so the tooltip still shows the status -->
                             <button
                                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+                                [class.cursor-default]="is_past"
                                 [style.background-color]="
                                     getLocationStyle(status.status).bg_color
                                 "
                                 [style.color]="
                                     getLocationStyle(status.status).fg_color
                                 "
+                                [attr.aria-disabled]="is_past"
                                 (click)="bookNearby(member)"
-                                [matTooltip]="
-                                    getLocationStyle(status.status).name
-                                        | translate
-                                "
+                                [matTooltip]="status_name"
                             >
                                 <icon class="text-xl">
                                     {{ getLocationStyle(status.status).icon }}
                                 </icon>
+                                <span class="sr-only">{{ status_name }}</span>
                             </button>
                         }
                     }
@@ -173,6 +190,17 @@ import { TeamScheduleService } from './team-schedule.service';
                         <p class="text-base-content/60 mt-4 text-sm">
                             {{ 'COMMON.LOADING' | translate }}...
                         </p>
+                    } @else if (failed()) {
+                        <icon class="text-base-content/30 text-5xl">error</icon>
+                        <p
+                            class="text-base-content/60 mt-4 text-sm"
+                            role="alert"
+                        >
+                            {{ 'COMMON.LOAD_ERROR' | translate }}
+                        </p>
+                        <button btn matRipple class="mt-4" (click)="retry()">
+                            {{ 'COMMON.RETRY' | translate }}
+                        </button>
                     } @else if (total_members() === 0) {
                         <icon class="text-base-content/30 text-5xl"
                             >group_off</icon
@@ -241,6 +269,10 @@ export class TeamScheduleListComponent {
     public readonly total_members = this._service.total_members;
     public readonly select_mode = this._service.select_mode;
     public readonly loading = this._service.loading;
+    public readonly failed = this._service.failed;
+    public readonly active_day = computed(
+        () => this.week_days()[this.active_day_index()],
+    );
 
     // Actions
     public setDayIndex(index: number) {
@@ -267,9 +299,14 @@ export class TeamScheduleListComponent {
         return this._service.getLocationStyle(status);
     }
 
+    public retry() {
+        this._service.refresh();
+    }
+
     public bookNearby(member: TeamMember) {
         const day_index = this._service.active_day_index();
         const day = this._service.week_days()[day_index];
+        if (!day || day.is_past) return;
         const status: DayStatus | undefined = member.statuses[day_index];
         const booking = status?.booking;
 

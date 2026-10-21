@@ -60,7 +60,7 @@ import {
                         <mat-select
                             [ngModel]="week_date()"
                             (ngModelChange)="setDate($event)"
-                            placeholder="Select Week..."
+                            [placeholder]="'COMMON.WEEK_SELECT' | translate"
                         >
                             @for (option of week_options(); track option) {
                                 <mat-option
@@ -143,7 +143,10 @@ import {
                             <icon>perm_contact_calendar</icon>
                         </div>
                         <div class="flex-1 font-medium">
-                            Bookings for Others
+                            {{
+                                'APP.WORKPLACE.SCHEDULE_FILTER_BOOKINGS_FOR_OTHERS'
+                                    | translate
+                            }}
                         </div>
                         <div class="font-mono text-xs">
                             {{ counts()['bookings-for-others'] || 0 }}
@@ -296,26 +299,21 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
+        // Show the types that the building features allow. The wait lets the
+        // building settings load. The state service applies this one time for
+        // each building, so the choices of the user stay between page visits.
         effect((onCleanup) => {
             const bld = this._org.active_building();
             if (!bld) return;
             const timeout = setTimeout(() => {
-                this._state.setType('event', this.hasFeature('spaces'));
-                this._state.setType('desk', this.hasFeature('desks'));
-                this._state.setType(
-                    'parking',
-                    this.hasFeature('parking') ||
-                        this.hasFeature('parking-requests'),
-                );
-                this._state.setType(
-                    'visitor',
-                    this.hasFeature('visitor-invite'),
-                );
-                this._state.setType('locker', this.hasFeature('lockers'));
-                this._state.setType(
-                    'group-event',
-                    this.hasFeature('group-events'),
-                );
+                this._state.setTypeDefaults(bld.id, {
+                    event: this.hasFeature('spaces'),
+                    desk: this.hasFeature('desks'),
+                    parking: this.hasFeature(['parking', 'parking-requests']),
+                    visitor: this.hasFeature('visitor-invite'),
+                    locker: this.hasFeature('lockers'),
+                    'group-event': this.hasFeature('group-events'),
+                });
             }, 1000);
             onCleanup(() => clearTimeout(timeout));
         });

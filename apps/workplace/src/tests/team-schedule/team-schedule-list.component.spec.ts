@@ -55,6 +55,7 @@ describe('TeamScheduleListComponent', () => {
                 total_members: signal(0),
                 select_mode: signal(false),
                 loading: signal(false),
+                failed: signal(false),
                 refresh,
                 setFilters: set_filters,
                 toggleMemberSelection: toggle_selection,

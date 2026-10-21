@@ -109,14 +109,17 @@ import { TeamScheduleService } from './team-schedule.service';
                         class="border-base-300 bg-base-100 group-hover:bg-base-200/50 sticky left-0 z-10 flex items-center gap-3 border-b px-4 py-3"
                     >
                         @if (select_mode()) {
+                            @let select_label =
+                                (isMemberSelected(member)
+                                    ? 'APP.WORKPLACE.TEAM_SCHEDULE_DESELECT'
+                                    : 'APP.WORKPLACE.TEAM_SCHEDULE_SELECT'
+                                ) | translate: { name: member.user.name };
                             <button
                                 class="shrink-0"
                                 (click)="toggleMemberSelection(member)"
-                                [matTooltip]="
-                                    isMemberSelected(member)
-                                        ? 'Deselect'
-                                        : 'Select'
-                                "
+                                [matTooltip]="select_label"
+                                [attr.aria-label]="select_label"
+                                [attr.aria-pressed]="isMemberSelected(member)"
                             >
                                 @if (isMemberSelected(member)) {
                                     <icon class="text-primary text-xl"
@@ -129,14 +132,16 @@ import { TeamScheduleService } from './team-schedule.service';
                                 }
                             </button>
                         } @else {
+                            @let favourite_label =
+                                (member.is_favorite
+                                    ? 'COMMON.FAVOURITES_REMOVE'
+                                    : 'COMMON.FAVOURITES_ADD'
+                                ) | translate;
                             <button
                                 class="shrink-0"
                                 (click)="toggleFavorite(member)"
-                                [matTooltip]="
-                                    member.is_favorite
-                                        ? 'Remove from favorites'
-                                        : 'Add to favorites'
-                                "
+                                [matTooltip]="favourite_label"
+                                [attr.aria-label]="favourite_label"
                             >
                                 @if (member.is_favorite) {
                                     <icon class="text-warning text-xl"
@@ -198,10 +203,19 @@ import { TeamScheduleService } from './team-schedule.service';
                                     status.status === 'office' && status.booking
                                 ) {
                                     <button
-                                        class="bg-info-light/30 hover:bg-info-light/40 flex w-full max-w-30 flex-col rounded-lg px-3 py-2 transition-colors"
+                                        class="bg-info-light/30 hover:bg-info-light/40 flex w-full max-w-30 flex-col rounded-lg px-3 py-2 transition-colors disabled:cursor-default"
+                                        [disabled]="day.is_past"
                                         (click)="bookNearby(member, day)"
-                                        matTooltip="Book nearby"
+                                        [matTooltip]="
+                                            'APP.WORKPLACE.TEAM_SCHEDULE_BOOK_NEARBY'
+                                                | translate
+                                        "
+                                        [matTooltipDisabled]="day.is_past"
                                     >
+                                        <span class="sr-only">{{
+                                            getLocationStyle(status.status).name
+                                                | translate
+                                        }}</span>
                                         <div
                                             class="flex items-center gap-1 text-xs"
                                         >
@@ -224,8 +238,13 @@ import { TeamScheduleService } from './team-schedule.service';
                                         </div>
                                     </button>
                                 } @else {
+                                    @let status_name =
+                                        getLocationStyle(status.status).name
+                                            | translate;
+                                    <!-- Not disabled on past days, so the tooltip still shows the status -->
                                     <button
                                         class="flex h-10 w-10 items-center justify-center rounded-lg transition-colors"
+                                        [class.cursor-default]="day.is_past"
                                         [style.background-color]="
                                             getLocationStyle(status.status)
                                                 .bg_color
@@ -234,15 +253,16 @@ import { TeamScheduleService } from './team-schedule.service';
                                             getLocationStyle(status.status)
                                                 .fg_color
                                         "
+                                        [attr.aria-disabled]="day.is_past"
                                         (click)="bookNearby(member, day)"
-                                        [matTooltip]="
-                                            getLocationStyle(status.status).name
-                                                | translate
-                                        "
+                                        [matTooltip]="status_name"
                                     >
                                         <icon class="text-xl">{{
                                             getLocationStyle(status.status).icon
                                         }}</icon>
+                                        <span class="sr-only">{{
+                                            status_name
+                                        }}</span>
                                     </button>
                                 }
                             }
@@ -259,6 +279,14 @@ import { TeamScheduleService } from './team-schedule.service';
                         <p class="text-base-content/60 mt-4">
                             {{ 'COMMON.LOADING' | translate }}...
                         </p>
+                    } @else if (failed()) {
+                        <icon class="text-base-content/60 text-5xl">error</icon>
+                        <p class="text-base-content/60 mt-4" role="alert">
+                            {{ 'COMMON.LOAD_ERROR' | translate }}
+                        </p>
+                        <button btn matRipple class="mt-4" (click)="retry()">
+                            {{ 'COMMON.RETRY' | translate }}
+                        </button>
                     } @else if (total_members() === 0) {
                         <icon class="text-base-content/60 text-5xl"
                             >group_off</icon
@@ -341,6 +369,7 @@ export class TeamScheduleTableComponent {
     public readonly booked_count = this._service.booked_count;
     public readonly select_mode = this._service.select_mode;
     public readonly loading = this._service.loading;
+    public readonly failed = this._service.failed;
 
     // Actions
     public toggleMemberSelection(member: TeamMember) {
@@ -359,7 +388,15 @@ export class TeamScheduleTableComponent {
         return this._service.getLocationStyle(status);
     }
 
-    public bookNearby(member: TeamMember, day: { date: number }) {
+    public retry() {
+        this._service.refresh();
+    }
+
+    public bookNearby(
+        member: TeamMember,
+        day: { date: number; is_past?: boolean },
+    ) {
+        if (day.is_past) return;
         const day_index = this._service
             .week_days()
             .findIndex((d) => d.date === day.date);

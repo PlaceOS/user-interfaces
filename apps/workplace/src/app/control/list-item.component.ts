@@ -2,8 +2,13 @@ import { Component, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 
-import { OrganisationService, SettingsService, Space } from '@placeos/common';
-import { IconComponent, SafePipe } from '@placeos/components';
+import {
+    i18n,
+    OrganisationService,
+    SettingsService,
+    Space,
+} from '@placeos/common';
+import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'a-control-space-list-item',
@@ -35,7 +40,7 @@ import { IconComponent, SafePipe } from '@placeos/components';
                         class="w-32 flex-1 sm:flex-none"
                         [href]="space().support_url | safe: 'url'"
                     >
-                        Control
+                        {{ 'APP.WORKPLACE.CONTROL_OPEN' | translate }}
                     </a>
                     @if (allow_locate) {
                         <a
@@ -46,7 +51,7 @@ import { IconComponent, SafePipe } from '@placeos/components';
                             [routerLink]="['/explore']"
                             [queryParams]="{ space: space().id }"
                         >
-                            Find
+                            {{ 'APP.WORKPLACE.CONTROL_LOCATE' | translate }}
                         </a>
                     }
                 </div>
@@ -54,7 +59,13 @@ import { IconComponent, SafePipe } from '@placeos/components';
         }
     `,
     styles: [``],
-    imports: [MatRippleModule, RouterModule, IconComponent, SafePipe],
+    imports: [
+        MatRippleModule,
+        RouterModule,
+        IconComponent,
+        SafePipe,
+        TranslatePipe,
+    ],
 })
 export class ControlSpaceListItemComponent {
     private _settings = inject(SettingsService);
@@ -75,14 +86,14 @@ export class ControlSpaceListItemComponent {
     public get location(): string {
         const space = this.space();
         if (!space) {
-            return 'Unable to determine location';
+            return i18n('APP.WORKPLACE.CONTROL_LOCATION_UNKNOWN');
         }
         const level = space.level;
         const bld = this._org.buildings.find(
-            (building) => building.id === level.parent_id,
+            (building) => building.id === level?.parent_id,
         );
         return `${bld ? (bld.display_name || bld.name) + ', ' : ''}${
-            level?.display_name || level?.name || '<No Level>'
+            level?.display_name || level?.name || i18n('COMMON.LEVEL_EMPTY')
         }`;
     }
 }

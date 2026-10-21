@@ -2,73 +2,94 @@ import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { currentUser, settingSignal, User } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { BookingFormService } from '@placeos/bookings';
 import { TeamScheduleService } from './team-schedule.service';
 
 @Component({
     selector: 'team-quick-actions',
     template: `
-        <div
-            class="bg-grad border-base-300 relative mx-auto w-full max-w-full space-y-2 rounded-xl border p-4 text-white shadow"
-        >
-            <div class="flex items-center justify-between pb-2">
-                <div
-                    class="relative overflow-hidden rounded px-2 py-1 text-sm capitalize"
-                >
-                    <div
-                        class="bg-brand-content absolute inset-0 opacity-20"
-                    ></div>
-                    <div>Quick Action</div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <icon>auto_awesome</icon>
-                    <div class="text-sm">Smart Selection</div>
-                </div>
-            </div>
-            <div>
-                <h3 class="mb-1 text-2xl font-medium">Group Desk Bookings</h3>
-                <p class="text-sm">
-                    Book desks together with your team or selected colleagues
-                </p>
-            </div>
+        @if (features().includes('desks')) {
             <div
-                class="flex flex-col items-center space-y-2 pt-2 sm:flex-row sm:space-y-0 sm:space-x-4"
+                class="bg-grad border-base-300 relative mx-auto mb-4 w-full max-w-full space-y-2 rounded-xl border p-4 text-white shadow"
             >
-                <button
-                    btn
-                    matRipple
-                    class="white w-full flex-1 space-x-2"
-                    (click)="bookForGroup()"
-                >
-                    <icon class="text-2xl">bolt</icon>
-                    @if (select_mode()) {
+                <div class="flex items-center justify-between pb-2">
+                    <div
+                        class="relative overflow-hidden rounded px-2 py-1 text-sm capitalize"
+                    >
+                        <div
+                            class="bg-brand-content absolute inset-0 opacity-20"
+                        ></div>
                         <div>
-                            Book selected
-                            @if (selected_count() > 0) {
-                                ({{ selected_count() }})
-                            }
+                            {{ 'APP.WORKPLACE.TEAM_QUICK_ACTION' | translate }}
                         </div>
-                    } @else {
-                        <div>Book for team</div>
-                    }
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="inverse white w-full flex-1 space-x-2"
-                    (click)="toggleSelectMode()"
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <icon>auto_awesome</icon>
+                        <div class="text-sm">
+                            {{
+                                'APP.WORKPLACE.TEAM_SMART_SELECTION' | translate
+                            }}
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="mb-1 text-2xl font-medium">
+                        {{ 'APP.WORKPLACE.TEAM_GROUP_DESKS_TITLE' | translate }}
+                    </h3>
+                    <p class="text-sm">
+                        {{ 'APP.WORKPLACE.TEAM_GROUP_DESKS_HINT' | translate }}
+                    </p>
+                </div>
+                <div
+                    class="flex flex-col items-center space-y-2 pt-2 sm:flex-row sm:space-y-0 sm:space-x-4"
                 >
-                    @if (select_mode()) {
-                        <icon class="text-2xl">close</icon>
-                        <div>Clear</div>
-                    } @else {
-                        <icon class="text-2xl">group_add</icon>
-                        <div>Select Colleagues</div>
-                    }
-                </button>
+                    <button
+                        btn
+                        matRipple
+                        class="white w-full flex-1 space-x-2"
+                        [disabled]="select_mode() && selected_count() === 0"
+                        (click)="bookForGroup()"
+                    >
+                        <icon class="text-2xl">bolt</icon>
+                        @if (select_mode()) {
+                            <div>
+                                {{
+                                    'APP.WORKPLACE.TEAM_BOOK_SELECTED'
+                                        | translate
+                                }}
+                                @if (selected_count() > 0) {
+                                    ({{ selected_count() }})
+                                }
+                            </div>
+                        } @else {
+                            <div>
+                                {{ 'APP.WORKPLACE.TEAM_BOOK_TEAM' | translate }}
+                            </div>
+                        }
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="inverse white w-full flex-1 space-x-2"
+                        (click)="toggleSelectMode()"
+                    >
+                        @if (select_mode()) {
+                            <icon class="text-2xl">close</icon>
+                            <div>{{ 'COMMON.CLEAR' | translate }}</div>
+                        } @else {
+                            <icon class="text-2xl">group_add</icon>
+                            <div>
+                                {{
+                                    'APP.WORKPLACE.TEAM_SELECT_COLLEAGUES'
+                                        | translate
+                                }}
+                            </div>
+                        }
+                    </button>
+                </div>
             </div>
-        </div>
+        }
     `,
     styles: [
         `
@@ -81,7 +102,7 @@ import { TeamScheduleService } from './team-schedule.service';
             }
         `,
     ],
-    imports: [IconComponent],
+    imports: [IconComponent, TranslatePipe],
 })
 export class TeamQuickActionsComponent {
     private _dialog = inject(MatDialog);

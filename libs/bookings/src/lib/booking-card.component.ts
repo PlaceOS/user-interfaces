@@ -59,7 +59,9 @@ const TYPE_ICONS = new Map<string, { icon: string; tooltip: string }>([
                 [routerLink]="['./']"
                 [queryParams]="{
                     booking: booking()?.id,
+                    event: null,
                 }"
+                queryParamsHandling="merge"
                 (click)="viewDetails()"
             >
                 <div

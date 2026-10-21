@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { i18n, SettingsService } from '@placeos/common';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
@@ -41,6 +41,6 @@ export class ControlComponent implements OnInit {
     private _settings = inject(SettingsService);
 
     public ngOnInit(): void {
-        this._settings.title = 'Control';
+        this._settings.title = i18n('APP.WORKPLACE.MENU_CONTROL');
     }
 }

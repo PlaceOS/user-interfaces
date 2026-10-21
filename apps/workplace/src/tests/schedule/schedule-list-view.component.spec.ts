@@ -161,10 +161,16 @@ describe('ScheduleListViewComponent', () => {
         expect(all_ids).not.toContain('far');
     });
 
-    it('should return no blocks while loading', () => {
+    it('should keep the list and hide the empty state while loading', () => {
         spectator.setInput('loading', true);
         spectator.setInput('bookings', [bookingOn(day_one, 'a')]);
-        expect(spectator.component.booking_dates()).toEqual([]);
+        expect(spectator.component.booking_dates().length).toBe(1);
+
+        spectator.setInput('bookings', []);
+        spectator.detectChanges();
+        expect(
+            spectator.query('img[src="assets/img/no-events.svg"]'),
+        ).not.toExist();
     });
 
     it('should show the empty state when there are no bookings', () => {

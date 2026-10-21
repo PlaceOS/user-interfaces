@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { GroupEventCardComponent } from '@placeos/events';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
@@ -33,6 +34,26 @@ import { GroupEventsStateService } from './group-events-state.service';
                                 class="m-2"
                             ></group-event-card>
                         }
+                    </div>
+                } @else if (loading()) {
+                    <div
+                        class="flex h-full w-full flex-col items-center justify-center space-y-2"
+                    >
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <div class="opacity-60">
+                            {{ 'COMMON.LOADING' | translate }}...
+                        </div>
+                    </div>
+                } @else if (failed()) {
+                    <div
+                        role="alert"
+                        class="flex h-full w-full flex-col items-center justify-center space-y-2"
+                    >
+                        <icon class="text-5xl opacity-60">error</icon>
+                        <div>{{ 'COMMON.LOAD_ERROR' | translate }}</div>
+                        <button btn (click)="reload()">
+                            {{ 'COMMON.RETRY' | translate }}
+                        </button>
                     </div>
                 } @else {
                     <div
@@ -83,12 +104,17 @@ import { GroupEventsStateService } from './group-events-state.service';
         GroupEventsFiltersListComponent,
         GroupEventsSidebarComponent,
         TranslatePipe,
+        IconComponent,
+        MatProgressSpinnerModule,
     ],
 })
 export class GroupEventsComponent extends AsyncHandler {
     private _state = inject(GroupEventsStateService);
 
     public readonly event_list = this._state.filtered_events;
+    public readonly loading = this._state.loading;
+    public readonly failed = this._state.failed;
+    public readonly reload = () => this._state.reload();
     public readonly featured = computed(() =>
         this.event_list().find(
             (_: any) => _.extension_data?.featured || _.featured,

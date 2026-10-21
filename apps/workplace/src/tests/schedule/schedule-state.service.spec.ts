@@ -47,6 +47,7 @@ describe('ScheduleStateService', () => {
         providers: [
             MockProvider(SettingsService, {
                 get: vi.fn(),
+                time_format: 'h:mm a',
                 // `listen` returns a WritableSignal in production; the service
                 // invokes its result (`listen(name)()`), so the mock must hand
                 // back a callable signal, not an observable.

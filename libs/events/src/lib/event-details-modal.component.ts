@@ -28,6 +28,7 @@ import {
     getTimezoneOffsetString,
     i18n,
     notifyError,
+    notifySuccess,
     settingSignal,
     SettingsService,
     Space,
@@ -134,6 +135,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                     [class.pointer-events-none]="
                                         room_status() !== 'pending'
                                     "
+                                    [disabled]="checking_in()"
                                     (click)="checkin()"
                                 >
                                     <div
@@ -233,7 +235,12 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                             (event().creator | user | async)?.name ||
                             event().creator;
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Created By">person</icon>
+                            <icon
+                                [matTooltip]="
+                                    'CALENDAR_EVENT.CREATED_BY' | translate
+                                "
+                                >person</icon
+                            >
                             <div>
                                 {{ creator }}
                             </div>
@@ -243,7 +250,9 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         event().visibility && event().visibility !== 'normal'
                     ) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Visibility">visibility</icon>
+                            <icon [matTooltip]="'COMMON.VISIBILITY' | translate"
+                                >visibility</icon
+                            >
                             <div>
                                 {{
                                     'COMMON.VISIBILITY_' +
@@ -424,9 +433,16 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                             matRipple
                                             class="print:hidden"
                                             [matTooltip]="
-                                                show_order()[order.id]
-                                                    ? 'Hide order items'
-                                                    : 'Show order items'
+                                                (show_order()[order.id]
+                                                    ? 'CALENDAR_EVENT.CATERING_ORDER_HIDE'
+                                                    : 'CALENDAR_EVENT.CATERING_ORDER_SHOW'
+                                                ) | translate
+                                            "
+                                            [attr.aria-label]="
+                                                (show_order()[order.id]
+                                                    ? 'CALENDAR_EVENT.CATERING_ORDER_HIDE'
+                                                    : 'CALENDAR_EVENT.CATERING_ORDER_SHOW'
+                                                ) | translate
                                             "
                                             (click)="toggleOrder(order.id)"
                                         >
@@ -777,6 +793,8 @@ export class EventDetailsModalComponent implements OnInit {
     public readonly show_order = signal<Record<string, boolean>>({});
     public readonly show_request = signal<Record<string, boolean>>({});
     public readonly room_status = signal('');
+    /** Whether a check-in request is in progress */
+    public readonly checking_in = signal(false);
     public readonly hide_map = signal(false);
     public readonly hide_edit = signal(false);
     public readonly raw_body = signal('');
@@ -1014,12 +1032,24 @@ export class EventDetailsModalComponent implements OnInit {
     );
 
     public async checkin() {
-        const mod = getModule(this.space()?.id, 'Bookings');
-        if (!mod) return;
-        await mod
-            .execute('checkin', [getUnixTime(this.event().date)])
-            .catch((e) => notifyError(`Error checking in booking. ${e}`));
-        this.room_status.set('busy');
+        const id = this.space()?.id;
+        if (!id) {
+            notifyError(i18n('CALENDAR_EVENT.CHECK_IN_UNAVAILABLE'));
+            return;
+        }
+        if (this.checking_in()) return;
+        this.checking_in.set(true);
+        try {
+            await getModule(id, 'Bookings').execute('checkin', [
+                getUnixTime(this.event().date),
+            ]);
+            this.room_status.set('busy');
+            notifySuccess(i18n('BOOKINGS.CHECK_IN_SUCCESS'));
+        } catch {
+            notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
+        } finally {
+            this.checking_in.set(false);
+        }
     }
 
     private async _load() {

@@ -1,10 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, model } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import { SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { DateRangeCalendarComponent } from '@placeos/form-fields';
+import {
+    DateCalendarComponent,
+    DateRangeCalendarComponent,
+} from '@placeos/form-fields';
 import { addDays, isSameDay, subDays } from 'date-fns';
 
 @Component({
@@ -27,6 +31,12 @@ import { addDays, isSameDay, subDays } from 'date-fns';
                         btn
                         matRipple
                         class="inverse min-h-11 min-w-11 p-0"
+                        [attr.aria-label]="
+                            (view() === 'week'
+                                ? 'APP.WORKPLACE.DESK_WEEK_PREVIOUS'
+                                : 'APP.WORKPLACE.SCHEDULE_PREVIOUS_DAY'
+                            ) | translate
+                        "
                         (click)="previousDate()"
                     >
                         <icon class="text-2xl">keyboard_arrow_left</icon>
@@ -35,27 +45,35 @@ import { addDays, isSameDay, subDays } from 'date-fns';
                         btn
                         matRipple
                         class="inverse min-h-11 min-w-11 p-0"
+                        [attr.aria-label]="
+                            (view() === 'week'
+                                ? 'APP.WORKPLACE.DESK_WEEK_NEXT'
+                                : 'APP.WORKPLACE.SCHEDULE_NEXT_DAY'
+                            ) | translate
+                        "
                         (click)="nextDate()"
                     >
                         <icon class="text-2xl">keyboard_arrow_right</icon>
                     </button>
-                } @else {
-                    <button
-                        btn
-                        matRipple
-                        class="inverse min-h-11 min-w-11 p-0 sm:hidden"
-                        [matMenuTriggerFor]="date_range_menu"
+                }
+                <!-- The sidebar with the calendar is hidden on small screens -->
+                <button
+                    btn
+                    matRipple
+                    class="inverse min-h-11 min-w-11 p-0 sm:hidden"
+                    [attr.aria-label]="
+                        'APP.WORKPLACE.SCHEDULE_SELECT_DATE' | translate
+                    "
+                    [matMenuTriggerFor]="date_range_menu"
+                >
+                    <icon class="text-2xl">calendar_month</icon>
+                </button>
+                <mat-menu #date_range_menu="matMenu" class="schedule-date-menu">
+                    <div
+                        (click)="$event.stopPropagation()"
+                        class="w-72 space-y-2 p-2"
                     >
-                        <icon class="text-2xl">calendar_month</icon>
-                    </button>
-                    <mat-menu
-                        #date_range_menu="matMenu"
-                        class="schedule-date-menu"
-                    >
-                        <div
-                            (click)="$event.stopPropagation()"
-                            class="w-72 space-y-2 p-2"
-                        >
+                        @if (view() === 'list') {
                             <date-range-calendar
                                 [from]="null"
                                 [start]="date()?.valueOf()"
@@ -73,9 +91,15 @@ import { addDays, isSameDay, subDays } from 'date-fns';
                                         | translate
                                 }}
                             </div>
-                        </div>
-                    </mat-menu>
-                }
+                        } @else {
+                            <date-calendar
+                                [ngModel]="date()"
+                                (ngModelChange)="date.set($event)"
+                                [offset_weekday]="offset_weekday"
+                            ></date-calendar>
+                        }
+                    </div>
+                </mat-menu>
                 @if (has_date_range()) {
                     <div>
                         {{ date() | date: 'dd MMM' }} -
@@ -147,6 +171,8 @@ import { addDays, isSameDay, subDays } from 'date-fns';
         IconComponent,
         RouterModule,
         MatMenuModule,
+        FormsModule,
+        DateCalendarComponent,
         DateRangeCalendarComponent,
     ],
 })

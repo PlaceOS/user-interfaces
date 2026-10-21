@@ -50,7 +50,9 @@ import { GroupEventsStateService } from './group-events-state.service';
                     <mat-select
                         [(ngModel)]="selected_range"
                         (ngModelChange)="setPeriod($event)"
-                        placeholder="Select Period"
+                        [placeholder]="
+                            'APP.WORKPLACE.EVENTS_SELECT_PERIOD' | translate
+                        "
                     >
                         @for (range of period_list(); track range) {
                             <mat-option [value]="range.id">
@@ -63,23 +65,28 @@ import { GroupEventsStateService } from './group-events-state.service';
             <hr
                 class="border-base-200 mx-auto hidden w-[calc(100%-1rem)] sm:block"
             />
-            <div class="hidden flex-1 flex-col overflow-auto sm:flex">
-                <date-calendar
-                    [ngModel]="options().date"
-                    (ngModelChange)="setPeriodFromDate($event)"
-                ></date-calendar>
-                <hr class="border-base-200 mx-auto w-[calc(100%-1rem)]" />
-                <div class="flex flex-1 flex-col overflow-auto">
-                    <h2 class="p-4 text-lg font-medium">
+            <!-- Small screens show only the tags, in a row that wraps -->
+            <div class="flex flex-col overflow-auto sm:flex-1">
+                <div class="hidden sm:block">
+                    <date-calendar
+                        [ngModel]="options().date"
+                        (ngModelChange)="setPeriodFromDate($event)"
+                    ></date-calendar>
+                    <hr class="border-base-200 mx-auto w-[calc(100%-1rem)]" />
+                </div>
+                <div class="flex flex-col overflow-auto sm:flex-1">
+                    <h2 class="hidden p-4 text-lg font-medium sm:block">
                         {{ 'COMMON.FILTERS' | translate }}
                     </h2>
                     @if (tags().length) {
-                        <div class="flex flex-col space-y-2 px-4">
+                        <div
+                            class="flex flex-wrap items-center gap-x-4 px-4 pb-2 sm:flex-col sm:items-stretch sm:space-y-2 sm:gap-x-0 sm:pb-0"
+                        >
                             <h3>{{ 'COMMON.TAGS' | translate }}</h3>
                             @for (tag of tags(); track tag) {
                                 <button
                                     matRipple
-                                    class="flex w-full items-center rounded-sm text-left"
+                                    class="flex items-center rounded-sm text-left sm:w-full"
                                     (click)="toggleTag(tag)"
                                 >
                                     <mat-checkbox

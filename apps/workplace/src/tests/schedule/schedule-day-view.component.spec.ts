@@ -1,7 +1,13 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
-import { Booking, CalendarEvent, OrganisationService } from '@placeos/common';
+import {
+    Booking,
+    CalendarEvent,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
@@ -37,8 +43,17 @@ describe('ScheduleDayViewComponent', () => {
 
     const createComponent = createComponentFactory({
         component: ScheduleDayViewComponent,
-        declarations: [MockPipe(UserPipe, (value) => value as any)],
+        declarations: [
+            MockPipe(UserPipe, (value) => value as any),
+            // Show the key, count and plural, so the tests can read them
+            MockPipe(
+                TranslatePipe,
+                (key: string, args?: { count?: number }, plural?: number) =>
+                    [key, args?.count, plural].join('|'),
+            ),
+        ],
         providers: [
+            MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(MatDialog, { open: vi.fn(), closeAll: vi.fn() }),
             MockProvider(OrganisationService, { levelWithID: vi.fn() }),
             {
@@ -102,7 +117,9 @@ describe('ScheduleDayViewComponent', () => {
         expect(item.top).toBe(0);
         expect(item.height).toBe(100);
         spectator.detectChanges();
-        expect(spectator.query('.mb-4')?.textContent).toContain('1 booking');
+        expect(spectator.query('.mb-4')?.textContent).toContain(
+            'APP.WORKPLACE.SCHEDULE_BOOKING_COUNT|1|1',
+        );
 
         spectator.setInput('date', addDays(the_day, 2).valueOf());
         expect(spectator.component.dayBookings()).toEqual([]);
@@ -111,12 +128,21 @@ describe('ScheduleDayViewComponent', () => {
     it('should render a booking count that is pluralised', () => {
         spectator.setInput('bookings', [bookingAt(9, 60)]);
         spectator.detectChanges();
-        expect(spectator.query('.mb-4')?.textContent).toContain('1 booking');
-        expect(spectator.query('.mb-4')?.textContent).not.toContain('bookings');
+        expect(spectator.query('.mb-4')?.textContent).toContain(
+            'APP.WORKPLACE.SCHEDULE_BOOKING_COUNT|1|1',
+        );
 
         spectator.setInput('bookings', [bookingAt(9, 60), bookingAt(11, 60)]);
         spectator.detectChanges();
-        expect(spectator.query('.mb-4')?.textContent).toContain('2 bookings');
+        expect(spectator.query('.mb-4')?.textContent).toContain(
+            'APP.WORKPLACE.SCHEDULE_BOOKING_COUNT|2|2',
+        );
+    });
+
+    it('should use 24 hour labels when the setting is on', () => {
+        vi.mocked(spectator.inject(SettingsService).get).mockReturnValue(true);
+        spectator = createComponent({ props: { date: the_day } });
+        expect(spectator.component.timeSlots()[13].label).toBe('13:00');
     });
 
     it('should give non-overlapping bookings the full width in one column', () => {
@@ -249,12 +275,12 @@ describe('ScheduleDayViewComponent', () => {
     });
 
     describe('statusLabel() / statusColor()', () => {
-        it('capitalises the status label', () => {
+        it('maps each status to a label key', () => {
             expect(spectator.component.statusLabel('approved')).toBe(
-                'Approved',
+                'COMMON.APPROVED',
             );
             expect(spectator.component.statusLabel('waitlisted')).toBe(
-                'Waitlisted',
+                'APP.WORKPLACE.SCHEDULE_STATUS_WAITLISTED',
             );
         });
 
