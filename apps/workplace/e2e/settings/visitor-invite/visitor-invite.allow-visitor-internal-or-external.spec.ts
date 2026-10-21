@@ -5,7 +5,6 @@ import type { Locator, Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { DeskForm } from '../../../../../e2e/support/desk/desk-form.page';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { SchedulePage } from '../../../../../e2e/support/bookings/schedule.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
