@@ -11,7 +11,7 @@ import {
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { form, FormField, required, validate } from '@angular/forms/signals';
+import { FormField } from '@angular/forms/signals';
 
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -457,7 +457,7 @@ import {
                                     <input
                                         matInput
                                         id="reason"
-                                        [formField]="reason_form.title"
+                                        [formField]="form.title"
                                         [placeholder]="
                                             'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
                                                 | translate
@@ -725,14 +725,6 @@ export class InviteVisitorFormComponent implements OnInit {
         'visitors.reason_required',
         false,
     );
-    public readonly reason_form = form(this._service.model, (p) => {
-        required(p.title, { when: () => this.reason_required() });
-        validate(p.title, ({ value }) =>
-            this.reason_required() && !value()?.trim()
-                ? { kind: 'required' }
-                : undefined,
-        );
-    });
 
     public readonly date = input<number>(undefined);
     public readonly done = output<void>();
@@ -1077,8 +1069,7 @@ export class InviteVisitorFormComponent implements OnInit {
 
     public async sendInvite() {
         this.form().markAsTouched();
-        this.reason_form.title().markAsTouched();
-        if (!this.reason_form.title().valid()) {
+        if (this.form.title().invalid()) {
             return notifyError(i18n('BOOKINGS.VISITOR_REASON'));
         }
         const form_data = this.model();

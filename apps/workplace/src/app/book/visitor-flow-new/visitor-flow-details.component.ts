@@ -209,18 +209,23 @@ type VisitorFormType = 'single' | 'group';
                     </div>
                 }
                 <div class="flex flex-col">
-                    <label for="reason">{{
-                        'BOOKINGS.VISITOR_REASON' | translate
-                    }}</label>
+                    <label for="reason"
+                        >{{ 'BOOKINGS.VISITOR_REASON' | translate }}
+                        @if (reason_required()) {
+                            <span>*</span>
+                        }
+                    </label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
+                            id="reason"
                             [formField]="form.title"
                             [placeholder]="
                                 'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
                                     | translate
                             "
                         />
+                        <mat-error>{{ 'COMMON.REQUIRED' | translate }}</mat-error>
                     </mat-form-field>
                 </div>
             </div>
@@ -340,6 +345,11 @@ export class VisitorFlowDetailsComponent implements OnInit {
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
     public readonly buildings = this._org.active_buildings;
 
+    public readonly reason_required = settingSignal(
+        'visitors.reason_required',
+        false,
+    );
+
     public get form() {
         return this._booking_form.form;
     }
@@ -368,7 +378,10 @@ export class VisitorFlowDetailsComponent implements OnInit {
         this._booking_form.setOptions({ group: is_group });
         const zones = this.model()?.zones || [];
         if (!this.model().id)
-            this.model.update((m) => ({ ...m, title: 'Visit' }));
+            this.model.update((m) => ({
+                ...m,
+                title: this.reason_required() ? '' : 'Visit',
+            }));
         if (!this.model()?.user_email) {
             this.model.update((m) => ({ ...m, user: currentUser() }));
         }

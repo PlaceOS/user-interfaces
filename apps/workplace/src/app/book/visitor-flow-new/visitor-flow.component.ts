@@ -214,6 +214,10 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         const visitor_reason =
             this._model()?.title || this._model()?.description || 'Visit';
 
+        if (this._form.title().invalid()) {
+            return notifyError(i18n('BOOKINGS.VISITOR_REASON'));
+        }
+
         // Validate form
         if (!this._form().valid()) {
             return notifyError(

@@ -277,6 +277,10 @@ export function generateBookingForm(
         'parking.require_space_restriction',
         false,
     );
+    const require_visitor_reason = settingSignal<boolean>(
+        'visitors.reason_required',
+        false,
+    );
     const booking_form = form<BookingFormValue>(
         model,
         (p) => {
@@ -297,6 +301,20 @@ export function generateBookingForm(
             validate(p.plate_number, ({ value, valueOf }) =>
                 valueOf(p.booking_type) === 'parking' &&
                 require_plate_number() &&
+                !`${value() || ''}`.trim()
+                    ? { kind: 'required' }
+                    : undefined,
+            );
+            // Visitor invites can require a reason (`title`) via settings.
+            // Scope to visitor bookings, the same as the plate number rules.
+            required(p.title, {
+                when: ({ valueOf }) =>
+                    valueOf(p.booking_type) === 'visitor' &&
+                    require_visitor_reason(),
+            });
+            validate(p.title, ({ value, valueOf }) =>
+                valueOf(p.booking_type) === 'visitor' &&
+                require_visitor_reason() &&
                 !`${value() || ''}`.trim()
                     ? { kind: 'required' }
                     : undefined,
