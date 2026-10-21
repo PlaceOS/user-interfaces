@@ -28,6 +28,7 @@ import {
         <div class="w-fit min-w-full px-8 pb-16">
             <simple-table
                 [error]="load_error()"
+                [loading]="state_loading()"
                 (retry)="retryLoad()"
                 class="block min-w-368 text-sm"
                 [data]="bookings()"
@@ -442,8 +443,11 @@ export class DeskBookingsComponent implements OnInit {
     public readonly can_delete = settingSignal('desks.allow_deleting', false);
     public readonly bookings = computed(() => {
         const all_bookings = this._state.bookings();
-        if (!this._state.loading()) return all_bookings;
-        // While loading, filter to only show bookings matching the newly selected zones
+        // Keep the rows on screen for "Load more", a refresh or a desk reload
+        if (!this._state.loading() || !this._state.filters_changed()) {
+            return all_bookings;
+        }
+        // After a filter change, only show bookings matching the newly selected zones
         const selected_zones = this.filters().zones || [];
         const active_zones = selected_zones.filter(
             (z) => z && z !== 'All' && z !== '-1',

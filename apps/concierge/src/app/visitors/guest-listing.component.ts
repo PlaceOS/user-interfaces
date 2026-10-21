@@ -37,6 +37,7 @@ import { VisitorsStateService } from './visitors-state.service';
     template: `
         <simple-table
             [error]="load_error()"
+            [loading]="loading()"
             (retry)="retryLoad()"
             class="z-0 block px-8 text-sm print:hidden"
             [min_width]="72 + extra_width + 'rem'"
@@ -787,6 +788,7 @@ export class GuestListingComponent extends AsyncHandler {
     public readonly printing = signal('');
     public readonly guests = this._state.filtered_bookings;
     public readonly load_error = this._state.load_error;
+    public readonly loading = this._state.loading;
     public readonly retryLoad = () => this._state.poll();
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;

@@ -12,6 +12,8 @@ import { DesksStateService } from '../../app/desks/desks-state.service';
 describe('DeskBookingsComponent', () => {
     let spectator: Spectator<DeskBookingsComponent>;
     const bookings = signal<Booking[]>([]);
+    const loading = signal(false);
+    const filters_changed = signal(false);
     const createComponent = createComponentFactory({
         component: DeskBookingsComponent,
         providers: [
@@ -22,7 +24,8 @@ describe('DeskBookingsComponent', () => {
                 filters: signal({}),
                 has_more_pages: signal(false),
                 last_updated: signal(0),
-                loading: signal(false),
+                loading,
+                filters_changed,
                 nextPage: vi.fn(),
                 refresh: vi.fn(),
                 viewBookingHistory: vi.fn(),
@@ -38,7 +41,18 @@ describe('DeskBookingsComponent', () => {
 
     beforeEach(() => {
         bookings.set([]);
+        loading.set(false);
+        filters_changed.set(false);
         spectator = createComponent();
+    });
+
+    it('should keep rows while more pages load and hide them after a filter change', () => {
+        bookings.set([new Booking({ id: 'booking-1' })]);
+        loading.set(true);
+        expect(spectator.component.bookings()).toHaveLength(1);
+
+        filters_changed.set(true);
+        expect(spectator.component.bookings()).toHaveLength(0);
     });
 
     it.each([

@@ -30,6 +30,7 @@ import { LockerStateService } from './locker-state.service';
         >
             <simple-table
                 [error]="load_error()"
+                [loading]="bookings_loading()"
                 (retry)="retryLoad()"
                 [selectable]="bulk_actions()"
                 [row_key]="rowKey"
@@ -348,6 +349,9 @@ export class LockerBookingsComponent {
     private _settings = inject(SettingsService);
 
     public readonly loading = signal('');
+    public readonly bookings_loading = computed(() =>
+        this._state.loading().includes('[BOOKINGS]'),
+    );
     public readonly filters = this._state.filters;
     public readonly search = this._state.search;
     public readonly has_more_pages = this._state.has_more_pages;

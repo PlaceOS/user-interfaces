@@ -135,6 +135,12 @@ export class DesksStateService extends AsyncHandler {
     );
 
     public readonly loading = this._loading.asReadonly();
+    /**
+     * True from a date or level change until the first page for the new
+     * filters loads. The bookings on screen are stale until then.
+     */
+    private readonly _filters_changed = signal(false);
+    public readonly filters_changed = this._filters_changed.asReadonly();
     private readonly _load_error = signal(false);
     /** Whether the latest load of bookings failed */
     public readonly load_error = this._load_error.asReadonly();
@@ -403,6 +409,7 @@ export class DesksStateService extends AsyncHandler {
                     total: 0,
                     has_next: false,
                 });
+                this._filters_changed.set(false);
             }
             return;
         }
@@ -424,6 +431,7 @@ export class DesksStateService extends AsyncHandler {
                 ? { list, total, has_next: list.length < total && has_next }
                 : { list: [...acc.list, ...list], total, has_next },
         );
+        if (reset) this._filters_changed.set(false);
         this._loading.set(false);
         this._last_updated.set(Date.now());
     }
@@ -455,6 +463,7 @@ export class DesksStateService extends AsyncHandler {
         // Set loading immediately when zones or date change to prevent stale data from showing
         if (filters.zones !== undefined || filters.date !== undefined) {
             this._loading.set(true);
+            this._filters_changed.set(true);
         }
         this._filters.set({ ...this._filters(), ...filters });
     }
