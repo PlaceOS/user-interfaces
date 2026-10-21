@@ -2698,6 +2698,7 @@
             "EVENTS_LOCATION_BOTH": "Both",
             "EVENTS_MORE_COUNT": "{{ count }} more event(s)",
             "EVENTS_CONFIG_ERROR": "A shared calendar is required to view and manage group events.",
+            "EVENTS_LOAD_ERROR": "Unable to load the event. Error: {{ error }}",
             "DEALS_HEADER": "Deals & Offers",
             "DEALS_ADD": "Add Deal",
             "DEALS_NEW": "New Deal",

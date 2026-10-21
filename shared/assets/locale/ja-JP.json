@@ -1430,6 +1430,7 @@
             "EVENTS_LOCATION_BOTH": "両方",
             "EVENTS_MORE_COUNT": "他{{ count }}件のイベント",
             "EVENTS_CONFIG_ERROR": "グループイベントを表示および管理するには、共有カレンダーが必要です。",
+            "EVENTS_LOAD_ERROR": "イベントを読み込めません。エラー: {{ error }}",
             "DEALS_HEADER": "お得情報・特典",
             "DEALS_ADD": "お得情報を追加",
             "DEALS_NEW": "新しいお得情報",

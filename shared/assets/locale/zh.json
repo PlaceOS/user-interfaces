@@ -1430,6 +1430,7 @@
             "EVENTS_LOCATION_BOTH": "两者皆可",
             "EVENTS_MORE_COUNT": "还有 {{ count }} 个活动",
             "EVENTS_CONFIG_ERROR": "需要一个共享日历来查看和管理群组活动。",
+            "EVENTS_LOAD_ERROR": "无法加载活动。错误：{{ error }}",
             "DEALS_HEADER": "优惠与特价",
             "DEALS_ADD": "添加优惠",
             "DEALS_NEW": "新建优惠",

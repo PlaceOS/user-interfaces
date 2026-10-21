@@ -1430,6 +1430,7 @@
             "EVENTS_LOCATION_BOTH": "كلاهما",
             "EVENTS_MORE_COUNT": "{{ count }} حدث (أحداث) إضافي",
             "EVENTS_CONFIG_ERROR": "مطلوب تقويم مشترك لعرض وإدارة أحداث المجموعة.",
+            "EVENTS_LOAD_ERROR": "تعذر تحميل الحدث. الخطأ: {{ error }}",
             "DEALS_HEADER": "العروض والصفقات",
             "DEALS_ADD": "إضافة صفقة",
             "DEALS_NEW": "صفقة جديدة",

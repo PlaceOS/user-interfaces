@@ -1430,6 +1430,7 @@
             "EVENTS_LOCATION_BOTH": "Ambos",
             "EVENTS_MORE_COUNT": "{{ count }} evento(s) más",
             "EVENTS_CONFIG_ERROR": "Se requiere un calendario compartido para ver y gestionar eventos de grupo.",
+            "EVENTS_LOAD_ERROR": "No se pudo cargar el evento. Error: {{ error }}",
             "DEALS_HEADER": "Ofertas y Descuentos",
             "DEALS_ADD": "Añadir Oferta",
             "DEALS_NEW": "Nueva Oferta",
