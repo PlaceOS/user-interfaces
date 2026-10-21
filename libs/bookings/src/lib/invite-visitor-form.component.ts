@@ -6,9 +6,9 @@ import {
     Injector,
     input,
     linkedSignal,
+    OnInit,
     output,
     signal,
-    OnInit,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required, validate } from '@angular/forms/signals';
@@ -20,6 +20,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import {
     alignDateToBookableHours,
@@ -52,8 +53,22 @@ import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-f
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
+import {
+    bookingHostUser,
+    toVisitorInternalOrExternal,
+    VisitorInternalOrExternal,
+} from './booking-form.model';
 import { BookingFormService } from './booking-form.service';
-import { bookingHostUser } from './booking-form.model';
+import {
+    mapGroupMembersFromBookings,
+    mapGroupMembersFromExtension,
+} from './booking-group.utilities';
+import {
+    normaliseVisitorEmail,
+    parseRecentVisitors,
+    RecentVisitor,
+    recentVisitorEntry,
+} from './recent-visitors';
 
 @Component({
     selector: `invite-visitor-form`,
@@ -371,6 +386,65 @@ import { bookingHostUser } from './booking-form.model';
                                         </div>
                                     </div>
                                 }
+                                @if (
+                                    allow_visitor_internal_or_external() &&
+                                    model().assets?.length
+                                ) {
+                                    <div class="mb-2 flex flex-col">
+                                        <label>{{
+                                            'BOOKINGS.VISITOR_INTERNAL_OR_EXTERNAL'
+                                                | translate
+                                        }}</label>
+                                        <div class="flex flex-col gap-y-2">
+                                            @for (
+                                                item of model().assets;
+                                                track $index
+                                            ) {
+                                                <div
+                                                    class="flex flex-wrap items-center gap-x-4"
+                                                >
+                                                    <span>{{
+                                                        item.name || item.email
+                                                    }}</span>
+                                                    <mat-radio-group
+                                                        [ngModel]="
+                                                            visitor_internal_or_external()[
+                                                                item.email ||
+                                                                    item.id
+                                                            ] || 'internal'
+                                                        "
+                                                        (ngModelChange)="
+                                                            setVisitorInternalOrExternal(
+                                                                item,
+                                                                $event
+                                                            )
+                                                        "
+                                                        [ngModelOptions]="{
+                                                            standalone: true,
+                                                        }"
+                                                    >
+                                                        <mat-radio-button
+                                                            value="internal"
+                                                        >
+                                                            {{
+                                                                'COMMON.TYPE_INTERNAL'
+                                                                    | translate
+                                                            }}
+                                                        </mat-radio-button>
+                                                        <mat-radio-button
+                                                            value="external"
+                                                        >
+                                                            {{
+                                                                'COMMON.TYPE_EXTERNAL'
+                                                                    | translate
+                                                            }}
+                                                        </mat-radio-button>
+                                                    </mat-radio-group>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
                             }
                             <div class="flex flex-col">
                                 <label for="reason">
@@ -418,6 +492,45 @@ import { bookingHostUser } from './booking-form.model';
                                     >
                                         International Visitor
                                     </mat-checkbox>
+                                </div>
+                            }
+                            @if (
+                                allow_visitor_internal_or_external() &&
+                                !multiple()
+                            ) {
+                                <div class="mb-2 flex flex-col">
+                                    <label>{{
+                                        'BOOKINGS.VISITOR_INTERNAL_OR_EXTERNAL'
+                                            | translate
+                                    }}</label>
+                                    <mat-radio-group
+                                        [ngModel]="
+                                            model()
+                                                .visitor_internal_or_external ||
+                                            'internal'
+                                        "
+                                        (ngModelChange)="
+                                            setSingleVisitorInternalOrExternal(
+                                                $event
+                                            )
+                                        "
+                                        [ngModelOptions]="{
+                                            standalone: true,
+                                        }"
+                                    >
+                                        <mat-radio-button value="internal">
+                                            {{
+                                                'COMMON.TYPE_INTERNAL'
+                                                    | translate
+                                            }}
+                                        </mat-radio-button>
+                                        <mat-radio-button value="external">
+                                            {{
+                                                'COMMON.TYPE_EXTERNAL'
+                                                    | translate
+                                            }}
+                                        </mat-radio-button>
+                                    </mat-radio-group>
                                 </div>
                             }
                         </form>
@@ -592,6 +705,7 @@ import { bookingHostUser } from './booking-form.model';
         DateFieldComponent,
         MatSelectModule,
         MatProgressSpinnerModule,
+        MatRadioModule,
         FormsModule,
         SanitizePipe,
         SafePipe,
@@ -634,9 +748,12 @@ export class InviteVisitorFormComponent implements OnInit {
     public readonly buildings = this._org.building_list;
     public readonly last_success = signal(this._service.last_success);
     public readonly last_count = signal(0);
-    private visitors = [];
-    public readonly filtered_visitors = signal<any[]>([]);
+    private visitors: RecentVisitor[] = [];
+    public readonly filtered_visitors = signal<RecentVisitor[]>([]);
     public readonly visitor_international = signal<Record<string, boolean>>({});
+    public readonly visitor_internal_or_external = signal<
+        Record<string, VisitorInternalOrExternal>
+    >({});
     private readonly _visitor_bookable_hours = this._settings.signal(
         'visitors.bookable_hours',
         null,
@@ -661,6 +778,11 @@ export class InviteVisitorFormComponent implements OnInit {
         'visitors.allow_international',
         false,
     );
+    private readonly _allow_visitor_internal_or_external =
+        this._settings.signal(
+            'visitors.allow_visitor_internal_or_external',
+            false,
+        );
     private readonly _visitor_allow_all_day = this._settings.signal(
         'visitors.allow_all_day',
         undefined,
@@ -726,6 +848,8 @@ export class InviteVisitorFormComponent implements OnInit {
     );
     public readonly allow_pass_number = this._allow_pass_number;
     public readonly allow_international = this._allow_international;
+    public readonly allow_visitor_internal_or_external =
+        this._allow_visitor_internal_or_external;
     public readonly allow_all_day = computed(
         () => this._visitor_allow_all_day() ?? this._booking_allow_all_day(),
     );
@@ -815,17 +939,9 @@ export class InviteVisitorFormComponent implements OnInit {
         this._service.clearOldState();
         await this.initFormZone();
         this.form_date.set(this.model().date);
-        const visitors = this._settings.get('visitor-invitees') || [];
-        for (const item of visitors) {
-            if (typeof item !== 'string') continue;
-            const [email, name, company, international] = item.split('|');
-            this.visitors.push({
-                email,
-                name,
-                company,
-                international: international === '1',
-            });
-        }
+        this.visitors = parseRecentVisitors(
+            this._settings.get('visitor-invitees'),
+        ).reverse();
         this.filterVisitors('');
         onFieldChange(
             this.model,
@@ -840,10 +956,14 @@ export class InviteVisitorFormComponent implements OnInit {
             this._injector,
         );
         this.syncVisitorInternational(this.model().assets || []);
+        this.syncVisitorInternalOrExternal(this.model().assets || []);
         onFieldChange(
             this.model,
             (m) => m.assets,
-            (_) => this.syncVisitorInternational(_ || []),
+            (_) => {
+                this.syncVisitorInternational(_ || []);
+                this.syncVisitorInternalOrExternal(_ || []);
+            },
             this._injector,
         );
         if (!this.model().id)
@@ -853,7 +973,7 @@ export class InviteVisitorFormComponent implements OnInit {
             }));
     }
 
-    public setVisitor(item) {
+    public setVisitor(item: RecentVisitor) {
         this.model.update((m) => ({
             ...m,
             asset_id: item.email,
@@ -861,6 +981,7 @@ export class InviteVisitorFormComponent implements OnInit {
             company: item.company,
             phone: item.phone,
             international: !!item.international,
+            visitor_internal_or_external: item.visitor_internal_or_external,
         }));
     }
 
@@ -897,6 +1018,40 @@ export class InviteVisitorFormComponent implements OnInit {
                           extension_data: {
                               ...(user.extension_data || {}),
                               international: !!international,
+                          },
+                      });
+            }),
+        }));
+    }
+
+    public setSingleVisitorInternalOrExternal(type: VisitorInternalOrExternal) {
+        this.model.update((m) => ({
+            ...m,
+            visitor_internal_or_external: type,
+        }));
+    }
+
+    public setVisitorInternalOrExternal(
+        item: User,
+        type: VisitorInternalOrExternal,
+    ) {
+        const key = item.email || item.id;
+        if (!key) return;
+        this.visitor_internal_or_external.set({
+            ...this.visitor_internal_or_external(),
+            [key]: type,
+        });
+        this.model.update((m) => ({
+            ...m,
+            assets: (m.assets || []).map((user) => {
+                const user_key = user.email || user.id;
+                return user_key !== key
+                    ? user
+                    : new User({
+                          ...user,
+                          extension_data: {
+                              ...(user.extension_data || {}),
+                              visitor_internal_or_external: type,
                           },
                       });
             }),
@@ -950,8 +1105,15 @@ export class InviteVisitorFormComponent implements OnInit {
             form_data.title || form_data.description || 'Visit';
         this.model.update((m) => ({ ...m, title: visitor_reason }));
         const old_visitors = this._settings.get('visitor-invitees') || [];
-        const { asset_id, asset_name, company, international, assets } =
-            this.model();
+        const {
+            asset_id,
+            asset_name,
+            company,
+            international,
+            visitor_internal_or_external,
+            phone,
+            assets,
+        } = this.model();
         if (this.multiple() && assets?.length) {
             const asset_ids = assets.map((_) => _.email).filter((_) => !!_);
             this._settings.saveUserSetting('visitor-invitees', [
@@ -961,19 +1123,29 @@ export class InviteVisitorFormComponent implements OnInit {
                 }),
                 ...assets
                     .filter((_) => !!_.email)
-                    .map((item) => {
-                        return `${item.email}|${item.name || item.email}|${
-                            item.company || item.organisation || ''
-                        }|${this.getVisitorInternational(item) ? '1' : '0'}`;
-                    }),
+                    .map((item) =>
+                        recentVisitorEntry({
+                            email: item.email,
+                            name: item.name || item.email,
+                            company: item.company || item.organisation,
+                            phone: item.phone,
+                            international: this.getVisitorInternational(item),
+                            visitor_internal_or_external:
+                                this.getVisitorInternalOrExternal(item),
+                        }),
+                    ),
             ]);
         } else {
-            const visitor_details = `${asset_id}|${asset_name}|${company}|${
-                international ? '1' : '0'
-            }`;
             this._settings.saveUserSetting('visitor-invitees', [
                 ...old_visitors.filter((_) => !_.includes(asset_id)),
-                visitor_details,
+                recentVisitorEntry({
+                    email: asset_id,
+                    name: asset_name,
+                    company,
+                    phone,
+                    international,
+                    visitor_internal_or_external,
+                }),
             ]);
         }
         const is_editing = this.is_edit();
@@ -1033,8 +1205,9 @@ export class InviteVisitorFormComponent implements OnInit {
             if (this.multiple()) {
                 // Populate quickly from cached booking extension data, then
                 // refresh from sibling bookings without blocking form display.
-                const extension_visitors = this._visitorsFromGroupMembers(
+                const extension_visitors = mapGroupMembersFromExtension(
                     booking_ref?.extension_data?.group_members || [],
+                    true,
                 );
                 if (extension_visitors.length) {
                     this._setLoadedVisitors(extension_visitors);
@@ -1090,47 +1263,16 @@ export class InviteVisitorFormComponent implements OnInit {
         this._existing_siblings =
             await this._service.loadGroupSiblings(booking_ref);
         if (!this._existing_siblings.length) return;
-        const visitors = this._existing_siblings.map((s) => {
-            const group_member = (s.extension_data?.group_members || []).find(
-                (member) => member?.email === s.asset_id,
-            );
-            return new User({
-                name: group_member?.name || s.asset_name || s.asset_id,
-                email: s.asset_id,
-                organisation:
-                    group_member?.company || s.extension_data?.company,
-                phone: group_member?.phone || s.extension_data?.phone,
-                extension_data: {
-                    international: !!(
-                        group_member?.international ||
-                        s.extension_data?.international
-                    ),
-                },
-            });
-        });
+        const visitors = mapGroupMembersFromBookings(
+            this._existing_siblings,
+            true,
+        );
         // The lookup is fired without blocking form display, so the user may
         // have already added or removed a visitor by the time it lands. Only
         // overwrite the list this component seeded itself. (PPT-2634)
         const current = this.model().assets as User[];
         if (this._loaded_visitors && current !== this._loaded_visitors) return;
         this._setLoadedVisitors(visitors);
-    }
-
-    private _visitorsFromGroupMembers(members: any[] = []) {
-        return (members || [])
-            .filter((member) => !!member?.email)
-            .map(
-                (member) =>
-                    new User({
-                        name: member.name || member.email,
-                        email: member.email,
-                        organisation: member.company || '',
-                        phone: member.phone || '',
-                        extension_data: {
-                            international: !!member.international,
-                        },
-                    }),
-            );
     }
 
     private async _bookForOne() {
@@ -1170,6 +1312,8 @@ export class InviteVisitorFormComponent implements OnInit {
                         extension_data: {
                             ...(user.extension_data || {}),
                             international: this.getVisitorInternational(user),
+                            visitor_internal_or_external:
+                                this.getVisitorInternalOrExternal(user),
                         },
                     } as any),
             );
@@ -1231,6 +1375,28 @@ export class InviteVisitorFormComponent implements OnInit {
         return (
             !!(item as any).international ||
             !!item?.extension_data?.international
+        );
+    }
+
+    private syncVisitorInternalOrExternal(assets: User[] = []) {
+        const map_data: Record<string, VisitorInternalOrExternal> = {};
+        for (const item of assets || []) {
+            const key = item.email || item.id;
+            if (!key) continue;
+            map_data[key] = this.getVisitorInternalOrExternal(item);
+        }
+        this.visitor_internal_or_external.set(map_data);
+    }
+
+    private getVisitorInternalOrExternal(
+        item: User,
+    ): VisitorInternalOrExternal {
+        // Visitors from the user list have no stored type. Use the history.
+        return toVisitorInternalOrExternal(
+            item?.extension_data?.visitor_internal_or_external ??
+                this.visitors.find(
+                    (_) => _.email === normaliseVisitorEmail(item?.email),
+                )?.visitor_internal_or_external,
         );
     }
 
