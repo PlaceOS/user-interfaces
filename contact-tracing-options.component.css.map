@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["contact-tracing-options.component.ts"],
+  "sourcesContent": ["\n            mat-form-field {\n                height: 3.25rem;\n            }\n\n            button[icon][disabled] {\n                background-color: var(--neutral) !important;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAA;AACJ;AAEA,MAAA,CAAA,KAAA,CAAA;AACI,oBAAA,IAAA;AACJ;",
+  "names": []
+}
