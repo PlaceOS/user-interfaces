@@ -11,6 +11,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { endOfDay, format, getUnixTime, isSameDay, startOfDay } from 'date-fns';
+import { showVisitorFlag } from '../../visitors/visitor-flags';
 import { REMOVE_KEYS } from '../reports-state.service';
 
 export interface ReportOptions {
@@ -96,11 +97,15 @@ export class VisitorsReportService {
     public async downloadReport() {
         const options = this._options();
         const bookings = this.bookings();
-        const show_international = !!this._settings.get(
-            'app.visitors.allow_international',
+        const show_international = showVisitorFlag(
+            this._settings,
+            bookings,
+            'international',
         );
-        const show_visitor_internal_or_external = !!this._settings.get(
-            'app.visitors.allow_visitor_internal_or_external',
+        const show_visitor_internal_or_external = showVisitorFlag(
+            this._settings,
+            bookings,
+            'visitor_internal_or_external',
         );
         if (!bookings?.length) return;
         const is_same = isSameDay(options.start, options.end);

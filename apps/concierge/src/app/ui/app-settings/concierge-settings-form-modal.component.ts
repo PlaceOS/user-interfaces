@@ -777,6 +777,21 @@ import { UploadButtonComponent } from './upload-button.component';
                                         "
                                     ></settings-toggle>
                                     <settings-toggle
+                                        label="Allow international attendees"
+                                        info="Show a checkbox on the event booking form that flags each attendee as international"
+                                        [formField]="
+                                            form.events.allow_international
+                                        "
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        label="Allow attendees to be marked internal or external"
+                                        info="Show a control on the event booking form that marks each attendee as internal (default) or external"
+                                        [formField]="
+                                            form.events
+                                                .allow_attendee_internal_or_external
+                                        "
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         label="Enforce capacity for rooms"
                                         [formField]="
                                             form.events.strict_capacity_check
@@ -1889,6 +1904,8 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             hide_notes: false,
             hide_attendees: false,
             allow_externals: false,
+            allow_international: false,
+            allow_attendee_internal_or_external: false,
             strict_capacity_check: false,
             allow_multiday: false,
             use_building_timezone: false,

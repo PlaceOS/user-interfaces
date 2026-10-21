@@ -215,6 +215,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             <a-user-list-field
                                 class="mt-4"
                                 [formField]="form.attendees"
+                                [flags]="true"
                             ></a-user-list-field>
                         </div>
                     </section>

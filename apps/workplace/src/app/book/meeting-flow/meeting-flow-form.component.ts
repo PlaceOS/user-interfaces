@@ -167,6 +167,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         [formField]="form.attendees"
                                         [time]="model().date"
                                         [guests]="allow_externals()"
+                                        [flags]="true"
                                     ></a-user-list-field>
                                     @if (can_notify_new_attendees_only()) {
                                         <mat-checkbox

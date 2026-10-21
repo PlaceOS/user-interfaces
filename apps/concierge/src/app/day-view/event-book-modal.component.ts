@@ -136,6 +136,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 class="mt-4"
                                 [formField]="form.attendees"
                                 [guests]="allow_externals"
+                                [flags]="true"
                             ></a-user-list-field>
                             @if (can_notify_new_attendees_only()) {
                                 <mat-checkbox

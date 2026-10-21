@@ -1,8 +1,12 @@
 import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { CalendarEvent } from '@placeos/common';
+import { CalendarEvent, User } from '@placeos/common';
 
-import { generateEventForm } from '../lib/event-form';
+import {
+    attendeeFlagsFrom,
+    eventFormValue,
+    generateEventForm,
+} from '../lib/event-form';
 import { generateSystemsFormFields } from '../lib/space.utilities';
 
 describe('utilities', () => {
@@ -132,6 +136,76 @@ describe('utilities', () => {
 
             expect(system.features).toEqual(['Display']);
             expect(form.features().value()).toEqual(['Display', 'Whiteboard']);
+        });
+    });
+
+    describe('attendee flags', () => {
+        const flagged_event = () =>
+            new CalendarEvent({
+                id: 'evt-flags',
+                host: 'host@example.com',
+                attendees: [
+                    new User({ email: 'one@example.com', name: 'One' }),
+                    new User({ email: 'two@example.com', name: 'Two' }),
+                ],
+                extension_data: {
+                    attendee_flags: {
+                        'one@example.com': {
+                            international: true,
+                            visitor_internal_or_external: 'external',
+                        },
+                    },
+                },
+            });
+
+        it('should apply stored flags onto the matching attendee', () => {
+            const value = eventFormValue(flagged_event());
+            const flagged = value.attendees[0];
+            const plain = value.attendees[1];
+            expect(flagged.extension_data.international).toBe(true);
+            expect(flagged.extension_data.visitor_internal_or_external).toBe(
+                'external',
+            );
+            expect(plain.extension_data.international).toBeUndefined();
+        });
+
+        it('should collect flags from the attendees of a form value', () => {
+            const value = eventFormValue(flagged_event());
+            expect(attendeeFlagsFrom(value.attendees)).toEqual({
+                'one@example.com': {
+                    international: true,
+                    visitor_internal_or_external: 'external',
+                },
+            });
+        });
+
+        it('should round trip flags through a save and reload', () => {
+            const saved = attendeeFlagsFrom(
+                eventFormValue(flagged_event()).attendees,
+            );
+            const reloaded = eventFormValue(
+                new CalendarEvent({
+                    id: 'evt-flags',
+                    attendees: [new User({ email: 'one@example.com' })],
+                    extension_data: { attendee_flags: saved },
+                }),
+            );
+            expect(reloaded.attendees[0].extension_data.international).toBe(
+                true,
+            );
+            expect(
+                reloaded.attendees[0].extension_data
+                    .visitor_internal_or_external,
+            ).toBe('external');
+        });
+
+        it('should not invent flags for attendees without them', () => {
+            const value = eventFormValue(
+                new CalendarEvent({
+                    attendees: [new User({ email: 'plain@example.com' })],
+                }),
+            );
+            expect(attendeeFlagsFrom(value.attendees)).toEqual({});
         });
     });
 });

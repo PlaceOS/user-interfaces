@@ -227,6 +227,8 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `events.no_space_resource` | string | – | ID of the space that the app adds to a meeting when the user selects no space. |
 | `events.catering_notes_required` | boolean | – | Require notes on the catering order of a meeting. |
 | `events.allow_externals` | boolean | `true` | Allow external (non-directory) attendees to be added to meetings. |
+| `events.allow_international` | boolean | `false` | Show a checkbox on the meeting form that flags each attendee as international. The flag is stored on the event and shown in the visitor report for synced visitor bookings. |
+| `events.allow_attendee_internal_or_external` | boolean | `false` | Show a control on the meeting form that marks each attendee as internal (default) or external. The type is stored on the event and shown in the visitor report for synced visitor bookings. |
 | `events.allow_recurrence` | boolean | `false` | Allow recurring meetings to be created. |
 | `events.allow_daily_allday_recurrence` | boolean | `false` | Allow daily recurrence for all-day meetings. |
 | `events.allow_online_meetings` | boolean | `false` | Show the online meeting option on the meeting form. |

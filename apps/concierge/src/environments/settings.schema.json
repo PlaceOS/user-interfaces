@@ -337,6 +337,14 @@
                     "type": "boolean",
                     "description": "Whether external attendees can be added to event bookings"
                 },
+                "allow_international": {
+                    "type": "boolean",
+                    "description": "Whether each attendee can be flagged as international in the event booking form"
+                },
+                "allow_attendee_internal_or_external": {
+                    "type": "boolean",
+                    "description": "Whether each attendee can be marked internal or external in the event booking form"
+                },
                 "allow_multiday": {
                     "type": "boolean",
                     "description": "Whether events are allowed to span multiple days"

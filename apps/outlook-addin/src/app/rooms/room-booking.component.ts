@@ -107,6 +107,7 @@ import { FeaturesFilterService } from './features-filter.service';
                                 <a-user-list-field
                                     [formField]="form.attendees"
                                     [custom_template]="true"
+                                    [flags]="true"
                                     (download)="downloadTemplate()"
                                 ></a-user-list-field>
                             </div>

@@ -19,6 +19,7 @@ import {
     fromBookingRecurrence,
     GuestUser,
     isRecurrenceInstanceDate,
+    readAttendeeFlags,
     setting,
     toQueryString,
     unique,
@@ -973,6 +974,19 @@ function linkedBookingChanges(
 }
 
 /**
+ * Lift the international and internal/external flags off a visitor onto the
+ * booking extension data, where the visitor report reads them. Flags on the
+ * visitor's `extension_data` win over top-level ones.
+ * @param item Visitor being booked
+ */
+function visitorFlagExtension(item: BookableResource) {
+    return {
+        ...readAttendeeFlags(item),
+        ...readAttendeeFlags(item.extension_data || {}),
+    };
+}
+
+/**
  * Sync the bookings linked to an event with the event's current resources of
  * the given type. Bookings for resources still on the event are updated in
  * place so their ids, approval state and check-in survive an edit; bookings are
@@ -1037,6 +1051,7 @@ export async function createBookingsForEvent(
                     name: resource_name,
                     location_id: assigned_space?.id || event.location,
                     details: item,
+                    ...(type === 'visitor' ? visitorFlagExtension(item) : {}),
                 },
                 zones: assigned_space?.zones || zones,
             });
