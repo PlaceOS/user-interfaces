@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1792546180727,
+  "timestamp": 1792546430174,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -297,7 +297,7 @@
     "./index.html": "9d946a45fa8128fd4a6cf5883064fe755bc0d2ba",
     "./it-CKncUqxZ.js": "b6b3105a4193fa883d8713fdecce08a8a4b7f301",
     "./ja-DngrQVLH.js": "38c64a0491a1e79c09fdc76f03eb35ef1f1a7d45",
-    "./main.js": "67f61f4bfdad084f2eb894e3b8a0ba0691a01b89",
+    "./main.js": "93658498036fc4495f367b6a2b8282c010bd0f08",
     "./manifest.webmanifest": "e9972f28130004e312c713398f75ef60aa75112a",
     "./native-domain-overlay.component-3WsfjnHN.js": "55c518e799ed548b066d26c0e1ff9ed3d9afd355",
     "./panel-view.component-DTmceA32.js": "e626b3d3b4f1cede2b031a88795aabf59664f52d",
