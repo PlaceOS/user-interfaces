@@ -109,9 +109,9 @@ jobs:
               with:
                   persist-credentials: false
 
-            # No actions/cache, no setup-node, no setup-bun — on purpose.
+            # No actions/cache, no setup-node — on purpose.
             #
-            # Those three are the right answer on a GitHub-hosted runner, where every
+            # Those are the right answer on a GitHub-hosted runner, where every
             # job starts from a bare VM. Here they were the single biggest cost in
             # the job: the first self-hosted run spent 9.1 min uploading node_modules
             # to GitHub's cache and 3.1 min saving the bun cache, out of 19.2 min
@@ -121,8 +121,21 @@ jobs:
             # everything else combined.
             #
             # The toolchain is provisioned once on the machine instead:
-            #   brew install colima docker docker-compose oven-sh/bun/bun node@24
+            #   brew install colima docker docker-compose node@24
             # See e2e/stack/SELF_HOSTED_RUNNER.md.
+
+            # Keep bun-version the same as build.yml and pull-request.yml: bun.lock
+            # is written in the format of the bun that generated it, and an older
+            # bun fails `--frozen-lockfile` on it. setup-bun installs to
+            # ~/.bun/bin, which persists here, and reuses it when the version
+            # matches, so it only downloads after a bump. no-cache keeps the binary
+            # out of GitHub's cache.
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: '1.4.3'
+                  no-cache: true
+
             - name: Install dependencies
               run: bun install --frozen-lockfile
 
