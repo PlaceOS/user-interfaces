@@ -13,8 +13,10 @@ import {
     LOCAL_TIMEZONE,
     onFieldChange,
     SettingsService,
+    readAttendeeFlags,
     setupFormTimeSync,
     User,
+    type AttendeeFlags,
     type FormTimeSyncHandle,
     type SignalFormRef,
 } from '@placeos/common';
@@ -67,33 +69,25 @@ export interface EventFormValue {
     meeting_provider: any;
 }
 
-/** Per-attendee visitor flags stored on the event extension data, keyed by lower-cased email. */
-export interface AttendeeFlags {
-    international?: boolean;
-    visitor_internal_or_external?: 'internal' | 'external';
-}
-
 /**
  * Copy the flags stored on the event extension data onto each matching
  * attendee's `extension_data`, so the form controls show the saved values.
  */
 function withAttendeeFlags(
     attendees: User[],
-    flags: Record<string, AttendeeFlags>,
+    flags: Record<string, AttendeeFlags | undefined> | undefined,
 ) {
     if (!flags) return attendees;
     return attendees.map((user) => {
         const stored = flags[(user.email || '').toLowerCase()];
         if (!stored) return user;
-        const extension_data = { ...user.extension_data };
-        if ('international' in stored)
-            extension_data.international = !!stored.international;
-        if ('visitor_internal_or_external' in stored)
-            extension_data.visitor_internal_or_external =
-                stored.visitor_internal_or_external === 'external'
-                    ? 'external'
-                    : 'internal';
-        return new User({ ...(user as any), extension_data });
+        return new User({
+            ...user,
+            extension_data: {
+                ...user.extension_data,
+                ...readAttendeeFlags(stored),
+            },
+        });
     });
 }
 
@@ -107,21 +101,9 @@ export function attendeeFlagsFrom(
     const flags: Record<string, AttendeeFlags> = {};
     for (const attendee of attendees || []) {
         const email = (attendee.email || '').toLowerCase();
-        const ext = attendee.extension_data || {};
         if (!email) continue;
-        if (
-            !('international' in ext) &&
-            !('visitor_internal_or_external' in ext)
-        )
-            continue;
-        const entry: AttendeeFlags = {};
-        if ('international' in ext) entry.international = !!ext.international;
-        if ('visitor_internal_or_external' in ext)
-            entry.visitor_internal_or_external =
-                ext.visitor_internal_or_external === 'external'
-                    ? 'external'
-                    : 'internal';
-        flags[email] = entry;
+        const entry = readAttendeeFlags(attendee.extension_data || {});
+        if (Object.keys(entry).length) flags[email] = entry;
     }
     return flags;
 }

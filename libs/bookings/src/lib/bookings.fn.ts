@@ -19,6 +19,7 @@ import {
     fromBookingRecurrence,
     GuestUser,
     isRecurrenceInstanceDate,
+    readAttendeeFlags,
     setting,
     toQueryString,
     unique,
@@ -38,8 +39,6 @@ import {
     subDays,
 } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
-
-import { toVisitorInternalOrExternal } from './booking-form.model';
 
 export interface WaitlistWeekStart {
     /** Day of the week the waitlist week starts on. `0` is Sunday */
@@ -976,32 +975,15 @@ function linkedBookingChanges(
 
 /**
  * Lift the international and internal/external flags off a visitor onto the
- * booking extension data, where the visitor report reads them. Only keys the
- * visitor already carries are included, so flags are never invented.
+ * booking extension data, where the visitor report reads them. Flags on the
+ * visitor's `extension_data` win over top-level ones.
  * @param item Visitor being booked
  */
 function visitorFlagExtension(item: BookableResource) {
-    const user = item as BookableResource & {
-        international?: boolean;
-        visitor_internal_or_external?: string;
-        extension_data?: Record<string, any>;
+    return {
+        ...readAttendeeFlags(item),
+        ...readAttendeeFlags(item.extension_data || {}),
     };
-    const ext = user.extension_data || {};
-    const flags: {
-        international?: boolean;
-        visitor_internal_or_external?: 'internal' | 'external';
-    } = {};
-    if ('international' in ext || 'international' in user)
-        flags.international = !!(ext.international ?? user.international);
-    if (
-        'visitor_internal_or_external' in ext ||
-        'visitor_internal_or_external' in user
-    )
-        flags.visitor_internal_or_external = toVisitorInternalOrExternal(
-            ext.visitor_internal_or_external ??
-                user.visitor_internal_or_external,
-        );
-    return flags;
 }
 
 /**

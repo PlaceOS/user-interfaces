@@ -122,4 +122,30 @@ describe('VisitorReportListComponent', () => {
             spectator.component.table_metric_guide.map((i) => i.label),
         ).toContain('Internal or external');
     });
+
+    it('should show the flag columns for flagged bookings when the settings are off', () => {
+        bookings.set([
+            {
+                date: day,
+                extension_data: { visitor_internal_or_external: 'internal' },
+            },
+        ]);
+        expect(spectator.component.allow_international).toBe(false);
+        expect(spectator.component.allow_visitor_internal_or_external).toBe(
+            false,
+        );
+        bookings.set([
+            {
+                date: day,
+                extension_data: {
+                    international: true,
+                    visitor_internal_or_external: 'external',
+                },
+            },
+        ]);
+        expect(spectator.component.allow_international).toBe(true);
+        expect(spectator.component.allow_visitor_internal_or_external).toBe(
+            true,
+        );
+    });
 });

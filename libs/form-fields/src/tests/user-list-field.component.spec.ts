@@ -228,24 +228,27 @@ describe('UserListFieldComponent', () => {
             expect('mat-radio-group').not.toExist();
         });
 
-        it('should store the international flag on the user', () => {
-            const item = spectator.component.active_list()[0];
-            expect(spectator.component.getAttendeeInternational(item)).toBe(
-                false,
-            );
+        it('should store the international flag on a copy of the user', () => {
+            const original = spectator.component.active_list()[0];
             spectator.click('mat-checkbox input');
+            const item = spectator.component.active_list()[0];
+            expect(item).not.toBe(original);
             expect(spectator.component.getAttendeeInternational(item)).toBe(
                 true,
             );
-            expect(item.extension_data.international).toBe(true);
+            // The original can be shared with a cached event.
+            expect(original.extension_data.international).toBeUndefined();
         });
 
         it('should store the internal/external type on the user', () => {
-            const item = spectator.component.active_list()[0];
-            expect(spectator.component.getAttendeeType(item)).toBe('internal');
+            const original = spectator.component.active_list()[0];
+            expect(spectator.component.getAttendeeType(original)).toBe(
+                'internal',
+            );
             spectator.click(
                 'mat-radio-group mat-radio-button[value="external"] input',
             );
+            const item = spectator.component.active_list()[0];
             expect(spectator.component.getAttendeeType(item)).toBe('external');
             expect(item.extension_data.visitor_internal_or_external).toBe(
                 'external',

@@ -39,7 +39,12 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { User } from '@placeos/common';
+import {
+    toVisitorInternalOrExternal,
+    User,
+    type AttendeeFlags,
+    type VisitorInternalOrExternal,
+} from '@placeos/common';
 import { authority, queryUsers } from '@placeos/ts-client';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -524,38 +529,41 @@ export class UserListFieldComponent
     }
 
     /** Internal/external type of the given user. Defaults to `internal` */
-    public getAttendeeType(item: User): 'internal' | 'external' {
-        return item?.extension_data?.visitor_internal_or_external === 'external'
-            ? 'external'
-            : 'internal';
+    public getAttendeeType(item: User): VisitorInternalOrExternal {
+        return toVisitorInternalOrExternal(
+            item?.extension_data?.visitor_internal_or_external,
+        );
     }
 
     /** Flag the given user as international, or not */
     public setAttendeeInternational(item: User, international: boolean) {
-        this._setAttendeeFlag(item, 'international', !!international);
+        this._setAttendeeFlags(item, { international: !!international });
     }
 
     /** Set the internal/external type of the given user */
-    public setAttendeeType(item: User, type: 'internal' | 'external') {
-        this._setAttendeeFlag(
-            item,
-            'visitor_internal_or_external',
-            type === 'external' ? 'external' : 'internal',
-        );
+    public setAttendeeType(item: User, type: VisitorInternalOrExternal) {
+        this._setAttendeeFlags(item, {
+            visitor_internal_or_external: toVisitorInternalOrExternal(type),
+        });
     }
 
     /**
-     * Store a visitor flag on the user and emit the updated list, so the form
-     * model holds the change.
+     * Replace the user with a copy that holds the new flags, and emit the
+     * updated list. The user is copied, not changed, because it can be shared
+     * with a cached event, and a cancelled edit must not change that event.
      */
-    private _setAttendeeFlag(
-        item: User,
-        key: 'international' | 'visitor_internal_or_external',
-        value: boolean | string,
-    ) {
+    private _setAttendeeFlags(item: User, flags: AttendeeFlags) {
         if (!item) return;
-        item.extension_data[key] = value;
-        this.setValue([...this.active_list()]);
+        this.setValue(
+            this.active_list().map((user) =>
+                user === item
+                    ? new User({
+                          ...user,
+                          extension_data: { ...user.extension_data, ...flags },
+                      })
+                    : user,
+            ),
+        );
     }
 
     /**

@@ -29,6 +29,7 @@ import {
 } from '@placeos/components';
 import { UserDetails, UserLabelComponent } from '@placeos/users';
 import { ParkingStateService } from '../parking/parking-state.service';
+import { showVisitorFlag } from './visitor-flags';
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
@@ -831,20 +832,14 @@ export class GuestListingComponent extends AsyncHandler {
     }
 
     public get allow_international() {
-        return (
-            !!this._settings.get('app.visitors.allow_international') ||
-            !!this._settings.get('app.events.allow_international')
-        );
+        return showVisitorFlag(this._settings, this._state.bookings(), 'international');
     }
 
     public get allow_visitor_internal_or_external() {
-        return (
-            !!this._settings.get(
-                'app.visitors.allow_visitor_internal_or_external',
-            ) ||
-            !!this._settings.get(
-                'app.events.allow_attendee_internal_or_external',
-            )
+        return showVisitorFlag(
+            this._settings,
+            this._state.bookings(),
+            'visitor_internal_or_external',
         );
     }
 
