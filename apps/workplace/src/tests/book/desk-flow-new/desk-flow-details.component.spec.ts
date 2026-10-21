@@ -183,18 +183,19 @@ describe('DeskFlowDetailsComponent', () => {
     });
 
     it('should offer the group and book for other types only when the settings allow them', () => {
+        // The labels are translated, so read the icon of each type button
         const typeButtons = () =>
             spectator
-                .queryAll('button[btn] > div')
+                .queryAll('button[btn] > icon')
                 .map((el) => el.textContent.trim());
         settingSignal('desks.allow_groups').set(true);
         settingSignal('desks.can_book_for_others').set(true);
         spectator.detectChanges();
-        expect(typeButtons()).toEqual(['Single', 'Group', 'Book for other']);
+        expect(typeButtons()).toEqual(['person', 'group_add', 'person_add']);
 
         settingSignal('desks.allow_groups').set(false);
         spectator.detectChanges();
-        expect(typeButtons()).toEqual(['Single', 'Book for other']);
+        expect(typeButtons()).toEqual(['person', 'person_add']);
 
         settingSignal('desks.can_book_for_others').set(false);
         settingSignal('bookings.can_book_for_others').set(false);

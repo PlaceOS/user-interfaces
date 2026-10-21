@@ -342,6 +342,30 @@ describe('BookingFormService', () => {
         );
     });
 
+    it('should report a failed resource list load until a reload succeeds', async () => {
+        const previous_overrides = settings_overrides();
+        settings_overrides.set([{}, {}]);
+        vi.mocked(ts_client.listChildMetadata).mockRejectedValue(
+            new Error('offline'),
+        );
+        spectator.service.newForm('desk');
+
+        await spectator.service.listResources();
+        expect(spectator.service.load_failed()).toBe(true);
+
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
+        spectator.service.reloadResources();
+        for (let i = 0; i < 40 && spectator.service.load_failed(); i++) {
+            TestBed.tick();
+            await new Promise((resolve) => setTimeout(resolve, 25));
+        }
+
+        expect(spectator.service.load_failed()).toBe(false);
+        // Stop the loads, so they do not run in the next tests
+        spectator.service.releaseNetwork();
+        settings_overrides.set(previous_overrides);
+    });
+
     it('should keep form fields bound after storeForm even when cleanObject mutates in place', () => {
         // The real `cleanObject` mutates its argument in place. `storeForm`
         // must clone the live model before cleaning it, otherwise empty keys

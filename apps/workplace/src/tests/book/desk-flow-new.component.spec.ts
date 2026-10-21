@@ -24,6 +24,7 @@ import {
     showSystem,
     authority,
 } from '@placeos/ts-client';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { DeskFlowNewComponent } from '../../app/book/desk-flow-new/desk-flow.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -88,6 +89,7 @@ describe('DeskFlowNewComponent', () => {
                         view: signal('form'),
                         options,
                         loading: signal(false),
+                        load_failed: signal(false),
                         resources: signal(resource_list),
                         available_resources: signal(resource_list),
                         get booking() {
@@ -339,8 +341,32 @@ describe('DeskFlowNewComponent', () => {
         expect(model().asset_id).toBe('desk-nearby');
     });
 
+    it('should tell the user when the nearby space has no level map', async () => {
+        const notify_open = vi.fn(() => ({ onAction: () => of() }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        query_params = {};
+        spectator = createComponent();
+        (spectator.component as any)._space_pipe = {
+            transform: vi.fn(() =>
+                Promise.resolve({ id: 'room-1', zones: ['unknown-level'] }),
+            ),
+        };
+
+        await (spectator.component as any)._initNearbyDeskBooking(
+            'room-1',
+            Date.now(),
+        );
+
+        expect(notify_open).toHaveBeenCalled();
+        expect(
+            spectator.inject(BookingFormService).listAvailableResources,
+        ).not.toHaveBeenCalled();
+        setNotifyOutlet(null, true);
+    });
+
     describe('confirmBooking', () => {
         let service: BookingFormService;
+        const notify_open = vi.fn(() => ({ onAction: () => of() }));
         /** Fill the form with a valid desk selection */
         const selectDesk = () =>
             model.update((m) => ({
@@ -356,8 +382,59 @@ describe('DeskFlowNewComponent', () => {
                 new StaffUser({ id: 'me', email: 'me@example.com' }),
             );
             query_params = {};
+            setNotifyOutlet({ open: notify_open } as any, true);
             spectator = createComponent();
             service = spectator.inject(BookingFormService);
+        });
+
+        afterEach(() => setNotifyOutlet(null, true));
+
+        it('should show the error message of a failed save', async () => {
+            selectDesk();
+            vi.mocked(service.postForm).mockRejectedValueOnce({
+                message: 'Desk is booked by another person',
+                status: 409,
+            });
+
+            await spectator.component.confirmBooking();
+
+            expect(notify_open).toHaveBeenCalledWith(
+                'Desk is booked by another person',
+                expect.anything(),
+                expect.anything(),
+            );
+        });
+
+        it('should ignore a second confirm while the desk is allocated', async () => {
+            auto_allocation = true;
+            model.update((m) => ({
+                ...m,
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }));
+            let finishAllocation: () => void = () => undefined;
+            vi.mocked(service.autoAllocateDesk).mockImplementationOnce(
+                () =>
+                    new Promise<void>((resolve) => {
+                        finishAllocation = () => {
+                            model.update((m) => ({
+                                ...m,
+                                resources: [desk_resource],
+                                asset_id: desk_resource.id,
+                            }));
+                            resolve();
+                        };
+                    }) as any,
+            );
+
+            const first = spectator.component.confirmBooking();
+            await spectator.component.confirmBooking();
+            finishAllocation();
+            await first;
+
+            expect(service.autoAllocateDesk).toHaveBeenCalledTimes(1);
+            expect(service.postForm).toHaveBeenCalledTimes(1);
+            expect(spectator.component.loading()).toBe(false);
         });
 
         it('should save a single booking for the current user', async () => {

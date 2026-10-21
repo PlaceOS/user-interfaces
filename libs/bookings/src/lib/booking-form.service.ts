@@ -240,6 +240,8 @@ export class BookingFormService extends AsyncHandler {
     });
     private _booking = signal<Booking>(null);
     private _resource_use: Record<string, string> = {};
+    /** Whether the last resource list load failed */
+    private readonly _resources_failed = signal(false);
     private _loading = signal<string>('');
     private _favourites: Record<BookingType, WritableSignal<string[]>> = {
         ' ': settingSignal('favorites', [], true),
@@ -614,6 +616,14 @@ export class BookingFormService extends AsyncHandler {
         return this._available_resource.value() ?? [];
     });
 
+    /** Signal for whether the last resource list load failed */
+    public readonly load_failed = this._resources_failed.asReadonly();
+
+    /** Load the resource list again after a failure */
+    public reloadResources() {
+        this._resources_resource.reload();
+    }
+
     /** Signal grouping available resources for group bookings */
     public readonly grouped_availability = computed<BookingAsset[][]>(() => {
         const options = this._options();
@@ -716,7 +726,14 @@ export class BookingFormService extends AsyncHandler {
         load: Promise<BookingAsset[]>,
     ): Promise<BookingAsset[]> {
         return load
-            .catch(() => [] as BookingAsset[])
+            .then((list) => {
+                this._resources_failed.set(false);
+                return list;
+            })
+            .catch(() => {
+                this._resources_failed.set(true);
+                return [] as BookingAsset[];
+            })
             .then((list) => {
                 this._loading.set('');
                 return list;
@@ -1424,7 +1441,7 @@ export class BookingFormService extends AsyncHandler {
                 ? selected_zones
                 : [...(this._booking()?.zones || [])],
         );
-        this._loading.set('Saving booking');
+        this._loading.set(i18n('COMMON.SAVING'));
         delete value.booking_asset;
         value.timezone = effective_timezone;
         if (value.all_day) {

@@ -49,6 +49,7 @@ describe('DeskFlowSelectComponent', () => {
                         loading: signal(''),
                         resources: signal([]),
                         available_resources: signal([]),
+                        load_failed: signal(false),
                         setOptions: vi.fn(),
                     };
                 },

@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { notifyError } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { AutoAssignedDeskModalComponent } from '../desk-flow/auto-assigned-desk-modal.component';
 
 @Component({
@@ -19,39 +19,32 @@ import { AutoAssignedDeskModalComponent } from '../desk-flow/auto-assigned-desk-
                     <div
                         class="absolute inset-0 bg-brand-content opacity-20"
                     ></div>
-                    <div>Quick Action</div>
+                    <div>{{ 'BOOKINGS.DESK_AUTO_ASSIGN_LABEL' | translate }}</div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <icon>auto_awesome</icon>
-                    <div class="text-sm">Smart Selection</div>
+                    <div class="text-sm">
+                        {{ 'BOOKINGS.DESK_AUTO_ASSIGN_SMART' | translate }}
+                    </div>
                 </div>
             </div>
             <div>
-                <h3 class="mb-1 text-2xl font-medium">Auto-Assign</h3>
+                <h3 class="mb-1 text-2xl font-medium">
+                    {{ 'BOOKINGS.DESK_AUTO_ASSIGN' | translate }}
+                </h3>
                 <p class="text-sm">
-                    We'll always try to book you in your home neighbourhood—if
-                    it's full, we'll find you a spot nearby.
+                    {{ 'BOOKINGS.DESK_AUTO_ASSIGN_INFO' | translate }}
                 </p>
             </div>
-            <div
-                class="flex flex-col items-center space-y-2 pt-2 sm:flex-row sm:space-x-4 sm:space-y-0"
-            >
+            <div class="pt-2">
                 <button
                     btn
                     matRipple
-                    class="white w-full flex-1 space-x-2"
+                    class="white w-full space-x-2"
                     (click)="autoAssignDesk()"
                 >
                     <icon class="text-2xl">bolt</icon>
-                    <div>Auto-Assign</div>
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="inverse white w-full flex-1 space-x-2"
-                >
-                    <icon class="text-2xl">map</icon>
-                    <div>View Homebase</div>
+                    <div>{{ 'BOOKINGS.DESK_AUTO_ASSIGN' | translate }}</div>
                 </button>
             </div>
         </div>
@@ -67,7 +60,7 @@ import { AutoAssignedDeskModalComponent } from '../desk-flow/auto-assigned-desk-
             }
         `,
     ],
-    imports: [IconComponent],
+    imports: [IconComponent, TranslatePipe],
 })
 export class DeskFlowAutoAssignComponent {
     private _booking_form = inject(BookingFormService);
