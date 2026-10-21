@@ -30,7 +30,7 @@ import {
                 [error]="load_error()"
                 [loading]="state_loading()"
                 (retry)="retryLoad()"
-                class="block min-w-368 text-sm"
+                class="block min-w-288 text-sm"
                 [data]="bookings()"
                 [filter]="filters().search"
                 [filter_on]="search_keys"

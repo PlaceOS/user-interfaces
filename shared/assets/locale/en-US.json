@@ -1307,6 +1307,8 @@
             "USER_GROUP_COUNT": "{{ count }} groups",
             "USER_GROUP_COUNT_1": "{{ count }} group",
             "SHORTCUTS_TITLE": "Keyboard Shortcuts",
+            "SIDEBAR_COLLAPSE": "Collapse sidebar",
+            "SIDEBAR_EXPAND": "Expand sidebar",
             "SHORTCUTS_SEARCH": "Go to the search field",
             "SHORTCUTS_NEW": "Add a new item",
             "SHORTCUTS_REFRESH": "Refresh the list",

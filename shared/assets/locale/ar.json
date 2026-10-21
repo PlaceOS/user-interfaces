@@ -1263,6 +1263,8 @@
             "USER_GROUP_COUNT": "{{ count }} مجموعة",
             "USER_GROUP_COUNT_1": "{{ count }} مجموعة",
             "SHORTCUTS_TITLE": "اختصارات لوحة المفاتيح",
+            "SIDEBAR_COLLAPSE": "طي الشريط الجانبي",
+            "SIDEBAR_EXPAND": "توسيع الشريط الجانبي",
             "SHORTCUTS_SEARCH": "الانتقال إلى حقل البحث",
             "SHORTCUTS_NEW": "إضافة عنصر جديد",
             "SHORTCUTS_REFRESH": "تحديث القائمة",

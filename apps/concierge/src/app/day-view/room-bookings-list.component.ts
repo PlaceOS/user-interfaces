@@ -45,7 +45,7 @@ import { EventsStateService } from './events-state.service';
                 <simple-table
                     [error]="load_error()"
                     (retry)="retryLoad()"
-                    class="block min-w-368 text-sm"
+                    class="block min-w-240 text-sm"
                     [data]="bookings()"
                     [columns]="[
                         {

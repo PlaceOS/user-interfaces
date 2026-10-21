@@ -1263,6 +1263,8 @@
             "USER_GROUP_COUNT": "{{ count }} グループ",
             "USER_GROUP_COUNT_1": "{{ count }} グループ",
             "SHORTCUTS_TITLE": "キーボードショートカット",
+            "SIDEBAR_COLLAPSE": "サイドバーを折りたたむ",
+            "SIDEBAR_EXPAND": "サイドバーを展開",
             "SHORTCUTS_SEARCH": "検索欄に移動",
             "SHORTCUTS_NEW": "新しい項目を追加",
             "SHORTCUTS_REFRESH": "リストを更新",

@@ -1263,6 +1263,8 @@
             "USER_GROUP_COUNT": "{{ count }} 个组",
             "USER_GROUP_COUNT_1": "{{ count }} 个组",
             "SHORTCUTS_TITLE": "键盘快捷键",
+            "SIDEBAR_COLLAPSE": "收起侧边栏",
+            "SIDEBAR_EXPAND": "展开侧边栏",
             "SHORTCUTS_SEARCH": "转到搜索框",
             "SHORTCUTS_NEW": "添加新项目",
             "SHORTCUTS_REFRESH": "刷新列表",

@@ -12,6 +12,11 @@ import { MockProvider, ngMocks } from 'ng-mocks';
 
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 
+// The test window is narrow, so start with the full sidebar and its labels
+vi.hoisted(() =>
+    localStorage.setItem('PLACEOS.concierge.sidebar_rail', 'false'),
+);
+
 describe('ApplicationSidebarComponent', () => {
     let spectator: Spectator<ApplicationSidebarComponent>;
     let app_settings: Record<string, unknown>;
@@ -148,5 +153,17 @@ describe('ApplicationSidebarComponent', () => {
             expect(spectator.element.textContent).toContain('Events');
             expect(spectator.element.textContent).not.toContain(key);
         });
+    });
+
+    it('should show icons only and save the choice when the rail is on', () => {
+        spectator.detectChanges();
+        spectator.component.toggleRail();
+        spectator.detectChanges();
+
+        expect(spectator.element).toHaveClass('rail');
+        expect(
+            localStorage.getItem('PLACEOS.concierge.sidebar_rail'),
+        ).toBe('true');
+        spectator.component.toggleRail();
     });
 });

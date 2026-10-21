@@ -1263,6 +1263,8 @@
             "USER_GROUP_COUNT": "{{ count }} grupos",
             "USER_GROUP_COUNT_1": "{{ count }} grupo",
             "SHORTCUTS_TITLE": "Atalhos de Teclado",
+            "SIDEBAR_COLLAPSE": "Recolher barra lateral",
+            "SIDEBAR_EXPAND": "Expandir barra lateral",
             "SHORTCUTS_SEARCH": "Ir para o campo de pesquisa",
             "SHORTCUTS_NEW": "Adicionar um novo item",
             "SHORTCUTS_REFRESH": "Atualizar a lista",
