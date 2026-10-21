@@ -24,6 +24,7 @@ import {
     currentUser,
     formatDuration,
     getInvalidSignalFields,
+    i18n,
     notifyError,
     unique,
 } from '@placeos/common';
@@ -47,6 +48,7 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
+import { errorText } from '../ui/modal-actions';
 import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
 import { EventStateService } from './event-state.service';
 
@@ -59,7 +61,7 @@ const EMPTY = [];
             'hasUnsavedChanges() && $event.preventDefault()',
     },
     template: `
-        @if (!loading()) {
+        @if (!loading() && !fetching()) {
             <div class="bg-base-100 absolute inset-0 overflow-auto">
                 <header
                     class="bg-base-200 sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[640px] items-center justify-between rounded-sm border-none px-4 py-2"
@@ -482,7 +484,14 @@ const EMPTY = [];
                 class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center space-y-4"
             >
                 <mat-spinner diameter="48"></mat-spinner>
-                <p>{{ 'APP.CONCIERGE.EVENTS_SAVING' | translate }}</p>
+                <p>
+                    {{
+                        (fetching()
+                            ? 'COMMON.LOADING'
+                            : 'APP.CONCIERGE.EVENTS_SAVING'
+                        ) | translate
+                    }}
+                </p>
             </div>
         }
     `,
@@ -520,6 +529,8 @@ export class EventManageComponent
     private _settings = inject(SettingsService);
 
     public readonly loading = signal(false);
+    /** True while the event to edit loads. Hides the form, so a save cannot create a copy. */
+    public readonly fetching = signal(false);
     public readonly resource = signal<string>('');
 
     public readonly form = this._form_state.form;
@@ -606,62 +617,68 @@ export class EventManageComponent
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
-                    let booking = await showEvent(params.get('id'), {
-                        calendar: this._state.calendar,
-                    });
-                    // Staff API can keep more than one metadata record for an
-                    // event, and the metadata route can return an old one.
-                    // Group events already include their current metadata.
-                    let metadata: Partial<EventExtensionData> = {};
-                    if (!booking.extension_data?.shared_event) {
-                        const space = await space_pipe.transform(
-                            this._state.calendar,
+                    this.fetching.set(true);
+                    try {
+                        await this._loadEvent(params.get('id'), space_pipe);
+                    } catch (e) {
+                        notifyError(
+                            i18n('APP.CONCIERGE.EVENTS_LOAD_ERROR', {
+                                error: errorText(e),
+                            }),
                         );
-                        metadata = await showEventMetadata(
-                            params.get('id'),
-                            space?.id || booking.system?.id,
-                            { ical_uid: booking.ical_uid },
-                        ).catch(() => ({}));
+                        this._router.navigate(['/entertainment', 'events']);
+                    } finally {
+                        this.fetching.set(false);
                     }
-                    booking = new CalendarEvent({
-                        ...booking,
-                        extension_data: {
-                            ...booking.extension_data,
-                            ...metadata,
-                        },
-                    });
-                    if (!booking)
-                        return this._router.navigate([
-                            '/entertainment',
-                            'events',
-                        ]);
-                    this._form_state.newForm(booking);
-                    this.resource.set(
-                        booking.resources.find(
-                            (_) => _.email !== this._state.calendar,
-                        )?.email,
-                    );
-                    this.model.update((m) => ({
-                        ...m,
-                        tags: booking.extension_data?.tags || [],
-                        organiser: new StaffUser({
-                            id: booking.organiser?.id,
-                            email: booking.host,
-                            name: booking.organiser?.name,
-                        }),
-                        resources: booking.resources.filter(
-                            (_) => _.email !== this._state.calendar,
-                        ),
-                        ...metadata,
-                    }));
-                    if (!this.model().view_access)
-                        this.model.update((m) => ({
-                            ...m,
-                            view_access: 'OPEN',
-                        }));
                 }
             }),
         );
+    }
+
+    /** Load the event with `id` into the form. Throws when the event cannot load. */
+    private async _loadEvent(id: string, space_pipe: SpacePipe) {
+        let booking = await showEvent(id, {
+            calendar: this._state.calendar,
+        });
+        // Staff API can keep more than one metadata record for an
+        // event, and the metadata route can return an old one.
+        // Group events already include their current metadata.
+        let metadata: Partial<EventExtensionData> = {};
+        if (!booking.extension_data?.shared_event) {
+            const space = await space_pipe.transform(this._state.calendar);
+            metadata = await showEventMetadata(
+                id,
+                space?.id || booking.system?.id,
+                { ical_uid: booking.ical_uid },
+            ).catch(() => ({}));
+        }
+        booking = new CalendarEvent({
+            ...booking,
+            extension_data: {
+                ...booking.extension_data,
+                ...metadata,
+            },
+        });
+        this._form_state.newForm(booking);
+        this.resource.set(
+            booking.resources.find((_) => _.email !== this._state.calendar)
+                ?.email,
+        );
+        this.model.update((m) => ({
+            ...m,
+            tags: booking.extension_data?.tags || [],
+            organiser: new StaffUser({
+                id: booking.organiser?.id,
+                email: booking.host,
+                name: booking.organiser?.name,
+            }),
+            resources: booking.resources.filter(
+                (_) => _.email !== this._state.calendar,
+            ),
+            ...metadata,
+        }));
+        if (!this.model().view_access)
+            this.model.update((m) => ({ ...m, view_access: 'OPEN' }));
     }
 
     public setBuilding(bld: Building) {

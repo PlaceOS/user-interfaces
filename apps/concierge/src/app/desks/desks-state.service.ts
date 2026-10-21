@@ -58,6 +58,7 @@ import {
     addHours,
     addMinutes,
     endOfDay,
+    format,
     getUnixTime,
     startOfDay,
     subDays,
@@ -95,6 +96,30 @@ export interface DeskQrItem {
     qr_link?: string;
 }
 
+/** Booking fields that the desk bookings search matches. */
+export const DESK_BOOKING_SEARCH_KEYS = [
+    'user_name',
+    'asset_name',
+    'user_email',
+    'asset_id',
+    'status',
+    'group',
+    'title',
+];
+
+/**
+ * True when the booking matches the search text. Uses the same rule as the
+ * bookings table filter, so bulk actions only affect the rows on screen.
+ */
+export function matchesDeskSearch(booking: Booking, search?: string) {
+    const text = search?.toLowerCase();
+    if (!text) return true;
+    const fields = booking as unknown as Record<string, unknown>;
+    return DESK_BOOKING_SEARCH_KEYS.some((key) =>
+        `${JSON.stringify(fields[key])}`.toLowerCase().includes(text),
+    );
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -111,6 +136,12 @@ export class DesksStateService extends AsyncHandler {
     );
 
     public readonly loading = this._loading.asReadonly();
+    /**
+     * True from a date or level change until the first page for the new
+     * filters loads. The bookings on screen are stale until then.
+     */
+    private readonly _filters_changed = signal(false);
+    public readonly filters_changed = this._filters_changed.asReadonly();
     private readonly _load_error = signal(false);
     /** Whether the latest load of bookings failed */
     public readonly load_error = this._load_error.asReadonly();
@@ -379,6 +410,7 @@ export class DesksStateService extends AsyncHandler {
                     total: 0,
                     has_next: false,
                 });
+                this._filters_changed.set(false);
             }
             return;
         }
@@ -400,6 +432,7 @@ export class DesksStateService extends AsyncHandler {
                 ? { list, total, has_next: list.length < total && has_next }
                 : { list: [...acc.list, ...list], total, has_next },
         );
+        if (reset) this._filters_changed.set(false);
         this._loading.set(false);
         this._last_updated.set(Date.now());
     }
@@ -431,6 +464,7 @@ export class DesksStateService extends AsyncHandler {
         // Set loading immediately when zones or date change to prevent stale data from showing
         if (filters.zones !== undefined || filters.date !== undefined) {
             this._loading.set(true);
+            this._filters_changed.set(true);
         }
         this._filters.set({ ...this._filters(), ...filters });
     }
@@ -700,6 +734,11 @@ export class DesksStateService extends AsyncHandler {
                     series
                         ? 'APP.CONCIERGE.DESKS_BOOKING_DELETE_SERIES_CONTENT'
                         : 'APP.CONCIERGE.DESKS_BOOKING_DELETE_CONTENT',
+                    {
+                        desk: booking.asset_name || booking.asset_id,
+                        name: booking.user_name || booking.user_email,
+                        date: format(booking.date, 'dd MMM yyyy'),
+                    },
                 ),
                 icon: { content: 'event_busy' },
             },
@@ -771,15 +810,20 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async rejectAllDesks() {
-        const list = this.bookings().filter((desk) =>
-            canChangeDeskBooking(this._normaliseBooking(desk)),
+        const search = this._filters().search;
+        const list = this.bookings().filter(
+            (desk) =>
+                matchesDeskSearch(desk, search) &&
+                canChangeDeskBooking(this._normaliseBooking(desk)),
         );
         if (list.length <= 0)
             return notifyInfo('No desks to reject for the selected date');
         const resp = await openConfirmModal(
             {
                 title: i18n('APP.CONCIERGE.DESKS_REJECT_ALL_TITLE'),
-                content: i18n('APP.CONCIERGE.DESKS_REJECT_ALL_MSG'),
+                content: i18n('APP.CONCIERGE.DESKS_REJECT_ALL_MSG', {
+                    count: list.length,
+                }),
                 icon: {
                     type: 'icon',
                     class: 'material-symbols-rounded',

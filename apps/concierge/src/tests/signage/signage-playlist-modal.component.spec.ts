@@ -36,30 +36,7 @@ describe('SignagePlaylistModalComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        data = { id: 'pl-1', name: 'Promos', play_cron: '', play_at: 0 };
-    });
-
-    it('should derive no schedule from empty cron and time', () => {
-        build();
-        spectator.component.ngOnInit();
-
-        expect(spectator.component.schedule()).toBe('');
-    });
-
-    it('should derive an exact schedule from a play time', () => {
-        data.play_at = 1_700_000_000_000;
-        build();
-        spectator.component.ngOnInit();
-
-        expect(spectator.component.schedule()).toBe('exact');
-    });
-
-    it('should derive a recurring schedule from a cron expression', () => {
-        data.play_cron = '0 9 * * *';
-        build();
-        spectator.component.ngOnInit();
-
-        expect(spectator.component.schedule()).toBe('recurring');
+        data = { id: 'pl-1', name: 'Promos' };
     });
 
     it('should not save an invalid playlist', async () => {
@@ -72,31 +49,17 @@ describe('SignagePlaylistModalComponent', () => {
         expect(save_playlist).not.toHaveBeenCalled();
     });
 
-    it('should strip scheduling fields when saving without a schedule', async () => {
+    it('should close with the saved playlist', async () => {
         build();
+        save_playlist.mockResolvedValue({ id: 'pl-1', name: 'Promos' });
         spectator.component.ngOnInit();
 
         await spectator.component.savePlaylist();
 
         expect(save_playlist).toHaveBeenCalledTimes(1);
-        const payload = save_playlist.mock.calls[0][0];
-        expect(payload.play_at).toBe(0);
-        expect(payload.play_cron).toBe('');
-        expect(payload).not.toHaveProperty('play_from');
-        expect(payload).not.toHaveProperty('play_until');
-        expect(payload).not.toHaveProperty('play_duration');
-        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
-    });
-
-    it('should keep the cron and clear play time for recurring schedules', async () => {
-        data.play_cron = '0 9 * * *';
-        build();
-        spectator.component.ngOnInit();
-
-        await spectator.component.savePlaylist();
-
-        const payload = save_playlist.mock.calls[0][0];
-        expect(payload.play_at).toBe(0);
-        expect(payload.play_cron).toBe('0 9 * * *');
+        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalledWith({
+            id: 'pl-1',
+            name: 'Promos',
+        });
     });
 });

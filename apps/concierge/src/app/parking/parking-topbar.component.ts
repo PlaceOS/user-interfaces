@@ -290,20 +290,22 @@ import {
                     matTooltip="Parking Spaces Occupied"
                 >
                     @let occupied = occupied_bookings().length || 0;
+                    @let total = spaces().length || 0;
                     {{ occupied }} of
-                    {{ spaces().length || '' }}
+                    {{ total }}
                     <icon class="ml-1! text-lg">car_lock</icon>
-                    @let percent = occupied / (spaces().length || 0);
+                    <!-- Ratio from 0 to 1. Zero spaces counts as empty. -->
+                    @let percent = total ? occupied / total : 0;
                     <span
                         class="rounded-sm px-2 py-1 font-mono text-xs"
-                        [class.bg-error]="percent === 100"
-                        [class.text-error-content]="percent === 100"
-                        [class.bg-warning]="percent > 50 && percent < 100"
+                        [class.bg-error]="percent >= 1"
+                        [class.text-error-content]="percent >= 1"
+                        [class.bg-warning]="percent >= 0.5 && percent < 1"
                         [class.text-warning-content]="
-                            percent > 50 && percent < 100
+                            percent >= 0.5 && percent < 1
                         "
-                        [class.bg-success]="percent < 50"
-                        [class.text-success-content]="percent < 50"
+                        [class.bg-success]="percent < 0.5"
+                        [class.text-success-content]="percent < 0.5"
                         >{{ percent * 100 | number: '2.0-0' }}%</span
                     >
                 </div>

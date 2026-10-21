@@ -87,6 +87,30 @@ describe('SimpleTableComponent', () => {
         expect(spectator.component.sort()).toBeNull();
     });
 
+    it('should announce the sort state and skip unsortable headers', () => {
+        spectator.setInput({
+            columns: [COLUMNS[0], { ...COLUMNS[1], sortable: false }],
+            data: DATA,
+            sortable: true,
+        });
+        expect('#column-name').toHaveAttribute('aria-sort', 'none');
+        expect('#column-age').not.toHaveAttribute('aria-sort');
+        expect('#column-age').toHaveAttribute('tabindex', '-1');
+        spectator.click('#column-name');
+        expect('#column-name').toHaveAttribute('aria-sort', 'ascending');
+    });
+
+    it('should show a loading state instead of the empty message', () => {
+        spectator.setInput({
+            columns: COLUMNS,
+            data: [],
+            empty_message: 'Nothing here',
+            loading: true,
+        });
+        expect('[role="table"]').not.toContainText('Nothing here');
+        expect('[aria-busy="true"]').toExist();
+    });
+
     it('should paginate the data when a page size is set', () => {
         spectator.setInput({ columns: COLUMNS, data: DATA, page_size: 2 });
         expect(spectator.component.paginated_data()).toHaveLength(2);

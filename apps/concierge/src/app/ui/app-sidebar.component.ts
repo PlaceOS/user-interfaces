@@ -36,6 +36,8 @@ interface SidebarLink {
     name: string;
     route: string[];
     icon: string;
+    /** Only show as active on the route itself, not on its child routes. Query params are ignored */
+    exact?: boolean;
 }
 
 /** Collapsible group of links. Shows when one or more of its links show */
@@ -65,6 +67,25 @@ const ADMIN_GROUPS = ['placeos_admin', 'placeos_support'];
  * sidebar, so all sidebars share this state to keep it between pages.
  */
 const collapsed_groups = signal<Record<string, boolean>>({});
+
+const RAIL_KEY = 'PLACEOS.concierge.sidebar_rail';
+
+/**
+ * Whether the sidebar shows icons only. Uses the saved choice of the user,
+ * else shows icons only on screens narrower than 1280px. Shared by all
+ * sidebars, like `collapsed_groups`.
+ */
+const rail_mode = signal(readRailMode());
+
+function readRailMode(): boolean {
+    try {
+        const saved = localStorage.getItem(RAIL_KEY);
+        if (saved !== null) return saved === 'true';
+    } catch {
+        /* ignore privacy-mode errors */
+    }
+    return window.innerWidth < 1280;
+}
 
 /** All groups of the sidebar, in display order */
 const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
@@ -230,6 +251,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 name: 'APP.CONCIERGE.MENU_USER_LIST',
                 route: ['/users/staff'],
                 icon: 'assignment_ind',
+                exact: true,
             },
             {
                 id: 'events',
@@ -321,57 +343,87 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
  */
 @Component({
     selector: 'app-sidebar',
+    host: { '[class.rail]': 'rail()' },
     template: `
-        <a class="block px-4 pt-3 pb-2" [routerLink]="['/']">
-            <img auth class="h-10" [source]="logo_src()" />
-        </a>
-        <nav class="flex-1 overflow-auto py-2 pr-3">
+        @if (!rail()) {
+            <a class="block px-4 pt-3 pb-2" [routerLink]="['/']">
+                <img auth class="h-10" [source]="logo_src()" />
+            </a>
+        }
+        <nav class="flex-1 overflow-auto py-2" [class.pr-3]="!rail()">
             @for (group of groups(); track group.id) {
-                <button
-                    matRipple
-                    class="hover:bg-base-200 flex w-full items-center rounded-r-full py-1 pr-1 pl-3 text-xs font-medium uppercase opacity-60 not-first:mt-3"
-                    [attr.aria-expanded]="!collapsed()[group.id]"
-                    (click)="toggleGroup(group.id)"
-                >
-                    <div
-                        class="flex-1 text-left uppercase"
-                        [style.letter-spacing]="'0.125rem'"
+                @if (rail()) {
+                    <hr class="border-base-200 mx-3 not-first:my-2" />
+                } @else {
+                    <button
+                        matRipple
+                        class="hover:bg-base-200 flex w-full items-center rounded-r-full py-1 pr-1 pl-3 text-xs font-medium uppercase opacity-60 not-first:mt-3"
+                        [attr.aria-expanded]="!collapsed()[group.id]"
+                        (click)="toggleGroup(group.id)"
                     >
-                        {{ group.name | translate }}
-                    </div>
-                    <icon
-                        class="text-xl transition-transform"
-                        [class.-rotate-90]="collapsed()[group.id]"
-                    >
-                        arrow_drop_down
-                    </icon>
-                </button>
+                        <div
+                            class="flex-1 text-left uppercase"
+                            [style.letter-spacing]="'0.125rem'"
+                        >
+                            {{ group.name | translate }}
+                        </div>
+                        <icon
+                            class="text-xl transition-transform"
+                            [class.-rotate-90]="collapsed()[group.id]"
+                        >
+                            arrow_drop_down
+                        </icon>
+                    </button>
+                }
                 <section
                     class="contract-expand w-full"
-                    [class.contract-collapsed]="collapsed()[group.id]"
+                    [class.contract-collapsed]="
+                        !rail() && collapsed()[group.id]
+                    "
                 >
                     @for (link of group.children; track link.id) {
                         <a
                             matRipple
-                            class="hover:bg-base-200 my-0.5 flex w-full items-center gap-2 rounded-r-full py-1 pr-2 pl-3 text-sm"
+                            class="hover:bg-base-200 my-0.5 flex w-full items-center gap-2 py-1 text-sm"
+                            [class.rounded-r-full]="!rail()"
+                            [class.pr-2]="!rail()"
+                            [class.pl-3]="!rail()"
+                            [class.justify-center]="rail()"
                             [routerLink]="link.route"
                             routerLinkActive="active"
+                            [routerLinkActiveOptions]="{
+                                paths: link.exact ? 'exact' : 'subset',
+                                queryParams: 'subset',
+                                matrixParams: 'ignored',
+                                fragment: 'ignored',
+                            }"
+                            [attr.aria-label]="
+                                rail() ? (link.name | translate) : null
+                            "
+                            [matTooltip]="rail() ? (link.name | translate) : ''"
+                            matTooltipPosition="right"
                         >
                             <icon class="text-xl opacity-60">{{
                                 link.icon
                             }}</icon>
-                            <span>{{ link.name | translate }}</span>
+                            @if (!rail()) {
+                                <span>{{ link.name | translate }}</span>
+                            }
                         </a>
                     }
                 </section>
             }
         </nav>
-        <div class="border-base-200 flex items-center gap-1 border-t p-2">
+        <div
+            class="border-base-200 flex items-center gap-1 border-t p-2"
+            [class.flex-col]="rail()"
+        >
             <user-controls-sidebar #user_controls>
                 <a-user-avatar [user]="user()"></a-user-avatar>
             </user-controls-sidebar>
             <!-- Mouse shortcut to the user controls. Keyboard users use the avatar -->
             <button
+                [class.hidden]="rail()"
                 matRipple
                 type="button"
                 tabindex="-1"
@@ -399,8 +451,27 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
             >
                 <icon class="text-2xl">keyboard</icon>
             </button>
-            <button btn icon matRipple>
-                <icon class="text-2xl">notifications</icon>
+            <button
+                btn
+                icon
+                matRipple
+                [attr.aria-label]="
+                    (rail()
+                        ? 'APP.CONCIERGE.SIDEBAR_EXPAND'
+                        : 'APP.CONCIERGE.SIDEBAR_COLLAPSE'
+                    ) | translate
+                "
+                [matTooltip]="
+                    (rail()
+                        ? 'APP.CONCIERGE.SIDEBAR_EXPAND'
+                        : 'APP.CONCIERGE.SIDEBAR_COLLAPSE'
+                    ) | translate
+                "
+                (click)="toggleRail()"
+            >
+                <icon class="text-2xl">{{
+                    rail() ? 'left_panel_open' : 'left_panel_close'
+                }}</icon>
             </button>
         </div>
     `,
@@ -412,6 +483,10 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 height: 100%;
                 width: 16rem;
                 border-right: 1px solid var(--base-200);
+            }
+
+            :host.rail {
+                width: 4rem;
             }
 
             a.active {
@@ -457,6 +532,8 @@ export class ApplicationSidebarComponent
     );
 
     public readonly collapsed = collapsed_groups;
+    /** Whether the sidebar shows icons only */
+    public readonly rail = rail_mode.asReadonly();
     public readonly user = userSignal();
     /** Number of groups of the current user. No groups before the user loads */
     public readonly group_count = computed(
@@ -514,6 +591,16 @@ export class ApplicationSidebarComponent
 
     public openShortcuts() {
         this._shortcuts.openHelp();
+    }
+
+    /** Switch between the full sidebar and icons only, and save the choice */
+    public toggleRail() {
+        rail_mode.update((rail) => !rail);
+        try {
+            localStorage.setItem(RAIL_KEY, `${rail_mode()}`);
+        } catch {
+            /* ignore quota / privacy-mode errors */
+        }
     }
 
     public toggleGroup(id: string) {

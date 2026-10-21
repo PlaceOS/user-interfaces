@@ -126,7 +126,7 @@ export class PointsAssetsComponent {
     public readonly asset_list = this._state.assets;
 
     public readonly edit = (d) => this._state.newAsset(d);
-    public readonly remove = (d) => this._state.removeAsset(d?.id);
+    public readonly remove = (d: PointAsset) => this._state.removeAsset(d);
 
     public get code() {
         return this._org.currency_code;

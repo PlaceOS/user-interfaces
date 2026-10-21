@@ -1,6 +1,7 @@
 import { Injectable, effect, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogEvent, nextValueFrom, randomInt } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { PointsAssetModalComponent } from './asset-modal.component';
 import { PointAsset } from './points-assets.component';
 
@@ -48,7 +49,18 @@ export class PointsStateService {
         ref.close();
     }
 
-    public removeAsset(asset_id: string) {
-        this._assets.set(this._assets().filter((_) => _.id !== asset_id));
+    /** Ask, then remove the asset from the list */
+    public async removeAsset(asset: PointAsset) {
+        const details = await openConfirmModal(
+            {
+                title: 'Remove asset',
+                content: `Remove ${asset.name || 'this asset'} from the points assets?`,
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        details.close();
+        if (details.reason !== 'done') return;
+        this._assets.set(this._assets().filter((_) => _.id !== asset.id));
     }
 }

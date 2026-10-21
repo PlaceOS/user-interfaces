@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
@@ -17,6 +18,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 const active_product = signal<unknown>(null);
 const extra_assets = signal<Asset[]>([]);
 const active_product_requests = signal<unknown[]>([]);
+const active_product_status = signal('idle');
 
 describe('AssetViewComponent', () => {
     let spectator: Spectator<AssetViewComponent>;
@@ -32,6 +34,7 @@ describe('AssetViewComponent', () => {
                 active_product,
                 extra_assets,
                 active_product_requests,
+                active_product_status,
                 deleteActiveProduct: (...args: any[]) => delete_active(...args),
                 setExtraAssets: (list: Asset[]) => extra_assets.set(list),
                 postChange: () => post_change(),
@@ -49,6 +52,7 @@ describe('AssetViewComponent', () => {
         active_product.set({ id: 'g1', name: 'Chair', assets: [{ id: 'a1' }] });
         extra_assets.set([]);
         active_product_requests.set([]);
+        active_product_status.set('idle');
         delete_active = vi.fn(async () => ({}));
         post_change = vi.fn();
         vi.mocked(ts_client_mod.removeAsset).mockResolvedValue(
@@ -95,6 +99,20 @@ describe('AssetViewComponent', () => {
 
         // 2 assets - 1 active request
         expect(spectator.component.available_count()).toBe(1);
+    });
+
+    it('should leave the page only once the asset fails to load', () => {
+        active_product.set(null);
+        active_product_status.set('loading');
+        spectator.component.ngOnInit();
+        TestBed.tick();
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+
+        active_product_status.set('resolved');
+        TestBed.tick();
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/book/assets',
+        ]);
     });
 
     it('should delete the active product then navigate back to the list', async () => {

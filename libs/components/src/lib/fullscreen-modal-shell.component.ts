@@ -31,13 +31,23 @@ import { TranslatePipe } from './translate.pipe';
                 @if (!hide_close()) {
                     @if (!close()?.length) {
                         @if (!loading()) {
-                            <button icon matRipple mat-dialog-close>
+                            <button
+                                icon
+                                matRipple
+                                mat-dialog-close
+                                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                            >
                                 <icon>close</icon>
                             </button>
                         }
                     } @else {
                         @if (!loading()) {
-                            <a icon matRipple [routerLink]="close()">
+                            <a
+                                icon
+                                matRipple
+                                [routerLink]="close()"
+                                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                            >
                                 <icon>close</icon>
                             </a>
                         }

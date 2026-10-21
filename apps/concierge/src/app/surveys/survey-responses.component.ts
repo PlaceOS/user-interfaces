@@ -62,18 +62,31 @@ import { NewSurveyService } from './new-survey.service';
                     </div>
                 </div>
             </div>
-            <date-range-field [week_start]="week_start">
-                <input
-                    #startDate
-                    [ngModel]="options().start"
-                    (ngModelChange)="$event ? setStartDate($event) : ''"
-                />
-                <input
-                    #endDate
-                    [ngModel]="options().end"
-                    (ngModelChange)="$event ? setEndDate($event) : ''"
-                />
-            </date-range-field>
+            <div class="flex items-center space-x-2">
+                <date-range-field [week_start]="week_start" [from]="0">
+                    <input
+                        #startDate
+                        [ngModel]="options().start"
+                        (ngModelChange)="$event ? setStartDate($event) : ''"
+                    />
+                    <input
+                        #endDate
+                        [ngModel]="options().end"
+                        (ngModelChange)="$event ? setEndDate($event) : ''"
+                    />
+                </date-range-field>
+                @if (options().start || options().end) {
+                    <button
+                        icon
+                        type="button"
+                        [attr.aria-label]="'COMMON.CLEAR' | translate"
+                        [title]="'COMMON.CLEAR' | translate"
+                        (click)="clearDates()"
+                    >
+                        <icon>close</icon>
+                    </button>
+                }
+            </div>
         </header>
         <div class="mb-4 flex justify-end space-x-4 px-8">
             <div
@@ -256,5 +269,14 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
 
     public setEndDate(date: number) {
         this.options.update((options) => ({ ...options, end: date }));
+    }
+
+    /** Remove the date range, so the page shows all answers again. */
+    public clearDates() {
+        this.options.update((options) => ({
+            ...options,
+            start: undefined,
+            end: undefined,
+        }));
     }
 }

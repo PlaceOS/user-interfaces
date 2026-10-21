@@ -273,6 +273,21 @@ describe('SignageStateService', () => {
         );
     });
 
+    it('should add new media to the open playlist', async () => {
+        vi.spyOn(spectator.service, 'addMedia').mockResolvedValue({
+            id: 'm9',
+        } as any);
+        spectator.service.editMedia(undefined, undefined, 'p1');
+        const { onAdd } = dialog_open.mock.calls[0][1].data;
+
+        await onAdd(new File([''], 'clip.mp4'), {});
+
+        expect(ts_client_mod.updateSignagePlaylistMedia).toHaveBeenCalledWith(
+            'p1',
+            ['a', 'b', 'm9'],
+        );
+    });
+
     it('should open the approve playlist modal', async () => {
         await spectator.service.approvePlaylist({ id: 'pl-8' } as any);
 

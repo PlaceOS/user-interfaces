@@ -1,7 +1,15 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
+import {
+    Component,
+    computed,
+    inject,
+    LOCALE_ID,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -18,9 +26,11 @@ import {
     BuildingPipe,
     IconComponent,
     LevelPipe,
+    openConfirmModal,
     TranslatePipe,
 } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
+import { errorText } from '../ui/modal-actions';
 import { EventsStateService } from './events-state.service';
 
 @Component({
@@ -315,6 +325,8 @@ export class RoomBookingsApprovalsComponent implements OnInit {
     private _state = inject(EventsStateService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+    private _locale = inject(LOCALE_ID);
 
     public readonly show = signal(true);
     public readonly in_progress = signal<
@@ -408,7 +420,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             );
         } catch (e) {
             this._clearInProgress([event]);
-            return notifyError(`Failed to approve booking: ${e}`);
+            return notifyError(`Failed to approve booking: ${errorText(e)}`);
         }
         this._clearInProgress([event]);
         this.status.update((s) => ({ ...s, [event.id]: 'accept' }));
@@ -429,7 +441,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             );
         } catch (e) {
             this._clearInProgress(events);
-            return notifyError(`Failed to approve series: ${e}`);
+            return notifyError(`Failed to approve series: ${errorText(e)}`);
         }
         this._clearInProgress(events);
         this._setSeriesStatus(event, 'accept');
@@ -439,7 +451,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
 
     public async reject(event: CalendarEvent) {
         const mod = this._org.module('approvals', 'RoomBookingApproval');
-        if (!mod) return;
+        if (!mod || !(await this._confirmDecline(event, false))) return;
         this._setInProgress([event], 'decline');
         try {
             await mod.execute(
@@ -449,7 +461,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             );
         } catch (e) {
             this._clearInProgress([event]);
-            return notifyError(`Failed to decline booking: ${e}`);
+            return notifyError(`Failed to decline booking: ${errorText(e)}`);
         }
         this._clearInProgress([event]);
         this.status.update((s) => ({ ...s, [event.id]: 'decline' }));
@@ -459,7 +471,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
 
     public async rejectSeries(event: CalendarEvent) {
         const mod = this._org.module('approvals', 'RoomBookingApproval');
-        if (!mod) return;
+        if (!mod || !(await this._confirmDecline(event, true))) return;
         const events = this._seriesEvents(event);
         this._setInProgress(events, 'decline');
         try {
@@ -470,12 +482,36 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             );
         } catch (e) {
             this._clearInProgress(events);
-            return notifyError(`Failed to decline series: ${e}`);
+            return notifyError(`Failed to decline series: ${errorText(e)}`);
         }
         this._clearInProgress(events);
         this._setSeriesStatus(event, 'decline');
         this._replaceSeriesEvents(event, 'declined');
         notifySuccess('Booking series declined');
+    }
+
+    /** Ask before declining. The row then shows its own progress state. */
+    private async _confirmDecline(event: CalendarEvent, series: boolean) {
+        // Same time zone as the row, so the dialog shows the time the user sees
+        const time = formatDate(
+            event.date,
+            `dd MMM yyyy ${this.time_format}`,
+            this._locale,
+            this.tz || undefined,
+        );
+        const details = await openConfirmModal(
+            {
+                title: series ? 'Decline booking series' : 'Decline booking',
+                content: series
+                    ? `Decline all occurrences of "${event.title}", including the booking at ${time}?`
+                    : `Decline "${event.title}" at ${time}?`,
+                icon: { content: 'event_busy' },
+                confirm_text: 'Decline',
+            },
+            this._dialog,
+        );
+        details.close();
+        return details.reason === 'done';
     }
 
     private _seriesEvents(event: CalendarEvent) {

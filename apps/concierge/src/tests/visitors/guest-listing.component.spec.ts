@@ -50,7 +50,7 @@ describe('GuestListingComponent', () => {
 
     beforeEach(() => {
         settings.get.mockReset();
-        set_ext.mockReset().mockResolvedValue(undefined);
+        set_ext.mockReset().mockResolvedValue(true);
         poll.mockReset();
         filtered_bookings.set([]);
         filters.set({});
@@ -168,5 +168,17 @@ describe('GuestListingComponent', () => {
         await spectator.component.setPass(booking);
 
         expect(set_ext).toHaveBeenCalledWith(booking, 'pass_number', null);
+    });
+
+    it('should keep the typed pass number when saving fails', async () => {
+        set_ext.mockResolvedValue(false);
+        spectator.component.pass_number.set('PASS-101');
+
+        await spectator.component.setPass(
+            new Booking({ id: 'booking-1' }),
+            'PASS-101',
+        );
+
+        expect(spectator.component.pass_number()).toBe('PASS-101');
     });
 });

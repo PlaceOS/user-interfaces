@@ -143,10 +143,10 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     /** Set filter string */
     public readonly setSearch = (str) => this._state.setSearchString(str);
     /** Update active zones for desks */
-    public readonly updateZones = (zones) => {
+    public readonly updateZones = (zones: string[]) => {
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: zones.join(',') },
+            queryParams: { zone_ids: zones.length ? zones.join(',') : null },
             queryParamsHandling: 'merge',
         });
         this._state.setFilters({ zones });
@@ -169,12 +169,26 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     public ngOnInit() {
         this._state.activate();
         this._syncDateFilter();
+        this._syncZoneFilter();
         this._state.poll();
         this._state.startPolling();
     }
 
     public ngOnDestroy() {
         this._state.deactivate();
+    }
+
+    /**
+     * Apply the levels in `?zone_ids=`, so a refresh or shared link keeps the
+     * filter. Ignores levels that are not in the active building.
+     */
+    private async _syncZoneFilter() {
+        const ids = this._route.snapshot.queryParamMap.get('zone_ids') || '';
+        if (!ids) return;
+        await this._org.waitUntilInitialised();
+        const level_ids = new Set(this.levels().map((level) => level.id));
+        const zones = ids.split(',').filter((id) => level_ids.has(id));
+        this._state.setFilters({ zones });
     }
 
     private _syncDateFilter() {

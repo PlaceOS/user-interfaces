@@ -121,6 +121,7 @@ interface ParkingBookingColumnTemplates {
                 />
                 <simple-table
                     [error]="load_error()"
+                    [loading]="loading().includes('[BOOKINGS]')"
                     (retry)="retryLoad()"
                     [selectable]="bulk_actions()"
                     [row_key]="rowKey"

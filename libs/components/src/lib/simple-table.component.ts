@@ -87,6 +87,20 @@ export interface TableColumn {
                             [class.pointer-events-none]="
                                 !sortable() || column.sortable === false
                             "
+                            [attr.tabindex]="
+                                !sortable() || column.sortable === false
+                                    ? -1
+                                    : null
+                            "
+                            [attr.aria-sort]="
+                                !sortable() || column.sortable === false
+                                    ? null
+                                    : sort()?.key !== column.key
+                                      ? 'none'
+                                      : sort()?.reverse
+                                        ? 'descending'
+                                        : 'ascending'
+                            "
                             (click)="setSort(column.key)"
                             [class.active]="sort()?.key === column.key"
                             [class.border-r]="i !== active_columns().length - 1"
@@ -96,7 +110,7 @@ export interface TableColumn {
                                 {{ column.name || column.key }}
                             </div>
                             @if (sortable() && column.sortable !== false) {
-                                <icon class="text-[1.25em]">
+                                <icon class="text-[1.25em]" aria-hidden="true">
                                     {{
                                         sort()?.key === column.key &&
                                         sort()?.reverse
@@ -297,8 +311,13 @@ export interface TableColumn {
                 <div
                     [style.gridColumnStart]="'span ' + column_count()"
                     class="flex items-center justify-center p-8 opacity-30"
+                    [attr.aria-busy]="loading() || null"
                 >
-                    {{ empty_message() }}
+                    {{
+                        loading()
+                            ? ('COMMON.LOADING' | translate)
+                            : empty_message()
+                    }}
                 </div>
             }
         </div>
@@ -452,6 +471,8 @@ export class SimpleTableComponent<T extends object = any> {
     public readonly filter_on = input<string[]>([]);
     /** Show a load error with a retry button instead of the empty message */
     public readonly error = input(false);
+    /** Show a loading message instead of the empty message while data loads */
+    public readonly loading = input(false);
 
     // Outputs
     public readonly rowClicked = output<number>();
