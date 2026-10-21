@@ -72,19 +72,18 @@ const RAIL_KEY = 'PLACEOS.concierge.sidebar_rail';
 
 /**
  * Whether the sidebar shows icons only. Uses the saved choice of the user,
- * else shows icons only on screens narrower than 1280px. Shared by all
- * sidebars, like `collapsed_groups`.
+ * else shows the full sidebar. Shared by all sidebars, like
+ * `collapsed_groups`.
  */
 const rail_mode = signal(readRailMode());
 
 function readRailMode(): boolean {
     try {
-        const saved = localStorage.getItem(RAIL_KEY);
-        if (saved !== null) return saved === 'true';
+        return localStorage.getItem(RAIL_KEY) === 'true';
     } catch {
         /* ignore privacy-mode errors */
+        return false;
     }
-    return window.innerWidth < 1280;
 }
 
 /** All groups of the sidebar, in display order */
