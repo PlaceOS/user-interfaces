@@ -246,7 +246,8 @@ export class CateringKitchenBoardComponent
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
 
     private readonly _levelOf = orderLevelFinder(this._org);
-    private readonly _statuses = statusList();
+    /** Status options. Updates when the translations load or change. */
+    private readonly _statuses = computed(() => statusList());
 
     /** Current time. Updates so that the clock and urgency stay correct. */
     public readonly now = signal(Date.now());
@@ -260,7 +261,7 @@ export class CateringKitchenBoardComponent
     /** Open orders for each column of the board */
     public readonly columns = computed(() => {
         const orders = this._orders.matching();
-        return this._statuses
+        return this._statuses()
             .filter((status) => BOARD_STATUSES.includes(status.id))
             .map((status) => ({
                 status,
@@ -294,7 +295,7 @@ export class CateringKitchenBoardComponent
     }
 
     public status(id: string) {
-        return this._statuses.find((status) => status.id === id);
+        return this._statuses().find((status) => status.id === id);
     }
 
     public urgencyOf(order: CateringOrder) {

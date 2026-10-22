@@ -35,6 +35,13 @@ import {
     statusList,
 } from './catering.vars';
 
+/** Option for a status filter chip */
+interface StatusFilterOption {
+    id: CateringStatusFilter;
+    name: string;
+    colour?: string;
+}
+
 @Component({
     selector: 'catering-order-list',
     template: `
@@ -73,7 +80,7 @@ import {
                 class="mb-2 flex flex-wrap items-center gap-2 py-1"
                 [class.px-8]="edge_to_edge()"
             >
-                @for (option of status_filters; track option.id) {
+                @for (option of status_filters(); track option.id) {
                     <button
                         matRipple
                         status-filter
@@ -485,7 +492,8 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
 
     public readonly caterers = this._orders.caterers;
 
-    public readonly statuses = signal(statusList());
+    /** Status options. Updates when the translations load or change. */
+    public readonly statuses = computed(() => statusList());
     public readonly show_children = signal<Record<string, boolean>>({});
     /** IDs of the selected orders */
     public readonly selected = signal<string[]>([]);
@@ -495,19 +503,11 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     /** Number of orders for each status filter */
     public readonly status_counts = this._orders.status_counts;
     /** Options for the status filter chips */
-    public readonly status_filters: {
-        id: CateringStatusFilter;
-        name: string;
-        colour?: string;
-    }[] = [
+    public readonly status_filters = computed<StatusFilterOption[]>(() => [
         { id: 'all', name: i18n('COMMON.ALL') },
         { id: 'active', name: i18n('COMMON.STATE_ACTIVE') },
-        ...this.statuses().map(({ id, name, colour }) => ({
-            id,
-            name,
-            colour,
-        })),
-    ];
+        ...this.statuses(),
+    ]);
     public readonly status_filter = computed(
         () => this.filters()?.status || 'all',
     );
