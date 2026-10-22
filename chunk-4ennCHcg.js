@@ -1,0 +1,1 @@
+import {m,l as lT,cn as zn}from'./main-G2RCFH73.js';var u=(()=>{class i{constructor(){this._org=m(lT);}transform(r){return this._org.buildings.find(t=>r instanceof Array?r.includes(t.id):t.id===r)}static{this.\u0275fac=function(t){return new(t||i)};}static{this.\u0275pipe=zn({name:"building",type:i,pure:true});}}return i})();export{u};
