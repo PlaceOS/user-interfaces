@@ -16,18 +16,18 @@ import {
 } from "./chunk-AWIQ4RBE.js";
 import {
   CustomTooltipComponent
-} from "./chunk-QBR6VOR6.js";
+} from "./chunk-3V723OS5.js";
 import "./chunk-ARZT65GA.js";
 import {
   DEBUG_STORAGE_KEY,
   isDebugEnabled,
   recordHeartbeat,
   watchdogState
-} from "./chunk-6CWDI2BU.js";
+} from "./chunk-7H7P5NZB.js";
 import "./chunk-I47CEQW3.js";
 import {
   TranslatePipe
-} from "./chunk-N5JXD6N4.js";
+} from "./chunk-GFQCHYJR.js";
 import {
   MINUTES,
   SECONDS,
@@ -38,7 +38,7 @@ import {
   isBefore,
   setAutoReloadGate,
   updateCheckState
-} from "./chunk-4R5LQJF6.js";
+} from "./chunk-7VEZIQHN.js";
 import {
   $r,
   AsyncHandler,
@@ -80,7 +80,7 @@ import {
   u,
   v,
   vr
-} from "./chunk-CEFZDJJG.js";
+} from "./chunk-LHSSPB74.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -2328,12 +2328,17 @@ var MediaProgressBarComponent = class _MediaProgressBarComponent {
     this._animation_frame = 0;
     this._destroyed = false;
     this._updateProgress = () => {
+      cancelAnimationFrame(this._animation_frame);
       if (this._destroyed)
         return;
       const progress = Math.min(100, Math.max(0, this._progress()));
       const bar = this._bar()?.nativeElement;
-      if (bar)
+      if (bar) {
         bar.style.transform = `scaleX(${progress / 100})`;
+        bar.parentElement?.setAttribute("aria-valuenow", `${Math.round(progress)}`);
+      }
+      if (!this._isLive())
+        return;
       let synchronous_frame = true;
       this._animation_frame = requestAnimationFrame(() => {
         if (!synchronous_frame)
@@ -2342,18 +2347,23 @@ var MediaProgressBarComponent = class _MediaProgressBarComponent {
       synchronous_frame = false;
     };
   }
-  ngOnInit() {
+  ngOnChanges() {
+    this._updateProgress();
+  }
+  ngAfterViewInit() {
     this._updateProgress();
   }
   ngOnDestroy() {
     this._destroyed = true;
     cancelAnimationFrame(this._animation_frame);
   }
+  /** Whether progress is worked out from the play time, frame by frame */
+  _isLive() {
+    return this.state() === "PLAYING" && this.playback_start() > 0 && this.playback_duration() > 0 && !this.waiting();
+  }
   _progress() {
-    const playback_start = this.playback_start();
-    const playback_duration = this.playback_duration();
-    if (this.state() === "PLAYING" && playback_start > 0 && playback_duration > 0 && !this.waiting()) {
-      return (time() - playback_start) / playback_duration * 100;
+    if (this._isLive()) {
+      return (time() - this.playback_start()) / this.playback_duration() * 100;
     }
     return this.progress() || 0;
   }
@@ -2370,14 +2380,11 @@ var MediaProgressBarComponent = class _MediaProgressBarComponent {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, inputs: { progress: [1, "progress"], playback_start: [1, "playback_start"], playback_duration: [1, "playback_duration"], state: [1, "state"], waiting: [1, "waiting"] }, decls: 3, vars: 1, consts: [["bar", ""], ["role", "progressbar", "aria-valuemin", "0", "aria-valuemax", "100", 1, "bg-base-300", "relative", "h-1", "overflow-hidden", "rounded-full"], [1, "bg-primary", "absolute", "inset-0", "origin-left"]], template: function MediaProgressBarComponent_Template(rf, ctx) {
+    }, inputs: { progress: [1, "progress"], playback_start: [1, "playback_start"], playback_duration: [1, "playback_duration"], state: [1, "state"], waiting: [1, "waiting"] }, features: [\u0275\u0275NgOnChangesFeature], decls: 3, vars: 0, consts: [["bar", ""], ["role", "progressbar", "aria-valuemin", "0", "aria-valuemax", "100", 1, "bg-base-300", "relative", "h-1", "overflow-hidden", "rounded-full"], [1, "bg-primary", "absolute", "inset-0", "origin-left"]], template: function MediaProgressBarComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275domElementStart(0, "div", 1);
         \u0275\u0275domElement(1, "div", 2, 0);
         \u0275\u0275domElementEnd();
-      }
-      if (rf & 2) {
-        \u0275\u0275attribute("aria-valuenow", ctx.progress());
       }
     }, styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  width: 100%;\n}\n/*# sourceMappingURL=media-controls.component.css.map */"] });
   }
@@ -2391,7 +2398,6 @@ var MediaProgressBarComponent = class _MediaProgressBarComponent {
             role="progressbar"
             aria-valuemin="0"
             aria-valuemax="100"
-            [attr.aria-valuenow]="progress()"
         >
             <div #bar class="bg-primary absolute inset-0 origin-left"></div>
         </div>
@@ -2731,7 +2737,7 @@ var MediaControlsComponent = class _MediaControlsComponent {
   }], null, { animating: [{ type: Input, args: [{ isSignal: true, alias: "animating", required: false }] }], duration: [{ type: Input, args: [{ isSignal: true, alias: "duration", required: false }] }], progress: [{ type: Input, args: [{ isSignal: true, alias: "progress", required: false }] }], playback_start: [{ type: Input, args: [{ isSignal: true, alias: "playback_start", required: false }] }], playback_duration: [{ type: Input, args: [{ isSignal: true, alias: "playback_duration", required: false }] }], muted: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], loading: [{ type: Input, args: [{ isSignal: true, alias: "loading", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }], state: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }], event: [{ type: Output, args: ["event"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaControlsComponent, { className: "MediaControlsComponent", filePath: "apps/signage/src/app/media-controls.component.ts", lineNumber: 243 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaControlsComponent, { className: "MediaControlsComponent", filePath: "apps/signage/src/app/media-controls.component.ts", lineNumber: 268 });
 })();
 
 // apps/signage/src/app/playlist-display.component.ts
@@ -4730,7 +4736,7 @@ function MediaPlayerComponent_Conditional_19_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275property("overlay_id", ctx_r1.can_close() ? "override-playback" : "player-playback")("editing", ctx_r1.layout_editing())("reset_count", ctx_r1.layout_reset_count())("initial_position", \u0275\u0275pureFunction0(26, _c9));
     \u0275\u0275advance();
-    \u0275\u0275property("state", ctx_r1.state())("loop", ctx_r1.loop())("muted", ctx_r1.muted())("shuffle", ctx_r1.shuffle())("progress", ctx_r1.progress())("duration", ctx_r1.duration())("playback_start", ctx_r1.progress_start())("playback_duration", ctx_r1.progress_duration())("animating", ctx_r1.in_animation())("loading", ctx_r1.waiting_for_item());
+    \u0275\u0275property("state", ctx_r1.state())("loop", ctx_r1.loop())("muted", ctx_r1.muted())("shuffle", ctx_r1.shuffle())("progress", ctx_r1.controls_progress())("duration", ctx_r1.duration())("playback_start", ctx_r1.progress_start())("playback_duration", ctx_r1.progress_duration())("animating", ctx_r1.in_animation())("loading", ctx_r1.waiting_for_item());
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_close() ? 4 : -1);
     \u0275\u0275advance();
@@ -4749,6 +4755,16 @@ var PLUGIN_LOAD_TIMEOUT = 15 * 1e3;
 var PLAY_THROUGH_MIN_LIMIT = 5 * 60 * 1e3;
 var PLAY_THROUGH_MAX_LIMIT = 60 * 60 * 1e3;
 var URL_RETRY_DELAY = 1e3;
+var MEDIA_READY_TIMEOUT = 5 * 1e3;
+function settleWithin(promise, timeout_ms) {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, timeout_ms);
+    promise.catch(() => void 0).then(() => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+}
 var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
@@ -4871,6 +4887,13 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this.progress = signal(
       0,
       ...ngDevMode ? [{ debugName: "progress" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.controls_progress = computed(
+      () => this.state() === "PLAYING" && this.progress_start() > 0 && this.progress_duration() > 0 && !this.waiting_for_item() ? 0 : this.progress(),
+      ...ngDevMode ? [{ debugName: "controls_progress" }] : (
         /* istanbul ignore next */
         []
       )
@@ -5540,8 +5563,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   _clearOutput(output2) {
     const item = this._output_items[output2];
     this._hideMediaElements(output2);
-    if (item?.type === "video")
-      this._pauseOutputVideo(output2);
+    this._releaseOutputVideo(output2);
     this._web_element(output2).nativeElement.removeAttribute("src");
     if (item) {
       this._item_output.delete(item.id);
@@ -6052,12 +6074,56 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       return;
     if (this.state() === "PLAYING")
       this.togglePause();
+    this.clearTimeout("re-start");
     this.in_animation.set(true);
-    if (this.active_item.animation === Ns.Cut) {
+    const item = this.active_item;
+    const ready = this._mediaReady(item, this.pending_output());
+    if (!ready) {
+      this._startTransition(item, resume_on_end);
+      return;
+    }
+    const generation = this._display_generation;
+    ready.then(() => {
+      if (this._destroyed || generation !== this._display_generation) {
+        return;
+      }
+      this._startTransition(item, resume_on_end);
+    });
+  }
+  /**
+   * Resolves once an image is decoded or a video has its first frame, so a
+   * transition does not slide in an empty frame. Bounded, as a load error
+   * is handled elsewhere and must not hold the playlist. Undefined when the
+   * item can paint now: webpages and plugins are revealed once loaded.
+   */
+  _mediaReady(item, output2) {
+    if (item.type === "webpage" || item.type === "plugin")
+      return;
+    if (item.type !== "video") {
+      const image = this._image_element(output2).nativeElement;
+      if (typeof image.decode !== "function")
+        return;
+      return settleWithin(image.decode(), MEDIA_READY_TIMEOUT);
+    }
+    const video = this._video_element(output2).nativeElement;
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
+      return;
+    const listening = new AbortController();
+    const loaded = new Promise((resolve) => {
+      for (const type of ["loadeddata", "error"]) {
+        video.addEventListener(type, () => resolve(), {
+          once: true,
+          signal: listening.signal
+        });
+      }
+    });
+    return settleWithin(loaded, MEDIA_READY_TIMEOUT).then(() => listening.abort());
+  }
+  _startTransition(item, resume_on_end) {
+    if (item.animation === Ns.Cut) {
       this._onTransitionEnd(resume_on_end, true);
       return;
     }
-    const item = this.active_item;
     const previous_output = this.active_output();
     const next_output = this.pending_output();
     const prev_container_el = this._container(previous_output).nativeElement;
@@ -6102,7 +6168,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       this.active_output.set(this.pending_output());
     this._resetTransitionState();
     this._cleanupInactiveOutputs();
-    if (resume)
+    if (resume && this.state() === "PAUSED")
       this.togglePause();
   }
   _resetTransitionState() {
@@ -6123,14 +6189,25 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       const item = this._output_items[output2];
       if (item?.type === "webpage" || item?.type === "plugin") {
         this._clearOutput(output2);
-      } else if (item?.type === "video") {
-        this._pauseOutputVideo(output2);
+      } else {
+        this._releaseOutputVideo(output2);
       }
     }
   }
-  _pauseOutputVideo(output2) {
-    this._video_element(output2).nativeElement.pause();
+  /**
+   * Unload the video on an output that is off screen. A paused video keeps
+   * its decoder and buffers, and players often have only one or two hardware
+   * decoders. Keeping it gains nothing: showing the item again sets its
+   * source, which reloads it anyway.
+   */
+  _releaseOutputVideo(output2) {
+    const video = this._video_element(output2).nativeElement;
     this._last_video_speed.delete(output2);
+    if (!video.hasAttribute("src"))
+      return;
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
   }
   _shouldTransition(old_item, new_item) {
     if (!this._hasMultipleActivePlaylistItems())
@@ -6487,7 +6564,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
                         [loop]="loop()"
                         [muted]="muted()"
                         [shuffle]="shuffle()"
-                        [progress]="progress()"
+                        [progress]="controls_progress()"
                         [duration]="duration()"
                         [playback_start]="progress_start()"
                         [playback_duration]="progress_duration()"
@@ -6560,7 +6637,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   }], null, { playlist: [{ type: Input, args: [{ isSignal: true, alias: "playlist", required: false }] }], controls: [{ type: Input, args: [{ isSignal: true, alias: "controls", required: false }] }], layout_editing: [{ type: Input, args: [{ isSignal: true, alias: "layout_editing", required: false }] }], layout_reset_count: [{ type: Input, args: [{ isSignal: true, alias: "layout_reset_count", required: false }] }], transparent: [{ type: Input, args: [{ isSignal: true, alias: "transparent", required: false }] }], override: [{ type: Input, args: [{ isSignal: true, alias: "override", required: false }] }], can_close: [{ type: Input, args: [{ isSignal: true, alias: "can_close", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }, { type: Output, args: ["loopChange"] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }, { type: Output, args: ["shuffleChange"] }], indexInput: [{ type: Input, args: [{ isSignal: true, alias: "index", required: false }] }], animation_time: [{ type: Input, args: [{ isSignal: true, alias: "animation_time", required: false }] }], mutedInput: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], stateInput: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], stateChange: [{ type: Output, args: ["stateChange"] }], indexChange: [{ type: Output, args: ["indexChange"] }], mutedChange: [{ type: Output, args: ["mutedChange"] }], playing_id: [{ type: Output, args: ["playing_id"] }], event: [{ type: Output, args: ["event"] }], closed: [{ type: Output, args: ["closed"] }], _container_0: [{ type: ViewChild, args: ["media_container_0", { isSignal: true }] }], _container_1: [{ type: ViewChild, args: ["media_container_1", { isSignal: true }] }], _image_element_0: [{ type: ViewChild, args: ["img_el_0", { isSignal: true }] }], _image_element_1: [{ type: ViewChild, args: ["img_el_1", { isSignal: true }] }], _video_element_0: [{ type: ViewChild, args: ["video_el_0", { isSignal: true }] }], _video_element_1: [{ type: ViewChild, args: ["video_el_1", { isSignal: true }] }], _web_element_0: [{ type: ViewChild, args: ["web_el_0", { isSignal: true }] }], _web_element_1: [{ type: ViewChild, args: ["web_el_1", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 286 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 302 });
 })();
 
 // apps/signage/src/app/diagnostics.ts
@@ -7103,6 +7180,19 @@ function nextScheduledPlaylistStart(schedule, now, horizon_seconds) {
 function playlistStartsWithin(playlist, now, horizon_seconds) {
   return playlistSchedules(playlist).some((schedule) => nextScheduledPlaylistStart(schedule, now, horizon_seconds));
 }
+var MEDIA_BY_ID = /* @__PURE__ */ new WeakMap();
+function findMedia(media, id) {
+  let by_id = MEDIA_BY_ID.get(media);
+  if (!by_id) {
+    by_id = /* @__PURE__ */ new Map();
+    for (const item of media) {
+      if (!by_id.has(item.id))
+        by_id.set(item.id, item);
+    }
+    MEDIA_BY_ID.set(media, by_id);
+  }
+  return by_id.get(id);
+}
 function templateMappingCreatedAt(mapping) {
   const created_at = Date.parse(mapping.created_at);
   return Number.isFinite(created_at) ? created_at : 0;
@@ -7328,11 +7418,14 @@ var SignageService = class _SignageService extends AsyncHandler {
     if (result === null)
       return true;
     const { payload, validators } = result;
-    const display_signature = `${id}:${JSON.stringify(payload)}`;
+    const payload_json = JSON.stringify(payload);
+    const display_signature = `${id}:${payload_json}`;
     if (display_signature === this._display_signature && this._display_data()) {
       this._setValidators(validators);
       return !!validators;
     }
+    if (payload.id === id)
+      this._saveOfflineDisplay(id, payload_json);
     const display = this._parseDisplay(payload);
     display.plugins = await this._withTimeout(this._resolveDisplayPlugins(display), DISPLAY_FETCH_TIMEOUT_MS).catch((e) => {
       log3.warn("Failed to resolve display plugins.", e);
@@ -7400,14 +7493,15 @@ var SignageService = class _SignageService extends AsyncHandler {
     }
     if (!payload)
       payload = this._offlineDisplay(id);
-    if (payload.id === id) {
-      try {
-        localStorage.setItem(displayCacheKey(id), JSON.stringify(payload));
-      } catch (e) {
-        log3.warn("Unable to save display details for offline use.", e);
-      }
-    }
     return { payload, validators };
+  }
+  /** Keep the display details for offline use */
+  _saveOfflineDisplay(id, payload_json) {
+    try {
+      localStorage.setItem(displayCacheKey(id), payload_json);
+    } catch (e) {
+      log3.warn("Unable to save display details for offline use.", e);
+    }
   }
   /** The display details saved for offline use; empty when there are none */
   _offlineDisplay(id) {
@@ -7802,7 +7896,7 @@ var SignageService = class _SignageService extends AsyncHandler {
     })).filter(({ playlist_id }) => !!playlist_id && this._hasValidTakeoverMedia(display, playlist_id));
   }
   _hasValidTakeoverMedia(display, playlist_id) {
-    return this._getPlaylistMedia(display, [playlist_id], () => true, "takeover").some((item) => !validateMedia(item));
+    return this._getPlaylistMedia(display, [playlist_id], () => true, "takeover").some((item) => isMediaValid(item));
   }
   /** Whether the current override is made of exactly these runs */
   _isCurrentOverride(keys) {
@@ -7908,7 +8002,7 @@ var SignageService = class _SignageService extends AsyncHandler {
   }
   _createMediaPlayerItem(display, reference, plugins) {
     const { id, playlist_id, valid_from, valid_until } = reference;
-    const media_ref = display.playlist_media.find((item) => item.id === id);
+    const media_ref = findMedia(display.playlist_media, id);
     if (!media_ref)
       return null;
     if (!this._canEmbedMedia(display, media_ref))
@@ -8391,7 +8485,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
    * to play.
    */
   _isOverridePassDone(playlist_id) {
-    const last_valid = this.override_playlist().playlist.filter((item) => !validateMedia(item)).at(-1);
+    const last_valid = this.override_playlist().playlist.filter((item) => isMediaValid(item)).at(-1);
     return !last_valid || last_valid.playlist === playlist_id;
   }
   static {
@@ -9047,5 +9141,5 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
 export {
   SignageTemplateComponent
 };
-//# debugId=085a574a-53c9-5a70-8a61-b4f3b2c2a9d9
-//# sourceMappingURL=template.component-LY4QQVFF.js.map
+//# debugId=2e510514-4cc0-5906-858a-6e88241b55eb
+//# sourceMappingURL=template.component-QSYVRDLX.js.map
