@@ -2485,6 +2485,8 @@
         "NEW_TEMPLATE": "New Template",
         "NEW_ZONE": "New Zone",
         "NEXT_5_PLAYS": "Next 5 Plays",
+        "SORT_NEXT_PLAY": "Sort by next play",
+        "SORT_NEXT_PLAY_TOOLTIP": "Toggle between order added and next playing",
         "NEXT_DAY": "Next day",
         "NEXT_WEEK": "Next week",
         "NEXT_WEEK_ARIA": "Show next week",
