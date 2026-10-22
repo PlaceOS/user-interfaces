@@ -4571,13 +4571,13 @@ function getItemWithKeys(keys, map2) {
   return null;
 }
 function unique(array = [], key = "") {
-  const keys = [];
+  const keys = /* @__PURE__ */ new Set();
   return array.filter((el) => {
     const id = key ? el[key] : el;
-    const exists = keys.includes(id);
-    if (!exists)
-      keys.push(id);
-    return !exists;
+    if (keys.has(id))
+      return false;
+    keys.add(id);
+    return true;
   });
 }
 function randomInt(ceil, floor = 0) {
@@ -4837,5 +4837,5 @@ export {
   withTimeout,
   HotkeysService
 };
-//# debugId=03f43978-c135-519e-8ff5-3830dd7cfd23
-//# sourceMappingURL=chunk-4TEYIUYT.js.map
+//# debugId=827638b4-7fd2-547b-b03b-4c2d6e4085a6
+//# sourceMappingURL=chunk-KSYULDZ7.js.map

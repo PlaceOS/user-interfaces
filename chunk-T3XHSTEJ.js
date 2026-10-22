@@ -2,7 +2,7 @@ import {
   OrganisationService,
   SettingsService,
   currentUser
-} from "./chunk-3LMS57A6.js";
+} from "./chunk-KO34TQSL.js";
 import {
   AsyncHandler,
   Gp,
@@ -12,7 +12,7 @@ import {
   format,
   log,
   randomString
-} from "./chunk-4TEYIUYT.js";
+} from "./chunk-KSYULDZ7.js";
 import {
   Injectable,
   Pipe,
@@ -2498,4 +2498,4 @@ export {
   ChatService
 };
 //# debugId=9e991ffc-d499-5f56-a095-78dfdbd222b0
-//# sourceMappingURL=chunk-BTOSA6IL.js.map
+//# sourceMappingURL=chunk-T3XHSTEJ.js.map
