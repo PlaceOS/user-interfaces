@@ -662,6 +662,36 @@ function generateMockPlaylists(displays, media) {
 
     playlists.push(emergencyPlaylist);
 
+    // Distribution playlist whose items play once at times relative to now,
+    // so the next play order is known whenever the mock loads
+    const hour = 60 * 60;
+    const now = getUnixTime(Date.now());
+    const distribution_schedules = [
+        [{ play_at: now + 3 * hour, play_period: 60 }],
+        [],
+        [{ play_at: now + hour, play_period: 30 }],
+        [{ play_at: now - 10 * 60, play_period: 60 }],
+        [{ play_at: now - 48 * hour, play_period: 60 }],
+    ];
+    playlists.push({
+        id: 'playlist-distribution',
+        name: 'Lobby Distribution',
+        description: 'Media scheduled to play at set times in the lobby',
+        distribution: true,
+        items: distribution_schedules.map((schedules, index) => ({
+            id: `distribution-item-${index + 1}`,
+            media_id: media[index].id,
+            order: index + 1,
+            schedules,
+        })),
+        settings: { loop: true, shuffle: false, default_duration: 15000 },
+        target: { displays: [], zones: [], categories: [] },
+        created_by: 'facilities.manager@place.tech',
+        created_at: getUnixTime(subDays(Date.now(), 10)),
+        updated_at: getUnixTime(subDays(Date.now(), 1)),
+        status: 'active',
+    });
+
     return playlists;
 }
 
@@ -914,6 +944,7 @@ function toEnginePlaylist(item: any) {
         name: item.name,
         description: item.description,
         enabled: item.status !== 'disabled',
+        distribution: !!item.distribution,
         random: !!item.settings?.shuffle,
         default_duration: item.settings?.default_duration || 15000,
         default_animation: 1,
@@ -926,14 +957,32 @@ function toEnginePlaylist(item: any) {
 
 function playlistMediaResponse(playlist_id: string, approved = false) {
     const playlist = MOCK_PLAYLISTS.find((item) => item.id === playlist_id);
+    // Distribution playlist items reference their schedule ids
+    const distribution = !!playlist?.distribution;
+    const media_ids = [
+        ...new Set((playlist?.items || []).map((item) => item.media_id)),
+    ];
     return {
         id: `${playlist_id}-media`,
         playlist_id,
-        items: (playlist?.items || []).map((item) => item.media_id),
+        media: media_ids
+            .map((id) => MOCK_MEDIA.find((item) => item.id === id))
+            .filter((item) => !!item)
+            .map(toEngineMedia),
+        items: (playlist?.items || []).map((item) =>
+            distribution ? item.id : item.media_id,
+        ),
         schedules: (playlist?.items || []).map((item) => ({
             id: item.id,
             item_id: item.media_id,
-            schedules: [],
+            schedules: item.schedules || [],
+            ...(distribution
+                ? {
+                      media: toEngineMedia(
+                          MOCK_MEDIA.find(({ id }) => id === item.media_id),
+                      ),
+                  }
+                : {}),
         })),
         approved,
         approval_requested: false,

@@ -36,12 +36,33 @@ import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import { SignageContextService } from '../signage-context.service';
 import {
     playlistLoopDuration,
+    playlistNextPlayTime,
     playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
 } from '../signage-playlist.util';
 import { PlaylistActionsComponent } from './playlist-actions.component';
 import { SignagePlaylistService } from './signage-playlist.service';
+
+const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
+
+function loadNextPlaySort() {
+    if (typeof localStorage === 'undefined') return false;
+    try {
+        return localStorage.getItem(NEXT_PLAY_SORT_STORAGE_KEY) === 'true';
+    } catch {
+        return false;
+    }
+}
+
+function persistNextPlaySort(sorted: boolean) {
+    if (typeof localStorage === 'undefined') return;
+    try {
+        localStorage.setItem(NEXT_PLAY_SORT_STORAGE_KEY, `${sorted}`);
+    } catch {
+        // Local storage can be unavailable in private browsing or restricted embeds.
+    }
+}
 
 @Component({
     selector: 'playlist-items',
@@ -138,7 +159,7 @@ import { SignagePlaylistService } from './signage-playlist.service';
                                 >
                                 <mat-checkbox
                                     [checked]="isBulkItemSelected($index)"
-                                    [attr.aria-label]="
+                                    [aria-label]="
                                         'SIGNAGE_MANAGER.SELECT_MEDIA'
                                             | translate: { name: item.name }
                                     "
@@ -299,7 +320,28 @@ import { SignagePlaylistService } from './signage-playlist.service';
                 </div>
             } @else if (items().length > 0) {
                 <div class="w-full flex-1 overflow-auto px-3 py-2" role="list">
-                    <div class="-mt-2 mb-2 flex justify-end lg:mt-0">
+                    <div
+                        class="-mt-2 mb-2 flex items-center justify-between gap-2 lg:mt-0"
+                    >
+                        <button
+                            type="button"
+                            class="hover:bg-base-200 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium"
+                            [class.text-base-content/70]="!sort_by_next_play()"
+                            [class.text-primary]="sort_by_next_play()"
+                            [class.bg-base-200]="sort_by_next_play()"
+                            matRipple
+                            [attr.aria-pressed]="sort_by_next_play()"
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.SORT_NEXT_PLAY_TOOLTIP'
+                                    | translate
+                            "
+                            (click)="toggleNextPlaySort()"
+                        >
+                            <icon class="text-base">schedule</icon>
+                            <span class="mr-2">{{
+                                'SIGNAGE_MANAGER.SORT_NEXT_PLAY' | translate
+                            }}</span>
+                        </button>
                         <button
                             type="button"
                             class="text-base-content/70 hover:bg-base-200 flex w-28 items-center justify-center gap-1 rounded px-2 py-1 text-xs font-medium"
@@ -319,33 +361,41 @@ import { SignagePlaylistService } from './signage-playlist.service';
                             }}</span>
                         </button>
                     </div>
-                    @for (row of keyed_items(); track row.key) {
+                    @for (row of distribution_rows(); track row.key) {
                         @let item = row.item;
-                        @let schedule = itemSchedule(item, $index);
+                        @let schedule = itemSchedule(item, row.index);
                         <div role="listitem" class="mb-2">
                             <div
                                 role="button"
                                 tabindex="0"
                                 class="bg-base-100 border-base-300 cursor-pointer rounded-lg border p-2 transition-colors"
                                 [class.bg-primary]="
-                                    isItemSelected(item, $index)
+                                    isItemSelected(item, row.index)
                                 "
                                 [class.text-primary-content]="
-                                    isItemSelected(item, $index)
+                                    isItemSelected(item, row.index)
                                 "
                                 [class.hover:bg-base-200]="
-                                    !isItemSelected(item, $index)
+                                    !isItemSelected(item, row.index)
                                 "
-                                [class.ring-2]="isBulkItemSelected($index)"
+                                [class.ring-2]="isBulkItemSelected(row.index)"
                                 [class.ring-primary]="
-                                    isBulkItemSelected($index)
+                                    isBulkItemSelected(row.index)
                                 "
-                                (click)="selectItem(item, $index)"
+                                (click)="selectItem(item, row.index)"
                                 (keydown.enter)="
-                                    selectItemWithKeyboard($event, item, $index)
+                                    selectItemWithKeyboard(
+                                        $event,
+                                        item,
+                                        row.index
+                                    )
                                 "
                                 (keydown.space)="
-                                    selectItemWithKeyboard($event, item, $index)
+                                    selectItemWithKeyboard(
+                                        $event,
+                                        item,
+                                        row.index
+                                    )
                                 "
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
@@ -354,13 +404,15 @@ import { SignagePlaylistService } from './signage-playlist.service';
                             >
                                 <div class="flex items-start gap-3">
                                     <mat-checkbox
-                                        [checked]="isBulkItemSelected($index)"
-                                        [attr.aria-label]="
+                                        [checked]="
+                                            isBulkItemSelected(row.index)
+                                        "
+                                        [aria-label]="
                                             'SIGNAGE_MANAGER.SELECT_MEDIA'
                                                 | translate: { name: item.name }
                                         "
                                         (click)="$event.stopPropagation()"
-                                        (change)="toggleSelection($index)"
+                                        (change)="toggleSelection(row.index)"
                                     />
                                     <media-thumbnail
                                         [item]="item"
@@ -479,7 +531,7 @@ import { SignagePlaylistService } from './signage-playlist.service';
                                                 type="button"
                                                 mat-menu-item
                                                 (click)="
-                                                    removeItem(item, $index)
+                                                    removeItem(item, row.index)
                                                 "
                                             >
                                                 <div
@@ -511,11 +563,11 @@ import { SignagePlaylistService } from './signage-playlist.service';
                                             toggleSchedules(
                                                 $event,
                                                 item,
-                                                $index
+                                                row.index
                                             )
                                         "
                                         [attr.aria-expanded]="
-                                            schedulesOpen(item, $index)
+                                            schedulesOpen(item, row.index)
                                         "
                                     >
                                         <span>{{
@@ -523,12 +575,12 @@ import { SignagePlaylistService } from './signage-playlist.service';
                                                 | translate
                                         }}</span>
                                         <icon class="text-base">{{
-                                            schedulesOpen(item, $index)
+                                            schedulesOpen(item, row.index)
                                                 ? 'expand_less'
                                                 : 'expand_more'
                                         }}</icon>
                                     </button>
-                                    @if (schedulesOpen(item, $index)) {
+                                    @if (schedulesOpen(item, row.index)) {
                                         @if (schedule?.schedules?.length) {
                                             @for (
                                                 item_schedule of schedule.schedules;
@@ -714,10 +766,53 @@ export class PlaylistItemsComponent {
      */
     public readonly keyed_items = computed(() => {
         const copies = new Map<string, number>();
-        return this.items().map((item) => {
+        return this.items().map((item, index) => {
             const copy = copies.get(item.id) ?? 0;
             copies.set(item.id, copy + 1);
-            return { key: `${item.id}#${copy}`, item };
+            return { key: `${item.id}#${copy}`, item, index };
+        });
+    });
+    /**
+     * Shows distribution items by when they next play. Only changes the view.
+     * Kept in the browser, so distribution playlists open sorted once chosen.
+     */
+    public readonly sort_by_next_play = signal(loadNextPlaySort());
+    /**
+     * Time the next plays are counted from. Set when the sort is turned on
+     * and when the playlist or its schedules change, so rows do not move
+     * while they are being worked on.
+     */
+    private readonly _sort_time = linkedSignal({
+        source: () =>
+            [
+                this.selected_playlist()?.id,
+                this.item_schedule_list(),
+                this.sort_by_next_play(),
+            ] as const,
+        computation: () => Date.now(),
+    });
+    /**
+     * Distribution rows, in saved order or by next play. Rows keep their
+     * saved index, so selection and item actions use the saved item. Items
+     * with no plays left go last, in saved order.
+     */
+    public readonly distribution_rows = computed(() => {
+        const rows = this.keyed_items();
+        if (!this.sort_by_next_play()) return rows;
+        const now = this._sort_time();
+        const next_plays = new Map(
+            rows.map((row) => [
+                row.key,
+                playlistNextPlayTime(
+                    this.itemSchedule(row.item, row.index).schedules || [],
+                    now,
+                ) ?? Infinity,
+            ]),
+        );
+        return [...rows].sort((a, b) => {
+            const a_next = next_plays.get(a.key)!;
+            const b_next = next_plays.get(b.key)!;
+            return a_next === b_next ? 0 : a_next - b_next;
         });
     });
     /** Only show the spinner when there are no items to show yet */
@@ -796,6 +891,11 @@ export class PlaylistItemsComponent {
                 media: item,
             })
         );
+    }
+
+    public toggleNextPlaySort() {
+        this.sort_by_next_play.update((sorted) => !sorted);
+        persistNextPlaySort(this.sort_by_next_play());
     }
 
     public scheduleLabel = playlistScheduleLabel;

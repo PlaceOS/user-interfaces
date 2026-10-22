@@ -7,6 +7,8 @@ import { PlaylistItemsComponent } from '../../app/playlists/playlist-items.compo
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../../app/signage-context.service';
 
+const NEXT_PLAY_SORT_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
+
 function media(id: string, media_type = 'image') {
     return { id, name: id, media_type } as any;
 }
@@ -78,6 +80,7 @@ describe('PlaylistItemsComponent', () => {
         can_update.set(true);
         playlist_media_loading.set(false);
         playlist_media_error.set(false);
+        localStorage.removeItem(NEXT_PLAY_SORT_KEY);
     });
 
     /** Render the real template, without the playlist action buttons */
@@ -417,5 +420,153 @@ describe('PlaylistItemsComponent', () => {
             second_schedule,
         ]);
         expect(component.selected_count()).toBe(0);
+    });
+
+    describe('next play sort', () => {
+        const now = Date.now();
+        const hours = (count: number) =>
+            Math.floor((now + count * 3_600_000) / 1000);
+
+        function distribution() {
+            const items = ['later', 'none', 'soon', 'now', 'past'].map((id) =>
+                media(id),
+            );
+            const plays: Record<string, number | null> = {
+                later: hours(3),
+                none: null,
+                soon: hours(1),
+                now: hours(-0.25),
+                past: hours(-48),
+            };
+            selected_playlist.set({ id: 'playlist-1', distribution: true });
+            playlist_media_items.set(items);
+            playlist_item_schedule_list.set(
+                items.map(
+                    (item) =>
+                        new SignagePlaylistItemSchedule({
+                            id: `schedule-${item.id}`,
+                            item_id: item.id,
+                            media: item,
+                            schedules: plays[item.id]
+                                ? [
+                                      {
+                                          play_at: plays[item.id],
+                                          play_period: 60,
+                                      } as any,
+                                  ]
+                                : [],
+                        }),
+                ),
+            );
+            return items;
+        }
+
+        const names = (component: PlaylistItemsComponent) =>
+            component.distribution_rows().map(({ item }) => item.id);
+
+        it('keeps the saved order until the sort is turned on', async () => {
+            distribution();
+            const component = await make();
+
+            expect(names(component)).toEqual([
+                'later',
+                'none',
+                'soon',
+                'now',
+                'past',
+            ]);
+        });
+
+        it('orders items by next play, with unscheduled items last in saved order', async () => {
+            distribution();
+            const component = await make();
+
+            component.toggleNextPlaySort();
+
+            expect(component.sort_by_next_play()).toBe(true);
+            expect(names(component)).toEqual([
+                'now',
+                'soon',
+                'later',
+                'none',
+                'past',
+            ]);
+            component.toggleNextPlaySort();
+            expect(names(component)[0]).toBe('later');
+        });
+
+        it('keeps the sort in the browser for the next session', async () => {
+            distribution();
+            const component = await make();
+
+            component.toggleNextPlaySort();
+            expect(localStorage.getItem(NEXT_PLAY_SORT_KEY)).toBe('true');
+            component.toggleNextPlaySort();
+            expect(localStorage.getItem(NEXT_PLAY_SORT_KEY)).toBe('false');
+        });
+
+        it('opens distribution playlists sorted when the sort was kept', async () => {
+            localStorage.setItem(NEXT_PLAY_SORT_KEY, 'true');
+            distribution();
+            const component = await make();
+
+            expect(component.sort_by_next_play()).toBe(true);
+            expect(names(component)).toEqual([
+                'now',
+                'soon',
+                'later',
+                'none',
+                'past',
+            ]);
+        });
+
+        it('keeps the saved index of each row, so item actions use the saved item', async () => {
+            distribution();
+            const component = await make();
+            component.toggleNextPlaySort();
+
+            const [first] = component.distribution_rows();
+            expect(first.index).toBe(3);
+            component.toggleSelection(first.index);
+            expect(component.selected_items()).toEqual([
+                { item: first.item, index: 3 },
+            ]);
+        });
+
+        it('does not save the sorted order', async () => {
+            distribution();
+            const component = await make();
+
+            component.toggleNextPlaySort();
+            component.distribution_rows();
+
+            expect(reorder).not.toHaveBeenCalled();
+        });
+
+        it('shows the sort button on the left of the expand all button', async () => {
+            distribution();
+            const fixture = await render();
+            const toolbar: HTMLElement = fixture.nativeElement.querySelector(
+                '[role="list"] > div',
+            );
+            const [sort, expand] = Array.from(
+                toolbar.querySelectorAll('button'),
+            );
+
+            expect(sort.textContent).toContain('Sort by next play');
+            expect(sort.getAttribute('aria-pressed')).toBe('false');
+            expect(expand.textContent).toMatch(/collapse all|expand all/i);
+
+            sort.click();
+            fixture.detectChanges();
+
+            expect(sort.getAttribute('aria-pressed')).toBe('true');
+            const rows = Array.from(
+                fixture.nativeElement.querySelectorAll('[role="listitem"]'),
+            ).map((row: any) =>
+                row.querySelector('.truncate')?.textContent?.trim(),
+            );
+            expect(rows).toEqual(['now', 'soon', 'later', 'none', 'past']);
+        });
     });
 });
