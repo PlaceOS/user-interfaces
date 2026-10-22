@@ -325,10 +325,12 @@ function persistNextPlaySort(sorted: boolean) {
                     >
                         <button
                             type="button"
-                            class="hover:bg-base-200 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium"
+                            class="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium"
                             [class.text-base-content/70]="!sort_by_next_play()"
-                            [class.text-primary]="sort_by_next_play()"
-                            [class.bg-base-200]="sort_by_next_play()"
+                            [class.hover:bg-base-200]="!sort_by_next_play()"
+                            [class.bg-base-content]="sort_by_next_play()"
+                            [class.text-base-100]="sort_by_next_play()"
+                            [class.hover:bg-base-content/80]="sort_by_next_play()"
                             matRipple
                             [attr.aria-pressed]="sort_by_next_play()"
                             [matTooltip]="

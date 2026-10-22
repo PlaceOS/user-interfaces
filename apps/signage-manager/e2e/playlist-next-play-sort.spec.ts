@@ -73,6 +73,31 @@ test.describe('US-SGM-007: Sort Distribution Items by Next Play', () => {
         await expect(itemNames(page)).toHaveText(SAVED_ORDER);
     });
 
+    test('fills the sort button only while it is pressed', async ({
+        page,
+    }) => {
+        await openDistributionPlaylist(page);
+        const sort = sortButton(page);
+        // Move the mouse away so hover styles do not affect the colours
+        const colours = async () => {
+            await page.mouse.move(0, 0);
+            return sort.evaluate((el) => {
+                const style = getComputedStyle(el);
+                return { bg: style.backgroundColor, text: style.color };
+            });
+        };
+
+        const off = await colours();
+        expect(off.bg).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+
+        await sort.click();
+        await expect(sort).toHaveAttribute('aria-pressed', 'true');
+        await expect.poll(async () => (await colours()).bg).not.toBe(off.bg);
+        const on = await colours();
+        expect(on.bg).not.toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+        expect(on.text).not.toBe(off.text);
+    });
+
     test('remembers the sort across sessions and opens distribution playlists sorted', async ({
         page,
     }) => {
