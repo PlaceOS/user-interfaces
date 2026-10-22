@@ -45,7 +45,7 @@ import {
   toDate,
   unique,
   withTimeout
-} from "./chunk-4TEYIUYT.js";
+} from "./chunk-KSYULDZ7.js";
 import {
   bindNativeAuthRedirects,
   clearNativeApiKey,
@@ -312,34 +312,21 @@ var ClipboardModule = class _ClipboardModule {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "2b1995c",
-  "hash": "2b1995c",
+  "raw": "723770c",
+  "hash": "723770c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2b1995c",
+  "suffix": "723770c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1791858669621
+  "time": 1792636734860
 };
 
 // libs/common/src/lib/settings.ts
-var general = {};
 var app = {
   name: "Assistant",
-  title: "PlaceOS",
-  description: "Assistant UI",
-  short_name: "PlaceOS",
-  logo: {
-    type: "img",
-    src: "assets/logo-light.svg"
-  },
-  logo_dark: {
-    type: "img",
-    src: "assets/logo-dark.svg"
-  },
-  general,
-  prevent_space_init: true
+  short_name: "PlaceOS"
 };
 var DEFAULT_SETTINGS = {
   debug: true,
@@ -3334,6 +3321,7 @@ var OrganisationService = class _OrganisationService {
     this._init_timer = null;
     this._zone_load_timer = null;
     this._override_timer = null;
+    this._destroyed = false;
     const online_state = io();
     const online = Yr(online_state, (_) => _);
     const start = Promise.race([
@@ -3740,6 +3728,8 @@ var OrganisationService = class _OrganisationService {
     const org_id = this._organisation?.id;
     const app_settings = (await this._bulkMetadataDetails(this.app_key, [org_id]))[org_id];
     const global_settings = (await this._bulkMetadataDetails("settings", [org_id]))[org_id];
+    if (this._destroyed)
+      return;
     this._settings = [global_settings, app_settings];
     if (this._override_timer) {
       clearTimeout(this._override_timer);
@@ -3868,9 +3858,18 @@ var OrganisationService = class _OrganisationService {
     const tz_start = timezone.split("/")[0];
     return list.find((_) => _.timezone?.startsWith(tz_start));
   }
+  /** Stop settings overrides so a late load cannot apply them after teardown */
+  ngOnDestroy() {
+    this._destroyed = true;
+    if (this._override_timer)
+      clearTimeout(this._override_timer);
+    this._override_timer = null;
+  }
   _updateSettingOverrides() {
     if (this._override_timer)
       clearTimeout(this._override_timer);
+    if (this._destroyed)
+      return;
     this._override_timer = setTimeout(() => this._service.setOverrides([
       this.buildingSettings(this.building?.id),
       this.regionSettings(this.region?.id),
@@ -4019,5 +4018,5 @@ export {
   firstValueWhere,
   OrganisationService
 };
-//# debugId=0e938cc9-b980-520a-81b8-142cf7ea6c55
-//# sourceMappingURL=chunk-3LMS57A6.js.map
+//# debugId=ef175870-b9f5-5555-a0d5-9e2990b65787
+//# sourceMappingURL=chunk-KO34TQSL.js.map

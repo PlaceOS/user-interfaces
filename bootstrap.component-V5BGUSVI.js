@@ -33,16 +33,16 @@ import {
 } from "./chunk-RRU7ZWBU.js";
 import {
   TranslatePipe
-} from "./chunk-6MQLZWDU.js";
+} from "./chunk-M3T7ZANR.js";
 import {
   OrganisationService,
   Space,
   VERSION
-} from "./chunk-3LMS57A6.js";
+} from "./chunk-KO34TQSL.js";
 import {
   AsyncHandler,
   Sa
-} from "./chunk-4TEYIUYT.js";
+} from "./chunk-KSYULDZ7.js";
 import "./chunk-SDQYPRVH.js";
 import {
   CdkConnectedOverlay,
@@ -3263,4 +3263,4 @@ export {
   BootstrapComponent
 };
 //# debugId=4610c4f6-89e0-53c6-9c07-7be658fcb998
-//# sourceMappingURL=bootstrap.component-PNHFA26Y.js.map
+//# sourceMappingURL=bootstrap.component-V5BGUSVI.js.map
