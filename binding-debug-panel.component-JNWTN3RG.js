@@ -8,13 +8,13 @@ import {
 import "./chunk-RRUXTBEK.js";
 import {
   Clipboard
-} from "./chunk-OTA3DIFD.js";
+} from "./chunk-ATDCEC7U.js";
 import {
   AsyncHandler,
   HotkeysService,
   Kr,
   xa
-} from "./chunk-EA27WN3L.js";
+} from "./chunk-IO3H7DHO.js";
 import {
   IconComponent
 } from "./chunk-T6G4DZFT.js";
@@ -1879,4 +1879,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=8c50f8c5-3708-59e7-81bb-b1d8ec415fe3
-//# sourceMappingURL=binding-debug-panel.component-DSXK3UJM.js.map
+//# sourceMappingURL=binding-debug-panel.component-JNWTN3RG.js.map

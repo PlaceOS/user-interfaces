@@ -1,11 +1,11 @@
 import {
   OrganisationService,
   Space
-} from "./chunk-OTA3DIFD.js";
+} from "./chunk-ATDCEC7U.js";
 import {
   Aa,
   xa
-} from "./chunk-EA27WN3L.js";
+} from "./chunk-IO3H7DHO.js";
 import {
   Pipe,
   setClassMetadata,
@@ -151,4 +151,4 @@ export {
   SpacePipe
 };
 //# debugId=6b7c9328-7b5c-50ed-952e-f8c9619b44d9
-//# sourceMappingURL=chunk-YQKDPALL.js.map
+//# sourceMappingURL=chunk-DEC3XCD6.js.map

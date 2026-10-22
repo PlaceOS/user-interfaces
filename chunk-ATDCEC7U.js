@@ -59,7 +59,7 @@ import {
   toDate,
   unique,
   withTimeout
-} from "./chunk-EA27WN3L.js";
+} from "./chunk-IO3H7DHO.js";
 import {
   bindNativeAuthRedirects,
   clearNativeApiKey,
@@ -707,15 +707,15 @@ var ClipboardModule = class _ClipboardModule {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "2b1995c",
-  "hash": "2b1995c",
+  "raw": "723770c",
+  "hash": "723770c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2b1995c",
+  "suffix": "723770c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1791858578035
+  "time": 1792636735042
 };
 
 // node_modules/date-fns/addMonths.js
@@ -821,15 +821,11 @@ async function initSentry(dsn, router, traces_sample_rate = 1) {
 }
 
 // libs/common/src/lib/settings.ts
-var general = {};
 var app = {
   name: "Control",
-  title: "PlaceOS",
-  description: "Room Control UI",
   short_name: "PlaceOS",
   logo_light: "assets/logo-light.svg",
   logo_dark: "assets/logo-dark.svg",
-  general,
   prevent_space_init: true,
   allow_dark_mode: false
 };
@@ -3888,6 +3884,7 @@ var _OrganisationService = class _OrganisationService {
     this._init_timer = null;
     this._zone_load_timer = null;
     this._override_timer = null;
+    this._destroyed = false;
     const online_state = io();
     const online = Yr(online_state, (_) => _);
     const start = Promise.race([
@@ -4300,6 +4297,8 @@ var _OrganisationService = class _OrganisationService {
     const org_id = (_a = this._organisation) == null ? void 0 : _a.id;
     const app_settings = (await this._bulkMetadataDetails(this.app_key, [org_id]))[org_id];
     const global_settings = (await this._bulkMetadataDetails("settings", [org_id]))[org_id];
+    if (this._destroyed)
+      return;
     this._settings = [global_settings, app_settings];
     if (this._override_timer) {
       clearTimeout(this._override_timer);
@@ -4435,9 +4434,18 @@ var _OrganisationService = class _OrganisationService {
       return (_a = _.timezone) == null ? void 0 : _a.startsWith(tz_start);
     });
   }
+  /** Stop settings overrides so a late load cannot apply them after teardown */
+  ngOnDestroy() {
+    this._destroyed = true;
+    if (this._override_timer)
+      clearTimeout(this._override_timer);
+    this._override_timer = null;
+  }
   _updateSettingOverrides() {
     if (this._override_timer)
       clearTimeout(this._override_timer);
+    if (this._destroyed)
+      return;
     this._override_timer = setTimeout(() => {
       var _a, _b;
       return this._service.setOverrides([
@@ -4608,5 +4616,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=bc0547a4-ff55-5ff2-94f3-4e8ef4e4303a
-//# sourceMappingURL=chunk-OTA3DIFD.js.map
+//# debugId=aee2bd8a-f203-5b91-80e3-523f68cfa92b
+//# sourceMappingURL=chunk-ATDCEC7U.js.map

@@ -1,10 +1,10 @@
 import {
   ICON_MAP,
   NextMeetingComponent
-} from "./chunk-JQJCCSI6.js";
+} from "./chunk-HK7PDSHF.js";
 import {
   VideoCallPageComponent
-} from "./chunk-55EDC74D.js";
+} from "./chunk-M6HILZS2.js";
 import {
   AuthenticatedImageDirective,
   BindingDirective,
@@ -25,7 +25,7 @@ import {
   parse,
   selectCamera,
   zoomCamera
-} from "./chunk-CA3PSUSW.js";
+} from "./chunk-JQXXDKYA.js";
 import "./chunk-AAMOUEU4.js";
 import {
   MatProgressSpinner,
@@ -42,20 +42,20 @@ import {
   MatInputModule
 } from "./chunk-NNELXRHI.js";
 import "./chunk-5YEYSSBC.js";
-import "./chunk-TOQREENN.js";
+import "./chunk-67DL6FMI.js";
 import {
   MatOption
 } from "./chunk-RRUXTBEK.js";
-import "./chunk-YQKDPALL.js";
+import "./chunk-DEC3XCD6.js";
 import "./chunk-AGK5J2VR.js";
 import {
   TranslatePipe
-} from "./chunk-AUPW2XX7.js";
+} from "./chunk-3T2I4HFR.js";
 import {
   OrganisationService,
   SettingsService,
   currentUser
-} from "./chunk-OTA3DIFD.js";
+} from "./chunk-ATDCEC7U.js";
 import {
   AsyncHandler,
   Gp,
@@ -66,7 +66,7 @@ import {
   notifyError,
   randomInt,
   randomString
-} from "./chunk-EA27WN3L.js";
+} from "./chunk-IO3H7DHO.js";
 import {
   IconComponent
 } from "./chunk-T6G4DZFT.js";
@@ -350,55 +350,35 @@ var MicLevels = class {
       )
     );
     this.ready = this._ready.asReadonly();
-    this._open_id = 0;
     this._bytes = new Uint8Array(0);
     this._levels = new Float32Array(MIC_LEVEL_BARS);
     this._bands = [];
+    this._stop_watching = () => {
+    };
   }
-  async open() {
-    var _a;
-    const id = ++this._open_id;
-    if (!((_a = navigator.mediaDevices) == null ? void 0 : _a.getUserMedia) || !window.AudioContext) {
-      return;
-    }
-    let stream;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch (e) {
-      log("VOICE", "Unable to read microphone levels:", e, "warn");
-      return;
-    }
-    if (id !== this._open_id) {
-      stream.getTracks().forEach((track) => track.stop());
-      return;
-    }
-    const context = new AudioContext();
+  open(context, stream) {
+    this.close();
     const analyser = context.createAnalyser();
     analyser.fftSize = 512;
     analyser.smoothingTimeConstant = 0.6;
     analyser.minDecibels = -90;
     analyser.maxDecibels = -30;
-    context.createMediaStreamSource(stream).connect(analyser);
-    this._stream = stream;
-    this._context = context;
+    const source = context.createMediaStreamSource(stream);
+    source.connect(analyser);
+    this._source = source;
     this._analyser = analyser;
     this._bytes = new Uint8Array(analyser.frequencyBinCount);
     this._bands = speechBands(context.sampleRate / analyser.fftSize, analyser.frequencyBinCount);
     const update = () => this._ready.set(context.state === "running");
-    context.onstatechange = update;
+    context.addEventListener("statechange", update);
+    this._stop_watching = () => context.removeEventListener("statechange", update);
     update();
-    void context.resume();
   }
   close() {
     var _a;
-    this._open_id++;
-    (_a = this._stream) == null ? void 0 : _a.getTracks().forEach((track) => track.stop());
-    if (this._context && this._context.state !== "closed") {
-      this._context.onstatechange = null;
-      void this._context.close();
-    }
-    this._stream = void 0;
-    this._context = void 0;
+    this._stop_watching();
+    (_a = this._source) == null ? void 0 : _a.disconnect();
+    this._source = void 0;
     this._analyser = void 0;
     this._ready.set(false);
   }
@@ -430,30 +410,469 @@ function speechBands(bin_width, bin_count) {
   return bands;
 }
 
+// apps/control/src/app/ui/speech/voice-activity.ts
+var SPEECH_SAMPLE_RATE = 16e3;
+var FRAME_SAMPLES = 480;
+var START_FRAMES = 3;
+var END_FRAMES = 30;
+var MIN_SPEECH_FRAMES = 8;
+var MAX_FRAMES = 334;
+var PRE_ROLL_FRAMES = 15;
+var PROGRESS_FRAMES = 34;
+var TAIL_FRAMES = 10;
+var MIN_LEVEL = 4e-3;
+var NOISE_RATIO = 2.5;
+var VoiceActivityDetector = class {
+  constructor(_events) {
+    this._events = _events;
+    this._frame = new Float32Array(FRAME_SAMPLES);
+    this._frame_length = 0;
+    this._noise = MIN_LEVEL / NOISE_RATIO;
+    this._pre_roll = [];
+    this._phrase = [];
+    this._speaking = false;
+    this._loud_run = 0;
+    this._quiet_run = 0;
+    this._loud_frames = 0;
+    this._sent_frames = 0;
+  }
+  push(samples) {
+    let offset = 0;
+    while (offset < samples.length) {
+      const count = Math.min(samples.length - offset, FRAME_SAMPLES - this._frame_length);
+      this._frame.set(samples.subarray(offset, offset + count), this._frame_length);
+      this._frame_length += count;
+      offset += count;
+      if (this._frame_length === FRAME_SAMPLES) {
+        this._process(this._frame.slice());
+        this._frame_length = 0;
+      }
+    }
+  }
+  /** Drops any partial phrase. Use while our own voice plays. */
+  reset() {
+    if (this._speaking)
+      this._events.end();
+    this._clear();
+  }
+  _clear() {
+    this._frame_length = 0;
+    this._pre_roll = [];
+    this._phrase = [];
+    this._speaking = false;
+    this._loud_run = 0;
+    this._quiet_run = 0;
+    this._loud_frames = 0;
+    this._sent_frames = 0;
+  }
+  _process(frame) {
+    var _a, _b;
+    let sum = 0;
+    for (const sample of frame)
+      sum += sample * sample;
+    const level = Math.sqrt(sum / frame.length);
+    const is_loud = level > Math.max(MIN_LEVEL, this._noise * NOISE_RATIO);
+    this._loud_run = is_loud ? this._loud_run + 1 : 0;
+    this._quiet_run = is_loud ? 0 : this._quiet_run + 1;
+    if (!this._speaking) {
+      const rate = level < this._noise ? 0.1 : 5e-3;
+      this._noise += (level - this._noise) * rate;
+      this._pre_roll.push(frame);
+      if (this._pre_roll.length > PRE_ROLL_FRAMES)
+        this._pre_roll.shift();
+      if (this._loud_run < START_FRAMES)
+        return;
+      this._speaking = true;
+      this._phrase = this._pre_roll;
+      this._pre_roll = [];
+      this._loud_frames = this._loud_run;
+      this._events.start();
+      return;
+    }
+    this._phrase.push(frame);
+    if (is_loud)
+      this._loud_frames++;
+    if (this._phrase.length - this._sent_frames >= PROGRESS_FRAMES) {
+      const frames = this._phrase.slice(this._sent_frames);
+      this._sent_frames = this._phrase.length;
+      (_b = (_a = this._events).progress) == null ? void 0 : _b.call(_a, joinFrames(frames));
+    }
+    if (this._quiet_run >= END_FRAMES || this._phrase.length >= MAX_FRAMES) {
+      this._endPhrase();
+    }
+  }
+  _endPhrase() {
+    const frames = this._phrase;
+    const is_speech = this._loud_frames >= MIN_SPEECH_FRAMES;
+    const tail = Math.max(0, this._quiet_run - TAIL_FRAMES);
+    this._clear();
+    if (!is_speech)
+      return this._events.end();
+    this._events.end(joinFrames(frames.slice(0, frames.length - tail)));
+  }
+};
+function joinFrames(frames) {
+  const audio = new Float32Array(frames.length * FRAME_SAMPLES);
+  frames.forEach((frame, i) => audio.set(frame, i * FRAME_SAMPLES));
+  return audio;
+}
+var Downsampler = class {
+  constructor(input_rate, output_rate) {
+    this._position = 0;
+    this._sum = 0;
+    this._count = 0;
+    this._ratio = input_rate / output_rate;
+  }
+  process(input2) {
+    const output = new Float32Array(Math.ceil(input2.length / this._ratio) + 1);
+    let length = 0;
+    for (const sample of input2) {
+      this._sum += sample;
+      this._count++;
+      this._position++;
+      if (this._position < this._ratio)
+        continue;
+      output[length++] = this._sum / this._count;
+      this._position -= this._ratio;
+      this._sum = 0;
+      this._count = 0;
+    }
+    return output.subarray(0, length);
+  }
+};
+
+// apps/control/src/app/ui/speech/mic-capture.ts
+var WORKLET_SOURCE = `
+registerProcessor('mic-capture', class extends AudioWorkletProcessor {
+    buffer = new Float32Array(2048);
+    length = 0;
+    process([input]) {
+        const channel = input && input[0];
+        if (!channel) return true;
+        for (let i = 0; i < channel.length; i++) {
+            this.buffer[this.length++] = channel[i];
+            if (this.length < this.buffer.length) continue;
+            this.port.postMessage(this.buffer, [this.buffer.buffer]);
+            this.buffer = new Float32Array(2048);
+            this.length = 0;
+        }
+        return true;
+    }
+});`;
+var INTERACTION_EVENTS = ["pointerdown", "keydown"];
+var _MicCapture = class _MicCapture {
+  constructor() {
+    this._start_id = 0;
+    this.resume = () => {
+      var _a;
+      if (((_a = this._context) == null ? void 0 : _a.state) === "suspended")
+        void this._context.resume();
+    };
+  }
+  /** The open microphone stream, or undefined when stopped */
+  get stream() {
+    return this._stream;
+  }
+  /** Audio context of the open microphone. Also used to play speech. */
+  get context() {
+    return this._context;
+  }
+  /**
+   * Opens the microphone. Throws if the user or browser blocks it.
+   * `is_muted` returns true while audio must be ignored, such as while our own voice plays.
+   */
+  async start(events, is_muted) {
+    const id = ++this._start_id;
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    });
+    if (id !== this._start_id) {
+      stream.getTracks().forEach((track) => track.stop());
+      return;
+    }
+    const context = new AudioContext();
+    this._stream = stream;
+    this._context = context;
+    const url = URL.createObjectURL(new Blob([WORKLET_SOURCE], { type: "text/javascript" }));
+    try {
+      await context.audioWorklet.addModule(url);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+    if (id !== this._start_id)
+      return;
+    const node = new AudioWorkletNode(context, "mic-capture", {
+      numberOfOutputs: 0
+    });
+    const detector = new VoiceActivityDetector(events);
+    const downsampler = new Downsampler(context.sampleRate, SPEECH_SAMPLE_RATE);
+    node.port.onmessage = ({ data }) => {
+      if (is_muted())
+        return detector.reset();
+      detector.push(downsampler.process(data));
+    };
+    context.createMediaStreamSource(stream).connect(node);
+    this._node = node;
+    this.resume();
+    for (const name of INTERACTION_EVENTS) {
+      document.addEventListener(name, this.resume, { passive: true });
+    }
+  }
+  stop() {
+    var _a, _b, _c;
+    this._start_id++;
+    for (const name of INTERACTION_EVENTS) {
+      document.removeEventListener(name, this.resume);
+    }
+    if (this._node)
+      this._node.port.onmessage = null;
+    (_a = this._stream) == null ? void 0 : _a.getTracks().forEach((track) => track.stop());
+    if (((_b = this._context) == null ? void 0 : _b.state) !== "closed")
+      void ((_c = this._context) == null ? void 0 : _c.close());
+    this._stream = void 0;
+    this._context = void 0;
+    this._node = void 0;
+  }
+};
+_MicCapture.\u0275fac = function MicCapture_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _MicCapture)();
+};
+_MicCapture.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MicCapture, factory: _MicCapture.\u0275fac, providedIn: "root" });
+var MicCapture = _MicCapture;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MicCapture, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], null, null);
+})();
+
+// apps/control/src/app/ui/speech/speech-engine.ts
+var _SpeechEngine = class _SpeechEngine {
+  constructor() {
+    this._next_id = 0;
+    this._pending = /* @__PURE__ */ new Map();
+  }
+  /**
+   * Starts the worker and loads the models. Later calls do nothing,
+   * unless the worker failed. Then a call starts a new worker.
+   */
+  start(setup, events) {
+    if (this._worker)
+      return;
+    this._events = events;
+    this._worker = new Worker(new URL("worker-N5UIU6JO.js", import.meta.url), {
+      type: "module"
+    });
+    this._worker.onmessage = ({ data }) => this._handle(data);
+    this._worker.onerror = (event) => this._fail(event.message || "Speech worker failed");
+    this._send({ type: "setup", setup });
+  }
+  /** Converts a full phrase of 16 kHz mono audio into text */
+  transcribe(audio) {
+    return this._request((id) => ({ type: "transcribe", id, audio }), [audio.buffer]);
+  }
+  /**
+   * Adds about one second of audio to a live transcription and returns the text so far.
+   * Use `reset` for the first audio of a phrase. `transcribe` ends the live transcription.
+   */
+  stream(audio, reset) {
+    return this._request((id) => ({ type: "stream", id, audio, reset }), [audio.buffer]);
+  }
+  /**
+   * Converts text into speech. Calls `on_audio` once per sentence.
+   * Resolves when all audio is sent, or when `signal` aborts.
+   */
+  async synthesize(text, on_audio, signal2) {
+    if (signal2 == null ? void 0 : signal2.aborted)
+      return;
+    await this._request((id) => ({ type: "synthesize", id, text }), [], on_audio, signal2);
+  }
+  /** Resolves with the transcript, or an empty string for speech requests */
+  _request(message, transfer, on_audio, signal2) {
+    const id = this._next_id++;
+    return new Promise((resolve, reject) => {
+      this._send(message(id), transfer);
+      const on_abort = () => {
+        this._send({ type: "cancel", id });
+        this._pending.delete(id);
+        resolve("");
+      };
+      signal2 == null ? void 0 : signal2.addEventListener("abort", on_abort, { once: true });
+      this._pending.set(id, {
+        resolve: (value) => {
+          signal2 == null ? void 0 : signal2.removeEventListener("abort", on_abort);
+          resolve(value);
+        },
+        reject: (error) => {
+          signal2 == null ? void 0 : signal2.removeEventListener("abort", on_abort);
+          reject(error);
+        },
+        on_audio
+      });
+    });
+  }
+  _send(message, transfer = []) {
+    if (!this._worker)
+      throw new Error("Speech engine is not started");
+    this._worker.postMessage(message, transfer);
+  }
+  /** Stops the worker, fails all requests and reports both models as failed */
+  _fail(message) {
+    var _a, _b, _c;
+    (_a = this._worker) == null ? void 0 : _a.terminate();
+    this._worker = void 0;
+    const pending = [...this._pending.values()];
+    this._pending.clear();
+    for (const request of pending)
+      request.reject(new Error(message));
+    (_b = this._events) == null ? void 0 : _b.failed("speech_to_text", message);
+    (_c = this._events) == null ? void 0 : _c.failed("text_to_speech", message);
+  }
+  _handle(message) {
+    var _a, _b, _c;
+    switch (message.type) {
+      case "ready":
+        return (_a = this._events) == null ? void 0 : _a.ready(message.model);
+      case "failed":
+        return (_b = this._events) == null ? void 0 : _b.failed(message.model, message.message);
+    }
+    const pending = this._pending.get(message.id);
+    if (!pending)
+      return;
+    switch (message.type) {
+      case "audio":
+        return (_c = pending.on_audio) == null ? void 0 : _c.call(pending, message.samples, message.sample_rate);
+      case "transcript":
+        this._pending.delete(message.id);
+        return pending.resolve(message.text);
+      case "done":
+        this._pending.delete(message.id);
+        return pending.resolve("");
+      case "error":
+        this._pending.delete(message.id);
+        return pending.reject(new Error(message.message));
+    }
+  }
+};
+_SpeechEngine.\u0275fac = function SpeechEngine_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _SpeechEngine)();
+};
+_SpeechEngine.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _SpeechEngine, factory: _SpeechEngine.\u0275fac, providedIn: "root" });
+var SpeechEngine = _SpeechEngine;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SpeechEngine, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], null, null);
+})();
+
+// apps/control/src/app/ui/speech/speech-player.ts
+var START_DELAY = 0.05;
+var CHIME_NOTES = [660, 880];
+var CHIME_NOTE_LENGTH = 0.09;
+var CHIME_VOLUME = 0.2;
+var _SpeechPlayer = class _SpeechPlayer {
+  constructor() {
+    this._capture = inject(MicCapture);
+    this._sources = /* @__PURE__ */ new Set();
+    this._end_time = 0;
+    this._busy_until = 0;
+  }
+  /** Time in milliseconds (as `Date.now()`) when the queued audio ends */
+  get busy_until() {
+    return this._busy_until;
+  }
+  play(samples, sample_rate) {
+    const context = this._capture.context;
+    if (!context)
+      return;
+    if (context !== this._context)
+      this._end_time = 0;
+    this._context = context;
+    const buffer = context.createBuffer(1, samples.length, sample_rate);
+    buffer.copyToChannel(samples, 0);
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.onended = () => this._sources.delete(source);
+    const start = Math.max(this._end_time, context.currentTime + START_DELAY);
+    source.start(start);
+    this._sources.add(source);
+    this._end_time = start + buffer.duration;
+    this._busy_until = Date.now() + (this._end_time - context.currentTime) * 1e3;
+  }
+  /**
+   * Plays two short rising tones to show that the assistant is listening.
+   * The microphone stays open, so the speaker can start at once.
+   * Echo cancellation removes the tones from the microphone input.
+   */
+  chime() {
+    const context = this._capture.context;
+    if (!context)
+      return;
+    const start = context.currentTime + START_DELAY;
+    CHIME_NOTES.forEach((frequency, i) => {
+      const time = start + i * CHIME_NOTE_LENGTH;
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(CHIME_VOLUME, time + 0.01);
+      gain.gain.exponentialRampToValueAtTime(1e-3, time + CHIME_NOTE_LENGTH * 1.5);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(time);
+      oscillator.stop(time + CHIME_NOTE_LENGTH * 1.5);
+    });
+  }
+  /** Stops all queued audio */
+  stop() {
+    for (const source of this._sources) {
+      source.onended = null;
+      source.stop();
+    }
+    this._sources.clear();
+    this._end_time = 0;
+    this._busy_until = Math.min(this._busy_until, Date.now());
+  }
+};
+_SpeechPlayer.\u0275fac = function SpeechPlayer_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _SpeechPlayer)();
+};
+_SpeechPlayer.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _SpeechPlayer, factory: _SpeechPlayer.\u0275fac, providedIn: "root" });
+var SpeechPlayer = _SpeechPlayer;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SpeechPlayer, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], null, null);
+})();
+
 // apps/control/src/app/ui/voice-assistant.service.ts
 var WAITING_PHRASES = ["One second...", "One moment...", "Working on it..."];
+var WAKE_KEYWORD = "Hey Room";
 var WAKE_PHRASES = [
-  `hey place`,
-  `hey please`,
-  `hey plays`,
-  `a place`,
-  `who place`,
-  `who plays`,
-  `who please`,
-  `he plays`,
-  `hit plays`,
-  `can you please`
+  "heyroom",
+  "hayroom",
+  "heyrooms",
+  "heyrum",
+  "heyrome",
+  "hiroom"
 ];
-var FATAL_ERRORS = [
-  "not-allowed",
-  "service-not-allowed",
-  "audio-capture",
-  "language-not-supported"
-];
+var MAX_WAKE_WORDS = 2;
 var LISTEN_TIMEOUT = 8 * 1e3;
+var NOT_HEARD_MESSAGE = "Sorry, I didn't catch that.";
 var RESPONSE_TIMEOUT = 60 * 1e3;
 var ECHO_DELAY = 1e3;
-var NETWORK_RETRY_DELAY = 5 * 1e3;
 var MAX_CONNECT_ATTEMPTS = 20;
 function htmlToText(html) {
   var _a;
@@ -462,10 +881,23 @@ function htmlToText(html) {
   const doc = new DOMParser().parseFromString(html, "text/html");
   return ((_a = doc.body.textContent) == null ? void 0 : _a.trim()) || "";
 }
+function normalizeTranscript(text) {
+  return text.toLowerCase().replace(/[^\p{L}\p{N}'%\s]/gu, " ").replace(/\s+/g, " ").trim();
+}
+function parseWakePhrase(transcript) {
+  const words = normalizeTranscript(transcript).split(" ");
+  for (let count = Math.min(MAX_WAKE_WORDS, words.length); count > 0; count--) {
+    if (WAKE_PHRASES.includes(words.slice(0, count).join(""))) {
+      return words.slice(count).join(" ");
+    }
+  }
+  return void 0;
+}
 var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
   constructor() {
     super();
     this._chat_service = inject(ChatService);
+    this._settings = inject(SettingsService);
     this._system_id = signal(
       "",
       ...ngDevMode ? [{ debugName: "_system_id" }] : (
@@ -506,11 +938,54 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
     this.error = this._error.asReadonly();
     this.state = this._state.asReadonly();
     this.progress = this._chat_service.progress;
+    this._hearing = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_hearing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._transcribing = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "_transcribing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._live_text = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_live_text" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.hearing = this._hearing.asReadonly();
+    this.live_text = this._live_text.asReadonly();
+    this.transcribing = computed(
+      () => this._transcribing() > 0,
+      ...ngDevMode ? [{ debugName: "transcribing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._ready = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_ready" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.ready = this._ready.asReadonly();
     this._mic_levels = new MicLevels();
     this.levels_ready = this._mic_levels.ready;
+    this._engine = inject(SpeechEngine);
+    this._capture = inject(MicCapture);
+    this._player = inject(SpeechPlayer);
+    this._voice_on = false;
+    this._session = 0;
     this._last_message_id = "";
-    this._speaking_until = 0;
-    this._restart_delay = 0;
+    this._phrase_id = 0;
+    this._streamed_phrase_id = -1;
     let bound_id = "";
     effect(() => {
       const id = this._system_id();
@@ -539,20 +1014,20 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
     effect(() => {
       const enabled = this._enabled();
       if (enabled)
-        this._setupVoiceRecognition();
+        untracked(() => void this._startVoice());
       else
-        this._teardownVoiceRecognition();
+        untracked(() => this._stopVoice());
     });
     effect(() => {
-      if (this._state() === "listening")
-        void this._mic_levels.open();
-      else
+      const { context, stream } = this._capture;
+      if (this._state() === "listening" && context && stream) {
+        this._mic_levels.open(context, stream);
+      } else
         this._mic_levels.close();
     });
   }
   destroy() {
-    this._teardownVoiceRecognition();
-    this._mic_levels.close();
+    this._stopVoice();
     super.destroy();
   }
   /** Returns microphone levels from 0 to 1, one per bar. Read once per animation frame. */
@@ -567,24 +1042,26 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
     }
     this.clearTimeout("set_enabled");
     this._enabled.set(false);
-    this._teardownVoiceRecognition();
+    this._stopVoice();
   }
   setBinding(system_id) {
     this._system_id.set(system_id);
   }
   /** Toggles listening for a command without the wake phrase. Used by the mic button. */
   activate() {
-    var _a;
-    if (this._error().speech_recognition)
+    if (this._error().speech_recognition || !this._ready())
       return;
+    this._capture.resume();
     if (this._state() === "listening")
       return this._setIdle();
-    (_a = window.speechSynthesis) == null ? void 0 : _a.cancel();
+    this._stopSpeaking();
+    this._player.chime();
     this._listen();
   }
-  _listen() {
+  /** Waits for a command. `message` shows in place of "Listening...". */
+  _listen(message = "") {
     this._state.set("listening");
-    this._current_text.set("");
+    this._current_text.set(message);
     this.timeout("state", () => this._setIdle(), LISTEN_TIMEOUT);
   }
   _setIdle() {
@@ -592,99 +1069,127 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
     this.clearTimeout("send");
     this._state.set("idle");
     this._current_text.set("");
+    this._live_text.set("");
+  }
+  _setError(model) {
+    this._error.update((error) => __spreadProps(__spreadValues({}, error), {
+      [model === "speech_to_text" ? "speech_recognition" : "speech_synthesis"]: true
+    }));
   }
   /** Returns true while our own voice can reach the microphone */
   _isSpeaking() {
-    var _a;
-    return !!((_a = window.speechSynthesis) == null ? void 0 : _a.speaking) || Date.now() < this._speaking_until;
+    return Date.now() < this._player.busy_until + ECHO_DELAY;
   }
-  _setupVoiceRecognition() {
-    var _a;
-    const speech_window = window;
-    const SpeechRecognition = speech_window.SpeechRecognition || speech_window.webkitSpeechRecognition;
-    if (this._user_speech)
+  async _startVoice() {
+    if (this._voice_on || this._error().speech_recognition)
       return;
-    if (!SpeechRecognition) {
-      log("VOICE", "Speech recognition is unavailable.", void 0, "warn");
-      this._error.update((error) => __spreadProps(__spreadValues({}, error), {
-        speech_recognition: true
-      }));
-      return;
+    if (!window.Worker || !window.AudioWorkletNode) {
+      log("VOICE", "Voice control is unavailable.", void 0, "warn");
+      return this._setError("speech_to_text");
     }
-    log("VOICE", "Initialising speech recognition.");
-    (_a = window.speechSynthesis) == null ? void 0 : _a.getVoices();
-    const speech = new SpeechRecognition();
-    this._user_speech = speech;
-    speech.continuous = false;
-    speech.lang = navigator.language || "en-US";
-    speech.interimResults = true;
-    speech.maxAlternatives = 1;
-    speech.onresult = (event) => {
-      var _a2;
-      this._restart_delay = 0;
-      if (this._isSpeaking())
+    this._voice_on = true;
+    const session = this._session;
+    try {
+      await this._capture.start({
+        start: () => this._onSpeechStart(),
+        progress: (audio) => this._onSpeechProgress(audio),
+        end: (phrase) => this._onSpeechEnd(phrase)
+      }, () => this._isSpeaking());
+    } catch (error) {
+      if (session !== this._session)
         return;
-      const result = event.results[0];
-      const transcript = ((_a2 = result[0].transcript) == null ? void 0 : _a2.toLowerCase().trim()) || "";
-      const wake_phrase = WAKE_PHRASES.find((_) => transcript.startsWith(_));
-      const is_listening = this._state() === "listening";
-      if (!is_listening && !wake_phrase)
-        return;
-      const command = transcript.substring((wake_phrase == null ? void 0 : wake_phrase.length) || 0).trim();
-      if (!result.isFinal) {
-        if (!is_listening)
-          this._listen();
-        this._current_text.set(command);
-        return;
-      }
-      if (command.length <= 3) {
-        this._listen();
-        this._speakText("How may I help you?");
-        return;
-      }
-      this._sendCommand(command);
-    };
-    speech.onerror = (event) => {
-      if (event.error === "no-speech" || event.error === "aborted") {
-        return;
-      }
-      log("VOICE", "Speech Recognition Error:", event.error, "warn");
-      if (event.error === "network") {
-        this._restart_delay = NETWORK_RETRY_DELAY;
-      }
-      if (!FATAL_ERRORS.includes(event.error))
-        return;
-      this._error.update((error) => __spreadProps(__spreadValues({}, error), {
-        speech_recognition: true
-      }));
-      this._setIdle();
-    };
-    speech.onend = () => {
-      if (this._error().speech_recognition)
-        return;
-      this.timeout("restart", () => {
-        var _a2;
-        try {
-          (_a2 = this._user_speech) == null ? void 0 : _a2.start();
-        } catch {
-        }
-      }, this._restart_delay);
-    };
-    speech.start();
-    log("VOICE", "Listening for commands.");
-  }
-  _teardownVoiceRecognition() {
-    this.clearTimeout("restart");
-    this._setIdle();
-    const speech = this._user_speech;
-    if (!speech)
+      log("VOICE", "Unable to open the microphone:", error, "warn");
+      this._setError("speech_to_text");
+      return this._stopVoice();
+    }
+    if (session !== this._session)
       return;
-    speech.onresult = null;
-    speech.onerror = null;
-    speech.onend = null;
-    speech.abort();
-    this._user_speech = void 0;
+    log("VOICE", "Listening for commands.");
+    const mirror = this._settings.get("app.voice_models_url");
+    this._engine.start({
+      wasm_url: new URL("assets/litert/", document.baseURI).href,
+      needle_url: new URL("assets/needle/needle.js", document.baseURI).href,
+      mirror_url: mirror ? new URL(mirror, document.baseURI).href : "",
+      cached_phrases: WAITING_PHRASES,
+      keywords: WAKE_KEYWORD
+    }, {
+      ready: (model) => {
+        log("VOICE", `Loaded ${model} model.`);
+        if (model === "speech_to_text")
+          this._ready.set(true);
+      },
+      failed: (model, message) => {
+        log("VOICE", `Unable to load ${model}:`, message, "warn");
+        this._setError(model);
+        if (model !== "speech_to_text")
+          return;
+        this._ready.set(false);
+        this._stopVoice();
+      }
+    });
+  }
+  _stopVoice() {
+    this._setIdle();
+    if (!this._voice_on)
+      return;
+    this._voice_on = false;
+    this._session++;
+    this._hearing.set(false);
+    this._stopSpeaking();
+    this._mic_levels.close();
+    this._capture.stop();
     this._chat_service.endChat();
+  }
+  _onSpeechStart() {
+    if (!this._ready())
+      return;
+    this._hearing.set(true);
+    this._phrase_id++;
+    this._live_text.set("");
+    if (this._state() === "listening")
+      this._listen();
+  }
+  /** Shows the words of a command as they are spoken */
+  _onSpeechProgress(audio) {
+    if (!this._ready() || this._state() !== "listening")
+      return;
+    const phrase_id = this._phrase_id;
+    const reset = phrase_id !== this._streamed_phrase_id;
+    this._streamed_phrase_id = phrase_id;
+    this._engine.stream(audio, reset).then((text) => {
+      const is_current = phrase_id === this._phrase_id && this._state() === "listening";
+      if (is_current)
+        this._live_text.set(text);
+    }, (error) => log("VOICE", "Live transcription error:", error, "warn"));
+  }
+  _onSpeechEnd(phrase) {
+    this._hearing.set(false);
+    this._phrase_id++;
+    if (!phrase || !this._ready())
+      return this._live_text.set("");
+    const session = this._session;
+    if (this._state() === "listening")
+      this._listen();
+    this._transcribing.update((count) => count + 1);
+    this._engine.transcribe(phrase).then((text) => session === this._session && this._onTranscript(text), (error) => log("VOICE", "Speech recognition error:", error, "warn")).finally(() => this._transcribing.update((count) => count - 1));
+  }
+  _onTranscript(text) {
+    this._live_text.set("");
+    const heard = normalizeTranscript(text);
+    const is_listening = this._state() === "listening";
+    if (!heard && !is_listening)
+      return;
+    const wake_command = parseWakePhrase(heard);
+    const next = wake_command ?? (is_listening ? heard : void 0);
+    if (next === void 0)
+      return;
+    if (next.length > 3)
+      return this._sendCommand(next);
+    if (wake_command !== void 0) {
+      this._player.chime();
+      return this._listen();
+    }
+    this._listen(NOT_HEARD_MESSAGE);
   }
   _sendCommand(command, attempt = 0) {
     this._state.set("processing");
@@ -706,27 +1211,24 @@ var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
       this._setIdle();
     }, RESPONSE_TIMEOUT);
   }
+  _stopSpeaking() {
+    var _a;
+    (_a = this._speech) == null ? void 0 : _a.abort();
+    this._speech = void 0;
+    this._player.stop();
+  }
   _speakText(text) {
-    var _a, _b;
-    const synth = window.speechSynthesis;
-    if (!synth || !("SpeechSynthesisUtterance" in window)) {
-      log("VOICE", `Speech Synthesis is unavailable.`, void 0, "warn");
-      this._error.update((error) => __spreadProps(__spreadValues({}, error), {
-        speech_synthesis: true
-      }));
+    if (!text)
+      return;
+    if (!this._voice_on || this._error().speech_synthesis) {
+      log("VOICE", "Speech synthesis is unavailable.", void 0, "warn");
       return;
     }
     log("VOICE", `Response: "${text}"`);
-    synth.cancel();
-    const speech = new SpeechSynthesisUtterance(text);
-    const lang = ((_a = this._user_speech) == null ? void 0 : _a.lang) || navigator.language;
-    const voices = synth.getVoices();
-    speech.voice = voices.find((_) => _.name.includes("Karen")) || voices.find((_) => _.lang === lang) || null;
-    speech.lang = ((_b = speech.voice) == null ? void 0 : _b.lang) || lang;
-    const on_done = () => this._speaking_until = Date.now() + ECHO_DELAY;
-    speech.onend = on_done;
-    speech.onerror = on_done;
-    synth.speak(speech);
+    this._stopSpeaking();
+    const speech = new AbortController();
+    this._speech = speech;
+    this._engine.synthesize(text, (samples, sample_rate) => this._player.play(samples, sample_rate), speech.signal).catch((error) => log("VOICE", "Speech synthesis error:", error, "warn"));
   }
 };
 _VoiceAssistantService.\u0275fac = function VoiceAssistantService_Factory(__ngFactoryType__) {
@@ -778,9 +1280,9 @@ function VoiceAssistantComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275conditional(ctx_r1.state() === "listening" ? 0 : -1);
     \u0275\u0275advance();
-    \u0275\u0275classProp("animate-pulse", ctx_r1.state() === "processing");
+    \u0275\u0275classProp("animate-pulse", ctx_r1.state() === "processing" || !ctx_r1.ready());
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r1.state() === "processing" ? "graphic_eq" : "mic");
+    \u0275\u0275textInterpolate(ctx_r1.icon());
   }
 }
 function VoiceAssistantComponent_Conditional_0_Conditional_4_Template(rf, ctx) {
@@ -817,15 +1319,16 @@ function VoiceAssistantComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    let tmp_9_0;
+    let tmp_11_0;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("bg-base-400", ctx_r1.state() === "idle")("bg-success", ctx_r1.state() === "listening")("text-success-content", ctx_r1.state() === "listening")("bg-info", ctx_r1.state() === "processing")("text-info-content", ctx_r1.state() === "processing");
+    \u0275\u0275classProp("bg-base-400", ctx_r1.state() === "idle")("ring-4", ctx_r1.hearing())("bg-success", ctx_r1.state() === "listening")("text-success-content", ctx_r1.state() === "listening")("bg-info", ctx_r1.state() === "processing")("text-info-content", ctx_r1.state() === "processing");
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.show_bars() ? 1 : 2);
     \u0275\u0275advance(2);
-    \u0275\u0275attribute("aria-label", ctx_r1.state() === "listening" ? "Stop listening" : "Give a voice command")("aria-pressed", ctx_r1.state() === "listening");
+    \u0275\u0275property("disabled", !ctx_r1.ready());
+    \u0275\u0275attribute("aria-label", !ctx_r1.ready() ? "Voice control is loading" : ctx_r1.state() === "listening" ? "Stop listening" : "Give a voice command")("aria-pressed", ctx_r1.state() === "listening");
     \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_9_0 = ctx_r1.status()) ? 4 : -1, tmp_9_0);
+    \u0275\u0275conditional((tmp_11_0 = ctx_r1.status()) ? 4 : -1, tmp_11_0);
   }
 }
 var PROGRESS_ICONS = {
@@ -852,6 +1355,19 @@ var _VoiceAssistantComponent = class _VoiceAssistantComponent {
     );
     this.activate = () => this._service.activate();
     this.state = this._service.state;
+    this.hearing = this._service.hearing;
+    this.ready = this._service.ready;
+    this.icon = computed(
+      () => {
+        if (!this.ready())
+          return "hourglass_empty";
+        return this.state() === "processing" ? "graphic_eq" : "mic";
+      },
+      ...ngDevMode ? [{ debugName: "icon" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.bars = new Array(MIC_LEVEL_BARS);
     this.show_bars = computed(
       () => this.state() === "listening" && this._service.levels_ready(),
@@ -881,13 +1397,26 @@ var _VoiceAssistantComponent = class _VoiceAssistantComponent {
       () => {
         const text = this._service.current_text();
         switch (this.state()) {
-          case "listening":
+          case "listening": {
+            const live = this._service.live_text();
+            const busy = this._service.hearing() || this._service.transcribing();
+            if (live && busy) {
+              const words = live.replace(/[.,!?]+$/, "");
+              return { icon: "graphic_eq", message: `\u201C${words}\u2026\u201D` };
+            }
+            if (this._service.hearing()) {
+              return { icon: "graphic_eq", message: "Hearing you..." };
+            }
+            if (this._service.transcribing()) {
+              return { icon: "pending", message: "Processing..." };
+            }
             return { icon: "hearing", message: text || "Listening..." };
+          }
           case "processing": {
             const progress = this._service.progress();
             return {
               icon: PROGRESS_ICONS[progress == null ? void 0 : progress.function] || "pending",
-              message: (progress == null ? void 0 : progress.message) || text || "Working on it..."
+              message: (progress == null ? void 0 : progress.message) || (text ? `\u201C${text}\u201D` : "Working on it...")
             };
           }
           default:
@@ -938,9 +1467,9 @@ _VoiceAssistantComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, inputs: { system_id: [1, "system_id"], enabled: [1, "enabled"] }, decls: 1, vars: 1, consts: [["bar", ""], [1, "relative", "m-4", "flex", "h-12", "w-12", "items-center", "justify-center", "overflow-visible", "rounded-full", "transition-colors", 3, "bg-base-400", "bg-success", "text-success-content", "bg-info", "text-info-content"], [1, "relative", "m-4", "flex", "h-12", "w-12", "items-center", "justify-center", "overflow-visible", "rounded-full", "transition-colors"], ["aria-hidden", "true", 1, "relative", "flex", "h-6", "items-center", "space-x-0.5"], ["matRipple", "", 1, "absolute", "inset-0", "rounded-full", "opacity-0", 3, "click"], ["role", "status", "aria-live", "polite", 1, "bg-base-100", "text-base-content", "absolute", "top-1/2", "right-full", "mr-2", "flex", "w-max", "max-w-[30vw]", "-translate-y-1/2", "items-center", "space-x-2", "rounded-xl", "p-2", "shadow-sm"], [1, "block", "h-full", "w-1", "rounded-full", "bg-current", 2, "transform", "scaleY(0.15)"], [1, "bg-success", "absolute", "inline-flex", "h-10", "w-10", "animate-ping", "rounded-full", "opacity-75"], [1, "relative", "text-2xl"], [1, "text-2xl"], [1, "line-clamp-2", "pr-2", "text-sm"]], template: function VoiceAssistantComponent_Template(rf, ctx) {
+}, inputs: { system_id: [1, "system_id"], enabled: [1, "enabled"] }, decls: 1, vars: 1, consts: [["bar", ""], [1, "ring-success", "relative", "m-4", "flex", "h-12", "w-12", "items-center", "justify-center", "overflow-visible", "rounded-full", "transition", 3, "bg-base-400", "ring-4", "bg-success", "text-success-content", "bg-info", "text-info-content"], [1, "ring-success", "relative", "m-4", "flex", "h-12", "w-12", "items-center", "justify-center", "overflow-visible", "rounded-full", "transition"], ["aria-hidden", "true", 1, "relative", "flex", "h-6", "items-center", "space-x-0.5"], ["matRipple", "", 1, "absolute", "inset-0", "rounded-full", "opacity-0", 3, "click", "disabled"], ["role", "status", "aria-live", "polite", 1, "bg-base-100", "text-base-content", "absolute", "top-1/2", "right-full", "mr-2", "flex", "w-max", "max-w-[30vw]", "-translate-y-1/2", "items-center", "space-x-2", "rounded-xl", "p-2", "shadow-sm"], [1, "block", "h-full", "w-1", "rounded-full", "bg-current", 2, "transform", "scaleY(0.15)"], [1, "bg-success", "absolute", "inline-flex", "h-10", "w-10", "animate-ping", "rounded-full", "opacity-75"], [1, "relative", "text-2xl"], [1, "text-2xl"], [1, "line-clamp-2", "pr-2", "text-sm"]], template: function VoiceAssistantComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, VoiceAssistantComponent_Conditional_0_Template, 5, 14, "div", 1);
+    \u0275\u0275conditionalCreate(0, VoiceAssistantComponent_Conditional_0_Template, 5, 17, "div", 1);
   }
   if (rf & 2) {
     \u0275\u0275conditional(ctx.available() ? 0 : -1);
@@ -953,8 +1482,9 @@ var VoiceAssistantComponent = _VoiceAssistantComponent;
     args: [{ selector: "voice-assistant", template: `
         @if (available()) {
             <div
-                class="relative m-4 flex h-12 w-12 items-center justify-center overflow-visible rounded-full transition-colors"
+                class="ring-success relative m-4 flex h-12 w-12 items-center justify-center overflow-visible rounded-full transition"
                 [class.bg-base-400]="state() === 'idle'"
+                [class.ring-4]="hearing()"
                 [class.bg-success]="state() === 'listening'"
                 [class.text-success-content]="state() === 'listening'"
                 [class.bg-info]="state() === 'processing'"
@@ -981,19 +1511,22 @@ var VoiceAssistantComponent = _VoiceAssistantComponent;
                     }
                     <icon
                         class="relative text-2xl"
-                        [class.animate-pulse]="state() === 'processing'"
-                        >{{
-                            state() === 'processing' ? 'graphic_eq' : 'mic'
-                        }}</icon
+                        [class.animate-pulse]="
+                            state() === 'processing' || !ready()
+                        "
+                        >{{ icon() }}</icon
                     >
                 }
                 <button
                     matRipple
                     class="absolute inset-0 rounded-full opacity-0"
+                    [disabled]="!ready()"
                     [attr.aria-label]="
-                        state() === 'listening'
-                            ? 'Stop listening'
-                            : 'Give a voice command'
+                        !ready()
+                            ? 'Voice control is loading'
+                            : state() === 'listening'
+                              ? 'Stop listening'
+                              : 'Give a voice command'
                     "
                     [attr.aria-pressed]="state() === 'listening'"
                     (click)="activate(); $event.stopPropagation()"
@@ -1016,7 +1549,7 @@ var VoiceAssistantComponent = _VoiceAssistantComponent;
   }], () => [], { system_id: [{ type: Input, args: [{ isSignal: true, alias: "system_id", required: false }] }], enabled: [{ type: Input, args: [{ isSignal: true, alias: "enabled", required: false }] }], _bar_els: [{ type: ViewChildren, args: ["bar", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VoiceAssistantComponent, { className: "VoiceAssistantComponent", filePath: "apps/control/src/app/ui/voice-assistant.component.ts", lineNumber: 104 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VoiceAssistantComponent, { className: "VoiceAssistantComponent", filePath: "apps/control/src/app/ui/voice-assistant.component.ts", lineNumber: 108 });
 })();
 
 // apps/control/src/app/ui/camera-controls.component.ts
@@ -2888,5 +3421,5 @@ var ControlTabbedViewComponent = _ControlTabbedViewComponent;
 export {
   ControlTabbedViewComponent
 };
-//# debugId=32d5edfa-31bc-510e-9073-70d52ccea7db
-//# sourceMappingURL=tabbed-view.component-VSQNTWXT.js.map
+//# debugId=6b91c9f5-4ee4-52c7-957f-d3a9f004308e
+//# sourceMappingURL=tabbed-view.component-5CLEG2NS.js.map
