@@ -1,10 +1,11 @@
 import {
   RemoteLoggingService
-} from "./chunk-XWKUMSVQ.js";
+} from "./chunk-74MCOHQX.js";
 import {
   generateQRCode
 } from "./chunk-U4IEQFFG.js";
 import {
+  AuthenticatedImageDirective,
   EXTEND_MINUTES,
   PanelStateService,
   burnInOffset,
@@ -20,26 +21,26 @@ import {
   timelineData,
   timelineSlot,
   timelineStart
-} from "./chunk-B5WFT75G.js";
+} from "./chunk-LOOWG4QK.js";
 import "./chunk-MA37NEPF.js";
 import "./chunk-B6NP4TM3.js";
 import "./chunk-OCGKT4ZN.js";
 import "./chunk-AGO5H32A.js";
 import "./chunk-L4NHQOZX.js";
 import "./chunk-RP3WHZSJ.js";
-import "./chunk-7GU6CKKH.js";
+import "./chunk-TRRDA6YR.js";
 import {
   TranslatePipe
-} from "./chunk-AALDW5PU.js";
+} from "./chunk-4IQY6W6S.js";
 import "./chunk-23SNESJ7.js";
 import {
   VERSION
-} from "./chunk-XI6JXUR7.js";
+} from "./chunk-PZ6CAKBN.js";
 import {
   AsyncHandler,
   notifyError,
   startOfMinute
-} from "./chunk-DUCEPKUF.js";
+} from "./chunk-LIY5SEBT.js";
 import {
   IconComponent,
   SafePipe
@@ -82,7 +83,6 @@ import {
   ɵɵdomElementEnd,
   ɵɵdomElementStart,
   ɵɵdomListener,
-  ɵɵdomProperty,
   ɵɵelement,
   ɵɵelementContainerEnd,
   ɵɵelementContainerStart,
@@ -379,19 +379,22 @@ var PanelViewActionsComponent = _PanelViewActionsComponent;
 var _c02 = (a0) => ({ time: a0 });
 function PanelViewDetailsComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275domElement(0, "div", 10);
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275element(1, "img", 10);
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275styleProp("background-image", "url(" + ctx_r0.room_image + ")");
+    \u0275\u0275advance();
+    \u0275\u0275property("source", ctx_r0.room_image);
   }
 }
 function PanelViewDetailsComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275domElementStart(0, "div", 12);
+    \u0275\u0275elementStart(0, "div", 12);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275domElementEnd();
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     \u0275\u0275advance();
@@ -400,29 +403,29 @@ function PanelViewDetailsComponent_Conditional_6_Conditional_2_Template(rf, ctx)
 }
 function PanelViewDetailsComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275domElementStart(0, "div", 4);
-    \u0275\u0275domElement(1, "img", 11);
+    \u0275\u0275elementStart(0, "div", 4);
+    \u0275\u0275element(1, "img", 11);
     \u0275\u0275conditionalCreate(2, PanelViewDetailsComponent_Conditional_6_Conditional_2_Template, 3, 3, "div", 12);
-    \u0275\u0275domElementEnd();
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275domProperty("src", ctx_r0.qr_code(), \u0275\u0275sanitizeUrl);
+    \u0275\u0275property("src", ctx_r0.qr_code(), \u0275\u0275sanitizeUrl);
     \u0275\u0275advance();
     \u0275\u0275conditional(!ctx_r0.hide_qr_text ? 2 : -1);
   }
 }
 function PanelViewDetailsComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275domElementStart(0, "div", 5);
-    \u0275\u0275domElement(1, "div", 13);
-    \u0275\u0275domElementStart(2, "div", 14);
+    \u0275\u0275elementStart(0, "div", 5);
+    \u0275\u0275element(1, "div", 13);
+    \u0275\u0275elementStart(2, "div", 14);
     \u0275\u0275text(3);
-    \u0275\u0275domElementStart(4, "span", 15);
+    \u0275\u0275elementStart(4, "span", 15);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
-    \u0275\u0275domElementEnd()()();
+    \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     \u0275\u0275nextContext();
@@ -436,10 +439,10 @@ function PanelViewDetailsComponent_Conditional_7_Template(rf, ctx) {
 function PanelViewDetailsComponent_Conditional_12_Template(rf, ctx) {
   var _a;
   if (rf & 1) {
-    \u0275\u0275domElementStart(0, "p", 8);
+    \u0275\u0275elementStart(0, "p", 8);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275domElementEnd();
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     \u0275\u0275nextContext();
@@ -450,11 +453,11 @@ function PanelViewDetailsComponent_Conditional_12_Template(rf, ctx) {
 }
 function PanelViewDetailsComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275domElementStart(0, "p", 9);
+    \u0275\u0275elementStart(0, "p", 9);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "date");
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275domElementEnd();
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     \u0275\u0275advance();
@@ -528,24 +531,24 @@ var _PanelViewDetailsComponent = class _PanelViewDetailsComponent extends AsyncH
 _PanelViewDetailsComponent.\u0275fac = function PanelViewDetailsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _PanelViewDetailsComponent)();
 };
-_PanelViewDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PanelViewDetailsComponent, selectors: [["panel-view-details"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 14, vars: 13, consts: [[1, "relative", "h-full", "w-full", "bg-black", "text-white"], [1, "absolute", "inset-0", "bg-cover", "bg-center", 3, "background-image"], [1, "absolute", "inset-0", "bg-black", "opacity-50"], ["name", "", 1, "absolute", "top-4", "left-4", "text-4xl", "font-medium"], ["qr-checkin", "", 1, "absolute", "top-4", "right-4", "z-50", "w-40", "space-y-4", "text-xl"], [1, "absolute", "inset-x-0", "bottom-0", "p-4", "text-center", "text-3xl", "text-white"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-4", "font-normal"], [1, "text-3xl"], [1, "text-4xl"], ["ending-warning", "", 1, "bg-warning", "text-warning-content", "rounded-sm", "px-4", "py-2", "text-2xl"], [1, "absolute", "inset-0", "bg-cover", "bg-center"], [1, "w-full", 3, "src"], [1, "w-full", "text-lg"], [1, "bg-neutral", "absolute", "inset-0", "opacity-30"], [1, "relative"], [1, "font-light"]], template: function PanelViewDetailsComponent_Template(rf, ctx) {
+_PanelViewDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PanelViewDetailsComponent, selectors: [["panel-view-details"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 14, vars: 13, consts: [[1, "relative", "h-full", "w-full", "overflow-hidden", "bg-black", "text-white"], [1, "absolute", "inset-0"], [1, "absolute", "inset-0", "bg-black", "opacity-50"], ["name", "", 1, "absolute", "top-4", "left-4", "text-4xl", "font-medium"], ["qr-checkin", "", 1, "absolute", "top-4", "right-4", "z-50", "w-40", "space-y-4", "text-xl"], [1, "absolute", "inset-x-0", "bottom-0", "p-4", "text-center", "text-3xl", "text-white"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-4", "font-normal"], [1, "text-3xl"], [1, "text-4xl"], ["ending-warning", "", 1, "bg-warning", "text-warning-content", "rounded-sm", "px-4", "py-2", "text-2xl"], ["auth", "", 1, "h-full", "w-full", "object-cover", "object-center", 3, "source"], [1, "w-full", 3, "src"], [1, "w-full", "text-lg"], [1, "bg-neutral", "absolute", "inset-0", "opacity-30"], [1, "relative"], [1, "font-light"]], template: function PanelViewDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275domElementStart(0, "div", 0);
+    \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275declareLet(1);
-    \u0275\u0275conditionalCreate(2, PanelViewDetailsComponent_Conditional_2_Template, 1, 2, "div", 1);
-    \u0275\u0275domElement(3, "div", 2);
-    \u0275\u0275domElementStart(4, "div", 3);
+    \u0275\u0275conditionalCreate(2, PanelViewDetailsComponent_Conditional_2_Template, 2, 1, "div", 1);
+    \u0275\u0275element(3, "div", 2);
+    \u0275\u0275elementStart(4, "div", 3);
     \u0275\u0275text(5);
-    \u0275\u0275domElementEnd();
+    \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(6, PanelViewDetailsComponent_Conditional_6_Template, 3, 2, "div", 4);
     \u0275\u0275conditionalCreate(7, PanelViewDetailsComponent_Conditional_7_Template, 7, 4, "div", 5);
-    \u0275\u0275domElementStart(8, "div", 6)(9, "p", 7);
+    \u0275\u0275elementStart(8, "div", 6)(9, "p", 7);
     \u0275\u0275text(10);
     \u0275\u0275pipe(11, "date");
-    \u0275\u0275domElementEnd();
+    \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(12, PanelViewDetailsComponent_Conditional_12_Template, 3, 4, "p", 8);
     \u0275\u0275conditionalCreate(13, PanelViewDetailsComponent_Conditional_13_Template, 4, 9, "p", 9);
-    \u0275\u0275domElementEnd()();
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     let tmp_9_0;
@@ -569,20 +572,23 @@ _PanelViewDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompone
     \u0275\u0275advance();
     \u0275\u0275conditional((tmp_9_0 = ctx.ending_next()) ? 13 : -1, tmp_9_0);
   }
-}, dependencies: [CommonModule, DatePipe, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n}\n/*# sourceMappingURL=panel-view-details.component.css.map */"], changeDetection: 1 });
+}, dependencies: [CommonModule, AuthenticatedImageDirective, DatePipe, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n}\n/*# sourceMappingURL=panel-view-details.component.css.map */"], changeDetection: 1 });
 var PanelViewDetailsComponent = _PanelViewDetailsComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PanelViewDetailsComponent, [{
     type: Component,
     args: [{ selector: "panel-view-details", template: `
-        <div class="relative h-full w-full bg-black text-white">
+        <div class="relative h-full w-full overflow-hidden bg-black text-white">
             @let cur = current();
             @let sys = system();
             @if (room_image) {
-                <div
-                    class="absolute inset-0 bg-cover bg-center"
-                    [style.background-image]="'url(' + room_image + ')'"
-                ></div>
+                <div class="absolute inset-0">
+                    <img
+                        auth
+                        class="h-full w-full object-cover object-center"
+                        [source]="room_image"
+                    />
+                </div>
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div name class="absolute top-4 left-4 text-4xl font-medium">
@@ -643,11 +649,11 @@ var PanelViewDetailsComponent = _PanelViewDetailsComponent;
                 }
             </div>
         </div>
-    `, changeDetection: ChangeDetectionStrategy.Eager, imports: [CommonModule, TranslatePipe], styles: ["/* angular:styles/component:css;aca37b045377af9e61ae87ec9ceba230614f528def48741d3190431076d12a3b;/home/runner/work/user-interfaces/user-interfaces/apps/booking-panel/src/app/new-panel/panel-view-details.component.ts */\n:host {\n  display: block;\n}\n/*# sourceMappingURL=panel-view-details.component.css.map */\n"] }]
+    `, changeDetection: ChangeDetectionStrategy.Eager, imports: [CommonModule, TranslatePipe, AuthenticatedImageDirective], styles: ["/* angular:styles/component:css;aca37b045377af9e61ae87ec9ceba230614f528def48741d3190431076d12a3b;/home/runner/work/user-interfaces/user-interfaces/apps/booking-panel/src/app/new-panel/panel-view-details.component.ts */\n:host {\n  display: block;\n}\n/*# sourceMappingURL=panel-view-details.component.css.map */\n"] }]
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PanelViewDetailsComponent, { className: "PanelViewDetailsComponent", filePath: "apps/booking-panel/src/app/new-panel/panel-view-details.component.ts", lineNumber: 102 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PanelViewDetailsComponent, { className: "PanelViewDetailsComponent", filePath: "apps/booking-panel/src/app/new-panel/panel-view-details.component.ts", lineNumber: 108 });
 })();
 
 // apps/booking-panel/src/app/new-panel/panel-view-status.component.ts
@@ -1967,5 +1973,5 @@ var PanelViewComponent = _PanelViewComponent;
 export {
   PanelViewComponent
 };
-//# debugId=4069e108-ca78-54f3-9d13-fb4871ac0112
-//# sourceMappingURL=panel-view.component-5SXZ6TMZ.js.map
+//# debugId=1c9abe88-a115-5b96-b4d3-fe24b78fcda9
+//# sourceMappingURL=panel-view.component-5LA2NJZE.js.map

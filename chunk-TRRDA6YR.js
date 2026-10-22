@@ -1,7 +1,7 @@
 import {
   OrganisationService,
   Space
-} from "./chunk-XI6JXUR7.js";
+} from "./chunk-PZ6CAKBN.js";
 import {
   Aa,
   Sa,
@@ -9,15 +9,17 @@ import {
   predictableRandomInt,
   toDate,
   xa
-} from "./chunk-DUCEPKUF.js";
+} from "./chunk-LIY5SEBT.js";
 import {
   Pipe,
+  catchError,
   from,
   map,
   of,
   setClassMetadata,
   shareReplay,
   tap,
+  throwError,
   ɵɵdefinePipe,
   ɵɵdirectiveInject
 } from "./chunk-ZYVW5CFU.js";
@@ -182,7 +184,16 @@ function requestSpacesForZone(id) {
     zone_id: id,
     limit: 500,
     signage: false
-  })).pipe(map((_) => (_.data || []).map((_2) => new Space(_2))), tap((_) => updateSpaceList(_)), shareReplay(1));
+  })).pipe(
+    map((_) => (_.data || []).map((_2) => new Space(_2))),
+    tap((_) => updateSpaceList(_)),
+    // Drop a failed request so that a retry queries the API again
+    catchError((e) => {
+      delete SPACE_LIST_REQUESTS[id];
+      return throwError(() => e);
+    }),
+    shareReplay(1)
+  );
   return SPACE_LIST_REQUESTS[id];
 }
 var SPACE_COUNT = 0;
@@ -225,5 +236,5 @@ export {
   requestSpacesForZone,
   generateMockSpace
 };
-//# debugId=7ec8f844-8bbf-5677-a050-4bf0c614888a
-//# sourceMappingURL=chunk-7GU6CKKH.js.map
+//# debugId=cacfce40-544d-5c8b-be76-0574eebda691
+//# sourceMappingURL=chunk-TRRDA6YR.js.map

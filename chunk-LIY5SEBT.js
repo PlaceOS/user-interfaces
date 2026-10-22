@@ -5500,13 +5500,13 @@ function getItemWithKeys(keys, map2) {
   return null;
 }
 function unique(array = [], key = "") {
-  const keys = [];
+  const keys = /* @__PURE__ */ new Set();
   return array.filter((el) => {
     const id = key ? el[key] : el;
-    const exists = keys.includes(id);
-    if (!exists)
-      keys.push(id);
-    return !exists;
+    if (keys.has(id))
+      return false;
+    keys.add(id);
+    return true;
   });
 }
 function randomInt(ceil, floor = 0) {
@@ -6416,5 +6416,5 @@ export {
   setupFormTimeSync,
   HotkeysService
 };
-//# debugId=d12b8be7-fd0c-58b0-bc48-8141bf89de18
-//# sourceMappingURL=chunk-DUCEPKUF.js.map
+//# debugId=c7445c9d-6d10-50ca-8139-7a9e6084ed9b
+//# sourceMappingURL=chunk-LIY5SEBT.js.map

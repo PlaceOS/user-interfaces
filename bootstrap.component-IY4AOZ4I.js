@@ -18,17 +18,17 @@ import {
 } from "./chunk-RP3WHZSJ.js";
 import {
   TranslatePipe
-} from "./chunk-AALDW5PU.js";
+} from "./chunk-4IQY6W6S.js";
 import "./chunk-23SNESJ7.js";
 import {
   OrganisationService,
   Space,
   VERSION
-} from "./chunk-XI6JXUR7.js";
+} from "./chunk-PZ6CAKBN.js";
 import {
   AsyncHandler,
   Sa
-} from "./chunk-DUCEPKUF.js";
+} from "./chunk-LIY5SEBT.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -536,4 +536,4 @@ export {
   BootstrapComponent
 };
 //# debugId=116aa8b4-cde1-53d0-b0c7-79503af8facf
-//# sourceMappingURL=bootstrap.component-NV4ES3SI.js.map
+//# sourceMappingURL=bootstrap.component-IY4AOZ4I.js.map
