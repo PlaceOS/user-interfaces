@@ -1,19 +1,19 @@
 import {
   SignageTemplateService
-} from "./chunk-5OZ2HFI6.js";
-import "./chunk-VRCN7NJD.js";
+} from "./chunk-CQ3XLCAD.js";
+import "./chunk-V3OAO5CA.js";
 import {
   CommandPaletteService
-} from "./chunk-O4T7LXXX.js";
-import "./chunk-UFKD46CB.js";
+} from "./chunk-U24UM64B.js";
+import "./chunk-HFXJOON2.js";
 import {
   openConfirmModal
-} from "./chunk-XWBQPAFX.js";
+} from "./chunk-6KAJ5277.js";
 import {
   SignageContextService
-} from "./chunk-KIGOXSDX.js";
+} from "./chunk-CUVMEQL2.js";
 import "./chunk-TBOC4YOL.js";
-import "./chunk-FU2PIEPM.js";
+import "./chunk-UBQK5CGA.js";
 import "./chunk-EG7MK7GQ.js";
 import {
   MatDialog
@@ -21,7 +21,7 @@ import {
 import "./chunk-WWEBQUFN.js";
 import {
   TranslatePipe
-} from "./chunk-6XWRPTJR.js";
+} from "./chunk-4IOUDDW5.js";
 import "./chunk-J3UWUE6R.js";
 import {
   GroupPermission,
@@ -48,11 +48,11 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-KPILA447.js";
+} from "./chunk-3UBPLFUA.js";
 import "./chunk-6XQ2HFET.js";
 import {
   AsyncHandler
-} from "./chunk-2JS7PHNT.js";
+} from "./chunk-V5MUGZ65.js";
 import {
   IconComponent
 } from "./chunk-LH5NBVLW.js";
@@ -81,7 +81,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-ENAW5TUB.js";
+} from "./chunk-MIMFT3RT.js";
 import "./chunk-SPOKOF7B.js";
 import "./chunk-MCFQK3RU.js";
 import {
@@ -733,7 +733,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-GPW4GHGP.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-IFSMB7IO.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -819,6 +819,8 @@ function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.initialisation_error() ? 1 : 2);
   }
 }
+var BACKGROUND_SETTLED_CLASS = "background-settled";
+var BACKGROUND_SETTLE_DELAY_MS = 3e3;
 var GRADIENT_CACHE_KEY = "PLACEOS.loading_gradient";
 var CSS_COLOUR = /^(#[0-9a-f]{3,8}|[a-z]+|(rgba?|hsla?|oklch|oklab)\([\w\s.,%/-]+\))$/i;
 function loadingGradient(colours) {
@@ -856,7 +858,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-GPW4GHGP.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-IFSMB7IO.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -879,7 +881,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 73 });
 })();
 var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
   constructor() {
@@ -908,9 +910,31 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         []
       )
     );
+    this.visible = computed(
+      () => this.loading() || !!this.initialisation_error(),
+      ...ngDevMode ? [{ debugName: "visible" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.gradient = signal(
       localStorage.getItem(GRADIENT_CACHE_KEY) || "",
       ...ngDevMode ? [{ debugName: "gradient" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._settle_background = effect(
+      () => {
+        const root = document.documentElement;
+        if (this.visible()) {
+          this.clearTimeout("settle-background");
+          root.classList.remove(BACKGROUND_SETTLED_CLASS);
+          return;
+        }
+        this.timeout("settle-background", () => root.classList.add(BACKGROUND_SETTLED_CLASS), BACKGROUND_SETTLE_DELAY_MS);
+      },
+      ...ngDevMode ? [{ debugName: "_settle_background" }] : (
         /* istanbul ignore next */
         []
       )
@@ -968,7 +992,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.connection_checked() && !ctx.online() ? 1 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.loading() || ctx.initialisation_error() ? 2 : -1);
+        \u0275\u0275conditional(ctx.visible() ? 2 : -1);
       }
     }, dependencies: [
       MatProgressBarModule,
@@ -991,7 +1015,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
         }
-        @if (loading() || initialisation_error()) {
+        @if (visible()) {
             <div
                 loader
                 class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
@@ -1039,7 +1063,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 144 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 158 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -9459,7 +9483,7 @@ function mocksInit() {
 // apps/signage-manager/src/app/app.component.ts
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-QYSCQY37.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-TL2FSNCE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -9499,7 +9523,7 @@ function AppComponent_Defer_8_Template(rf, ctx) {
 }
 var AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-R62LTHBV.js");
+    this.load_settings_schema = () => import("./settings.schema-XU24KAFA.js");
     this._placeos = inject(PlaceOS_Service);
     this._uploads = inject(UploadsService);
     this._injector = inject(Injector);
@@ -9537,7 +9561,7 @@ var AppComponent = class _AppComponent {
     setMocks(mocksInit);
     await this._placeos.init();
     this._uploads.init();
-    const { ImageGenService } = await import("./image-gen.service-QZ43A7LG.js");
+    const { ImageGenService } = await import("./image-gen.service-DMHSKHNC.js");
     const image_gen = this._injector.get(ImageGenService);
     await image_gen.load(Mt()?.config?.org_zone);
     if (image_gen.enabled())
@@ -9591,7 +9615,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-QYSCQY37.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-TL2FSNCE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9728,51 +9752,51 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-J6MX5EFY.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-DCJYRRD7.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-IBRCGNCF.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-IQXDTXCF.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-IBRCGNCF.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-IQXDTXCF.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "templates/:id",
         canActivate: [templatesEnabledGuard],
         canDeactivate: [templateUnsavedGuard],
-        loadComponent: () => import("./templates.component-5ZMYGOYS.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-EQB5LWN4.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "templates",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-5ZMYGOYS.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-EQB5LWN4.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-YUVJEGQ5.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-JBAR3TPS.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-UHH5GEV4.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-KMLSK76G.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-UHH5GEV4.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-KMLSK76G.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "manage",
-        loadComponent: () => import("./manage.component-VBLMM25Y.js").then((m) => m.ManageSectionComponent),
+        loadComponent: () => import("./manage.component-SM7MHXH6.js").then((m) => m.ManageSectionComponent),
         children: [
           { path: "", pathMatch: "full", redirectTo: "report" },
           {
             path: "report",
-            loadComponent: () => import("./content-report.component-TJNEHHCP.js").then((m) => m.ContentReportComponent)
+            loadComponent: () => import("./content-report.component-IBRNXTAA.js").then((m) => m.ContentReportComponent)
           },
           {
             path: "branding",
-            loadComponent: () => import("./branding.component-JUTGZQ6M.js").then((m) => m.BrandingComponent)
+            loadComponent: () => import("./branding.component-M2KUFJQV.js").then((m) => m.BrandingComponent)
           }
         ]
       },
@@ -9782,15 +9806,15 @@ var APP_ROUTES = [
       {
         path: "groups",
         canActivate: [manageGroupsGuard],
-        loadComponent: () => import("./groups.component-ZL4A7UQD.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-GEGKKOER.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-XLCUDRTP.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-BATAAJDH.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-XLCUDRTP.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-BATAAJDH.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
@@ -9825,5 +9849,5 @@ var APP_CONFIG = {
 
 // apps/signage-manager/src/main.ts
 bootstrapApplication(AppComponent, APP_CONFIG).catch((err) => console.error(err));
-//# debugId=4d451799-79d9-5098-913b-5c1a1ccf7ec0
+//# debugId=e80c7575-8175-5149-9fa6-05dedba2624e
 //# sourceMappingURL=main.js.map

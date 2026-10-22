@@ -2901,6 +2901,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .col-start-2 {
   grid-column-start: 2;
 }
+#placeos .row-1000 {
+  grid-row: 1000;
+}
 #placeos .row-start-2 {
   grid-row-start: 2;
 }
@@ -2979,6 +2982,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .mx-4 {
   margin-inline: calc(var(--spacing) * 4);
+}
+#placeos .mx-8 {
+  margin-inline: calc(var(--spacing) * 8);
 }
 #placeos .mx-auto {
   margin-inline: auto;
@@ -3172,6 +3178,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .table {
   display: table;
 }
+#placeos .table-row {
+  display: table-row;
+}
 #placeos .aspect-video {
   aspect-ratio: var(--aspect-video);
 }
@@ -3274,11 +3283,17 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-96 {
   height: calc(var(--spacing) * 96);
 }
+#placeos .h-100 {
+  height: calc(var(--spacing) * 100);
+}
 #placeos .h-120 {
   height: calc(var(--spacing) * 120);
 }
 #placeos .h-128 {
   height: calc(var(--spacing) * 128);
+}
+#placeos .h-200 {
+  height: calc(var(--spacing) * 200);
 }
 #placeos .h-\[1\.25em\] {
   height: 1.25em;
@@ -3543,9 +3558,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .w-28 {
   width: calc(var(--spacing) * 28);
-}
-#placeos .w-30 {
-  width: calc(var(--spacing) * 30);
 }
 #placeos .w-32 {
   width: calc(var(--spacing) * 32);
@@ -3894,6 +3906,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .shrink-0 {
   flex-shrink: 0;
+}
+#placeos .grow {
+  flex-grow: 1;
 }
 #placeos .grow-3 {
   flex-grow: 3;
@@ -6916,6 +6931,10 @@ body {
   body {
     animation: application-gradient 20s ease-in-out infinite alternate;
   }
+}
+html.background-settled,
+html.background-settled body {
+  animation-play-state: paused;
 }
 @keyframes application-gradient {
   to {
