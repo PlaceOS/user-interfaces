@@ -37,10 +37,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-7GU6CKKH.js";
+} from "./chunk-TRRDA6YR.js";
 import {
   TranslatePipe
-} from "./chunk-AALDW5PU.js";
+} from "./chunk-4IQY6W6S.js";
 import {
   FormField,
   disabled,
@@ -76,12 +76,13 @@ import {
   isAfter,
   isBefore,
   isEmptyUser,
+  readAttendeeFlags,
   setDefaultCreator,
   setting,
   settingSignal,
   toQueryString,
   user_group_names
-} from "./chunk-XI6JXUR7.js";
+} from "./chunk-PZ6CAKBN.js";
 import {
   AsyncHandler,
   Fp,
@@ -149,7 +150,7 @@ import {
   v,
   wr,
   xa
-} from "./chunk-DUCEPKUF.js";
+} from "./chunk-LIY5SEBT.js";
 import {
   IconComponent,
   SafePipe
@@ -1308,8 +1309,32 @@ function getNextFreeTimeSlot(list, date = (/* @__PURE__ */ new Date()).valueOf()
 }
 
 // libs/events/src/lib/event-form.ts
+function withAttendeeFlags(attendees, flags) {
+  if (!flags)
+    return attendees;
+  return attendees.map((user) => {
+    const stored = flags[(user.email || "").toLowerCase()];
+    if (!stored)
+      return user;
+    return new User(__spreadProps(__spreadValues({}, user), {
+      extension_data: __spreadValues(__spreadValues({}, user.extension_data), readAttendeeFlags(stored))
+    }));
+  });
+}
+function attendeeFlagsFrom(attendees) {
+  const flags = {};
+  for (const attendee of attendees || []) {
+    const email = (attendee.email || "").toLowerCase();
+    if (!email)
+      continue;
+    const entry = readAttendeeFlags(attendee.extension_data || {});
+    if (Object.keys(entry).length)
+      flags[email] = entry;
+  }
+  return flags;
+}
 function eventFormValue(event = new CalendarEvent()) {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v;
   return {
     id: event.id || "",
     ical_uid: event.ical_uid || "",
@@ -1317,7 +1342,7 @@ function eventFormValue(event = new CalendarEvent()) {
     organiser: event.organiser || { email: event.host || "" },
     creator: event.creator || ((_c = currentUser()) == null ? void 0 : _c.email) || "",
     calendar: event.calendar || "",
-    attendees: event.attendees || [],
+    attendees: withAttendeeFlags(event.attendees || [], (_d = event.extension_data) == null ? void 0 : _d.attendee_flags),
     resources: event.resources || [],
     title: event.title || "",
     body: event.body || "",
@@ -1331,28 +1356,28 @@ function eventFormValue(event = new CalendarEvent()) {
     recurring_event_id: event.recurring_event_id || "",
     master: event.master ?? null,
     attachments: event.attachments ?? null,
-    catering: ((_d = event.extension_data) == null ? void 0 : _d.catering) || [],
-    catering_notes: ((_g = (_f = (_e = event.extension_data) == null ? void 0 : _e.catering) == null ? void 0 : _f[0]) == null ? void 0 : _g.notes) || "",
-    catering_charge_code: ((_j = (_i = (_h = event.extension_data) == null ? void 0 : _h.catering) == null ? void 0 : _i[0]) == null ? void 0 : _j.charge_code) || "",
+    catering: ((_e = event.extension_data) == null ? void 0 : _e.catering) || [],
+    catering_notes: ((_h = (_g = (_f = event.extension_data) == null ? void 0 : _f.catering) == null ? void 0 : _g[0]) == null ? void 0 : _h.notes) || "",
+    catering_charge_code: ((_k = (_j = (_i = event.extension_data) == null ? void 0 : _i.catering) == null ? void 0 : _j[0]) == null ? void 0 : _k.charge_code) || "",
     setup_time: event.setup_time || 0,
     breakdown_time: event.breakdown_time || 0,
-    assets: ((_k = event.extension_data) == null ? void 0 : _k.assets) || [],
-    visitor_type: ((_l = event.extension_data) == null ? void 0 : _l.visitor_type) ?? null,
+    assets: ((_l = event.extension_data) == null ? void 0 : _l.assets) || [],
+    visitor_type: ((_m = event.extension_data) == null ? void 0 : _m.visitor_type) ?? null,
     location: event.location || "",
     visibility: event.visibility || "normal",
     needs_space: true,
-    needs_parking: ((_m = event.extension_data) == null ? void 0 : _m.needs_parking) || false,
-    event_type: ((_n = event.extension_data) == null ? void 0 : _n.event_type) || "",
-    category: ((_o = event.extension_data) == null ? void 0 : _o.category) || "",
-    tags: ((_p = event.extension_data) == null ? void 0 : _p.tags) || [],
+    needs_parking: ((_n = event.extension_data) == null ? void 0 : _n.needs_parking) || false,
+    event_type: ((_o = event.extension_data) == null ? void 0 : _o.event_type) || "",
+    category: ((_p = event.extension_data) == null ? void 0 : _p.category) || "",
+    tags: ((_q = event.extension_data) == null ? void 0 : _q.tags) || [],
     update_master: false,
     system: event.system ?? null,
-    attendance_type: ((_q = event.extension_data) == null ? void 0 : _q.attendance_type) || "ONSITE",
+    attendance_type: ((_r = event.extension_data) == null ? void 0 : _r.attendance_type) || "ONSITE",
     timezone: event.timezone || LOCAL_TIMEZONE,
-    shared_event: ((_r = event.extension_data) == null ? void 0 : _r.shared_event) || false,
-    view_access: ((_s = event.extension_data) == null ? void 0 : _s.view_access) || "OPEN",
-    images: ((_t = event.extension_data) == null ? void 0 : _t.images) || [],
-    featured: ((_u = event.extension_data) == null ? void 0 : _u.featured) || false,
+    shared_event: ((_s = event.extension_data) == null ? void 0 : _s.shared_event) || false,
+    view_access: ((_t = event.extension_data) == null ? void 0 : _t.view_access) || "OPEN",
+    images: ((_u = event.extension_data) == null ? void 0 : _u.images) || [],
+    featured: ((_v = event.extension_data) == null ? void 0 : _v.featured) || false,
     meeting_provider: event.meeting_provider || null
   };
 }
@@ -1726,6 +1751,9 @@ function linkedBookingChanges(booking, desired) {
     return null;
   return __spreadProps(__spreadValues({}, changes), { extension_data: desired.extension_data });
 }
+function visitorFlagExtension(item) {
+  return __spreadValues(__spreadValues({}, readAttendeeFlags(item)), readAttendeeFlags(item.extension_data || {}));
+}
 async function createBookingsForEvent(event, type, resources) {
   var _a;
   const existing = await linkedBookingsForEvent(event, type);
@@ -1752,12 +1780,12 @@ async function createBookingsForEvent(event, type, resources) {
         asset_name: resource_name,
         title: event.title,
         attendees: item.email ? [new User(item)] : [],
-        extension_data: {
+        extension_data: __spreadValues({
           parent_id: event.id,
           name: resource_name,
           location_id: (assigned_space == null ? void 0 : assigned_space.id) || event.location,
           details: item
-        },
+        }, type === "visitor" ? visitorFlagExtension(item) : {}),
         zones: (assigned_space == null ? void 0 : assigned_space.zones) || zones
       });
       if (booking) {
@@ -3453,6 +3481,27 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
     this._network_requested = true;
     this._network_consumed.set(true);
   }
+  /**
+   * Stop the space, rule and availability loads when the user leaves the
+   * booking flows. Opening or loading a form starts them again. Calls that
+   * wait for the loads keep them active until they resolve.
+   */
+  releaseNetwork() {
+    this._network_consumed.set(false);
+  }
+  /** Keep the loads active while `work` runs */
+  async _holdNetwork(work) {
+    this._network_holds.update((count) => count + 1);
+    try {
+      return await work();
+    } finally {
+      this._network_holds.update((count) => count - 1);
+    }
+  }
+  /** Load the space list again after a failure */
+  reloadSpaces() {
+    this._spaces_resource.reload();
+  }
   loadLastSuccess() {
     const event = new CalendarEvent(JSON.parse((sessionStorage == null ? void 0 : sessionStorage.getItem("PLACEOS.last_modified_event")) || "{}"));
     this.last_success.set(event);
@@ -3540,6 +3589,20 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
         []
       )
     );
+    this._network_holds = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "_network_holds" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._network_active = computed(
+      () => this._network_consumed() || this._network_holds() > 0,
+      ...ngDevMode ? [{ debugName: "_network_active" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this._space_requests = /* @__PURE__ */ new Map();
     this._loaded_space_lists = signal(
       {},
@@ -3613,7 +3676,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       {}
     )), {
       params: () => {
-        if (!this._network_consumed() || !this._requests_ready()) {
+        if (!this._network_active() || !this._requests_ready()) {
           return void 0;
         }
         const list = this._org.building_list();
@@ -3656,11 +3719,19 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       injector: this._injector,
       equal: Object.is
     });
+    this._spaces_failed = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_spaces_failed" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.spaces_load_failed = this._spaces_failed.asReadonly();
     this._spaces_resource = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_spaces_resource" } : (
       /* istanbul ignore next */
       {}
     )), {
-      params: () => this._network_consumed() && this._requests_ready() ? this._space_zone_debounced.value() || void 0 : void 0,
+      params: () => this._network_active() && this._requests_ready() ? this._space_zone_debounced.value() || void 0 : void 0,
       loader: ({ params: zone_id }) => {
         this.addLoadingTag(Tags.ListingRooms);
         return this._requestSpaces(zone_id).then((list) => {
@@ -3668,8 +3739,12 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
           this._loaded_space_lists.update((loaded) => __spreadProps(__spreadValues({}, loaded), {
             [zone_id]: spaces
           }));
+          this._spaces_failed.set(false);
           return { zone_id, spaces };
-        }).catch(() => null).finally(() => this.removeLoadingTag(Tags.ListingRooms));
+        }).catch(() => {
+          this._spaces_failed.set(true);
+          return null;
+        }).finally(() => this.removeLoadingTag(Tags.ListingRooms));
       }
     }));
     this.loaded_space_zone = computed(
@@ -3705,7 +3780,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
     )), {
       params: () => {
         var _a;
-        return this._network_consumed() && this._requests_ready() ? ((_a = this._org.organisation) == null ? void 0 : _a.id) || void 0 : void 0;
+        return this._network_active() && this._requests_ready() ? ((_a = this._org.organisation) == null ? void 0 : _a.id) || void 0 : void 0;
       },
       loader: ({ params: id }) => ac(id, "room_alerts").then((r) => r.details).catch(() => ({}))
     }));
@@ -3775,7 +3850,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       {}
     )), {
       params: () => {
-        if (!this._network_consumed() || !this._requests_ready()) {
+        if (!this._network_active() || !this._requests_ready()) {
           return void 0;
         }
         if (this._spaces_resource.isLoading() || this._booking_rules_resource.isLoading()) {
@@ -3795,6 +3870,19 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
         return this._available_resource.value() ?? [];
       },
       ...ngDevMode ? [{ debugName: "available_spaces" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.unavailable_resources = computed(
+      () => {
+        if (this.loading() || this._spaces_failed())
+          return [];
+        const filtered = new Set(this.filtered_spaces().map(({ id }) => id));
+        const available = new Set(this.available_spaces().map(({ id }) => id));
+        return (this._model().resources || []).filter(({ id }) => filtered.has(id) && !available.has(id));
+      },
+      ...ngDevMode ? [{ debugName: "unavailable_resources" }] : (
         /* istanbul ignore next */
         []
       )
@@ -3859,10 +3947,10 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
     const existing = this._space_requests.get(zone_id);
     if (existing)
       return existing;
-    const request = new Promise((resolve) => {
+    const request = new Promise((resolve, reject) => {
       requestSpacesForZone(zone_id).subscribe({
         next: (list) => resolve(list || []),
-        error: () => resolve([])
+        error: (e) => reject(e)
       });
     }).finally(() => this._space_requests.delete(zone_id));
     this._space_requests.set(zone_id, request);
@@ -3912,8 +4000,10 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
   /** Resolve with the spaces available to book once the list has loaded */
   async listAvailableSpaces() {
     this._startNetwork();
-    await this._whenSettled(this._available_resource);
-    return this.available_spaces();
+    return this._holdNetwork(async () => {
+      await this._whenSettled(this._available_resource);
+      return this.available_spaces();
+    });
   }
   setView(value) {
     this.timeout("set_view", () => this._view.set(value), 50);
@@ -3925,11 +4015,20 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
     this._options.set(__spreadValues(__spreadValues({}, this._options()), options));
   }
   newForm(event = new CalendarEvent()) {
+    this._resetForm(event, true);
+  }
+  /**
+   * Reset the form to `event`. Set `start_network` to start the space, rule
+   * and availability loads. When the user is not loaded, the reset waits
+   * for the user and keeps the same choice.
+   */
+  _resetForm(event, start_network) {
     if (!currentUserIsLoaded()) {
-      currentUserLoaded().then(() => this.newForm(event));
+      currentUserLoaded().then(() => this._resetForm(event, start_network));
       return;
     }
-    this._startNetwork();
+    if (start_network)
+      this._startNetwork();
     this._calendar.loadCalendars();
     this._loading.set("");
     const lock_start_time = !!event.id && (event.state === "started" || event.state === "in_progress");
@@ -3947,6 +4046,20 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       return;
     }
     sessionStorage.setItem("PLACEOS.event", JSON.stringify((event == null ? void 0 : event.toJSON()) || {}));
+  }
+  /**
+   * Start a new form with the given values set. The values are saved at
+   * once, so `loadForm` restores them when the form page loads. Use this to
+   * open the form from another page with a field already filled in.
+   */
+  newFormWith(values) {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.newFormWith(values));
+      return;
+    }
+    this.newForm();
+    this._model.update((m) => __spreadValues(__spreadValues({}, m), values));
+    sessionStorage.setItem("PLACEOS.event_form", JSON.stringify(this._model()));
   }
   resetForm() {
     if (!currentUserIsLoaded()) {
@@ -3978,10 +4091,14 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
     this._model.update((m) => __spreadValues(__spreadValues(__spreadValues({}, m), initial_value), form_data));
   }
+  /**
+   * Reset the form and its stored state. This does not start the loads: a
+   * flow can clear the form while the user leaves it.
+   */
   clearForm() {
     sessionStorage.removeItem("PLACEOS.event");
     sessionStorage.removeItem("PLACEOS.event_form");
-    this.newForm();
+    this._resetForm(new CalendarEvent(), false);
   }
   openEventLinkModal(force = false) {
     this._form().markAsTouched();
@@ -4103,6 +4220,9 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       };
       if (this._model().host !== host)
         ext.host_override = this._model().host;
+      const attendee_flags = attendeeFlagsFrom(this._model().attendees);
+      if (Object.keys(attendee_flags).length)
+        ext.attendee_flags = attendee_flags;
       const value = this._model();
       let created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
         date: all_day_period.date,
@@ -8033,6 +8153,8 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
       "pending_before",
       "room_image",
       "offline_image",
+      "offline_color",
+      "default_title",
       "show_qr_code",
       "hide_qr_text",
       "presence",
@@ -8460,5 +8582,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=1d8c4498-8468-54ac-b05a-70e551f762e7
-//# sourceMappingURL=chunk-B5WFT75G.js.map
+//# debugId=2b5e7350-b79c-5d8d-8672-07bfc4c9c994
+//# sourceMappingURL=chunk-LOOWG4QK.js.map

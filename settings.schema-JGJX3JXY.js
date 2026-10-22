@@ -6,19 +6,11 @@ var description = "Customisable settings for the booking-panel app";
 var properties = {
   name: {
     type: "string",
-    description: "Name of the application. Used for the page title and as a fallback application name for API requests."
-  },
-  title: {
-    type: "string",
-    description: "Title for the application"
-  },
-  description: {
-    type: "string",
-    description: "Description of the application"
+    description: "Application name sent with PlaceOS API requests. Falls back to `short_name`."
   },
   short_name: {
     type: "string",
-    description: "Short name for the application. Used as the application name for API requests."
+    description: "Prefix for console log messages. Also used as the API application name when `name` is not set."
   },
   logo_light: {
     $ref: "#/$defs/logo",
@@ -27,10 +19,6 @@ var properties = {
   logo_dark: {
     $ref: "#/$defs/logo",
     description: "Logo displayed on the event panel when the dark theme is active. Either an image URL string or an object with a `src` image URL."
-  },
-  general: {
-    type: "object",
-    description: "General settings associated with the app"
   },
   prevent_space_init: {
     type: "boolean",
@@ -89,12 +77,48 @@ var properties = {
     type: "string",
     description: "Local time in `HH:mm` format when the `night_mode` feature stops dimming the panel. Defaults to `07:00`."
   },
+  chat: {
+    type: "object",
+    description: "Settings for the chat assistant",
+    properties: {
+      enabled: {
+        type: "boolean",
+        description: "Whether to show the global chat widget. Off when not set."
+      }
+    }
+  },
+  environment_bar: {
+    type: "string",
+    description: "CSS colour for thin identifier bars at the top and bottom of the app. Leave unset to hide the bars."
+  },
+  banner: {
+    $ref: "#/$defs/banner"
+  },
   presence_release_after: {
     type: "number",
     description: "Minutes after the start of a pending booking with no presence detected before the `presence_release` feature releases it. Defaults to `5`."
   }
 };
 var $defs = {
+  banner: {
+    type: "object",
+    description: "Message banner shown at the top of the app. The user can close it.",
+    properties: {
+      id: {
+        type: "string",
+        description: "Unique ID for the banner. A closed banner stays hidden until the ID changes."
+      },
+      type: {
+        type: "string",
+        enum: ["info", "warn", "error"],
+        description: "Colour style for the banner. Defaults to `info`."
+      },
+      content: {
+        type: "string",
+        description: "Message text to show in the banner"
+      }
+    }
+  },
   logo: {
     anyOf: [
       {
@@ -127,5 +151,5 @@ export {
   properties,
   type
 };
-//# debugId=faa93a51-fd7f-5679-9b07-85ab9ef78fd0
-//# sourceMappingURL=settings.schema-DDIXIYMB.js.map
+//# debugId=673efcb9-21f3-5576-bfeb-b663ee347b17
+//# sourceMappingURL=settings.schema-JGJX3JXY.js.map

@@ -1,14 +1,14 @@
 import {
   subMinutes
-} from "./chunk-4BK573V7.js";
+} from "./chunk-NGNWOREN.js";
 import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-7GU6CKKH.js";
+} from "./chunk-TRRDA6YR.js";
 import {
   TranslatePipe
-} from "./chunk-AALDW5PU.js";
+} from "./chunk-4IQY6W6S.js";
 import "./chunk-23SNESJ7.js";
 import {
   GroupPermission,
@@ -34,7 +34,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-XI6JXUR7.js";
+} from "./chunk-PZ6CAKBN.js";
 import {
   AsyncHandler,
   Hp,
@@ -60,7 +60,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-DUCEPKUF.js";
+} from "./chunk-LIY5SEBT.js";
 import {
   IconComponent
 } from "./chunk-L6MLRQN4.js";
@@ -759,6 +759,8 @@ function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.initialisation_error() ? 1 : 2);
   }
 }
+var BACKGROUND_SETTLED_CLASS = "background-settled";
+var BACKGROUND_SETTLE_DELAY_MS = 3e3;
 var GRADIENT_CACHE_KEY = "PLACEOS.loading_gradient";
 var CSS_COLOUR = /^(#[0-9a-f]{3,8}|[a-z]+|(rgba?|hsla?|oklch|oklab)\([\w\s.,%/-]+\))$/i;
 function loadingGradient(colours) {
@@ -816,7 +818,7 @@ var NativeDomainOverlayLoaderComponent = _NativeDomainOverlayLoaderComponent;
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 73 });
 })();
 var _GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
   constructor() {
@@ -845,9 +847,31 @@ var _GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler
         []
       )
     );
+    this.visible = computed(
+      () => this.loading() || !!this.initialisation_error(),
+      ...ngDevMode ? [{ debugName: "visible" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.gradient = signal(
       localStorage.getItem(GRADIENT_CACHE_KEY) || "",
       ...ngDevMode ? [{ debugName: "gradient" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._settle_background = effect(
+      () => {
+        const root = document.documentElement;
+        if (this.visible()) {
+          this.clearTimeout("settle-background");
+          root.classList.remove(BACKGROUND_SETTLED_CLASS);
+          return;
+        }
+        this.timeout("settle-background", () => root.classList.add(BACKGROUND_SETTLED_CLASS), BACKGROUND_SETTLE_DELAY_MS);
+      },
+      ...ngDevMode ? [{ debugName: "_settle_background" }] : (
         /* istanbul ignore next */
         []
       )
@@ -904,7 +928,7 @@ _GlobalLoadingComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx.connection_checked() && !ctx.online() ? 1 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.loading() || ctx.initialisation_error() ? 2 : -1);
+    \u0275\u0275conditional(ctx.visible() ? 2 : -1);
   }
 }, dependencies: [
   MatProgressBarModule,
@@ -926,7 +950,7 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
         }
-        @if (loading() || initialisation_error()) {
+        @if (visible()) {
             <div
                 loader
                 class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
@@ -974,7 +998,7 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 144 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 158 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -9461,11 +9485,11 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-HJKJSBN4.js").then((m) => m.ChatComponent)
+  import("./chat.component-LQVU7J3D.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-EABAQBF3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-64Q4DURC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9483,7 +9507,7 @@ function AppComponent_Defer_7_Template(rf, ctx) {
 }
 var _AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-DDIXIYMB.js");
+    this.load_settings_schema = () => import("./settings.schema-JGJX3JXY.js");
     this._placeos = inject(PlaceOS_Service);
   }
   get has_chat() {
@@ -9523,9 +9547,9 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-HJKJSBN4.js").then((m) => m.ChatComponent),
+    import("./chat.component-LQVU7J3D.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-EABAQBF3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-64Q4DURC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9568,22 +9592,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-NV4ES3SI.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-IY4AOZ4I.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-5SXZ6TMZ.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-5LA2NJZE.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-L46XXEAR.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-FQ75SENF.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-D3MEC34P.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-AQNYODEM.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -9615,5 +9639,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=dc21cc8c-7a65-52a4-9e5d-25fa61eb171a
+//# debugId=f7d6777f-3f91-55fc-9bdc-c5bc59096bae
 //# sourceMappingURL=main.js.map

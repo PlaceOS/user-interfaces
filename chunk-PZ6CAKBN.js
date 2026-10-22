@@ -59,7 +59,7 @@ import {
   toDate,
   unique,
   withTimeout
-} from "./chunk-DUCEPKUF.js";
+} from "./chunk-LIY5SEBT.js";
 import {
   bindNativeAuthRedirects,
   clearNativeApiKey,
@@ -326,27 +326,23 @@ var ClipboardModule = class _ClipboardModule {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "2b1995c",
-  "hash": "2b1995c",
+  "raw": "723770c",
+  "hash": "723770c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2b1995c",
+  "suffix": "723770c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1791858668544
+  "time": 1792636815993
 };
 
 // libs/common/src/lib/settings.ts
-var general = {};
 var app = {
   name: "Bookings",
-  title: "PlaceOS",
-  description: "Bookings UI",
   short_name: "PlaceOS",
   logo_light: "assets/logo-light.svg",
   logo_dark: "assets/logo-dark.svg",
-  general,
   prevent_space_init: true,
   allow_dark_mode: false
 };
@@ -962,6 +958,17 @@ var DAYS_OF_WEEK = [
   "friday",
   "saturday"
 ];
+function toVisitorInternalOrExternal(value) {
+  return value === "external" ? "external" : "internal";
+}
+function readAttendeeFlags(data) {
+  const flags = {};
+  if ("international" in data)
+    flags.international = !!data.international;
+  if ("visitor_internal_or_external" in data)
+    flags.visitor_internal_or_external = toVisitorInternalOrExternal(data.visitor_internal_or_external);
+  return flags;
+}
 function eventStatus(details) {
   var _a;
   if (details.status === "cancelled")
@@ -3924,6 +3931,7 @@ var _OrganisationService = class _OrganisationService {
     this._init_timer = null;
     this._zone_load_timer = null;
     this._override_timer = null;
+    this._destroyed = false;
     const online_state = io();
     const online = Yr(online_state, (_) => _);
     const start = Promise.race([
@@ -4336,6 +4344,8 @@ var _OrganisationService = class _OrganisationService {
     const org_id = (_a = this._organisation) == null ? void 0 : _a.id;
     const app_settings = (await this._bulkMetadataDetails(this.app_key, [org_id]))[org_id];
     const global_settings = (await this._bulkMetadataDetails("settings", [org_id]))[org_id];
+    if (this._destroyed)
+      return;
     this._settings = [global_settings, app_settings];
     if (this._override_timer) {
       clearTimeout(this._override_timer);
@@ -4471,9 +4481,18 @@ var _OrganisationService = class _OrganisationService {
       return (_a = _.timezone) == null ? void 0 : _a.startsWith(tz_start);
     });
   }
+  /** Stop settings overrides so a late load cannot apply them after teardown */
+  ngOnDestroy() {
+    this._destroyed = true;
+    if (this._override_timer)
+      clearTimeout(this._override_timer);
+    this._override_timer = null;
+  }
   _updateSettingOverrides() {
     if (this._override_timer)
       clearTimeout(this._override_timer);
+    if (this._destroyed)
+      return;
     this._override_timer = setTimeout(() => {
       var _a, _b;
       return this._service.setOverrides([
@@ -4639,6 +4658,7 @@ export {
   EMPTY_USER,
   isEmptyUser,
   setDefaultCreator,
+  readAttendeeFlags,
   CalendarEvent,
   GroupPermission,
   current_user,
@@ -4662,5 +4682,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=0b28a58e-a847-5d55-984d-c7f3f7a023b4
-//# sourceMappingURL=chunk-XI6JXUR7.js.map
+//# debugId=e58d4ccf-f0d9-520a-bd5f-6d10d5522769
+//# sourceMappingURL=chunk-PZ6CAKBN.js.map

@@ -4,7 +4,7 @@ import {
 import {
   AuthenticatedImageDirective,
   PanelStateService
-} from "./chunk-B5WFT75G.js";
+} from "./chunk-LOOWG4QK.js";
 import "./chunk-MA37NEPF.js";
 import "./chunk-B6NP4TM3.js";
 import "./chunk-OCGKT4ZN.js";
@@ -13,19 +13,19 @@ import {
   SanitizePipe
 } from "./chunk-L4NHQOZX.js";
 import "./chunk-RP3WHZSJ.js";
-import "./chunk-7GU6CKKH.js";
+import "./chunk-TRRDA6YR.js";
 import {
   TranslatePipe
-} from "./chunk-AALDW5PU.js";
+} from "./chunk-4IQY6W6S.js";
 import "./chunk-23SNESJ7.js";
 import {
   OrganisationService,
   SettingsService
-} from "./chunk-XI6JXUR7.js";
+} from "./chunk-PZ6CAKBN.js";
 import {
   AsyncHandler,
   startOfMinute
-} from "./chunk-DUCEPKUF.js";
+} from "./chunk-LIY5SEBT.js";
 import {
   SafePipe
 } from "./chunk-L6MLRQN4.js";
@@ -293,7 +293,7 @@ var _EventPanelComponent = class _EventPanelComponent extends AsyncHandler {
       )
     );
     this.logo = computed(
-      () => (this._org.active_building(), (this._settings.theme ? this._settings.get("app.logo_light") : this._settings.get("app.logo_dark")) || {}),
+      () => (this._org.active_building(), (this._settings.theme_signal() === "dark" ? this._settings.get("app.logo_dark") : this._settings.get("app.logo_light")) || {}),
       ...ngDevMode ? [{ debugName: "logo" }] : (
         /* istanbul ignore next */
         []
@@ -552,5 +552,5 @@ var EventPanelComponent = _EventPanelComponent;
 export {
   EventPanelComponent
 };
-//# debugId=43dca8d7-4412-5a31-b7ca-0dcada371197
-//# sourceMappingURL=event-panel.component-D3MEC34P.js.map
+//# debugId=1c7f6166-1bbb-5f53-9e3d-995789be78f0
+//# sourceMappingURL=event-panel.component-AQNYODEM.js.map
