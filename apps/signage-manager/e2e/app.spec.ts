@@ -129,7 +129,9 @@ test.describe('US-SGM-003: Browse Media', () => {
         await navigateWithMock(page, MEDIA_URL);
 
         await page.getByRole('textbox', { name: /search media/i }).fill('meeting');
-        await expect(page.getByText(/of \d+ items/i).first()).toBeVisible();
+        await expect(
+            page.locator('media-list-header').getByText(/\d+ items/i),
+        ).toBeVisible();
 
         await page.getByRole('button', { name: /list view/i }).click();
         await expect(
@@ -493,7 +495,7 @@ test.describe('US-SGM-010: Manage Zone Assignments', () => {
             page.getByRole('heading', { name: /new zone/i }),
         ).toBeVisible();
         await expect(
-            page.getByRole('textbox', { name: /zone name/i }),
+            page.getByRole('textbox', { name: /^name/i }),
         ).toBeVisible();
         await expect(
             page.getByRole('heading', { name: /parent zone/i }),
