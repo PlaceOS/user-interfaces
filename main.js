@@ -1,18 +1,18 @@
 import {
   subMinutes
-} from "./chunk-K5W7MIDW.js";
+} from "./chunk-QGCOMR74.js";
 import {
   generateMockSpace,
   setInternalUserDomain
-} from "./chunk-CQE2IQU2.js";
+} from "./chunk-XZI76E7L.js";
 import {
   setHours,
   subDays
-} from "./chunk-UXPK2UU6.js";
-import "./chunk-MVOEJDYB.js";
+} from "./chunk-GGB5FXU6.js";
+import "./chunk-F7NZ5ODL.js";
 import {
   TranslatePipe
-} from "./chunk-TBWXIOMV.js";
+} from "./chunk-R6BL4RC2.js";
 import {
   GroupPermission,
   NativeDateModule,
@@ -43,7 +43,7 @@ import {
   setupPlace,
   userSignal,
   user_groups_loaded
-} from "./chunk-OLRWWSQT.js";
+} from "./chunk-JZA2NNKZ.js";
 import {
   AsyncHandler,
   Cn,
@@ -79,7 +79,7 @@ import {
   toDate,
   unique,
   withTimeout
-} from "./chunk-UXJ4CTIF.js";
+} from "./chunk-DXQGQPHR.js";
 import "./chunk-XNEIXVAV.js";
 import "./chunk-ACQL357U.js";
 import {
@@ -110,6 +110,7 @@ import {
   ViewEncapsulation,
   bootstrapApplication,
   computed,
+  effect,
   enableProdMode,
   importProvidersFrom,
   inject,
@@ -524,7 +525,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-5RHOH34I.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-66BW7F6C.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -610,6 +611,8 @@ function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.initialisation_error() ? 1 : 2);
   }
 }
+var BACKGROUND_SETTLED_CLASS = "background-settled";
+var BACKGROUND_SETTLE_DELAY_MS = 3e3;
 var GRADIENT_CACHE_KEY = "PLACEOS.loading_gradient";
 var CSS_COLOUR = /^(#[0-9a-f]{3,8}|[a-z]+|(rgba?|hsla?|oklch|oklab)\([\w\s.,%/-]+\))$/i;
 function loadingGradient(colours) {
@@ -647,7 +650,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-5RHOH34I.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-66BW7F6C.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -670,7 +673,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 73 });
 })();
 var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
   constructor() {
@@ -699,9 +702,31 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         []
       )
     );
+    this.visible = computed(
+      () => this.loading() || !!this.initialisation_error(),
+      ...ngDevMode ? [{ debugName: "visible" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.gradient = signal(
       localStorage.getItem(GRADIENT_CACHE_KEY) || "",
       ...ngDevMode ? [{ debugName: "gradient" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._settle_background = effect(
+      () => {
+        const root = document.documentElement;
+        if (this.visible()) {
+          this.clearTimeout("settle-background");
+          root.classList.remove(BACKGROUND_SETTLED_CLASS);
+          return;
+        }
+        this.timeout("settle-background", () => root.classList.add(BACKGROUND_SETTLED_CLASS), BACKGROUND_SETTLE_DELAY_MS);
+      },
+      ...ngDevMode ? [{ debugName: "_settle_background" }] : (
         /* istanbul ignore next */
         []
       )
@@ -759,7 +784,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.connection_checked() && !ctx.online() ? 1 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.loading() || ctx.initialisation_error() ? 2 : -1);
+        \u0275\u0275conditional(ctx.visible() ? 2 : -1);
       }
     }, dependencies: [
       MatProgressBarModule,
@@ -782,7 +807,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
         }
-        @if (loading() || initialisation_error()) {
+        @if (visible()) {
             <div
                 loader
                 class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
@@ -830,7 +855,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 144 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 158 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -9289,7 +9314,7 @@ async function authority() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-LEZ57VGP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-ZF63YIML.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -9498,7 +9523,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-LEZ57VGP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-ZF63YIML.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9535,7 +9560,7 @@ var routes = [
   },
   {
     path: "find",
-    loadComponent: () => import("./find-space.component-Q6KNCKYE.js").then((m) => m.FindSpaceComponent)
+    loadComponent: () => import("./find-space.component-L7JQC5KW.js").then((m) => m.FindSpaceComponent)
   },
   {
     path: "",
@@ -9544,48 +9569,48 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-AF3AQBUF.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-IDTN5RPP.js").then((m) => m.CalendarPaneComponent)
       },
       {
         path: "book",
         children: [
           {
             path: "spaces",
-            loadComponent: () => import("./room-booking.component-JEKBLGB6.js").then((m) => m.RoomBookingComponent)
+            loadComponent: () => import("./room-booking.component-M2UUSEIJ.js").then((m) => m.RoomBookingComponent)
           },
           {
             path: "spaces/success",
-            loadComponent: () => import("./booking-confirmed.component-HWN5PPRR.js").then((m) => m.BookingConfirmedComponent)
+            loadComponent: () => import("./booking-confirmed.component-JNKZUUA2.js").then((m) => m.BookingConfirmedComponent)
           },
           {
             path: "meeting",
-            loadComponent: () => import("./meeting-booking.component-B4HNVZ2M.js").then((m) => m.MeetingBookingComponent)
+            loadComponent: () => import("./meeting-booking.component-BGLQH74T.js").then((m) => m.MeetingBookingComponent)
           },
           {
             path: "meeting/success",
-            loadComponent: () => import("./meeting-success.component-3VBE6OMA.js").then((m) => m.MeetingBookingSuccessComponent)
+            loadComponent: () => import("./meeting-success.component-ONRZURYU.js").then((m) => m.MeetingBookingSuccessComponent)
           },
           {
             path: "desks",
-            loadComponent: () => import("./desk-booking.component-KZ6YXT7V.js").then((m) => m.DeskBookingComponent)
+            loadComponent: () => import("./desk-booking.component-Z4EONJQM.js").then((m) => m.DeskBookingComponent)
           },
           {
             path: "desks/success",
-            loadComponent: () => import("./desk-success.component-XFPLOQSP.js").then((m) => m.DeskBookingSuccessComponent)
+            loadComponent: () => import("./desk-success.component-OVU2HQLX.js").then((m) => m.DeskBookingSuccessComponent)
           }
         ]
       },
       {
         path: "schedule/view",
-        loadComponent: () => import("./find-space.component-Q6KNCKYE.js").then((m) => m.FindSpaceComponent)
+        loadComponent: () => import("./find-space.component-L7JQC5KW.js").then((m) => m.FindSpaceComponent)
       },
       {
         path: "confirm/success",
-        loadComponent: () => import("./booking-confirmed.component-HWN5PPRR.js").then((m) => m.BookingConfirmedComponent)
+        loadComponent: () => import("./booking-confirmed.component-JNKZUUA2.js").then((m) => m.BookingConfirmedComponent)
       },
       {
         path: "upcoming",
-        loadComponent: () => import("./upcoming-bookings.component-G5KEXPKW.js").then((m) => m.UpcomingBookingsComponent)
+        loadComponent: () => import("./upcoming-bookings.component-R2PMPCFQ.js").then((m) => m.UpcomingBookingsComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -9611,5 +9636,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=4afeb8a0-ffd3-58dc-86c7-52c8fee24df4
+//# debugId=a43b4a28-cf39-50b1-8f93-7ca7ca500299
 //# sourceMappingURL=main.js.map
