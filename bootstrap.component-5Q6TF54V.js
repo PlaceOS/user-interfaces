@@ -27,19 +27,19 @@ import {
 } from "./chunk-I47CEQW3.js";
 import {
   TranslatePipe
-} from "./chunk-N5JXD6N4.js";
+} from "./chunk-GFQCHYJR.js";
 import {
   OrganisationService,
   SettingsService,
   VERSION
-} from "./chunk-4R5LQJF6.js";
+} from "./chunk-7VEZIQHN.js";
 import {
   AsyncHandler,
   Sa,
   _l,
   i18n,
   log
-} from "./chunk-CEFZDJJG.js";
+} from "./chunk-LHSSPB74.js";
 import {
   FormGroupDirective,
   FormsModule,
@@ -2475,4 +2475,4 @@ export {
   BootstrapComponent
 };
 //# debugId=3abe80e2-e4a1-5323-8742-55acb134a506
-//# sourceMappingURL=bootstrap.component-2TBCOTG5.js.map
+//# sourceMappingURL=bootstrap.component-5Q6TF54V.js.map

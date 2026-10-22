@@ -46,7 +46,7 @@ import {
   toDate,
   unique,
   withTimeout
-} from "./chunk-CEFZDJJG.js";
+} from "./chunk-LHSSPB74.js";
 import {
   bindNativeAuthRedirects,
   clearNativeApiKey,
@@ -313,26 +313,21 @@ var ClipboardModule = class _ClipboardModule {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "2b1995c",
-  "hash": "2b1995c",
+  "raw": "723770c",
+  "hash": "723770c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2b1995c",
+  "suffix": "723770c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1791858582281
+  "time": 1792636737714
 };
 
 // libs/common/src/lib/settings.ts
 var app = {
   name: "Signage",
-  title: "PlaceOS",
-  description: "Signage Panel",
   short_name: "PlaceOS",
-  logo_light: "assets/logo-light.svg",
-  logo_dark: "assets/logo-dark.svg",
-  diagnostics: true,
   default_animation_time: 1e3,
   templates_enabled: true
 };
@@ -3351,6 +3346,7 @@ var OrganisationService = class _OrganisationService {
     this._init_timer = null;
     this._zone_load_timer = null;
     this._override_timer = null;
+    this._destroyed = false;
     const online_state = io();
     const online = Yr(online_state, (_) => _);
     const start = Promise.race([
@@ -3757,6 +3753,8 @@ var OrganisationService = class _OrganisationService {
     const org_id = this._organisation?.id;
     const app_settings = (await this._bulkMetadataDetails(this.app_key, [org_id]))[org_id];
     const global_settings = (await this._bulkMetadataDetails("settings", [org_id]))[org_id];
+    if (this._destroyed)
+      return;
     this._settings = [global_settings, app_settings];
     if (this._override_timer) {
       clearTimeout(this._override_timer);
@@ -3885,9 +3883,18 @@ var OrganisationService = class _OrganisationService {
     const tz_start = timezone.split("/")[0];
     return list.find((_) => _.timezone?.startsWith(tz_start));
   }
+  /** Stop settings overrides so a late load cannot apply them after teardown */
+  ngOnDestroy() {
+    this._destroyed = true;
+    if (this._override_timer)
+      clearTimeout(this._override_timer);
+    this._override_timer = null;
+  }
   _updateSettingOverrides() {
     if (this._override_timer)
       clearTimeout(this._override_timer);
+    if (this._destroyed)
+      return;
     this._override_timer = setTimeout(() => this._service.setOverrides([
       this.buildingSettings(this.building?.id),
       this.regionSettings(this.region?.id),
@@ -4043,5 +4050,5 @@ export {
   firstValueWhere,
   OrganisationService
 };
-//# debugId=05b70fa6-8b44-5de3-80fa-3bf08053e689
-//# sourceMappingURL=chunk-4R5LQJF6.js.map
+//# debugId=6d798e3a-ca33-5cd5-9075-37b2be8b614f
+//# sourceMappingURL=chunk-7VEZIQHN.js.map
