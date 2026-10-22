@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["app-sidebar.component.ts"],
-  "sourcesContent": ["\n            :host {\n                height: 100%;\n            }\n\n            a.active {\n                background-color: var(--secondary);\n                color: var(--secondary-content);\n            }\n\n            a.active:hover {\n                color: var(--base-content);\n                opacity: 0.75;\n            }\n        "],
-  "mappings": ";AACY;AACI,UAAA;AACJ;AAEA,CAAA,CAAA;AACI,oBAAA,IAAA;AACA,SAAA,IAAA;AACJ;AAEA,CAAA,CALA,MAKA;AACI,SAAA,IAAA;AACA,WAAA;AACJ;",
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 16rem;\n                border-right: 1px solid var(--base-200);\n            }\n\n            :host.rail {\n                width: 4rem;\n            }\n\n            a.active {\n                background-color: var(--secondary);\n                color: var(--secondary-content);\n            }\n\n            a.active:hover {\n                color: var(--base-content);\n                opacity: 0.75;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACA,gBAAA,IAAA,MAAA,IAAA;AACJ;AAEA,KAAA,CAAA;AACI,SAAA;AACJ;AAEA,CAAA,CAAA;AACI,oBAAA,IAAA;AACA,SAAA,IAAA;AACJ;AAEA,CAAA,CALA,MAKA;AACI,SAAA,IAAA;AACA,WAAA;AACJ;",
   "names": []
 }

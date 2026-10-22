@@ -1,34 +1,35 @@
 import {
   setMinutes
-} from "./chunk-T3LNU2BF.js";
+} from "./chunk-CJTY5XSB.js";
 import {
   subMonths
-} from "./chunk-3INID2Y6.js";
+} from "./chunk-NVPOHC22.js";
 import {
   subMinutes
-} from "./chunk-TKHR5IVL.js";
+} from "./chunk-MYCD7CAD.js";
 import {
   MatProgressBar,
   MatProgressBarModule
 } from "./chunk-A3C2NBWT.js";
 import {
   setHours
-} from "./chunk-KPDIDZC4.js";
+} from "./chunk-Q6SBHIQZ.js";
 import {
   generateMockSpace
-} from "./chunk-HP5DO2XP.js";
-import "./chunk-Y6TOXDRU.js";
-import "./chunk-JI6ULELJ.js";
+} from "./chunk-KTRJCCRD.js";
+import "./chunk-OFW7WDFE.js";
+import "./chunk-GQXDRDYV.js";
 import {
   subDays
-} from "./chunk-JEDGL4CZ.js";
+} from "./chunk-23X2VP53.js";
 import {
   KeyboardShortcutsService
-} from "./chunk-LIUN7ZQJ.js";
+} from "./chunk-ZR56NDHE.js";
 import {
   TranslatePipe
-} from "./chunk-WOSD43AU.js";
-import "./chunk-ICOTPFNT.js";
+} from "./chunk-N7R5EHVG.js";
+import "./chunk-MCWEYL2F.js";
+import "./chunk-C5SFKFXB.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -57,13 +58,15 @@ import {
   settingSignal,
   user_groups_loaded,
   watchUserGroupSync
-} from "./chunk-GJDOZU23.js";
+} from "./chunk-WHXIEU2S.js";
 import {
   AsyncHandler
-} from "./chunk-B6IXPJW2.js";
+} from "./chunk-EQB56Z5X.js";
+import {
+  IconComponent
+} from "./chunk-J53GBIJV.js";
 import {
   Hp,
-  IconComponent,
   J,
   LocaleService,
   Mr,
@@ -85,7 +88,7 @@ import {
   startOfDay,
   timePeriodsIntersect,
   unique
-} from "./chunk-WM4W6RJS.js";
+} from "./chunk-77D47I3C.js";
 import "./chunk-R7WRISTA.js";
 import {
   Router,
@@ -400,7 +403,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-MBMEW7AS.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-FCBUAN2K.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -486,6 +489,8 @@ function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.initialisation_error() ? 1 : 2);
   }
 }
+var BACKGROUND_SETTLED_CLASS = "background-settled";
+var BACKGROUND_SETTLE_DELAY_MS = 3e3;
 var GRADIENT_CACHE_KEY = "PLACEOS.loading_gradient";
 var CSS_COLOUR = /^(#[0-9a-f]{3,8}|[a-z]+|(rgba?|hsla?|oklch|oklab)\([\w\s.,%/-]+\))$/i;
 function loadingGradient(colours) {
@@ -523,7 +528,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-MBMEW7AS.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-FCBUAN2K.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -546,7 +551,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 73 });
 })();
 var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
   constructor() {
@@ -575,9 +580,31 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         []
       )
     );
+    this.visible = computed(
+      () => this.loading() || !!this.initialisation_error(),
+      ...ngDevMode ? [{ debugName: "visible" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.gradient = signal(
       localStorage.getItem(GRADIENT_CACHE_KEY) || "",
       ...ngDevMode ? [{ debugName: "gradient" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._settle_background = effect(
+      () => {
+        const root = document.documentElement;
+        if (this.visible()) {
+          this.clearTimeout("settle-background");
+          root.classList.remove(BACKGROUND_SETTLED_CLASS);
+          return;
+        }
+        this.timeout("settle-background", () => root.classList.add(BACKGROUND_SETTLED_CLASS), BACKGROUND_SETTLE_DELAY_MS);
+      },
+      ...ngDevMode ? [{ debugName: "_settle_background" }] : (
         /* istanbul ignore next */
         []
       )
@@ -635,7 +662,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.connection_checked() && !ctx.online() ? 1 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.loading() || ctx.initialisation_error() ? 2 : -1);
+        \u0275\u0275conditional(ctx.visible() ? 2 : -1);
       }
     }, dependencies: [
       MatProgressBarModule,
@@ -658,7 +685,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
         }
-        @if (loading() || initialisation_error()) {
+        @if (visible()) {
             <div
                 loader
                 class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
@@ -706,7 +733,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 144 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 158 });
 })();
 
 // libs/components/src/lib/redirect.component.ts
@@ -9160,11 +9187,11 @@ function mocksInit() {
 // apps/concierge/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-RH2E22FD.js").then((m) => m.ChatComponent)
+  import("./chat.component-TSXPYLRC.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-FFDPMF2T.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-HKVGLFZA.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9182,7 +9209,7 @@ function AppComponent_Defer_7_Template(rf, ctx) {
 }
 var AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-GKOF7UXG.js");
+    this.load_settings_schema = () => import("./settings.schema-BYWXKFAK.js");
     this._placeos = inject(PlaceOS_Service);
     this._uploads = inject(UploadsService);
     this.shortcuts = inject(KeyboardShortcutsService);
@@ -9241,9 +9268,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-RH2E22FD.js").then((m) => m.ChatComponent),
+    import("./chat.component-TSXPYLRC.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-FFDPMF2T.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-HKVGLFZA.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9293,105 +9320,112 @@ var routes = [
   {
     path: "book/rooms",
     title: "Room Bookings",
-    loadChildren: () => import("./day-view.routes-JCZQUXZX.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./day-view.routes-4X3LN4YQ.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "facilities",
     title: "Facilities",
-    loadChildren: () => import("./facilities.routes-4245K44E.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./facilities.routes-FGY6G344.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/visitors",
     title: "Visitors",
-    loadChildren: () => import("./visitors.routes-CMVCH5V2.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./visitors.routes-CFKLMVZD.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/assets",
     title: "Assets",
-    loadChildren: () => import("./asset-manager.routes-ONRBR7E3.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./asset-manager.routes-UFTRPSNP.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/desks",
     title: "Desk Bookings",
-    loadChildren: () => import("./desks.routes-XVUQ4VUE.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./desks.routes-B245WTL4.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/lockers",
     title: "Locker Bookings",
-    loadChildren: () => import("./lockers.routes-MLD5F5WU.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./lockers.routes-AI7REKBP.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "reports",
     title: "Reports",
-    loadChildren: () => import("./reports.routes-3D2PNNH7.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./reports.routes-XIDOOPBF.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "entertainment/events",
     title: "Events",
-    loadChildren: () => import("./events.routes-HFYV47DD.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./events.routes-HSIUZ3M7.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "users/staff",
     title: "Staff",
-    loadChildren: () => import("./staff.routes-SCXJGMUF.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./staff.routes-DJBTKMXT.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/catering",
     title: "Catering",
-    loadChildren: () => import("./catering.routes-IH733WUE.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./catering.routes-VGLDKRC6.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-management",
     title: "Points Management",
-    loadChildren: () => import("./points.routes-SEEXJB5H.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./points.routes-5Y7K7S4G.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/parking",
     title: "Parking Bookings",
-    loadChildren: () => import("./parking.routes-AOGDYTRV.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./parking.routes-GYNXBPPC.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "surveys",
     title: "Surveys",
-    loadChildren: () => import("./surveys.routes-GWKIUDY5.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./surveys.routes-TFZQJW2V.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "room-management",
     title: "Room Management",
-    loadChildren: () => import("./room-manager.routes-ZVKBVXFW.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./room-manager.routes-TKSYROS7.js").then((m) => m.ROUTES),
+    canActivate: [AuthorisedUserGuard],
+    canLoad: [AuthorisedUserGuard]
+  },
+  {
+    path: "map-management",
+    title: "Map Management",
+    loadChildren: () => import("./map-manager.routes-VC2TUEKW.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "zone-management",
     title: "Zone Management",
-    loadChildren: () => import("./zone-manager.routes-QKD6DR3S.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./zone-manager.routes-YY2KIPZ3.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -9410,35 +9444,28 @@ var routes = [
   {
     path: "email-templates",
     title: "Email Templates",
-    loadChildren: () => import("./email-templates.routes-YXQGTMN6.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./email-templates.routes-OC2ODWRX.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
-    loadChildren: () => import("./deals.routes-K4EFFXBL.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./deals.routes-NQ4XZAQV.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-of-interest",
     title: "Points of Interest",
-    loadChildren: () => import("./poi-manager.routes-K2NPGQ2M.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./poi-manager.routes-IXO2XS56.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "url-management",
     title: "URL Management",
-    loadChildren: () => import("./url-manager.routes-IWBFC3VK.js").then((m) => m.ROUTES),
-    canActivate: [AuthorisedUserGuard],
-    canLoad: [AuthorisedUserGuard]
-  },
-  {
-    path: "signage",
-    title: "Signage",
-    loadChildren: () => import("./signage.routes-3FGYHPBK.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./url-manager.routes-5GLNW6EL.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -9473,5 +9500,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=7a31b3b9-a0e2-56d4-8139-6dcd0e79895f
+//# debugId=dcab5d2a-b31c-57b2-87c6-abeed8cda285
 //# sourceMappingURL=main.js.map
