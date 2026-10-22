@@ -1,23 +1,27 @@
 import {
+  legacyFlowsGuard
+} from "./chunk-N4FHCUN2.js";
+import {
   MatProgressBar,
   MatProgressBarModule,
   setMinutes
-} from "./chunk-6XFXOKXX.js";
+} from "./chunk-NVWJQGI2.js";
 import {
   subMinutes
-} from "./chunk-KOFJXZ3Q.js";
+} from "./chunk-7XGRKZYC.js";
 import {
   generateMockSpace
-} from "./chunk-75XHUJIP.js";
-import "./chunk-2O3DNPFQ.js";
+} from "./chunk-5XMRXOYP.js";
+import "./chunk-CRZDCPNP.js";
 import {
   setHours,
   subDays
-} from "./chunk-AF5MAAL2.js";
+} from "./chunk-7VF5TD5Y.js";
 import {
   TranslatePipe
-} from "./chunk-YH6WW4ZI.js";
-import "./chunk-563KHMKI.js";
+} from "./chunk-VZSWYXPT.js";
+import "./chunk-IB6WR7JO.js";
+import "./chunk-JZU6NIMO.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -51,11 +55,13 @@ import {
   teamsSignInRequired,
   user_groups_loaded,
   watchUserGroupSync
-} from "./chunk-YTDF3XKN.js";
+} from "./chunk-KTADYPHH.js";
 import {
-  AsyncHandler,
   IconComponent
-} from "./chunk-YSJBWPO2.js";
+} from "./chunk-3ZDLFGP6.js";
+import {
+  AsyncHandler
+} from "./chunk-2FYBYRLM.js";
 import {
   Hp,
   J,
@@ -79,8 +85,8 @@ import {
   startOfDay,
   timePeriodsIntersect,
   unique
-} from "./chunk-2IR4GIXZ.js";
-import "./chunk-VFG36MWY.js";
+} from "./chunk-LSVIIU5S.js";
+import "./chunk-WWAEQFU7.js";
 import {
   Router,
   RouterLink,
@@ -90,7 +96,7 @@ import {
   withHashLocation,
   withNavigationErrorHandler,
   withRouterConfig
-} from "./chunk-DN5WP6VI.js";
+} from "./chunk-ZTX66HDZ.js";
 import {
   Component,
   ErrorHandler,
@@ -140,7 +146,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-KUUKBHBD.js";
+} from "./chunk-6OEACKVR.js";
 import {
   __spreadProps,
   __spreadValues
@@ -398,7 +404,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-LDBNKFU3.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-DD4EQ2GA.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -484,6 +490,8 @@ function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.initialisation_error() ? 1 : 2);
   }
 }
+var BACKGROUND_SETTLED_CLASS = "background-settled";
+var BACKGROUND_SETTLE_DELAY_MS = 3e3;
 var GRADIENT_CACHE_KEY = "PLACEOS.loading_gradient";
 var CSS_COLOUR = /^(#[0-9a-f]{3,8}|[a-z]+|(rgba?|hsla?|oklch|oklab)\([\w\s.,%/-]+\))$/i;
 function loadingGradient(colours) {
@@ -521,7 +529,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-LDBNKFU3.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-DD4EQ2GA.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -544,7 +552,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 73 });
 })();
 var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
   constructor() {
@@ -573,9 +581,31 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         []
       )
     );
+    this.visible = computed(
+      () => this.loading() || !!this.initialisation_error(),
+      ...ngDevMode ? [{ debugName: "visible" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.gradient = signal(
       localStorage.getItem(GRADIENT_CACHE_KEY) || "",
       ...ngDevMode ? [{ debugName: "gradient" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._settle_background = effect(
+      () => {
+        const root = document.documentElement;
+        if (this.visible()) {
+          this.clearTimeout("settle-background");
+          root.classList.remove(BACKGROUND_SETTLED_CLASS);
+          return;
+        }
+        this.timeout("settle-background", () => root.classList.add(BACKGROUND_SETTLED_CLASS), BACKGROUND_SETTLE_DELAY_MS);
+      },
+      ...ngDevMode ? [{ debugName: "_settle_background" }] : (
         /* istanbul ignore next */
         []
       )
@@ -633,7 +663,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.connection_checked() && !ctx.online() ? 1 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.loading() || ctx.initialisation_error() ? 2 : -1);
+        \u0275\u0275conditional(ctx.visible() ? 2 : -1);
       }
     }, dependencies: [
       MatProgressBarModule,
@@ -656,7 +686,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
         }
-        @if (loading() || initialisation_error()) {
+        @if (visible()) {
             <div
                 loader
                 class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
@@ -704,7 +734,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 144 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 158 });
 })();
 
 // libs/components/src/lib/misconfigured.component.ts
@@ -9215,11 +9245,11 @@ function mocksInit() {
 // apps/workplace/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-J75RLTTW.js").then((m) => m.ChatComponent)
+  import("./chat.component-D2KA3H3A.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-DJUNY3MN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-MHPD4C6V.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9230,16 +9260,24 @@ function AppComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "p");
-    \u0275\u0275text(3, "Sign in to continue.");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "button", 3);
-    \u0275\u0275listener("click", function AppComponent_Conditional_7_Template_button_click_4_listener() {
+    \u0275\u0275elementStart(5, "button", 3);
+    \u0275\u0275listener("click", function AppComponent_Conditional_7_Template_button_click_5_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.signInWithTeams());
     });
-    \u0275\u0275text(5, " Sign in ");
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
     \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 2, "COMMON.SIGN_IN_PROMPT"));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 4, "COMMON.SIGN_IN"), " ");
   }
 }
 function AppComponent_Defer_8_Template(rf, ctx) {
@@ -9257,7 +9295,7 @@ var AppComponent = class _AppComponent {
     this._uploads = inject(UploadsService);
     this.has_chat = settingSignal("chat.enabled", false);
     this.teams_sign_in_required = teamsSignInRequired();
-    this.load_settings_schema = () => import("./settings.schema-GP3BIL6M.js");
+    this.load_settings_schema = () => import("./settings.schema-BAJ2XTDS.js");
     watchUserGroupSync();
   }
   async ngOnInit() {
@@ -9285,7 +9323,7 @@ var AppComponent = class _AppComponent {
         \u0275\u0275domTemplate(3, AppComponent_Defer_3_Template, 1, 0);
         \u0275\u0275defer(4, 3, AppComponent_Defer_4_DepsFn);
         \u0275\u0275element(6, "global-loading");
-        \u0275\u0275conditionalCreate(7, AppComponent_Conditional_7_Template, 6, 0, "div", 1);
+        \u0275\u0275conditionalCreate(7, AppComponent_Conditional_7_Template, 8, 6, "div", 1);
         \u0275\u0275domTemplate(8, AppComponent_Defer_8_Template, 1, 1);
         \u0275\u0275defer(9, 8, AppComponent_Defer_9_DepsFn);
         \u0275\u0275deferOnIdle();
@@ -9299,16 +9337,17 @@ var AppComponent = class _AppComponent {
     }, dependencies: [
       RouterOutlet,
       GlobalBannerComponent,
-      GlobalLoadingComponent
+      GlobalLoadingComponent,
+      TranslatePipe
     ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
   }
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-J75RLTTW.js").then((m) => m.ChatComponent),
+    import("./chat.component-D2KA3H3A.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-DJUNY3MN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-MHPD4C6V.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9317,7 +9356,8 @@ var AppComponent = class _AppComponent {
         GlobalBannerComponent,
         GlobalLoadingComponent,
         SettingsDebugPanelLauncherComponent,
-        ChatComponent
+        ChatComponent,
+        TranslatePipe
       ], template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
@@ -9334,14 +9374,14 @@ var AppComponent = class _AppComponent {
                 <div
                     class="border-base-300 bg-base-100 w-[24rem] max-w-full rounded-lg border p-4 text-center text-sm shadow-sm"
                 >
-                    <p>Sign in to continue.</p>
+                    <p>{{ 'COMMON.SIGN_IN_PROMPT' | translate }}</p>
                     <button
                         btn
                         type="button"
                         class="mt-3 w-full"
                         (click)="signInWithTeams()"
                     >
-                        Sign in
+                        {{ 'COMMON.SIGN_IN' | translate }}
                     </button>
                 </div>
             </div>
@@ -9356,7 +9396,7 @@ var AppComponent = class _AppComponent {
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/workplace/src/app/app.component.ts", lineNumber: 76 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/workplace/src/app/app.component.ts", lineNumber: 78 });
 })();
 
 // apps/workplace/src/environments/environment.ts
@@ -9383,68 +9423,76 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-JKU4OEVT.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-M5YUNUKM.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-HJ2TM2YG.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-A4VKVF4Q.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-7USXVYYL.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-BDE67TV2.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-TKVMMIJO.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-4HRF4QSL.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-JO3HO24E.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-TTQYOBEL.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-4GJMFQLY.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-BS4FBAUL.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-FCPQWRRL.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-XXRFMKOR.js").then((m) => m.ROUTES)
+  },
+  {
+    path: "landing",
+    title: "Home",
+    canMatch: [legacyFlowsGuard],
+    canActivate: [AuthorisedUserGuard],
+    canLoad: [AuthorisedUserGuard],
+    loadChildren: () => import("./landing.routes-SCLSRWGV.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-ILTEGIDW.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-JF6ST7MB.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-PGPJX7KV.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-DG5NZSLV.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
     title: "Embedded Page",
     canActivate: [AuthorisedUserGuard],
-    loadComponent: () => import("./embedded-url.component-3MITECGI.js").then((m) => m.EmbeddedUrlComponent)
+    loadComponent: () => import("./embedded-url.component-EHW2QYUP.js").then((m) => m.EmbeddedUrlComponent)
   },
   { path: "**", redirectTo: "-", pathMatch: "full" }
 ];
@@ -9476,5 +9524,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=6badd7e2-8a83-55b5-aab8-716685c2ccbb
+//# debugId=9ede6c9e-4037-5889-a9a4-b8e38ea3cd9f
 //# sourceMappingURL=main.js.map
