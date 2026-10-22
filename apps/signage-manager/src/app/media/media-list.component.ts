@@ -30,6 +30,7 @@ import { IntersectDirective } from '../shared/intersect.directive';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import { SignageContextService } from '../signage-context.service';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
+import { MediaSharedGroupsComponent } from './media-shared-groups.component';
 import { SignageMediaService } from './signage-media.service';
 
 // Sentinel folder for media items without any tags.
@@ -326,6 +327,9 @@ const UNTAGGED = '\0untagged';
                                         }
                                     </div>
                                 </div>
+                                <media-shared-groups
+                                    [item_id]="media_item.id"
+                                />
                                 <button
                                     icon
                                     default
@@ -773,6 +777,7 @@ const UNTAGGED = '\0untagged';
         TranslatePipe,
         IntersectDirective,
         MediaThumbnailComponent,
+        MediaSharedGroupsComponent,
     ],
 })
 export class MediaListComponent implements OnInit {

@@ -115,6 +115,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - Users can preview a media item from the list or grid.
+- The list view shows the groups each media item is shared with, right aligned before the actions menu. The groups load when the item scrolls into view, are hidden when the item is only held by the selected group, and collapse to a group count that lists the groups on hover when the row is too narrow.
 - Users with update permission can edit media details.
 - Users with update permission can add media to a playlist.
 - Users with share permission can share media.
