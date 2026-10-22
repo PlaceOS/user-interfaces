@@ -1,8 +1,8 @@
-import "./chunk-YQKDPALL.js";
+import "./chunk-DEC3XCD6.js";
 import "./chunk-AGK5J2VR.js";
 import {
   TranslatePipe
-} from "./chunk-AUPW2XX7.js";
+} from "./chunk-3T2I4HFR.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -27,7 +27,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-OTA3DIFD.js";
+} from "./chunk-ATDCEC7U.js";
 import {
   AsyncHandler,
   Hp,
@@ -52,7 +52,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-EA27WN3L.js";
+} from "./chunk-IO3H7DHO.js";
 import {
   IconComponent
 } from "./chunk-T6G4DZFT.js";
@@ -783,6 +783,8 @@ function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.initialisation_error() ? 1 : 2);
   }
 }
+var BACKGROUND_SETTLED_CLASS = "background-settled";
+var BACKGROUND_SETTLE_DELAY_MS = 3e3;
 var GRADIENT_CACHE_KEY = "PLACEOS.loading_gradient";
 var CSS_COLOUR = /^(#[0-9a-f]{3,8}|[a-z]+|(rgba?|hsla?|oklch|oklab)\([\w\s.,%/-]+\))$/i;
 function loadingGradient(colours) {
@@ -840,7 +842,7 @@ var NativeDomainOverlayLoaderComponent = _NativeDomainOverlayLoaderComponent;
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 73 });
 })();
 var _GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
   constructor() {
@@ -869,9 +871,31 @@ var _GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler
         []
       )
     );
+    this.visible = computed(
+      () => this.loading() || !!this.initialisation_error(),
+      ...ngDevMode ? [{ debugName: "visible" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.gradient = signal(
       localStorage.getItem(GRADIENT_CACHE_KEY) || "",
       ...ngDevMode ? [{ debugName: "gradient" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._settle_background = effect(
+      () => {
+        const root = document.documentElement;
+        if (this.visible()) {
+          this.clearTimeout("settle-background");
+          root.classList.remove(BACKGROUND_SETTLED_CLASS);
+          return;
+        }
+        this.timeout("settle-background", () => root.classList.add(BACKGROUND_SETTLED_CLASS), BACKGROUND_SETTLE_DELAY_MS);
+      },
+      ...ngDevMode ? [{ debugName: "_settle_background" }] : (
         /* istanbul ignore next */
         []
       )
@@ -928,7 +952,7 @@ _GlobalLoadingComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx.connection_checked() && !ctx.online() ? 1 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.loading() || ctx.initialisation_error() ? 2 : -1);
+    \u0275\u0275conditional(ctx.visible() ? 2 : -1);
   }
 }, dependencies: [
   MatProgressBarModule,
@@ -950,7 +974,7 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
         }
-        @if (loading() || initialisation_error()) {
+        @if (visible()) {
             <div
                 loader
                 class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
@@ -998,7 +1022,7 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 144 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 158 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -9485,7 +9509,7 @@ function mocksInit() {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-NP2JNUX3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-7ER3HO4I.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -9524,7 +9548,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-NP2JNUX3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-7ER3HO4I.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9577,22 +9601,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-RQGSYLPZ.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-HWUA6GH2.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-VA4UV7MN.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-WMX5M2T2.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-VSQNTWXT.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-5CLEG2NS.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-QS2CSOAN.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-T2FHMLKF.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -9611,5 +9635,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=51b0cfe5-1253-59e2-8b43-adda3f6fa609
+//# debugId=d0335ea8-a7d7-5a67-a4df-e637b2e27f6d
 //# sourceMappingURL=main.js.map

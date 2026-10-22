@@ -34,17 +34,17 @@ import {
   CustomTooltipComponent,
   CustomTooltipData,
   SanitizePipe
-} from "./chunk-TOQREENN.js";
+} from "./chunk-67DL6FMI.js";
 import {
   MatOption,
   _MatInternalFormField
 } from "./chunk-RRUXTBEK.js";
 import {
   SpacePipe
-} from "./chunk-YQKDPALL.js";
+} from "./chunk-DEC3XCD6.js";
 import {
   TranslatePipe
-} from "./chunk-AUPW2XX7.js";
+} from "./chunk-3T2I4HFR.js";
 import {
   CalendarEvent,
   OrganisationService,
@@ -55,7 +55,7 @@ import {
   firstValueWhere,
   getUnixTime,
   toQueryString
-} from "./chunk-OTA3DIFD.js";
+} from "./chunk-ATDCEC7U.js";
 import {
   AsyncHandler,
   Gp,
@@ -81,7 +81,7 @@ import {
   startOfDay,
   unique,
   xa
-} from "./chunk-EA27WN3L.js";
+} from "./chunk-IO3H7DHO.js";
 import {
   IconComponent,
   SafePipe
@@ -3795,14 +3795,19 @@ var lexer = _Lexer.lex;
 var _c03 = ["*"];
 function FullscreenModalShellComponent_Conditional_5_Conditional_0_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 7)(1, "icon");
-    \u0275\u0275text(2, "close");
+    \u0275\u0275elementStart(0, "button", 7);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275elementStart(2, "icon");
+    \u0275\u0275text(3, "close");
     \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 1, "COMMON.CLOSE"));
   }
 }
 function FullscreenModalShellComponent_Conditional_5_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, FullscreenModalShellComponent_Conditional_5_Conditional_0_Conditional_0_Template, 3, 0, "button", 7);
+    \u0275\u0275conditionalCreate(0, FullscreenModalShellComponent_Conditional_5_Conditional_0_Conditional_0_Template, 4, 3, "button", 7);
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
@@ -3811,18 +3816,21 @@ function FullscreenModalShellComponent_Conditional_5_Conditional_0_Template(rf, 
 }
 function FullscreenModalShellComponent_Conditional_5_Conditional_1_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 8)(1, "icon");
-    \u0275\u0275text(2, "close");
+    \u0275\u0275elementStart(0, "a", 8);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275elementStart(2, "icon");
+    \u0275\u0275text(3, "close");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(3);
     \u0275\u0275property("routerLink", ctx_r0.close());
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 2, "COMMON.CLOSE"));
   }
 }
 function FullscreenModalShellComponent_Conditional_5_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, FullscreenModalShellComponent_Conditional_5_Conditional_1_Conditional_0_Template, 3, 1, "a", 8);
+    \u0275\u0275conditionalCreate(0, FullscreenModalShellComponent_Conditional_5_Conditional_1_Conditional_0_Template, 4, 4, "a", 8);
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
@@ -4040,13 +4048,23 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
                 @if (!hide_close()) {
                     @if (!close()?.length) {
                         @if (!loading()) {
-                            <button icon matRipple mat-dialog-close>
+                            <button
+                                icon
+                                matRipple
+                                mat-dialog-close
+                                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                            >
                                 <icon>close</icon>
                             </button>
                         }
                     } @else {
                         @if (!loading()) {
-                            <a icon matRipple [routerLink]="close()">
+                            <a
+                                icon
+                                matRipple
+                                [routerLink]="close()"
+                                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                            >
                                 <icon>close</icon>
                             </a>
                         }
@@ -4105,7 +4123,7 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
   }], null, { loading: [{ type: Input, args: [{ isSignal: true, alias: "loading", required: false }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: false }] }], confirm_text: [{ type: Input, args: [{ isSignal: true, alias: "confirm_text", required: false }] }], confirm_hotkey: [{ type: Input, args: [{ isSignal: true, alias: "confirm_hotkey", required: false }] }], confirm_disabled: [{ type: Input, args: [{ isSignal: true, alias: "confirm_disabled", required: false }] }], close: [{ type: Input, args: [{ isSignal: true, alias: "close", required: false }] }], hide_confirm: [{ type: Input, args: [{ isSignal: true, alias: "hide_confirm", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], full_width: [{ type: Input, args: [{ isSignal: true, alias: "full_width", required: false }] }], confirm: [{ type: Output, args: ["confirm"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 105 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 115 });
 })();
 
 // libs/components/src/lib/changelog-modal.component.ts
@@ -7302,6 +7320,11 @@ var SourceSelectModalComponent = _SourceSelectModalComponent;
 })();
 
 // apps/control/src/app/control-state.service.ts
+function sameAliases(a, b) {
+  if (!a || !b)
+    return a === b;
+  return a.length === b.length && a.every((alias, i) => alias === b[i]);
+}
 var _ControlStateService = class _ControlStateService extends AsyncHandler {
   get id() {
     return this._id();
@@ -7327,13 +7350,10 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
         []
       )
     );
-    this._inputs = signal(
-      [],
-      ...ngDevMode ? [{ debugName: "_inputs" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    this._inputs = signal([], __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_inputs" } : (
+      /* istanbul ignore next */
+      {}
+    )), { equal: sameAliases }));
     this._available_inputs = signal(
       [],
       ...ngDevMode ? [{ debugName: "_available_inputs" }] : (
@@ -7341,13 +7361,10 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
         []
       )
     );
-    this._outputs = signal(
-      [],
-      ...ngDevMode ? [{ debugName: "_outputs" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    this._outputs = signal([], __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_outputs" } : (
+      /* istanbul ignore next */
+      {}
+    )), { equal: sameAliases }));
     this._input_data = signal(
       [],
       ...ngDevMode ? [{ debugName: "_input_data" }] : (
@@ -7580,12 +7597,14 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
       untracked(() => this.bindToState(id));
     });
     effect(() => {
+      const id = this._id();
       const inputs = this._inputs() || [];
-      untracked(() => this.bindSources("input", inputs));
+      untracked(() => this.bindSources("input", id, inputs));
     });
     effect(() => {
+      const id = this._id();
       const outputs = this._outputs() || [];
-      untracked(() => this.bindSources("output", outputs));
+      untracked(() => this.bindSources("output", id, outputs));
     });
   }
   setID(id) {
@@ -7805,8 +7824,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
     });
   }
   /** Bind to changes on input or output sources */
-  bindSources(type, alias_list) {
-    const id = this._id();
+  bindSources(type, id, alias_list) {
     if (!id)
       return;
     this.unsubWith(`listen:${type}/`);
@@ -11521,5 +11539,5 @@ export {
   ControlConnectingComponent,
   SplashComponent
 };
-//# debugId=4310bbdd-163c-533d-988c-9d40a64f3cf8
-//# sourceMappingURL=chunk-CA3PSUSW.js.map
+//# debugId=c4b15187-f448-5f97-a779-2c35fa744483
+//# sourceMappingURL=chunk-JQXXDKYA.js.map
