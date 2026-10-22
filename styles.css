@@ -2637,9 +2637,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .inset-1 {
   inset: calc(var(--spacing) * 1);
 }
-#placeos .inset-4 {
-  inset: calc(var(--spacing) * 4);
-}
 #placeos .-inset-x-0\.5 {
   inset-inline: calc(var(--spacing) * -0.5);
 }
@@ -2694,9 +2691,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .top-2 {
   top: calc(var(--spacing) * 2);
 }
-#placeos .top-2\.5 {
-  top: calc(var(--spacing) * 2.5);
-}
 #placeos .top-3 {
   top: calc(var(--spacing) * 3);
 }
@@ -2708,9 +2702,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .top-8 {
   top: calc(var(--spacing) * 8);
-}
-#placeos .top-10 {
-  top: calc(var(--spacing) * 10);
 }
 #placeos .top-12 {
   top: calc(var(--spacing) * 12);
@@ -2757,9 +2748,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .right-2 {
   right: calc(var(--spacing) * 2);
 }
-#placeos .right-2\.5 {
-  right: calc(var(--spacing) * 2.5);
-}
 #placeos .right-3 {
   right: calc(var(--spacing) * 3);
 }
@@ -2768,9 +2756,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .right-8 {
   right: calc(var(--spacing) * 8);
-}
-#placeos .right-14 {
-  right: calc(var(--spacing) * 14);
 }
 #placeos .right-70 {
   right: calc(var(--spacing) * 70);
@@ -2798,9 +2783,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bottom-4 {
   bottom: calc(var(--spacing) * 4);
-}
-#placeos .bottom-8 {
-  bottom: calc(var(--spacing) * 8);
 }
 #placeos .bottom-16 {
   bottom: calc(var(--spacing) * 16);
@@ -2849,9 +2831,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .left-5 {
   left: calc(var(--spacing) * 5);
-}
-#placeos .left-6 {
-  left: calc(var(--spacing) * 6);
 }
 #placeos .left-7 {
   left: calc(var(--spacing) * 7);
@@ -2925,6 +2904,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .row-1 {
   grid-row: 1;
 }
+#placeos .row-1000 {
+  grid-row: 1000;
+}
 #placeos .row-start-2 {
   grid-row-start: 2;
 }
@@ -2985,6 +2967,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .-mx-2 {
   margin-inline: calc(var(--spacing) * -2);
+}
+#placeos .-mx-8 {
+  margin-inline: calc(var(--spacing) * -8);
 }
 #placeos .-mx-px {
   margin-inline: -1px;
@@ -3127,9 +3112,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .mb-10 {
   margin-bottom: calc(var(--spacing) * 10);
 }
-#placeos .mb-12 {
-  margin-bottom: calc(var(--spacing) * 12);
-}
 #placeos .mb-16 {
   margin-bottom: calc(var(--spacing) * 16);
 }
@@ -3204,6 +3186,13 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .table {
   display: table;
+}
+#placeos .table-row {
+  display: table-row;
+}
+#placeos .size-2 {
+  width: calc(var(--spacing) * 2);
+  height: calc(var(--spacing) * 2);
 }
 #placeos .\!h-auto {
   height: auto !important;
@@ -3316,6 +3305,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-96 {
   height: calc(var(--spacing) * 96);
 }
+#placeos .h-100 {
+  height: calc(var(--spacing) * 100);
+}
 #placeos .h-112 {
   height: calc(var(--spacing) * 112);
 }
@@ -3325,14 +3317,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-128 {
   height: calc(var(--spacing) * 128);
 }
+#placeos .h-200 {
+  height: calc(var(--spacing) * 200);
+}
 #placeos .h-224 {
   height: calc(var(--spacing) * 224);
 }
 #placeos .h-240 {
   height: calc(var(--spacing) * 240);
-}
-#placeos .h-384 {
-  height: calc(var(--spacing) * 384);
 }
 #placeos .h-\[1\.25em\] {
   height: 1.25em;
@@ -3391,9 +3383,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-\[calc\(100\%-2rem\)\] {
   height: calc(100% - 2rem);
 }
-#placeos .h-\[calc\(100\%-3\.5rem\)\] {
-  height: calc(100% - 3.5rem);
-}
 #placeos .h-\[calc\(100vh-2\.5rem\)\] {
   height: calc(100vh - 2.5rem);
 }
@@ -3414,9 +3403,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .h-\[calc\(100vh-9rem\)\] {
   height: calc(100vh - 9rem);
-}
-#placeos .h-\[calc\(100vh-10rem\)\] {
-  height: calc(100vh - 10rem);
 }
 #placeos .h-\[calc\(100vh-12rem\)\] {
   height: calc(100vh - 12rem);
@@ -3471,9 +3457,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .max-h-\[60vh\] {
   max-height: 60vh;
-}
-#placeos .max-h-\[65\%\] {
-  max-height: 65%;
 }
 #placeos .max-h-\[65vh\] {
   max-height: 65vh;
@@ -3534,9 +3517,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .min-h-28 {
   min-height: calc(var(--spacing) * 28);
-}
-#placeos .min-h-32 {
-  min-height: calc(var(--spacing) * 32);
 }
 #placeos .min-h-40 {
   min-height: calc(var(--spacing) * 40);
@@ -3772,9 +3752,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-\[65vw\] {
   width: 65vw;
 }
-#placeos .w-\[80vw\] {
-  width: 80vw;
-}
 #placeos .w-\[90vw\] {
   width: 90vw;
 }
@@ -3883,9 +3860,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .max-w-\[33\%\] {
   max-width: 33%;
 }
-#placeos .max-w-\[65vw\] {
-  max-width: 65vw;
-}
 #placeos .max-w-\[80vw\] {
   max-width: 80vw;
 }
@@ -3979,9 +3953,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .min-w-8 {
   min-width: calc(var(--spacing) * 8);
 }
-#placeos .min-w-10 {
-  min-width: calc(var(--spacing) * 10);
-}
 #placeos .min-w-12 {
   min-width: calc(var(--spacing) * 12);
 }
@@ -4027,11 +3998,17 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .min-w-220 {
   min-width: calc(var(--spacing) * 220);
 }
+#placeos .min-w-240 {
+  min-width: calc(var(--spacing) * 240);
+}
 #placeos .min-w-248 {
   min-width: calc(var(--spacing) * 248);
 }
 #placeos .min-w-272 {
   min-width: calc(var(--spacing) * 272);
+}
+#placeos .min-w-288 {
+  min-width: calc(var(--spacing) * 288);
 }
 #placeos .min-w-304 {
   min-width: calc(var(--spacing) * 304);
@@ -4041,9 +4018,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .min-w-336 {
   min-width: calc(var(--spacing) * 336);
-}
-#placeos .min-w-368 {
-  min-width: calc(var(--spacing) * 368);
 }
 #placeos .min-w-372 {
   min-width: calc(var(--spacing) * 372);
@@ -4104,6 +4078,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .shrink-0 {
   flex-shrink: 0;
+}
+#placeos .grow {
+  flex-grow: 1;
 }
 #placeos .grow-3 {
   flex-grow: 3;
@@ -4227,9 +4204,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .grid-cols-7 {
   grid-template-columns: repeat(7, minmax(0, 1fr));
 }
-#placeos .grid-cols-\[24rem_minmax\(0\,1fr\)\] {
-  grid-template-columns: 24rem minmax(0, 1fr);
-}
 #placeos .grid-cols-\[max-content_1fr\] {
   grid-template-columns: max-content 1fr;
 }
@@ -4275,8 +4249,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .justify-items-center {
   justify-items: center;
 }
+#placeos .gap-0\.5 {
+  gap: calc(var(--spacing) * 0.5);
+}
 #placeos .gap-1 {
   gap: calc(var(--spacing) * 1);
+}
+#placeos .gap-1\.5 {
+  gap: calc(var(--spacing) * 1.5);
 }
 #placeos .gap-2 {
   gap: calc(var(--spacing) * 2);
@@ -4434,9 +4414,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .rounded-\[0\.75em\] {
   border-radius: 0.75em;
-}
-#placeos .rounded-\[4rem\] {
-  border-radius: 4rem;
 }
 #placeos .rounded-full {
   border-radius: calc(infinity * 1px);
@@ -4769,6 +4746,14 @@ input:where([type=button], [type=reset], [type=submit]),
     background-color: color-mix(in oklab, var(--error) 10%, transparent);
   }
 }
+#placeos .bg-error\/15 {
+  background-color: var(--error);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-error\/15 {
+    background-color: color-mix(in oklab, var(--error) 15%, transparent);
+  }
+}
 #placeos .bg-info {
   background-color: var(--info);
 }
@@ -4803,14 +4788,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bg-secondary\! {
   background-color: var(--secondary) !important;
-}
-#placeos .bg-secondary-content\/60 {
-  background-color: var(--secondary-content);
-}
-@supports (color: color-mix(in lab, red, red)) {
-  #placeos .bg-secondary-content\/60 {
-    background-color: color-mix(in oklab, var(--secondary-content) 60%, transparent);
-  }
 }
 #placeos .bg-success {
   background-color: var(--success);
@@ -4998,6 +4975,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .pt-2 {
   padding-top: calc(var(--spacing) * 2);
 }
+#placeos .pt-3 {
+  padding-top: calc(var(--spacing) * 3);
+}
 #placeos .pt-4 {
   padding-top: calc(var(--spacing) * 4);
 }
@@ -5021,9 +5001,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .pr-4 {
   padding-right: calc(var(--spacing) * 4);
-}
-#placeos .pr-6 {
-  padding-right: calc(var(--spacing) * 6);
 }
 #placeos .pr-8 {
   padding-right: calc(var(--spacing) * 8);
@@ -5091,14 +5068,8 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .pl-8 {
   padding-left: calc(var(--spacing) * 8);
 }
-#placeos .pl-9 {
-  padding-left: calc(var(--spacing) * 9);
-}
 #placeos .pl-10 {
   padding-left: calc(var(--spacing) * 10);
-}
-#placeos .pl-14 {
-  padding-left: calc(var(--spacing) * 14);
 }
 #placeos .text-center {
   text-align: center;
@@ -5192,6 +5163,10 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .leading-4 {
   --tw-leading: calc(var(--spacing) * 4);
   line-height: calc(var(--spacing) * 4);
+}
+#placeos .leading-6 {
+  --tw-leading: calc(var(--spacing) * 6);
+  line-height: calc(var(--spacing) * 6);
 }
 #placeos .leading-none {
   --tw-leading: 1;
@@ -5380,9 +5355,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .underline-offset-2 {
   text-underline-offset: 2px;
 }
-#placeos .accent-secondary {
-  accent-color: var(--secondary);
-}
 #placeos .opacity-0 {
   opacity: 0%;
 }
@@ -5460,6 +5432,15 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .shadow-xs {
   --tw-shadow: 0 1px 2px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05));
+  box-shadow:
+    var(--tw-inset-shadow),
+    var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow),
+    var(--tw-ring-shadow),
+    var(--tw-shadow);
+}
+#placeos .ring {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
   box-shadow:
     var(--tw-inset-shadow),
     var(--tw-inset-ring-shadow),
@@ -5631,6 +5612,12 @@ input:where([type=button], [type=reset], [type=submit]),
   -webkit-user-select: text;
   user-select: text;
 }
+#placeos .not-first\:my-2:not(*:first-child) {
+  margin-block: calc(var(--spacing) * 2);
+}
+#placeos .not-first\:mt-3:not(*:first-child) {
+  margin-top: calc(var(--spacing) * 3);
+}
 #placeos .placeholder\:text-white\/40::placeholder {
   color: color-mix(in oklab, #ffffff 40%, transparent);
 }
@@ -5661,9 +5648,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .last\:border-b-0:last-child {
   border-bottom-style: var(--tw-border-style);
   border-bottom-width: 0px;
-}
-#placeos .even\:border-base-200:nth-child(even) {
-  border-color: var(--base-200);
 }
 #placeos .even\:bg-base-200:nth-child(even) {
   background-color: var(--base-200);
@@ -5701,18 +5685,8 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (hover: hover) {
-  #placeos .hover\:z-30:hover {
-    z-index: 30;
-  }
-}
-@media (hover: hover) {
   #placeos .hover\:h-4:hover {
     height: calc(var(--spacing) * 4);
-  }
-}
-@media (hover: hover) {
-  #placeos .hover\:h-48\!:hover {
-    height: calc(var(--spacing) * 48) !important;
   }
 }
 @media (hover: hover) {
@@ -5893,6 +5867,19 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .active\:bg-secondary:active {
   background-color: var(--secondary);
+}
+@media (width < 48rem) {
+  #placeos .max-md\:sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
 }
 @media (width >= 40rem) {
   #placeos .sm\:relative {
@@ -6201,11 +6188,6 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (width >= 64rem) {
   #placeos .lg\:hidden {
     display: none;
-  }
-}
-@media (width >= 64rem) {
-  #placeos .lg\:grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 @media (width >= 64rem) {
@@ -6618,6 +6600,10 @@ body {
   body {
     animation: application-gradient 20s ease-in-out infinite alternate;
   }
+}
+html.background-settled,
+html.background-settled body {
+  animation-play-state: paused;
 }
 @keyframes application-gradient {
   to {
