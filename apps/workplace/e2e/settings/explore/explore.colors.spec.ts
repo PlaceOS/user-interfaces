@@ -6,6 +6,7 @@ import { DeskFlow } from '../../../../../e2e/support/desk/desk-flow.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
 // Current routed desk flow with browser-local fixtures. Target: explore.colors.
+// Coverage: 1 setting, 2 scenarios.
 // Local execution: both scenarios passed (2/2), as reported by the user.
 // Covers space-free and fallback free, not desk-free.
 // The existing desk-free product defect remains unresolved.

@@ -1,4 +1,5 @@
 // Setting: hide_landing_customise (docs/settings/workplace.md:28).
+// Coverage: 1 setting, 2 scenarios. Local execution: 2/2 PASS, as reported by the user.
 // Consumer: apps/workplace/src/app/landing-new/landing-new.component.ts:405-425.
 // When true the "Edit home screen" control is not rendered and a saved layout
 // is ignored; when false the control opens the local layout editor.

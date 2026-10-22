@@ -1,4 +1,5 @@
 // Setting: hide_landing_widgets (docs/settings/workplace.md:29).
+// Coverage: 1 setting, 2 scenarios. Local execution: 2/2 PASS, as reported by the user.
 // Consumer: apps/workplace/src/app/landing-new/landing-new.component.ts:374-395.
 // Hidden ids are removed from `available()` before the layout is rendered, so
 // the card is absent and cannot be added. The default layout keeps the other

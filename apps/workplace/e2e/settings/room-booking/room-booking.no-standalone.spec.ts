@@ -1,4 +1,5 @@
-// Target: events.no_standalone. Current MeetingFlow; manual execution pending.
+// Target: events.no_standalone. Current MeetingFlow.
+// Coverage: 1 setting, 1 scenario. Local execution: 1/1 PASS; retained result and run log.
 // Form state and incidental bootstrap fixtures exist only in this browser.
 import type { BrowserContext as MigrationContext, Page as MigrationPage, TestInfo as MigrationTestInfo } from '@playwright/test';
 import { expect as migrationExpect } from '../../../../../e2e/support/fixtures';
