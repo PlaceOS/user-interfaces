@@ -1,0 +1,200 @@
+import "./chunk-653SOEEV.js";
+
+// apps/map-kiosk/src/environments/settings.schema.json
+var type = "object";
+var description = "Customisable settings for the map-kiosk app";
+var properties = {
+  name: {
+    type: "string",
+    description: "Application name sent with PlaceOS API requests. Falls back to `short_name`."
+  },
+  short_name: {
+    type: "string",
+    description: "Prefix for console log messages. Also used as the API application name when `name` is not set."
+  },
+  logo_light: {
+    type: "string",
+    description: "URL of the logo to display in the top bar when the light theme is active. Also accepts an icon object with a `src` property."
+  },
+  logo_dark: {
+    type: "string",
+    description: "URL of the logo to display in the top bar when the dark theme is active. Also accepts an icon object with a `src` property."
+  },
+  use_region: {
+    type: "boolean",
+    description: "Whether the level list on the map view should include levels for all buildings in the active region (prefixed with the building name) instead of only the active building. Also scopes booking queries to the region."
+  },
+  inactivity_timeout_secs: {
+    type: "number",
+    description: "Number of seconds after the last user interaction before the map view resets the kiosk state (closes dialogs, recentres the map and returns to the default level). Set to `0` to turn off the reset. Defaults to `180`."
+  },
+  kiosk_reset_delay: {
+    type: "number",
+    description: "Number of milliseconds of inactivity before the desk booking view navigates back to the explore map. Defaults to `300000` (5 minutes)."
+  },
+  allow_dark_mode: {
+    type: "boolean",
+    description: "Whether the dark mode toggle is shown in the accessibility controls. Off when not set."
+  },
+  chat: {
+    type: "object",
+    description: "Settings for the chat assistant",
+    properties: {
+      enabled: {
+        type: "boolean",
+        description: "Whether the global chat assistant widget is available in the app"
+      }
+    }
+  },
+  use_imperial_units: {
+    type: "boolean",
+    description: "Whether zone sensor labels show temperatures in Fahrenheit"
+  },
+  environment_bar: {
+    type: "string",
+    description: "CSS colour for thin identifier bars at the top and bottom of the app. Leave unset to hide the bars."
+  },
+  banner: {
+    type: "object",
+    description: "Message banner shown at the top of the app. The user can close it.",
+    properties: {
+      id: {
+        type: "string",
+        description: "Unique ID for the banner. A closed banner stays hidden until the ID changes."
+      },
+      type: {
+        type: "string",
+        enum: ["info", "warn", "error"],
+        description: "Colour style for the banner. Defaults to `info`."
+      },
+      content: {
+        type: "string",
+        description: "Message text to show in the banner"
+      }
+    }
+  },
+  explore: {
+    type: "object",
+    description: "Data associated with map rendering",
+    properties: {
+      search_enabled: {
+        type: "boolean",
+        description: "Whether the search bar is shown in the top bar of the map view"
+      },
+      show_legend: {
+        type: "boolean",
+        description: "Whether the legend section is shown in the map view sidebar. Only hidden when explicitly set to `false`."
+      },
+      show_booking_qr: {
+        type: "boolean",
+        description: "Whether a room booking shows a QR code to book on a personal device, instead of the booking form. Off when not set"
+      },
+      colors: {
+        type: "object",
+        description: "Mapping of map element keys to colour values. Keys are usually in the format `<type>-<status>`",
+        additionalProperties: { type: "string" }
+      },
+      disable: {
+        $ref: "#/$defs/map_layers",
+        description: "Map layers to turn off: features, actions, labels and styles"
+      },
+      disable_features: {
+        $ref: "#/$defs/map_layers",
+        description: "Map layers whose features are turned off"
+      },
+      disable_actions: {
+        $ref: "#/$defs/map_layers",
+        description: "Map layers whose click actions are turned off"
+      },
+      disable_labels: {
+        $ref: "#/$defs/map_layers",
+        description: "Map layers whose labels are turned off"
+      },
+      disable_styles: {
+        $ref: "#/$defs/map_layers",
+        description: "Map layers whose styles are turned off"
+      },
+      hide_device_fields: {
+        type: "array",
+        description: "Fields to hide in device tooltips",
+        items: {
+          type: "string",
+          enum: [
+            "mac",
+            "manufacturer",
+            "os",
+            "ssid",
+            "username",
+            "user"
+          ]
+        }
+      },
+      use_zone_polygons: {
+        type: "boolean",
+        description: "Whether to draw zone areas with their polygon data"
+      },
+      show_zone_labels: {
+        type: "boolean",
+        description: "Whether to show labels for zone areas"
+      },
+      show_zone_sensor_info: {
+        type: "boolean",
+        description: "Whether to show sensor values in zone area labels"
+      },
+      area_count_key: {
+        type: "string",
+        description: "Key of the zone area value to use as the people count. Defaults to `count`"
+      }
+    }
+  },
+  desks: {
+    type: "object",
+    description: "Data associated with the desk booking flow",
+    properties: {
+      use_assets: {
+        type: "boolean",
+        description: "Whether desk resources are read through the assets API instead of legacy Zone metadata"
+      },
+      enable_maps: {
+        type: "boolean",
+        description: "Whether people can book desks from the map. On unless set to `false`"
+      },
+      show_users: {
+        type: "boolean",
+        description: "Whether desk tooltips show the name of the person at the desk. On unless set to `false`"
+      }
+    }
+  },
+  events: {
+    type: "object",
+    description: "Data associated with the meeting booking flow",
+    properties: {
+      can_book_for_others: {
+        type: "boolean",
+        description: "Whether users are allowed to set another person as the host when booking a space"
+      }
+    }
+  }
+};
+var $defs = {
+  map_layers: {
+    type: "array",
+    description: "Map layer names, such as `devices`, `desks`, `lockers`, `parking`, `spaces`, `spaces-presence` and `zones`",
+    items: { type: "string" }
+  }
+};
+var settings_schema_default = {
+  type,
+  description,
+  properties,
+  $defs
+};
+export {
+  $defs,
+  settings_schema_default as default,
+  description,
+  properties,
+  type
+};
+//# debugId=ba2fc5ad-4af1-5c79-b9ce-95f2de1bab2f
+//# sourceMappingURL=settings.schema-OWSMLEZZ.js.map
