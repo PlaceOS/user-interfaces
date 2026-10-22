@@ -18,6 +18,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    settingSignal,
     SettingsService,
     User,
 } from '@placeos/common';
@@ -168,6 +169,12 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
             : 'BOOKINGS.VISITOR_TIME_HEADER',
     );
 
+    /** Whether the visitor has to give a reason for the visit */
+    public readonly reason_required = settingSignal(
+        'visitors.reason_required',
+        false,
+    );
+
     public ngOnInit() {
         const { id, booking_type } = this._model();
         if (!id || booking_type !== 'visitor')
@@ -212,8 +219,12 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         this._form().markAsTouched();
 
         const is_multiple = this.is_multiple();
+        // A required reason must never be silently replaced with the default,
+        // otherwise an emptied reason would be sent as "Visit".
         const visitor_reason =
-            this._model()?.title || this._model()?.description || 'Visit';
+            this._model()?.title ||
+            this._model()?.description ||
+            (this.reason_required() ? '' : 'Visit');
 
         if (this._form.title().invalid()) {
             return notifyError(i18n('BOOKINGS.VISITOR_REASON_REQUIRED'));

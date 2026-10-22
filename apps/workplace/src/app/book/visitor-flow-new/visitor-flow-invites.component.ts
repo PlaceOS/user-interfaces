@@ -383,6 +383,11 @@ export class VisitorFlowInvitesComponent
         false,
     );
 
+    public readonly reason_required = settingSignal(
+        'visitors.reason_required',
+        false,
+    );
+
     public get form() {
         return this._booking_form.form;
     }
@@ -422,10 +427,14 @@ export class VisitorFlowInvitesComponent
         );
         this.subscription('name', () => name_handle.destroy());
 
+        // The reason is the booking title. When it is required the field has
+        // to start empty so the visitor's host has to type one — defaulting it
+        // here would undo the empty value the details step sets.
         if (
             !this.model().id &&
             !this.model().title &&
-            !this.model().description
+            !this.model().description &&
+            !this.reason_required()
         ) {
             this.model.update((m) => ({
                 ...m,

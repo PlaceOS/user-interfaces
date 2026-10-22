@@ -95,6 +95,7 @@ describe('VisitorFlowInvitesComponent', () => {
             false,
         );
         settingSignal('bookings.multiple_visitors', false).set(false);
+        settingSignal('visitors.reason_required', false).set(false);
         spectator = createComponent({ detectChanges: false });
     });
 
@@ -112,6 +113,15 @@ describe('VisitorFlowInvitesComponent', () => {
         spectator.component.ngOnInit();
         expect(model().title).toBe('Visit');
         expect(model().description).toBe('Visit');
+    });
+
+    it('leaves the reason empty on init when a reason is required', () => {
+        settingSignal('visitors.reason_required', false).set(true);
+
+        spectator.component.ngOnInit();
+
+        expect(model().title).toBe('');
+        expect(model().description).toBe('');
     });
 
     it('does not overwrite an existing booking title on init', () => {

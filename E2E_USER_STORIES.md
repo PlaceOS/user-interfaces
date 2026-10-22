@@ -151,7 +151,7 @@ was built in. Extending there is a separate piece of work, not an oversight.
 | VIS-05 | P1 | One user's visitor invite is **not** visible to another user, and cannot be deleted by them. | **done** — `local/visitor-scoping.spec.ts`. The desk equivalent is WP-E2E-08; a visitor invite leaks a named outside person, not just a seat. |
 | VIS-06 | P1 | Control for VIS-05: you *can* see your own invite and its guest record, so "nobody sees anything" cannot pass as success. | **done** — `local/visitor-scoping.spec.ts` |
 | VIS-07 | P2 | With all-day invites allowed, an all-day invite is **stored** as all-day rather than as a long timed booking. | **done** — `local/visitor-settings.spec.ts` |
-| VIS-08 | P2 | With a reason required, sending without one is refused by the form and nothing reaches the backend. | **blocked** — `local/visitor-settings.spec.ts`, `test.fixme`. The new invite flow does not read `visitors.reason_required`: with the reason cleared, Confirm sends the invite with the title "Visit" and gets `201`. The spec passed on the flow before PR #561. |
+| VIS-08 | P2 | With a reason required, sending without one is refused by the form and nothing reaches the backend. | **done** — `local/visitor-settings.spec.ts`. The new invite flow reads `visitors.reason_required`: the reason starts empty and an emptied reason is refused by the form. |
 | VIS-09 | P1 | Booking on behalf of somebody else stores **them** as the host (`user_*`) and **you** as the booker (`booked_by_*`). | **done** — `local/visitor-delegate.spec.ts`. Needs `visitors.can_book_for_anyone` **and** `visitors.can_book_for_others`: one without the other renders the host picker and then silently discards the choice. |
 | VIS-10 | P1 | The booker's schedule flags a delegated invite as **Associate** (and shows "For {name}"); the host's own listing shows it as theirs, unflagged. | **done** — `local/visitor-delegate.spec.ts`. Visibility is asymmetric — the booker only sees it at all because the schedule sends `include_booked_by=true`. |
 | VIS-11 | P1 | A visitor is checked **in** and then back **out**, both recorded on the backend; after checking out the control is gone, so one invite cannot be used twice. | **done** — `local/visitor-checkin.spec.ts`. Check-in and check-out are the same button; only the check-out asks for confirmation. |
@@ -358,12 +358,11 @@ of WP-E2E-05, and its two checks of the success view are now in that test.
 
 ### Blocked by the new views
 
-Each of these is `test.fixme` with the measurement in its comment. The first three passed on the
+Each of these is `test.fixme` with the measurement in its comment. The first two passed on the
 views before PR #561.
 
 | ID | Story | What blocks it |
 |----|-------|----------------|
-| VIS-08 | With a reason required, an invite without one is refused. | The new invite flow does not read `visitors.reason_required`. With the reason cleared, Confirm sends the invite with the title "Visit" and gets `201`. |
 | VIS-20 (half) | The international-visitor flag is stored with the invite. | With `visitors.allow_international` on, the new invite flow has no control for the flag and sends `international: false`. |
 | ROOM-28 | A meeting booked for a colleague is stored with that colleague as the host. | The new meeting flow cannot name a colleague on this stack. `events.can_book_for_anyone` renders no host field. `events.can_book_for_others` renders a select that is filled from `GET /calendars`, which answers `500` without a calendar tenant, so the select holds only the signed-in user. |
 | NEW-DESK-03 | A desk can be selected when another desk of the building has no `features` list. | `desk-flow-select.component.ts` calls `.trim()` on the features of every desk with no guard. One desk without the list throws `TypeError: Cannot read properties of undefined (reading 'trim')`, and after that no row of the list shows as selected. The earlier flow read the list through `BookingFormService.features`, which has the guard. |
@@ -519,8 +518,8 @@ nothing, so the broker keeps its last value. source would need redis keyspace no
   or through `use_bookings`?** Nobody has answered it. If the answer is "the calendar", the
   green rows in §1b guard a path those customers never take. This needs a product answer, not more
   specs.
-- **Six rows are blocked on product fixes, not on test effort** (REG-08, REG-09, VIS-08, the
-  international half of VIS-20, ROOM-28 and NEW-DESK-03). The last four are gaps or faults of
+- **Five rows are blocked on product fixes, not on test effort** (REG-08, REG-09, the
+  international half of VIS-20, ROOM-28 and NEW-DESK-03). The last three are gaps or faults of
   the views that PR #561 made the default; §1c has them. All were found by this suite. Leaving
   them visible here is the point — a blocked row is coverage information, a deleted row is not.
 - **One row is blocked by the environment rather than by a bug** (AUTH-E2E-08), and it says
