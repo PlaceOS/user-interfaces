@@ -8,11 +8,11 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-FUZHILWQ.js";
+} from "./chunk-6N5C3PTV.js";
 import {
   TranslatePipe
-} from "./chunk-QWXVZUSC.js";
-import "./chunk-6PODK65P.js";
+} from "./chunk-DWKLXBDZ.js";
+import "./chunk-R6XZB5HJ.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -61,20 +61,20 @@ import {
   toDate,
   unique,
   user_groups_loaded
-} from "./chunk-ZSNQS5RI.js";
+} from "./chunk-BZIGAQK3.js";
 import {
   IconComponent
-} from "./chunk-76GMIDEP.js";
-import "./chunk-3VVETPYG.js";
-import "./chunk-HIDO5ZAZ.js";
-import "./chunk-54BH5SYL.js";
+} from "./chunk-WDTC4G4N.js";
+import "./chunk-46TGIZND.js";
+import "./chunk-4FURTINF.js";
+import "./chunk-V7DC3C2V.js";
 import {
   Router,
   RouterLink,
   RouterOutlet,
   provideRouter,
   withHashLocation
-} from "./chunk-OCHWLO2X.js";
+} from "./chunk-T2RE25YG.js";
 import {
   Component,
   DOCUMENT,
@@ -129,7 +129,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuerySignal
-} from "./chunk-3HMDYHSV.js";
+} from "./chunk-ML2KIW5J.js";
 import {
   __spreadProps,
   __spreadValues
@@ -406,7 +406,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-5WLOHGKW.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-VSGUE2YP.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -492,6 +492,8 @@ function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.initialisation_error() ? 1 : 2);
   }
 }
+var BACKGROUND_SETTLED_CLASS = "background-settled";
+var BACKGROUND_SETTLE_DELAY_MS = 3e3;
 var GRADIENT_CACHE_KEY = "PLACEOS.loading_gradient";
 var CSS_COLOUR = /^(#[0-9a-f]{3,8}|[a-z]+|(rgba?|hsla?|oklch|oklab)\([\w\s.,%/-]+\))$/i;
 function loadingGradient(colours) {
@@ -529,7 +531,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-5WLOHGKW.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-VSGUE2YP.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -552,7 +554,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayLoaderComponent, { className: "NativeDomainOverlayLoaderComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 73 });
 })();
 var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
   constructor() {
@@ -581,9 +583,31 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         []
       )
     );
+    this.visible = computed(
+      () => this.loading() || !!this.initialisation_error(),
+      ...ngDevMode ? [{ debugName: "visible" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.gradient = signal(
       localStorage.getItem(GRADIENT_CACHE_KEY) || "",
       ...ngDevMode ? [{ debugName: "gradient" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._settle_background = effect(
+      () => {
+        const root = document.documentElement;
+        if (this.visible()) {
+          this.clearTimeout("settle-background");
+          root.classList.remove(BACKGROUND_SETTLED_CLASS);
+          return;
+        }
+        this.timeout("settle-background", () => root.classList.add(BACKGROUND_SETTLED_CLASS), BACKGROUND_SETTLE_DELAY_MS);
+      },
+      ...ngDevMode ? [{ debugName: "_settle_background" }] : (
         /* istanbul ignore next */
         []
       )
@@ -641,7 +665,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.connection_checked() && !ctx.online() ? 1 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.loading() || ctx.initialisation_error() ? 2 : -1);
+        \u0275\u0275conditional(ctx.visible() ? 2 : -1);
       }
     }, dependencies: [
       MatProgressBarModule,
@@ -664,7 +688,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
         }
-        @if (loading() || initialisation_error()) {
+        @if (visible()) {
             <div
                 loader
                 class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
@@ -712,21 +736,21 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 144 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 158 });
 })();
 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-R54UXNV5.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-53XCK67I.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-2DS57LIA.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-232R4UPA.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-GOCQQQWU.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-XJN5VINE.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -961,11 +985,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-R54UXNV5.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-53XCK67I.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-2DS57LIA.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-232R4UPA.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-GOCQQQWU.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-XJN5VINE.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -9462,7 +9486,7 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-HZPCXLWV.js").then((m) => m.ChatComponent)
+  import("./chat.component-PTROFCH2.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -9471,7 +9495,7 @@ function AppComponent_Defer_4_Template(rf, ctx) {
 }
 var AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-4P6S7LSF.js");
+    this.load_settings_schema = () => import("./settings.schema-72KABIUW.js");
     this._placeos = inject(PlaceOS_Service);
     this.has_chat = settingSignal("chat.enabled", false);
   }
@@ -9514,7 +9538,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-HZPCXLWV.js").then((m) => m.ChatComponent)
+    import("./chat.component-PTROFCH2.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9550,7 +9574,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-UTPGY5RQ.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-IGIRXR7Y.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -9589,5 +9613,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=c1416b6b-01eb-5bec-ae36-ce49fb5066c7
+//# debugId=62d15b96-4d18-5d23-a1bd-e8753c3de11a
 //# sourceMappingURL=main.js.map
