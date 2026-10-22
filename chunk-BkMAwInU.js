@@ -1,0 +1,1 @@
+import{ct as m}from"./chunk-C23NfUkY.js";function a(o,r){let t=m(o,r?.in);return t.setDate(1),t.setHours(0,0,0,0),t}export{a as t};
