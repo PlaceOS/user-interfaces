@@ -24,10 +24,11 @@ import { TranslatePipe } from '@placeos/components';
                     digit
                     matRipple
                     class="bg-base-100 m-2 flex h-16 w-60 flex-1 items-center justify-center rounded-lg active:-bottom-1"
-                    [class.absolute]="!inline()"
-                    [class.bottom-0]="!inline()"
-                    [class.-right-4]="!inline()"
-                    [class.translate-x-full]="!inline()"
+                    [class]="
+                        inline()
+                            ? ''
+                            : 'sm:absolute sm:-right-4 sm:bottom-0 sm:translate-x-full'
+                    "
                     (click)="pressed.emit('')"
                 >
                     {{ 'APP.CONTROL.BACKSPACE' | translate }}

@@ -44,8 +44,11 @@ class RoomModule {
 
     public readonly inputs;
     public readonly outputs;
+    public readonly available_inputs;
     public readonly available_outputs;
     public readonly environment;
+    /** Input that the panel last selected */
+    public selected_input = '';
 
     // Lighting bindings
     public lighting_scenes: string[] = [
@@ -187,6 +190,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
         this.env_sources = _data.env_sources || [];
         this.inputs = Object.keys(this.input_list || {}) || [];
         this.outputs = Object.keys(this.output_list || {}) || [];
+        this.available_inputs = this.inputs;
         this.available_outputs = this.outputs;
         const types = unique(this.env_sources.map((_) => _.type)) || [];
         types.forEach(
@@ -234,6 +238,14 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
                 following: input,
             });
         }
+    }
+    /** Connect a signal source to every output */
+    $route_all(input: string) {
+        this.outputs.forEach((output) => this.$route(input, output));
+    }
+    /** Set the input that the panel shows controls for */
+    $selected_input(input: string) {
+        this.selected_input = input;
     }
     /**
      * Remove a signal source from a signal output.

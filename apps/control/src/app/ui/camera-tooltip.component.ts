@@ -37,7 +37,9 @@ import {
     selector: 'camera-tooltip',
     template: `
         @if (camera_list()?.length) {
-            <div class="bg-base-100 my-2 flex flex-col rounded-sm shadow-sm">
+            <div
+                class="bg-base-100 my-2 flex flex-col rounded-sm shadow-sm max-sm:my-0 max-sm:flex-1 max-sm:rounded-none max-sm:shadow-none"
+            >
                 <mat-form-field appearance="outline" class="no-subscript m-2">
                     <mat-select
                         [ngModel]="active_camera()"
@@ -62,12 +64,14 @@ import {
                         </h3>
                         @if (presets().length) {
                             @for (name of presets(); track name) {
-                                <div class="flex items-center space-x-2">
+                                <div
+                                    class="flex items-center space-x-2 max-sm:w-full"
+                                >
                                     <button
                                         preset
                                         btn
                                         matRipple
-                                        class="w-48"
+                                        class="w-48 max-sm:w-auto max-sm:flex-1"
                                         [class.inverse]="preset() !== name"
                                         (click)="recallPreset(name)"
                                     >
@@ -203,7 +207,7 @@ import {
             </div>
         } @else {
             <div
-                class="bg-base-100 my-2 flex flex-col rounded-sm p-8 text-center shadow-sm"
+                class="bg-base-100 my-2 flex flex-col rounded-sm p-8 text-center shadow-sm max-sm:my-0 max-sm:flex-1 max-sm:rounded-none max-sm:shadow-none"
             >
                 <p>{{ 'APP.CONTROL.CAMERAS_EMPTY' | translate }}</p>
             </div>

@@ -38,7 +38,7 @@ import {
     template: `
         @if (!loading()) {
             <div class="h-full w-full p-2">
-                <div class="flex h-1/2 flex-1">
+                <div class="flex flex-col sm:h-1/2 sm:flex-1 sm:flex-row">
                     <div
                         class="flex flex-1 flex-col items-center justify-center space-y-2 p-2"
                     >

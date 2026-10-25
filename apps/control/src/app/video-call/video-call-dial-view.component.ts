@@ -13,11 +13,15 @@ import { VideoCallStateService } from './video-call-state.service';
 @Component({
     selector: 'video-call-dial-view',
     template: `
-        <div class="flex justify-center">
+        <div
+            class="flex flex-col items-center sm:flex-row sm:items-start sm:justify-center"
+        >
             @if (!loading()) {
                 <ng-container class="">
                     <dialpad (pressed)="addDigit($event)"></dialpad>
-                    <div class="flex flex-col pt-8">
+                    <div
+                        class="flex w-full max-w-xs flex-col sm:w-auto sm:max-w-none sm:pt-8"
+                    >
                         <p class="px-2 pt-4">
                             {{ 'APP.CONTROL.VC_ENTER_CODE' | translate }}
                         </p>

@@ -25,7 +25,7 @@ import { TabOutletComponent } from './tab-outlet.component';
         @if (system()?.connected) {
             @if (system()?.active) {
                 <div
-                    class="divide divide-base-200 bg-base-100 relative flex h-full w-full flex-col"
+                    class="divide divide-base-200 bg-base-100 relative flex h-full w-full flex-col pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
                 >
                     <topbar-header></topbar-header>
                     <div class="bg-base-200 h-1/2 flex-1" tab-outlet></div>

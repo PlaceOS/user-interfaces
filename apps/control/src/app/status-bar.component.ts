@@ -16,7 +16,7 @@ import { DurationPipe } from './ui/duration.pipe';
         @if (capture_mod()) {
             <div
                 recording
-                class="divide-base-200 text-base-content flex items-center divide-x text-xs"
+                class="divide-base-200 text-base-content flex items-center divide-x overflow-x-auto text-xs max-sm:w-full"
             >
                 <div hidden>
                     <i
@@ -122,7 +122,7 @@ import { DurationPipe } from './ui/duration.pipe';
         <div class="flex-1"></div>
         @if (has_master_audio() !== false) {
             <div
-                class="text-base-content flex w-lg max-w-[50%] items-center space-x-2 px-4 py-2"
+                class="text-base-content flex w-full items-center space-x-2 px-4 py-2 sm:w-lg sm:max-w-[50%]"
             >
                 <button icon matRipple mute (click)="toggleMute()">
                     <icon>{{ volume_icon() }}</icon>
@@ -146,6 +146,15 @@ import { DurationPipe } from './ui/duration.pipe';
                 align-items: center;
                 height: 3.5rem;
                 overflow: hidden;
+            }
+
+            /* Phones put recording controls and volume on separate rows */
+            @media (max-width: 39.99rem) {
+                :host {
+                    flex-wrap: wrap;
+                    height: auto;
+                    min-height: 3.5rem;
+                }
             }
         `,
     ],

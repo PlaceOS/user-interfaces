@@ -14,17 +14,17 @@ import { ControlStateService } from '../control-state.service';
     selector: 'lighting-levels-tooltip',
     template: `
         <div
-            class="bg-base-100 my-2 flex flex-col items-center space-y-4 rounded-sm p-2 shadow-sm"
+            class="bg-base-100 my-2 flex flex-col items-center space-y-4 rounded-sm p-2 shadow-sm max-sm:my-0 max-sm:flex-1 max-sm:rounded-none max-sm:shadow-none"
         >
             <h3
-                class="bg-base-200 w-full rounded-sm px-4 py-2 text-xl font-medium"
+                class="bg-base-200 w-full rounded-sm px-4 py-2 text-xl font-medium max-sm:hidden"
             >
                 {{ 'APP.CONTROL.LIGHTING_LEVELS' | translate }}
             </h3>
             @if (lights().length > 0) {
                 @for (light of lights(); track light.binding) {
                     <div
-                        class="border-base-300 relative min-w-[20rem] rounded-sm border px-4"
+                        class="border-base-300 relative min-w-[20rem] rounded-sm border px-4 max-sm:w-full max-sm:min-w-0"
                     >
                         <div
                             class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 rounded-sm px-2 py-1 text-sm font-medium"

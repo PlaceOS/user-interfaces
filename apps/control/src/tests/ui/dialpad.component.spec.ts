@@ -53,13 +53,13 @@ describe('DialpadComponent', () => {
         expect(spectator.queryAll('button[digit]')).toHaveLength(12);
     });
 
-    it('should toggle absolute positioning of backspace based on inline', () => {
+    it('should place backspace beside the pad on larger screens unless inline', () => {
         const backspace = () => {
             const buttons = spectator.queryAll('button[digit]');
             return buttons[buttons.length - 1];
         };
-        expect(backspace()).toHaveClass('absolute');
+        expect(backspace()).toHaveClass('sm:absolute');
         spectator.setInput({ inline: true });
-        expect(backspace()).not.toHaveClass('absolute');
+        expect(backspace()).not.toHaveClass('sm:absolute');
     });
 });
