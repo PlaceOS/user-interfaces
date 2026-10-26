@@ -1990,6 +1990,10 @@
             "MEETING_START_JOIN": "開始して参加",
             "PRESENT_ALL": "すべてに表示",
             "CLEAR_ALL": "すべてクリア",
+            "DISPLAY_SELECT": "{{ name }} の表示先",
+            "DISPLAY_SHOWING": "{{ names }} に表示中",
+            "DISPLAYS_EMPTY": "{{ name }} を表示できるディスプレイがありません",
+            "ACTIONS": "会議室の操作",
             "OUTPUT_ON": "ディスプレイ オン",
             "OUTPUT_OFF": "ディスプレイ オフ"
         },
