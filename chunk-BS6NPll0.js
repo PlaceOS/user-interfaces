@@ -1,0 +1,1 @@
+import{Fa as m,Lo as to,Pr as Zoe}from"./chunk-98u3vKtn.js";var f=(()=>{class t{constructor(){this._locale=m(Zoe)}transform(e,r={},s){return this._locale.get(e,r,s)||e}static{this.ɵfac=function(r){return new(r||t)}}static{this.ɵpipe=to({name:`translate`,type:t,pure:!1})}}return t})();export{f as t};

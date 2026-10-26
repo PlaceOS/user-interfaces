@@ -1,0 +1,1 @@
+import{Fa as m,Lo as to}from"./chunk-98u3vKtn.js";import{f as Dl}from"./chunk-H9oalzm2.js";var u=(()=>{class i{constructor(){this._org=m(Dl)}transform(r){return this._org.buildings.find(t=>r instanceof Array?r.includes(t.id):t.id===r)}static{this.ɵfac=function(t){return new(t||i)}}static{this.ɵpipe=to({name:`building`,type:i,pure:!0})}}return i})();export{u as t};
