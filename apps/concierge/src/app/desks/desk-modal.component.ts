@@ -87,11 +87,15 @@ export interface DeskModalData {
             @if (!loading()) {
                 <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
                     @if (is_new) {
-                        <label for="level">
+                        <label
+                            for="desk-modal-level"
+                            id="desk-modal-level-label"
+                        >
                             {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
                             <mat-select
+                                aria-labelledby="desk-modal-level-label"
                                 [formField]="form.zone_id"
                                 [placeholder]="
                                     'COMMON.LEVEL_SELECT' | translate
@@ -109,12 +113,13 @@ export interface DeskModalData {
                         </mat-form-field>
                     }
                     <div class="w-full">
-                        <label for="id">
+                        <label for="desk-modal-id">
                             {{ 'APP.CONCIERGE.DESKS_ID' | translate }}
                             <span>*</span>
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="desk-modal-id"
                                 matInput
                                 [formField]="form.id"
                                 placeholder="desk-10.123"
@@ -126,12 +131,13 @@ export interface DeskModalData {
                     </div>
                     <div class="flex space-x-2">
                         <div class="w-1/3 flex-1">
-                            <label for="name">
+                            <label for="desk-modal-name">
                                 {{ 'APP.CONCIERGE.DESKS_NAME' | translate }}
                                 <span>*</span>
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
+                                    id="desk-modal-name"
                                     matInput
                                     [formField]="form.name"
                                     placeholder="e.g. Office Desk"
@@ -142,7 +148,7 @@ export interface DeskModalData {
                             </mat-form-field>
                         </div>
                         <div class="w-1/3 flex-1">
-                            <label for="map-id">
+                            <label for="desk-modal-map-id">
                                 {{ 'EXPLORE.MAP_ID' | translate }}<span>*</span>
                             </label>
                             <div class="flex space-x-2">
@@ -151,6 +157,7 @@ export interface DeskModalData {
                                     class="w-full"
                                 >
                                     <input
+                                        id="desk-modal-map-id"
                                         matInput
                                         [formField]="form.map_id"
                                         [placeholder]="
@@ -184,11 +191,13 @@ export interface DeskModalData {
                             </div>
                         </div>
                     </div>
-                    <label for="user">{{
+                    <label for="desk-modal-user" id="desk-modal-user-label">{{
                         'APP.CONCIERGE.USER_ASSIGNED' | translate
                     }}</label>
                     <div class="mb-4 flex space-x-2">
                         <a-user-search-field
+                            role="group"
+                            aria-labelledby="desk-modal-user-label"
                             [formField]="form.assigned_user"
                             class="flex-1"
                         ></a-user-search-field>
@@ -236,39 +245,55 @@ export interface DeskModalData {
                         </settings-toggle>
                         <div class="flex-1"></div>
                     </div>
-                    <label for="notes">{{ 'COMMON.GROUPS' | translate }}</label>
+                    <label for="desk-modal-notes" id="desk-modal-notes-label">{{
+                        'COMMON.GROUPS' | translate
+                    }}</label>
                     <item-list-field
+                        role="group"
+                        aria-labelledby="desk-modal-notes-label"
                         class="w-full"
                         [placeholder]="'BOOKINGS.GROUPS' | translate"
                         [formField]="form.groups"
                     ></item-list-field>
-                    <label for="notes">{{
-                        'COMMON.FEATURES' | translate
-                    }}</label>
+                    <label
+                        for="desk-modal-notes-2"
+                        id="desk-modal-notes-2-label"
+                        >{{ 'COMMON.FEATURES' | translate }}</label
+                    >
                     <item-list-field
+                        role="group"
+                        aria-labelledby="desk-modal-notes-2-label"
                         class="w-full"
                         [placeholder]="'COMMON.FEATURES' | translate"
                         [formField]="form.features"
                     ></item-list-field>
-                    <label for="tags">{{ 'COMMON.TAGS' | translate }}</label>
+                    <label for="desk-modal-tags" id="desk-modal-tags-label">{{
+                        'COMMON.TAGS' | translate
+                    }}</label>
                     <item-list-field
+                        role="group"
+                        aria-labelledby="desk-modal-tags-label"
                         class="w-full"
                         [placeholder]="'COMMON.TAGS' | translate"
                         [formField]="form.tags"
                     ></item-list-field>
-                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <label for="desk-modal-notes-3">{{
+                        'FORM.NOTES' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
+                            id="desk-modal-notes-3"
                             matInput
                             [placeholder]="'FORM.NOTES' | translate"
                             [formField]="form.notes"
                         ></textarea>
                     </mat-form-field>
-                    <label for="homebase">
+                    <label for="desk-modal-homebase">
                         {{ 'APP.CONCIERGE.DESKS_HOMEBASE' | translate }}
                     </label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
+                            id="desk-modal-homebase"
                             matInput
                             [placeholder]="
                                 'APP.CONCIERGE.DESKS_HOMEBASE' | translate
@@ -276,11 +301,12 @@ export interface DeskModalData {
                             [formField]="form.homebase"
                         />
                     </mat-form-field>
-                    <label for="security">
+                    <label for="desk-modal-security">
                         {{ 'APP.CONCIERGE.DESKS_SECURITY' | translate }}
                     </label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
+                            id="desk-modal-security"
                             matInput
                             [placeholder]="
                                 'APP.CONCIERGE.DESKS_SECURITY' | translate

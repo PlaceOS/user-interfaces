@@ -411,10 +411,15 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             </div>
                         </h3>
                         <div class="flex w-full flex-col">
-                            <label for="notes">
+                            <label
+                                for="event-book-modal-notes"
+                                id="event-book-modal-notes-label"
+                            >
                                 {{ 'CALENDAR_EVENT.NOTES_INFO' | translate }}
                             </label>
                             <rich-text-input
+                                role="group"
+                                aria-labelledby="event-book-modal-notes-label"
                                 [formField]="form.body"
                                 [placeholder]="
                                     'CALENDAR_EVENT.NOTES_INFO' | translate

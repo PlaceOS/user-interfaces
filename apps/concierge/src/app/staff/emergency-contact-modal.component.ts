@@ -59,9 +59,12 @@ import {
                         class="mb-4"
                     ></a-user-search-field>
                     <div class="flex flex-col">
-                        <label for="name">{{ 'FORM.NAME' | translate }}</label>
+                        <label for="emergency-contact-modal-name">{{
+                            'FORM.NAME' | translate
+                        }}</label>
                         <mat-form-field appearance="outline">
                             <input
+                                id="emergency-contact-modal-name"
                                 matInput
                                 [formField]="form.name"
                                 placeholder="Full name"
@@ -70,11 +73,12 @@ import {
                     </div>
                     <div class="flex items-center space-x-4">
                         <div class="flex flex-1 flex-col">
-                            <label for="email">{{
+                            <label for="emergency-contact-modal-email">{{
                                 'FORM.EMAIL' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
                                 <input
+                                    id="emergency-contact-modal-email"
                                     matInput
                                     [formField]="form.email"
                                     type="email"
@@ -83,11 +87,12 @@ import {
                             </mat-form-field>
                         </div>
                         <div class="flex flex-1 flex-col">
-                            <label for="email">{{
+                            <label for="emergency-contact-modal-email-2">{{
                                 'FORM.PHONE' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
                                 <input
+                                    id="emergency-contact-modal-email-2"
                                     matInput
                                     [formField]="form.phone"
                                     type="tel"
@@ -100,11 +105,14 @@ import {
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <label for="zone">{{
-                            'RESOURCE.LEVEL' | translate
-                        }}</label>
+                        <label
+                            for="emergency-contact-modal-zone"
+                            id="emergency-contact-modal-zone-label"
+                            >{{ 'RESOURCE.LEVEL' | translate }}</label
+                        >
                         <mat-form-field appearance="outline">
                             <mat-select
+                                aria-labelledby="emergency-contact-modal-zone-label"
                                 [formField]="form.zone"
                                 [placeholder]="
                                     'COMMON.LEVEL_SELECT' | translate
@@ -122,15 +130,20 @@ import {
                         </mat-form-field>
                     </div>
                     <div class="flex flex-col">
-                        <label for="roles">{{
-                            'APP.CONCIERGE.CONTACTS_ROLES' | translate
-                        }}</label>
+                        <label
+                            for="emergency-contact-modal-roles"
+                            id="emergency-contact-modal-roles-label"
+                            >{{
+                                'APP.CONCIERGE.CONTACTS_ROLES' | translate
+                            }}</label
+                        >
                         <div class="flex items-center space-x-4">
                             <mat-form-field
                                 class="no-subscript flex-1"
                                 appearance="outline"
                             >
                                 <mat-select
+                                    aria-labelledby="emergency-contact-modal-roles-label"
                                     multiple
                                     [formField]="form.roles"
                                     [placeholder]="

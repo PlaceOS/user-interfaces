@@ -54,73 +54,86 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 <form
                     class="mx-auto my-2 flex w-160 max-w-full flex-col px-4 pb-16"
                 >
-                    <label for="name"
+                    <label for="deals-manage-name"
                         >{{ 'FORM.NAME' | translate }}
                         <span required>*</span></label
                     >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
+                            id="deals-manage-name"
                             matInput
                             [formField]="form.name"
                             placeholder="Name of the deal or offer"
                         />
                         <mat-error>Name is required</mat-error>
                     </mat-form-field>
-                    <label for="type"
+                    <label for="deals-manage-type"
                         >{{ 'COMMON.TYPE' | translate }}
                         <span required>*</span></label
                     >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
+                            id="deals-manage-type"
                             matInput
                             [formField]="form.type"
                             placeholder="Type of the deal or offer"
                         />
                         <mat-error>Type is required</mat-error>
                     </mat-form-field>
-                    <label for="details">{{
+                    <label for="deals-manage-details">{{
                         'COMMON.DETAILS' | translate
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
+                            id="deals-manage-details"
                             matInput
                             [formField]="form.details"
                             placeholder="Summary of the deal or offer"
                         />
                     </mat-form-field>
-                    <label for="description">{{
+                    <label for="deals-manage-description">{{
                         'COMMON.DESCRIPTION' | translate
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
+                            id="deals-manage-description"
                             matInput
                             [formField]="form.description"
                             placeholder="Description of the deal or offer"
                         ></textarea>
                     </mat-form-field>
-                    <label for="terms">{{ 'COMMON.TERMS' | translate }}</label>
+                    <label for="deals-manage-terms">{{
+                        'COMMON.TERMS' | translate
+                    }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
+                            id="deals-manage-terms"
                             matInput
                             [formField]="form.terms"
                             placeholder="Terms and conditions of the deal or offer"
                         ></textarea>
                     </mat-form-field>
-                    <label for="code">{{ 'COMMON.CODE' | translate }}</label>
+                    <label for="deals-manage-code">{{
+                        'COMMON.CODE' | translate
+                    }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
+                            id="deals-manage-code"
                             matInput
                             [formField]="form.code"
                             placeholder="Deal/Offer Code"
                         />
                     </mat-form-field>
-                    <label for="image">{{ 'COMMON.IMAGE' | translate }}</label>
+                    <label for="deals-manage-image">{{
+                        'COMMON.IMAGE' | translate
+                    }}</label>
                     <div class="mb-4 flex items-center space-x-2">
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-full"
                         >
                             <input
+                                id="deals-manage-image"
                                 matInput
                                 [formField]="form.image"
                                 placeholder="Image URL"
@@ -136,10 +149,16 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         />
                     </div>
 
-                    <label for="expires_at">{{
-                        'FORM.EXPIRES_AT' | translate
-                    }}</label>
-                    <a-date-field [formField]="form.expires_at" />
+                    <label
+                        for="deals-manage-expires_at"
+                        id="deals-manage-expires_at-label"
+                        >{{ 'FORM.EXPIRES_AT' | translate }}</label
+                    >
+                    <a-date-field
+                        role="group"
+                        aria-labelledby="deals-manage-expires_at-label"
+                        [formField]="form.expires_at"
+                    />
                 </form>
                 @if (!loading()) {
                     <footer

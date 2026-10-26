@@ -33,11 +33,12 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         <form building>
             @if (region_list().length) {
                 <div class="flex flex-col">
-                    <label for="region">
+                    <label for="building-form-region" id="building-form-region-label">
                         {{ 'RESOURCE.REGION' | translate }}
                     </label>
                     <mat-form-field appearance="outline">
                         <mat-select
+                            aria-labelledby="building-form-region-label"
                             [formField]="form.parent_id"
                             [placeholder]="'COMMON.REGION_SELECT' | translate"
                         >
@@ -57,11 +58,12 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </div>
                 }
                 <div class="flex flex-col">
-                    <label for="display-name"
+                    <label for="building-form-display-name"
                         >{{ 'FORM.DISPLAY_NAME' | translate }}
                     </label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="building-form-display-name"
                             matInput
                             [placeholder]="'FORM.DISPLAY_NAME' | translate"
                             [formField]="form.display_name"
@@ -69,12 +71,13 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="display-name">{{
+                    <label for="building-form-display-name-2">{{
                         'COMMON.TIMEZONE' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <icon matPrefix class="text-2xl">search</icon>
                         <input
+                            id="building-form-display-name-2"
                             matInput
                             [formField]="form.timezone"
                             [placeholder]="'COMMON.TIMEZONE' | translate"
@@ -93,11 +96,12 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </mat-autocomplete>
                 </div>
                 <div class="flex flex-col">
-                    <label for="address">
+                    <label for="building-form-address">
                         {{ 'COMMON.LOCATION' | translate }}
                     </label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="building-form-address"
                             matInput
                             [placeholder]="'COMMON.LOCATION' | translate"
                             [formField]="form.location"

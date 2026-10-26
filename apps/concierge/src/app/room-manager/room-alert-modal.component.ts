@@ -46,9 +46,9 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
             <main
                 class="flex max-h-[65vh] min-w-md flex-col overflow-x-hidden overflow-y-auto p-4"
             >
-                <label for="status">{{ 'COMMON.STATUS' | translate }}</label>
+                <label for="room-alert-modal-status" id="room-alert-modal-status-label">{{ 'COMMON.STATUS' | translate }}</label>
                 <mat-form-field appearance="outline">
-                    <mat-select [formField]="form.status">
+                    <mat-select aria-labelledby="room-alert-modal-status-label" [formField]="form.status">
                         <mat-option value="">{{
                             'APP.CONCIERGE.ROOMS_ALERT_TYPE_NONE' | translate
                         }}</mat-option>
@@ -63,11 +63,12 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
                         }}</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <label for="message">{{
+                <label for="room-alert-modal-message">{{
                     'APP.CONCIERGE.ROOMS_ALERT_MSG' | translate
                 }}</label>
                 <mat-form-field appearance="outline">
                     <textarea
+                        id="room-alert-modal-message"
                         matInput
                         [formField]="form.message"
                     ></textarea>

@@ -49,12 +49,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         >
             <form>
                 <div class="flex flex-col space-y-2">
-                    <label for="order-number">
+                    <label for="asset-purchase-order-form-order-number">
                         {{ 'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER' | translate
                         }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="asset-purchase-order-form-order-number"
                             matInput
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER'
@@ -69,11 +70,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col space-y-2">
-                    <label for="invoice-number">{{
+                    <label for="asset-purchase-order-form-invoice-number">{{
                         'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="asset-purchase-order-form-invoice-number"
                             matInput
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE'
@@ -89,44 +91,64 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
                 <div class="flex space-x-2">
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="purchase-date">{{
-                            'APP.CONCIERGE.ASSETS_PURCHASE_DATE' | translate
-                        }}</label>
+                        <label
+                            for="asset-purchase-order-form-purchase-date"
+                            id="asset-purchase-order-form-purchase-date-label"
+                            >{{
+                                'APP.CONCIERGE.ASSETS_PURCHASE_DATE' | translate
+                            }}</label
+                        >
                         <a-date-field
+                            role="group"
+                            aria-labelledby="asset-purchase-order-form-purchase-date-label"
                             [from]="from.valueOf()"
                             [formField]="form.purchase_date"
                         ></a-date-field>
                     </div>
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="unit-price">{{
+                        <label for="asset-purchase-order-form-unit-price">{{
                             'APP.CONCIERGE.ASSETS_PURCHASE_PRICE' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <div matPrefix>$</div>
-                            <input matInput [formField]="form.unit_price" />
+                            <input
+                                id="asset-purchase-order-form-unit-price"
+                                matInput
+                                [formField]="form.unit_price"
+                            />
                         </mat-form-field>
                     </div>
                 </div>
                 <div class="flex space-x-2">
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="depreciation-start-date">
+                        <label
+                            for="asset-purchase-order-form-depreciation-start-date"
+                            id="asset-purchase-order-form-depreciation-start-date-label"
+                        >
                             {{
                                 'APP.CONCIERGE.ASSETS_PURCHASE_START'
                                     | translate
                             }}
                         </label>
                         <a-date-field
+                            role="group"
+                            aria-labelledby="asset-purchase-order-form-depreciation-start-date-label"
                             [from]="from.valueOf()"
                             [formField]="form.expected_service_start_date"
                         ></a-date-field>
                     </div>
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="depreciation-end-date">
+                        <label
+                            for="asset-purchase-order-form-depreciation-end-date"
+                            id="asset-purchase-order-form-depreciation-end-date-label"
+                        >
                             {{
                                 'APP.CONCIERGE.ASSETS_PURCHASE_END' | translate
                             }}
                         </label>
                         <a-date-field
+                            role="group"
+                            aria-labelledby="asset-purchase-order-form-depreciation-end-date-label"
                             [formField]="form.expected_service_end_date"
                         ></a-date-field>
                     </div>
