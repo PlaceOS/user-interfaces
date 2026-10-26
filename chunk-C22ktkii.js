@@ -1,0 +1,1 @@
+import{un as Hi}from"./main-XLNHAGBA.js";function u(o,r,n){return Hi(o,-r,n)}export{u as t};
