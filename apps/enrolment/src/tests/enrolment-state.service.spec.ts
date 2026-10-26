@@ -102,9 +102,9 @@ describe('EnrolmentStateService', () => {
 
     describe('parseJWT', () => {
         it('should decode the payload segment of a token', () => {
-            expect(parseJWT(userToken({ exp: 42, u: { e: 'a@b.com' } }))).toEqual(
-                { exp: 42, u: { e: 'a@b.com' } },
-            );
+            expect(
+                parseJWT(userToken({ exp: 42, u: { e: 'a@b.com' } })),
+            ).toEqual({ exp: 42, u: { e: 'a@b.com' } });
         });
 
         it('should decode base64url-specific characters', () => {
@@ -155,6 +155,61 @@ describe('EnrolmentStateService', () => {
             expect(spectator.service.view()).toBe('error');
             expect(spectator.service.error()).toBe('link');
             expect(ts_client.get).not.toHaveBeenCalled();
+        });
+
+        it('should reject a malformed token without authenticating', async () => {
+            expect(() =>
+                spectator.service.handleUserToken('not-a-token'),
+            ).not.toThrow();
+            await settle();
+
+            expect(spectator.service.error()).toBe('link');
+            expect(ts_client.setToken).not.toHaveBeenCalled();
+            expect(ts_client.get).not.toHaveBeenCalled();
+        });
+
+        it('should reject a token without guest or event details', async () => {
+            spectator.service.handleUserToken(
+                userToken({ exp: getUnixTime(Date.now()) + 3600, u: {} }),
+            );
+            await settle();
+
+            expect(spectator.service.error()).toBe('link');
+            expect(ts_client.setToken).not.toHaveBeenCalled();
+            expect(ts_client.get).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('loading failures', () => {
+        it('should show the guest error if guest details fail to load', async () => {
+            (ts_client.get as any).mockRejectedValue(new Error('offline'));
+
+            spectator.service.handleUserToken(validToken());
+            await settle();
+
+            expect(spectator.service.error()).toBe('guest');
+            expect(spectator.service.view()).toBe('error');
+            expect(spectator.service.loading()).toBe('');
+        });
+
+        it('should show the meeting error if event details fail to load', async () => {
+            (ts_client.get as any).mockImplementation(async (url: string) => {
+                if (url.startsWith(GUEST_ENDPOINT)) {
+                    return {
+                        id: 'guest@example.com',
+                        email: 'guest@example.com',
+                        name: 'Guest User',
+                    };
+                }
+                throw new Error('offline');
+            });
+
+            spectator.service.handleUserToken(validToken());
+            await settle();
+
+            expect(spectator.service.error()).toBe('meeting');
+            expect(spectator.service.view()).toBe('error');
+            expect(spectator.service.loading()).toBe('');
         });
     });
 

@@ -34,9 +34,6 @@ describe('CateringSelectModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should treat different option selections as separate items', () => {
         const item = new CateringItem({ id: '1' });
         const variant = new CateringItem({

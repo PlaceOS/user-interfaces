@@ -25,7 +25,7 @@ import { FeaturesFilterService } from './features-filter.service';
     template: `
         <div class="z-0 m-0 flex min-h-[800px] flex-1 flex-col overflow-y-auto">
             @if (form) {
-                <form>
+                <form (ngSubmit)="applyFilters()">
                     <section
                         class="border-base-200 flex flex-col items-center border-b py-5"
                     >
@@ -33,7 +33,12 @@ import { FeaturesFilterService } from './features-filter.service';
                             class="flex w-[calc(100%-2rem)] max-w-90 flex-col self-center"
                         >
                             <div class="flex flex-row items-center">
-                                <button icon matRipple (click)="closeModal()">
+                                <button
+                                    icon
+                                    matRipple
+                                    type="button"
+                                    (click)="closeModal()"
+                                >
                                     <icon
                                         class="flex items-center justify-center text-3xl text-gray-700"
                                         >close</icon
@@ -153,7 +158,11 @@ import { FeaturesFilterService } from './features-filter.service';
                             <div class="my-2 text-lg">Favourites</div>
                             <div class="mb-2 flex flex-row">
                                 <span>Only show favourite rooms</span>
-                                <mat-checkbox class="ml-auto"></mat-checkbox>
+                                <mat-checkbox
+                                    class="ml-auto"
+                                    [(ngModel)]="show_favourites"
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></mat-checkbox>
                             </div>
                         </div>
                     </section>
@@ -184,7 +193,6 @@ import { FeaturesFilterService } from './features-filter.service';
                             btn
                             matRipple
                             type="submit"
-                            (click)="applyFilters()"
                             class="filter-button max-w-[calc(100% - 2rem)] border-secondary bg-secondary mx-auto min-w-[300px] text-center text-sm"
                         >
                             <span class="">Apply Filters</span>
@@ -220,6 +228,7 @@ export class FilterSpaceComponent {
     readonly buildings = this._org.building_list;
     readonly building = this._org.active_building;
     readonly features = this._featuresFilterService.features;
+    readonly show_favourites = this._featuresFilterService.show_favourites;
     readonly has_multiple_buildings = computed(
         () => this.buildings().length > 1,
     );
@@ -230,8 +239,8 @@ export class FilterSpaceComponent {
     public readonly setBuilding = (b) => (this._org.building = b);
 
     applyFilters() {
-        this._bottomsheetRef.dismiss(this.form);
         this._featuresFilterService.applyFilter();
+        this._bottomsheetRef.dismiss(true);
     }
 
     getSelectedFeatures() {

@@ -77,6 +77,7 @@ describe('NativeDomainOverlayComponent', () => {
         await spectator.component.submit();
         expect((global as any).fetch).toHaveBeenCalledWith(
             expect.stringContaining('user%40company.com'),
+            { signal: expect.any(AbortSignal) },
         );
         expect(emitted_domains).toEqual(['placeos.example.com']);
         expect(localStorage.getItem(DOMAIN_KEY)).toBe('placeos.example.com');

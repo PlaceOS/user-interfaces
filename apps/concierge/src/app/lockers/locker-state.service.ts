@@ -142,7 +142,7 @@ export class LockerStateService extends AsyncHandler {
     public readonly levels = computed(() => {
         const all = this._org.level_list();
         const bld_ids = this._org.buildingsForRegion().map((bld) => bld.id);
-        const levels = !this._settings.get('app.use_region')
+        const levels = this._settings.get('app.use_region')
             ? all.filter((lvl) => bld_ids.includes(lvl.parent_id))
             : all.filter((lvl) => lvl.parent_id === this._org.building?.id);
         return levels.sort(
@@ -466,7 +466,6 @@ export class LockerStateService extends AsyncHandler {
         const mod = this._org.module('lockers', 'Lockers');
         if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         if (!user) {
-            // TODO: Ask to select user
             const ref = this._dialog.open(SelectUserModalComponent, {});
             const value = await nextValueFrom(ref.afterClosed());
             if (!value) return;

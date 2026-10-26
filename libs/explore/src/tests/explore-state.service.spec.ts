@@ -28,10 +28,7 @@ describe('ExploreStateService', () => {
                         l.includes(lvl.id),
                     ),
                 ),
-                active_levels: signal([
-                    { id: 'lvl-1' },
-                    { id: 'lvl-2' },
-                ]),
+                active_levels: signal([{ id: 'lvl-1' }, { id: 'lvl-2' }]),
             } as any),
             MockProvider(SpacesService, {
                 list: of([
@@ -54,24 +51,6 @@ describe('ExploreStateService', () => {
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
     });
-
-    // it('should list spaces for active level', async () => {
-    //     const space = new Space({ id: 'space-1', zones: ['bld-1', 'lvl-1'] });
-    //     const space2 = new Space({ id: 'space-2', zones: ['bld-2', 'lvl-2'] });
-    //     (client.querySystems as any) = vi.fn(() => of({ data: [space] }));
-    //     let level = spectator.service.level();
-    //     expect(level).toEqual({ id: 'lvl-1' });
-    //     let spaces = spectator.service.spaces();
-    //     expect(spaces).toHaveLength(1);
-    //     expect(spaces[0]).toEqual(space);
-    //     (client.querySystems as any) = vi.fn(() => of({ data: [space2] }));
-    //     spectator.service.setLevel('lvl-2');
-    //     level = spectator.service.level();
-    //     expect(level).toEqual({ id: 'lvl-2' });
-    //     spaces = spectator.service.spaces();
-    //     expect(spaces).toHaveLength(1);
-    //     expect(spaces[0]).toEqual(space2);
-    // });
 
     it('should handle changes to map features', async () => {
         let feats = spectator.service.map_features();

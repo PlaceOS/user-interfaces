@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, Booking } from '@placeos/common';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
@@ -38,7 +38,7 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
             class="bg-base-200 relative flex h-1/2 flex-1 flex-col sm:flex-row"
         >
             <schedule-sidebar
-                class="relative z-50 hidden bg-base-100 sm:block"
+                class="bg-base-100 relative z-50 hidden sm:block"
                 [bookings]="b_list()"
                 [view]="view()"
             ></schedule-sidebar>
@@ -50,7 +50,7 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
                 @if (view() === 'day') {
                     <schedule-day-view
                         [date]="date()"
-                        [bookings]="bookings()"
+                        [bookings]="calendar_bookings()"
                         [loading]="loading()"
                         class="relative z-10"
                     />
@@ -58,7 +58,7 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
                     <schedule-week-view
                         class="h-1/2 flex-1"
                         [date]="date()"
-                        [bookings]="bookings()"
+                        [bookings]="calendar_bookings()"
                         [loading]="loading()"
                     />
                 } @else {
@@ -119,6 +119,12 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
 
     public readonly b_list = this._state.bookings;
     public readonly bookings = this._state.filtered_bookings;
+    public readonly calendar_bookings = computed(() =>
+        this.bookings().filter(
+            (booking) =>
+                !(booking instanceof Booking) || booking.status !== 'cancelled',
+        ),
+    );
     public readonly loading = this._state.loading;
 
     public readonly view = signal<'day' | 'week' | 'list'>('day');

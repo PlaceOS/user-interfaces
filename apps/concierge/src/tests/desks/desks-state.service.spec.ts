@@ -24,6 +24,7 @@ import { NEVER, of } from 'rxjs';
 
 import * as ts_client_mod from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
+import { DeskModalComponent } from '../../app/desks/desk-modal.component';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { BookingHistoryModalComponent } from '../../app/ui/booking-history-modal.component';
 import { captureDownloads } from '../reports/download-capture.helper';
@@ -134,6 +135,46 @@ describe('DesksStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should manage desk resources through assets when enabled', async () => {
+        settings_map['app.desks.use_assets'] = true;
+        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
+            data: [{ id: 'desk-category', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
+            data: [{ id: 'desk-type', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client_mod.addAsset).mockResolvedValue({
+            id: 'asset-desk-1',
+        } as any);
+        vi.mocked(ts_client_mod.removeAsset).mockResolvedValue(
+            undefined as any,
+        );
+        spectator.service.setFilters({ zones: ['level-1'] });
+        const desk = new Desk({
+            id: 'desk-map-1',
+            map_id: 'desk-map-1',
+            name: 'Desk One',
+            zone: { id: 'level-1' } as any,
+        });
+
+        await spectator.service.addDesks([desk]);
+        await spectator.service.removeDesk(
+            new Desk({ ...desk, id: 'asset-desk-1' }),
+            'level-1',
+        );
+
+        expect(ts_client_mod.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({
+                asset_type_id: 'desk-type',
+                zone_id: 'level-1',
+                identifier: 'Desk One',
+                map_id: 'desk-map-1',
+            }),
+        );
+        expect(ts_client_mod.removeAsset).toHaveBeenCalledWith('asset-desk-1');
+        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+    });
+
     it('should open the booking history modal for a desk booking', () => {
         const booking = new Booking({ id: 'booking-1' });
 
@@ -146,6 +187,73 @@ describe('DesksStateService', () => {
                 width: '32rem',
                 maxWidth: '100vw',
             },
+        );
+    });
+
+    it('should default a new desk to the selected level and save the chosen level', async () => {
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'desk-new',
+                        name: 'New Desk',
+                        map_id: 'desk-new',
+                        zone_id: 'level-chosen',
+                    },
+                }),
+            componentInstance: {
+                event: NEVER,
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: ['level-selected'] });
+
+        await spectator.service.editDesk();
+
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            DeskModalComponent,
+            {
+                data: {
+                    desk: expect.any(Desk),
+                    levels: [{ id: 'bld-1-lvl-1' }],
+                    zone_id: 'level-selected',
+                },
+            },
+        );
+        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
+            'level-chosen',
+            expect.objectContaining({
+                details: [
+                    expect.objectContaining({
+                        id: 'desk-new',
+                        name: 'New Desk',
+                    }),
+                ],
+            }),
+        );
+    });
+
+    it('should default a new desk to the first level when none is selected', async () => {
+        const dialog_ref = {
+            afterClosed: () => of(undefined),
+            componentInstance: {
+                event: NEVER,
+                loading: { set: vi.fn() },
+            },
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: [] });
+
+        await spectator.service.editDesk();
+
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            DeskModalComponent,
+            expect.objectContaining({
+                data: expect.objectContaining({ zone_id: 'bld-1-lvl-1' }),
+            }),
         );
     });
 
@@ -455,13 +563,13 @@ describe('DesksStateService', () => {
     });
 
     it('should cancel overlapping bookings after assigning a desk', async () => {
-        const mock_now = new Date('2026-08-18T10:55:00+10:00').valueOf();
+        const mock_now = new Date('2026-08-18T10:55:00').valueOf();
         vi.spyOn(Date, 'now').mockReturnValue(mock_now);
         vi.mocked(ts_client_mod.post).mockResolvedValue({
             id: 'assigned-booking',
             booking_start:
-                new Date('2026-08-18T03:00:00+10:00').valueOf() / 1000,
-            booking_end: new Date('2026-08-18T23:00:00+10:00').valueOf() / 1000,
+                new Date('2026-08-18T03:00:00').valueOf() / 1000,
+            booking_end: new Date('2026-08-18T23:00:00').valueOf() / 1000,
             booking_type: 'desk',
             recurrence_type: 'daily',
             user_email: 'staff@example.com',
@@ -472,9 +580,9 @@ describe('DesksStateService', () => {
             {
                 id: 'ad-hoc-booking',
                 booking_start:
-                    new Date('2026-08-18T16:45:00+10:00').valueOf() / 1000,
+                    new Date('2026-08-18T16:45:00').valueOf() / 1000,
                 booking_end:
-                    new Date('2026-08-18T17:15:00+10:00').valueOf() / 1000,
+                    new Date('2026-08-18T17:15:00').valueOf() / 1000,
                 booking_type: 'desk',
                 approved: true,
                 asset_id: 'F-010',

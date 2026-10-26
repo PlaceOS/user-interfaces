@@ -22,10 +22,6 @@ describe('GlobalBannerComponent', () => {
         spectator.component.environment_bar.set(undefined);
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show the banner contents once initialised', () => {
         spectator.component.banner.set({
             id: 'banner-1',

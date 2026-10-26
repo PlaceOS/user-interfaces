@@ -50,7 +50,7 @@ import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
         <div class="bg-base-100 flex h-20 items-center space-x-2 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
-                    [ngModel]="filters()?.zones"
+                    [ngModel]="zones()"
                     (ngModelChange)="updateZones($event)"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
@@ -229,7 +229,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
             queryParams: { zone_ids: zones.length ? zones.join(',') : null },
             queryParamsHandling: 'merge',
         });
-        this._orders.filters = { ...this._orders.filters, zones: [zones] };
+        this._orders.filters = { ...this._orders.filters, zones };
         this.filters.set(this._orders.filters);
         this._catering.zone = zones[0];
         persistZones(
@@ -289,9 +289,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                 this.page.set(page);
                 if (page_changed) {
                     const zones = loadPersistedZones(
-                        page === 'menu'
-                            ? 'catering-menu'
-                            : 'catering-orders',
+                        page === 'menu' ? 'catering-menu' : 'catering-orders',
                         this._persistScopeId(),
                     ).filter((zone) =>
                         this.levels().find((level) => level.id === zone),

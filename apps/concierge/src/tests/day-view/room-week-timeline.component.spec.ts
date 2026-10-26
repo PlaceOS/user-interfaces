@@ -93,10 +93,6 @@ describe('RoomWeekBookingsTimelineComponent', () => {
         spectator.detectChanges();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should generate a full week of day columns', () => {
         expect(spectator.component.days()).toHaveLength(7);
     });

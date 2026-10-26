@@ -1,4 +1,7 @@
 @import '../../../shared/styles/tailwind.css';
+@source './';
+@source '../../../libs';
+@source '../../../shared';
 
 /* You can add global styles to this file, and also import other style files */
 
@@ -39,6 +42,13 @@ select:focus-visible,
     top: 1rem;
 }
 
+/* The shared icon-button rule sets display after Tailwind utilities. */
+@media (min-width: 640px) {
+    .desktop-hidden {
+        display: none !important;
+    }
+}
+
 :root {
     --bg: #212121;
     --transition-delay: 1000ms;
@@ -48,6 +58,19 @@ select:focus-visible,
     transition:
         transform var(--transition-delay) ease-out,
         opacity var(--transition-delay) ease-out;
+}
+
+/*
+ * A search field standing in a row of icon buttons.
+ *
+ * The app's form fields are 48px and the icon buttons are 50, so a toolbar that
+ * mixes the two lines up on the centre and nowhere else. This gives the field
+ * the missing 2px rather than resizing a button used all over the app.
+ */
+/* the app's own rule for this is under #placeos, so this one has to be too */
+#placeos .toolbar-field .mat-mdc-form-field-infix {
+    padding-top: 13px;
+    padding-bottom: 13px;
 }
 
 .fullscreen-dialog {

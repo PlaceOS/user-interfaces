@@ -8,7 +8,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { notifySuccess, OrganisationService } from '@placeos/common';
+import {
+    notifySuccess,
+    OrganisationService,
+    userSignal,
+} from '@placeos/common';
 import {
     IconComponent,
     LevelPipe,
@@ -92,20 +96,22 @@ export type { EmergencyContact } from './emergency-contacts.service';
                                 }
                             </mat-select>
                         </mat-form-field>
-                        <div class="flex items-center space-x-2">
-                            <button
-                                icon
-                                default
-                                matRipple
-                                [matTooltip]="
-                                    'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
-                                        | translate
-                                "
-                                (click)="manageRoles()"
-                            >
-                                <icon>list_alt</icon>
-                            </button>
-                        </div>
+                        @if (can_manage_roles()) {
+                            <div class="flex items-center space-x-2">
+                                <button
+                                    icon
+                                    default
+                                    matRipple
+                                    [matTooltip]="
+                                        'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
+                                            | translate
+                                    "
+                                    (click)="manageRoles()"
+                                >
+                                    <icon>list_alt</icon>
+                                </button>
+                            </div>
+                        }
                     </div>
                 </section>
                 <section class="h-1/2 w-full flex-1 overflow-auto px-8">
@@ -243,6 +249,14 @@ export class EmergencyContactsComponent implements OnInit {
 
     public readonly search = signal('');
     public readonly role_filter = signal('');
+    private readonly _user = userSignal();
+    public readonly can_manage_roles = computed(() => {
+        const groups = this._user().groups || [];
+        return (
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support')
+        );
+    });
     public readonly roles = this._contacts_service.roles;
     public readonly contacts = this._contacts_service.contacts;
     public readonly filtered_contacts = computed(() => {
@@ -283,6 +297,7 @@ export class EmergencyContactsComponent implements OnInit {
     };
 
     public manageRoles(): void {
+        if (!this.can_manage_roles()) return;
         const ref = this._dialog.open(RoleManagementModalComponent, {});
         ref.afterClosed().subscribe(() => this._contacts_service.refresh());
     }

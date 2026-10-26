@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
-import type { Mock } from 'vitest';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { CustomTooltipData } from '../lib/custom-tooltip.component';
 import { IconComponent } from '../lib/icon.component';
@@ -38,10 +38,6 @@ describe('RegionSelectComponent', () => {
                 { provide: CustomTooltipData, useValue: tooltip },
             ],
         });
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should list the available regions preferring display names', () => {

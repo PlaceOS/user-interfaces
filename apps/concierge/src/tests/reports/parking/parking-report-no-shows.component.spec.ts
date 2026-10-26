@@ -3,14 +3,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
-import { OrganisationService } from '@placeos/common';
+import { Booking, OrganisationService } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { ParkingReportNoShowsComponent } from 'apps/concierge/src/app/reports/parking/parking-report-no-shows.component';
 import { ParkingReportService } from 'apps/concierge/src/app/reports/parking/parking-report.service';
+import { captureDownloads } from '../download-capture.helper';
 
 describe('ParkingReportNoShowsComponent', () => {
     let spectator: Spectator<ParkingReportNoShowsComponent>;
-    let bookings: ReturnType<typeof signal<any[]>>;
+    let bookings: ReturnType<typeof signal<Partial<Booking>[]>>;
 
     const past = new Date('2026-04-06T09:00:00').valueOf();
     const past_end = Math.floor(
@@ -31,7 +32,9 @@ describe('ParkingReportNoShowsComponent', () => {
         providers: [
             {
                 provide: ParkingReportService,
-                useValue: { bookings: (bookings = signal<any[]>([])) },
+                useValue: {
+                    bookings: (bookings = signal<Partial<Booking>[]>([])),
+                },
             },
             {
                 provide: OrganisationService,
@@ -46,10 +49,17 @@ describe('ParkingReportNoShowsComponent', () => {
     });
 
     beforeEach(() => {
-        bookings = signal<any[]>([]);
+        bookings = signal<Partial<Booking>[]>([]);
         spectator = createComponent({
             providers: [
-                { provide: ParkingReportService, useValue: { bookings } },
+                {
+                    provide: ParkingReportService,
+                    useValue: {
+                        bookings,
+                        formatBookingDate: (date: number) =>
+                            new Date(date).toISOString(),
+                    },
+                },
             ],
         });
     });
@@ -120,5 +130,111 @@ describe('ParkingReportNoShowsComponent', () => {
         expect(known.location).toBe('HQ, Level 1');
         expect(known.host).toBe('jane@x.com');
         expect(unknown.location).toBe('');
+    });
+    it('should group email variants, keep namesakes separate, and rank by count', () => {
+        const incident = {
+            date: past,
+            booking_end: past_end,
+            asset_id: 'bay-1',
+        };
+        bookings.set([
+            { ...incident, user_name: 'Kiri Scott', user_email: 'other@x.com' },
+            {
+                ...incident,
+                date: past + 3600000,
+                user_name: 'Kiri Scott',
+                user_email: ' Kiri@x.com ',
+            },
+            {
+                ...incident,
+                user_name: 'Kiri',
+                user_email: 'kiri@x.com',
+                asset_id: 'bay-2',
+            },
+        ]);
+        const [kiri, namesake] = spectator.component.user_no_shows();
+        expect(kiri.email).toBe('kiri@x.com');
+        expect(kiri.count).toBe(2);
+        expect(kiri.incidents.map((incident) => incident.asset_id)).toEqual([
+            'bay-2',
+            'bay-1',
+        ]);
+        expect(namesake.count).toBe(1);
+        expect(namesake.email).toBe('other@x.com');
+    });
+
+    it('should use user IDs when email is missing and keep unidentified bookings separate', () => {
+        const incident = {
+            date: past,
+            booking_end: past_end,
+            user_name: 'Same name',
+        };
+        bookings.set([
+            { ...incident, user_id: 'user-1' },
+            { ...incident, user_id: 'user-1' },
+            { ...incident, user_id: 'user-2' },
+            incident,
+            incident,
+        ]);
+        expect(
+            spectator.component.user_no_shows().map((row) => row.count),
+        ).toEqual([2, 1, 1, 1]);
+        bookings.set([{ ...incident, user_id: 'user-2' }]);
+        expect(spectator.component.user_no_shows()).toHaveLength(1);
+        expect(spectator.component.user_no_shows()[0].count).toBe(1);
+    });
+
+    it('should export one row per user with counts and incident details', async () => {
+        const downloads = captureDownloads();
+        bookings.set([
+            {
+                date: past,
+                booking_end: past_end,
+                user_email: 'kiri@x.com',
+                zones: ['lvl-1'],
+            },
+            {
+                date: past + 3600000,
+                booking_end: past_end,
+                user_email: 'kiri@x.com',
+            },
+        ]);
+        try {
+            await spectator.component.download();
+            expect(downloads.filename).toBe('report-parking-no-shows.csv');
+            const csv = await downloads.text();
+            expect(csv).toContain('host,email,no_show_count,incidents');
+            expect(csv).toContain('kiri@x.com,kiri@x.com,2,');
+            expect(csv.match(/kiri@x.com/g)).toHaveLength(2);
+            expect(csv).toContain('HQ, Level 1');
+            expect(csv).toContain(new Date(past).toISOString());
+            expect(csv).toContain(new Date(past + 3600000).toISOString());
+        } finally {
+            downloads.restore();
+        }
+    });
+    it('should expand users independently and show all incidents when printing', () => {
+        const incident = { date: past, booking_end: past_end };
+        bookings.set([
+            { ...incident, user_email: 'kiri@x.com' },
+            { ...incident, user_email: 'alex@x.com' },
+        ]);
+        const [first, second] = spectator.component.user_no_shows();
+        expect(spectator.component.show_children()).toEqual({});
+        spectator.component.toggleRow(first.id);
+        expect(spectator.component.show_children()).toEqual({
+            [first.id]: true,
+        });
+        spectator.setInput('print', true);
+        expect(spectator.component.show_children()).toEqual({
+            [first.id]: true,
+            [second.id]: true,
+        });
+        spectator.setInput('print', false);
+        spectator.component.toggleRow(first.id);
+        expect(spectator.component.show_children()[first.id]).toBe(false);
+        spectator.component.toggleRow(second.id);
+        bookings.set([]);
+        expect(spectator.component.show_children()).toEqual({});
     });
 });

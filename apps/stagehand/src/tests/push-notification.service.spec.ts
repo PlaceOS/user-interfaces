@@ -2,6 +2,7 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
+import { settingSignal } from '@placeos/common';
 
 import { AlertNotificationService } from '../app/push-notification.service';
 
@@ -20,6 +21,7 @@ describe('AlertNotificationService', () => {
 
     beforeEach(() => {
         localStorage.clear();
+        settingSignal('push_notification_defaults', {}).set({});
     });
 
     it('should default to critical-only when no config is stored', () => {
@@ -41,6 +43,26 @@ describe('AlertNotificationService', () => {
             medium: false,
             low: false,
         });
+    });
+
+    it('should apply configured defaults when no preference is stored', () => {
+        settingSignal('push_notification_defaults', {}).set({ high: true });
+        build();
+
+        expect(service.config()).toEqual({
+            critical: true,
+            high: true,
+            medium: false,
+            low: false,
+        });
+    });
+
+    it('should give saved preferences priority over configured defaults', () => {
+        settingSignal('push_notification_defaults', {}).set({ high: true });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ high: false }));
+        build();
+
+        expect(service.config().high).toBe(false);
     });
 
     it('should update a single severity and persist it', () => {
@@ -89,9 +111,7 @@ describe('AlertNotificationService', () => {
     it('should not build a notification for a suppressed severity', () => {
         build();
         service.permission.set('granted');
-        const notify = vi
-            .spyOn(service, 'notify')
-            .mockReturnValue({} as any);
+        const notify = vi.spyOn(service, 'notify').mockReturnValue({} as any);
         service.setConfig({
             critical: false,
             high: false,
@@ -112,9 +132,7 @@ describe('AlertNotificationService', () => {
     it('should format the alert title and append location/device', () => {
         build();
         service.permission.set('granted');
-        const notify = vi
-            .spyOn(service, 'notify')
-            .mockReturnValue({} as any);
+        const notify = vi.spyOn(service, 'notify').mockReturnValue({} as any);
 
         service.notifyAlert({
             subject: 'Projector down',
@@ -129,6 +147,7 @@ describe('AlertNotificationService', () => {
         expect(title).toBe('[CRITICAL] Projector down');
         expect(options.body).toContain('Location: sys-1');
         expect(options.body).toContain('Device: Display_1');
+        expect(options.icon).toBe('/assets/icons/icon-192x192.png');
         // critical alerts require interaction
         expect(options.requireInteraction).toBe(true);
     });
@@ -136,9 +155,7 @@ describe('AlertNotificationService', () => {
     it('should not require interaction for non-critical alerts', () => {
         build();
         service.permission.set('granted');
-        const notify = vi
-            .spyOn(service, 'notify')
-            .mockReturnValue({} as any);
+        const notify = vi.spyOn(service, 'notify').mockReturnValue({} as any);
         service.setConfig({
             critical: false,
             high: true,

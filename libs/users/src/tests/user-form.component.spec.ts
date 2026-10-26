@@ -17,10 +17,6 @@ describe('', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show form fields', () => {
         expect('form').not.toExist();
         spectator.setInput({

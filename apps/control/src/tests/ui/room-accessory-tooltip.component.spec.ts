@@ -42,10 +42,6 @@ describe('RoomAccessoryTooltipComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show empty state when no accessories', () => {
         spectator.detectChanges();
         expect('p').toExist();

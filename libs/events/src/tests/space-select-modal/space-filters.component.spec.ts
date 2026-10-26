@@ -105,9 +105,6 @@ describe('SpaceFiltersComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should list levels that contain spaces, excluding parking', () => {
         expect(spectator.component.levels()).toEqual([level_1, level_2]);
     });
@@ -119,10 +116,7 @@ describe('SpaceFiltersComponent', () => {
     });
 
     it('should combine service and space features', () => {
-        expect(spectator.component.features()).toEqual([
-            'whiteboard',
-            'vc',
-        ]);
+        expect(spectator.component.features()).toEqual(['whiteboard', 'vc']);
     });
 
     it('should add and remove feature filters', () => {

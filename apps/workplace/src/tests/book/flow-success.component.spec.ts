@@ -1,21 +1,16 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import { createRoutingFactory } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
 import { FlowSuccessComponent } from '../../app/book/flow-success.component';
 
 describe('FlowSuccessComponent', () => {
-    let spectator: SpectatorRouting<FlowSuccessComponent>;
     const createComponent = createRoutingFactory({
         component: FlowSuccessComponent,
         declarations: [MockComponent(IconComponent)],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
+    beforeEach(() => createComponent());
 
     it('should link to Schedule', () => {
         expect('a').toContainText('Your Bookings');

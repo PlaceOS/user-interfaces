@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     CalendarEvent,
     DialogEvent,
     SettingsService,
@@ -89,8 +88,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         </button>
                     </h3>
                     <div
-                        class="overflow-hidden"
-                        [@show]="hide_block().details ? 'hide' : 'show'"
+                        class="contract-expand"
+                        [class.contract-collapsed]="hide_block().details"
                     >
                         <meeting-form-details
                             class="mt-4"
@@ -130,8 +129,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block().attendees ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().attendees"
                         >
                             <a-user-list-field
                                 class="mt-4"
@@ -184,8 +183,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         </button>
                     </h3>
                     <div
-                        class="flex flex-col items-center overflow-hidden"
-                        [@show]="hide_block().resources ? 'hide' : 'show'"
+                        class="contract-expand flex flex-col items-center"
+                        [class.contract-collapsed]="hide_block().resources"
                     >
                         @if (
                             !strict_capacity_check &&
@@ -240,8 +239,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block().catering ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().catering"
                         >
                             <catering-list-field
                                 [formField]="form.catering"
@@ -358,8 +357,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block().assets ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().assets"
                         >
                             <asset-list-field
                                 [options]="{
@@ -411,7 +410,6 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         FullscreenModalShellComponent,
         RichTextInputComponent,

@@ -19,6 +19,7 @@ import {
     onFieldChange,
     OrganisationService,
     SettingsService,
+    User,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -44,6 +45,7 @@ import {
 
 import { queryCalendarPermission } from './calendar.fn';
 import { EventFormService } from './event-form.service';
+import { multipleSpacesSignal, organiserTimezone } from './utilities';
 
 const MINUTES_IN_DAY = 24 * 60;
 
@@ -155,7 +157,10 @@ const ALLOWED_CALENDAR_ROLES = [
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="form().date().disabled()"
@@ -386,6 +391,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         'events.use_building_timezone',
         false,
     );
+    private readonly _multiple_spaces = multipleSpacesSignal(this._settings);
     private readonly _allowed_future_days = this._settings.signal(
         'events.allowed_future_days',
         180,
@@ -449,12 +455,27 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         onFieldChange(
             this.model,
             (m) => m.organiser,
-            (user) => this._checkCalendarPermission(user),
+            (user) => {
+                this._setOrganiserTimezone(user);
+                return this._checkCalendarPermission(user);
+            },
             this._injector,
         );
     }
 
-    private async _checkCalendarPermission(user: any) {
+    private _setOrganiserTimezone(user: User) {
+        if (!this._multiple_spaces()) return;
+        const timezone = organiserTimezone(user);
+        if (!timezone || timezone === this.model().timezone) return;
+        try {
+            new Intl.DateTimeFormat(undefined, { timeZone: timezone });
+        } catch {
+            return;
+        }
+        this.model.update((model) => ({ ...model, timezone }));
+    }
+
+    private async _checkCalendarPermission(user: User) {
         if (!user?.email || !this.can_book_for_anyone()) return;
         const current = currentUser();
         if (user.email.toLowerCase() === current?.email?.toLowerCase()) return;
@@ -511,9 +532,13 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
     public readonly allow_multiday = computed(
         () => this._allow_multiday() || this._event_form.is_multiday,
     );
-    public readonly timezone = computed(() =>
-        this._use_building_timezone() ? this._org.building?.timezone || '' : '',
-    );
+    public readonly timezone = computed(() => {
+        return this._multiple_spaces()
+            ? this.model().timezone || ''
+            : this._use_building_timezone()
+              ? this._org.building?.timezone || ''
+              : '';
+    });
 
     public get start_date() {
         const date = this.model().date || Date.now();

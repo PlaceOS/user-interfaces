@@ -69,10 +69,6 @@ describe('EventFormComponent', () => {
         spectator.detectChanges();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should allow selecting spaces', async () => {
         spectator.setInput({ form });
         spectator.detectChanges();
@@ -93,9 +89,7 @@ describe('EventFormComponent', () => {
         (spectator.component.can_notify_new_attendees_only as any).set(true);
         spectator.detectChanges();
         await spectator.fixture.whenStable();
-        expect(
-            spectator.query('[name="notify-new-attendees-only"]'),
-        ).toExist();
+        expect(spectator.query('[name="notify-new-attendees-only"]')).toExist();
     });
 
     it('should only show setup and breakdown fields when enabled', async () => {

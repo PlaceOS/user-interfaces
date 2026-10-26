@@ -24,7 +24,7 @@ type PlaylistStatus =
     selector: 'playlist-sidebar',
     template: `
         <div
-            class="border-base-300 bg-base-100 rounded-ld m-2 hidden h-[calc(100%-1rem)] w-72 shrink-0 flex-col rounded-lg border md:flex"
+            class="border-base-300 bg-base-100 my-4 mr-4 hidden h-[calc(100%-2rem)] w-72 shrink-0 flex-col rounded-lg border md:flex"
         >
             <div class="border-base-300 border-b p-2">
                 <div class="flex justify-between">

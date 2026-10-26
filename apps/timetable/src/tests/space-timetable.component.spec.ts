@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 
 import { SpaceEventDetailsComponent } from '../app/space-event-details.component';
@@ -12,10 +15,6 @@ describe('SpaceTimetableComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should show space column', () => {
         expect('[space]').not.toExist();

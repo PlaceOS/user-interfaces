@@ -26,10 +26,6 @@ describe('ImageCarouselComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show an empty state when there are no images', () => {
         spectator.detectChanges();
         expect('img').not.toExist();

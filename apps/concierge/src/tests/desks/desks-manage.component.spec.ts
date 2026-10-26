@@ -77,10 +77,6 @@ describe('DesksManageComponent', () => {
         vi.useRealTimers();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should print the selected desk QR code', () => {
         vi.spyOn(window, 'print').mockImplementation(() => {});
         const timeout = vi

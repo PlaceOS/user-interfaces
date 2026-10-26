@@ -79,10 +79,6 @@ describe('BookingPanelSettingsModalComponent', () => {
         vi.restoreAllMocks();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should have a model with booking values', () => {
         const model = spectator.component.model();
         expect('disable_book_now' in model).toBe(true);

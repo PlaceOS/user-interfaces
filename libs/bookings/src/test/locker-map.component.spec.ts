@@ -69,9 +69,7 @@ describe('LockerMapComponent', () => {
                     active_region,
                     active_building,
                     region: null,
-                    buildings: [
-                        { id: 'bld-1', location: '10.5,20.5' },
-                    ],
+                    buildings: [{ id: 'bld-1', location: '10.5,20.5' }],
                     levelsForRegion: vi.fn(() => levels),
                     levelsForBuilding: vi.fn(() => levels),
                     levelWithID: vi.fn((ids: string[]) =>
@@ -97,9 +95,6 @@ describe('LockerMapComponent', () => {
         active_building.set({ id: 'bld-1' });
         spectator = createComponent();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should list bookable levels excluding parking levels', () => {
         const list = spectator.component.levels();

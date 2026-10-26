@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from '@placeos/common';
@@ -9,7 +9,6 @@ import { CateringOrderListComponent } from '../lib/catering-order-list.component
 import { CateringOrdersService } from '../lib/catering-orders.service';
 
 describe('CateringOrderListComponent', () => {
-    let spectator: Spectator<CateringOrderListComponent>;
     const createComponent = createComponentFactory({
         component: CateringOrderListComponent,
         declarations: [MockComponent(SimpleTableComponent)],
@@ -27,11 +26,7 @@ describe('CateringOrderListComponent', () => {
         imports: [MockModule(MatProgressBarModule)],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
+    beforeEach(() => createComponent());
 
     it('should show loading bar', () => {
         expect('mat-progress-bar').toExist();

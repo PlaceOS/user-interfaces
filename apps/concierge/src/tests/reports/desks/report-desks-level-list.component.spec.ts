@@ -63,10 +63,6 @@ describe('ReportDesksLevelListComponent', () => {
         });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should build a per-level utilisation summary', () => {
         const [level] = spectator.component.level_list();
         expect(level).toEqual({

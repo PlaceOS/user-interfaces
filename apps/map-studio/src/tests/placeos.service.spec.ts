@@ -9,7 +9,7 @@ vi.mock('@placeos/ts-client', () => ({
             },
         },
     }),
-    setup: async () => undefined,
+    setup: vi.fn(async () => undefined),
     showMetadata: vi.fn(async () => ({ details: {} })),
     token: () => 'session-token',
     updateMetadata: vi.fn(async () => undefined),
@@ -17,7 +17,7 @@ vi.mock('@placeos/ts-client', () => ({
 
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { setup, showMetadata, updateMetadata } from '@placeos/ts-client';
 
 import { PlaceOSService } from '../app/data/placeos.service';
 
@@ -63,6 +63,7 @@ describe('PlaceOSService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         localStorage.clear();
+        vi.mocked(setup).mockResolvedValue(undefined);
         TestBed.configureTestingModule({
             providers: [provideZonelessChangeDetection()],
         });
@@ -88,6 +89,34 @@ describe('PlaceOSService', () => {
         expect((options.headers as Record<string, string>).Authorization).toBe(
             'Bearer session-token',
         );
+    });
+
+    it('falls back to manual setup when authority discovery does not settle', async () => {
+        vi.useFakeTimers();
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(() => new Promise(() => undefined)),
+        );
+
+        const result = service.init();
+        await vi.advanceTimersByTimeAsync(10_000);
+        await result;
+
+        expect(service.mode()).toBe('manual');
+        vi.useRealTimers();
+    });
+
+    it('falls back to manual setup when PlaceOS setup does not settle', async () => {
+        vi.useFakeTimers();
+        stubFetch(true);
+        vi.mocked(setup).mockReturnValue(new Promise(() => undefined));
+
+        const result = service.init();
+        await vi.advanceTimersByTimeAsync(10_000);
+        await result;
+
+        expect(service.mode()).toBe('manual');
+        vi.useRealTimers();
     });
 
     it('calls the configured LLM driver with image content', async () => {

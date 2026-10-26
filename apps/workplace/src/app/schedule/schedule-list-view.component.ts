@@ -40,7 +40,16 @@ import { ScheduleStateService } from './schedule-state.service';
                             [remove_fn]="remove_fn"
                             [end_fn]="end_fn"
                             [refresh_fn]="refresh_fn"
-                        ></booking-card>
+                        >
+                            @if (item.status === 'cancelled') {
+                                <span
+                                    booking-status
+                                    class="text-error text-sm font-medium"
+                                >
+                                    {{ 'COMMON.TYPE_CANCELLED' | translate }}
+                                </span>
+                            }
+                        </booking-card>
                     }
                 }
             }

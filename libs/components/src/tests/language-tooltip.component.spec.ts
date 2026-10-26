@@ -35,10 +35,6 @@ describe('LanguageSelectComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show a button for each available locale', () => {
         // NOTE: TranslatePipe is globally mocked so translated names render
         // empty and only the local name badges are visible.

@@ -1,10 +1,4 @@
-import {
-    Component,
-    DOCUMENT,
-    OnInit,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, DOCUMENT, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
@@ -34,7 +28,10 @@ import { FeaturesFilterService } from './features-filter.service';
                     <h2 class="text-xl font-medium capitalize">Book Room</h2>
                 </header>
                 @if (form(); as form) {
-                    <form class="divide-base-200 divide-y">
+                    <form
+                        class="divide-base-200 divide-y"
+                        (ngSubmit)="findSpace()"
+                    >
                         <section class="px-4 py-2">
                             <div class="my-2 flex space-x-4">
                                 <div
@@ -76,7 +73,7 @@ import { FeaturesFilterService } from './features-filter.service';
                                         (ngModelChange)="
                                             model.update((m) => ({
                                                 ...m,
-                                                date: $event
+                                                date: $event,
                                             }))
                                         "
                                         [ngModelOptions]="{ standalone: true }"
@@ -121,7 +118,6 @@ import { FeaturesFilterService } from './features-filter.service';
                                 btn
                                 matRipple
                                 type="submit"
-                                (click)="findSpace()"
                                 class="w-full sm:flex-1"
                             >
                                 Find room
@@ -129,6 +125,7 @@ import { FeaturesFilterService } from './features-filter.service';
                             <button
                                 btn
                                 matRipple
+                                type="button"
                                 (click)="clearForm()"
                                 class="inverse w-full sm:flex-1"
                             >

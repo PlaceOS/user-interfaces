@@ -55,6 +55,8 @@ export const ROUTES: Routes = [
                     ),
                 title: 'Meeting Booking',
             },
+            { path: 'spaces', redirectTo: 'meeting/form', pathMatch: 'full' },
+            { path: 'spaces/:step', redirectTo: 'meeting/:step' },
             { path: 'parking', redirectTo: 'parking/form' },
             {
                 path: 'parking/:step',
@@ -92,8 +94,8 @@ export const ROUTES: Routes = [
                     ),
                 title: 'Locker Booking',
             },
-            { path: '*', redirectTo: 'meeting/form' },
+            { path: '**', redirectTo: 'meeting/form' },
         ],
     },
-    { path: '*', redirectTo: 'meeting/form' },
+    { path: '**', redirectTo: 'meeting/form' },
 ];

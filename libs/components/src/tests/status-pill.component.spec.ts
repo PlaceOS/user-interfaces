@@ -19,10 +19,6 @@ describe('StatusPillComponent', () => {
             )),
     );
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should project content into the pill', () => {
         expect('status-pill > div').toContainText('Room Booked');
     });
@@ -55,9 +51,7 @@ describe('StatusPillComponent', () => {
     it('should mute the pill for neutral status', () => {
         spectator.setHostInput({ status: 'neutral' });
         expect('icon').toContainText('block');
-        expect(spectator.query('status-pill > div')).toHaveClass(
-            'bg-base-200',
-        );
+        expect(spectator.query('status-pill > div')).toHaveClass('bg-base-200');
         expect(spectator.queryAll('.opacity-40').length).toBeGreaterThan(0);
     });
 

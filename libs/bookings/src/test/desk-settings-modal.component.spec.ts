@@ -1,17 +1,17 @@
-import type { Mock } from 'vitest';
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSliderModule } from '@angular/material/slider';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule, MockProvider } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { DeskSettingsModalComponent } from '../lib/desk-settings-modal.component';
 
@@ -48,9 +48,6 @@ describe('DeskSettingsModalComponent', () => {
         localStorage.clear();
         spectator = createComponent();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should expose the desk id from dialog data', () => {
         expect(spectator.component.desk_id).toBe('desk-1');

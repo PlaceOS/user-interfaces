@@ -9,6 +9,7 @@
         "build": {
             "executor": "@angular/build:application",
             "outputs": ["{options.outputPath.base}"],
+            "defaultConfiguration": "production",
             "options": {
                 "outputPath": "dist/apps/timetable",
                 "index": "apps/timetable/src/index.html",
@@ -27,11 +28,6 @@
                     {
                         "glob": "**",
                         "input": "shared/assets",
-                        "output": "/assets/"
-                    },
-                    {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
                         "output": "/assets/"
                     },
                     {
@@ -100,11 +96,12 @@
                     "sourceMap": true,
                     "namedChunks": true
                 }
-            },
-            "defaultConfiguration": "production"
+            }
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "defaultConfiguration": "development",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js"
             },
@@ -115,9 +112,7 @@
                 "development": {
                     "buildTarget": "timetable:build:development"
                 }
-            },
-            "defaultConfiguration": "development",
-            "continuous": true
+            }
         },
         "lint": {
             "executor": "@nx/eslint:lint"

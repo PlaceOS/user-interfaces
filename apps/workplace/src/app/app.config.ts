@@ -8,7 +8,6 @@ import {
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import {
     Router,
     TitleStrategy,
@@ -21,8 +20,8 @@ import { provideServiceWorker } from '@angular/service-worker';
 
 import {
     LocaleService,
-    registerActiveLocale,
     SettingsTitleStrategy,
+    registerActiveLocale,
     reloadOnChunkLoadError,
 } from '@placeos/common';
 
@@ -37,7 +36,6 @@ export const appConfig: ApplicationConfig = {
         provideAppInitializer(() =>
             registerActiveLocale(inject(LocaleService).locale),
         ),
-        provideAnimations(),
         provideRouter(
             routes,
             withHashLocation(),

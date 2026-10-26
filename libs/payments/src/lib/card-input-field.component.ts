@@ -4,6 +4,7 @@ import {
     computed,
     ElementRef,
     forwardRef,
+    OnInit,
     signal,
     viewChild,
 } from '@angular/core';
@@ -39,7 +40,10 @@ const DATE_PIPE = new DatePipe('en-us', '');
             <div class="flex flex-col">
                 <label for="card-number">Card Number</label>
                 <div
-                    tabindex="0"
+                    id="card-number"
+                    role="textbox"
+                    [attr.aria-disabled]="disabled"
+                    [attr.tabindex]="disabled ? -1 : 0"
                     class="border-base-200 focus-within:border-base-200 relative mb-4 flex h-12 w-full items-center rounded-sm border p-2 font-mono focus-within:shadow-sm"
                     (focus)="focusInput()"
                     (focusout)="blurInput()"
@@ -66,6 +70,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                 <mat-form-field appearance="outline">
                     <input
                         name="cardholder"
+                        id="cardholder"
                         matInput
                         placeholder="Mr John Smith"
                         formControlName="cardholder"
@@ -75,9 +80,10 @@ const DATE_PIPE = new DatePipe('en-us', '');
             </div>
             <div class="flex items-center space-x-2">
                 <div class="flex w-1/4 flex-1 flex-col">
-                    <label for="cardholder">Expiry Month</label>
+                    <label for="exp-month">Expiry Month</label>
                     <mat-form-field appearance="outline">
                         <mat-select
+                            id="exp-month"
                             placeholder="MM"
                             formControlName="exp_month"
                         >
@@ -91,9 +97,10 @@ const DATE_PIPE = new DatePipe('en-us', '');
                     </mat-form-field>
                 </div>
                 <div class="flex w-1/4 flex-1 flex-col">
-                    <label for="cardholder">Expiry Year</label>
+                    <label for="exp-year">Expiry Year</label>
                     <mat-form-field appearance="outline">
                         <mat-select
+                            id="exp-year"
                             placeholder="YYYY"
                             formControlName="exp_year"
                         >
@@ -111,6 +118,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                     <mat-form-field appearance="outline" class="w-20">
                         <input
                             name="cvv"
+                            id="cvv"
                             matInput
                             formControlName="cvv"
                             maxlength="4"
@@ -145,7 +153,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
 })
 export class CardInputFieldComponent
     extends AsyncHandler
-    implements ControlValueAccessor
+    implements ControlValueAccessor, OnInit
 {
     public details = new FormGroup({
         card_number: new FormControl(Array(16).fill('X').join()),
@@ -179,7 +187,7 @@ export class CardInputFieldComponent
         viewChild.required<ElementRef<HTMLInputElement>>('input');
 
     private _onChange?: (_: PaymentCardDetails) => void;
-    private _onTouch?: (_: PaymentCardDetails) => void;
+    private _onTouch?: () => void;
 
     public readonly is_amex = computed(() => {
         const no = this._card_number();
@@ -222,6 +230,7 @@ export class CardInputFieldComponent
     }
 
     public focusInput() {
+        if (this.disabled) return;
         this._input_el().nativeElement.focus();
         this.card_focused.set(true);
         this._index.set(this._input_el().nativeElement.selectionStart || 0);
@@ -229,13 +238,15 @@ export class CardInputFieldComponent
 
     public blurInput() {
         this.card_focused.set(false);
+        this._onTouch?.();
     }
 
     public onInput(event: KeyboardEvent) {
-        if (!event || !this.card_focused()) return;
+        if (!event || this.disabled || !this.card_focused()) return;
         const idx = this._index();
         if (idx < 0 || idx > 16) return;
-        let card_number = this.details.value.card_number!;
+        let card_number =
+            this.details.value.card_number ?? BLANK_CARD.card_number;
         if (
             (event.code.startsWith('Digit') ||
                 event.code.startsWith('Numpad')) &&
@@ -248,11 +259,10 @@ export class CardInputFieldComponent
             this.details.patchValue({ card_number });
             this._focusChange(idx, 1);
         } else if (event.code === 'Backspace' && idx > 0) {
-            let card_number = this.details.value.card_number!;
             card_number =
-                card_number.substring(0, idx) +
+                card_number.substring(0, idx - 1) +
                 ' ' +
-                card_number.substring(idx + 1);
+                card_number.substring(idx);
             this.details.patchValue({ card_number });
             this._focusChange(idx, -1);
         } else if (event.code === 'ArrowLeft') {
@@ -281,12 +291,16 @@ export class CardInputFieldComponent
     public writeValue(value?: PaymentCardDetails) {
         const details = value || BLANK_CARD;
         this._card_number.set(details.card_number || '');
-        this.details.patchValue(details);
+        this.details.patchValue(details, { emitEvent: false });
     }
 
     public readonly registerOnChange = (fn: (_: PaymentCardDetails) => void) =>
         (this._onChange = fn);
-    public readonly registerOnTouched = (fn: (_: PaymentCardDetails) => void) =>
+    public readonly registerOnTouched = (fn: () => void) =>
         (this._onTouch = fn);
-    public readonly setDisabledState = (s: boolean) => (this.disabled = s);
+    public setDisabledState(state: boolean) {
+        this.disabled = state;
+        if (state) this.details.disable({ emitEvent: false });
+        else this.details.enable({ emitEvent: false });
+    }
 }

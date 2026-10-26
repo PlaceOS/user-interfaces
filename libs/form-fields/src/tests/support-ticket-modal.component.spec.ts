@@ -38,14 +38,10 @@ describe('SupportTicketModalComponent', () => {
         spectator = createComponent();
         close_spy = spectator.inject(MatDialogRef).close as unknown as Mock;
         execute_spy = vi.fn(() => Promise.resolve());
-        vi.mocked(
-            spectator.inject(OrganisationService).module,
-        ).mockReturnValue({ execute: execute_spy } as any);
+        vi.mocked(spectator.inject(OrganisationService).module).mockReturnValue(
+            { execute: execute_spy } as any,
+        );
         spectator.detectChanges();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should default the location from the active building', () => {

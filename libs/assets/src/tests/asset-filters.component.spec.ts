@@ -53,10 +53,6 @@ describe('AssetFiltersComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render a toggle for each category', () => {
         spectator.detectChanges();
         // One toggle for the deliver-at-time option plus one per category

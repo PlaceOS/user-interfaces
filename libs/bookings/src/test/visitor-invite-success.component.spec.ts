@@ -30,13 +30,19 @@ describe('VisitorInviteSuccessComponent', () => {
         component: VisitorInviteSuccessComponent,
         shallow: true,
         providers: [
-            MockProvider(BookingFormService as any, {
-                last_success,
-            } as any),
-            MockProvider(OrganisationService as any, {
-                building,
-                buildings: [building],
-            } as any),
+            MockProvider(
+                BookingFormService as any,
+                {
+                    last_success,
+                } as any,
+            ),
+            MockProvider(
+                OrganisationService as any,
+                {
+                    building,
+                    buildings: [building],
+                } as any,
+            ),
             {
                 provide: SettingsService,
                 useValue: createSettingsServiceMock(),
@@ -50,9 +56,6 @@ describe('VisitorInviteSuccessComponent', () => {
         spectator.component.show_links.set(false);
         spectator.detectChanges();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should load the last successful booking on init', () => {
         expect(spectator.component.last_success()).toBe(last_success);
@@ -82,9 +85,7 @@ describe('VisitorInviteSuccessComponent', () => {
         expect(spectator.component.google_link()).toContain(
             'calendar.google.com',
         );
-        expect(spectator.component.ical_link()).toContain(
-            'data:text/calendar',
-        );
+        expect(spectator.component.ical_link()).toContain('data:text/calendar');
     });
 
     it('should emit done when the finished button is clicked', () => {

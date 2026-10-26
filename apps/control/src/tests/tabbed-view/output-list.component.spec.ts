@@ -39,10 +39,6 @@ describe('DeviceOutputListComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should not render items when a single output and no preview', () => {
         const service: any = spectator.inject(ControlStateService);
         service.output_list.set([{ id: 'o1' }]);

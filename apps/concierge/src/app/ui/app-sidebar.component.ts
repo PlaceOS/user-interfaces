@@ -9,7 +9,6 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     OrganisationService,
     SettingsService,
@@ -54,11 +53,9 @@ import { IconComponent } from '@placeos/components';
                     }
                     @if (link.children?.length) {
                         <section
-                            class="w-full overflow-hidden"
-                            [@show]="
-                                !isBlockCollapsed(link.id || link._id)
-                                    ? 'show'
-                                    : 'hide'
+                            class="contract-expand w-full"
+                            [class.contract-collapsed]="
+                                isBlockCollapsed(link.id || link._id)
                             "
                         >
                             @for (child of link.children; track child) {
@@ -94,7 +91,6 @@ import { IconComponent } from '@placeos/components';
             }
         `,
     ],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [RouterModule, MatRippleModule, IconComponent],
 })
 export class ApplicationSidebarComponent

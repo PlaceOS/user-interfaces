@@ -32,9 +32,6 @@ describe('HostSelectFieldComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should handle external value changes', () => {
         expect(spectator.component.item()).toBeNull();
         const user = new StaffUser({ email: 'test@t.com' });

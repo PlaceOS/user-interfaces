@@ -9,6 +9,7 @@ const CONSUMED_AUTH_URL_STORAGE_KEY = 'PlaceOS.native.consumed_auth_url';
 const PKCE_STORAGE_KEY = 'PlaceOS.native.pkce';
 const AUTH_ERROR_STORAGE_KEY = 'PlaceOS.native.auth_error';
 const LOOKUP_HOST = 'au.placeos.run';
+const NATIVE_CALL_TIMEOUT_MS = 10 * 1000;
 
 const NATIVE_APP_IDS: Record<string, string> = {
     workplace: 'com.placeos.workplace',
@@ -48,6 +49,25 @@ interface CapacitorBridge {
 
 let _native_url_listener: Promise<NativePluginHandle> | null = null;
 
+function boundedNativeCall<T>(promise: Promise<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        const timer = setTimeout(
+            () => reject(new Error('Native plugin call timed out.')),
+            NATIVE_CALL_TIMEOUT_MS,
+        );
+        promise.then(
+            (value) => {
+                clearTimeout(timer);
+                resolve(value);
+            },
+            (error) => {
+                clearTimeout(timer);
+                reject(error);
+            },
+        );
+    });
+}
+
 function capacitor(): CapacitorBridge | null {
     return (window as any).Capacitor || null;
 }
@@ -70,12 +90,14 @@ function listenToNativeEvent(
 ): Promise<NativePluginHandle> | null {
     const proxy = nativePluginProxy(plugin_name);
     if (proxy?.addListener) {
-        return Promise.resolve(proxy.addListener(event_name, listener));
+        return boundedNativeCall(
+            Promise.resolve(proxy.addListener(event_name, listener)),
+        );
     }
     const cap = capacitor();
     if (cap?.addListener) {
-        return Promise.resolve(
-            cap.addListener(plugin_name, event_name, listener),
+        return boundedNativeCall(
+            Promise.resolve(cap.addListener(plugin_name, event_name, listener)),
         );
     }
     return null;
@@ -89,11 +111,13 @@ function callNativeMethod(
 ): Promise<any> | null {
     const proxy = nativePluginProxy(plugin_name);
     if (typeof proxy?.[method_name] === 'function') {
-        return proxy[method_name](options);
+        return boundedNativeCall(Promise.resolve(proxy[method_name](options)));
     }
     const cap = capacitor();
     if (cap?.nativePromise) {
-        return cap.nativePromise(plugin_name, method_name, options);
+        return boundedNativeCall(
+            cap.nativePromise(plugin_name, method_name, options),
+        );
     }
     return null;
 }
@@ -535,9 +559,12 @@ export async function getIntuneToken(
 export async function lookupNativeDomainByEmail(
     email: string,
 ): Promise<string> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), NATIVE_CALL_TIMEOUT_MS);
     const response = await fetch(
         `https://${LOOKUP_HOST}/api/engine/v2/domains/lookup/${encodeURIComponent(email)}`,
-    );
+        { signal: controller.signal },
+    ).finally(() => clearTimeout(timer));
     if (!response.ok) {
         throw new Error('Unable to lookup domain.');
     }

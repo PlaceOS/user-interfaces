@@ -47,7 +47,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
             />
             @if (!hide_building_image()) {
                 <img
-                    src="assets/img/building.png"
+                    src="assets/img/building.webp"
                     class="absolute right-0 bottom-0 w-[60%]"
                 />
             }

@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
@@ -196,8 +191,10 @@ export class RoomConfirmComponent {
         this._bottomSheetRef.dismiss('cancel');
     }
 
-    confirmBooking() {
+    async confirmBooking() {
         this.show_submit_button.set(false);
-        this._roomConfirmService.bookRoom(this.space());
+        const booked = await this._roomConfirmService.bookRoom(this.space());
+        if (booked) this._bottomSheetRef.dismiss(true);
+        else this.show_submit_button.set(true);
     }
 }

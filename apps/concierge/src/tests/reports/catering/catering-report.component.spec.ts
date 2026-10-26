@@ -1,6 +1,10 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 
+import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { SettingsService } from '@placeos/common';
@@ -11,7 +15,6 @@ import { CateringReportOverallComponent } from 'apps/concierge/src/app/reports/c
 import { CateringReportComponent } from 'apps/concierge/src/app/reports/catering/catering-report.component';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
-import { signal } from '@angular/core';
 
 describe('CateringReportComponent', () => {
     let spectator: SpectatorRouting<CateringReportComponent>;
@@ -37,10 +40,6 @@ describe('CateringReportComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should set report type to catering', () => {
         expect(

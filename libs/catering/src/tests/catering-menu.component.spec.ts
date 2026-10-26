@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { MatTabsModule } from '@angular/material/tabs';
@@ -10,7 +10,6 @@ import { CateringOrdersService } from '../lib/catering-orders.service';
 import { CateringStateService } from '../lib/catering-state.service';
 
 describe('CateringMenuComponent', () => {
-    let spectator: Spectator<CateringMenuComponent>;
     const createComponent = createComponentFactory({
         component: CateringMenuComponent,
         declarations: [
@@ -32,11 +31,7 @@ describe('CateringMenuComponent', () => {
         imports: [MockModule(MatTabsModule)],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
+    beforeEach(() => createComponent());
 
     it('should show table', () => {
         expect('simple-table').toExist();

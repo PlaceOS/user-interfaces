@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { DealsComponent } from '../../app/deals/deals.component';
@@ -16,10 +19,6 @@ describe('DealsComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should derive the trailing path segment from the router url', () => {
         Object.defineProperty(spectator.router, 'url', {

@@ -1,14 +1,17 @@
 import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockComponent, MockPipe } from 'ng-mocks';
 
 import { TranslatePipe } from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
 import { ControlStatusBarComponent } from '../../app/status-bar.component';
 import { TopbarHeaderComponent } from '../../app/topbar-header.component';
-import { ControlVideoCallViewComponent } from '../../app/video-call/video-call-view.component';
 import { VideoCallPageComponent } from '../../app/video-call/video-call-page.component';
+import { ControlVideoCallViewComponent } from '../../app/video-call/video-call-view.component';
 
 describe('ControlVideoCallViewComponent', () => {
     let spectator: SpectatorRouting<ControlVideoCallViewComponent>;
@@ -30,9 +33,7 @@ describe('ControlVideoCallViewComponent', () => {
             MockPipe(TranslatePipe, (v) => v),
         ],
         imports: [MatProgressSpinnerModule],
-        providers: [
-            { provide: ControlStateService, useValue: state_mock },
-        ],
+        providers: [{ provide: ControlStateService, useValue: state_mock }],
     });
 
     beforeEach(() => {
@@ -41,10 +42,6 @@ describe('ControlVideoCallViewComponent', () => {
         state_mock.setID.mockClear();
         state_mock.selectMeeting.mockClear();
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should set the active system id from the route param', () => {

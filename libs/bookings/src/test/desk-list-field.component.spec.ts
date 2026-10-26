@@ -34,9 +34,6 @@ describe('DeskListFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should allow adding desks', () => {
         expect(spectator.query('button[name="add-desk"]')).toExist();
         spectator.click('button[name="add-desk"]');

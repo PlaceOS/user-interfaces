@@ -11,7 +11,6 @@ import {
     getUnixTime,
     isAfter,
     isBefore,
-    isSameMinute,
     startOfDay,
     startOfMinute,
 } from 'date-fns';
@@ -120,23 +119,27 @@ export function getFreeTimeSlots(
     const slots: TimeBlock[] = [];
     list.sort((a, b) => a.date - b.date);
     for (const booking of list) {
-        const bkn_start = new Date(
-            addMinutes(booking.date, -booking.extension_data?.setup_time || 0),
-        );
+        const setup_time =
+            booking.setup_time ?? booking.extension_data?.setup_time ?? 0;
+        const breakdown_time =
+            booking.breakdown_time ??
+            booking.extension_data?.breakdown_time ??
+            0;
+        const bkn_start = new Date(addMinutes(booking.date, -setup_time));
         const bkn_end = addMinutes(
             booking.date,
-            booking.duration + (booking.extension_data?.breakdown_time || 0),
+            booking.duration + breakdown_time,
         );
-        if (isAfter(booking.date, start)) {
+        if (isAfter(bkn_start, start)) {
             const diff = Math.abs(differenceInMinutes(bkn_start, start));
             if (diff >= min_size) {
                 slots.push({
                     start: start.valueOf(),
-                    end: booking.date,
+                    end: bkn_start.valueOf(),
                 });
             }
-            start = bkn_end;
-        } else if (isSameMinute(start, booking.date)) {
+        }
+        if (isAfter(bkn_end, start)) {
             start = bkn_end;
         }
     }

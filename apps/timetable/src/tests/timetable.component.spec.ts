@@ -1,33 +1,39 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
-import { SettingsService } from '@placeos/common';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
-import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
+import { MockProvider } from 'ng-mocks';
 
-import { AuthenticatedImageDirective } from '@placeos/components';
-import { SpaceTimetableComponent } from '../app/space-timetable.component';
 import { AppTimetableComponent } from '../app/timetable.component';
 
 describe('AppTimetableComponent', () => {
     let spectator: SpectatorRouting<AppTimetableComponent>;
     const createComponent = createRoutingFactory({
         component: AppTimetableComponent,
+        detectChanges: false,
         providers: [
-            MockProvider(SettingsService, { get: vi.fn() }),
-            MockProvider(SpacesService, {
-                initialised: signal(true),
-                find: vi.fn(),
+            MockProvider(SettingsService, {
+                get: vi.fn(),
             }),
-        ],
-        declarations: [
-            MockComponent(SpaceTimetableComponent),
-            MockDirective(AuthenticatedImageDirective),
+            MockProvider(OrganisationService, {
+                active_building: signal(null),
+            }),
+            MockProvider(SpacesService, {
+                initialised: signal(false),
+            }),
         ],
     });
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    it('should position the current-time marker within the configured period', () => {
+        spectator.component.date.set(new Date(2026, 0, 1, 10).valueOf());
+        spectator.component.offset.set(9);
+        spectator.component.length.set(8);
+
+        expect(spectator.component.current_offset()).toBe(12.5);
     });
 });

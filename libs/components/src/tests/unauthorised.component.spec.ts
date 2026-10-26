@@ -12,10 +12,6 @@ describe('UnauthorisedComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should link back to the root route to try again', () => {
         const link = spectator.query('a[btn]');
         expect(link).toContainText('Try Again');

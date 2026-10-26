@@ -516,9 +516,13 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
     public readonly deleting = signal(false);
     public readonly item = this._state.active_product;
     public readonly extra_assets = this._state.extra_assets;
+    private readonly _removed_asset_ids = signal<ReadonlySet<string>>(
+        new Set(),
+    );
     public readonly asset_list = computed(() => {
         const item = this.item();
         if (!item) return [];
+        const removed_asset_ids = this._removed_asset_ids();
         return unique(
             [
                 ...item.assets,
@@ -527,7 +531,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
                 ),
             ],
             'id',
-        );
+        ).filter((asset) => !removed_asset_ids.has(asset.id));
     });
     public readonly requests_source = this._state.active_product_requests;
     public readonly requests = computed(() =>
@@ -609,12 +613,13 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
         resp.loading('Deleting asset...');
         await removeAsset(asset.id);
         await removeAssetRequests(asset.id);
-        const item = this._state.active_product();
-        this._state.setOptions({ active_item: '' });
-        setTimeout(
-            () => this._state.setOptions({ active_item: item.id }),
-            1000,
+        this._removed_asset_ids.update(
+            (removed_asset_ids) => new Set([...removed_asset_ids, asset.id]),
         );
+        this._state.setExtraAssets(
+            this.extra_assets().filter((item) => item.id !== asset.id),
+        );
+        this._state.postChange();
         resp.close();
     }
 

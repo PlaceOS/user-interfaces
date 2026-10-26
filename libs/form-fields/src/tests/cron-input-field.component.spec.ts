@@ -10,10 +10,6 @@ describe('CronInputFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should split written values into the five fields', () => {
         spectator.component.writeValue('0 9 1 6 5');
         expect(spectator.component.form.getRawValue()).toEqual({

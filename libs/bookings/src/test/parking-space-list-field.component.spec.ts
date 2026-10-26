@@ -1,10 +1,10 @@
-import type { Mock } from 'vitest';
 import { MatDialog } from '@angular/material/dialog';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { SETTING_KEYS } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockDirective, MockPipe } from 'ng-mocks';
 import { of } from 'rxjs';
+import type { Mock } from 'vitest';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -40,10 +40,6 @@ describe('ParkingSpaceListFieldComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should allow adding spaces via the dialog', () => {

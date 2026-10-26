@@ -8,14 +8,17 @@ import {
     shuffleArray,
 } from '@placeos/common';
 import {
+    apiEndpoint,
     cleanObject,
     getModule,
     post,
     querySignagePlugins,
+    responseHeaders,
     showSignage,
     SignageMedia,
     SignagePlaylist,
     SignagePlugin,
+    SignageTemplateMapping,
 } from '@placeos/ts-client';
 import {
     getLastCronRunTimestampInRange,
@@ -98,6 +101,14 @@ const POLL_WATCHDOG_MS = 3 * MINUTES;
 const CACHE_RETRY_BASE_MS = 15 * SECONDS;
 /** Ceiling for the media cache retry backoff */
 const CACHE_RETRY_MAX_MS = 5 * MINUTES;
+/**
+ * Longest a URL resolution waits on the cache. Under the player's own cap, so
+ * a download that is still running is left to finish in the background while
+ * the item plays from the server.
+ */
+const MEDIA_CACHE_WAIT_MS = 20 * SECONDS;
+/** How long a media cache sync may run before another is allowed to start */
+const MEDIA_SYNC_TIMEOUT_MS = 30 * MINUTES;
 const log = scoped_log('Signage');
 
 /** Render a timestamp for diagnostics output; 0 reads as never */
@@ -146,6 +157,16 @@ function isNestedPlayerWindow() {
 
 function displayCacheKey(id: string) {
     return `${DISPLAY_KEY}.${id}`;
+}
+
+function displayRequestURL(
+    id: string,
+    query_params: Record<string, boolean | string>,
+) {
+    const query_string = Object.entries(query_params)
+        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+        .join('&');
+    return `${apiEndpoint()}/signage/${id}${query_string ? `?${query_string}` : ''}`;
 }
 
 function playlistSchedules(playlist: SignagePlaylist): PlaylistSchedule[] {
@@ -317,6 +338,11 @@ function playlistStartsWithin(
     );
 }
 
+function templateMappingCreatedAt(mapping: SignageTemplateMapping) {
+    const created_at = Date.parse(mapping.created_at);
+    return Number.isFinite(created_at) ? created_at : 0;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -332,10 +358,17 @@ export class SignageService extends AsyncHandler {
     /** Counter incremented on the schedule timer to re-evaluate time windows */
     private readonly _tick = signal(0);
     private _display_signature = '';
+    /** Validators from the last successful display response */
+    private _etag = '';
+    private _last_modified = '';
     /** Signature of the media set the cache was last synced against */
     private _media_signature = '';
     /** Whether a media cache sync is currently running */
     private _media_sync_in_flight = false;
+    /** Wall-clock time the running media cache sync started */
+    private _media_sync_started = 0;
+    /** Whether a sync was asked for while one was already running */
+    private _media_sync_queued = false;
     /** Consecutive media cache syncs that reported download failures */
     private _cache_retry_attempt = 0;
     /** Whether a display poll is currently running */
@@ -363,6 +396,37 @@ export class SignageService extends AsyncHandler {
 
     /** Resolved display details for the active system */
     public readonly display = this._display_data.asReadonly();
+
+    /** Template mapping that applies to the display at the current time */
+    public readonly active_template = computed<SignageTemplateMapping | null>(
+        () => {
+            this._tick();
+            const mappings = this._display_data()?.template_schedules;
+            if (!Array.isArray(mappings)) return null;
+            const scheduled = mappings
+                .map((mapping: SignageTemplateMapping) => {
+                    if (!mapping?.template_id || !mapping.schedule) return null;
+                    const window = scheduledPlaylistWindow(mapping.schedule);
+                    return window
+                        ? { mapping, starts_at: window.starts_at }
+                        : null;
+                })
+                .filter((item) => !!item)
+                .sort(
+                    (a, b) =>
+                        b.starts_at - a.starts_at ||
+                        templateMappingCreatedAt(b.mapping) -
+                            templateMappingCreatedAt(a.mapping),
+                );
+            if (scheduled.length) return scheduled[0].mapping;
+            return (
+                mappings.find(
+                    (mapping: SignageTemplateMapping) =>
+                        mapping?.template_id && !mapping.schedule,
+                ) || null
+            );
+        },
+    );
 
     public readonly playlist = computed<MediaPlayerItem[]>(() => {
         this._tick();
@@ -414,6 +478,10 @@ export class SignageService extends AsyncHandler {
     });
 
     public setDisplay(system_id: string) {
+        if (system_id !== this._display()) {
+            this._etag = '';
+            this._last_modified = '';
+        }
         this._display.set(system_id);
         this._poll();
         // Re-arm the schedule timer so its cadence reflects the current debug
@@ -501,6 +569,7 @@ export class SignageService extends AsyncHandler {
         const id = this._display();
         if (!id) return;
         const value = await this._fetchDisplay(id);
+        if (value === null) return;
         const display_signature = `${id}:${JSON.stringify(value || {})}`;
         if (
             display_signature === this._display_signature &&
@@ -533,24 +602,40 @@ export class SignageService extends AsyncHandler {
     }
 
     private async _fetchDisplay(id: string) {
+        const query_params = cleanObject(
+            {
+                preview: this.debug() || undefined,
+                item_id: this.playing_id(),
+            },
+            [undefined, null, ''],
+        ) as Record<string, boolean | string>;
+        const headers: Record<string, string> = {};
+        if (this._etag) headers['If-None-Match'] = this._etag;
+        if (this._last_modified) {
+            headers['If-Modified-Since'] = this._last_modified;
+        }
+        const request_options = {
+            headers,
+            cache: 'no-store' as const,
+        };
+
         // A request that never settles would otherwise leave the poll waiting
         // forever, so it is abandoned and retried on the next interval.
-        let d: any = await this._withTimeout(
-            showSignage(
-                id,
-                cleanObject(
-                    {
-                        preview: this.debug() || undefined,
-                        item_id: this.playing_id(),
-                    },
-                    [undefined, null, ''],
-                ),
-            ),
-            DISPLAY_FETCH_TIMEOUT_MS,
-        ).catch((e) => {
+        let d: any;
+        try {
+            d = await this._withTimeout(
+                showSignage(id, query_params, request_options),
+                DISPLAY_FETCH_TIMEOUT_MS,
+            );
+            const response_headers = responseHeaders(
+                displayRequestURL(id, query_params),
+            );
+            this._etag = response_headers.etag || '';
+            this._last_modified = response_headers['last-modified'] || '';
+        } catch (e) {
+            if (e instanceof Response && e.status === 304) return null;
             log.warn('Failed to fetch display details.', e);
-            return null;
-        });
+        }
         if (!d) {
             const display_key = displayCacheKey(id);
             d = JSON.parse(
@@ -661,6 +746,8 @@ export class SignageService extends AsyncHandler {
             media_cache: {
                 ...this._media_cache.cacheState(this._display()),
                 sync_in_flight: this._media_sync_in_flight,
+                sync_started: asTime(this._media_sync_started),
+                sync_queued: this._media_sync_queued,
                 failed_sync_attempts: this._cache_retry_attempt,
             },
             media_signature: this._media_signature,
@@ -813,9 +900,23 @@ export class SignageService extends AsyncHandler {
      * closes - the clock does - so this runs off the schedule tick.
      */
     private _checkMediaCache(display: any) {
-        if (!display?.id || this._media_sync_in_flight) return;
+        if (!display?.id || this._mediaSyncInFlight()) return;
         if (this._mediaSignature(display) === this._media_signature) return;
         this._syncMediaCache(display);
+    }
+
+    /**
+     * Whether a sync is still running. One that has run for far longer than
+     * any sync should is treated as lost rather than allowed to block every
+     * later sync for the rest of the player's uptime.
+     */
+    private _mediaSyncInFlight() {
+        if (!this._media_sync_in_flight) return false;
+        if (Date.now() - this._media_sync_started < MEDIA_SYNC_TIMEOUT_MS) {
+            return true;
+        }
+        log.warn('Previous media cache sync never finished. Starting another.');
+        return false;
     }
 
     private _mediaSignature(display: any) {
@@ -829,10 +930,17 @@ export class SignageService extends AsyncHandler {
 
     private async _syncMediaCache(display: any) {
         if (!display?.id) return;
-        this._media_signature = this._mediaSignature(display);
         // Caching staggers its downloads, so a sync can outlive the tick that
-        // started it. Overlapping runs would duplicate that work.
+        // started it. Overlapping runs would duplicate that work, so a sync
+        // asked for in the meantime runs once the current one finishes.
+        if (this._mediaSyncInFlight()) {
+            this._media_sync_queued = true;
+            return;
+        }
+        this._media_signature = this._mediaSignature(display);
         this._media_sync_in_flight = true;
+        this._media_sync_started = Date.now();
+        this._media_sync_queued = false;
         try {
             const cache_owner = display.id || '';
             const media = this._activeCacheableMediaURLs(display);
@@ -848,30 +956,49 @@ export class SignageService extends AsyncHandler {
                 { prune_other_owners: !this._isNestedPlayerWindow() },
             );
             for (const item of extra_media) {
-                this._media_cache.invalidateFile(item, cache_owner);
+                Promise.resolve(
+                    this._media_cache.invalidateFile(item, cache_owner),
+                ).catch((e) =>
+                    log.warn('Unable to release cached media.', item, e),
+                );
             }
-            // Retry after a delay so a transient failure can recover, backing
-            // off as failures continue. Without this an offline player retried
-            // every download every fifteen seconds for as long as it was
-            // offline, which is the one situation where none of them can work.
             if (has_failures) {
-                this._cache_retry_attempt++;
-                const delay = Math.min(
-                    CACHE_RETRY_BASE_MS * 2 ** (this._cache_retry_attempt - 1),
-                    CACHE_RETRY_MAX_MS,
-                );
-                log.debug(`Retrying media cache in ${delay}ms.`);
-                this.timeout(
-                    'retry_cache',
-                    () => this._syncMediaCache(this._display_data()),
-                    delay,
-                );
+                this._scheduleCacheRetry();
             } else {
                 this._cache_retry_attempt = 0;
             }
+        } catch (e) {
+            // Nothing in the cache is allowed to stop future syncs; treat a
+            // sync that blew up like one whose downloads failed.
+            log.error('Media cache sync failed.', e);
+            this._scheduleCacheRetry();
         } finally {
             this._media_sync_in_flight = false;
+            if (this._media_sync_queued) {
+                this._media_sync_queued = false;
+                this._syncMediaCache(this._display_data());
+            }
         }
+    }
+
+    /**
+     * Retry after a delay so a transient failure can recover, backing off as
+     * failures continue. Without this an offline player retried every download
+     * every fifteen seconds for as long as it was offline, which is the one
+     * situation where none of them can work.
+     */
+    private _scheduleCacheRetry() {
+        this._cache_retry_attempt++;
+        const delay = Math.min(
+            CACHE_RETRY_BASE_MS * 2 ** (this._cache_retry_attempt - 1),
+            CACHE_RETRY_MAX_MS,
+        );
+        log.debug(`Retrying media cache in ${delay}ms.`);
+        this.timeout(
+            'retry_cache',
+            () => this._syncMediaCache(this._display_data()),
+            delay,
+        );
     }
 
     private _activeCacheableMediaURLs(display: any) {
@@ -1257,32 +1384,52 @@ export class SignageService extends AsyncHandler {
         return isNestedPlayerWindow();
     }
 
+    /**
+     * Resolve what the player should load for a media item. The cache is
+     * preferred, a missing file is fetched, and if neither produces a file the
+     * item plays straight from the server: whatever is wrong with the cache,
+     * the screen must not stay blank while it is sorted out.
+     */
     private async _mediaURL(media: SignageMedia, plugin?: SignagePlugin) {
         if (media.media_type === 'webpage' || media.media_type === 'plugin') {
             return media.media_url || plugin?.uri;
         }
         const url = media.media_url;
-        let file = await this._media_cache.getFile(url).catch((_) => null);
+        if (!url) return '';
+        // One budget for the whole resolution, so the player always hears
+        // back inside its own wait cap however the cache is behaving.
+        const deadline = Date.now() + MEDIA_CACHE_WAIT_MS;
+        let file = await this._media_cache
+            .getFile(url, MEDIA_CACHE_WAIT_MS)
+            .catch((_) => null);
         // The cache has no usable copy of this file, so the player would sit on
         // an unresolvable URL forever. Ask for it now instead of waiting for
         // the next cache sync, which may never come.
         if (!file && this._shouldRecoverMedia(url)) {
             log.warn('Media missing from the cache. Requesting it now.', url);
-            await this._media_cache
-                .requestFilesToCache([url], this._display())
-                .catch((_) => undefined);
-            file = await this._media_cache.getFile(url).catch((_) => null);
+            file = await this._media_cache
+                .fetchFile(
+                    url,
+                    this._display(),
+                    Math.max(0, deadline - Date.now()),
+                )
+                .catch((_) => null);
         }
-        try {
-            return file ? URL.createObjectURL(file) : '';
-        } catch {
-            return '';
+        if (file) {
+            try {
+                return URL.createObjectURL(file);
+            } catch (e) {
+                log.warn('Unable to create a URL for cached media.', url, e);
+            }
         }
+        log.warn('Playing media directly from the server.', url);
+        return this._media_cache.directURL(url);
     }
 
     /**
-     * Rate limits recovery downloads. The player re-resolves the URL of a
-     * failing item every 50ms, which would otherwise hammer the network.
+     * Rate limits recovery downloads. The player re-resolves the URL of an
+     * item whenever it fails to load, which would otherwise hammer the network
+     * while the server is unreachable.
      * Uses wall-clock time so debug time fast-forwarding cannot shorten it.
      */
     private _shouldRecoverMedia(url: string) {

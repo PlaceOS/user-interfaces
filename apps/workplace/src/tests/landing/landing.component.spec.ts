@@ -1,10 +1,10 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     Building,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { signal } from '@angular/core';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
@@ -39,10 +39,6 @@ describe('LandingComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should match snapshot', () => {
         spectator.component.time.set(1);

@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -49,10 +52,6 @@ describe('DealsComponent', () => {
         vi.clearAllMocks();
         deals.set([]);
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should exclude expired deals from the deals list', () => {

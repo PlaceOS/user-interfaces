@@ -108,89 +108,40 @@ import { DesksStateService } from './desks-state.service';
                     }
                 </div>
                 <div class="mb-4 flex w-full items-center gap-2 px-8">
-                    @if (!manage()) {
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript w-60"
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript w-60"
+                    >
+                        <mat-select
+                            [ngModel]="filters().zones"
+                            (ngModelChange)="updateZones($event)"
+                            [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                            multiple
                         >
-                            <mat-select
-                                [ngModel]="filters().zones"
-                                (ngModelChange)="updateZones($event)"
-                                [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                                multiple
-                            >
-                                @for (level of levels(); track level) {
-                                    <mat-option [value]="level.id">
-                                        <div class="flex flex-col-reverse">
-                                            @if (use_region) {
-                                                <div class="text-xs opacity-30">
-                                                    {{
-                                                        (
-                                                            level.parent_id
-                                                            | building
-                                                        )?.display_name
-                                                    }}
-                                                    <span class="opacity-0">
-                                                        -
-                                                    </span>
-                                                </div>
-                                            }
-                                            <div>
+                            @for (level of levels(); track level) {
+                                <mat-option [value]="level.id">
+                                    <div class="flex flex-col-reverse">
+                                        @if (use_region) {
+                                            <div class="text-xs opacity-30">
                                                 {{
-                                                    level.display_name ||
-                                                        level.name
+                                                    (level.parent_id | building)
+                                                        ?.display_name
                                                 }}
+                                                <span class="opacity-0">
+                                                    -
+                                                </span>
                                             </div>
+                                        }
+                                        <div>
+                                            {{
+                                                level.display_name || level.name
+                                            }}
                                         </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    }
-                    @if (manage()) {
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript w-60"
-                        >
-                            <mat-select
-                                [ngModel]="
-                                    filters().zones?.length
-                                        ? filters().zones[0]
-                                        : ''
-                                "
-                                (ngModelChange)="updateZones([$event])"
-                                [placeholder]="
-                                    'COMMON.LEVEL_SELECT' | translate
-                                "
-                            >
-                                @for (level of levels(); track level) {
-                                    <mat-option [value]="level.id">
-                                        <div class="flex flex-col-reverse">
-                                            @if (use_region) {
-                                                <div class="text-xs opacity-30">
-                                                    {{
-                                                        (
-                                                            level.parent_id
-                                                            | building
-                                                        )?.display_name
-                                                    }}
-                                                    <span class="opacity-0">
-                                                        -
-                                                    </span>
-                                                </div>
-                                            }
-                                            <div>
-                                                {{
-                                                    level.display_name ||
-                                                        level.name
-                                                }}
-                                            </div>
-                                        </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    }
+                                    </div>
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
                     <div class="w-px flex-1"></div>
                     @if (path() === 'events') {
                         <date-options
@@ -428,13 +379,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly editDesk = () => this._state.editDesk();
     /** Update active zones for desks */
     public readonly updateZones = (zones: string[]) => {
-        let clean_zones = (zones || []).filter((_) => !!_);
-        // Manage view must always have a specific zone to write metadata
-        // to — snap empty selections back to the first available level.
-        if (this.manage() && !clean_zones.length) {
-            const levels = this.levels();
-            if (levels.length) clean_zones = [levels[0].id];
-        }
+        const clean_zones = (zones || []).filter((_) => !!_);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: {
@@ -449,11 +394,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
               ? 'desks'
               : '';
         if (persistence_view) {
-            persistZones(
-                persistence_view,
-                this._persistScopeId(),
-                clean_zones,
-            );
+            persistZones(persistence_view, this._persistScopeId(), clean_zones);
         }
     };
 
@@ -581,11 +522,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         const view = this._getViewFromPath();
         const previous_view = this._state.filters().view;
         const view_changed = !!previous_view && previous_view !== view;
-        this._state.setFilters(
-            view_changed
-                ? { view, search: '' }
-                : { view },
-        );
+        this._state.setFilters(view_changed ? { view, search: '' } : { view });
         this._syncZones(this.levels(), view_changed);
     }
 
@@ -594,11 +531,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         const valid_zones = current_zones.filter((zone) =>
             levels.find((level) => level.id === zone),
         );
-        let next_zones = restore
-            ? []
-            : this.manage()
-              ? valid_zones.slice(0, 1)
-              : valid_zones;
+        let next_zones = restore ? [] : valid_zones;
         const persistence_view = this.manage()
             ? 'desks-manage'
             : this.path() === 'map'
@@ -610,9 +543,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
                 this._persistScopeId(),
             ).filter((zone) => levels.find((lvl) => lvl.id === zone));
             if (persisted.length) {
-                next_zones = this.manage() ? persisted.slice(0, 1) : persisted;
-            } else if (this.manage() && levels.length) {
-                next_zones = [levels[0].id];
+                next_zones = persisted;
             }
         }
         if (this._sameZones(current_zones, next_zones)) return;

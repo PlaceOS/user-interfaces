@@ -9,7 +9,7 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
     i18n,
     notifyError,
@@ -22,7 +22,7 @@ import {
     UploadsService,
     userSignal,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
+import { loadAuthenticatedImage, openConfirmModal } from '@placeos/components';
 import {
     addGroup,
     addGroupUser,
@@ -33,9 +33,10 @@ import {
     addSignageTemplateMapping,
     addSystem,
     apiEndpoint,
+    addZone as createZone,
     currentGroups,
     del,
-    listSignageMediaTags,
+    removeZone as deleteZone,
     listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
     listSignageTemplateApprovers,
@@ -64,10 +65,12 @@ import {
     removeGroupUser,
     removeGroupZone,
     removeSignageMedia,
+    removeSignageMediaTag,
     removeSignagePlaylist,
     removeSignageTemplate,
     removeSignageTemplateMapping,
     removeSystem,
+    renameSignageMediaTag,
     requestApprovalSignagePlaylist,
     requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
@@ -99,35 +102,19 @@ import {
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
-import { DisplayEditModalComponent } from './displays/display-edit-modal.component';
+import type {
+    AiImageModalComponent,
+    AiImageModalData,
+} from './ai/ai-image-modal.component';
 import { displayZoneIds } from './displays/display-zones.util';
-import {
+import type {
     BulkMediaUploadItem,
-    BulkMediaUploadModalComponent,
     BulkMediaUploadModalData,
 } from './shared/bulk-media-upload-modal.component';
 import { decodeEntityNames } from './shared/decode-entity-names.util';
-import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
-import { GroupSelectModalComponent } from './shared/group-select-modal.component';
-import { MediaEditModalComponent } from './shared/media-edit-modal.component';
-import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
-import { MediaTagsModalComponent } from './shared/media-tags-modal.component';
-import { PlaylistApproveModalComponent } from './shared/playlist-approve-modal.component';
-import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
-import { PlaylistItemScheduleModalComponent } from './shared/playlist-item-schedule-modal.component';
-import {
-    PlaylistRequestApprovalModalComponent,
-    PlaylistRequestApprovalModalResult,
-} from './shared/playlist-request-approval-modal.component';
-import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
-import { TemplateApproveModalComponent } from './shared/template-approve-modal.component';
-import { TemplateEditModalComponent } from './shared/template-edit-modal.component';
-import { TemplateMappingModalComponent } from './shared/template-mapping-modal.component';
-import {
-    TemplateRequestApprovalModalComponent,
-    TemplateRequestApprovalModalResult,
-} from './shared/template-request-approval-modal.component';
-import { ZoneSelectModalComponent } from './shared/zone-select-modal.component';
+import type { MediaTagModalResult } from './shared/media-tag-modal.component';
+import type { PlaylistRequestApprovalModalResult } from './shared/playlist-request-approval-modal.component';
+import type { TemplateRequestApprovalModalResult } from './shared/template-request-approval-modal.component';
 import {
     listSignageMediaTagCounts,
     type SignageMediaTagCounts,
@@ -721,6 +708,12 @@ export class SignageService {
     public readonly can_delete = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Delete),
     );
+    public readonly can_update_media_tags = computed(() =>
+        this._api_group_id() ? this.can_update() : this.can_manage_all_groups(),
+    );
+    public readonly can_delete_tagged_media = computed(() =>
+        this._api_group_id() ? this.can_delete() : this.can_manage_all_groups(),
+    );
     public readonly can_delete_displays = this.is_sys_admin;
     public readonly can_approve = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Approve),
@@ -731,10 +724,11 @@ export class SignageService {
     public readonly is_admin = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Manage),
     );
+    public readonly can_manage_zones = this.is_admin;
 
     private readonly _can_query_group_data = computed(() => {
         const group_id = this._api_group_id();
-        return this.is_sys_admin() || !!group_id;
+        return this.can_manage_all_groups() || !!group_id;
     });
     // How many items to request per network page.
     private static readonly PAGE_SIZE = 200;
@@ -1157,6 +1151,9 @@ export class SignageService {
         return result.data;
     }
 
+    /** Refresh assignment counts after template mappings change. */
+    public readonly template_mappings_revision = signal(0);
+
     public async listTemplateMappings(
         query_params: SignageTemplateMappingQuery,
     ) {
@@ -1287,6 +1284,7 @@ export class SignageService {
             }
         },
     });
+    public readonly all_zones_loading = this._all_zone_list.isLoading;
     public readonly all_zones = computed(() =>
         this._mergeItems(
             this._all_zone_list.value() || [],
@@ -1574,7 +1572,7 @@ export class SignageService {
                 return;
             }
             this.selected_group_id.set(
-                this.is_sys_admin() ? '' : groups[0].group.id,
+                this.can_manage_all_groups() ? '' : groups[0].group.id,
             );
         });
 
@@ -1603,6 +1601,8 @@ export class SignageService {
             )
         )
             return;
+        const { PlaylistEditModalComponent } =
+            await import('./shared/playlist-edit-modal.component');
         const ref = this._dialog.open(PlaylistEditModalComponent, {
             data: {
                 playlist: new SignagePlaylist({}),
@@ -1636,6 +1636,8 @@ export class SignageService {
             )
         )
             return;
+        const { PlaylistEditModalComponent } =
+            await import('./shared/playlist-edit-modal.component');
         const ref = this._dialog.open(PlaylistEditModalComponent, {
             data: {
                 playlist,
@@ -1691,7 +1693,7 @@ export class SignageService {
         await this._shareSignageItems('playlists', [playlist.id]);
     }
 
-    public approvePlaylist(playlist: SignagePlaylist) {
+    public async approvePlaylist(playlist: SignagePlaylist) {
         if (!playlist?.id) return;
         if (
             !this._requirePermission(
@@ -1700,6 +1702,8 @@ export class SignageService {
             )
         )
             return;
+        const { PlaylistApproveModalComponent } =
+            await import('./shared/playlist-approve-modal.component');
         this._dialog.open(PlaylistApproveModalComponent, {
             data: { playlist },
             panelClass: 'mobile-fullscreen',
@@ -1710,7 +1714,7 @@ export class SignageService {
         if (!playlist?.id) return;
         if (this.playlist_approval_request_loading()) return;
         if (this.can_approve()) {
-            this.approvePlaylist(playlist);
+            await this.approvePlaylist(playlist);
             return;
         }
         let approvers: SignagePlaylistApprover[] = [];
@@ -1736,6 +1740,8 @@ export class SignageService {
             this.playlist_approval_request_loading.set(false);
         }
         if (!group) return;
+        const { PlaylistRequestApprovalModalComponent } =
+            await import('./shared/playlist-request-approval-modal.component');
         const ref = this._dialog.open(PlaylistRequestApprovalModalComponent, {
             data: {
                 playlist,
@@ -1898,6 +1904,8 @@ export class SignageService {
             )
         )
             return false;
+        const { PlaylistItemScheduleModalComponent } =
+            await import('./shared/playlist-item-schedule-modal.component');
         const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
             data: {
                 item: schedule_items[0],
@@ -1939,6 +1947,8 @@ export class SignageService {
         media_id: string,
     ) {
         const media = this.media().find((item) => item.id === media_id);
+        const { PlaylistItemScheduleModalComponent } =
+            await import('./shared/playlist-item-schedule-modal.component');
         const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
             data: {
                 item: new SignagePlaylistItemSchedule({
@@ -1978,6 +1988,8 @@ export class SignageService {
             )
         )
             return;
+        const { TemplateEditModalComponent } =
+            await import('./shared/template-edit-modal.component');
         const ref = this._dialog.open(TemplateEditModalComponent, {
             data: {
                 template: new SignageTemplate({}),
@@ -2000,6 +2012,8 @@ export class SignageService {
             )
         )
             return;
+        const { TemplateEditModalComponent } =
+            await import('./shared/template-edit-modal.component');
         const ref = this._dialog.open(TemplateEditModalComponent, {
             data: {
                 template,
@@ -2028,6 +2042,8 @@ export class SignageService {
         )
             return false;
         const templates = mapping ? [] : await this.listApprovedTemplates();
+        const { TemplateMappingModalComponent } =
+            await import('./shared/template-mapping-modal.component');
         const ref = this._dialog.open(TemplateMappingModalComponent, {
             data: {
                 mapping,
@@ -2046,7 +2062,10 @@ export class SignageService {
             },
             panelClass: 'mobile-fullscreen',
         });
-        return !!(await dialogClosed(ref));
+        const changed = !!(await dialogClosed(ref));
+        if (changed)
+            this.template_mappings_revision.update((value) => value + 1);
+        return changed;
     }
 
     public async removeTemplateMapping(
@@ -2076,6 +2095,7 @@ export class SignageService {
         if (result.reason !== 'done') return false;
         try {
             await removeSignageTemplateMapping(mapping.id);
+            this.template_mappings_revision.update((value) => value + 1);
             result.close();
             notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVED'));
             return true;
@@ -2088,7 +2108,7 @@ export class SignageService {
         }
     }
 
-    public approveTemplate(template: SignageTemplate) {
+    public async approveTemplate(template: SignageTemplate) {
         if (!template?.id) return;
         if (
             !this._requirePermission(
@@ -2097,6 +2117,8 @@ export class SignageService {
             )
         )
             return;
+        const { TemplateApproveModalComponent } =
+            await import('./shared/template-approve-modal.component');
         this._dialog.open(TemplateApproveModalComponent, {
             data: { template },
             panelClass: 'mobile-fullscreen',
@@ -2106,7 +2128,7 @@ export class SignageService {
     public async requestTemplateApproval(template: SignageTemplate) {
         if (!template?.id || this.template_approval_request_loading()) return;
         if (this.can_approve()) {
-            this.approveTemplate(template);
+            await this.approveTemplate(template);
             return;
         }
         let approvers: SignageTemplateApprover[] = [];
@@ -2132,6 +2154,8 @@ export class SignageService {
             this.template_approval_request_loading.set(false);
         }
         if (!group) return;
+        const { TemplateRequestApprovalModalComponent } =
+            await import('./shared/template-request-approval-modal.component');
         const ref = this._dialog.open(TemplateRequestApprovalModalComponent, {
             data: { template, approvers },
             panelClass: 'mobile-fullscreen',
@@ -2577,6 +2601,8 @@ export class SignageService {
             return false;
         }
         const share_config = SIGNAGE_SHARE_CONFIG[item_type];
+        const { GroupSelectModalComponent } =
+            await import('./shared/group-select-modal.component');
         const ref = this._dialog.open(GroupSelectModalComponent, {
             data: {
                 title: i18n(share_config.title),
@@ -2969,6 +2995,8 @@ export class SignageService {
             item.media_type === 'plugin' && item.plugin_id
                 ? await this._resolvePlugin(item.plugin_id)
                 : undefined;
+        const { MediaPreviewModalComponent } =
+            await import('./shared/media-preview-modal.component');
         this._dialog.open(MediaPreviewModalComponent, {
             data: { media: item, plugin, group_id: this._api_group_id() },
             panelClass: 'fullscreen-dialog',
@@ -3039,6 +3067,8 @@ export class SignageService {
                     { permissions, on_progress },
                 ),
         };
+        const { BulkMediaUploadModalComponent } =
+            await import('./shared/bulk-media-upload-modal.component');
         const ref = this._dialog.open(BulkMediaUploadModalComponent, {
             data,
             panelClass: 'mobile-fullscreen',
@@ -3063,6 +3093,120 @@ export class SignageService {
             orientation: 'landscape',
         });
         await this.editMedia(media);
+    }
+
+    /**
+     * Create a media item from an image the backend already stored, without
+     * sending the bytes up a second time.
+     */
+    public async addMediaFromUpload(
+        upload_id: string,
+        media_item: Partial<SignageMedia> = {},
+        playlist_id = '',
+    ) {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
+            )
+        ) {
+            throw new Error(i18n('SIGNAGE_MANAGER.SVC_PERMISSION_DENIED'));
+        }
+        const media_url = `${
+            location.origin
+        }/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
+
+        let thumbnail_id = '';
+        try {
+            const source = await loadAuthenticatedImage(
+                media_url,
+                '/api/engine/v2/uploads',
+            );
+            const response = await fetch(source);
+            const blob = await response.blob();
+            const file = new File(
+                [blob],
+                `${media_item.name || 'image'}.${blob.type.includes('png') ? 'png' : 'jpg'}`,
+                { type: blob.type || 'image/jpeg' },
+            );
+            const thumbnail = await this.generateThumbnailImage(file);
+            if (thumbnail) {
+                thumbnail_id = await this._uploadThumbnailImage(
+                    thumbnail,
+                    media_item.name || 'image',
+                );
+            }
+        } catch {
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_FAILED'));
+        }
+
+        const data = {
+            ...new SignageMedia({
+                orientation: 'landscape',
+                ...media_item,
+                media_id: upload_id,
+                media_uri: media_url,
+                media_type: 'image',
+                thumbnail_id,
+            } as any),
+        };
+        for (const key in data) {
+            if (!data[key]) delete data[key];
+        }
+        const result = await this._addSignageMedia(data);
+        if (playlist_id && result?.id) {
+            await this.addMediaToPlaylist(playlist_id, result.id);
+        }
+        return result;
+    }
+
+    /** Remove a media row when the generated upload could not be claimed. */
+    public async discardCreatedMedia(id: string) {
+        await removeSignageMedia(id);
+        this._media_items.update((items) =>
+            items.filter((item) => item.id !== id),
+        );
+        this._media_tags.reload();
+    }
+
+    /** guards against a second modal while one is open */
+    private _ai_modal_ref: MatDialogRef<AiImageModalComponent> | null = null;
+
+    /** Open the AI image modal, either to create artwork or to change some. */
+    public async generateMediaWithAI(options: AiImageModalData = {}) {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
+            )
+        )
+            return;
+        if (this._ai_modal_ref) return;
+        const { AiImageModalComponent } =
+            await import('./ai/ai-image-modal.component');
+        const ref = this._dialog.open(AiImageModalComponent, {
+            data: options,
+            panelClass: 'fullscreen-dialog',
+            autoFocus: false,
+        });
+        this._ai_modal_ref = ref;
+        try {
+            const result = await dialogClosed(ref);
+            this.changed();
+            return result;
+        } finally {
+            this._ai_modal_ref = null;
+        }
+    }
+
+    public async editMediaWithAI(media: SignageMedia) {
+        if (!media?.media_id) return;
+        return this.generateMediaWithAI({
+            source_upload_id: media.media_id,
+            source_item_id: media.id,
+            source_name: media.name,
+            aspect_ratio: media.orientation === 'portrait' ? '9:16' : '16:9',
+        });
     }
 
     public async addMediaFromPlugin(plugin: SignagePlugin) {
@@ -3126,6 +3270,8 @@ export class SignageService {
         if (file) {
             file_thumbnail = await this._generateThumbnail(file, 1024, 720);
         }
+        const { MediaEditModalComponent } =
+            await import('./shared/media-edit-modal.component');
         const ref = this._dialog.open(MediaEditModalComponent, {
             data: {
                 media,
@@ -3458,6 +3604,8 @@ export class SignageService {
             )
         )
             return false;
+        const { MediaTagsModalComponent } =
+            await import('./shared/media-tags-modal.component');
         const ref = this._dialog.open(MediaTagsModalComponent, {
             data: { tags: this.media_tags() },
             width: 'min(28rem, calc(100vw - 2rem))',
@@ -3485,7 +3633,101 @@ export class SignageService {
         return true;
     }
 
+    public async renameMediaTag(tag: string, count: number) {
+        if (!tag) return false;
+        if (
+            !this._requirePermission(
+                this.can_update_media_tags(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA'),
+            )
+        )
+            return false;
+        const { MediaTagModalComponent } =
+            await import('./shared/media-tag-modal.component');
+        const ref = this._dialog.open(MediaTagModalComponent, {
+            data: {
+                action: 'rename',
+                tag,
+                count,
+                can_delete_media: false,
+            },
+            width: 'min(28rem, calc(100vw - 2rem))',
+        });
+        const result = await dialogClosed<MediaTagModalResult>(ref);
+        if (result?.action !== 'rename') return false;
+        try {
+            const group_id = this._api_group_id();
+            await renameSignageMediaTag({
+                current_tag: tag,
+                new_tag: result.new_tag,
+                ...(group_id ? { group_id } : {}),
+            });
+        } catch (error) {
+            notifyError(
+                i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_ERROR', {
+                    error: error instanceof Error ? error.message : `${error}`,
+                }),
+            );
+            return false;
+        }
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_RENAMED'));
+        return true;
+    }
+
+    public async removeMediaTag(tag: string, count: number) {
+        if (!tag) return false;
+        if (
+            !this._requirePermission(
+                this.can_update_media_tags(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA'),
+            )
+        )
+            return false;
+        const { MediaTagModalComponent } =
+            await import('./shared/media-tag-modal.component');
+        const ref = this._dialog.open(MediaTagModalComponent, {
+            data: {
+                action: 'remove',
+                tag,
+                count,
+                can_delete_media: this.can_delete_tagged_media(),
+            },
+            width: 'min(28rem, calc(100vw - 2rem))',
+        });
+        const result = await dialogClosed<MediaTagModalResult>(ref);
+        if (result?.action !== 'remove') return false;
+        if (
+            result.remove_media &&
+            !this._requirePermission(
+                this.can_delete_tagged_media(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_DELETE_MEDIA'),
+            )
+        )
+            return false;
+        try {
+            const group_id = this._api_group_id();
+            await removeSignageMediaTag({
+                tag,
+                ...(result.remove_media ? { remove_media: true } : {}),
+                ...(group_id ? { group_id } : {}),
+            });
+        } catch (error) {
+            notifyError(
+                i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_ERROR', {
+                    error: error instanceof Error ? error.message : `${error}`,
+                }),
+            );
+            return false;
+        }
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_REMOVED'));
+        return true;
+    }
+
     public async openPlaylistSelectModal(media_id: string) {
+        const { PlaylistSelectModalComponent } =
+            await import('./shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
             data: { media_id },
             panelClass: 'mobile-fullscreen',
@@ -3496,6 +3738,8 @@ export class SignageService {
     }
 
     public async openBulkPlaylistSelectModal(media_ids: string[]) {
+        const { PlaylistSelectModalComponent } =
+            await import('./shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
             data: { media_ids },
             panelClass: 'mobile-fullscreen',
@@ -3513,6 +3757,8 @@ export class SignageService {
             )
         )
             return;
+        const { PlaylistSelectModalComponent } =
+            await import('./shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
             data: { zone_id: zone.id },
             panelClass: 'mobile-fullscreen',
@@ -3557,6 +3803,151 @@ export class SignageService {
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_ZONE'));
     }
 
+    public async addZone() {
+        if (
+            !this._requirePermission(
+                this.can_manage_zones(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_ZONES'),
+            )
+        )
+            return null;
+        const { ZoneEditModalComponent } =
+            await import('./zones/zone-edit-modal.component');
+        const ref = this._dialog.open(ZoneEditModalComponent, {
+            data: {
+                zone: new PlaceZone({}),
+                default_parent_id:
+                    this.selected_zone()?.id || this.root_zones()[0]?.id || '',
+                roots: this.root_zones,
+                zones: this.all_zones,
+                load_children: (parent_id: string) =>
+                    this.zoneChildren(parent_id),
+                query_zones: (search: string, parent_id: string) =>
+                    this.querySelectableZones(search, parent_id),
+                onSave: (
+                    zone: PlaceZone,
+                    data: Pick<
+                        PlaceZone,
+                        'display_name' | 'description' | 'parent_id'
+                    >,
+                ) => this.saveZone(zone, data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = (await dialogClosed(ref)) as PlaceZone | null;
+        if (!result) return null;
+        this.selected_zone.set(result);
+        return result;
+    }
+
+    public async editZone(zone: PlaceZone) {
+        if (!zone.tags?.includes('signage')) return null;
+        if (
+            !this._requirePermission(
+                this.can_manage_zones(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_ZONES'),
+            )
+        )
+            return null;
+        const { ZoneEditModalComponent } =
+            await import('./zones/zone-edit-modal.component');
+        const ref = this._dialog.open(ZoneEditModalComponent, {
+            data: {
+                zone,
+                roots: this.root_zones,
+                zones: this.all_zones,
+                load_children: (parent_id: string) =>
+                    this.zoneChildren(parent_id),
+                query_zones: (search: string, parent_id: string) =>
+                    this.querySelectableZones(search, parent_id),
+                onSave: (
+                    item: PlaceZone,
+                    data: Pick<
+                        PlaceZone,
+                        'display_name' | 'description' | 'parent_id'
+                    >,
+                ) => this.saveZone(item, data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        return (await dialogClosed(ref)) as PlaceZone | null;
+    }
+
+    public async saveZone(
+        zone: PlaceZone,
+        data: Pick<PlaceZone, 'display_name' | 'description' | 'parent_id'>,
+    ) {
+        if (
+            !this._requirePermission(
+                this.can_manage_zones(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_ZONES'),
+            ) ||
+            !data.parent_id ||
+            data.parent_id === zone.id ||
+            (zone.id && !zone.tags?.includes('signage'))
+        ) {
+            return null;
+        }
+        const form_data: Partial<PlaceZone> = {
+            display_name: data.display_name,
+            name: `SIGNAGE ${data.display_name}`,
+            description: data.description,
+            parent_id: data.parent_id,
+            tags: [...new Set([...(zone.tags || []), 'signage'])],
+            ...(zone.id ? { version: zone.version } : {}),
+        };
+        const result = zone.id
+            ? await updateZone(zone.id, form_data)
+            : await createZone(form_data);
+        this._cacheZone(result);
+        this.zone_tree_children_cache.set({});
+        this.selected_zone.set(result);
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_SAVED'));
+        return result;
+    }
+
+    public async removeZone(zone: PlaceZone) {
+        if (!zone?.id || !zone.tags?.includes('signage')) return false;
+        if (
+            !this._requirePermission(
+                this.can_manage_zones(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_ZONES'),
+            )
+        )
+            return false;
+        const result = await openConfirmModal(
+            {
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_SIGNAGE_ZONE_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
+                    name: zone.display_name || zone.name,
+                }),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        await deleteZone(zone.id);
+        result.close();
+        this._zone_overrides.update((overrides) => {
+            const next = { ...overrides };
+            delete next[zone.id];
+            return next;
+        });
+        this.zone_tree_children_cache.set({});
+        this.zone_tree_expanded.update((expanded) => {
+            const next = { ...expanded };
+            delete next[zone.id];
+            return next;
+        });
+        if (this.selected_zone()?.id === zone.id) {
+            this.selected_zone.set(null);
+        }
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_REMOVED'));
+        return true;
+    }
+
     public async addDisplay() {
         if (
             !this._requirePermission(
@@ -3566,6 +3957,8 @@ export class SignageService {
         )
             return null;
         const default_zone_ids = await this._defaultDisplayZoneIds();
+        const { DisplayEditModalComponent } =
+            await import('./displays/display-edit-modal.component');
         const ref = this._dialog.open(DisplayEditModalComponent, {
             data: {
                 display: new PlaceSystem({}),
@@ -3598,6 +3991,8 @@ export class SignageService {
             )
         )
             return null;
+        const { DisplayEditModalComponent } =
+            await import('./displays/display-edit-modal.component');
         const ref = this._dialog.open(DisplayEditModalComponent, {
             data: {
                 display,
@@ -3698,6 +4093,8 @@ export class SignageService {
             )
         )
             return;
+        const { DisplaySelectModalComponent } =
+            await import('./shared/display-select-modal.component');
         const ref = this._dialog.open(DisplaySelectModalComponent, {
             data: { zone_id: zone.id },
             panelClass: 'mobile-fullscreen',
@@ -3757,6 +4154,8 @@ export class SignageService {
             )
         )
             return;
+        const { PlaylistSelectModalComponent } =
+            await import('./shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
             data: { display_id: display.id },
             panelClass: 'mobile-fullscreen',
@@ -3787,6 +4186,8 @@ export class SignageService {
             )
         )
             return;
+        const { DisplaySelectModalComponent } =
+            await import('./shared/display-select-modal.component');
         const ref = this._dialog.open(DisplaySelectModalComponent, {
             data: { playlist_id: playlist.id },
             panelClass: 'mobile-fullscreen',
@@ -3825,6 +4226,8 @@ export class SignageService {
             )
         )
             return;
+        const { ZoneSelectModalComponent } =
+            await import('./shared/zone-select-modal.component');
         const ref = this._dialog.open(ZoneSelectModalComponent, {
             data: { playlist_id: playlist.id },
             panelClass: 'mobile-fullscreen',

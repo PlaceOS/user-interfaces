@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 
 import { CodeFlowSuccessComponent } from '../../app/book/code-flow-success.component';
 
@@ -9,9 +12,6 @@ describe('CodeFlowSuccessComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should render a success message', () =>
         expect(spectator.query('h2')).toExist());

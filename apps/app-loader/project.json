@@ -9,6 +9,7 @@
         "build": {
             "executor": "@angular/build:application",
             "outputs": ["{options.outputPath}"],
+            "defaultConfiguration": "production",
             "options": {
                 "baseHref": "./",
                 "outputPath": "dist/apps/app-loader",
@@ -60,11 +61,12 @@
                     "extractLicenses": false,
                     "sourceMap": true
                 }
-            },
-            "defaultConfiguration": "production"
+            }
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "defaultConfiguration": "development",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js"
             },
@@ -75,9 +77,7 @@
                 "development": {
                     "buildTarget": "app-loader:build:development"
                 }
-            },
-            "defaultConfiguration": "development",
-            "continuous": true
+            }
         },
         "extract-i18n": {
             "executor": "@angular/build:extract-i18n",

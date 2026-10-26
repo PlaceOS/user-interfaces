@@ -53,10 +53,6 @@ describe('AssetReportDailyUsageComponent', () => {
         });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should only include products with bookings on the day', () => {
         const rows = spectator.component.daily_products();
         expect(rows.map((r) => r.name)).toEqual(['Laptop']);

@@ -5,7 +5,12 @@ import { VerticalTimelineComponent } from '../../app/components/vertical-timelin
 
 const REFERENCE_DAY = new Date(2026, 0, 15);
 const at = (hours: number, minutes = 0) =>
-    set(REFERENCE_DAY, { hours, minutes, seconds: 0, milliseconds: 0 }).valueOf();
+    set(REFERENCE_DAY, {
+        hours,
+        minutes,
+        seconds: 0,
+        milliseconds: 0,
+    }).valueOf();
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -21,10 +26,6 @@ describe('VerticalTimelineComponent', () => {
                 props: { date: at(9, 0), duration: 60 } as any,
             })),
     );
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('generates a full day of 5-minute blocks on init', () => {
         const blocks = spectator.component.blocks();

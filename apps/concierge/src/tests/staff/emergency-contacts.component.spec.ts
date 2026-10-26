@@ -4,14 +4,16 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { OrganisationService } from '@placeos/common';
+import {
+    OrganisationService,
+    setCurrentUser,
+    StaffUser,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
+import { EmergencyContactModalComponent } from '../../app/staff/emergency-contact-modal.component';
 import { EmergencyContactsComponent } from '../../app/staff/emergency-contacts.component';
-import {
-    EmergencyContactModalComponent,
-} from '../../app/staff/emergency-contact-modal.component';
 import { EmergencyContactsService } from '../../app/staff/emergency-contacts.service';
 import { RoleManagementModalComponent } from '../../app/staff/role-management-modal.component';
 
@@ -44,6 +46,7 @@ describe('EmergencyContactsComponent', () => {
     });
 
     beforeEach(() => {
+        setCurrentUser(new StaffUser({ groups: ['placeos_admin'] }));
         clipboard.copy.mockClear();
         service.refresh.mockClear();
         contacts.set([
@@ -54,6 +57,22 @@ describe('EmergencyContactsComponent', () => {
         spectator = createComponent();
         // The component resolves its own MatDialog instance; swap in a mock.
         (spectator.component as any)._dialog = dialog;
+    });
+
+    it.each([
+        ['staff', false],
+        ['admin', false],
+        ['placeos_support', true],
+        ['placeos_admin', true],
+    ])('should restrict role creation for %s', (group, allowed) => {
+        setCurrentUser(new StaffUser({ groups: [group] }));
+        spectator.detectChanges();
+        expect(spectator.component.can_manage_roles()).toBe(allowed);
+        expect(
+            spectator
+                .queryAll('button')
+                .some((button) => button.textContent.includes('list_alt')),
+        ).toBe(allowed);
     });
 
     it('should return all contacts when no role filter is set', () => {

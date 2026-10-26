@@ -1,7 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
-import { TranslatePipe } from '@placeos/components';
+import { MatRippleModule } from '@angular/material/core';
+import { Router } from '@angular/router';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { SignageService } from '../signage.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
     selector: 'zone-header',
@@ -26,14 +29,42 @@ import { SignageService } from '../signage.service';
                 </div>
             </div>
             <div class="w-px flex-1"></div>
+            @if (can_manage_zones()) {
+                <button
+                    icon default
+                    type="button"
+                    matRipple
+                    class="text-xl"
+                    (click)="addZone()"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.CREATE_NEW_ZONE' | translate
+                    "
+                    [matTooltip]="'SIGNAGE_MANAGER.NEW_ZONE' | translate "
+                >
+                    <icon>add</icon>
+                </button>
+            }
         </div>
     `,
-    imports: [TranslatePipe, GroupBreadcrumbsComponent],
+    imports: [
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        GroupBreadcrumbsComponent,
+        MatTooltipModule
+    ],
 })
 export class ZoneHeaderComponent {
     private readonly _service = inject(SignageService);
+    private readonly _router = inject(Router);
 
     public readonly total_count = computed(
         () => this._service.filtered_zones().length,
     );
+    public readonly can_manage_zones = this._service.can_manage_zones;
+
+    public async addZone() {
+        const zone = await this._service.addZone();
+        if (zone?.id) await this._router.navigate(['/zones', zone.id]);
+    }
 }

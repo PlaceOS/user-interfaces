@@ -47,10 +47,6 @@ describe('EventListingComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should resolve the room resource that is not the calendar', () => {
         const item = {
             resources: [

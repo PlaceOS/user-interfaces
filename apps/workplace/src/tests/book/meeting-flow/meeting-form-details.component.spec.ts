@@ -93,9 +93,6 @@ describe('MeetingFormDetailsComponent', () => {
         store_form.mockClear();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should allow for input of title', () =>
         expect(spectator.query('input#title')).toExist());
 

@@ -33,10 +33,6 @@ describe('BuildingSelectComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show the active building in the header', () => {
         expect('div[matRipple]').toContainText('Alpha');
         org_mock.active_building.set(buildings[1]);

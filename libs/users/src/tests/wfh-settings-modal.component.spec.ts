@@ -1,7 +1,10 @@
+vi.mock('@placeos/ts-client');
+
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import * as ts_client from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -47,13 +50,23 @@ describe('WFHSettingsModalComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show loading state', () => {
         expect('[loading]').not.toExist();
         spectator.component.loading.set(true);
         spectator.detectChanges();
         expect('[loading]').toExist();
+    });
+
+    it('should restore modal controls when loading the user fails', async () => {
+        vi.mocked(ts_client.showUser).mockRejectedValue(
+            new Error('Unable to load user'),
+        );
+
+        await expect(spectator.component.saveChanges(false)).rejects.toThrow(
+            'Unable to load user',
+        );
+
+        expect(spectator.component.loading()).toBe(false);
+        expect(spectator.inject(MatDialogRef).disableClose).toBe(false);
     });
 });

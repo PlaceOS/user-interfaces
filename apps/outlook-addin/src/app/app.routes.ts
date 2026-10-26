@@ -2,20 +2,21 @@ import { Routes } from '@angular/router';
 import { AuthorisedUserGuard } from '@placeos/components';
 
 import { UnauthorisedComponent } from '@placeos/components';
-import { DeskBookingComponent } from './desks/desk-booking.component';
-import { DeskBookingSuccessComponent } from './desks/desk-success.component';
-import { MeetingBookingComponent } from './meetings/meeting-booking.component';
-import { MeetingBookingSuccessComponent } from './meetings/meeting-success.component';
-import { NotFoundComponent } from './not-found.component';
-import { BookingConfirmedComponent } from './rooms/booking-confirmed.component';
-import { FindSpaceComponent } from './rooms/find-space.component';
-import { RoomBookingComponent } from './rooms/room-booking.component';
-import { UpcomingBookingsComponent } from './rooms/upcoming-bookings.component';
 
 export const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
-    { path: '404', component: NotFoundComponent },
-    { path: 'find', component: FindSpaceComponent },
+    {
+        path: '404',
+        loadComponent: () =>
+            import('./not-found.component').then((m) => m.NotFoundComponent),
+    },
+    {
+        path: 'find',
+        loadComponent: () =>
+            import('./rooms/find-space.component').then(
+                (m) => m.FindSpaceComponent,
+            ),
+    },
     {
         path: '',
         canActivate: [AuthorisedUserGuard],
@@ -23,39 +24,78 @@ export const routes: Routes = [
         children: [
             {
                 path: 'ms-auth',
-                component: RoomBookingComponent,
+                loadComponent: () =>
+                    import('./rooms/room-booking.component').then(
+                        (m) => m.RoomBookingComponent,
+                    ),
             },
             {
                 path: 'book',
                 children: [
-                    { path: 'spaces', component: RoomBookingComponent },
+                    {
+                        path: 'spaces',
+                        loadComponent: () =>
+                            import('./rooms/room-booking.component').then(
+                                (m) => m.RoomBookingComponent,
+                            ),
+                    },
                     {
                         path: 'spaces/success',
-                        component: BookingConfirmedComponent,
+                        loadComponent: () =>
+                            import('./rooms/booking-confirmed.component').then(
+                                (m) => m.BookingConfirmedComponent,
+                            ),
                     },
-                    { path: 'meeting', component: MeetingBookingComponent },
+                    {
+                        path: 'meeting',
+                        loadComponent: () =>
+                            import('./meetings/meeting-booking.component').then(
+                                (m) => m.MeetingBookingComponent,
+                            ),
+                    },
                     {
                         path: 'meeting/success',
-                        component: MeetingBookingSuccessComponent,
+                        loadComponent: () =>
+                            import('./meetings/meeting-success.component').then(
+                                (m) => m.MeetingBookingSuccessComponent,
+                            ),
                     },
-                    { path: 'desks', component: DeskBookingComponent },
+                    {
+                        path: 'desks',
+                        loadComponent: () =>
+                            import('./desks/desk-booking.component').then(
+                                (m) => m.DeskBookingComponent,
+                            ),
+                    },
                     {
                         path: 'desks/success',
-                        component: DeskBookingSuccessComponent,
+                        loadComponent: () =>
+                            import('./desks/desk-success.component').then(
+                                (m) => m.DeskBookingSuccessComponent,
+                            ),
                     },
                 ],
             },
             {
                 path: 'schedule/view',
-                component: FindSpaceComponent,
+                loadComponent: () =>
+                    import('./rooms/find-space.component').then(
+                        (m) => m.FindSpaceComponent,
+                    ),
             },
             {
                 path: 'confirm/success',
-                component: BookingConfirmedComponent,
+                loadComponent: () =>
+                    import('./rooms/booking-confirmed.component').then(
+                        (m) => m.BookingConfirmedComponent,
+                    ),
             },
             {
                 path: 'upcoming',
-                component: UpcomingBookingsComponent,
+                loadComponent: () =>
+                    import('./rooms/upcoming-bookings.component').then(
+                        (m) => m.UpcomingBookingsComponent,
+                    ),
             },
             { path: '**', redirectTo: 'book/meeting' },
         ],

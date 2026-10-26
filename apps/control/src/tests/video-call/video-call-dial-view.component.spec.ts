@@ -60,10 +60,6 @@ describe('VideoCallDialViewComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should append pressed digits to the dial number', () => {
         spectator.component.addDigit('1');
         spectator.component.addDigit('2');

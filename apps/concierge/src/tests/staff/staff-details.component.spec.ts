@@ -33,10 +33,6 @@ describe('StaffDetailsComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show when user sets', () => {
         expect('[details]').not.toExist();
         spectator.setInput({

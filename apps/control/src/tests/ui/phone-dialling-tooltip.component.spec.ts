@@ -44,10 +44,6 @@ describe('PhoneDiallingTooltipComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should expose the system id', () => {
         expect(spectator.component.sys_id).toBe('sys-1');
     });

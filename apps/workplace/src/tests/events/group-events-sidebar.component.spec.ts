@@ -41,10 +41,6 @@ describe('GroupEventsSidebarComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should generate weekly periods and select the first on init', () => {
         spectator.component.ngOnInit();
 

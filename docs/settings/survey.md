@@ -2,7 +2,7 @@
 
 The Survey app displays PlaceOS surveys and collects responses. People open a link to a specific survey (e.g. `/survey/#/<survey-id>`), answer the questions page by page, and submit their responses. The display language can be forced with a `?lang=` query parameter, otherwise it is picked automatically from the visitor's browser languages using the configured locale list.
 
-Settings for the app are configured in Backoffice as Zone metadata under the `app` metadata key. Values you set there are merged over the app's build-time defaults, so you only need to define the settings you want to change. This app only loads settings from the organisation zone — region and building level settings metadata is not loaded.
+Set settings in Backoffice on the organisation zone under `survey_app` for the standard `/survey/` URL. The default `dont_load_metadata` setting prevents region and building settings from loading. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## General
 
@@ -13,6 +13,7 @@ Settings for the app are configured in Backoffice as Zone metadata under the `ap
 | `description` | string | `"Survey UI"` | Description of the application. |
 | `short_name` | string | `"PlaceOS"` | Short name of the application. Used as the app name for PlaceOS API metadata. |
 | `general` | object | `{}` | General settings associated with the app. |
+| `sentry_dsn` | string | – | Sentry DSN for application error reporting. |
 | `prevent_space_init` | boolean | `true` | Prevents the shared spaces service from loading every bookable space at startup. The Survey app has no space features, so leave this on. |
 | `allow_dark_mode` | boolean | `true` | Whether the app is allowed to use the dark theme. When off, the app always renders with the light theme. |
 
@@ -33,12 +34,10 @@ Each locale entry:
 
 ```json
 {
-    "app": {
-        "locales": [
-            { "id": "en-AU", "name": "LANGUAGE.ENGLISH", "local": "English", "flag": "🇦🇺" },
-            { "id": "fr", "name": "LANGUAGE.FRENCH", "local": "Français", "flag": "🇫🇷" }
-        ]
-    }
+    "locales": [
+        { "id": "en-AU", "name": "LANGUAGE.ENGLISH", "local": "English", "flag": "🇦🇺" },
+        { "id": "fr", "name": "LANGUAGE.FRENCH", "local": "Français", "flag": "🇫🇷" }
+    ]
 }
 ```
 
@@ -53,10 +52,8 @@ The logo is shown in the header above the survey. `logo_light` is used with the 
 
 ```json
 {
-    "app": {
-        "logo_light": "https://example.com/assets/company-logo.svg",
-        "logo_dark": { "type": "img", "src": "https://example.com/assets/company-logo-white.svg" }
-    }
+    "logo_light": "https://example.com/assets/company-logo.svg",
+    "logo_dark": { "type": "img", "src": "https://example.com/assets/company-logo-white.svg" }
 }
 ```
 
@@ -77,12 +74,10 @@ The `banner` object:
 
 ```json
 {
-    "app": {
-        "banner": {
-            "id": "outage-notice",
-            "type": "info",
-            "content": "Survey responses may be delayed while we perform maintenance."
-        }
+    "banner": {
+        "id": "outage-notice",
+        "type": "info",
+        "content": "Survey responses may be delayed while we perform maintenance."
     }
 }
 ```

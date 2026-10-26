@@ -1,11 +1,11 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CalendarEvent } from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { MockProvider } from 'ng-mocks';
-import * as ts_client from '@placeos/ts-client';
 import { SetupBreakdownModalComponent } from '../lib/setup-breakdown-modal.component';
 
 // The real saveEvent/updateEventMetadata wrappers run; only the ts-client
@@ -37,9 +37,6 @@ describe('SetupBreakdownModalComponent', () => {
         vi.clearAllMocks();
         spectator = createComponent();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should initialise the form with the existing durations', () => {
         expect(spectator.component.model()).toEqual({

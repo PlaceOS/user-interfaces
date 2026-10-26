@@ -2,12 +2,12 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockDirective } from '@placeos/common/tests';
 import { getModule } from '@placeos/ts-client';
 
+import { MatRippleModule } from '@angular/material/core';
 import {
     AuthenticatedImageDirective,
     BindingDirective,
 } from '@placeos/components';
 import { MockModule } from 'ng-mocks';
-import { MatRippleModule } from '@angular/material/core';
 import { ControlStateService } from '../../app/control-state.service';
 import { TVControlsComponent } from '../../app/tabbed-view/tv-controls.component';
 
@@ -33,10 +33,6 @@ describe('TVControlsComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should expose the active system id', () => {

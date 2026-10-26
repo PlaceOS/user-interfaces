@@ -6,14 +6,13 @@ import {
     effect,
     inject,
     input,
+    model,
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService } from '@placeos/common';
-import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import { OrganisationService } from 'libs/common/src/lib/org/organisation.service';
 import { DEFAULT_SETTINGS } from 'libs/common/src/lib/settings';
 import { HashMap } from 'libs/common/src/lib/types';
@@ -474,9 +473,8 @@ function flattenSchemaKeys(
         IconComponent,
     ],
 })
-export class SettingsDebugPanelComponent extends AsyncHandler {
+export class SettingsDebugPanelComponent {
     private _settings = inject(SettingsService);
-    private _hotkey = inject(HotkeysService);
     private _org = inject(OrganisationService);
     private _document = inject(DOCUMENT);
     private _clipboard = inject(Clipboard);
@@ -484,7 +482,7 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
     /** JSON schema describing the app's `app.*` settings */
     public readonly schema = input<HashMap | null>(null);
 
-    public readonly show = signal(false);
+    public readonly show = model(false);
     private readonly _dock_app = effect((on_cleanup) => {
         if (!this.show()) return;
         const body = this._document.body;
@@ -626,15 +624,6 @@ export class SettingsDebugPanelComponent extends AsyncHandler {
 
     public toggleGroup(name: string) {
         this.expanded.update((state) => ({ ...state, [name]: !state[name] }));
-    }
-
-    public ngOnInit() {
-        this.subscription(
-            'toggle',
-            this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyS'], () =>
-                this.show.set(!this.show()),
-            ),
-        );
     }
 
     public startEdit(row: SettingRow) {

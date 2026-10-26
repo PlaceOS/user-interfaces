@@ -13,10 +13,6 @@ describe('SettingsToggleComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should display the given label', () => {
         spectator.setInput({ label: 'Enable notifications' });
         expect('button').toContainText('Enable notifications');

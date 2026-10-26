@@ -12,7 +12,6 @@ import {
     provideAppInitializer,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import {
     provideRouter,
     Router,
@@ -44,7 +43,6 @@ export const appConfig: ApplicationConfig = {
         provideAppInitializer(() =>
             registerActiveLocale(inject(LocaleService).locale),
         ),
-        provideAnimations(),
         importProvidersFrom(MatSnackBarModule),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,

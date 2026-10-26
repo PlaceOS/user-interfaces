@@ -107,10 +107,7 @@ const EMPTY_FAVS: string[] = [];
                         <div class="flex items-center space-x-2 text-sm">
                             <icon class="text-blue-500">place</icon>
                             <p>
-                                {{
-                                    level(space.zones)?.display_name ||
-                                        level(space.zones)?.name
-                                }}
+                                {{ location(space) }}
                             </p>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
@@ -242,8 +239,9 @@ export class SpaceListFieldComponent
         if (this._dialog_ref) this._dialog_ref.close();
     }
 
-    public level(zones: string[]) {
-        return this._org.levelWithID(zones);
+    /** Get the region, building and level label for a selected space. */
+    public location(space: Space) {
+        return this._org.locationWithID(space.zones).label;
     }
 
     /** Add or edit selected spaces */

@@ -3,8 +3,8 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { EventFormService, SpacePipe } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
@@ -35,6 +35,7 @@ describe('MeetingFlowConfirmModalComponent', () => {
         date_end: now + 30 * 60 * 1000,
         duration: 30,
         all_day: false,
+        timezone: 'Australia/Perth',
         host: 'host@x.com',
         resources: [
             {
@@ -95,8 +96,16 @@ describe('MeetingFlowConfirmModalComponent', () => {
                         address: '123 St',
                     },
                 ] as any,
-                building: { id: 'level-1', timezone: 'Australia/Sydney' } as any,
+                regions: [],
+                building: {
+                    id: 'level-1',
+                    timezone: 'Australia/Sydney',
+                } as any,
                 currency_code: 'USD',
+                locationWithID: vi.fn(() => ({
+                    label: 'HQ Building / Level 1',
+                    building: { timezone: 'Australia/Sydney' },
+                })),
             } as any),
             MockProvider(SettingsService, {
                 get: vi.fn((k: string) => settings_config[k]),
@@ -149,7 +158,12 @@ describe('MeetingFlowConfirmModalComponent', () => {
 
     it('should report approval requirement and render the warning', async () => {
         const ev = base_event();
-        ev.resources[0].approval = true;
+        ev.resources.push({
+            ...ev.resources[0],
+            id: 'room-2',
+            email: 'room-2@x.com',
+            approval: true,
+        });
         model.set(ev);
         await init();
         expect(spectator.component.requires_approval).toBe(true);
@@ -215,8 +229,12 @@ describe('MeetingFlowConfirmModalComponent', () => {
 
     it('should choose the clash vs time asset error tooltip', async () => {
         await init();
-        const clash = spectator.component.err_tooltip({ conflict: true } as any);
-        const time = spectator.component.err_tooltip({ conflict: false } as any);
+        const clash = spectator.component.err_tooltip({
+            conflict: true,
+        } as any);
+        const time = spectator.component.err_tooltip({
+            conflict: false,
+        } as any);
         expect(clash).not.toBe(time);
         expect(clash).toContain('CLASH');
         expect(time).toContain('TIME');
@@ -252,5 +270,31 @@ describe('MeetingFlowConfirmModalComponent', () => {
         settings_config['app.events.has_assets'] = true;
         await init();
         expect(spectator.component.has_assets).toBe(true);
+    });
+
+    it('should use the organiser timezone for multiple rooms', async () => {
+        settings_config['app.events.multiple_spaces'] = true;
+        settings_config['app.events.use_building_timezone'] = true;
+        await init();
+        expect(spectator.component.timezone).toBe('Australia/Perth');
+    });
+
+    it('should show the local time for a room in another timezone', async () => {
+        settings_config['app.events.multiple_spaces'] = true;
+        await init();
+
+        expect(spectator.component.roomTime(model().resources[0])).not.toBe('');
+        expect(spectator.query('[room-time]')).toExist();
+    });
+
+    it('should hide the room time when it matches the organiser timezone', async () => {
+        settings_config['app.events.multiple_spaces'] = true;
+        model.update((event) => ({
+            ...event,
+            timezone: 'Australia/Sydney',
+        }));
+        await init();
+
+        expect(spectator.query('[room-time]')).not.toExist();
     });
 });

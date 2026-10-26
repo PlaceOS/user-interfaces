@@ -3,7 +3,10 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
+import {
+    SpectatorRouting,
+    createRoutingFactory,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 
 import { MockProvider } from 'ng-mocks';
@@ -32,10 +35,6 @@ describe('ExploreMapControlComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should show dropdowns for buildings and levels', () => {
         expect('[buildings]').not.toExist();

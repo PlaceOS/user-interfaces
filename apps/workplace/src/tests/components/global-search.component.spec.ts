@@ -1,7 +1,10 @@
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
 import { ExploreSearchService } from '@placeos/explore';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -32,10 +35,6 @@ describe('GlobalSearchComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should display search results', () => {
         const service = spectator.inject(ExploreSearchService);

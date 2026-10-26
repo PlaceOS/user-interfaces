@@ -2,13 +2,11 @@ import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, SettingsService } from '@placeos/common';
 import {
-    ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
-    SettingsDebugPanelComponent,
 } from '@placeos/components';
-
-import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
+import { ChatComponent } from '@placeos/components/chat';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 
 @Component({
     selector: 'app-root',
@@ -17,18 +15,18 @@ import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
         ChatComponent,
         GlobalBannerComponent,
         GlobalLoadingComponent,
-        SettingsDebugPanelComponent,
+        SettingsDebugPanelLauncherComponent,
     ],
     template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
-        @if (has_chat()) {
+        @defer (when has_chat()) {
             <global-chat />
         }
         <global-loading />
-        <settings-debug-panel [schema]="settings_schema" />
+        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
     `,
     styles: [
         `
@@ -42,7 +40,8 @@ import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
     ],
 })
 export class AppComponent implements OnInit {
-    public readonly settings_schema = SETTINGS_SCHEMA as any;
+    public readonly load_settings_schema = () =>
+        import('../environments/settings.schema.json');
 
     private _placeos = inject(PlaceOS_Service);
     private _settings = inject(SettingsService);

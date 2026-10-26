@@ -1,14 +1,17 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 
 import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 
-import { CheckoutComponent } from '../../app/checkin/checkout.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
+import { CheckoutComponent } from '../../app/checkin/checkout.component';
 
 // Workspace modules cannot be intercepted by the native unit-test builder, so
 // instead of mocking `notifySuccess` we spy on the snackbar outlet it routes to
@@ -47,14 +50,12 @@ describe('CheckoutComponent', () => {
         snackbar = createSnackbarSpy();
         setNotifyOutlet(snackbar as any, true);
         spectator = createComponent();
-        (spectator.inject(CheckinStateService) as any).event.set({ id: 'booking-1' });
+        (spectator.inject(CheckinStateService) as any).event.set({
+            id: 'booking-1',
+        });
     });
 
     afterEach(() => setNotifyOutlet(null as any, true));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     describe('ngOnInit', () => {
         it('redirects to checkout when there is no event', async () => {

@@ -14,10 +14,6 @@ describe('MapPinComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show a pin SVG', async () => {
         vi.useFakeTimers();
         spectator.component.ngOnInit();

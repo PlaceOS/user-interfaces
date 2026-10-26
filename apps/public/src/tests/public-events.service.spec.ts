@@ -56,6 +56,19 @@ describe('PublicEventsService', () => {
         expect(service.loading()).toBe('');
     });
 
+    it('should ignore stored values that are not guest details', () => {
+        localStorage.setItem(
+            'PLACEOS.public.guest',
+            JSON.stringify({ name: 'Guest User', email: 42 }),
+        );
+
+        const service = TestBed.inject(PublicEventsService);
+
+        expect(service.guest()).toBeNull();
+        expect(service.authenticated()).toBe(false);
+        expect(setStorage).toHaveBeenCalledWith('session');
+    });
+
     it('should use an existing guest token when loading events', async () => {
         sessionStorage.setItem('PLACEOS.public.guest', JSON.stringify(guest));
         vi.mocked(token).mockReturnValue('guest-token');

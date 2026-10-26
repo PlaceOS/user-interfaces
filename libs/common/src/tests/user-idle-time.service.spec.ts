@@ -1,4 +1,7 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 
 import { UserIdleTimeService } from '../lib/user-idle-time.service';
 
@@ -44,5 +47,15 @@ describe('UserIdleTimeService', () => {
         expect(resolved).not.toHaveBeenCalled();
         await vi.advanceTimersByTimeAsync(2000);
         expect(resolved).toHaveBeenCalled();
+    });
+
+    it('should cancel idle detection without resolving as idle', async () => {
+        spectator = createService();
+        const abort = new AbortController();
+        const result = spectator.service.idleFor(2000, abort.signal);
+
+        abort.abort();
+
+        await expect(result).resolves.toBe(false);
     });
 });

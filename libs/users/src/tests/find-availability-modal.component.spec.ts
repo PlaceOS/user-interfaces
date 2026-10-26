@@ -2,8 +2,8 @@ vi.mock('@placeos/ts-client');
 
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { User } from '@placeos/common';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { User } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -34,9 +34,7 @@ describe('FindAvailabilityModalComponent', () => {
                 provide: MAT_DIALOG_DATA,
                 useValue: {
                     host: HOST,
-                    users: [
-                        new User({ email: 'a@place.tech', name: 'Alice' }),
-                    ],
+                    users: [new User({ email: 'a@place.tech', name: 'Alice' })],
                     date: new Date('2030-06-01T09:00:00').valueOf(),
                     duration: 60,
                 },
@@ -51,14 +49,25 @@ describe('FindAvailabilityModalComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should seed users, date and duration from the dialog data', () => {
         expect(spectator.component.users().length).toBe(1);
         expect(spectator.component.users()[0].email).toBe('a@place.tech');
         expect(spectator.component.duration()).toBe(60);
         expect(spectator.component.host).toBe(HOST);
+    });
+
+    it('should show an unnamed attendee email instead of the host email', () => {
+        spectator.component.users.set([
+            new User({ email: 'unnamed@place.tech' }),
+        ]);
+        spectator.detectChanges();
+
+        expect(spectator.query('[person]')?.textContent).toContain(
+            'unnamed@place.tech',
+        );
+        expect(spectator.query('[person]')?.textContent).not.toContain(
+            HOST.email,
+        );
     });
 
     it('should add a new user and clear the search selection', () => {

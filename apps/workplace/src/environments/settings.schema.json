@@ -383,6 +383,10 @@
             "type": "object",
             "description": "Data associated wth desk booking flow",
             "properties": {
+                "use_assets": {
+                    "type": "boolean",
+                    "description": "Whether desk resources are read through the assets API instead of Zone metadata"
+                },
                 "bookable_hours": {
                     "$ref": "#/$defs/bookable_hours"
                 },

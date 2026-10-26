@@ -6,7 +6,6 @@ import {
     provideAppInitializer,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import {
     provideRouter,
     Router,
@@ -22,7 +21,6 @@ import {
 
 import * as Sentry from '@sentry/angular';
 
-
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 
@@ -32,7 +30,6 @@ export const appConfig: ApplicationConfig = {
         provideAppInitializer(() =>
             registerActiveLocale(inject(LocaleService).locale),
         ),
-        provideAnimations(),
         provideRouter(
             routes,
             withHashLocation(),

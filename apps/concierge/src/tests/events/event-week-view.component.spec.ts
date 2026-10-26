@@ -5,8 +5,8 @@ import {
 } from '@ngneat/spectator/vitest';
 import { startOfDay } from 'date-fns';
 
-import { EventWeekViewComponent } from '../../app/events/event-week-view.component';
 import { EventStateService } from '../../app/events/event-state.service';
+import { EventWeekViewComponent } from '../../app/events/event-week-view.component';
 
 describe('EventWeekViewComponent', () => {
     let spectator: SpectatorRouting<EventWeekViewComponent>;
@@ -37,10 +37,6 @@ describe('EventWeekViewComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should fall back to placeholder days without a date', () => {
         expect(spectator.component.days()).toEqual([1, 2, 3, 4, 5, 6, 7]);
     });
@@ -61,9 +57,9 @@ describe('EventWeekViewComponent', () => {
 
     it('should detect the current day', () => {
         expect(spectator.component.isCurrentDay(Date.now())).toBe(true);
-        expect(
-            spectator.component.isCurrentDay(startOfDay(0).valueOf()),
-        ).toBe(false);
+        expect(spectator.component.isCurrentDay(startOfDay(0).valueOf())).toBe(
+            false,
+        );
         expect(spectator.component.isCurrentDay(0)).toBe(false);
     });
 

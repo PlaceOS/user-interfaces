@@ -592,9 +592,6 @@ export class SiteAttendanceReportComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
 
-    private readonly _report = this._state.report;
-    private readonly _loading = this._state.loading;
-
     public readonly details = CARD_DETAILS;
     public readonly metric_guide = METRIC_GUIDE;
     public readonly people_table_metric_guide = computed(() =>
@@ -608,8 +605,8 @@ export class SiteAttendanceReportComponent extends AsyncHandler {
         }),
     );
     public readonly printing = signal(false);
-    public readonly report = computed(() => this._report());
-    public readonly loading = computed(() => this._loading());
+    public readonly report = this._state.report;
+    public readonly loading = this._state.loading;
     public readonly has_data = computed(() => !!this.report().total_bookings);
 
     public readonly downloadReport = () => this._state.downloadReport();

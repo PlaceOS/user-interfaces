@@ -11,7 +11,12 @@ describe('LockerBankModalComponent', () => {
     let dialog_data: any;
     let settings: Record<string, unknown>;
     const level_list = signal<any[]>([
-        { id: 'lvl-1', parent_id: 'bld-1', name: 'L1', display_name: 'Level 1' },
+        {
+            id: 'lvl-1',
+            parent_id: 'bld-1',
+            name: 'L1',
+            display_name: 'Level 1',
+        },
     ]);
 
     const createComponent = createComponentFactory({
@@ -57,6 +62,18 @@ describe('LockerBankModalComponent', () => {
 
         expect(spectator.component.model().level_id).toBe('lvl-1');
         expect(spectator.component.model().zones).toEqual(['lvl-1']);
+    });
+
+    it('should only list levels from the active building by default', () => {
+        level_list.set([
+            { id: 'lvl-1', parent_id: 'bld-1' },
+            { id: 'lvl-2', parent_id: 'bld-2' },
+        ]);
+        spectator = createComponent();
+
+        expect(spectator.component.levels().map((level) => level.id)).toEqual([
+            'lvl-1',
+        ]);
     });
 
     it('should not emit when the form is invalid', () => {

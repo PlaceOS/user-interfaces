@@ -22,10 +22,6 @@ describe('ControlSpaceListItemComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should allow user to locate space', () => {
         expect('a[btn][locate]').not.toExist();
         spectator.setInput({ space: { name: 'Space 1', capacity: 32 } as any });

@@ -41,10 +41,6 @@ describe('AccessibilityTooltipComponent', () => {
 
     afterEach(() => vi.useRealTimers());
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should only show dark mode option when allowed', () => {
         expect(spectator.queryAll('settings-toggle')).toHaveLength(2);
         setting_signals['allow_dark_mode'].set(true);

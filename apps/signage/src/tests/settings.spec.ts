@@ -11,7 +11,7 @@ describe('signage settings', () => {
         expect(DEFAULT_SETTINGS.service_worker.auto_reload).toBe(true);
     });
 
-    it('should hide template bootstrap options by default', () => {
-        expect(DEFAULT_SETTINGS.app.templates_enabled).toBe(false);
+    it('should show template bootstrap options by default', () => {
+        expect(DEFAULT_SETTINGS.app.templates_enabled).toBe(true);
     });
 });

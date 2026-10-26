@@ -1,4 +1,4 @@
-import { CalendarEvent, GuestUser, VERSION } from '@placeos/common';
+import { CalendarEvent, GuestUser, Space, VERSION } from '@placeos/common';
 import {
     approveEvent,
     checkinEventGuest,
@@ -109,6 +109,32 @@ describe('Event API Methods', () => {
                 }),
             );
             spy.mockReset();
+        });
+        it('should send every selected room as a resource attendee', async () => {
+            const spy = vi.spyOn(ts_client, 'post');
+            spy.mockResolvedValue('');
+            const resources = [
+                new Space({ id: 'space-1', email: 'one@example.com' }),
+                new Space({ id: 'space-2', email: 'two@example.com' }),
+            ];
+
+            await saveEvent(new CalendarEvent({ resources }));
+
+            expect(spy).toHaveBeenCalledWith(
+                `/api/staff/v1/events`,
+                expect.objectContaining({
+                    attendees: expect.arrayContaining([
+                        expect.objectContaining({
+                            email: 'one@example.com',
+                            resource: true,
+                        }),
+                        expect.objectContaining({
+                            email: 'two@example.com',
+                            resource: true,
+                        }),
+                    ]),
+                }),
+            );
         });
         it('should update existing events', async () => {
             const spy = vi.spyOn(ts_client, 'patch');

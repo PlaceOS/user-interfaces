@@ -1,19 +1,27 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockPipe, MockProvider } from 'ng-mocks';
 
-import { BindingDirective, IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
+import {
+    BindingDirective,
+    IconComponent,
+    SafePipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
+import { DeviceOutputListComponent } from '../../app/tabbed-view/output-list.component';
+import { TabOutletComponent } from '../../app/tabbed-view/tab-outlet.component';
+import { TVControlsComponent } from '../../app/tabbed-view/tv-controls.component';
 import { CameraControlsComponent } from '../../app/ui/camera-controls.component';
 import { MarkdownPipe } from '../../app/ui/markdown.pipe';
 import { VoiceAssistantComponent } from '../../app/ui/voice-assistant.component';
 import { VideoCallDialViewComponent } from '../../app/video-call/video-call-dial-view.component';
 import { VideoCallPageComponent } from '../../app/video-call/video-call-page.component';
 import { VideoCallStateService } from '../../app/video-call/video-call-state.service';
-import { DeviceOutputListComponent } from '../../app/tabbed-view/output-list.component';
-import { TabOutletComponent } from '../../app/tabbed-view/tab-outlet.component';
-import { TVControlsComponent } from '../../app/tabbed-view/tv-controls.component';
 
 describe('TabOutletComponent', () => {
     let spectator: SpectatorRouting<TabOutletComponent>;
@@ -57,10 +65,6 @@ describe('TabOutletComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should sync the active tab from the route', () => {

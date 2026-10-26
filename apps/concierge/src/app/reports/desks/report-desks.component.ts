@@ -169,8 +169,6 @@ export class ReportDesksComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
 
     private readonly _stats = this._state.stats;
-    private readonly _loading = this._state.loading;
-
     public readonly printing = signal(false);
     public readonly metric_guide = METRIC_GUIDE;
     public readonly total_count = computed(
@@ -186,7 +184,7 @@ export class ReportDesksComponent extends AsyncHandler {
     public readonly utilisation = computed(() =>
         ((this._stats().utilisation || 0) * 100).toFixed(1),
     );
-    public readonly loading = computed(() => this._loading());
+    public readonly loading = this._state.loading;
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();

@@ -13,10 +13,6 @@ describe('PopoutMenuComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should hide action buttons behind root button', () => {
         spectator.setInput({
             actions: [

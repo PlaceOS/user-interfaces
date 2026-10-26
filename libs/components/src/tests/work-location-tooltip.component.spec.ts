@@ -51,13 +51,11 @@ describe('WorkLocationTooltipComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it("should render blocks for today's work preference", () => {
         expect(spectator.component.active_preference.blocks).toHaveLength(2);
-        expect(spectator.queryAll('button[aria-haspopup="menu"]')).toHaveLength(2);
+        expect(spectator.queryAll('button[aria-haspopup="menu"]')).toHaveLength(
+            2,
+        );
         expect('p.text-center').not.toExist();
     });
 
@@ -75,7 +73,9 @@ describe('WorkLocationTooltipComponent', () => {
         spectator = createComponent();
         expect('p.text-center').toExist();
         expect(spectator.element.textContent).toContain('event_busy');
-        expect(spectator.queryAll('button[aria-haspopup="menu"]')).toHaveLength(0);
+        expect(spectator.queryAll('button[aria-haspopup="menu"]')).toHaveLength(
+            0,
+        );
     });
 
     it('should open the WFH settings modal to edit preferences', () => {

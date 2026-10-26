@@ -83,7 +83,8 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - The app calls the PlaceOS signage endpoint for the active display ID.
 - Requests include preview context when debug mode is enabled and include the currently playing item ID when available.
-- Requests include `If-Modified-Since` based on the last known configuration timestamp.
+- After a successful response, later requests send its `ETag` and `Last-Modified` values as `If-None-Match` and `If-Modified-Since`.
+- Display requests bypass the browser cache, and a `304 Not Modified` response keeps the current display configuration.
 - The latest display configuration is cached in localStorage under a display-specific `PlaceOS.SIGNAGE.display_details.<display_id>` key.
 - Legacy cached configuration under `PlaceOS.SIGNAGE.display_details` can still be used as a fallback.
 - If the API request fails, the app falls back to the cached display configuration only when it matches the active display ID.

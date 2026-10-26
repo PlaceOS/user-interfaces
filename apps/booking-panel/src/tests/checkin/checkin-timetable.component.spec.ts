@@ -13,10 +13,6 @@ describe('CheckinTimetableComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should generate a full day of time blocks on init', () => {
         spectator.detectChanges();
         // 24 hours at 15-minute steps => 96 blocks

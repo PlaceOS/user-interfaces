@@ -254,7 +254,7 @@ export class LockerBankModalComponent {
     /** List of available locker levels for the current building */
     public readonly levels = computed(() => {
         const all = this._org.level_list();
-        if (!this._settings.get('app.use_region')) {
+        if (this._settings.get('app.use_region')) {
             const blds = this._org.buildingsForRegion();
             const bld_ids = blds.map((bld) => bld.id);
             return all.filter((lvl) => bld_ids.includes(lvl.parent_id));
@@ -291,7 +291,9 @@ export class LockerBankModalComponent {
                 ...m,
                 id: data.id ?? m.id,
                 level_id:
-                    data.level_id || this._levelFromZones(data.zones) || m.level_id,
+                    data.level_id ||
+                    this._levelFromZones(data.zones) ||
+                    m.level_id,
                 name: data.name ?? m.name,
                 map_id: data.map_id ?? m.map_id,
                 notes: data.notes ?? m.notes,

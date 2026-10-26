@@ -45,10 +45,6 @@ describe('PanelViewComponent', () => {
 
     afterEach(() => localStorage.clear());
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should set system on route change', () => {
         const service = spectator.inject(PanelStateService, true);
         spectator.detectChanges();

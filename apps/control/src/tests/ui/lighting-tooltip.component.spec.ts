@@ -27,10 +27,6 @@ describe('LightingTooltipComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should list light presets', () => {
         spectator.detectChanges();
         expect('p').toContainText('');

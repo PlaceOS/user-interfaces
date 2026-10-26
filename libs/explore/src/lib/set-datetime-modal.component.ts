@@ -29,7 +29,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
     selector: 'set-datetime-modal',
     template: `
         <header
-            class="bg-base-200 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'EXPLORE.BOOKING_HEADER' | translate }}
@@ -39,68 +39,40 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
             </button>
         </header>
         @if (form) {
-            <main [formGroup]="form" class="w-[24rem] max-w-[85vw]">
+            <main [formGroup]="form" class="w-[32rem] max-w-[85vw] px-4">
                 @if (resource()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                    >
-                        <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
-                            <label>{{ resource_type() }}:</label>
-                            <div
-                                class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
-                            >
-                                {{
-                                    resource().name ||
-                                        resource().map_id ||
-                                        'Unknown Resource'
-                                }}
-                            </div>
+                    <div class="flex flex-col">
+                        <label>{{ resource_type() }}:</label>
+                        <div
+                            class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
+                        >
+                            {{
+                                resource().name ||
+                                    resource().map_id ||
+                                    'Unknown Resource'
+                            }}
                         </div>
                     </div>
                 }
                 @if (host()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                    >
-                        <div class="flex w-full flex-1 flex-col sm:w-1/4">
-                            <label>Host</label>
-                            <a-user-search-field
-                                formControlName="user"
-                                class="mb-4"
-                            ></a-user-search-field>
-                        </div>
+                    <div class="flex flex-col">
+                        <label>{{ 'FORM.HOST' | translate }}:</label>
+                        <a-user-search-field
+                            formControlName="user"
+                            class="mb-4"
+                        ></a-user-search-field>
                     </div>
                 }
-                <div
-                    class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                >
-                    <div class="flex w-full flex-1 flex-col sm:w-1/4">
-                        <label>Date</label>
-                        <a-date-field
-                            [to]="book_until()"
-                            formControlName="date"
-                        >
-                            Date and time must be in the future
-                        </a-date-field>
-                    </div>
+                <div class="flex flex-col">
+                    <label>{{ 'FORM.DATE' | translate }}:</label>
+                    <a-date-field [to]="book_until()" formControlName="date">
+                        Date and time must be in the future
+                    </a-date-field>
                 </div>
-                @if (allow_all_day()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
-                        [class.-mb-7]="!form.value.all_day"
-                        [class.mb-2]="form.value.all_day"
-                    >
-                        <mat-checkbox formControlName="all_day">
-                            {{ 'COMMON.ALL_DAY' | translate }}
-                        </mat-checkbox>
-                    </div>
-                }
                 @if (!all_day()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                    >
-                        <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                            <label>Start Time</label>
+                    <div class="flex flex-col sm:flex-row sm:gap-4">
+                        <div class="flex min-w-0 flex-1 flex-col">
+                            <label>{{ 'FORM.TIME_START' | translate }}:</label>
                             <a-time-field
                                 [ngModel]="form.value.date"
                                 (ngModelChange)="
@@ -111,8 +83,8 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                                 [use_24hr]="use_24hr_time()"
                             ></a-time-field>
                         </div>
-                        <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                            <label>End Time</label>
+                        <div class="flex min-w-0 flex-1 flex-col">
+                            <label>{{ 'FORM.TIME_END' | translate }}:</label>
                             <a-duration-field
                                 formControlName="duration"
                                 [time]="form.get('date')?.value"
@@ -126,12 +98,22 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                         </div>
                     </div>
                 }
+                @if (allow_all_day()) {
+                    <div class="mb-2 flex justify-end">
+                        <mat-checkbox formControlName="all_day">
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
+                    </div>
+                }
             </main>
         }
-        <footer
-            class="bg-base-200 mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none p-2"
-        >
-            <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
+        <footer class="border-base-300 flex justify-end border-t p-2">
+            <button
+                btn
+                matRipple
+                [mat-dialog-close]="form.value"
+                class="mx-2 w-32"
+            >
                 {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>

@@ -1,5 +1,8 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -101,6 +104,30 @@ describe('EventPanelComponent', () => {
         expect('h2.line-clamp-5').toContainText('Standup');
         expect(spectator.fixture.nativeElement.textContent).not.toContain(
             'Jane Doe',
+        );
+        expect(spectator.fixture.nativeElement.textContent).not.toContain(
+            'agenda',
+        );
+    });
+
+    it('should hide current and upcoming meeting titles when configured', () => {
+        state_setting.mockImplementation((key: string) =>
+            key === 'hide_meeting_title' ? true : undefined,
+        );
+        current.set({
+            title: 'Private current meeting',
+            event_end: 1_700_000_000,
+        });
+        next.set({
+            title: 'Private upcoming meeting',
+            event_start: 1_700_000_000,
+        });
+        spectator.detectChanges();
+        expect(spectator.fixture.nativeElement.textContent).not.toContain(
+            'Private current meeting',
+        );
+        expect(spectator.fixture.nativeElement.textContent).not.toContain(
+            'Private upcoming meeting',
         );
     });
 

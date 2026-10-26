@@ -3,6 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { SignageService } from '../signage.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
     selector: 'playlist-header',
@@ -27,17 +28,17 @@ import { SignageService } from '../signage.service';
             <div class="w-px flex-1"></div>
             @if (can_create()) {
                 <button
-                    btn
+                    icon default
                     type="button"
                     matRipple
-                    class="bg-secondary text-secondary-content h-12 shrink-0 rounded-lg px-4"
+                    class="text-xl"
                     (click)="addPlaylist()"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.CREATE_NEW_PLAYLIST' | translate
                     "
+                    [matTooltip]="'SIGNAGE_MANAGER.NEW_PLAYLIST' | translate"
                 >
-                    <icon class="mr-2 text-2xl">add</icon>
-                    <div>{{ 'SIGNAGE_MANAGER.NEW_PLAYLIST' | translate }}</div>
+                    <icon>add</icon>
                 </button>
             }
         </div>
@@ -47,6 +48,7 @@ import { SignageService } from '../signage.service';
         IconComponent,
         TranslatePipe,
         GroupBreadcrumbsComponent,
+        MatTooltipModule
     ],
 })
 export class PlaylistHeaderComponent {

@@ -88,10 +88,6 @@ describe('CheckinQRScanComponent', () => {
         await vi.waitFor(() => expect(qr_mocks.rear_camera).toHaveBeenCalled());
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('only shows the scan guide when the camera is ready', async () => {
         await spectator.fixture.whenStable();
         expect(spectator.query('.qr-guide')).toBeNull();
@@ -121,6 +117,34 @@ describe('CheckinQRScanComponent', () => {
             expect.anything(),
             true,
         );
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'details',
+        ]);
+    });
+
+    it('accepts the plain email stored in a printed visitor label', async () => {
+        await spectator.component.checkQRCode('visitor@example.com');
+
+        expect(state.loadGuestAndEvent).toHaveBeenCalledWith(
+            'visitor@example.com',
+            undefined,
+        );
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'details',
+        ]);
+    });
+
+    it('shows visitor details before an induction configured after details', async () => {
+        spectator.component.induction_enabled.set(true);
+        spectator.component.induction_details.set('Terms and conditions');
+        spectator.component.induction_after_details.set(true);
+
+        await spectator.component.checkQRCode(
+            'visit:visitor@example.com,system,123,host@example.com',
+        );
+
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',
             'details',
@@ -190,6 +214,20 @@ describe('CheckinQRScanComponent', () => {
 
         expect(state.setError).toHaveBeenCalledWith(
             'You are already checked in.',
+        );
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'error',
+        ]);
+    });
+
+    it('keeps a rejected visitor out of email check-in', async () => {
+        event.set({ rejected: true });
+
+        await spectator.component.checkEmail('visitor@example.com');
+
+        expect(state.setError).toHaveBeenCalledWith(
+            'Your meeting has been rejected.',
         );
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',

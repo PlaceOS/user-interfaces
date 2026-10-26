@@ -14,10 +14,6 @@ describe('CateringOrderItemComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show details', () => {
         expect('[action]').not.toExist();
         spectator.setInput({ item: new CateringItem({ name: 'Test' }) });

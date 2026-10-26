@@ -71,10 +71,6 @@ describe('InteractiveMapComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render the dynamic map by default', () => {
         expect('dynamic-map').toExist();
         expect('maps-indoors').not.toExist();

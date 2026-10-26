@@ -46,10 +46,7 @@ describe('CateringItemFiltersComponent', () => {
                 categories,
                 caterers,
             } as any),
-            MockProvider(
-                SettingsService as any,
-                createSettingsServiceMock(),
-            ),
+            MockProvider(SettingsService as any, createSettingsServiceMock()),
         ],
         imports: [
             FormsModule,
@@ -72,9 +69,6 @@ describe('CateringItemFiltersComponent', () => {
         getFilters.mockClear();
         spectator = createComponent();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should add a category when toggled on', () => {
         spectator.component.toggleCategory('Drinks');
@@ -125,9 +119,7 @@ describe('CateringItemFiltersComponent', () => {
 
     it('should cap the maximum offset to the event duration', () => {
         spectator.component.ngOnInit();
-        const end = Math.min(
-            addMinutes(base_date, 120).valueOf(),
-        );
+        const end = Math.min(addMinutes(base_date, 120).valueOf());
         expect(spectator.component.max_offset()).toBeLessThanOrEqual(120);
         expect(end).toBeGreaterThan(base_date);
     });

@@ -1,4 +1,7 @@
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
+@source './';
+@source '../../../libs';
+@source '../../../shared';
 @config '../../../tailwind.config.js';
 
 html,

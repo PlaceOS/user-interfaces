@@ -57,7 +57,9 @@ describe('SelectMeetingModalComponent', () => {
                 { provide: ControlStateService, useValue: service },
                 {
                     provide: MatDialog,
-                    useValue: { open: (...args: any[]) => dialog_open(...args) },
+                    useValue: {
+                        open: (...args: any[]) => dialog_open(...args),
+                    },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
             ],
@@ -66,10 +68,6 @@ describe('SelectMeetingModalComponent', () => {
 
     afterEach(() => {
         setNotifyOutlet(null as any, true);
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should render a button for each event', () => {

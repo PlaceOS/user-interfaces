@@ -1,7 +1,7 @@
-import type { Mock } from 'vitest';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { createSettingsServiceMock } from '@placeos/common/tests';
 import { SettingsService } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
+import type { Mock } from 'vitest';
 
 import { LockerGridComponent } from '../lib/locker-grid.component';
 import { Locker, LockerBank } from '../lib/locker.class';
@@ -47,9 +47,6 @@ describe('LockerGridComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should render a button for each locker', () => {
         spectator.setInput(
@@ -133,9 +130,9 @@ describe('LockerGridComponent', () => {
         it('should return the pending colour for the selected locker', () => {
             spectator.setInput('selected', 'locker-1');
             spectator.detectChanges();
-            expect(spectator.component.status(makeLocker({ id: 'locker-1' }))).toBe(
-                '#ffb300',
-            );
+            expect(
+                spectator.component.status(makeLocker({ id: 'locker-1' })),
+            ).toBe('#ffb300');
         });
 
         it('should use the default status colour for unavailable lockers', () => {
@@ -151,7 +148,9 @@ describe('LockerGridComponent', () => {
         });
 
         it('should return the not-bookable colour for a missing locker', () => {
-            expect(spectator.component.status(undefined as any)).toBe('#757575');
+            expect(spectator.component.status(undefined as any)).toBe(
+                '#757575',
+            );
         });
     });
 

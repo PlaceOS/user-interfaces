@@ -44,7 +44,7 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                     default
                                     type="button"
                                     matRipple
-                                    class="sm:hidden"
+                                    class="desktop-hidden"
                                     (click)="deselectPlaylist()"
                                     [attr.aria-label]="
                                         'SIGNAGE_MANAGER.BACK_TO_PLAYLISTS'
@@ -356,7 +356,9 @@ export class PlaylistsSectionComponent {
             if (!item_id) return;
             const items = this._playlist_items();
             if (!items.length) return;
-            const matched_index = items.findIndex((item) => item.id === item_id);
+            const matched_index = items.findIndex(
+                (item) => item.id === item_id,
+            );
             const matched_item = items[matched_index];
             this._service.selected_playlist_item.set(matched_item || null);
             this._service.selected_playlist_item_index.set(

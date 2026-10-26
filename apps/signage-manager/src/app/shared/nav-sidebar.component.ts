@@ -10,6 +10,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { SignageService } from '../signage.service';
+import { AiImageService } from '../ai/ai-image.service';
 import { filterManageNavItems } from './nav-items';
 import { SignageGroupSelectorComponent } from './signage-group-selector.component';
 
@@ -22,7 +23,7 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
         >
             <div
                 logo
-                class="bg-base-300/20 mx-auto flex h-20 w-20 items-center justify-center rounded-xl"
+                class="bg-base-300/20 mx-auto flex h-20 w-20 shrink-0 items-center justify-center rounded-xl"
             >
                 @if (logo_src; as logo) {
                     <img
@@ -37,11 +38,13 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                     </div>
                 }
             </div>
-            <div class="flex flex-1 flex-col gap-4 p-2">
+            <div
+                class="flex min-h-0 w-[calc(100%+0.5rem)] flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto p-2"
+            >
                 @for (item of nav_items(); track item.route) {
                     <a
                         #route_active="routerLinkActive"
-                        class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
+                        class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 shrink-0 flex-col items-center justify-center rounded-xl"
                         [routerLink]="item.route"
                         routerLinkActive="active bg-primary/30"
                         [attr.aria-label]="item.label | translate"
@@ -60,7 +63,7 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                     </a>
                 }
             </div>
-            <div class="p-2">
+            <div class="shrink-0 p-2">
                 @if (show_locale_selector() && locales().length > 1) {
                     <button
                         type="button"
@@ -152,6 +155,7 @@ export class NavSidebarComponent {
     private readonly _settings = inject(SettingsService);
     private readonly _locale = inject(LocaleService);
     private readonly _service = inject(SignageService);
+    private readonly _ai = inject(AiImageService);
     public readonly locales = this._settings.signal<
         { id: string; name: string; local?: string }[]
     >('locales', []);
@@ -165,6 +169,7 @@ export class NavSidebarComponent {
             this._service.can_manage_all_groups() ||
                 !!this._service.manageable_signage_groups().length,
             this._service.templates_enabled(),
+            this._ai.enabled(),
         ),
     );
     public readonly active_locale = computed(() => this._locale.locale);

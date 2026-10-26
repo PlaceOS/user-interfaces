@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { PlaceOS_Service } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
@@ -25,10 +28,6 @@ describe('AppComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should render the banner, router outlet and loading indicator', () => {
         expect('global-banner').toExist();

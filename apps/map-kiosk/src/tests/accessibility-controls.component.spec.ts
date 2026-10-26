@@ -40,10 +40,6 @@ describe('AccessibilityControlsComponent', () => {
 
     afterEach(() => vi.useRealTimers());
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should hide the dark mode toggle when not allowed', () => {
         expect(spectator.component.can_change_dark_mode()).toBe(false);
         expect('button').not.toExist();

@@ -42,6 +42,37 @@ test.describe('US-SGM-001: Access Signage Manager', () => {
 });
 
 test.describe('US-SGM-002: Switch Signage Groups', () => {
+    test('keeps desktop navigation within a short viewport', async ({
+        page,
+    }) => {
+        await page.setViewportSize({ width: 1280, height: 600 });
+        await navigateWithMock(page, MEDIA_URL);
+
+        const navigation = page.locator('nav-sidebar nav');
+        const dimensions = await navigation.evaluate((element) => ({
+            client_height: element.clientHeight,
+            scroll_height: element.scrollHeight,
+        }));
+
+        expect(dimensions.scroll_height).toBeLessThanOrEqual(
+            dimensions.client_height,
+        );
+
+        const active_marker = navigation.locator('a.active [active]');
+        const active_marker_is_painted = await active_marker.evaluate(
+            (element) => {
+                const bounds = element.getBoundingClientRect();
+                const center_x = bounds.left + bounds.width / 2;
+                const center_y = bounds.top + bounds.height / 2;
+                return document
+                    .elementsFromPoint(center_x, center_y)
+                    .includes(element);
+            },
+        );
+
+        expect(active_marker_is_painted).toBe(true);
+    });
+
     test('exposes the story navigation routes', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 900 });
         await navigateWithMock(page, MEDIA_URL);
@@ -267,6 +298,54 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
         await expect(page.getByRole('heading', { name: /new playlist/i })).toBeVisible();
         await expect(page.getByRole('textbox', { name: /playlist name/i })).toBeVisible();
         await expect(page.getByText(/playlist schedules/i)).toBeVisible();
+        await expect(
+            page.locator('playlist-schedule-form [start-timezone]'),
+        ).toHaveCount(0);
+        const timezone = page
+            .getByRole('combobox', { name: 'Timezone', exact: true })
+            .first();
+        const selected_timezone = (await timezone.innerText()).trim();
+        await timezone.click();
+        const timezone_search = page.getByRole('textbox', {
+            name: 'Search timezones',
+            exact: true,
+        });
+        await expect(timezone_search).toBeFocused();
+        await page.keyboard.type('TOKYOO');
+        await page.keyboard.press('Backspace');
+        await expect(timezone_search).toHaveValue('TOKYO');
+        await timezone_search.fill('no-such-timezone');
+        await expect(timezone).toContainText(selected_timezone);
+        await expect(
+            page.getByRole('option', { name: 'No matching timezones' }),
+        ).toBeVisible();
+        await timezone_search.fill('TOKYO');
+        await expect(timezone).toContainText(selected_timezone);
+        await expect(
+            page.getByRole('option', { name: selected_timezone, exact: true }),
+        ).toHaveAttribute('aria-selected', 'true');
+        await expect(page.getByRole('option')).toHaveCount(
+            selected_timezone === 'Asia/Tokyo' ? 1 : 2,
+        );
+        await page.getByRole('option', { name: 'Asia/Tokyo', exact: true }).click();
+        await expect(timezone_search).toBeHidden();
+        await expect(timezone).toContainText('Asia/Tokyo');
+        const start_time = page
+            .locator('playlist-schedule-form input[type="time"]')
+            .first();
+        await start_time.fill('10:37');
+        await expect(start_time).toHaveValue('10:37');
+        const converted_start = page
+            .locator('playlist-schedule-form [start-timezone]')
+            .first();
+        await expect(converted_start).toContainText(': 37');
+        await expect(converted_start).toContainText('GMT+9');
+        await timezone.click();
+        await expect(timezone_search).toHaveValue('');
+        await expect(timezone_search).toBeFocused();
+        await timezone_search.press('Escape');
+        await expect(timezone).toContainText('Asia/Tokyo');
+
         await closeDialog(page);
 
         await openFirstPlaylist(page);
@@ -371,20 +450,27 @@ test.describe('US-SGM-010: Manage Zone Assignments', () => {
         ).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
+        await page.getByRole('button', { name: /create new zone/i }).click();
         await expect(
-            page.getByRole('textbox', { name: /search zones/i }),
+            page.getByRole('heading', { name: /new zone/i }),
         ).toBeVisible();
+        await expect(
+            page.getByRole('textbox', { name: /zone name/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('heading', { name: /parent zone/i }),
+        ).toBeVisible();
+        await closeDialog(page);
     });
 
     test('covers zone search, selection, tabs, and assignment workflows', async ({
         page,
     }) => {
-        await navigateWithMock(page, ZONES_URL);
-
-        await page.getByRole('textbox', { name: /search zones/i }).fill('hub');
-        await expect(page.getByRole('link', { name: /open zone/i }).first()).toBeVisible();
-
         await openFirstZone(page);
+        const zone_search = page.getByRole('textbox', { name: /search in /i });
+        await zone_search.fill('hub');
+        await expect(zone_search).toHaveValue('hub');
+        await zone_search.fill('');
         await expect(page.getByText(/playlists/i).first()).toBeVisible();
         const displays_tab = page.getByRole('tab', { name: /displays/i });
         if (await displays_tab.isVisible().catch(() => false)) {

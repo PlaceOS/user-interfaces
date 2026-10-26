@@ -60,6 +60,18 @@ describe('BootstrapComponent', () => {
         expect(build_component().component).toBeTruthy();
     });
 
+    it('should associate the system label with its input', () => {
+        build_component();
+        spectator.detectChanges();
+
+        const label = spectator.query<HTMLLabelElement>(
+            'label[for="system-id"]',
+        );
+        const input = spectator.query<HTMLInputElement>('#system-id');
+
+        expect(label?.htmlFor).toBe(input?.id);
+    });
+
     it('should query systems matching the search term', async () => {
         build_component();
         const app_ref = spectator.inject(ApplicationRef);

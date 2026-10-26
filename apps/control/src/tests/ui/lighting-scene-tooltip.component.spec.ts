@@ -43,10 +43,6 @@ describe('LightingSceneTooltipComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show empty state when no scenes', () => {
         spectator.detectChanges();
         expect('p').toExist();

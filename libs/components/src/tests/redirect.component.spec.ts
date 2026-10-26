@@ -29,10 +29,6 @@ describe('RedirectComponent', () => {
         spectator = createComponent({ detectChanges: false });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should navigate to the configured default route', async () => {
         settings_mock.get.mockImplementation((key: string) =>
             key === 'app.default_route' ? 'book/spaces' : undefined,

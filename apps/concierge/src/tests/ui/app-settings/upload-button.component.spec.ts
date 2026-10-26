@@ -37,10 +37,6 @@ describe('UploadButtonComponent', () => {
         vi.restoreAllMocks();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should have default state', () => {
         expect(spectator.component.uploading()).toBe(false);
         expect(spectator.component.progress()).toBe(0);

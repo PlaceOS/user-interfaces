@@ -240,7 +240,14 @@ export class CheckinQRScanComponent
         this.checking_code.set(true);
         const chunks = raw_text.split(',');
         let [visit_block, system_id, event_id, host_email] = chunks;
-        const [_, visitor_email] = visit_block.split(':');
+        const visit_parts = visit_block.split(':');
+        const visitor_email = (
+            visit_parts.length > 1
+                ? visit_parts[1]
+                : visit_block.includes('@')
+                  ? visit_block
+                  : ''
+        ).trim();
         if (!visitor_email && !event_id) {
             notifyError('Invalid QRCode');
             void this.setupQRReader();
@@ -285,7 +292,11 @@ export class CheckinQRScanComponent
             this.checking_code.set(false);
             return;
         }
-        if (this.is_induction_enabled() && event?.induction !== 'accepted') {
+        if (
+            this.is_induction_enabled() &&
+            event?.induction !== 'accepted' &&
+            !this.induction_after_details()
+        ) {
             this._router.navigate(['/checkin', 'induction']);
         } else {
             this._router.navigate(['/checkin', 'details']);
@@ -314,6 +325,11 @@ export class CheckinQRScanComponent
         const event = this._checkin.event();
         if (!event) {
             this.handleError('Unable to find visitor booking.');
+            this.checking_code.set(false);
+            return;
+        }
+        if (event.rejected) {
+            this.handleError('Your meeting has been rejected.');
             this.checking_code.set(false);
             return;
         }

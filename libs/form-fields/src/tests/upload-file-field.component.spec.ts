@@ -24,10 +24,6 @@ describe('UploadFileFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should write external values into the field', () => {
         const item = attachment();
         spectator.component.writeValue(item);

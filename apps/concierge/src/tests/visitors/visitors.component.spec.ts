@@ -75,10 +75,6 @@ describe('VisitorsComponent', () => {
         service.startPolling.mockClear();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should refresh visitors when the view is initialised', () => {
         const service = spectator.inject(VisitorsStateService) as any;
         spectator.component.ngOnInit();

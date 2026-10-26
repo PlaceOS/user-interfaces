@@ -8,6 +8,7 @@ import {
     notifyInfo,
     notifySuccess,
     notifyWarn,
+    setNotifyFilter,
     setNotifyOutlet,
 } from '../lib/notifications';
 
@@ -26,7 +27,34 @@ describe('notifications', () => {
         setNotifyOutlet(snackbar, true);
     });
 
-    afterEach(() => setNotifyOutlet(null as any, true));
+    afterEach(() => {
+        setNotifyOutlet(null as any, true);
+        setNotifyFilter(null);
+    });
+
+    it('should suppress notifications the filter rejects', () => {
+        setNotifyFilter((type) => type !== 'error');
+
+        notifyError('Hidden');
+        expect(snackbar.open).not.toHaveBeenCalled();
+
+        notifySuccess('Shown');
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'Shown',
+            'OK',
+            expect.anything(),
+        );
+    });
+
+    it('should show everything again once the filter is removed', () => {
+        setNotifyFilter(() => false);
+        notifyError('Hidden');
+        setNotifyFilter(null);
+
+        notifyError('Shown');
+
+        expect(snackbar.open).toHaveBeenCalledTimes(1);
+    });
 
     it('should open a snackbar with the given type and message', () => {
         notify('success', 'Job done');
@@ -72,9 +100,9 @@ describe('notifications', () => {
         notifyError('Error');
         notifyWarn('Warn');
         notifyInfo('Info');
-        const types = vi.mocked(snackbar.open).mock.calls.map(
-            ([, , config]) => config.panelClass[0],
-        );
+        const types = vi
+            .mocked(snackbar.open)
+            .mock.calls.map(([, , config]) => config.panelClass[0]);
         expect(types).toEqual(['success', 'error', 'warn', 'info']);
     });
 

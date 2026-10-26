@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    computed,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -148,9 +142,9 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
     public readonly time = computed(() => startOfSecond(this.date()));
 
     public readonly current_offset = computed(() => {
-        return (
-            ((getHours(this.date()) + getMinutes(this.date()) / 60) / 24) * 100
-        );
+        const current_hour =
+            getHours(this.date()) + getMinutes(this.date()) / 60;
+        return ((current_hour - this.offset()) / this.length()) * 100;
     });
 
     public readonly logo = computed(() => {

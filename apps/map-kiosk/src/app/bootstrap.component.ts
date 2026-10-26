@@ -311,7 +311,7 @@ import {
                         btn
                         matRipple
                         class="w-32"
-                        [disabled]="!active_building() && !active_level()"
+                        [disabled]="!active_level()"
                         (click)="bootstrapKiosk()"
                     >
                         Finish Setup
@@ -437,6 +437,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             localStorage.removeItem('KIOSK.level');
             localStorage.removeItem('KIOSK.parking');
             localStorage.removeItem('KIOSK.orientation');
+            localStorage.removeItem('KIOSK.location');
         }
         if (params.has('level')) {
             const level = this._org.levelWithID([params.get('level')]);
@@ -489,18 +490,19 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 );
                 localStorage.setItem('KIOSK.level', active_level.id);
                 if (parking) localStorage.setItem('KIOSK.parking', `true`);
+                else localStorage.removeItem('KIOSK.parking');
                 if (active_rotation) {
                     localStorage.setItem(
                         'KIOSK.orientation',
                         `${active_rotation.id}`,
                     );
-                }
+                } else localStorage.removeItem('KIOSK.orientation');
                 if (active_location) {
                     localStorage.setItem(
                         'KIOSK.location',
                         `${active_location.id}`,
                     );
-                }
+                } else localStorage.removeItem('KIOSK.location');
             }
             this._router.navigate([parking ? '/parking' : '/explore']);
         }

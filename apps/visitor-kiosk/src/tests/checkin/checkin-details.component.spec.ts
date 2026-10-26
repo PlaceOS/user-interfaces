@@ -50,11 +50,9 @@ describe('CheckinDetailsComponent', () => {
         settingSignal('induction_enabled', false).set(false);
         settingSignal('induction_details').set(undefined);
         settingSignal('induction_after_details', false).set(false);
+        settingSignal('allow_user_photo', false).set(false);
+        settingSignal('allow_printing_label').set(undefined);
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should disable browser autocomplete on every input', () => {
@@ -97,5 +95,11 @@ describe('CheckinDetailsComponent', () => {
             '/checkin',
             'induction',
         ]);
+    });
+
+    it('offers a photo when label printing uses its default setting', () => {
+        settingSignal('allow_user_photo', false).set(true);
+
+        expect(spectator.component.allow_user_photo()).toBe(true);
     });
 });

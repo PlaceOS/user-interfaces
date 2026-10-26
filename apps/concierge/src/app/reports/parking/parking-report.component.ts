@@ -142,12 +142,10 @@ export class ParkingReportComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
     private readonly _bookings = this._state.bookings;
-    private readonly _loading = this._state.loading;
-
     public readonly printing = signal(false);
     public readonly metric_guide = METRIC_GUIDE;
     public readonly total_count = computed(() => this._bookings().length || 0);
-    public readonly loading = computed(() => this._loading());
+    public readonly loading = this._state.loading;
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();

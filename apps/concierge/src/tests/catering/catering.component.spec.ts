@@ -1,5 +1,8 @@
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import {
     CateringMenuComponent,
     CateringOrderListComponent,
@@ -26,10 +29,6 @@ describe('CateringComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should handle route parameters', () => {
         expect(spectator.component.page()).toBeFalsy();

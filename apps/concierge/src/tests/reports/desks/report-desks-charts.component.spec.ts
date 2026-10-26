@@ -32,7 +32,10 @@ describe('ReportDesksChartsComponent', () => {
         options = signal({ zones: ['level-1'] });
         counts = signal({ 'level-1': 4 });
         day_list = signal([
-            { date: new Date('2026-04-06T00:00:00').valueOf(), utilisation: 30 },
+            {
+                date: new Date('2026-04-06T00:00:00').valueOf(),
+                utilisation: 30,
+            },
         ]);
         spectator = createComponent({
             providers: [
@@ -47,10 +50,6 @@ describe('ReportDesksChartsComponent', () => {
     afterEach(() => {
         vi.clearAllTimers();
         vi.useRealTimers();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should expose the day list from the state service', () => {

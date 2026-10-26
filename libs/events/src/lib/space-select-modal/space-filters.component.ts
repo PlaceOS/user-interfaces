@@ -19,6 +19,7 @@ import {
     OrganisationService,
     Region,
     settingSignal,
+    SettingsService,
     unique,
 } from '@placeos/common';
 import { addDays, endOfDay, startOfDay } from 'date-fns';
@@ -30,6 +31,7 @@ import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.componen
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { SpacesService } from '../spaces.service';
+import { multipleSpacesSignal } from '../utilities';
 
 @Component({
     selector: `space-filters`,
@@ -351,6 +353,7 @@ export class SpaceFiltersComponent {
     private _org = inject(OrganisationService);
     private _spaces = inject(SpacesService);
     private _mapspeople = inject(MapsPeopleService);
+    private _settings = inject(SettingsService);
 
     public readonly multiday = input<boolean>(undefined);
     public readonly hide_levels = input<boolean>(undefined);
@@ -420,10 +423,15 @@ export class SpaceFiltersComponent {
         false,
     );
 
+    private readonly _allow_multiple = multipleSpacesSignal(this._settings);
+
     public readonly timezone = computed(() =>
-        this._use_building_tz()
-            ? this._org.active_building()?.timezone || ''
-            : '',
+        this._allow_multiple()
+            ? this.model().timezone ||
+              Intl.DateTimeFormat().resolvedOptions().timeZone
+            : this._use_building_tz()
+              ? this._org.active_building()?.timezone || ''
+              : '',
     );
 
     public readonly setOptions = (o) => this._event_form.setOptions(o);
@@ -439,10 +447,14 @@ export class SpaceFiltersComponent {
         return this._event_form.model;
     }
 
-    public readonly bookable_hours = settingSignal<{
+    private readonly _bookable_hours = settingSignal<{
         start: number;
         end: number;
     }>('events.bookable_hours', undefined);
+
+    public readonly bookable_hours = computed(() =>
+        this._allow_multiple() ? undefined : this._bookable_hours(),
+    );
 
     public readonly max_duration = settingSignal<number>(
         'events.max_duration',

@@ -25,7 +25,7 @@ import {
     getTimeInTimezone,
     getTimezoneOffsetString,
 } from '@placeos/common';
-import { addMinutes } from 'date-fns';
+import { addMinutes, differenceInMinutes, format, set } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 export interface DurationOption {
@@ -37,49 +37,97 @@ export interface DurationOption {
 @Component({
     selector: 'a-duration-field,duration-field',
     template: `
-        <button
-            type="button"
-            duration-field
-            class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
-            [disabled]="disabled() || no_options()"
-            [class.opacity-30]="disabled() || no_options()"
-            matRipple
-            [matMenuTriggerFor]="menu"
-        >
+        @if (allow_end_time() && time() != null && !force()) {
             <div
-                class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
+                class="border-neutral flex h-12 w-full items-center rounded-sm border"
+                [class.opacity-30]="disabled() || no_options()"
             >
-                <div class="truncate">
+                <input
+                    #end_input
+                    type="time"
+                    aria-label="End time"
+                    class="h-full min-w-0 flex-1 border-0 bg-transparent px-4"
+                    [value]="end_time_value()"
+                    [disabled]="disabled() || no_options()"
+                    [attr.aria-invalid]="!!end_time_error()"
+                    (change)="setEndTime(end_input.value)"
+                    (blur)="touch()"
+                />
+                <button
+                    type="button"
+                    end-time-options
+                    aria-label="Choose duration"
+                    class="flex h-full w-12 shrink-0 items-center justify-center"
+                    [disabled]="disabled() || no_options()"
+                    [matMenuTriggerFor]="menu"
+                >
+                    <icon class="text-2xl">arrow_drop_down</icon>
+                </button>
+            </div>
+            @if (timezone() && tz()) {
+                <div class="text-xs opacity-30">
                     {{
-                        selected()?.date
-                            ? (selected()?.date
-                                  | date
-                                      : (selected().id >= 24 * 60
-                                            ? 'mediumDate'
-                                            : time_format())) + ' ('
-                            : duration_options()?.length
-                              ? ''
-                              : 'No duration options available'
-                    }}{{ selected()?.name }}{{ selected()?.date ? ')' : '' }}
+                        time() + duration() * 60000
+                            | date: time_format() + ' (z)' : tz()
+                    }}
                 </div>
-                @if (timezone() && tz()) {
-                    <div class="truncate text-xs opacity-30">
+            }
+            @if (end_time_error()) {
+                <div role="alert" class="text-error text-sm">
+                    {{ end_time_error() }}
+                </div>
+            }
+        } @else {
+            <button
+                type="button"
+                duration-field
+                class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
+                [disabled]="disabled() || no_options()"
+                [class.opacity-30]="disabled() || no_options()"
+                matRipple
+                [matMenuTriggerFor]="menu"
+            >
+                <div
+                    class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
+                >
+                    <div class="truncate">
                         {{
                             selected()?.date
-                                | date: time_format() + ' (z)' : tz()
-                        }}
+                                ? (selected()?.date
+                                      | date
+                                          : (selected().id >= 24 * 60
+                                                ? 'mediumDate'
+                                                : time_format())) + ' ('
+                                : duration_options()?.length
+                                  ? ''
+                                  : 'No duration options available'
+                        }}{{ selected()?.name
+                        }}{{ selected()?.date ? ')' : '' }}
                     </div>
-                }
-            </div>
-            <icon class="text-2xl">arrow_drop_down</icon>
-        </button>
-        <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
+                    @if (timezone() && tz()) {
+                        <div class="truncate text-xs opacity-30">
+                            {{
+                                selected()?.date
+                                    | date: time_format() + ' (z)' : tz()
+                            }}
+                        </div>
+                    }
+                </div>
+                <icon class="text-2xl">arrow_drop_down</icon>
+            </button>
+        }
+        <mat-menu
+            #menu="matMenu"
+            xPosition="before"
+            class="max-h-60 min-w-[18rem]"
+        >
             @for (option of duration_options(); track option.id) {
                 <button
                     type="button"
                     mat-menu-item
                     class="text-left"
-                    (click)="setValue(option.id)"
+                    [attr.data-duration]="option.id"
+                    (click)="setValue(option.id); touch()"
                 >
                     <div class="flex items-center justify-between">
                         @if (!force()) {
@@ -176,6 +224,15 @@ export class DurationFieldComponent
     /** Latest selectable end time as hour of the day (0–24) */
     public readonly end_time = input<number>(undefined);
 
+    /** Allow direct end-time entry on the reference date, in local time. */
+    public readonly allow_end_time = input(false);
+    public readonly end_time_error = signal('');
+    public readonly end_time_value = computed(() =>
+        this.time() != null
+            ? format(addMinutes(this.time(), this.duration()), 'HH:mm')
+            : '',
+    );
+
     public readonly duration = signal(60);
     /** List of available duration options */
     public readonly duration_options = signal<DurationOption[]>([]);
@@ -215,6 +272,7 @@ export class DurationFieldComponent
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
+        this._clearEndTimeError();
         /* istanbul ignore else */
         if (
             changes.max ||
@@ -222,7 +280,8 @@ export class DurationFieldComponent
             changes.step ||
             changes.time ||
             changes.custom_options ||
-            changes.end_time
+            changes.end_time ||
+            changes.timezone
         ) {
             this._setDurationOptions();
             this._updateNoOptions();
@@ -235,11 +294,61 @@ export class DurationFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: number): void {
+        this._clearEndTimeError();
         this.duration.set(new_value);
         /* istanbul ignore else */
         if (this._onChange) {
             this._onChange(+new_value);
         }
+    }
+
+    public touch(): void {
+        this._onTouch?.(this.duration());
+    }
+
+    /** Convert a local end time on the reference date to a duration in minutes. */
+    public setEndTime(value: string): void {
+        const start = this.time();
+        if (
+            !this.allow_end_time() ||
+            start == null ||
+            this.disabled() ||
+            this.no_options()
+        )
+            return;
+        const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(value);
+        const end = match
+            ? set(start, {
+                  hours: +match[1],
+                  minutes: +match[2],
+                  seconds: 0,
+                  milliseconds: 0,
+              })
+            : undefined;
+        const duration = end ? differenceInMinutes(end, start) : NaN;
+        if (
+            !Number.isFinite(duration) ||
+            duration <= 0 ||
+            duration < this.min() ||
+            duration > this._effectiveMax(this.max(), start)
+        ) {
+            this.end_time_error.set(
+                'Enter an end time after the start time and within the allowed duration.',
+            );
+            this._onValidatorChange?.();
+            this.touch();
+            return;
+        }
+        this.setValue(duration);
+        this._setDurationOptions();
+        this._updateNoOptions();
+        this.touch();
+    }
+
+    private _clearEndTimeError(): void {
+        if (!this.end_time_error()) return;
+        this.end_time_error.set('');
+        this._onValidatorChange?.();
     }
 
     /* istanbul ignore next */
@@ -248,6 +357,7 @@ export class DurationFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: number) {
+        this._clearEndTimeError();
         this.duration.set(value);
         this._setDurationOptions();
         this._updateNoOptions();
@@ -285,7 +395,8 @@ export class DurationFieldComponent
 
     /** Mark the control invalid when the selected date has no valid durations. */
     public validate(_: AbstractControl): ValidationErrors | null {
-        return this.no_options() ? { no_duration_options: true } : null;
+        if (this.no_options()) return { no_duration_options: true };
+        return this.end_time_error() ? { invalid_end_time: true } : null;
     }
 
     public registerOnValidatorChange(fn: () => void): void {

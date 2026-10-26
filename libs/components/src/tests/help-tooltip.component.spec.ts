@@ -30,10 +30,6 @@ describe('HelpTooltipComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render a link for each help tile from settings', () => {
         expect('a').not.toExist();
         help_tiles.set([

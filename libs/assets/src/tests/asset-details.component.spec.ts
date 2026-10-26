@@ -19,10 +19,6 @@ describe('AssetDetailsComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show the empty state when no item is selected', () => {
         expect('[empty]').toExist();
         expect('[image]').not.toExist();

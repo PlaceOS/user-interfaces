@@ -133,7 +133,7 @@ export interface FindAvailabilityData {
                                 <div
                                     class="max-w-full px-2 text-center text-xs wrap-break-word"
                                 >
-                                    {{ user.name || host.email }}
+                                    {{ user.name || user.email }}
                                 </div>
                                 <button
                                     icon
@@ -212,7 +212,8 @@ export interface FindAvailabilityData {
                                 [user]="host"
                                 [date]="date()"
                                 [availability]="
-                                    availability()[host.email] ?? []
+                                    availability()[host.email.toLowerCase()] ??
+                                    []
                                 "
                             ></user-availability-list>
                             @for (user of users(); track user) {

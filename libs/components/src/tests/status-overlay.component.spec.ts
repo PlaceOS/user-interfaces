@@ -1,5 +1,8 @@
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
+import {
+    SpectatorRouting,
+    createRoutingFactory,
+} from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from '../lib/icon.component';
@@ -14,10 +17,6 @@ describe('StatusOverlayComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should be able to show a success message', () => {
         expect('[error]').not.toExist();

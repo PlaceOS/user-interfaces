@@ -18,10 +18,6 @@ describe('ItemListFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should allow adding items', () => {
         const input: HTMLInputElement = spectator.query('input');
         expect(spectator.component.value()).toHaveLength(0);

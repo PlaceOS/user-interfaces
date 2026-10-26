@@ -5,7 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import { generateAssetForm } from '@placeos/assets';
+import { generateAssetForm, saveAssetsInBulk } from '@placeos/assets';
 import {
     AssetGroup,
     AsyncHandler,
@@ -20,7 +20,7 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { addAssets, showAsset, showAssetType } from '@placeos/ts-client';
+import { showAsset, showAssetType } from '@placeos/ts-client';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -216,7 +216,7 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
         }
         this.loading.set(i18n('APP.CONCIERGE.ASSETS_BULK_SAVING'));
         const data = this.model();
-        const list = await addAssets(
+        const list = await saveAssetsInBulk(
             new Array(this.count()).fill({
                 ...data,
                 zone_id: this._org.building.id,

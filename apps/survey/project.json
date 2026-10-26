@@ -9,6 +9,7 @@
         "build": {
             "executor": "@angular/build:application",
             "outputs": ["{options.outputPath}"],
+            "defaultConfiguration": "production",
             "options": {
                 "outputPath": "dist/apps/survey",
                 "browser": "apps/survey/src/main.ts",
@@ -23,11 +24,6 @@
                     {
                         "glob": "**",
                         "input": "shared/assets",
-                        "output": "/assets/"
-                    },
-                    {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
                         "output": "/assets/"
                     },
                     {
@@ -46,6 +42,10 @@
             "configurations": {
                 "production": {
                     "fileReplacements": [
+                        {
+                            "replace": "libs/mocks/src/index.ts",
+                            "with": "libs/mocks/src/empty.ts"
+                        },
                         {
                             "replace": "apps/survey/src/environments/environment.ts",
                             "with": "apps/survey/src/environments/environment.prod.ts"
@@ -74,12 +74,12 @@
                     "extractLicenses": false,
                     "sourceMap": true
                 }
-            },
-            "defaultConfiguration": "production"
+            }
         },
         "serve": {
             "continuous": true,
             "executor": "@angular/build:dev-server",
+            "defaultConfiguration": "development",
             "configurations": {
                 "production": {
                     "proxyConfig": "config/proxy.conf.js",
@@ -89,8 +89,7 @@
                     "proxyConfig": "config/proxy.conf.js",
                     "buildTarget": "survey:build:development"
                 }
-            },
-            "defaultConfiguration": "development"
+            }
         },
         "extract-i18n": {
             "executor": "@angular/build:extract-i18n",

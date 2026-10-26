@@ -10,7 +10,9 @@ describe('DateCalendarComponent', () => {
         component: DateCalendarComponent,
         providers: [
             MockProvider(SettingsService, {
-                signal: vi.fn((_: string, fallback: number) => () => fallback) as any,
+                signal: vi.fn(
+                    (_: string, fallback: number) => () => fallback,
+                ) as any,
             }),
         ],
     });
@@ -22,10 +24,6 @@ describe('DateCalendarComponent', () => {
     });
 
     afterEach(() => vi.useRealTimers());
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should ignore invalid written values when generating dates', () => {
         spectator.component.writeValue(Number.NaN);

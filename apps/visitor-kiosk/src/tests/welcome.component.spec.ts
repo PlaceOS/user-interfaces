@@ -1,4 +1,8 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import { signal } from '@angular/core';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import {
     MockComponent,
@@ -7,7 +11,6 @@ import {
     MockPipe,
     MockProvider,
 } from 'ng-mocks';
-import { signal } from '@angular/core';
 
 import { MatMenuModule } from '@angular/material/menu';
 import {
@@ -40,10 +43,6 @@ describe('WelcomeComponent', () => {
     beforeEach(() => {
         window.PLACEOS_PUBLIC_MODE = false;
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('shows separate check-in and checkout actions', () => {

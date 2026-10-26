@@ -8,6 +8,9 @@ import { notifyInfo } from './notifications';
 
 const NATIVE_CREDENTIAL_FETCH_KEY = '__placeos_native_credential_fetch__';
 
+/** Longest an application waits for PlaceOS authority setup to settle. */
+export const PLACE_SETUP_TIMEOUT = 10 * 1000;
+
 export interface PlaceSettings {
     /** Protocol used by the application server */
     protocol: 'http:' | 'https:';
@@ -122,7 +125,10 @@ export async function createNativeAuthUrl(
 /**
  * Initialise the PlaceOS API library
  */
-export async function setupPlace(settings: PlaceSettings): Promise<void> {
+export async function setupPlace(
+    settings: PlaceSettings,
+    timeout_ms = PLACE_SETUP_TIMEOUT,
+): Promise<void> {
     const protocol = settings.protocol || location.protocol;
     const host = settings.domain || location.hostname;
     const port = settings.port || location.port;
@@ -168,5 +174,22 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
     if (mock) {
         notifyInfo('Application in mock mode.');
     }
-    return setup(config);
+    const setup_promise = setup(config);
+    if (timeout_ms <= 0) return setup_promise;
+    return new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(
+            () => reject(new Error('PlaceOS setup timed out.')),
+            timeout_ms,
+        );
+        setup_promise.then(
+            () => {
+                clearTimeout(timer);
+                resolve();
+            },
+            (error) => {
+                clearTimeout(timer);
+                reject(error);
+            },
+        );
+    });
 }

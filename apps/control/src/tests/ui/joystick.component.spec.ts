@@ -17,12 +17,7 @@ describe('JoystickComponent', () => {
     // `spectator.dispatchMouseEvent` builds events with the deprecated
     // `initMouseEvent`, which fails jsdom's realm check under the zoneless
     // unit-test builder. Dispatch a native MouseEvent instead.
-    const mouse = (
-        target: string | Document,
-        type: string,
-        x = 0,
-        y = 0,
-    ) => {
+    const mouse = (target: string | Document, type: string, x = 0, y = 0) => {
         const el =
             typeof target === 'string' ? spectator.query(target) : target;
         el.dispatchEvent(
@@ -46,10 +41,6 @@ describe('JoystickComponent', () => {
             height: 192,
             width: 192,
         }));
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should allow for panning', () => {
