@@ -1,3 +1,0 @@
-import{Pi as y}from"./chunk-BF3rhqXc.js";import{S as Ft}from"./chunk-DdPY0b9R.js";import{d as ee}from"./chunk-MgYmwTr8.js";import{t as re}from"./chunk-Chq62mkr.js";var s=async a=>{if(!a?.hasUnsavedChanges())return!0;let o=await re({title:Ft(`APP.CONCIERGE.UNSAVED_CHANGES_TITLE`),content:Ft(`APP.CONCIERGE.UNSAVED_CHANGES_MSG`),icon:{content:`warning`},confirm_text:Ft(`APP.CONCIERGE.UNSAVED_CHANGES_DISCARD`)},y(ee));return o.close(),o.reason===`done`};export{s as t};
-//# debugId=fa4f07d1-7926-5653-9eed-07e5d662fd1e
-//# sourceMappingURL=chunk-DaWvEL3_2.js.map
