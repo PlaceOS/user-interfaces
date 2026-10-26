@@ -1,0 +1,1 @@
+import{Fa as m,Lo as to}from"./chunk-98u3vKtn.js";import{f as Dl}from"./chunk-H9oalzm2.js";var f=(()=>{class t{constructor(){this._org=m(Dl)}transform(e){return this._org.levelWithID(e instanceof Array?e:[e])}static{this.ɵfac=function(n){return new(n||t)}}static{this.ɵpipe=to({name:`level`,type:t,pure:!0})}}return t})();export{f as t};
