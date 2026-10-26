@@ -271,7 +271,21 @@
         "UPLOAD_FILE": "تحميل ملف",
         "QR_CODE": "رمز QR",
         "REORDER_HINT": "اضغط على مفتاح السهم لأعلى أو لأسفل للنقل",
-        "MOVED_TO_POSITION": "تم النقل إلى الموضع {{ position }} من {{ count }}"
+        "MOVED_TO_POSITION": "تم النقل إلى الموضع {{ position }} من {{ count }}",
+        "INCREASE": "زيادة",
+        "DECREASE": "تقليل",
+        "PREVIOUS_MONTH": "الشهر السابق",
+        "NEXT_MONTH": "الشهر التالي",
+        "COPY_LINK": "نسخ الرابط",
+        "OPEN_FILE": "فتح الملف",
+        "BOLD": "غامق",
+        "ITALIC": "مائل",
+        "UNDERLINE": "تسطير",
+        "BULLETED_LIST": "قائمة نقطية",
+        "NUMBERED_LIST": "قائمة مرقمة",
+        "INSERT_LINK": "إدراج رابط",
+        "INSERT_IMAGE": "إدراج صورة",
+        "ATTACH_FILE": "إرفاق ملف"
     },
     "LANGUAGE": {
         "ENGLISH": "الإنجليزية",

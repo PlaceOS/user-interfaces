@@ -271,7 +271,21 @@
         "UPLOAD_FILE": "Enviar arquivo",
         "QR_CODE": "Código QR",
         "REORDER_HINT": "Pressione a seta para cima ou para baixo para mover",
-        "MOVED_TO_POSITION": "Movido para a posição {{ position }} de {{ count }}"
+        "MOVED_TO_POSITION": "Movido para a posição {{ position }} de {{ count }}",
+        "INCREASE": "Aumentar",
+        "DECREASE": "Diminuir",
+        "PREVIOUS_MONTH": "Mês anterior",
+        "NEXT_MONTH": "Próximo mês",
+        "COPY_LINK": "Copiar link",
+        "OPEN_FILE": "Abrir arquivo",
+        "BOLD": "Negrito",
+        "ITALIC": "Itálico",
+        "UNDERLINE": "Sublinhado",
+        "BULLETED_LIST": "Lista com marcadores",
+        "NUMBERED_LIST": "Lista numerada",
+        "INSERT_LINK": "Inserir link",
+        "INSERT_IMAGE": "Inserir imagem",
+        "ATTACH_FILE": "Anexar arquivo"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglês",

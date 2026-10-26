@@ -271,7 +271,21 @@
         "UPLOAD_FILE": "Téléverser un fichier",
         "QR_CODE": "Code QR",
         "REORDER_HINT": "Appuyez sur la flèche haut ou bas pour déplacer",
-        "MOVED_TO_POSITION": "Déplacé en position {{ position }} sur {{ count }}"
+        "MOVED_TO_POSITION": "Déplacé en position {{ position }} sur {{ count }}",
+        "INCREASE": "Augmenter",
+        "DECREASE": "Diminuer",
+        "PREVIOUS_MONTH": "Mois précédent",
+        "NEXT_MONTH": "Mois suivant",
+        "COPY_LINK": "Copier le lien",
+        "OPEN_FILE": "Ouvrir le fichier",
+        "BOLD": "Gras",
+        "ITALIC": "Italique",
+        "UNDERLINE": "Souligné",
+        "BULLETED_LIST": "Liste à puces",
+        "NUMBERED_LIST": "Liste numérotée",
+        "INSERT_LINK": "Insérer un lien",
+        "INSERT_IMAGE": "Insérer une image",
+        "ATTACH_FILE": "Joindre un fichier"
     },
     "LANGUAGE": {
         "ENGLISH": "Anglais",

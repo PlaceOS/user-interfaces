@@ -155,6 +155,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
                     matRipple
                     class="border-secondary text-secondary h-12 w-12 rounded-sm border"
                     (click)="clearUser()"
+                    [attr.aria-label]="'COMMON.CLEAR' | translate"
                 >
                     <icon>person_cancel</icon>
                 </button>

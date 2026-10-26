@@ -300,6 +300,10 @@ import { restoreFocusAfterRender } from './restore-focus';
                                                         'APP.CONCIERGE.BOOKING_RULESET_REMOVE'
                                                             | translate
                                                     "
+                                                    [attr.aria-label]="
+                                                        'APP.CONCIERGE.BOOKING_RULESET_REMOVE'
+                                                            | translate
+                                                    "
                                                 >
                                                     <icon class="text-error"
                                                         >delete</icon

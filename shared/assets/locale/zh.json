@@ -271,7 +271,21 @@
         "UPLOAD_FILE": "上传文件",
         "QR_CODE": "二维码",
         "REORDER_HINT": "按上或下箭头键移动",
-        "MOVED_TO_POSITION": "已移至第 {{ position }} 位，共 {{ count }} 位"
+        "MOVED_TO_POSITION": "已移至第 {{ position }} 位，共 {{ count }} 位",
+        "INCREASE": "增加",
+        "DECREASE": "减少",
+        "PREVIOUS_MONTH": "上个月",
+        "NEXT_MONTH": "下个月",
+        "COPY_LINK": "复制链接",
+        "OPEN_FILE": "打开文件",
+        "BOLD": "粗体",
+        "ITALIC": "斜体",
+        "UNDERLINE": "下划线",
+        "BULLETED_LIST": "项目符号列表",
+        "NUMBERED_LIST": "编号列表",
+        "INSERT_LINK": "插入链接",
+        "INSERT_IMAGE": "插入图片",
+        "ATTACH_FILE": "附加文件"
     },
     "LANGUAGE": {
         "ENGLISH": "英语",

@@ -243,6 +243,10 @@ import {
                                                     | translate
                                             "
                                             (click)="assignSpace(booking)"
+                                            [attr.aria-label]="
+                                                'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                                    | translate
+                                            "
                                         >
                                             <icon class="text-base"
                                                 >add_location</icon

@@ -312,6 +312,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                                 (click)="
                                                     removePageQuestion(idx)
                                                 "
+                                                aria-label="Remove Question"
                                             >
                                                 <icon class="text-xl"
                                                     >delete</icon
