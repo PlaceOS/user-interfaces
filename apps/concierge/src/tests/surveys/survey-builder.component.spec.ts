@@ -105,8 +105,9 @@ describe('SurveyBuilderComponent', () => {
         ]);
     });
 
-    it('should add a question to the end of the active page', () => {
+    it('should add a question to the end of the active page once', () => {
         spectator.component.updateActivePage({ question_order: [10] });
+        spectator.component.addToPage({ id: 20 } as any);
         spectator.component.addToPage({ id: 20 } as any);
         expect(spectator.component.active_page_value().question_order).toEqual([
             10, 20,

@@ -460,7 +460,12 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                     <!-- Keyboard alternative to dragging the question onto the page -->
                                     <button
                                         mat-menu-item
-                                        [disabled]="!active_page_value()"
+                                        [disabled]="
+                                            !active_page_value() ||
+                                            active_page_value().question_order.includes(
+                                                question.id
+                                            )
+                                        "
                                         (click)="addToPage(question)"
                                     >
                                         <div
@@ -742,10 +747,13 @@ export class SurveyBuilderComponent
         );
     }
 
-    /** Add a question to the end of the active page */
+    /**
+     * Add a question to the end of the active page. A page shows each
+     * question once, because the survey keeps one answer for each question ID
+     */
     public addToPage(question: SurveyQuestion) {
         const page = this.active_page_value();
-        if (!page) return;
+        if (!page || page.question_order.includes(question.id)) return;
         this.updateActivePage({
             question_order: [...page.question_order, question.id],
         });
@@ -758,6 +766,7 @@ export class SurveyBuilderComponent
         } else {
             const questions = this.questions();
             const q_id = questions[event.previousIndex].id;
+            if (order.includes(q_id)) return;
             order.splice(event.currentIndex, 0, q_id);
         }
         this.updateActivePage({ question_order: order });
