@@ -164,6 +164,7 @@ declare let mapsindoors: any;
                             class="flex h-full flex-1 flex-col items-center justify-center space-y-4"
                         >
                             <img
+                                alt=""
                                 src="assets/icons/no-results.svg"
                                 class="w-36"
                             />

@@ -96,6 +96,7 @@ import { UrlManagementService } from './url-management.service';
                                 >
                                     @if (qr_codes()[row.id]) {
                                         <img
+                                            [alt]="'COMMON.QR_CODE' | translate"
                                             class="mx-auto w-48"
                                             [src]="
                                                 qr_codes()[row.id] || ''

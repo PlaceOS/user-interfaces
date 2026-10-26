@@ -268,7 +268,8 @@
         "CLOSE": "关闭",
         "MORE_OPTIONS": "更多选项",
         "SHOW_QR_CODE": "显示二维码",
-        "UPLOAD_FILE": "上传文件"
+        "UPLOAD_FILE": "上传文件",
+        "QR_CODE": "二维码"
     },
     "LANGUAGE": {
         "ENGLISH": "英语",
@@ -1857,7 +1858,9 @@
             "UNSAVED_CHANGES_TITLE": "放弃更改",
             "UNSAVED_CHANGES_MSG": "您有未保存的更改。如果离开此页面，这些更改将丢失。",
             "UNSAVED_CHANGES_DISCARD": "放弃",
-            "LOCKERS_SHOW": "显示储物柜"
+            "LOCKERS_SHOW": "显示储物柜",
+            "VISITORS_ID_IMAGE": "访客证件",
+            "ASSETS_REQUEST_DETAILS": "资产请求详情"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "房间容量",

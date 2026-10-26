@@ -268,7 +268,8 @@
         "CLOSE": "إغلاق",
         "MORE_OPTIONS": "المزيد من الخيارات",
         "SHOW_QR_CODE": "عرض رمز QR",
-        "UPLOAD_FILE": "تحميل ملف"
+        "UPLOAD_FILE": "تحميل ملف",
+        "QR_CODE": "رمز QR"
     },
     "LANGUAGE": {
         "ENGLISH": "الإنجليزية",
@@ -1856,7 +1857,9 @@
             "UNSAVED_CHANGES_TITLE": "تجاهل التغييرات",
             "UNSAVED_CHANGES_MSG": "لديك تغييرات غير محفوظة. إذا غادرت هذه الصفحة، فستفقدها.",
             "UNSAVED_CHANGES_DISCARD": "تجاهل",
-            "LOCKERS_SHOW": "عرض الخزائن"
+            "LOCKERS_SHOW": "عرض الخزائن",
+            "VISITORS_ID_IMAGE": "هوية الزائر",
+            "ASSETS_REQUEST_DETAILS": "تفاصيل طلب الأصل"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "سعة الغرفة",

@@ -268,7 +268,8 @@
         "CLOSE": "Fermer",
         "MORE_OPTIONS": "Plus d'options",
         "SHOW_QR_CODE": "Afficher le code QR",
-        "UPLOAD_FILE": "Téléverser un fichier"
+        "UPLOAD_FILE": "Téléverser un fichier",
+        "QR_CODE": "Code QR"
     },
     "LANGUAGE": {
         "ENGLISH": "Anglais",
@@ -1856,7 +1857,9 @@
             "UNSAVED_CHANGES_TITLE": "Abandonner les modifications",
             "UNSAVED_CHANGES_MSG": "Vous avez des modifications non enregistrées. Si vous quittez cette page, vous les perdrez.",
             "UNSAVED_CHANGES_DISCARD": "Abandonner",
-            "LOCKERS_SHOW": "Afficher les casiers"
+            "LOCKERS_SHOW": "Afficher les casiers",
+            "VISITORS_ID_IMAGE": "Pièce d'identité du visiteur",
+            "ASSETS_REQUEST_DETAILS": "Détails de la demande de ressource"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacité de la salle",

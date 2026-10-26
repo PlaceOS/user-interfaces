@@ -268,7 +268,8 @@
         "CLOSE": "Chiudi",
         "MORE_OPTIONS": "Altre opzioni",
         "SHOW_QR_CODE": "Mostra codice QR",
-        "UPLOAD_FILE": "Carica file"
+        "UPLOAD_FILE": "Carica file",
+        "QR_CODE": "Codice QR"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglese",
@@ -1856,7 +1857,9 @@
             "UNSAVED_CHANGES_TITLE": "Scarta modifiche",
             "UNSAVED_CHANGES_MSG": "Hai modifiche non salvate. Se lasci questa pagina, andranno perse.",
             "UNSAVED_CHANGES_DISCARD": "Scarta",
-            "LOCKERS_SHOW": "Mostra armadietti"
+            "LOCKERS_SHOW": "Mostra armadietti",
+            "VISITORS_ID_IMAGE": "Documento del visitatore",
+            "ASSETS_REQUEST_DETAILS": "Dettagli della richiesta di risorsa"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacità della stanza",

@@ -80,7 +80,7 @@ import {
         </ng-template>
         <ng-template #image_template let-data="data">
             @if (data.length) {
-                <img auth [source]="data[0]" class="max-h-12 max-w-32" />
+                <img alt="" auth [source]="data[0]" class="max-h-12 max-w-32" />
             }
             @if (!data.length) {
                 <span class="opacity-30">{{

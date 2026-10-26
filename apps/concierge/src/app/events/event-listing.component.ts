@@ -101,6 +101,7 @@ import { EventStateService } from './event-state.service';
                     class="border-base-200 bg-base-200 flex h-12 w-12 items-center justify-center overflow-hidden rounded-sm border"
                 >
                     <img
+                        alt=""
                         *ngIf="item.images?.length"
                         auth
                         [source]="item.images[0]"

@@ -92,7 +92,7 @@ import { EventsStateService } from './events-state.service';
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
                     >
-                        <img src="assets/icons/no-pending.svg" />
+                        <img alt="" src="assets/icons/no-pending.svg" />
                         <p class="opacity-30">
                             {{
                                 'APP.CONCIERGE.ROOMS_PENDING_EMPTY' | translate
@@ -135,6 +135,7 @@ import { EventsStateService } from './events-state.service';
                                 class="bg-base-200 mb-2 h-32 w-full overflow-hidden rounded-sm"
                             >
                                 <img
+                                    alt=""
                                     auth
                                     class="min-h-full min-w-full object-cover object-center"
                                     [source]="space?.images[0]"

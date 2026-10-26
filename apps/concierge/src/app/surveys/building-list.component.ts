@@ -40,6 +40,7 @@ import { SurveyService } from './survey.service';
                         >
                             @if (building.images?.length) {
                                 <img
+                                    alt=""
                                     auth
                                     class="h-full w-full object-cover object-center"
                                     [source]="building.images[0]"

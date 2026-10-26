@@ -212,6 +212,7 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                                         class="border-base-200 bg-base-100 mx-4 my-2 block rounded-lg border p-2"
                                     >
                                         <img
+                                            [alt]="'COMMON.QR_CODE' | translate"
                                             class="w-48"
                                             [src]="qr_code().get(row.id)"
                                         />

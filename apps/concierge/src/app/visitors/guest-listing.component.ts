@@ -282,6 +282,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     class="bg-base-100 my-2 flex w-[20rem] flex-col space-y-2 rounded-sm p-2"
                 >
                     <img
+                        [alt]="'APP.CONCIERGE.VISITORS_ID_IMAGE' | translate"
                         [src]="row.extension_data?.id_data?.url"
                         class="max-h-80 max-w-[20rem] object-contain"
                     />

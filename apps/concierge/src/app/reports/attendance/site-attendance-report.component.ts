@@ -135,7 +135,12 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
         >
             <div class="w-full">
                 <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                    <img auth class="h-12" [source]="logo()?.src || logo()" />
+                    <img
+                        alt=""
+                        auth
+                        class="h-12"
+                        [source]="logo()?.src || logo()"
+                    />
                     <div class="flex-1"></div>
                     <h2 class="px-2 text-2xl font-medium">
                         {{

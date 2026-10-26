@@ -74,7 +74,12 @@ import { UserReportOptions, UserReportService } from './user-report.service';
             class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >
             <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                <img auth class="h-12" [source]="logo()?.src || logo()" />
+                <img
+                    alt=""
+                    auth
+                    class="h-12"
+                    [source]="logo()?.src || logo()"
+                />
                 <div class="flex-1"></div>
                 <div class="px-2 text-right">
                     <h2 class="text-2xl font-medium">

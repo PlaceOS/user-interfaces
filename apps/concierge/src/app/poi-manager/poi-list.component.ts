@@ -129,6 +129,7 @@ interface QR_Codes {
                                     class="border-base-200 bg-base-100 mx-4 my-2 block rounded-lg border p-2"
                                 >
                                     <img
+                                        [alt]="'COMMON.QR_CODE' | translate"
                                         class="mx-auto w-48"
                                         [src]="qr?.image | safe: 'resource'"
                                     />

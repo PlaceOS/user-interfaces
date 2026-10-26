@@ -270,7 +270,11 @@ import { DesksStateService } from './desks-state.service';
                     ref="noopener noreferrer"
                     class="border-base-200 bg-base-100 m-2 block rounded-lg border p-2"
                 >
-                    <img class="w-48" [src]="desk.qr_code" />
+                    <img
+                        [alt]="'COMMON.QR_CODE' | translate"
+                        class="w-48"
+                        [src]="desk.qr_code"
+                    />
                 </a>
                 <div
                     class="bg-base-200 mx-2 mt-2 w-48 rounded-sm p-2 text-center font-mono text-sm"
