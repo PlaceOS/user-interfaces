@@ -137,14 +137,9 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     </div>
                     <div class="mb-1 flex space-x-4">
                         <div class="flex-1">
-                            <label
-                                for="locker-modal-row"
-                                id="locker-modal-row-label"
-                                >Start Column</label
-                            >
+                            <label for="locker-modal-row">Start Column</label>
                             <a-counter
-                                role="group"
-                                aria-labelledby="locker-modal-row-label"
+                                input_id="locker-modal-row"
                                 [ngModel]="model().position[0] + 1"
                                 (ngModelChange)="
                                     model.update((m) => ({
@@ -158,14 +153,9 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             ></a-counter>
                         </div>
                         <div class="flex-1">
-                            <label
-                                for="locker-modal-column"
-                                id="locker-modal-column-label"
-                                >Start Row</label
-                            >
+                            <label for="locker-modal-column">Start Row</label>
                             <a-counter
-                                role="group"
-                                aria-labelledby="locker-modal-column-label"
+                                input_id="locker-modal-column"
                                 [ngModel]="model().position[1] + 1"
                                 (ngModelChange)="
                                     model.update((m) => ({
@@ -190,14 +180,11 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     </div>
                     <div class="mb-1 flex space-x-4">
                         <div class="flex-1">
-                            <label
-                                for="locker-modal-row-2"
-                                id="locker-modal-row-2-label"
-                                >{{ 'COMMON.WIDTH' | translate }}</label
-                            >
+                            <label for="locker-modal-row-2">{{
+                                'COMMON.WIDTH' | translate
+                            }}</label>
                             <a-counter
-                                role="group"
-                                aria-labelledby="locker-modal-row-2-label"
+                                input_id="locker-modal-row-2"
                                 [ngModel]="model().size[0]"
                                 (ngModelChange)="
                                     model.update((m) => ({
@@ -212,14 +199,11 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             ></a-counter>
                         </div>
                         <div class="flex-1">
-                            <label
-                                for="locker-modal-column-2"
-                                id="locker-modal-column-2-label"
-                                >{{ 'COMMON.HEIGHT' | translate }}</label
-                            >
+                            <label for="locker-modal-column-2">{{
+                                'COMMON.HEIGHT' | translate
+                            }}</label>
                             <a-counter
-                                role="group"
-                                aria-labelledby="locker-modal-column-2-label"
+                                input_id="locker-modal-column-2"
                                 [ngModel]="model().size[1]"
                                 (ngModelChange)="
                                     model.update((m) => ({

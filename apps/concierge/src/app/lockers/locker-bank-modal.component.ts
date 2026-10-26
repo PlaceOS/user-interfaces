@@ -141,14 +141,11 @@ import {
                             </mat-form-field>
                         </div>
                     </div>
-                    <label
-                        for="locker-bank-modal-row"
-                        id="locker-bank-modal-row-label"
-                        >{{ 'COMMON.HEIGHT' | translate }}</label
-                    >
+                    <label for="locker-bank-modal-row">{{
+                        'COMMON.HEIGHT' | translate
+                    }}</label>
                     <a-counter
-                        role="group"
-                        aria-labelledby="locker-bank-modal-row-label"
+                        input_id="locker-bank-modal-row"
                         [formField]="form.height"
                         class="mb-4"
                         [min]="1"

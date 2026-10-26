@@ -275,13 +275,11 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                                 form.capacity().invalid() &&
                                 form.capacity().touched()
                             "
-                            id="room-modal-capacity-label"
                         >
                             {{ 'COMMON.CAPACITY' | translate }}
                         </label>
                         <a-counter
-                            role="group"
-                            aria-labelledby="room-modal-capacity-label"
+                            input_id="room-modal-capacity"
                             class="w-full"
                             [formField]="form.capacity"
                             [min]="0"
