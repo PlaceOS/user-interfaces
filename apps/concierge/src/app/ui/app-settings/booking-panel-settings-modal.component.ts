@@ -260,6 +260,10 @@ don't detect presence in room after a period of time"
                                     Room Image must be a valid URL
                                 </mat-error>
                             </mat-form-field>
+                            <!--
+                                The button is the control. The file input on top takes mouse clicks
+                                and dropped files, and the button opens it for keyboard users
+                            -->
                             <button
                                 type="button"
                                 icon
@@ -267,9 +271,16 @@ don't detect presence in room after a period of time"
                                 [disabled]="uploading()"
                                 class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                                 aria-label="Upload room image"
+                                (click)="
+                                    $event.target !== file_input_1 &&
+                                        file_input_1.click()
+                                "
                             >
                                 <icon>cloud_upload</icon>
                                 <input
+                                    #file_input_1
+                                    tabindex="-1"
+                                    aria-hidden="true"
                                     type="file"
                                     class="absolute inset-0 opacity-0"
                                     (change)="uploadImage($event, 'room_image')"
@@ -303,9 +314,16 @@ don't detect presence in room after a period of time"
                                 [disabled]="uploading()"
                                 class="bg-secondary text-secondary-content relative h-12 w-12 rounded-sm"
                                 aria-label="Upload offline image"
+                                (click)="
+                                    $event.target !== file_input_2 &&
+                                        file_input_2.click()
+                                "
                             >
                                 <icon>cloud_upload</icon>
                                 <input
+                                    #file_input_2
+                                    tabindex="-1"
+                                    aria-hidden="true"
                                     type="file"
                                     class="absolute inset-0 opacity-0"
                                     (change)="

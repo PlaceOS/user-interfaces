@@ -195,12 +195,19 @@ const DENIED_FILE_TYPES = [
                             </span>
                         </div>
                     </button>
+                    <!--
+                        The button is the control. The file input on top takes mouse clicks
+                        and dropped files, and the button opens it for keyboard users
+                    -->
                     <button
                         btn
                         matRipple
                         type="button"
                         name="upload-csv"
                         class="inverse relative flex-1 sm:flex-none"
+                        (click)="
+                            $event.target !== file_input && file_input.click()
+                        "
                     >
                         <div class="flex items-center justify-center">
                             <span class="hidden sm:inline">
@@ -211,6 +218,9 @@ const DENIED_FILE_TYPES = [
                             </span>
                         </div>
                         <input
+                            #file_input
+                            tabindex="-1"
+                            aria-hidden="true"
                             class="absolute inset-0 opacity-0"
                             type="file"
                             (change)="addUsersFromFile($event)"

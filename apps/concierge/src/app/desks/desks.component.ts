@@ -203,6 +203,10 @@ import { DesksStateService } from './desks-state.service';
                         >
                             <icon>qr_code</icon>
                         </button>
+                        <!--
+                            The button is the control. The file input on top takes mouse clicks
+                            and dropped files, and the button opens it for keyboard users
+                        -->
                         <button
                             icon
                             default
@@ -213,9 +217,16 @@ import { DesksStateService } from './desks-state.service';
                             [attr.aria-label]="
                                 'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
                             "
+                            (click)="
+                                $event.target !== file_input &&
+                                    file_input.click()
+                            "
                         >
                             <icon>cloud_upload</icon>
                             <input
+                                #file_input
+                                tabindex="-1"
+                                aria-hidden="true"
                                 type="file"
                                 class="absolute inset-0 opacity-0"
                                 (change)="loadCSVData($any($event))"

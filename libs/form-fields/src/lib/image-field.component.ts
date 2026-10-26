@@ -26,11 +26,19 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
 @Component({
     selector: 'image-field',
     template: `
-        <button matRipple class="bg-base-200 relative h-48 w-full rounded-xl">
+        <!--
+            The file input on top is the control. It is not inside a button,
+            so the clear and copy buttons are not nested in another button
+        -->
+        <div
+            matRipple
+            class="bg-base-200 relative h-48 w-full rounded-xl has-[>input:focus-visible]:ring-2"
+        >
             <input
                 #file_input
                 type="file"
                 class="absolute inset-0 z-10 cursor-pointer opacity-0"
+                [attr.aria-label]="'COMMON.UPLOAD_IMAGE' | translate"
                 (change)="uploadImage($event)"
             />
             @if (this.url()) {
@@ -45,6 +53,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                     type="button"
                     matRipple
                     matTooltip="Clear Image"
+                    aria-label="Clear Image"
                     matTooltipPosition="left"
                     class="border-base-300 bg-base-100 absolute top-2 right-2 z-20 rounded-full border"
                     (click)="clearImage($event)"
@@ -58,6 +67,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                         icon
                         matRipple
                         matTooltip="Copy Image URL"
+                        aria-label="Copy Image URL"
                         matTooltipPosition="right"
                         (click)="copyLink()"
                     >
@@ -92,7 +102,14 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                     <p class="mb-4 opacity-60">
                         {{ 'COMMON.UPLOAD_IMAGE_INFO' | translate }}
                     </p>
-                    <button btn class="inverse bg-base-100">
+                    <!-- Looks like a button. Clicks reach the file input above it -->
+                    <button
+                        btn
+                        type="button"
+                        tabindex="-1"
+                        aria-hidden="true"
+                        class="inverse bg-base-100"
+                    >
                         <icon class="mr-2 text-2xl">chevron_right</icon>
                         <div class="pr-2">
                             {{ 'COMMON.UPLOAD_IMAGE' | translate }}
@@ -100,7 +117,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                     </button>
                 </div>
             }
-        </button>
+        </div>
     `,
     styles: [``],
     providers: [
