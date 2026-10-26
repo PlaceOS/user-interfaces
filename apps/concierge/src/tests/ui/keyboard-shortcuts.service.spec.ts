@@ -92,17 +92,17 @@ describe('KeyboardShortcutsService', () => {
         expect(click).toHaveBeenCalledTimes(1);
     });
 
-    it('should double click the date label to go to today', () => {
+    it('should click the date label to go to today', () => {
         const label = addElement(
             '<button id="today" data-shortcut="today"></button>',
             'today',
         );
-        const dblclick = vi.fn();
-        label.addEventListener('dblclick', dblclick);
+        const click = vi.fn();
+        label.addEventListener('click', click);
 
         press('t');
 
-        expect(dblclick).toHaveBeenCalledTimes(1);
+        expect(click).toHaveBeenCalledTimes(1);
     });
 
     it('should ignore keys while the user types in a field', () => {

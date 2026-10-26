@@ -43,7 +43,12 @@ declare let mapsindoors: any;
             <h2 class="text-xl font-medium capitalize">
                 {{ 'APP.CONCIERGE.POI_MAP_SELECT_HEADER' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button
+                icon
+                matRipple
+                mat-dialog-close
+                [aria-label]="'COMMON.CLOSE' | translate"
+            >
                 <icon>close</icon>
             </button>
         </header>
@@ -159,6 +164,7 @@ declare let mapsindoors: any;
                             class="flex h-full flex-1 flex-col items-center justify-center space-y-4"
                         >
                             <img
+                                alt=""
                                 src="assets/icons/no-results.svg"
                                 class="w-36"
                             />
@@ -181,6 +187,9 @@ declare let mapsindoors: any;
                                 class="border-base-200 rounded-sm border"
                                 [disabled]="page() === 0"
                                 (click)="page.set(page() - 1)"
+                                [attr.aria-label]="
+                                    'COMMON.PREVIOUS' | translate
+                                "
                             >
                                 <icon>chevron_left</icon>
                             </button>
@@ -194,9 +203,13 @@ declare let mapsindoors: any;
                             >
                                 1
                             </button>
-                            <button icon [class.opacity-0]="page() < 2">
+                            <div
+                                aria-hidden="true"
+                                class="flex h-10 w-10 items-center justify-center"
+                                [class.opacity-0]="page() < 2"
+                            >
                                 <icon>more_horiz</icon>
-                            </button>
+                            </div>
                             <button
                                 icon
                                 matRipple
@@ -207,12 +220,13 @@ declare let mapsindoors: any;
                             >
                                 {{ page() + 1 }}
                             </button>
-                            <button
-                                icon
+                            <div
+                                aria-hidden="true"
+                                class="flex h-10 w-10 items-center justify-center"
                                 [class.opacity-0]="page() > last_page() - 2"
                             >
                                 <icon>more_horiz</icon>
-                            </button>
+                            </div>
                             <button
                                 icon
                                 matRipple
@@ -232,6 +246,7 @@ declare let mapsindoors: any;
                                 class="border-base-200 rounded-sm border"
                                 [disabled]="page() === last_page()"
                                 (click)="page.set(page() + 1)"
+                                [attr.aria-label]="'COMMON.NEXT' | translate"
                             >
                                 <icon>chevron_right</icon>
                             </button>

@@ -62,7 +62,12 @@ export interface ParkingSpaceModalData {
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button
+                        icon
+                        matRipple
+                        mat-dialog-close
+                        [aria-label]="'COMMON.CLOSE' | translate"
+                    >
                         <icon>close</icon>
                     </button>
                 }
@@ -70,11 +75,15 @@ export interface ParkingSpaceModalData {
             @if (!loading()) {
                 <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
                     @if (is_new) {
-                        <label for="level">
+                        <label
+                            for="parking-space-modal-level"
+                            id="parking-space-modal-level-label"
+                        >
                             {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
                             <mat-select
+                                aria-labelledby="parking-space-modal-level-label"
                                 [formField]="form.zone_id"
                                 [placeholder]="
                                     'COMMON.LEVEL_SELECT' | translate
@@ -91,11 +100,12 @@ export interface ParkingSpaceModalData {
                             }}</mat-error>
                         </mat-form-field>
                     }
-                    <label for="identifier">{{
+                    <label for="parking-space-modal-identifier">{{
                         'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="parking-space-modal-identifier"
                             matInput
                             [placeholder]="
                                 'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
@@ -106,11 +116,12 @@ export interface ParkingSpaceModalData {
                             'FORM.NAME_REQUIRED' | translate
                         }}</mat-error>
                     </mat-form-field>
-                    <label for="map-id">{{
+                    <label for="parking-space-modal-map-id">{{
                         'EXPLORE.MAP_ID' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="parking-space-modal-map-id"
                             matInput
                             [placeholder]="
                                 'EXPLORE.MAP_ID_PLACEHOLDER' | translate
@@ -121,11 +132,15 @@ export interface ParkingSpaceModalData {
                             {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
                         </mat-error>
                     </mat-form-field>
-                    <label for="user">{{
-                        'APP.CONCIERGE.USER_ASSIGNED' | translate
-                    }}</label>
+                    <label
+                        for="parking-space-modal-user"
+                        id="parking-space-modal-user-label"
+                        >{{ 'APP.CONCIERGE.USER_ASSIGNED' | translate }}</label
+                    >
                     <div class="mb-4 flex space-x-2">
                         <a-user-search-field
+                            role="group"
+                            aria-labelledby="parking-space-modal-user-label"
                             [formField]="form.assigned_user"
                             class="flex-1"
                         ></a-user-search-field>
@@ -137,6 +152,9 @@ export interface ParkingSpaceModalData {
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
                             (click)="clearUser()"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.USER_CLEAR' | translate
+                            "
                         >
                             <icon className="material-symbols-outlined">
                                 person_cancel
@@ -181,9 +199,12 @@ export interface ParkingSpaceModalData {
                         [placeholder]="'COMMON.FEATURES' | translate"
                         [formField]="form.features"
                     ></item-list-field>
-                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <label for="parking-space-modal-notes">{{
+                        'FORM.NOTES' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
+                            id="parking-space-modal-notes"
                             matInput
                             [placeholder]="'FORM.NOTES' | translate"
                             [formField]="form.notes"

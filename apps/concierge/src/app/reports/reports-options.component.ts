@@ -116,6 +116,7 @@ const resource_level_cache = new Map<string, Promise<Set<string>>>();
                 [disabled]="!has_data()"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
                 (click)="download.emit()"
+                [attr.aria-label]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
             >
                 <icon>download</icon>
             </button>
@@ -126,6 +127,7 @@ const resource_level_cache = new Map<string, Promise<Set<string>>>();
                 [disabled]="!has_data()"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
                 (click)="print()"
+                [attr.aria-label]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
             >
                 <icon>print</icon>
             </button>

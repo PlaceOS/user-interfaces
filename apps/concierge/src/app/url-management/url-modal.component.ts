@@ -35,11 +35,12 @@ import { errorText } from '../ui/modal-actions';
         >
             <form>
                 <div class="flex flex-col">
-                    <label for="name">
+                    <label for="url-modal-name">
                         {{ 'FORM.NAME' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="url-modal-name"
                             matInput
                             placeholder="Name"
                             [formField]="form.name"
@@ -47,11 +48,12 @@ import { errorText } from '../ui/modal-actions';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="uri">
+                    <label for="url-modal-uri">
                         {{ 'APP.CONCIERGE.URLS_URI' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="url-modal-uri"
                             matInput
                             [placeholder]="'APP.CONCIERGE.URLS_URI' | translate"
                             [formField]="form.uri"
@@ -59,10 +61,15 @@ import { errorText } from '../ui/modal-actions';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="description">
+                    <label
+                        for="url-modal-description"
+                        id="url-modal-description-label"
+                    >
                         {{ 'COMMON.DESCRIPTION' | translate }}
                     </label>
                     <rich-text-input
+                        role="group"
+                        aria-labelledby="url-modal-description-label"
                         [formField]="form.description"
                         placeholder="URL description..."
                     ></rich-text-input>
@@ -77,11 +84,11 @@ import { errorText } from '../ui/modal-actions';
                     <div class="flex-1"></div>
                 </div>
                 <!-- <div class="flex flex-col" *ngIf="form.controls.valid_from">
-            <label for="uri" >{{ 'APP.CONCIERGE.VALID_FROM' | translate }}</label>
+            <label for="url-modal-uri" >{{ 'APP.CONCIERGE.VALID_FROM' | translate }}</label>
             <a-date-field formControlName="valid_from"></a-date-field>
           </div>
           <div class="flex flex-col" *ngIf="form.controls.valid_to">
-            <label for="uri" >
+            <label for="url-modal-uri" >
               {{'COMMON.VALID_UNTIL' | translate}}<span>*</span>
             </label>
             <a-date-field

@@ -71,4 +71,18 @@ describe('AssetRequestDetailsComponent', () => {
             'in_transit',
         );
     });
+
+    it('should close on Escape and tell the parent', () => {
+        const changed = vi.fn();
+        spectator.output('requestChange').subscribe(changed);
+        spectator.component.request.set({ id: 'r-1', extension_data: {} });
+        spectator.detectChanges();
+
+        spectator
+            .query('[role="dialog"]')
+            .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+        expect(spectator.component.request()).toBeNull();
+        expect(changed).toHaveBeenCalledWith(null);
+    });
 });

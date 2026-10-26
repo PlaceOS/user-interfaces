@@ -76,7 +76,13 @@ import { LevelManagementService } from './level-management.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center gap-2 p-2">
-                <button icon default matRipple [matMenuTriggerFor]="menu">
+                <button
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                >
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">

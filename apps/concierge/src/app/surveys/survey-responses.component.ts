@@ -50,6 +50,7 @@ import { NewSurveyService } from './new-survey.service';
 
                         survey()?.building_id,
                     ]"
+                    [attr.aria-label]="'COMMON.BACK' | translate"
                 >
                     <icon class="flex">arrow_back</icon>
                 </a>

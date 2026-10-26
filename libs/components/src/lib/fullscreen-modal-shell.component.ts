@@ -35,7 +35,7 @@ import { TranslatePipe } from './translate.pipe';
                                 icon
                                 matRipple
                                 mat-dialog-close
-                                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                                [aria-label]="'COMMON.CLOSE' | translate"
                             >
                                 <icon>close</icon>
                             </button>

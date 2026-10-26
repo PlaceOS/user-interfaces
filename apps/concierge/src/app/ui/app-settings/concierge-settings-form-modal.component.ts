@@ -65,13 +65,19 @@ import { UploadButtonComponent } from './upload-button.component';
             <form class="flex flex-col space-y-8 pb-4">
                 <section general class="bg-base-100 space-y-2 rounded-sm">
                     <div>
-                        <label for="logo_light">Light Mode Logo</label>
+                        <label for="concierge-settings-form-modal-logo_light"
+                            >Light Mode Logo</label
+                        >
                         <div class="mb-4 flex items-center space-x-2">
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input matInput [formField]="form.logo_light" />
+                                <input
+                                    id="concierge-settings-form-modal-logo_light"
+                                    matInput
+                                    [formField]="form.logo_light"
+                                />
                             </mat-form-field>
                             <upload-button
                                 ngModel
@@ -86,13 +92,19 @@ import { UploadButtonComponent } from './upload-button.component';
                         </div>
                     </div>
                     <div>
-                        <label for="logo_dark">Dark Mode Logo</label>
+                        <label for="concierge-settings-form-modal-logo_dark"
+                            >Dark Mode Logo</label
+                        >
                         <div class="mb-4 flex items-center space-x-2">
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input matInput [formField]="form.logo_dark" />
+                                <input
+                                    id="concierge-settings-form-modal-logo_dark"
+                                    matInput
+                                    [formField]="form.logo_dark"
+                                />
                             </mat-form-field>
                             <upload-button
                                 ngModel
@@ -107,9 +119,17 @@ import { UploadButtonComponent } from './upload-button.component';
                         </div>
                     </div>
                     <div>
-                        <label for="features">Features</label>
+                        <label
+                            for="concierge-settings-form-modal-features"
+                            id="concierge-settings-form-modal-features-label"
+                            >Features</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
-                            <mat-select [formField]="form.features" multiple>
+                            <mat-select
+                                aria-labelledby="concierge-settings-form-modal-features-label"
+                                [formField]="form.features"
+                                multiple
+                            >
                                 <mat-option value="zones"> Zones </mat-option>
                                 <mat-option value="maps"> Maps </mat-option>
                                 <mat-option value="spaces"> Rooms </mat-option>
@@ -202,12 +222,17 @@ import { UploadButtonComponent } from './upload-button.component';
                         </h3>
                         <div class="flex items-center space-x-4">
                             <div class="flex-1">
-                                <label for="banner-type">Type</label>
+                                <label
+                                    for="concierge-settings-form-modal-banner-type"
+                                    id="concierge-settings-form-modal-banner-type-label"
+                                    >Type</label
+                                >
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
                                 >
                                     <mat-select
+                                        aria-labelledby="concierge-settings-form-modal-banner-type-label"
                                         name="banner-type"
                                         [ngModel]="model().banner?.type || ''"
                                         (ngModelChange)="
@@ -237,12 +262,16 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </mat-form-field>
                             </div>
                             <div class="flex-1">
-                                <label for="banner-type">Message</label>
+                                <label
+                                    for="concierge-settings-form-modal-banner-type-2"
+                                    >Message</label
+                                >
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
                                 >
                                     <input
+                                        id="concierge-settings-form-modal-banner-type-2"
                                         matInput
                                         placeholder="Banner Message"
                                         [ngModel]="
@@ -267,9 +296,12 @@ import { UploadButtonComponent } from './upload-button.component';
                         </div>
                     </div>
                     <div>
-                        <label for="default-route">Default Route</label>
+                        <label for="concierge-settings-form-modal-default-route"
+                            >Default Route</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="concierge-settings-form-modal-default-route"
                                 matInput
                                 [formField]="form.default_route"
                                 placeholder="/book/rooms/new"
@@ -279,11 +311,14 @@ import { UploadButtonComponent } from './upload-button.component';
                     </div>
                     @if (model().features.includes('events')) {
                         <div>
-                            <label for="group-events-calendar">
+                            <label
+                                for="concierge-settings-form-modal-group-events-calendar"
+                            >
                                 Group Events Calendar
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
+                                    id="concierge-settings-form-modal-group-events-calendar"
                                     matInput
                                     [formField]="form.group_events_calendar"
                                     placeholder="shared.events@calendar.acme.tech"
@@ -296,11 +331,13 @@ import { UploadButtonComponent } from './upload-button.component';
                     }
                     <div class="grid gap-4 md:grid-cols-2">
                         <div>
-                            <label for="workplace-url-path"
+                            <label
+                                for="concierge-settings-form-modal-workplace-url-path"
                                 >Workplace URL Path</label
                             >
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
+                                    id="concierge-settings-form-modal-workplace-url-path"
                                     matInput
                                     [formField]="form.workplace_url_path"
                                     placeholder="/workplace"
@@ -308,9 +345,13 @@ import { UploadButtonComponent } from './upload-button.component';
                             </mat-form-field>
                         </div>
                         <div>
-                            <label for="public-url-path">Public URL Path</label>
+                            <label
+                                for="concierge-settings-form-modal-public-url-path"
+                                >Public URL Path</label
+                            >
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
+                                    id="concierge-settings-form-modal-public-url-path"
                                     matInput
                                     [formField]="form.public_url_path"
                                     placeholder="/public"
@@ -318,11 +359,13 @@ import { UploadButtonComponent } from './upload-button.component';
                             </mat-form-field>
                         </div>
                         <div>
-                            <label for="kiosk-url-path"
+                            <label
+                                for="concierge-settings-form-modal-kiosk-url-path"
                                 >Map Kiosk URL Path</label
                             >
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
+                                    id="concierge-settings-form-modal-kiosk-url-path"
                                     matInput
                                     [formField]="form.kiosk_url_path"
                                     placeholder="/map-kiosk"
@@ -332,9 +375,13 @@ import { UploadButtonComponent } from './upload-button.component';
                     </div>
                     <div class="grid gap-4 md:grid-cols-2">
                         <div>
-                            <label for="control-path">Control URL Path</label>
+                            <label
+                                for="concierge-settings-form-modal-control-path"
+                                >Control URL Path</label
+                            >
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
+                                    id="concierge-settings-form-modal-control-path"
                                     matInput
                                     [formField]="form.control_path"
                                     placeholder="/control"
@@ -343,11 +390,13 @@ import { UploadButtonComponent } from './upload-button.component';
                         </div>
                     </div>
                     <div>
-                        <label for="short-url-public-key"
+                        <label
+                            for="concierge-settings-form-modal-short-url-public-key"
                             >Short URL Public Key</label
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="concierge-settings-form-modal-short-url-public-key"
                                 matInput
                                 [formField]="form.short_url_public_key"
                                 placeholder="your-short-url-public-key"
@@ -355,9 +404,14 @@ import { UploadButtonComponent } from './upload-button.component';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="week-start">Week Start</label>
+                        <label
+                            for="concierge-settings-form-modal-week-start"
+                            id="concierge-settings-form-modal-week-start-label"
+                            >Week Start</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                aria-labelledby="concierge-settings-form-modal-week-start-label"
                                 [formField]="form.week_start"
                                 placeholder="Sunday"
                             >
@@ -374,9 +428,14 @@ import { UploadButtonComponent } from './upload-button.component';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="currency">Currency</label>
+                        <label
+                            for="concierge-settings-form-modal-currency"
+                            id="concierge-settings-form-modal-currency-label"
+                            >Currency</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                aria-labelledby="concierge-settings-form-modal-currency-label"
                                 [formField]="form.currency"
                                 placeholder="Select currency code"
                                 (openedChange)="
@@ -460,6 +519,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Room Bookings"
+                            [attr.aria-expanded]="shown_group() === 'spaces'"
                             (click)="toggleGroup('spaces')"
                         >
                             <icon>{{
@@ -474,7 +535,10 @@ import { UploadButtonComponent } from './upload-button.component';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div class="flex-1">
-                                    <label for="day-timeline-view">
+                                    <label
+                                        for="concierge-settings-form-modal-day-timeline-view"
+                                        id="concierge-settings-form-modal-day-timeline-view-label"
+                                    >
                                         Day Timeline Default View
                                     </label>
                                     <mat-form-field
@@ -482,6 +546,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="concierge-settings-form-modal-day-timeline-view-label"
                                             [formField]="
                                                 form.events.day_timeline_view
                                             "
@@ -504,7 +569,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="flex items-center space-x-4">
                                     <div class="flex-1">
-                                        <label for="block-start"
+                                        <label
+                                            for="concierge-settings-form-modal-block-start"
+                                            id="concierge-settings-form-modal-block-start-label"
                                             >Block Start Time</label
                                         >
                                         <mat-form-field
@@ -512,6 +579,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-block-start-label"
                                                 [formField]="
                                                     form.events.block_start
                                                 "
@@ -535,7 +603,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                     <div class="flex-1">
-                                        <label for="block-end"
+                                        <label
+                                            for="concierge-settings-form-modal-block-end"
+                                            id="concierge-settings-form-modal-block-end-label"
                                             >Block End Time</label
                                         >
                                         <mat-form-field
@@ -543,6 +613,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-block-end-label"
                                                 [formField]="
                                                     form.events.block_end
                                                 "
@@ -568,7 +639,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="flex items-center space-x-4">
                                     <div class="flex-1">
-                                        <label for="block-height">
+                                        <label
+                                            for="concierge-settings-form-modal-block-height"
+                                            id="concierge-settings-form-modal-block-height-label"
+                                        >
                                             Block Height
                                         </label>
                                         <mat-form-field
@@ -576,6 +650,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-block-height-label"
                                                 [formField]="
                                                     form.events.block_height
                                                 "
@@ -598,7 +673,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                     <div class="flex-1">
-                                        <label for="max-duration">
+                                        <label
+                                            for="concierge-settings-form-modal-max-duration"
+                                            id="concierge-settings-form-modal-max-duration-label"
+                                        >
                                             Max Duration
                                         </label>
                                         <mat-form-field
@@ -606,6 +684,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-max-duration-label"
                                                 [formField]="
                                                     form.events.max_duration
                                                 "
@@ -630,7 +709,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     </div>
                                 </div>
                                 <div>
-                                    <label for="available-period">
+                                    <label
+                                        for="concierge-settings-form-modal-available-period"
+                                        id="concierge-settings-form-modal-available-period-label"
+                                    >
                                         Available Period
                                     </label>
                                     <mat-form-field
@@ -638,6 +720,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="concierge-settings-form-modal-available-period-label"
                                             [formField]="
                                                 form.events.available_period
                                             "
@@ -666,7 +749,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="events-bookable-start">
+                                        <label
+                                            for="concierge-settings-form-modal-events-bookable-start"
+                                            id="concierge-settings-form-modal-events-bookable-start-label"
+                                        >
                                             Bookable Start
                                         </label>
                                         <mat-form-field
@@ -674,6 +760,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-events-bookable-start-label"
                                                 [formField]="
                                                     form.events.bookable_hours
                                                         .start
@@ -694,7 +781,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="events-bookable-end">
+                                        <label
+                                            for="concierge-settings-form-modal-events-bookable-end"
+                                            id="concierge-settings-form-modal-events-bookable-end-label"
+                                        >
                                             Bookable End
                                         </label>
                                         <mat-form-field
@@ -702,6 +792,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-events-bookable-end-label"
                                                 [formField]="
                                                     form.events.bookable_hours
                                                         .end
@@ -809,7 +900,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="events-all-day-start">
+                                        <label
+                                            for="concierge-settings-form-modal-events-all-day-start"
+                                            id="concierge-settings-form-modal-events-all-day-start-label"
+                                        >
                                             All Day Start
                                         </label>
                                         <mat-form-field
@@ -817,6 +911,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-events-all-day-start-label"
                                                 [formField]="
                                                     form.events.all_day_period
                                                         .start
@@ -838,7 +933,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="events-all-day-end">
+                                        <label
+                                            for="concierge-settings-form-modal-events-all-day-end"
+                                            id="concierge-settings-form-modal-events-all-day-end-label"
+                                        >
                                             All Day End
                                         </label>
                                         <mat-form-field
@@ -846,6 +944,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-events-all-day-end-label"
                                                 [formField]="
                                                     form.events.all_day_period
                                                         .end
@@ -886,6 +985,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Desk Assignments"
+                            [attr.aria-expanded]="shown_group() === 'desks'"
                             (click)="toggleGroup('desks')"
                         >
                             <icon>{{
@@ -900,7 +1001,9 @@ import { UploadButtonComponent } from './upload-button.component';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div>
-                                    <label for="desks-max-assigned-count">
+                                    <label
+                                        for="concierge-settings-form-modal-desks-max-assigned-count"
+                                    >
                                         Max Assigned Desks Per User
                                     </label>
                                     <mat-form-field
@@ -908,6 +1011,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <input
+                                            id="concierge-settings-form-modal-desks-max-assigned-count"
                                             matInput
                                             type="number"
                                             [formField]="
@@ -940,6 +1044,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Visitors"
+                            [attr.aria-expanded]="shown_group() === 'visitors'"
                             (click)="toggleGroup('visitors')"
                         >
                             <icon>{{
@@ -957,7 +1063,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="visitors-bookable-start">
+                                        <label
+                                            for="concierge-settings-form-modal-visitors-bookable-start"
+                                            id="concierge-settings-form-modal-visitors-bookable-start-label"
+                                        >
                                             Bookable Start
                                         </label>
                                         <mat-form-field
@@ -965,6 +1074,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-visitors-bookable-start-label"
                                                 [formField]="
                                                     form.visitors.bookable_hours
                                                         .start
@@ -986,7 +1096,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="visitors-bookable-end">
+                                        <label
+                                            for="concierge-settings-form-modal-visitors-bookable-end"
+                                            id="concierge-settings-form-modal-visitors-bookable-end-label"
+                                        >
                                             Bookable End
                                         </label>
                                         <mat-form-field
@@ -994,6 +1107,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-visitors-bookable-end-label"
                                                 [formField]="
                                                     form.visitors.bookable_hours
                                                         .end
@@ -1015,7 +1129,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                 </div>
-                                <label for="hide-fields"
+                                <label
+                                    for="concierge-settings-form-modal-hide-fields"
+                                    id="concierge-settings-form-modal-hide-fields-label"
                                     >Hide Guest List fields</label
                                 >
                                 <mat-form-field
@@ -1023,6 +1139,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                     class="w-full"
                                 >
                                     <mat-select
+                                        aria-labelledby="concierge-settings-form-modal-hide-fields-label"
                                         [formField]="form.visitors.hide_fields"
                                         placeholder="No fields selected"
                                         multiple
@@ -1062,7 +1179,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         listing table
                                     </mat-hint>
                                 </mat-form-field>
-                                <label for="all-visitors-action-window">
+                                <label
+                                    for="concierge-settings-form-modal-all-visitors-action-window"
+                                >
                                     Check-in/out all visitors action window
                                 </label>
                                 <mat-form-field
@@ -1070,6 +1189,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                     class="w-full"
                                 >
                                     <input
+                                        id="concierge-settings-form-modal-all-visitors-action-window"
                                         matInput
                                         type="number"
                                         [formField]="
@@ -1143,6 +1263,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="PlaceOS Bookings"
+                            [attr.aria-expanded]="shown_group() === 'bookings'"
                             (click)="toggleGroup('bookings')"
                         >
                             <icon>{{
@@ -1157,7 +1279,10 @@ import { UploadButtonComponent } from './upload-button.component';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div>
-                                    <label for="available-period">
+                                    <label
+                                        for="concierge-settings-form-modal-available-period-2"
+                                        id="concierge-settings-form-modal-available-period-2-label"
+                                    >
                                         Available Period
                                     </label>
                                     <mat-form-field
@@ -1165,6 +1290,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="concierge-settings-form-modal-available-period-2-label"
                                             [formField]="
                                                 form.bookings.available_period
                                             "
@@ -1192,7 +1318,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     </mat-form-field>
                                 </div>
                                 <div>
-                                    <label for="max-duration">
+                                    <label
+                                        for="concierge-settings-form-modal-max-duration-2"
+                                        id="concierge-settings-form-modal-max-duration-2-label"
+                                    >
                                         Max Duration
                                     </label>
                                     <mat-form-field
@@ -1200,6 +1329,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="concierge-settings-form-modal-max-duration-2-label"
                                             [formField]="
                                                 form.bookings.max_duration
                                             "
@@ -1223,7 +1353,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="bookings-bookable-start">
+                                        <label
+                                            for="concierge-settings-form-modal-bookings-bookable-start"
+                                            id="concierge-settings-form-modal-bookings-bookable-start-label"
+                                        >
                                             Bookable Start
                                         </label>
                                         <mat-form-field
@@ -1231,6 +1364,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-bookings-bookable-start-label"
                                                 [formField]="
                                                     form.bookings.bookable_hours
                                                         .start
@@ -1251,7 +1385,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="bookings-bookable-end">
+                                        <label
+                                            for="concierge-settings-form-modal-bookings-bookable-end"
+                                            id="concierge-settings-form-modal-bookings-bookable-end-label"
+                                        >
                                             Bookable End
                                         </label>
                                         <mat-form-field
@@ -1259,6 +1396,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-bookings-bookable-end-label"
                                                 [formField]="
                                                     form.bookings.bookable_hours
                                                         .end
@@ -1297,7 +1435,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="bookings-all-day-start">
+                                        <label
+                                            for="concierge-settings-form-modal-bookings-all-day-start"
+                                            id="concierge-settings-form-modal-bookings-all-day-start-label"
+                                        >
                                             All Day Start
                                         </label>
                                         <mat-form-field
@@ -1305,6 +1446,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-bookings-all-day-start-label"
                                                 [formField]="
                                                     form.bookings.all_day_period
                                                         .start
@@ -1325,7 +1467,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="bookings-all-day-end">
+                                        <label
+                                            for="concierge-settings-form-modal-bookings-all-day-end"
+                                            id="concierge-settings-form-modal-bookings-all-day-end-label"
+                                        >
                                             All Day End
                                         </label>
                                         <mat-form-field
@@ -1333,6 +1478,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-bookings-all-day-end-label"
                                                 [formField]="
                                                     form.bookings.all_day_period
                                                         .end
@@ -1375,6 +1521,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Parking"
+                            [attr.aria-expanded]="shown_group() === 'parking'"
                             (click)="toggleGroup('parking')"
                         >
                             <icon>{{
@@ -1389,7 +1537,10 @@ import { UploadButtonComponent } from './upload-button.component';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div>
-                                    <label for="available-period">
+                                    <label
+                                        for="concierge-settings-form-modal-available-period-3"
+                                        id="concierge-settings-form-modal-available-period-3-label"
+                                    >
                                         Available Period
                                     </label>
                                     <mat-form-field
@@ -1397,6 +1548,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="concierge-settings-form-modal-available-period-3-label"
                                             [formField]="
                                                 form.parking.available_period
                                             "
@@ -1418,7 +1570,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     </mat-form-field>
                                 </div>
                                 <div>
-                                    <label for="max-duration">
+                                    <label
+                                        for="concierge-settings-form-modal-max-duration-3"
+                                        id="concierge-settings-form-modal-max-duration-3-label"
+                                    >
                                         Max Duration
                                     </label>
                                     <mat-form-field
@@ -1426,6 +1581,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="concierge-settings-form-modal-max-duration-3-label"
                                             [formField]="
                                                 form.parking.max_duration
                                             "
@@ -1446,7 +1602,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                     </mat-form-field>
                                 </div>
                                 <div>
-                                    <label for="parking-max-assigned-count">
+                                    <label
+                                        for="concierge-settings-form-modal-parking-max-assigned-count"
+                                    >
                                         Max Assigned Parking Spaces Per User
                                     </label>
                                     <mat-form-field
@@ -1454,6 +1612,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <input
+                                            id="concierge-settings-form-modal-parking-max-assigned-count"
                                             matInput
                                             type="number"
                                             [formField]="
@@ -1471,7 +1630,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="parking-bookable-start">
+                                        <label
+                                            for="concierge-settings-form-modal-parking-bookable-start"
+                                            id="concierge-settings-form-modal-parking-bookable-start-label"
+                                        >
                                             Bookable Start
                                         </label>
                                         <mat-form-field
@@ -1479,6 +1641,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-parking-bookable-start-label"
                                                 [formField]="
                                                     form.parking.bookable_hours
                                                         .start
@@ -1499,7 +1662,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="parking-bookable-end">
+                                        <label
+                                            for="concierge-settings-form-modal-parking-bookable-end"
+                                            id="concierge-settings-form-modal-parking-bookable-end-label"
+                                        >
                                             Bookable End
                                         </label>
                                         <mat-form-field
@@ -1507,6 +1673,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-parking-bookable-end-label"
                                                 [formField]="
                                                     form.parking.bookable_hours
                                                         .end
@@ -1630,6 +1797,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Locker Bookings"
+                            [attr.aria-expanded]="shown_group() === 'lockers'"
                             (click)="toggleGroup('lockers')"
                         >
                             <icon>{{
@@ -1644,7 +1813,10 @@ import { UploadButtonComponent } from './upload-button.component';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div>
-                                    <label for="available-period">
+                                    <label
+                                        for="concierge-settings-form-modal-available-period-4"
+                                        id="concierge-settings-form-modal-available-period-4-label"
+                                    >
                                         Available Period
                                     </label>
                                     <mat-form-field
@@ -1652,6 +1824,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="concierge-settings-form-modal-available-period-4-label"
                                             [formField]="
                                                 form.lockers.available_period
                                             "
@@ -1673,7 +1846,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     </mat-form-field>
                                 </div>
                                 <div>
-                                    <label for="max-duration">
+                                    <label
+                                        for="concierge-settings-form-modal-max-duration-4"
+                                        id="concierge-settings-form-modal-max-duration-4-label"
+                                    >
                                         Max Duration
                                     </label>
                                     <mat-form-field
@@ -1681,6 +1857,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="concierge-settings-form-modal-max-duration-4-label"
                                             [formField]="
                                                 form.lockers.max_duration
                                             "
@@ -1701,7 +1878,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="lockers-bookable-start">
+                                        <label
+                                            for="concierge-settings-form-modal-lockers-bookable-start"
+                                            id="concierge-settings-form-modal-lockers-bookable-start-label"
+                                        >
                                             Bookable Start
                                         </label>
                                         <mat-form-field
@@ -1709,6 +1889,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-lockers-bookable-start-label"
                                                 [formField]="
                                                     form.lockers.bookable_hours
                                                         .start
@@ -1729,7 +1910,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="lockers-bookable-end">
+                                        <label
+                                            for="concierge-settings-form-modal-lockers-bookable-end"
+                                            id="concierge-settings-form-modal-lockers-bookable-end-label"
+                                        >
                                             Bookable End
                                         </label>
                                         <mat-form-field
@@ -1737,6 +1921,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="concierge-settings-form-modal-lockers-bookable-end-label"
                                                 [formField]="
                                                     form.lockers.bookable_hours
                                                         .end

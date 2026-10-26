@@ -80,7 +80,7 @@ import {
         </ng-template>
         <ng-template #image_template let-data="data">
             @if (data.length) {
-                <img auth [source]="data[0]" class="max-h-12 max-w-32" />
+                <img alt="" auth [source]="data[0]" class="max-h-12 max-w-32" />
             }
             @if (!data.length) {
                 <span class="opacity-30">{{
@@ -90,7 +90,13 @@ import {
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center p-2">
-                <button icon default matRipple [matMenuTriggerFor]="menu">
+                <button
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                >
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">

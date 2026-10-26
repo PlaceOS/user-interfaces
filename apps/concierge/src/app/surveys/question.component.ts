@@ -176,6 +176,9 @@ import { QuestionType, QuestionTypeOptions } from './types';
                                                 matRipple
                                                 class="border-error text-error h-12 min-w-12 rounded-sm border"
                                                 (click)="deleteOption(i)"
+                                                [attr.aria-label]="
+                                                    'COMMON.DELETE' | translate
+                                                "
                                             >
                                                 <icon> delete_outline</icon>
                                             </button>

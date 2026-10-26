@@ -51,7 +51,8 @@ export interface TableColumn {
                 <div #table_header table-header role="row">
                     @if (selectable()) {
                         <div
-                            id="column-selector"
+                            row-selector
+                            role="columnheader"
                             class="border-base-200 bg-base-300 sticky top-0 z-20 flex min-h-full items-center justify-between border-r border-b px-2"
                             [style.gridColumn]="'1 / 2'"
                         >
@@ -147,7 +148,8 @@ export interface TableColumn {
                     @if (selectable()) {
                         @let key = rowKey(row);
                         <div
-                            id="column-selector"
+                            row-selector
+                            role="cell"
                             class="border-base-200 z-10 flex min-h-full items-center justify-between border-r px-2"
                             [style.gridColumn]="'1 / 2'"
                             [class.border-b]="

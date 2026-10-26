@@ -14,7 +14,11 @@ import {
     template: `
         <header>
             <h2>{{ 'APP.CONCIERGE.SHORTCUTS_TITLE' | translate }}</h2>
-            <button icon mat-dialog-close>
+            <button
+                icon
+                mat-dialog-close
+                [aria-label]="'COMMON.CLOSE' | translate"
+            >
                 <icon>close</icon>
             </button>
         </header>

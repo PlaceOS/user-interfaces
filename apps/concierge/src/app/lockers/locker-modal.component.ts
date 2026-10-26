@@ -66,16 +66,24 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button
+                        icon
+                        matRipple
+                        mat-dialog-close
+                        [aria-label]="'COMMON.CLOSE' | translate"
+                    >
                         <icon>close</icon>
                     </button>
                 }
             </header>
             @if (!loading()) {
                 <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
-                    <label for="name">{{ 'FORM.NAME' | translate }}</label>
+                    <label for="locker-modal-name">{{
+                        'FORM.NAME' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="locker-modal-name"
                             matInput
                             [formField]="form.name"
                             [placeholder]="'FORM.NAME' | translate"
@@ -84,11 +92,15 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             'FORM.NAME_REQUIRED' | translate
                         }}</mat-error>
                     </mat-form-field>
-                    <label for="user">{{
-                        'APP.CONCIERGE.USER_ASSIGNED' | translate
-                    }}</label>
+                    <label
+                        for="locker-modal-user"
+                        id="locker-modal-user-label"
+                        >{{ 'APP.CONCIERGE.USER_ASSIGNED' | translate }}</label
+                    >
                     <div class="mb-4 flex space-x-2">
                         <a-user-search-field
+                            role="group"
+                            aria-labelledby="locker-modal-user-label"
                             [formField]="form.assigned_user"
                             class="flex-1"
                         ></a-user-search-field>
@@ -100,6 +112,9 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
                             (click)="clearUser()"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.USER_CLEAR' | translate
+                            "
                         >
                             <icon className="material-symbols-outlined">
                                 person_cancel
@@ -122,8 +137,9 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     </div>
                     <div class="mb-1 flex space-x-4">
                         <div class="flex-1">
-                            <label for="row">Start Column</label>
+                            <label for="locker-modal-row">Start Column</label>
                             <a-counter
+                                input_id="locker-modal-row"
                                 [ngModel]="model().position[0] + 1"
                                 (ngModelChange)="
                                     model.update((m) => ({
@@ -137,8 +153,9 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             ></a-counter>
                         </div>
                         <div class="flex-1">
-                            <label for="column">Start Row</label>
+                            <label for="locker-modal-column">Start Row</label>
                             <a-counter
+                                input_id="locker-modal-column"
                                 [ngModel]="model().position[1] + 1"
                                 (ngModelChange)="
                                     model.update((m) => ({
@@ -163,10 +180,11 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     </div>
                     <div class="mb-1 flex space-x-4">
                         <div class="flex-1">
-                            <label for="row">{{
+                            <label for="locker-modal-row-2">{{
                                 'COMMON.WIDTH' | translate
                             }}</label>
                             <a-counter
+                                input_id="locker-modal-row-2"
                                 [ngModel]="model().size[0]"
                                 (ngModelChange)="
                                     model.update((m) => ({
@@ -181,10 +199,11 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             ></a-counter>
                         </div>
                         <div class="flex-1">
-                            <label for="column">{{
+                            <label for="locker-modal-column-2">{{
                                 'COMMON.HEIGHT' | translate
                             }}</label>
                             <a-counter
+                                input_id="locker-modal-column-2"
                                 [ngModel]="model().size[1]"
                                 (ngModelChange)="
                                     model.update((m) => ({
@@ -208,15 +227,18 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     >
                         {{ 'APP.CONCIERGE.LOCKERS_SIZE_INVALID' | translate }}
                     </div>
-                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <label for="locker-modal-notes">{{
+                        'FORM.NOTES' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
+                            id="locker-modal-notes"
                             matInput
                             [formField]="form.notes"
                             [placeholder]="'FORM.NOTES' | translate"
                         ></textarea>
                     </mat-form-field>
-                    <label for="features">
+                    <label for="locker-modal-features">
                         {{ 'COMMON.FEATURES' | translate }}
                     </label>
                     <mat-form-field appearance="outline" class="w-full">
@@ -242,6 +264,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             }
                         </mat-chip-grid>
                         <input
+                            id="locker-modal-features"
                             [placeholder]="'COMMON.FEATURES' | translate"
                             [matChipInputFor]="chipList"
                             [matChipInputSeparatorKeyCodes]="separators"

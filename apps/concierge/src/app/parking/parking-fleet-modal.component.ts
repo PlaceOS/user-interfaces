@@ -36,18 +36,24 @@ import { ParkingFleetVehicle } from './parking-state.service';
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button
+                        icon
+                        matRipple
+                        mat-dialog-close
+                        [aria-label]="'COMMON.CLOSE' | translate"
+                    >
                         <icon>close</icon>
                     </button>
                 }
             </header>
             @if (!loading()) {
                 <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
-                    <label for="name">{{
+                    <label for="parking-fleet-modal-name">{{
                         'APP.CONCIERGE.PARKING_FLEET' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="parking-fleet-modal-name"
                             matInput
                             [formField]="form.name"
                             [placeholder]="
@@ -60,11 +66,12 @@ import { ParkingFleetVehicle } from './parking-state.service';
                     </mat-form-field>
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
-                            <label for="plate-number">{{
+                            <label for="parking-fleet-modal-plate-number">{{
                                 'BOOKINGS.PARKING_PLATE_NUMBER' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
+                                    id="parking-fleet-modal-plate-number"
                                     matInput
                                     [formField]="form.plate_number"
                                     [placeholder]="
@@ -79,11 +86,12 @@ import { ParkingFleetVehicle } from './parking-state.service';
                             </mat-form-field>
                         </div>
                         <div class="w-1/3 flex-1">
-                            <label for="car-model">{{
+                            <label for="parking-fleet-modal-car-model">{{
                                 'APP.CONCIERGE.PARKING_FLEET_MODEL' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
+                                    id="parking-fleet-modal-car-model"
                                     matInput
                                     [formField]="form.car_model"
                                     [placeholder]="
@@ -94,11 +102,12 @@ import { ParkingFleetVehicle } from './parking-state.service';
                             </mat-form-field>
                         </div>
                     </div>
-                    <label for="car-colour">{{
+                    <label for="parking-fleet-modal-car-colour">{{
                         'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
+                            id="parking-fleet-modal-car-colour"
                             matInput
                             [formField]="form.car_colour"
                             [placeholder]="
@@ -106,9 +115,12 @@ import { ParkingFleetVehicle } from './parking-state.service';
                             "
                         />
                     </mat-form-field>
-                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <label for="parking-fleet-modal-notes">{{
+                        'FORM.NOTES' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
+                            id="parking-fleet-modal-notes"
                             matInput
                             [formField]="form.notes"
                             [placeholder]="'FORM.NOTES' | translate"

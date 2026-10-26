@@ -21,7 +21,12 @@ import { EmergencyContactsService } from './emergency-contacts.service';
                 {{ 'APP.CONCIERGE.CONTACTS_ROLES_MANAGE' | translate }}
             </h2>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button
+                    icon
+                    matRipple
+                    mat-dialog-close
+                    [aria-label]="'COMMON.CLOSE' | translate"
+                >
                     <icon>close</icon>
                 </button>
             }
@@ -39,6 +44,7 @@ import { EmergencyContactsService } from './emergency-contacts.service';
                         (click)="active.set(role); role_name.set(role)"
                         customTooltip
                         [content]="role_form"
+                        [attr.aria-label]="'COMMON.EDIT' | translate"
                     >
                         <icon>edit</icon>
                     </button>
@@ -47,6 +53,7 @@ import { EmergencyContactsService } from './emergency-contacts.service';
                         matRipple
                         class="border-error text-error h-12 w-12 rounded-sm border"
                         (click)="removeRole(role)"
+                        [attr.aria-label]="'COMMON.DELETE' | translate"
                     >
                         <icon>delete</icon>
                     </button>

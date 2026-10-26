@@ -79,6 +79,7 @@ const EMPTY = [];
                             icon
                             matRipple
                             [routerLink]="['/entertainment', 'events']"
+                            [attr.aria-label]="'COMMON.CLOSE' | translate"
                         >
                             <icon>close</icon>
                         </a>
@@ -88,11 +89,12 @@ const EMPTY = [];
                     class="mx-auto my-2 flex w-160 max-w-full flex-col px-4 pb-16"
                 >
                     <section class="flex flex-col space-y-2">
-                        <label for="title"
+                        <label for="event-manage-title"
                             >{{ 'FORM.TITLE' | translate }}<span>*</span></label
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="event-manage-title"
                                 matInput
                                 [formField]="form.title"
                                 placeholder="e.g. Team Meeting"
@@ -101,15 +103,19 @@ const EMPTY = [];
                                 {{ 'FORM.TITLE_REQUIRED' | translate }}
                             </mat-error>
                         </mat-form-field>
-                        <label for="host"
+                        <label
+                            for="event-manage-host"
+                            id="event-manage-host-label"
                             >{{ 'FORM.HOST' | translate }}<span>*</span></label
                         >
                         <div class="pb-4">
                             <a-user-search-field
+                                role="group"
+                                aria-labelledby="event-manage-host-label"
                                 [formField]="form.organiser"
                             ></a-user-search-field>
                         </div>
-                        <label for="tags">{{
+                        <label for="event-manage-tags">{{
                             'COMMON.TAGS' | translate
                         }}</label>
                         <mat-form-field
@@ -127,6 +133,7 @@ const EMPTY = [];
                                     </mat-chip-row>
                                 }
                                 <input
+                                    id="event-manage-tags"
                                     placeholder="Add new tags relevant to this event..."
                                     [matChipInputFor]="chipList"
                                     [matChipInputSeparatorKeyCodes]="separators"
@@ -170,10 +177,15 @@ const EMPTY = [];
                         </h3>
                         <div class="flex flex-wrap items-center sm:space-x-2">
                             <div class="relative min-w-[256px] flex-1">
-                                <label for="date">
+                                <label
+                                    for="event-manage-date"
+                                    id="event-manage-date-label"
+                                >
                                     {{ 'FORM.DATE' | translate }}<span>*</span>
                                 </label>
                                 <a-date-field
+                                    role="group"
+                                    aria-labelledby="event-manage-date-label"
                                     [formField]="form.date"
                                     [to]="end_date"
                                 >
@@ -181,11 +193,16 @@ const EMPTY = [];
                                 </a-date-field>
                             </div>
                             <div class="relative min-w-[256px] flex-1">
-                                <label for="date">
+                                <label
+                                    for="event-manage-date-2"
+                                    id="event-manage-date-2-label"
+                                >
                                     {{ 'FORM.DATE_END' | translate }}
                                     <span>*</span>
                                 </label>
                                 <a-date-field
+                                    role="group"
+                                    aria-labelledby="event-manage-date-2-label"
                                     [formField]="form.date_end"
                                     [from]="start_date()"
                                     [to]="end_date"
@@ -197,11 +214,16 @@ const EMPTY = [];
                         @if (!model().all_day) {
                             <div class="flex items-center space-x-2">
                                 <div class="w-1/3 flex-1">
-                                    <label for="start-time">
+                                    <label
+                                        for="event-manage-start-time"
+                                        id="event-manage-start-time-label"
+                                    >
                                         {{ 'FORM.TIME_START' | translate }}
                                         <span>*</span>
                                     </label>
                                     <a-time-field
+                                        role="group"
+                                        aria-labelledby="event-manage-start-time-label"
                                         name="start-time"
                                         [ngModel]="model().date"
                                         (ngModelChange)="
@@ -218,11 +240,16 @@ const EMPTY = [];
                                     ></a-time-field>
                                 </div>
                                 <div class="w-1/3 flex-1">
-                                    <label for="end-time">
+                                    <label
+                                        for="event-manage-end-time"
+                                        id="event-manage-end-time-label"
+                                    >
                                         {{ 'FORM.TIME_END' | translate }}
                                         <span>*</span>
                                     </label>
                                     <a-time-field
+                                        role="group"
+                                        aria-labelledby="event-manage-end-time-label"
                                         name="end-time"
                                         [ngModel]="
                                             model().date_end ||
@@ -246,12 +273,13 @@ const EMPTY = [];
                             </div>
                         }
                         <div class="flex flex-col">
-                            <label for="display-name">
+                            <label for="event-manage-display-name">
                                 {{ 'COMMON.TIMEZONE' | translate }}
                             </label>
                             <mat-form-field appearance="outline">
                                 <icon matPrefix class="text-2xl"> search </icon>
                                 <input
+                                    id="event-manage-display-name"
                                     matInput
                                     [formField]="form.timezone"
                                     [placeholder]="
@@ -350,11 +378,15 @@ const EMPTY = [];
                             </button>
                         </div>
                         @if (model().attendance_type !== 'ONLINE') {
-                            <label for="location">
+                            <label
+                                for="event-manage-location"
+                                id="event-manage-location-label"
+                            >
                                 {{ 'RESOURCE.BUILDING' | translate }}
                             </label>
                             <mat-form-field appearance="outline">
                                 <mat-select
+                                    aria-labelledby="event-manage-location-label"
                                     [ngModel]="building_zone"
                                     [ngModelOptions]="{ standalone: true }"
                                     (ngModelChange)="setBuilding($event)"
@@ -377,11 +409,16 @@ const EMPTY = [];
                             </mat-form-field>
                             <div class="flex space-x-2">
                                 <div class="flex flex-2 flex-col">
-                                    <label for="level">{{
-                                        'RESOURCE.LEVEL' | translate
-                                    }}</label>
+                                    <label
+                                        for="event-manage-level"
+                                        id="event-manage-level-label"
+                                        >{{
+                                            'RESOURCE.LEVEL' | translate
+                                        }}</label
+                                    >
                                     <mat-form-field appearance="outline">
                                         <mat-select
+                                            aria-labelledby="event-manage-level-label"
                                             [ngModel]="level_zone"
                                             [ngModelOptions]="{
                                                 standalone: true,
@@ -407,11 +444,16 @@ const EMPTY = [];
                                     </mat-form-field>
                                 </div>
                                 <div class="flex flex-3 flex-col">
-                                    <label for="level">{{
-                                        'RESOURCE.ROOM' | translate
-                                    }}</label>
+                                    <label
+                                        for="event-manage-level-2"
+                                        id="event-manage-level-2-label"
+                                        >{{
+                                            'RESOURCE.ROOM' | translate
+                                        }}</label
+                                    >
                                     <mat-form-field appearance="outline">
                                         <mat-select
+                                            aria-labelledby="event-manage-level-2-label"
                                             [(ngModel)]="resource"
                                             [ngModelOptions]="{
                                                 standalone: true,
@@ -452,18 +494,28 @@ const EMPTY = [];
                             {{ 'APP.CONCIERGE.EVENTS_INFO' | translate }}
                         </h3>
                         <ng-container>
-                            <label for="description">
+                            <label
+                                for="event-manage-description"
+                                id="event-manage-description-label"
+                            >
                                 {{ 'COMMON.DESCRIPTION' | translate }}
                             </label>
                             <div class="mb-16">
                                 <rich-text-input
+                                    role="group"
+                                    aria-labelledby="event-manage-description-label"
                                     [formField]="form.body"
                                 ></rich-text-input>
                             </div>
-                            <label for="images">
+                            <label
+                                for="event-manage-images"
+                                id="event-manage-images-label"
+                            >
                                 {{ 'COMMON.IMAGES' | translate }}
                             </label>
                             <image-list-field
+                                role="group"
+                                aria-labelledby="event-manage-images-label"
                                 [formField]="form.images"
                             ></image-list-field>
                         </ng-container>

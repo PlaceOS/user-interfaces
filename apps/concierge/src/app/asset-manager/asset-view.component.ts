@@ -49,6 +49,7 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                         icon
                         matRipple
                         [routerLink]="['/book/assets', 'list', 'items']"
+                        [attr.aria-label]="'COMMON.BACK' | translate"
                     >
                         <icon>arrow_back</icon>
                     </a>
@@ -262,6 +263,10 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                                             'APP.CONCIERGE.ASSETS_ITEM_ASSET_EDIT'
                                                 | translate
                                         "
+                                        [attr.aria-label]="
+                                            'APP.CONCIERGE.ASSETS_ITEM_ASSET_EDIT'
+                                                | translate
+                                        "
                                     >
                                         <icon>edit</icon>
                                     </a>
@@ -272,6 +277,10 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                                         error
                                         (click)="removeAsset(row)"
                                         [matTooltip]="
+                                            'APP.CONCIERGE.ASSETS_ITEM_ASSET_REMOVE'
+                                                | translate
+                                        "
+                                        [attr.aria-label]="
                                             'APP.CONCIERGE.ASSETS_ITEM_ASSET_REMOVE'
                                                 | translate
                                         "
@@ -403,6 +412,9 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                                             id: row.id,
                                             group_id: row?.id,
                                         }"
+                                        [attr.aria-label]="
+                                            'COMMON.EDIT' | translate
+                                        "
                                     >
                                         <icon class="text-lg">edit</icon>
                                     </a>
@@ -412,6 +424,9 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                                         matRipple
                                         error
                                         (click)="removePurchaseOrder(row)"
+                                        [attr.aria-label]="
+                                            'COMMON.DELETE' | translate
+                                        "
                                     >
                                         <icon class="text-lg">delete</icon>
                                     </button>

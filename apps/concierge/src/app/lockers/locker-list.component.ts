@@ -88,7 +88,13 @@ import { LockerStateService } from './locker-state.service';
         </ng-template>
         <ng-template #action_template let-row="row" let-data="data">
             <div class="flex w-full items-center justify-end space-x-2 px-2">
-                <button icon default matRipple [matMenuTriggerFor]="menu">
+                <button
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                >
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
@@ -128,6 +134,8 @@ import { LockerStateService } from './locker-state.service';
                     default
                     matRipple
                     [disabled]="!row.lockers?.length"
+                    [attr.aria-label]="'APP.CONCIERGE.LOCKERS_SHOW' | translate"
+                    [attr.aria-expanded]="!!show_children()[row.id]"
                     (click)="toggleChildren(row.id)"
                 >
                     <icon class="text-2xl">
@@ -283,7 +291,13 @@ import { LockerStateService } from './locker-state.service';
                 <div
                     class="flex w-full items-center justify-end space-x-2 px-2"
                 >
-                    <button icon default matRipple [matMenuTriggerFor]="locker_menu">
+                    <button
+                        icon
+                        default
+                        matRipple
+                        [matMenuTriggerFor]="locker_menu"
+                        [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                    >
                         <icon>more_vert</icon>
                     </button>
                 </div>

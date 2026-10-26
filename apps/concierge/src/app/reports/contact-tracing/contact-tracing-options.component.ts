@@ -45,6 +45,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                 [disabled]="!can_download()"
                 (click)="download.emit()"
+                aria-label="Download Report"
             >
                 <icon>download</icon>
             </button>
@@ -55,6 +56,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 [disabled]="!can_download()"
                 matTooltip="Print Report"
                 (click)="print()"
+                aria-label="Print Report"
             >
                 <icon>print</icon>
             </button>

@@ -49,7 +49,12 @@ import {
                         }}
                     </h2>
                     @if (!loading()) {
-                        <a icon matRipple [routerLink]="['/email-templates']">
+                        <a
+                            icon
+                            matRipple
+                            [routerLink]="['/email-templates']"
+                            [attr.aria-label]="'COMMON.CLOSE' | translate"
+                        >
                             <icon>close</icon>
                         </a>
                     }
@@ -59,7 +64,10 @@ import {
                 >
                     <div class="mb-2 flex items-center gap-2">
                         <div class="w-1/4 flex-1 gap-2">
-                            <label for="zone">
+                            <label
+                                for="email-template-manage-zone"
+                                id="email-template-manage-zone-label"
+                            >
                                 {{ 'RESOURCE.BUILDING' | translate }}
                             </label>
                             <mat-form-field
@@ -67,6 +75,7 @@ import {
                                 class="no-subscript w-full"
                             >
                                 <mat-select
+                                    aria-labelledby="email-template-manage-zone-label"
                                     [placeholder]="
                                         'COMMON.BUILDING_SELECT' | translate
                                     "
@@ -84,10 +93,16 @@ import {
                             </mat-form-field>
                         </div>
                         <div class="w-1/4 flex-1 gap-2">
-                            <label for="trigger">
+                            <label
+                                for="email-template-manage-trigger"
+                                id="email-template-manage-trigger-label"
+                            >
                                 {{ 'COMMON.TRIGGER' | translate }}
                             </label>
+                            <!-- Name is the label, then the selected trigger -->
                             <button
+                                id="email-template-manage-trigger"
+                                aria-labelledby="email-template-manage-trigger-label email-template-manage-trigger"
                                 type="button"
                                 class="inverse border-base-300 flex h-12 w-full items-center justify-between rounded-sm border px-2"
                                 btn

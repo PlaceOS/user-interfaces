@@ -79,6 +79,9 @@ import { ParkingStateService } from './parking-state.service';
                         [matTooltip]="
                             'APP.CONCIERGE.PARKING_FLEET_EDIT' | translate
                         "
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.PARKING_FLEET_EDIT' | translate
+                        "
                     >
                         <icon>edit</icon>
                     </button>
@@ -88,6 +91,9 @@ import { ParkingStateService } from './parking-state.service';
                         error
                         (click)="removeFleetVehicle(row)"
                         [matTooltip]="
+                            'APP.CONCIERGE.PARKING_FLEET_REMOVE' | translate
+                        "
+                        [attr.aria-label]="
                             'APP.CONCIERGE.PARKING_FLEET_REMOVE' | translate
                         "
                     >

@@ -129,6 +129,9 @@ import { LockerStateService } from './locker-state.service';
                     [matTooltip]="
                         'APP.CONCIERGE.LOCKERS_RELEASE_ALL' | translate
                     "
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.LOCKERS_RELEASE_ALL' | translate
+                    "
                 >
                     <icon>open_in_new</icon>
                 </button>
@@ -140,6 +143,9 @@ import { LockerStateService } from './locker-state.service';
                     matRipple
                     (click)="manageRestrictions()"
                     [matTooltip]="
+                        'APP.CONCIERGE.LOCKERS_BOOKING_RULES' | translate
+                    "
+                    [attr.aria-label]="
                         'APP.CONCIERGE.LOCKERS_BOOKING_RULES' | translate
                     "
                 >

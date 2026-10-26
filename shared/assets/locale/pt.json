@@ -262,7 +262,14 @@
         "CLEAR_SELECTION": "Limpar seleção",
         "BULK_LOADING": "Atualizando itens ({{ count }})...",
         "BULK_SUCCESS": "Itens atualizados: {{ count }}",
-        "BULK_PARTIAL": "{{ failed }} de {{ total }} itens não foram atualizados."
+        "BULK_PARTIAL": "{{ failed }} de {{ total }} itens não foram atualizados.",
+        "SELECT_DATE": "Selecionar data",
+        "HOME": "Início",
+        "CLOSE": "Fechar",
+        "MORE_OPTIONS": "Mais opções",
+        "SHOW_QR_CODE": "Mostrar código QR",
+        "UPLOAD_FILE": "Enviar arquivo",
+        "QR_CODE": "Código QR"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglês",
@@ -1849,7 +1856,10 @@
             "BULK_REJECT_MSG": "Rejeitar as reservas selecionadas ({{ count }})? Você não pode desfazer esta ação.",
             "UNSAVED_CHANGES_TITLE": "Descartar Alterações",
             "UNSAVED_CHANGES_MSG": "Você tem alterações não salvas. Se sair desta página, você as perderá.",
-            "UNSAVED_CHANGES_DISCARD": "Descartar"
+            "UNSAVED_CHANGES_DISCARD": "Descartar",
+            "LOCKERS_SHOW": "Mostrar armários",
+            "VISITORS_ID_IMAGE": "Documento do visitante",
+            "ASSETS_REQUEST_DETAILS": "Detalhes da solicitação de ativo"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacidade da sala",

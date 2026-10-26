@@ -26,7 +26,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 </span>
             </h2>
             @if (!loading()) {
-                <button icon mat-dialog-close>
+                <button
+                    icon
+                    mat-dialog-close
+                    [aria-label]="'COMMON.CLOSE' | translate"
+                >
                     <icon>close</icon>
                 </button>
             }

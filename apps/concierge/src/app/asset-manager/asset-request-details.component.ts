@@ -1,3 +1,4 @@
+import { A11yModule } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -25,22 +26,29 @@ import { SplitJoinPipe } from './split-join.pipe';
     selector: 'asset-request-details',
     template: `
         @if (request()) {
-            <div
-                class="fixed inset-0 z-50"
-                (click)="request.set(null); requestChange.emit(request())"
-            >
+            <div class="fixed inset-0 z-50" (click)="close()">
                 <div class="absolute inset-0 bg-black opacity-50"></div>
+                <!--
+                    Focus stays in the panel and returns on close. No
+                    aria-modal: the status menus render outside the panel
+                -->
                 <div
+                    role="dialog"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.ASSETS_REQUEST_DETAILS' | translate
+                    "
+                    cdkTrapFocus
+                    cdkTrapFocusAutoCapture
                     class="bg-base-100 absolute inset-y-0 right-0 w-[480px]"
                     (click)="$event.stopPropagation()"
+                    (keydown.escape)="close()"
                 >
                     <button
                         icon
                         matRipple
-                        (click)="
-                            request.set(null); requestChange.emit(request())
-                        "
+                        (click)="close()"
                         class="absolute top-1 right-1"
+                        [attr.aria-label]="'COMMON.CLOSE' | translate"
                     >
                         <icon>close</icon>
                     </button>
@@ -276,6 +284,7 @@ import { SplitJoinPipe } from './split-join.pipe';
     `,
     styles: [``],
     imports: [
+        A11yModule,
         CommonModule,
         MatMenuModule,
         TranslatePipe,
@@ -301,6 +310,12 @@ export class AssetRequestDetailsComponent {
         () => this.request()?.extension_data?.request?.items || [],
     );
     public readonly time_format = computed(() => this._settings.time_format);
+
+    /** Close the details panel and tell the parent */
+    public close() {
+        this.request.set(null);
+        this.requestChange.emit(null);
+    }
 
     public async setStatus(status: string) {
         this.loading.set(true);

@@ -29,6 +29,7 @@ import { EventsStateService } from './events-state.service';
                 icon
                 matRipple
                 data-shortcut="search"
+                [attr.aria-label]="'COMMON.SEARCH' | translate"
                 (click)="showSearch()"
             >
                 <icon>search</icon>

@@ -47,6 +47,7 @@ import { DealsService } from './deals.service';
                         [class.inverse]="display() !== 'list'"
                         (click)="display.set('list')"
                         [matTooltip]="'COMMON.LIST' | translate"
+                        [attr.aria-label]="'COMMON.LIST' | translate"
                     >
                         <icon class="text-2xl">list</icon>
                     </button>
@@ -58,6 +59,7 @@ import { DealsService } from './deals.service';
                         [class.inverse]="display() !== 'grid'"
                         (click)="display.set('grid')"
                         [matTooltip]="'COMMON.GRID' | translate"
+                        [attr.aria-label]="'COMMON.GRID' | translate"
                     >
                         <icon class="text-2xl">browse</icon>
                     </button>
@@ -261,6 +263,9 @@ import { DealsService } from './deals.service';
                                 default
                                 matRipple
                                 [matMenuTriggerFor]="menu"
+                                [attr.aria-label]="
+                                    'COMMON.MORE_OPTIONS' | translate
+                                "
                             >
                                 <icon>more_vert</icon>
                             </button>

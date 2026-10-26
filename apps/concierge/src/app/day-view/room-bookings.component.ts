@@ -74,6 +74,9 @@ const EMPTY = [];
                     [matTooltip]="
                         'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
                     "
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
+                    "
                     [disabled]="downloading()"
                     (click)="downloadAttendeeList()"
                 >
@@ -107,6 +110,9 @@ const EMPTY = [];
                         [class.opacity-70]="view() !== 'timeline'"
                         [matTooltip]="'APP.CONCIERGE.VIEW_TIMELINE' | translate"
                         (click)="setView('timeline')"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.VIEW_TIMELINE' | translate
+                        "
                     >
                         <icon class="text-2xl">view_timeline</icon>
                     </button>
@@ -119,6 +125,7 @@ const EMPTY = [];
                         [class.opacity-70]="view() !== 'list'"
                         [matTooltip]="'COMMON.LIST' | translate"
                         (click)="setView('list')"
+                        [attr.aria-label]="'COMMON.LIST' | translate"
                     >
                         <icon class="text-2xl">view_list</icon>
                     </button>
@@ -189,6 +196,9 @@ const EMPTY = [];
                                             matRipple
                                             class="text-base-300 hover:text-base-content"
                                             (click)="setFilter(type.id, true)"
+                                            [attr.aria-label]="
+                                                'COMMON.REMOVE' | translate
+                                            "
                                         >
                                             <icon class="text-xl">close</icon>
                                         </button>

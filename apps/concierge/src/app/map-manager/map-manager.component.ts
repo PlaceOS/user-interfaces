@@ -187,6 +187,9 @@ import { MapManagementService } from './map-management.service';
                     matRipple
                     [matTooltip]="'APP.CONCIERGE.MAPS_COPY_URL' | translate"
                     (click)="copyToClipboard(row.map_id)"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.MAPS_COPY_URL' | translate
+                    "
                 >
                     <icon>content_copy</icon>
                 </button>
@@ -200,10 +203,17 @@ import { MapManagementService } from './map-management.service';
                     matRipple
                     (click)="editMap(row)"
                     [matTooltip]="'APP.CONCIERGE.MAPS_EDIT' | translate"
+                    [attr.aria-label]="'APP.CONCIERGE.MAPS_EDIT' | translate"
                 >
                     <icon>edit</icon>
                 </button>
-                <button icon default matRipple [matMenuTriggerFor]="menu">
+                <button
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                >
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">

@@ -41,11 +41,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         >
             <form>
                 <div class="flex flex-1 flex-col space-y-2">
-                    <label for="name">{{
+                    <label for="asset-bulk-form-name">{{
                         'APP.CONCIERGE.ASSETS_PRODUCT' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="asset-bulk-form-name"
                             matInput
                             [ngModel]="product()?.name || 'No Product'"
                             [ngModelOptions]="{ standalone: true }"
@@ -55,11 +56,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="count">{{
+                        <label for="asset-bulk-form-count">{{
                             'APP.CONCIERGE.ASSETS_BULK_COUNT' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
                             <input
+                                id="asset-bulk-form-count"
                                 matInput
                                 [ngModel]="count()"
                                 (ngModelChange)="count.set(+$event || 0)"
@@ -75,11 +77,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </div>
                 </div>
                 <div class="flex flex-1 flex-col space-y-2">
-                    <label for="identifier">{{
+                    <label for="asset-bulk-form-identifier">{{
                         'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="asset-bulk-form-identifier"
                             matInput
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME'
@@ -95,11 +98,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-1 flex-col space-y-2">
-                    <label for="purchase-order-id">{{
-                        'APP.CONCIERGE.ASSETS_ORDER_ID' | translate
-                    }}</label>
+                    <label
+                        for="asset-bulk-form-purchase-order-id"
+                        id="asset-bulk-form-purchase-order-id-label"
+                        >{{
+                            'APP.CONCIERGE.ASSETS_ORDER_ID' | translate
+                        }}</label
+                    >
                     <mat-form-field appearance="outline">
                         <mat-select
+                            aria-labelledby="asset-bulk-form-purchase-order-id-label"
                             [formField]="form.purchase_order_id"
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_ORDER_SELECT' | translate

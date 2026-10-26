@@ -62,13 +62,20 @@ const DEVICE_FIELD_OPTIONS = [
             <form class="flex flex-col space-y-8">
                 <section general class="bg-base-100 space-y-2 rounded-sm">
                     <div>
-                        <label for="logo_light">Light Mode Logo</label>
+                        <label
+                            for="visitor-kiosk-settings-form-modal-logo_light"
+                            >Light Mode Logo</label
+                        >
                         <div class="mb-4 flex items-center space-x-2">
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input matInput [formField]="form.logo_light" />
+                                <input
+                                    id="visitor-kiosk-settings-form-modal-logo_light"
+                                    matInput
+                                    [formField]="form.logo_light"
+                                />
                             </mat-form-field>
                             <upload-button
                                 ngModel
@@ -83,13 +90,19 @@ const DEVICE_FIELD_OPTIONS = [
                         </div>
                     </div>
                     <div>
-                        <label for="logo_dark">Dark Mode Logo</label>
+                        <label for="visitor-kiosk-settings-form-modal-logo_dark"
+                            >Dark Mode Logo</label
+                        >
                         <div class="mb-4 flex items-center space-x-2">
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input matInput [formField]="form.logo_dark" />
+                                <input
+                                    id="visitor-kiosk-settings-form-modal-logo_dark"
+                                    matInput
+                                    [formField]="form.logo_dark"
+                                />
                             </mat-form-field>
                             <upload-button
                                 ngModel
@@ -104,7 +117,9 @@ const DEVICE_FIELD_OPTIONS = [
                         </div>
                     </div>
                     <div>
-                        <label for="welcome-background">
+                        <label
+                            for="visitor-kiosk-settings-form-modal-welcome-background"
+                        >
                             Welcome Background
                         </label>
                         <div class="mb-4 flex items-center space-x-2">
@@ -113,6 +128,7 @@ const DEVICE_FIELD_OPTIONS = [
                                 class="no-subscript w-full"
                             >
                                 <input
+                                    id="visitor-kiosk-settings-form-modal-welcome-background"
                                     matInput
                                     [formField]="form.welcome_background"
                                 />
@@ -130,9 +146,13 @@ const DEVICE_FIELD_OPTIONS = [
                         </div>
                     </div>
                     <div>
-                        <label for="default-route">Welcome Message</label>
+                        <label
+                            for="visitor-kiosk-settings-form-modal-default-route"
+                            >Welcome Message</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <textarea
+                                id="visitor-kiosk-settings-form-modal-default-route"
                                 matInput
                                 [formField]="form.welcome_message"
                                 placeholder="Welcome to PlaceOS Self Service Kiosk"
@@ -185,11 +205,14 @@ const DEVICE_FIELD_OPTIONS = [
                     </div>
                     @if (model().induction_enabled) {
                         <div>
-                            <label for="induction-details">
+                            <label
+                                for="visitor-kiosk-settings-form-modal-induction-details"
+                            >
                                 Induction Details
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <textarea
+                                    id="visitor-kiosk-settings-form-modal-induction-details"
                                     matInput
                                     [formField]="form.induction_details"
                                     placeholder="Site rules for visitors to accept"
@@ -198,11 +221,14 @@ const DEVICE_FIELD_OPTIONS = [
                         </div>
                     }
                     <div>
-                        <label for="standalone-visitor-location">
+                        <label
+                            for="visitor-kiosk-settings-form-modal-standalone-visitor-location"
+                        >
                             Standalone Visitor Location
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="visitor-kiosk-settings-form-modal-standalone-visitor-location"
                                 matInput
                                 [formField]="form.standalone_visitor_location"
                                 placeholder="zone-system-id"
@@ -210,11 +236,14 @@ const DEVICE_FIELD_OPTIONS = [
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="checked-in-template">
+                        <label
+                            for="visitor-kiosk-settings-form-modal-checked-in-template"
+                        >
                             Checked In Template
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <textarea
+                                id="visitor-kiosk-settings-form-modal-checked-in-template"
                                 matInput
                                 [formField]="form.checked_in_template"
                                 placeholder="Welcome &gt;visitor_name&lt;"
@@ -231,12 +260,16 @@ const DEVICE_FIELD_OPTIONS = [
                         </h3>
                         <div class="grid gap-4 md:grid-cols-3">
                             <div>
-                                <label for="label-width">Width (em)</label>
+                                <label
+                                    for="visitor-kiosk-settings-form-modal-label-width"
+                                    >Width (em)</label
+                                >
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
                                 >
                                     <input
+                                        id="visitor-kiosk-settings-form-modal-label-width"
                                         matInput
                                         type="number"
                                         [formField]="
@@ -246,12 +279,16 @@ const DEVICE_FIELD_OPTIONS = [
                                 </mat-form-field>
                             </div>
                             <div>
-                                <label for="label-height">Height (em)</label>
+                                <label
+                                    for="visitor-kiosk-settings-form-modal-label-height"
+                                    >Height (em)</label
+                                >
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
                                 >
                                     <input
+                                        id="visitor-kiosk-settings-form-modal-label-height"
                                         matInput
                                         type="number"
                                         [formField]="
@@ -261,12 +298,16 @@ const DEVICE_FIELD_OPTIONS = [
                                 </mat-form-field>
                             </div>
                             <div>
-                                <label for="label-scale">Font Size (mm)</label>
+                                <label
+                                    for="visitor-kiosk-settings-form-modal-label-scale"
+                                    >Font Size (mm)</label
+                                >
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
                                 >
                                     <input
+                                        id="visitor-kiosk-settings-form-modal-label-scale"
                                         matInput
                                         type="number"
                                         [formField]="
@@ -288,9 +329,15 @@ const DEVICE_FIELD_OPTIONS = [
                         PlaceOS Maps
                     </h3>
                     <div>
-                        <label for="disable"> Disabled Features </label>
+                        <label
+                            for="visitor-kiosk-settings-form-modal-disable"
+                            id="visitor-kiosk-settings-form-modal-disable-label"
+                        >
+                            Disabled Features
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                aria-labelledby="visitor-kiosk-settings-form-modal-disable-label"
                                 [formField]="form.explore.disable"
                                 placeholder="No disabled features"
                                 multiple
@@ -305,11 +352,15 @@ const DEVICE_FIELD_OPTIONS = [
                     </div>
                     <div class="flex items-center space-x-4">
                         <div class="flex-1">
-                            <label for="disable-actions">
+                            <label
+                                for="visitor-kiosk-settings-form-modal-disable-actions"
+                                id="visitor-kiosk-settings-form-modal-disable-actions-label"
+                            >
                                 Disabled Feature Actions
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
+                                    aria-labelledby="visitor-kiosk-settings-form-modal-disable-actions-label"
                                     [formField]="form.explore.disable_actions"
                                     placeholder="No disabled actions"
                                     multiple
@@ -326,11 +377,15 @@ const DEVICE_FIELD_OPTIONS = [
                             </mat-form-field>
                         </div>
                         <div class="flex-1">
-                            <label for="available-period">
+                            <label
+                                for="visitor-kiosk-settings-form-modal-available-period"
+                                id="visitor-kiosk-settings-form-modal-available-period-label"
+                            >
                                 Disabled Feature Labels
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
+                                    aria-labelledby="visitor-kiosk-settings-form-modal-available-period-label"
                                     [formField]="form.explore.disable_labels"
                                     placeholder="No disabled labels"
                                     multiple
@@ -349,11 +404,15 @@ const DEVICE_FIELD_OPTIONS = [
                     </div>
                     <div class="flex items-center space-x-4">
                         <div class="flex-1">
-                            <label for="disable-features">
+                            <label
+                                for="visitor-kiosk-settings-form-modal-disable-features"
+                                id="visitor-kiosk-settings-form-modal-disable-features-label"
+                            >
                                 Disabled Feature Displays
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
+                                    aria-labelledby="visitor-kiosk-settings-form-modal-disable-features-label"
                                     [formField]="form.explore.disable_features"
                                     placeholder="No disabled displays"
                                     multiple
@@ -370,11 +429,15 @@ const DEVICE_FIELD_OPTIONS = [
                             </mat-form-field>
                         </div>
                         <div class="flex-1">
-                            <label for="disable-styles">
+                            <label
+                                for="visitor-kiosk-settings-form-modal-disable-styles"
+                                id="visitor-kiosk-settings-form-modal-disable-styles-label"
+                            >
                                 Disabled Feature Styles
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
+                                    aria-labelledby="visitor-kiosk-settings-form-modal-disable-styles-label"
                                     [formField]="form.explore.disable_styles"
                                     placeholder="No disabled styles"
                                     multiple
@@ -392,11 +455,15 @@ const DEVICE_FIELD_OPTIONS = [
                         </div>
                     </div>
                     <div>
-                        <label for="hide-device-fields">
+                        <label
+                            for="visitor-kiosk-settings-form-modal-hide-device-fields"
+                            id="visitor-kiosk-settings-form-modal-hide-device-fields-label"
+                        >
                             Hidden Device Fields
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                aria-labelledby="visitor-kiosk-settings-form-modal-hide-device-fields-label"
                                 [formField]="form.explore.hide_device_fields"
                                 placeholder="No hidden fields"
                                 multiple
@@ -442,9 +509,14 @@ const DEVICE_FIELD_OPTIONS = [
                         Visitor Booking Rules
                     </h3>
                     <div>
-                        <label for="max-duration">Max Duration</label>
+                        <label
+                            for="visitor-kiosk-settings-form-modal-max-duration"
+                            id="visitor-kiosk-settings-form-modal-max-duration-label"
+                            >Max Duration</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                aria-labelledby="visitor-kiosk-settings-form-modal-max-duration-label"
                                 [formField]="form.visitors.max_duration"
                             >
                                 @for (

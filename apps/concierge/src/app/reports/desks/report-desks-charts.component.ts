@@ -57,7 +57,13 @@ Chart.register(
                     {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                 </div>
                 <div class="mx-auto h-56 w-full max-w-full p-2">
-                    <canvas #dailyChart></canvas>
+                    <canvas
+                        #dailyChart
+                        role="img"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate
+                        "
+                    ></canvas>
                 </div>
             </div>
             <div
@@ -67,7 +73,14 @@ Chart.register(
                     {{ 'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER' | translate }}
                 </div>
                 <div class="mx-auto h-56 w-[24rem] max-w-full p-2">
-                    <canvas #levelChart></canvas>
+                    <canvas
+                        #levelChart
+                        role="img"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER'
+                                | translate
+                        "
+                    ></canvas>
                 </div>
             </div>
         </div>

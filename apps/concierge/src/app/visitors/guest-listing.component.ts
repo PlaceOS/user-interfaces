@@ -282,6 +282,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     class="bg-base-100 my-2 flex w-[20rem] flex-col space-y-2 rounded-sm p-2"
                 >
                     <img
+                        [alt]="'APP.CONCIERGE.VISITORS_ID_IMAGE' | translate"
                         [src]="row.extension_data?.id_data?.url"
                         class="max-h-80 max-w-[20rem] object-contain"
                     />
@@ -481,7 +482,13 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center p-2">
-                <button icon default matRipple [matMenuTriggerFor]="guest_menu">
+                <button
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="guest_menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                >
                     <icon>more_horiz</icon>
                 </button>
                 <mat-menu #guest_menu="matMenu">
@@ -712,6 +719,9 @@ import { VisitorsStateService } from './visitors-state.service';
                     default
                     matRipple
                     (click)="editVisitorNotes(row)"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.VISITORS_NOTES_EDIT' | translate
+                    "
                 >
                     <icon>edit_square</icon>
                 </button>
@@ -740,6 +750,9 @@ import { VisitorsStateService } from './visitors-state.service';
                 icon
                 matRipple
                 (click)="downloadVisitorList()"
+                [attr.aria-label]="
+                    'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate
+                "
             >
                 <icon>download</icon>
             </button>

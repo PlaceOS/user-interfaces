@@ -11,7 +11,7 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { notifyError, UploadsService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'upload-button',
@@ -22,6 +22,7 @@ import { IconComponent } from '@placeos/components';
             [disabled]="uploading()"
             class="bg-secondary text-secondary-content h-12 w-12 overflow-hidden rounded-sm"
             [title]="value()"
+            [attr.aria-label]="'COMMON.UPLOAD_FILE' | translate"
         >
             @if (!uploading()) {
                 <icon>cloud_upload</icon>
@@ -40,7 +41,12 @@ import { IconComponent } from '@placeos/components';
             }
         </button>
     `,
-    imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule],
+    imports: [
+        MatProgressSpinnerModule,
+        IconComponent,
+        MatRippleModule,
+        TranslatePipe,
+    ],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

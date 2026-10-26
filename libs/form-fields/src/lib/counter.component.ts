@@ -46,6 +46,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 <input
                     type="text"
                     class="absolute inset-0 rounded-none p-2 opacity-0 focus:opacity-100"
+                    [attr.id]="input_id() || null"
                     [ngModel]="value()"
                     (ngModelChange)="value.set($event)"
                     (focus)="focused.set(true)"
@@ -92,6 +93,8 @@ export class CounterComponent implements ControlValueAccessor {
     public readonly min = input(0);
     /** Custom function for rendering the counter value */
     public readonly render_fn = input<(v: number) => string>(undefined);
+    /** ID of the editable input, so that a `<label for>` can name it */
+    public readonly input_id = input<string>(undefined);
     /** Whether form control is disabled */
     public readonly disabled = model<boolean>(undefined);
     /** Current value of the counter */

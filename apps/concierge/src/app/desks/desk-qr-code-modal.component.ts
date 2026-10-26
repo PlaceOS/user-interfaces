@@ -17,7 +17,12 @@ import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
                 <button btn matRipple (click)="print()">
                     {{ 'APP.CONCIERGE.DESKS_ACTION_PRINT_QR_LIST' | translate }}
                 </button>
-                <button icon matRipple mat-dialog-close>
+                <button
+                    icon
+                    matRipple
+                    mat-dialog-close
+                    [aria-label]="'COMMON.CLOSE' | translate"
+                >
                     <icon>close</icon>
                 </button>
             </div>
@@ -34,7 +39,11 @@ import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
                         <div
                             class="border-base-200 bg-base-100 mx-4 my-2 block rounded-lg border p-2"
                         >
-                            <img class="w-48" [src]="desk.qr_code" />
+                            <img
+                                [alt]="'COMMON.QR_CODE' | translate"
+                                class="w-48"
+                                [src]="desk.qr_code"
+                            />
                         </div>
                         <div
                             class="bg-base-200 mx-4 my-1 w-[calc(100%-2rem)] rounded-sm p-1 text-center font-mono text-sm"

@@ -150,6 +150,10 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                         'APP.CONCIERGE.BOOKING_RULESET_REORDER'
                                                             | translate
                                                     "
+                                                    [attr.aria-label]="
+                                                        'APP.CONCIERGE.BOOKING_RULESET_REORDER'
+                                                            | translate
+                                                    "
                                                 >
                                                     <icon>drag_indicator</icon>
                                                 </button>
@@ -263,6 +267,10 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                     class="rounded-sm"
                                                     (click)="editRuleset(row)"
                                                     [matTooltip]="
+                                                        'APP.CONCIERGE.BOOKING_RULESET_EDIT'
+                                                            | translate
+                                                    "
+                                                    [attr.aria-label]="
                                                         'APP.CONCIERGE.BOOKING_RULESET_EDIT'
                                                             | translate
                                                     "

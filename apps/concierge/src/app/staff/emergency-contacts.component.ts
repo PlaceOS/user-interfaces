@@ -107,6 +107,10 @@ export type { EmergencyContact } from './emergency-contacts.service';
                                             | translate
                                     "
                                     (click)="manageRoles()"
+                                    [attr.aria-label]="
+                                        'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
+                                            | translate
+                                    "
                                 >
                                     <icon>list_alt</icon>
                                 </button>
@@ -194,6 +198,9 @@ export type { EmergencyContact } from './emergency-contacts.service';
                                     'APP.CONCIERGE.CONTACTS_EDIT' | translate
                                 "
                                 (click)="editContact(row)"
+                                [attr.aria-label]="
+                                    'APP.CONCIERGE.CONTACTS_EDIT' | translate
+                                "
                             >
                                 <icon>edit</icon>
                             </button>
@@ -204,6 +211,9 @@ export type { EmergencyContact } from './emergency-contacts.service';
                                 error
                                 (click)="removeContact(row)"
                                 [matTooltip]="
+                                    'APP.CONCIERGE.CONTACTS_REMOVE' | translate
+                                "
+                                [attr.aria-label]="
                                     'APP.CONCIERGE.CONTACTS_REMOVE' | translate
                                 "
                             >

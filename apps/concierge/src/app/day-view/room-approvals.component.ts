@@ -53,6 +53,9 @@ import { EventsStateService } from './events-state.service';
                     "
                     matTooltipPosition="left"
                     (click)="setShow(!show())"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.ROOMS_PENDING_HIDE' | translate
+                    "
                 >
                     <icon>chevron_right</icon>
                 </button>
@@ -89,7 +92,7 @@ import { EventsStateService } from './events-state.service';
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
                     >
-                        <img src="assets/icons/no-pending.svg" />
+                        <img alt="" src="assets/icons/no-pending.svg" />
                         <p class="opacity-30">
                             {{
                                 'APP.CONCIERGE.ROOMS_PENDING_EMPTY' | translate
@@ -132,6 +135,7 @@ import { EventsStateService } from './events-state.service';
                                 class="bg-base-200 mb-2 h-32 w-full overflow-hidden rounded-sm"
                             >
                                 <img
+                                    alt=""
                                     auth
                                     class="min-h-full min-w-full object-cover object-center"
                                     [source]="space?.images[0]"
@@ -236,6 +240,9 @@ import { EventsStateService } from './events-state.service';
                                     class="border-base-300 bg-base-200 h-12 w-12 rounded-md border"
                                     [disabled]="!!busy"
                                     [matMenuTriggerFor]="menu"
+                                    [attr.aria-label]="
+                                        'COMMON.MORE_OPTIONS' | translate
+                                    "
                                 >
                                     <icon>more_vert</icon>
                                 </button>
@@ -292,6 +299,9 @@ import { EventsStateService } from './events-state.service';
                 (click)="setShow(!show())"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
                 matTooltipPosition="left"
+                [attr.aria-label]="
+                    'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate
+                "
             >
                 <icon>chevron_left</icon>
             </button>

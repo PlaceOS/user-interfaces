@@ -75,6 +75,9 @@ import { RoomManagementService } from './room-management.service';
                 matRipple
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate"
+                [attr.aria-label]="
+                    'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate
+                "
             >
                 <icon>lock_open</icon>
             </button>

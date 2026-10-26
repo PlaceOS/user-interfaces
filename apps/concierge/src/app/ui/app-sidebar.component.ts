@@ -340,7 +340,12 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
     template: `
         @if (!rail()) {
             <a class="block px-4 pt-3 pb-2" [routerLink]="['/']">
-                <img auth class="h-10" [source]="logo_src()" />
+                <img
+                    auth
+                    class="h-10"
+                    [source]="logo_src()"
+                    [alt]="'COMMON.HOME' | translate"
+                />
             </a>
         }
         <nav class="flex-1 overflow-auto py-2" [class.pr-3]="!rail()">
@@ -352,6 +357,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                         matRipple
                         class="hover:bg-base-200 flex w-full items-center rounded-r-full py-1 pr-1 pl-3 text-xs font-medium uppercase opacity-60 not-first:mt-3"
                         [attr.aria-expanded]="!collapsed()[group.id]"
+                        [attr.aria-controls]="'nav-group-' + group.id"
                         (click)="toggleGroup(group.id)"
                     >
                         <div
@@ -363,16 +369,20 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                         <icon
                             class="text-xl transition-transform"
                             [class.-rotate-90]="collapsed()[group.id]"
+                            aria-hidden="true"
                         >
                             arrow_drop_down
                         </icon>
                     </button>
                 }
+                <!-- Inert keeps hidden links out of the tab order -->
                 <section
                     class="contract-expand w-full"
+                    [id]="'nav-group-' + group.id"
                     [class.contract-collapsed]="
                         !rail() && collapsed()[group.id]
                     "
+                    [inert]="!rail() && collapsed()[group.id]"
                 >
                     @for (link of group.children; track link.id) {
                         <a
@@ -384,6 +394,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                             [class.justify-center]="rail()"
                             [routerLink]="link.route"
                             routerLinkActive="active"
+                            ariaCurrentWhenActive="page"
                             [routerLinkActiveOptions]="{
                                 paths: link.exact ? 'exact' : 'subset',
                                 queryParams: 'subset',
@@ -396,9 +407,11 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                             [matTooltip]="rail() ? (link.name | translate) : ''"
                             matTooltipPosition="right"
                         >
-                            <icon class="text-xl opacity-60">{{
-                                link.icon
-                            }}</icon>
+                            <icon
+                                class="text-xl opacity-60"
+                                aria-hidden="true"
+                                >{{ link.icon }}</icon
+                            >
                             @if (!rail()) {
                                 <span>{{ link.name | translate }}</span>
                             }
@@ -439,6 +452,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 btn
                 icon
                 matRipple
+                [attr.aria-label]="'APP.CONCIERGE.SHORTCUTS_TITLE' | translate"
                 [matTooltip]="'APP.CONCIERGE.SHORTCUTS_TITLE' | translate"
                 (click)="openShortcuts()"
             >

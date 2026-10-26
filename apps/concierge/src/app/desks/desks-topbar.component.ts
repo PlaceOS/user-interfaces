@@ -79,6 +79,7 @@ import { DesksStateService } from './desks-state.service';
                     data-shortcut="new"
                     (click)="newDesk()"
                     [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
+                    [attr.aria-label]="'APP.CONCIERGE.DESKS_NEW' | translate"
                 >
                     <icon>add</icon>
                 </button>
@@ -89,6 +90,9 @@ import { DesksStateService } from './desks-state.service';
                     default
                     matRipple
                     [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
+                    "
                 >
                     <icon>cloud_upload</icon>
                     <input
@@ -107,6 +111,9 @@ import { DesksStateService } from './desks-state.service';
                     [matTooltip]="
                         'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
                     "
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
+                    "
                 >
                     <icon>download</icon>
                 </button>
@@ -118,6 +125,9 @@ import { DesksStateService } from './desks-state.service';
                     matRipple
                     (click)="manageRestrictions()"
                     [matTooltip]="
+                        'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
+                    "
+                    [attr.aria-label]="
                         'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
                     "
                 >

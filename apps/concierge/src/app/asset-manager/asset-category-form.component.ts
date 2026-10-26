@@ -35,7 +35,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 }}
             </h2>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button
+                    icon
+                    matRipple
+                    mat-dialog-close
+                    [aria-label]="'COMMON.CLOSE' | translate"
+                >
                     <icon>close</icon>
                 </button>
             }
@@ -43,11 +48,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         @if (!loading()) {
             <main class="h-1/2 w-[24rem] max-w-[80vw] flex-1 overflow-auto p-2">
                 <div class="flex flex-col space-y-2">
-                    <label for="name"
+                    <label for="asset-category-form-name"
                         >{{ 'FORM.NAME' | translate }}<span>*</span></label
                     >
                     <mat-form-field appearance="outline">
                         <input
+                            id="asset-category-form-name"
                             matInput
                             [placeholder]="'FORM.NAME' | translate"
                             [formField]="form.name"
@@ -58,11 +64,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col space-y-2">
-                    <label for="name">{{
-                        'APP.CONCIERGE.ASSETS_CATEGORY_PARENT' | translate
-                    }}</label>
+                    <label
+                        for="asset-category-form-name-2"
+                        id="asset-category-form-name-2-label"
+                        >{{
+                            'APP.CONCIERGE.ASSETS_CATEGORY_PARENT' | translate
+                        }}</label
+                    >
                     <mat-form-field appearance="outline">
                         <mat-select
+                            aria-labelledby="asset-category-form-name-2-label"
                             [formField]="form.parent_category_id"
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_CATEGORY_PARENT_EMPTY'

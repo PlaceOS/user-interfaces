@@ -24,7 +24,13 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                               }
                 }}
             </h2>
-            <button icon default matRipple mat-dialog-close>
+            <button
+                icon
+                default
+                matRipple
+                mat-dialog-close
+                [aria-label]="'COMMON.CLOSE' | translate"
+            >
                 <icon>close</icon>
             </button>
         </header>
