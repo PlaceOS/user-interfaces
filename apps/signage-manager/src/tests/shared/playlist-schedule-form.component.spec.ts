@@ -3,7 +3,11 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form } from '@angular/forms/signals';
 import { By } from '@angular/platform-browser';
-import { LOCAL_TIMEZONE } from '@placeos/common';
+import {
+    getTimezoneOffsetString,
+    getTimeInTimezone,
+    LOCAL_TIMEZONE,
+} from '@placeos/common';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -252,28 +256,41 @@ describe('PlaylistScheduleFormComponent', () => {
             play_start: 9 * 60,
         });
         fixture.componentRef.setInput('open', true);
-        component.timezone.set('Asia/Tokyo');
+        // Pick a timezone whose offset differs from the machine running the
+        // tests so that the timezone conversion hint is always rendered.
+        const display_timezone =
+            getTimezoneOffsetString('UTC') ===
+            getTimezoneOffsetString(LOCAL_TIMEZONE)
+                ? 'Asia/Tokyo'
+                : 'UTC';
+        const display_offset =
+            display_timezone === 'UTC' ? '+0000' : '+0900';
+        component.timezone.set(display_timezone);
         await fixture.whenStable();
         const input: HTMLInputElement = fixture.debugElement.query(
             By.css('input[type="time"]'),
         ).nativeElement;
         const field = input.closest('mat-form-field').parentElement;
-        expect(field.textContent).toContain('9 : 00');
-        expect(field.textContent).toContain('GMT+9');
-        component.timezone.set('UTC');
-        await fixture.whenStable();
-        const expected = new Date(component.recurringPlayStartTime());
+        const date_pipe = new DatePipe('en-AU');
+        const start = new Date(component.recurringPlayStartTime());
+        expect(field.textContent).toContain(
+            date_pipe.transform(start, 'h : mm a (z)', display_offset),
+        );
+        const expected = new Date(start);
         expected.setHours(10, 37, 0, 0);
         input.value = '10:37';
         input.dispatchEvent(new Event('input'));
         await fixture.whenStable();
         expect(input.value).toBe('10:37');
-        expect(model().play_start).toBe(expected.getUTCHours() * 60 + 37);
+        const expected_time = getTimeInTimezone(expected, display_timezone);
+        expect(model().play_start).toBe(
+            expected_time.hours * 60 + expected_time.minutes,
+        );
         expect(playlistSchedulePayload(model()).play_cron).toBe(
-            `37 ${expected.getUTCHours()} * * *`,
+            `${expected_time.minutes} ${expected_time.hours} * * *`,
         );
         expect(field.textContent).toContain(
-            new DatePipe('en-AU').transform(expected, 'h : mm a (z)', '+0000'),
+            date_pipe.transform(expected, 'h : mm a (z)', display_offset),
         );
         input.value = '';
         input.dispatchEvent(new Event('input'));

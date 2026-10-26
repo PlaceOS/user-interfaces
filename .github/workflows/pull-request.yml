@@ -120,6 +120,9 @@ jobs:
         needs: install_deps
         if: ${{ fromJSON(needs.install_deps.outputs.affected_apps)[0] != null }}
         strategy:
+            # Let every affected app run to completion so one failing app does
+            # not cancel the tests for the others.
+            fail-fast: false
             matrix:
                 package: ${{ fromJSON(needs.install_deps.outputs.affected_apps) }}
         env:
@@ -190,6 +193,9 @@ jobs:
         needs: install_deps
         if: ${{ fromJSON(needs.install_deps.outputs.affected_apps)[0] != null }}
         strategy:
+            # A failure in one app must not cancel or block the deployments of
+            # the other affected apps.
+            fail-fast: false
             matrix:
                 package: ${{ fromJSON(needs.install_deps.outputs.affected_apps) }}
         env:
