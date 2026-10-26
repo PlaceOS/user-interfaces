@@ -89,7 +89,7 @@ import { EventStateService } from './event-state.service';
                 <div date class="flex w-8 flex-col items-center leading-tight">
                     <div
                         month
-                        class="relative top-0.5 text-sm font-medium opacity-60"
+                        class="relative top-0.5 text-sm font-medium opacity-70"
                     >
                         {{ item.date | date: 'MMM' }}
                     </div>
@@ -110,7 +110,7 @@ import { EventStateService } from './event-state.service';
                 </div>
                 <div details class="flex flex-col">
                     <div class="text-sm">{{ item.title }}</div>
-                    <div class="text-xs opacity-40">
+                    <div class="text-xs opacity-70">
                         {{ item.date | date: 'EEEE, ' + time_format }} &ndash;
                         {{
                             item.date + item.duration * 60 * 1000
@@ -134,7 +134,7 @@ import { EventStateService } from './event-state.service';
                     ((room(item)?.email | space | async)?.zones | level)
                         ?.display_name
                 }}
-                <span *ngIf="!room(item)?.email" class="opacity-30">
+                <span *ngIf="!room(item)?.email" class="opacity-70">
                     {{ 'COMMON.LEVEL_EMPTY' | translate }}
                 </span>
             </div>
@@ -142,7 +142,7 @@ import { EventStateService } from './event-state.service';
         <ng-template #room_template let-item="row">
             <div class="p-4">
                 {{ (room(item)?.email | space | async)?.display_name }}
-                <span *ngIf="!room(item)?.email" class="opacity-30">
+                <span *ngIf="!room(item)?.email" class="opacity-70">
                     {{ 'COMMON.ROOM_EMPTY' | translate }}
                 </span>
             </div>

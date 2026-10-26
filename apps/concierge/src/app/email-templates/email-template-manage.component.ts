@@ -120,7 +120,7 @@ import {
                                         }}
                                     </div>
                                     @if (!active_trigger()) {
-                                        <div class="truncate opacity-30">
+                                        <div class="truncate opacity-70">
                                             {{
                                                 'COMMON.TRIGGER_SELECT'
                                                     | translate
@@ -164,7 +164,7 @@ import {
                                                     class="my-2 flex flex-1 flex-col-reverse leading-tight"
                                                 >
                                                     <div
-                                                        class="text-xs opacity-30"
+                                                        class="text-xs opacity-70"
                                                     >
                                                         {{ tmpl.description }}
                                                     </div>
@@ -218,7 +218,7 @@ import {
                                         <div class="font-mono text-sm">
                                             {{ field.name }}
                                         </div>
-                                        <div class="text-xs opacity-30">
+                                        <div class="text-xs opacity-70">
                                             {{ field.description }}
                                         </div>
                                     </div>
@@ -296,7 +296,7 @@ import {
                             />
                         </mat-form-field>
                     </div>
-                    <p class="-mt-2 mb-2 text-xs opacity-60">
+                    <p class="-mt-2 mb-2 text-xs opacity-70">
                         {{
                             'APP.CONCIERGE.EMAIL_TEMPLATES_RECIPIENTS_HINT'
                                 | translate

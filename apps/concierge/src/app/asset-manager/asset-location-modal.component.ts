@@ -88,7 +88,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                             [features]="selected_feature()"
                         ></interactive-map>
                     } @else {
-                        <p class="opacity-30">
+                        <p class="opacity-70">
                             Select a space from the list to view map location
                         </p>
                     }

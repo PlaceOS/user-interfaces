@@ -159,7 +159,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                 <div class="p-4">
                     {{ data < 1 ? '' : data }}
                     @if (data < 1) {
-                        <span class="opacity-30">{{
+                        <span class="opacity-70">{{
                             'COMMON.CAPACITY_EMPTY' | translate
                         }}</span>
                     }

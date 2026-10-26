@@ -32,7 +32,7 @@ import { IconComponent } from './icon.component';
                 >
                     <div>{{ label() }}<ng-content></ng-content></div>
                     @if (info() && inline()) {
-                        <div class="text-xs opacity-30">{{ info() }}</div>
+                        <div class="text-xs opacity-70">{{ info() }}</div>
                     }
                 </div>
                 @if (info() && !inline()) {

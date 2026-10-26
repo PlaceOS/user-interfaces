@@ -84,7 +84,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                     </mat-select>
                 </mat-form-field>
                 @if (model().recipient_group !== 'custom') {
-                    <div class="-mt-4 mb-4 text-sm opacity-60">
+                    <div class="-mt-4 mb-4 text-sm opacity-70">
                         Recipients are resolved from today's bookings for the
                         active building or region.
                     </div>
@@ -121,7 +121,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                     <div
                         class="flex items-center justify-between px-4 py-3 text-sm"
                     >
-                        <span class="opacity-60">Recipients</span>
+                        <span class="opacity-70">Recipients</span>
                         @if (resolving_recipients()) {
                             <span>Loading...</span>
                         } @else {
@@ -138,7 +138,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                         </ul>
                     } @else if (!resolving_recipients()) {
                         <div
-                            class="border-base-200 border-t px-4 py-3 text-sm opacity-60"
+                            class="border-base-200 border-t px-4 py-3 text-sm opacity-70"
                         >
                             No recipients found
                         </div>

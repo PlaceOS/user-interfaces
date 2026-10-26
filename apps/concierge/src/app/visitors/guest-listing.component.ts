@@ -205,7 +205,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     {{ row.asset_name || row.asset_id }}
                 </button>
                 @if (row.asset_name && row.asset_id) {
-                    <div class="text-xs opacity-30">
+                    <div class="text-xs opacity-70">
                         {{ row.asset_id }}
                     </div>
                 }
@@ -254,7 +254,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4 py-2">
                 <div>{{ row.user_name || row.user_email }}</div>
                 @if (row.user_name && row.user_email) {
-                    <div class="text-xs opacity-30">
+                    <div class="text-xs opacity-70">
                         {{ row.user_email }}
                     </div>
                 }
@@ -424,7 +424,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4">
                 {{ data * 1000 | date: time_format : tz() }}
                 @if (timezone()) {
-                    <span class="text-xs opacity-30">
+                    <span class="text-xs opacity-70">
                         {{ data * 1000 | date: 'zzzz' : tz() }}
                     </span>
                 }
@@ -434,7 +434,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4">
                 {{ row.extension_data.pass_number }}
                 @if (!row.extension_data.pass_number) {
-                    <span class="opacity-30">No Pass</span>
+                    <span class="opacity-70">No Pass</span>
                 }
             </div>
         </ng-template>
@@ -443,7 +443,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 @if (row.extension_data?.international) {
                     {{ 'COMMON.YES' | translate }}
                 } @else {
-                    <span class="opacity-30">{{
+                    <span class="opacity-70">{{
                         'COMMON.NO' | translate
                     }}</span>
                 }
@@ -457,7 +457,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 ) {
                     {{ 'COMMON.TYPE_EXTERNAL' | translate }}
                 } @else {
-                    <span class="opacity-30">{{
+                    <span class="opacity-70">{{
                         'COMMON.TYPE_INTERNAL' | translate
                     }}</span>
                 }
@@ -474,7 +474,7 @@ import { VisitorsStateService } from './visitors-state.service';
                             : tz()
                 }}
                 @if (timezone()) {
-                    <span class="text-xs opacity-30">
+                    <span class="text-xs opacity-70">
                         {{ row.date | date: 'zzzz' : tz() }}
                     </span>
                 }

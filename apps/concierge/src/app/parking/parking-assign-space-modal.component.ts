@@ -210,7 +210,7 @@ export function bookedResourcePeriodForBooking(booking: Booking) {
                                 src="assets/icons/no-results.svg"
                                 class="w-36"
                             />
-                            <div class="text-center opacity-30">
+                            <div class="text-center opacity-70">
                                 {{
                                     'APP.CONCIERGE.PARKING_ASSIGN_SPACE_EMPTY'
                                         | translate

@@ -99,7 +99,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                         <div
                             class="bg-base-100 absolute inset-0 z-0 opacity-80"
                         ></div>
-                        <p class="z-10 opacity-60">
+                        <p class="z-10 opacity-70">
                             {{
                                 'APP.CONCIERGE.PARKING_UNAVAILABLE' | translate
                             }}

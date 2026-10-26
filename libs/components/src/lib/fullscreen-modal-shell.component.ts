@@ -66,7 +66,7 @@ import { TranslatePipe } from './translate.pipe';
                         class="flex h-1/2 w-full flex-1 flex-col items-center justify-center space-y-4 p-12"
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
-                        <p class="text-center opacity-50">{{ loading() }}</p>
+                        <p class="text-center opacity-70">{{ loading() }}</p>
                     </div>
                 }
             </main>

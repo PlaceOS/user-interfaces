@@ -227,7 +227,7 @@ export interface TableColumn {
                                                 row[column.key] === '') &&
                                             column.key !== '_index'
                                         ) {
-                                            <span class="opacity-30">
+                                            <span class="opacity-70">
                                                 {{
                                                     column.empty ||
                                                         ('COMMON.EMPTY'
@@ -312,7 +312,7 @@ export interface TableColumn {
             } @else if (!data_view().length) {
                 <div
                     [style.gridColumnStart]="'span ' + column_count()"
-                    class="flex items-center justify-center p-8 opacity-30"
+                    class="flex items-center justify-center p-8 opacity-70"
                     [attr.aria-busy]="loading() || null"
                 >
                     {{

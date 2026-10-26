@@ -41,7 +41,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 </div>
             } @else if (!history().length) {
                 <div
-                    class="flex min-h-40 items-center justify-center text-sm opacity-60"
+                    class="flex min-h-40 items-center justify-center text-sm opacity-70"
                 >
                     {{ 'APP.CONCIERGE.BOOKING_HISTORY_EMPTY' | translate }}
                 </div>
@@ -60,11 +60,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                 <div class="font-medium">
                                     {{ stateLabel(item.state) | translate }}
                                 </div>
-                                <div class="text-xs opacity-60">
+                                <div class="text-xs opacity-70">
                                     {{ item.time * 1000 | date: 'medium' }}
                                 </div>
                                 @if (item.source) {
-                                    <div class="mt-1 text-xs opacity-60">
+                                    <div class="mt-1 text-xs opacity-70">
                                         {{
                                             'COMMON.TOOLTIP_SOURCE'
                                                 | translate

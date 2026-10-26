@@ -128,7 +128,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
                     <div
                         class="screen-only flex h-full w-full flex-col items-center p-8"
                     >
-                        <p class="opacity-30">
+                        <p class="opacity-70">
                             {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
                         </p>
                     </div>
@@ -136,7 +136,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             } @else {
                 <div class="flex h-full w-full flex-col items-center p-8">
                     <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                    <p class="opacity-30">
+                    <p class="opacity-70">
                         {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
                     </p>
                 </div>

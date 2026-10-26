@@ -62,7 +62,7 @@ import { UrlManagementService } from './url-management.service';
             <div class="p-4 text-xs">
                 {{ data }}
                 @if (!data) {
-                    <span class="opacity-30">
+                    <span class="opacity-70">
                         {{ 'COMMON.NO_DESCRIPTION' | translate }}
                     </span>
                 }

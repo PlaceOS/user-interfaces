@@ -75,7 +75,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                             {{ asset.name }}
                                         </div>
                                         <div
-                                            class="text-xs opacity-60"
+                                            class="text-xs opacity-70"
                                             *ngIf="
                                                 asset.asset_count ||
                                                 asset.assets?.length
@@ -134,7 +134,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                             {{ asset.name }}
                                         </div>
                                         <div
-                                            class="text-xs opacity-60"
+                                            class="text-xs opacity-70"
                                             *ngIf="
                                                 asset.asset_count ||
                                                 asset.assets?.length
@@ -166,7 +166,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             <div
                 class="flex h-full w-full flex-col items-center justify-center space-y-4 p-8"
             >
-                <p class="opacity-40">
+                <p class="opacity-70">
                     {{
                         options().search
                             ? 'No matching assets found'

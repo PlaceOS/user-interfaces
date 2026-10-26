@@ -93,7 +93,7 @@ import { EventsStateService } from './events-state.service';
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
                     >
                         <img alt="" src="assets/icons/no-pending.svg" />
-                        <p class="opacity-30">
+                        <p class="opacity-70">
                             {{
                                 'APP.CONCIERGE.ROOMS_PENDING_EMPTY' | translate
                             }}
@@ -120,7 +120,7 @@ import { EventsStateService } from './events-state.service';
                             event.system;
                         @let busy = in_progress()[event.id];
                         <h3 class="font-medium">{{ event.title }}</h3>
-                        <p class="mb-2 text-xs opacity-30">
+                        <p class="mb-2 text-xs opacity-70">
                             {{ event.date | date: 'mediumDate' : tz }}
                             {{ event.date | date: time_format : tz }} &ndash;
                             {{ event.date_end | date: time_format : tz }}
@@ -160,7 +160,7 @@ import { EventsStateService } from './events-state.service';
                                             'No Location'
                                     }}
                                 </div>
-                                <div class="text-xs opacity-50">
+                                <div class="text-xs opacity-70">
                                     {{ bld?.display_name || bld?.name }},
                                     {{ lvl?.display_name || lvl?.name }}
                                 </div>

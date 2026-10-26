@@ -109,7 +109,7 @@ import { SurveyService } from './survey.service';
                     <div
                         class="bg-base-200 flex h-[calc(100%-2rem)] w-full flex-col items-center justify-center rounded-xl"
                     >
-                        <div class="opacity-30">
+                        <div class="opacity-70">
                             {{ 'APP.CONCIERGE.SURVEY_NO_BLD' | translate }}
                         </div>
                     </div>

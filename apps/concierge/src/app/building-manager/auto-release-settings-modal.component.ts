@@ -132,7 +132,7 @@ import { errorText } from '../ui/modal-actions';
                 <div class="my-2 grid grid-cols-2 gap-2">
                     @if (!default_work_preferences().length) {
                         <div
-                            class="bg-base-200 col-span-2 mb-2 flex w-full items-center justify-center rounded-sm py-4 opacity-30"
+                            class="bg-base-200 col-span-2 mb-2 flex w-full items-center justify-center rounded-sm py-4 opacity-70"
                         >
                             {{
                                 'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS_EMPTY'
@@ -156,7 +156,7 @@ import { errorText } from '../ui/modal-actions';
                                         }}</span>
                                     </div>
                                     @for (block of pref.blocks; track block.i) {
-                                        <div class="mb-1 text-xs opacity-60">
+                                        <div class="mb-1 text-xs opacity-70">
                                             {{
                                                 block.start | date: 'shortTime'
                                             }}

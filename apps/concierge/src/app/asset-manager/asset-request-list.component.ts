@@ -26,7 +26,7 @@ import { SplitJoinPipe } from './split-join.pipe';
     template: `
         <div class="relative flex h-[calc(100%-1rem)] w-full flex-col">
             <div class="flex items-center justify-between">
-                <div class="p-4 text-sm opacity-60">
+                <div class="p-4 text-sm opacity-70">
                     {{
                         'APP.CONCIERGE.ASSETS_REQUESTS_COUNT'
                             | translate: { count: requests().length }
@@ -113,7 +113,7 @@ import { SplitJoinPipe } from './split-join.pipe';
         <ng-template #user_template let-row="row">
             <div class="flex flex-col px-4 py-2 text-left">
                 <div>{{ row.user_name }}</div>
-                <div class="text-xs opacity-30">
+                <div class="text-xs opacity-70">
                     {{ date(row) | date: 'MMM d, ' + time_format() }} &ndash;
                     {{
                         date(row) + row.duration * 60 * 1000
@@ -156,7 +156,7 @@ import { SplitJoinPipe } from './split-join.pipe';
             <div class="p-4">
                 {{ level(row)?.display_name }}
                 @if (!level(row)) {
-                    <span class="opacity-30">N/A</span>
+                    <span class="opacity-70">N/A</span>
                 }
             </div>
         </ng-template>

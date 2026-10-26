@@ -123,7 +123,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             }
                             @if (!purchase_orders().length) {
                                 <mat-option
-                                    class="opacity-60"
+                                    class="opacity-70"
                                     [disabled]="true"
                                 >
                                     {{

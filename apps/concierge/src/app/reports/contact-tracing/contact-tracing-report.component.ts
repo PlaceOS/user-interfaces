@@ -174,7 +174,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     <div
                         class="screen-only flex flex-col items-center justify-center space-y-2 p-8"
                     >
-                        <p class="opacity-30">
+                        <p class="opacity-70">
                             Select a user from the topbar to begin
                         </p>
                     </div>
@@ -184,7 +184,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     class="flex flex-col items-center justify-center space-y-2 p-8"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
-                    <p class="opacity-30">{{ loading() }}</p>
+                    <p class="opacity-70">{{ loading() }}</p>
                 </div>
             }
         </div>

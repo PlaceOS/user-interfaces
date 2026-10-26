@@ -89,7 +89,7 @@ import {
                 timezone
                 class="bg-base-100 sticky top-0 left-0 z-30 flex h-10 items-center justify-center"
             >
-                <div class="text-xs opacity-30">
+                <div class="text-xs opacity-70">
                     {{ date() | date: 'zzzz' : tz }}
                 </div>
                 <div
@@ -109,7 +109,7 @@ import {
                         class="relative flex h-full min-w-0 items-center justify-center"
                         [style.width]="block_width + 'rem'"
                     >
-                        <div class="text-xs opacity-60">
+                        <div class="text-xs opacity-70">
                             {{ formatHour(hour) }}
                         </div>
                         @if (i !== 0) {

@@ -105,7 +105,7 @@ import {
                 <div
                     class="flex w-full flex-col items-center justify-center py-2"
                 >
-                    <div class="opacity-60">{{ date | date: 'MMM' }}</div>
+                    <div class="opacity-70">{{ date | date: 'MMM' }}</div>
                     <div class="text-xl">{{ date | date: 'dd' }}</div>
                 </div>
             </ng-template>
@@ -113,7 +113,7 @@ import {
                 <div class="p-4 font-mono text-[0.625rem]">
                     {{ row.group || row.extension_data?.group }}
                     @if (!(row.group || row.extension_data?.group)) {
-                        <span class="opacity-30">
+                        <span class="opacity-70">
                             {{ 'APP.CONCIERGE.DESKS_GROUP_EMPTY' | translate }}
                         </span>
                     }
@@ -156,7 +156,7 @@ import {
                     </div>
                     @if (user?.name) {
                         <div
-                            class="max-w-48 truncate text-xs opacity-30 select-all"
+                            class="max-w-48 truncate text-xs opacity-70 select-all"
                         >
                             {{ email }}
                         </div>
@@ -385,7 +385,7 @@ import {
         <div
             class="z-30 bg-base-100 border-base-300 fixed right-8 bottom-4 flex items-center justify-end gap-2 rounded-xl border px-2 py-1 shadow-lg"
         >
-            <span class="mr-8 text-xs opacity-60">
+            <span class="mr-8 text-xs opacity-70">
                 {{
                     'COMMON.LAST_UPDATED'
                         | translate

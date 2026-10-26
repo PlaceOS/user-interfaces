@@ -67,7 +67,7 @@ import {
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="font-mono text-[0.625rem] opacity-30">
+                <div class="font-mono text-[0.625rem] opacity-70">
                     {{ row.id }}
                 </div>
             </button>
@@ -83,7 +83,7 @@ import {
                 <img alt="" auth [source]="data[0]" class="max-h-12 max-w-32" />
             }
             @if (!data.length) {
-                <span class="opacity-30">{{
+                <span class="opacity-70">{{
                     'COMMON.IMAGES_EMPTY' | translate
                 }}</span>
             }

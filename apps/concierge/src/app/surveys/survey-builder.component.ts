@@ -312,7 +312,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                             }
                         } @else {
                             <div
-                                class="flex h-full w-full flex-col items-center justify-center space-y-4 p-12 text-center opacity-30"
+                                class="flex h-full w-full flex-col items-center justify-center space-y-4 p-12 text-center opacity-70"
                             >
                                 <icon class="text-8xl">list</icon>
                                 <p>No questions added to this page yet.</p>
@@ -423,7 +423,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 </button>
                                 <div class="bg-base-100 flex-1 py-2 pr-12 pl-4">
                                     <div>{{ question.title }}</div>
-                                    <div class="text-sm opacity-40">
+                                    <div class="text-sm opacity-70">
                                         {{ question_types[question.type] }}
                                     </div>
                                 </div>

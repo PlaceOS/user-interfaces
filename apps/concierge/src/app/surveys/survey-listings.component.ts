@@ -83,7 +83,7 @@ import { SurveyService } from './survey.service';
             <div class="p-4">
                 {{ (data | level)?.display_name || (data | level)?.name }}
                 @if (!(data | level)) {
-                    <span class="opacity-30">
+                    <span class="opacity-70">
                         {{ 'COMMON.LEVEL_ALL' | translate }}
                     </span>
                 }

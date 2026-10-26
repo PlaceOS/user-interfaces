@@ -82,7 +82,7 @@ import { MapManagementService } from './map-management.service';
                         </mat-select>
                     </mat-form-field>
                     <div class="w-2 flex-1"></div>
-                    <div class="text-sm opacity-60">
+                    <div class="text-sm opacity-70">
                         {{
                             'APP.CONCIERGE.MAPS_COUNT'
                                 | translate: { count: rows().length }
@@ -162,7 +162,7 @@ import { MapManagementService } from './map-management.service';
                 (click)="copyToClipboard(row.id)"
             >
                 <div>{{ data }}</div>
-                <div class="font-mono text-[0.625rem] opacity-30">
+                <div class="font-mono text-[0.625rem] opacity-70">
                     {{ row.id }}
                 </div>
             </button>

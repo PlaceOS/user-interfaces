@@ -108,7 +108,7 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                             @if (item()?.description) {
                                 {{ item()?.description || '~No Description~' }}
                             } @else {
-                                <span class="opacity-30">{{
+                                <span class="opacity-70">{{
                                     'COMMON.NO_DESCRIPTION' | translate
                                 }}</span>
                             }
@@ -448,7 +448,7 @@ import { confirmAction, errorText } from '../ui/modal-actions';
             <div class="p-4">
                 {{ data * 1000 | date: 'mediumDate' }}
                 @if (!data) {
-                    <span class="opacity-30">
+                    <span class="opacity-70">
                         {{ 'COMMON.DATE_EMPTY' | translate }}
                     </span>
                 }

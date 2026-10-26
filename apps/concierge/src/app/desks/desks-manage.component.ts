@@ -108,7 +108,7 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                 >
                     <div>{{ row.id || row.map_id }}</div>
                     @if (row.id && row.map_id !== row.id) {
-                        <div class="font-mono text-[0.625rem] opacity-30">
+                        <div class="font-mono text-[0.625rem] opacity-70">
                             {{ row.map_id }}
                         </div>
                     }
@@ -136,7 +136,7 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
             </ng-template>
             <ng-template #assigned_template let-row="row" let-data="data">
                 @if (!data) {
-                    <div class="p-4 opacity-30">
+                    <div class="p-4 opacity-70">
                         {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
                     </div>
                 }
@@ -147,7 +147,7 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                     >
                         <div class="">{{ row.assigned_name || data }}</div>
                         @if (row.assigned_name) {
-                            <div class="font-mono text-[0.625rem] opacity-30">
+                            <div class="font-mono text-[0.625rem] opacity-70">
                                 {{ data }}
                             </div>
                         }

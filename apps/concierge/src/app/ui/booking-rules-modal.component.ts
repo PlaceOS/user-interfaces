@@ -174,7 +174,7 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                             }}
                                                         </div>
                                                         <div
-                                                            class="font-mono text-[0.625rem] opacity-30"
+                                                            class="font-mono text-[0.625rem] opacity-70"
                                                         >
                                                             {{ row.zone }}
                                                         </div>
@@ -312,7 +312,7 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                             track key
                                                         ) {
                                                             <dt
-                                                                class="font-medium opacity-60"
+                                                                class="font-medium opacity-70"
                                                             >
                                                                 {{
                                                                     CONDITION_LABELS[
@@ -338,7 +338,7 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                     </dl>
                                                 } @else {
                                                     <div
-                                                        class="text-xs opacity-30"
+                                                        class="text-xs opacity-70"
                                                     >
                                                         No conditions configured
                                                     </div>
@@ -348,7 +348,7 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                     </div>
                                 } @empty {
                                     <div
-                                        class="border-base-300 flex items-center justify-center border-x border-b p-8 opacity-30"
+                                        class="border-base-300 flex items-center justify-center border-x border-b p-8 opacity-70"
                                     >
                                         {{
                                             load_failed()
