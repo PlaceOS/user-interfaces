@@ -3,6 +3,20 @@
 @source '../../../libs';
 @source '../../../shared';
 
+/*
+ * Phones in landscape are wide but short, so they also use the phone layout.
+ * `sm` applies only when the viewport is at least 40rem wide and 30rem tall.
+ * Keep in sync with PHONE_MEDIA in app/mobile-layout.ts.
+ */
+@custom-variant sm (@media (width >= 40rem) and (height >= 30rem));
+@custom-variant max-sm (@media not ((width >= 40rem) and (height >= 30rem)));
+
+/* Sheet dialogs on phones. See BOTTOM_SHEET_DIALOG in app/mobile-layout.ts. */
+.bottom-sheet-dialog .mat-mdc-dialog-container {
+    border-radius: 1rem 1rem 0 0 !important;
+    overflow: hidden;
+}
+
 /* You can add global styles to this file, and also import other style files */
 
 html,

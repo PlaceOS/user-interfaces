@@ -13,19 +13,20 @@ import { VideoCallStateService } from './video-call-state.service';
 @Component({
     selector: 'video-call-dial-view',
     template: `
+        <!-- Phones show the code above the keypad, as a phone dialler does -->
         <div
-            class="flex flex-col items-center sm:flex-row sm:items-start sm:justify-center"
+            class="flex flex-col items-center max-sm:mx-auto max-sm:max-w-xs sm:flex-row sm:items-start sm:justify-center"
         >
             @if (!loading()) {
                 <ng-container class="">
                     <dialpad (pressed)="addDigit($event)"></dialpad>
                     <div
-                        class="flex w-full max-w-xs flex-col sm:w-auto sm:max-w-none sm:pt-8"
+                        class="flex w-full max-w-xs flex-col max-sm:contents sm:w-auto sm:max-w-none sm:pt-8"
                     >
-                        <p class="px-2 pt-4">
+                        <p class="w-full px-2 pt-4 max-sm:order-first">
                             {{ 'APP.CONTROL.VC_ENTER_CODE' | translate }}
                         </p>
-                        <div class="w-full p-2">
+                        <div class="w-full p-2 max-sm:order-first">
                             <mat-form-field
                                 appearance="outline"
                                 class="h-12 w-full"
@@ -60,7 +61,7 @@ import { VideoCallStateService } from './video-call-state.service';
                                 [class.inverse]="show_pip"
                             >
                                 <div class="flex items-center space-x-4">
-                                    <icon>{{
+                                    <icon aria-hidden="true">{{
                                         !show_pip
                                             ? 'visibility_off'
                                             : 'visibility'

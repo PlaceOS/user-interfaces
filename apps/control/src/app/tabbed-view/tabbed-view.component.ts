@@ -58,7 +58,9 @@ import { TabOutletComponent } from './tab-outlet.component';
                             [source]="logo()?.src || logo()"
                         />
                     </div>
-                    <icon class="text-base-content relative z-10 text-8xl"
+                    <icon
+                        aria-hidden="true"
+                        class="text-base-content relative z-10 text-8xl"
                         >lock</icon
                     >
                     <p class="text-base-content relative z-10 text-2xl">

@@ -57,6 +57,7 @@ const PROGRESS_ICONS: Record<string, string> = {
                         ></span>
                     }
                     <icon
+                        aria-hidden="true"
                         class="relative text-2xl"
                         [class.animate-pulse]="
                             state() === 'processing' || !ready()
@@ -84,7 +85,9 @@ const PROGRESS_ICONS: Record<string, string> = {
                         role="status"
                         aria-live="polite"
                     >
-                        <icon class="text-2xl">{{ status.icon }}</icon>
+                        <icon aria-hidden="true" class="text-2xl">{{
+                            status.icon
+                        }}</icon>
                         <p class="line-clamp-2 pr-2 text-sm">
                             {{ status.message }}
                         </p>

@@ -59,6 +59,7 @@ describe('TabOutletComponent', () => {
                 setSelectedInput: vi.fn(),
                 routeToAll: vi.fn(),
                 unrouteAll: vi.fn(),
+                unroute: vi.fn(),
                 viewHelp: vi.fn(),
             }),
             MockProvider(VideoCallStateService, {
@@ -342,6 +343,22 @@ describe('TabOutletComponent', () => {
             expect(spectator.component.shown_on()).toEqual({
                 i1: 'Left, Right',
             });
+        });
+
+        it('should list what each display shows and clear one display', () => {
+            const service: any = spectator.inject(ControlStateService);
+            service.output_list.set([
+                { id: 'o1', name: 'Left', source: 'i1' },
+                { id: 'o2', name: 'Right' },
+            ]);
+            spectator.detectChanges();
+            const rows = spectator.queryAll('[displays] [display]');
+            expect(rows).toHaveLength(2);
+            expect(rows[0]).toContainText('Laptop');
+            expect(rows[1]).toContainText('APP.CONTROL.INPUT_EMPTY');
+            expect(spectator.queryAll('button[clear-display]')).toHaveLength(1);
+            spectator.click('button[clear-display]');
+            expect(service.unroute).toHaveBeenCalledWith('o1');
         });
     });
 });

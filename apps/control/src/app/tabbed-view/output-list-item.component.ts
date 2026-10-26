@@ -41,6 +41,7 @@ import { ICON_MAP } from '../ui/output-display.component';
                         ></div>
                     }
                     <icon
+                        aria-hidden="true"
                         class="text-5xl"
                         [class.opacity-30]="!source"
                         [class.text-base-content]="!source"

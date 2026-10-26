@@ -29,9 +29,10 @@ import { errorText } from '../error-text';
                 icon
                 matRipple
                 mat-dialog-close
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
                 class="absolute top-2 right-2"
             >
-                <icon>close</icon>
+                <icon aria-hidden="true">close</icon>
             </button>
             <div class="mx-auto w-160 max-w-full p-2">
                 <h2 class="my-4 w-full text-center text-2xl font-medium">

@@ -8,6 +8,7 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
+    TranslatePipe,
 } from '@placeos/components';
 
 import { marked } from 'marked';
@@ -43,7 +44,9 @@ import { marked } from 'marked';
                                     ></div>
                                 </div>
                             }
-                            <icon>{{ item.icon || 'help' }}</icon>
+                            <icon aria-hidden="true">{{
+                                item.icon || 'help'
+                            }}</icon>
                             <div class="ml-4">{{ item.title }}</div>
                             <div
                                 class="absolute inset-0 overflow-hidden rounded-3xl"
@@ -80,8 +83,9 @@ import { marked } from 'marked';
                 matRipple
                 class="absolute top-2 right-2"
                 mat-dialog-close
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
             >
-                <icon>close</icon>
+                <icon aria-hidden="true">close</icon>
             </button>
         </div>
     `,
@@ -95,6 +99,7 @@ import { marked } from 'marked';
         `,
     ],
     imports: [
+        TranslatePipe,
         MatDialogModule,
         MatFormFieldModule,
         MatSelectModule,

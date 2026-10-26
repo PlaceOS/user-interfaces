@@ -88,10 +88,11 @@ enum TOOLTIP {
                             matRipple
                             class="bg-base-200 text-base-content"
                             [attr.type]="item.id"
+                            [attr.aria-label]="item.name"
                             [class.bg-success!]="item.enabled"
                             (click)="item.action ? item.action() : ''"
                         >
-                            <icon>{{ item.icon }}</icon>
+                            <icon aria-hidden="true">{{ item.icon }}</icon>
                         </button>
                     </div>
                 }
@@ -105,7 +106,7 @@ enum TOOLTIP {
             [style.z-index]="locked() ? '99' : ''"
             [attr.aria-label]="'APP.CONTROL.ACTIONS' | translate"
         >
-            <icon>more_vert</icon>
+            <icon aria-hidden="true">more_vert</icon>
         </button>
         <mat-menu #menu="matMenu">
             @for (item of action_list(); track item.id) {
@@ -119,7 +120,9 @@ enum TOOLTIP {
                         (click)="openAction(item)"
                     >
                         <div class="flex items-center text-base">
-                            <icon class="mr-2">{{ item.icon }}</icon>
+                            <icon aria-hidden="true" class="mr-2">{{
+                                item.icon
+                            }}</icon>
                             <span>{{ item.name }}</span>
                         </div>
                     </button>

@@ -22,8 +22,14 @@ import { DialpadComponent } from './dialpad.component';
                     [placeholder]="'FORM.PHONE' | translate"
                 />
                 @if (system()?.phone) {
-                    <button icon matRipple matSuffix (click)="clear()">
-                        <icon>close</icon>
+                    <button
+                        icon
+                        matRipple
+                        matSuffix
+                        [attr.aria-label]="'COMMON.CLEAR' | translate"
+                        (click)="clear()"
+                    >
+                        <icon aria-hidden="true">close</icon>
                     </button>
                 }
             </mat-form-field>
