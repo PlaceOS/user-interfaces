@@ -27,7 +27,7 @@ import { ControlStateService } from '../control-state.service';
             ></i>
         </div>
         @if (channel_list?.length) {
-            <div class="flex flex-wrap items-center justify-center p-8">
+            <div class="flex flex-wrap items-center justify-center p-2 sm:p-8">
                 @for (item of channel_list; track item) {
                     <button
                         matRipple

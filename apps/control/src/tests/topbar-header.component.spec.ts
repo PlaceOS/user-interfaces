@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -12,11 +13,14 @@ import {
     IconComponent,
 } from '@placeos/components';
 import { TopbarHeaderComponent } from '../app/topbar-header.component';
+import { ActionModalComponent } from '../app/ui/action-modal.component';
+import { PowerTooltipComponent } from '../app/ui/power-tooltip.component';
 import { VideoCallStateService } from '../app/video-call/video-call-state.service';
 
 describe('TopbarHeaderComponent', () => {
     let spectator: Spectator<TopbarHeaderComponent>;
     let can_change_room = true;
+    const dialog_close = vi.fn();
     const createComponent = createComponentFactory({
         component: TopbarHeaderComponent,
         declarations: [
@@ -48,6 +52,9 @@ describe('TopbarHeaderComponent', () => {
                 changeRoom: vi.fn(),
                 canChangeRoom: vi.fn(() => can_change_room),
             } as any),
+            MockProvider(MatDialog, {
+                open: vi.fn(() => ({ close: dialog_close })) as any,
+            }),
             MockProvider(VideoCallStateService, {
                 call: signal(null),
                 connected: signal(null),
@@ -95,5 +102,41 @@ describe('TopbarHeaderComponent', () => {
             .action_list()
             .find((_) => _.id === 'lighting_scenes');
         expect(action.show).toBe(false);
+    });
+
+    it('should open a popup action in a fullscreen dialog', () => {
+        spectator = createComponent();
+        spectator.component.openAction({ id: 'power', name: 'Power' });
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            ActionModalComponent,
+            expect.objectContaining({
+                panelClass: 'fullscreen-dialog',
+                ariaLabelledBy: 'action-modal-title',
+                data: { title: 'Power', component: PowerTooltipComponent },
+            }),
+        );
+    });
+
+    it('should run a direct action without a dialog', () => {
+        spectator = createComponent();
+        const action = vi.fn();
+        spectator.component.openAction({ id: 'help', name: 'Help', action });
+        expect(action).toHaveBeenCalled();
+        expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+    });
+
+    it('should close the action dialog with the topbar', () => {
+        spectator = createComponent();
+        spectator.component.openAction({ id: 'power', name: 'Power' });
+        spectator.fixture.destroy();
+        expect(dialog_close).toHaveBeenCalled();
+    });
+
+    it('should lock the controls on a locked secondary room', () => {
+        spectator = createComponent();
+        const state: any = spectator.inject(ControlStateService);
+        expect(spectator.component.locked()).toBe(false);
+        state.join_status.set([false, true]);
+        expect(spectator.component.locked()).toBe(true);
     });
 });

@@ -17,17 +17,17 @@ import { ControlStateService } from '../control-state.service';
     selector: 'microphone-tooltip',
     template: `
         <div
-            class="bg-base-100 my-2 flex max-h-[65vh] max-w-md flex-col items-center space-y-5 overflow-x-hidden overflow-y-auto rounded-sm p-2 shadow-sm"
+            class="bg-base-100 my-2 flex max-w-md flex-col items-center space-y-5 overflow-x-hidden overflow-y-auto rounded-sm p-2 shadow-sm max-sm:my-0 max-sm:max-w-none max-sm:flex-1 max-sm:rounded-none max-sm:shadow-none sm:max-h-[65vh]"
         >
             <h3
-                class="bg-base-200 sticky top-0 z-20 w-full rounded-sm px-4 py-2 text-xl font-medium"
+                class="bg-base-200 sticky top-0 z-20 w-full rounded-sm px-4 py-2 text-xl font-medium max-sm:hidden"
             >
                 {{ 'APP.CONTROL.ACTION_MICS' | translate }}
             </h3>
             @if (mic_list()?.length || microphones()?.length) {
                 @for (mic of mic_list(); track mic) {
                     <div
-                        class="border-base-300 relative min-w-[20rem] rounded-sm border p-2"
+                        class="border-base-300 relative min-w-[20rem] rounded-sm border p-2 max-sm:w-full max-sm:min-w-0"
                     >
                         <div
                             class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 rounded-full rounded-sm px-2 py-1 text-sm font-medium"
@@ -66,7 +66,7 @@ import { ControlStateService } from '../control-state.service';
                             </div>
                         }
                         <div
-                            class="mt-1 flex w-64 items-center space-x-2 p-4"
+                            class="mt-1 flex w-64 items-center space-x-2 p-4 max-sm:w-full"
                             [attr.name]="mic.id"
                         >
                             <button
@@ -120,7 +120,7 @@ import { ControlStateService } from '../control-state.service';
                 }
                 @for (mic of microphones(); track mic; let i = $index) {
                     <div
-                        class="border-base-300 relative min-w-[20rem] rounded-sm border p-2"
+                        class="border-base-300 relative min-w-[20rem] rounded-sm border p-2 max-sm:w-full max-sm:min-w-0"
                     >
                         <div
                             class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 rounded-full rounded-sm px-2 py-1 text-sm font-medium"

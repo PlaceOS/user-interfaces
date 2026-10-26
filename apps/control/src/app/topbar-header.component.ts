@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import {
     AsyncHandler,
@@ -10,8 +11,14 @@ import {
     AuthenticatedImageDirective,
     CustomTooltipComponent,
     IconComponent,
+    TranslatePipe,
 } from '@placeos/components';
 import { ControlStateService } from './control-state.service';
+import { FULLSCREEN_DIALOG } from './mobile-layout';
+import {
+    ACTION_MODAL_TITLE_ID,
+    ActionModalComponent,
+} from './ui/action-modal.component';
 import { CameraTooltipComponent } from './ui/camera-tooltip.component';
 import { JoinRoomTooltipComponent } from './ui/join-room-tooltip.component';
 import { LightingLevelsTooltipComponent } from './ui/lighting-levels-tooltip.component';
@@ -42,10 +49,10 @@ enum TOOLTIP {
 @Component({
     selector: 'topbar-header',
     template: `
-        <div class="flex-1 px-4">
+        <div class="shrink-0 px-3 sm:flex-1 sm:px-4">
             <img
                 auth
-                class="h-12 select-none"
+                class="h-8 select-none sm:h-12"
                 alt="Logo"
                 draggable="false"
                 [source]="logo()?.src || logo()"
@@ -56,7 +63,9 @@ enum TOOLTIP {
                 (contextmenu)="$event.preventDefault()"
             />
         </div>
-        <div class="text-base-content p-4 text-lg">
+        <div
+            class="text-base-content min-w-0 flex-1 truncate px-2 py-4 text-lg sm:flex-none sm:px-4"
+        >
             {{ system()?.name }}
         </div>
         <div
@@ -69,8 +78,7 @@ enum TOOLTIP {
                         [content]="cmp[item.id]"
                         [style.z-index]="
                             (item.id === 'join' || item.id === 'power') &&
-                            !join_status()[0] &&
-                            join_status()[1]
+                            locked()
                                 ? '99'
                                 : ''
                         "
@@ -93,28 +101,28 @@ enum TOOLTIP {
             icon
             matRipple
             [matMenuTriggerFor]="menu"
-            class="text-base-content mr-2 sm:hidden"
+            class="text-base-content mr-2 shrink-0 sm:hidden"
+            [style.z-index]="locked() ? '99' : ''"
+            [attr.aria-label]="'APP.CONTROL.ACTIONS' | translate"
         >
             <icon>more_vert</icon>
         </button>
         <mat-menu #menu="matMenu">
             @for (item of action_list(); track item.id) {
-                @if (item.show) {
-                    <div
-                        customTooltip
-                        [content]="cmp[item.id]"
-                        (click)="
-                            $event.stopPropagation();
-                            item.action ? item.action() : ''
-                        "
+                @if (
+                    item.show &&
+                    (!locked() || item.id === 'join' || item.id === 'power')
+                ) {
+                    <button
+                        mat-menu-item
+                        [attr.type]="item.id"
+                        (click)="openAction(item)"
                     >
-                        <button [attr.type]="item.id" mat-menu-item>
-                            <div class="flex items-center text-base">
-                                <icon class="mr-2">{{ item.icon }}</icon>
-                                <span>{{ item.name }}</span>
-                            </div>
-                        </button>
-                    </div>
+                        <div class="flex items-center text-base">
+                            <icon class="mr-2">{{ item.icon }}</icon>
+                            <span>{{ item.name }}</span>
+                        </div>
+                    </button>
                 }
             }
         </mat-menu>
@@ -141,6 +149,7 @@ enum TOOLTIP {
         CustomTooltipComponent,
         IconComponent,
         AuthenticatedImageDirective,
+        TranslatePipe,
     ],
 })
 export class TopbarHeaderComponent extends AsyncHandler {
@@ -148,8 +157,15 @@ export class TopbarHeaderComponent extends AsyncHandler {
     private _state = inject(ControlStateService);
     private _call = inject(VideoCallStateService);
     private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
+    private _action_ref: MatDialogRef<ActionModalComponent> | null = null;
+
     public readonly system = this._state.system;
     public readonly join_status = this._state.join_status;
+    /** Whether a joined secondary room locks the controls. Join and power stay available. */
+    public readonly locked = computed(
+        () => !this.join_status()[0] && !!this.join_status()[1],
+    );
 
     private readonly _mic_list = this._state.mic_list;
     private readonly _camera_list = this._state.camera_list;
@@ -285,6 +301,25 @@ export class TopbarHeaderComponent extends AsyncHandler {
     });
 
     public readonly viewHelp = () => this._state.viewHelp();
+
+    /** Run a menu action on phones. Popup actions open in a fullscreen dialog. */
+    public openAction(item: { id: string; name: string; action?: () => void }) {
+        if (item.action) return item.action();
+        const component = this.cmp[item.id as keyof typeof this.cmp];
+        if (!component) return;
+        this._action_ref?.close();
+        this._action_ref = this._dialog.open(ActionModalComponent, {
+            ...FULLSCREEN_DIALOG,
+            ariaLabelledBy: ACTION_MODAL_TITLE_ID,
+            data: { title: item.name, component },
+        });
+    }
+
+    /** Close the action dialog with the topbar, as the tooltip does. For example, after power off. */
+    public ngOnDestroy() {
+        this._action_ref?.close();
+        super.ngOnDestroy();
+    }
 
     public readonly logo = computed(() => {
         this._org.active_building();

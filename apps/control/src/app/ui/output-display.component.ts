@@ -72,6 +72,13 @@ export const ICON_MAP = {
             [view] {
                 width: 28vw;
             }
+
+            /* Phones show one display per row */
+            @media (max-width: 39.99rem) {
+                [view] {
+                    width: 100%;
+                }
+            }
         `,
     ],
     imports: [
