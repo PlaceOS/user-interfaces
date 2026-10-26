@@ -54,6 +54,7 @@ import { UserReportOptions, UserReportService } from './user-report.service';
                 [disabled]="!rows().length"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
                 (click)="downloadReport()"
+                [attr.aria-label]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
             >
                 <icon>download</icon>
             </button>
@@ -64,6 +65,7 @@ import { UserReportOptions, UserReportService } from './user-report.service';
                 [disabled]="!rows().length"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
                 (click)="print()"
+                [attr.aria-label]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
             >
                 <icon>print</icon>
             </button>

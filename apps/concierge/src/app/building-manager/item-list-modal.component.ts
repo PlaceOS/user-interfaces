@@ -16,7 +16,12 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
     template: `
         <header>
             <h2>{{ 'APP.CONCIERGE.SUPPORT_TYPES_HEADER' | translate }}</h2>
-            <button icon matRipple mat-dialog-close="">
+            <button
+                icon
+                matRipple
+                mat-dialog-close=""
+                [aria-label]="'COMMON.CLOSE' | translate"
+            >
                 <icon>close</icon>
             </button>
         </header>
@@ -56,6 +61,9 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                         "
                         class="border-error text-error h-12 w-12 rounded-sm border"
                         (click)="removeItem(i)"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.SUPPORT_TYPES_REMOVE' | translate
+                        "
                     >
                         <icon class="text-2xl">delete</icon>
                     </button>

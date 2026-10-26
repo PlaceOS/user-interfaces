@@ -115,6 +115,7 @@ import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
                     [matTooltip]="'CATERING.MENU_ADD' | translate"
                     data-shortcut="new"
                     (click)="addItem()"
+                    [attr.aria-label]="'CATERING.MENU_ADD' | translate"
                 >
                     <icon class="text-2xl">add</icon>
                 </button>
@@ -126,6 +127,7 @@ import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
                     matRipple
                     [matTooltip]="'CATERING.BOOKING_RULES' | translate"
                     (click)="editConfig()"
+                    [attr.aria-label]="'CATERING.BOOKING_RULES' | translate"
                 >
                     <icon class="text-2xl">menu_book</icon>
                 </button>
@@ -137,6 +139,7 @@ import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
                     matRipple
                     [matTooltip]="'CATERING.MENU_IMPORT' | translate"
                     (click)="importMenu()"
+                    [attr.aria-label]="'CATERING.MENU_IMPORT' | translate"
                 >
                     <icon class="text-2xl">cloud_upload</icon>
                 </button>
@@ -148,6 +151,7 @@ import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
                     matRipple
                     [matTooltip]="'CATERING.ROOM_AVAILABILITY' | translate"
                     (click)="setRoomAvailability()"
+                    [attr.aria-label]="'CATERING.ROOM_AVAILABILITY' | translate"
                 >
                     <icon class="text-2xl">event_available</icon>
                 </button>
@@ -159,6 +163,7 @@ import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
                     matRipple
                     [matTooltip]="'CATERING.CHARGE_CODES' | translate"
                     (click)="setChargeCodes()"
+                    [attr.aria-label]="'CATERING.CHARGE_CODES' | translate"
                 >
                     <icon class="text-2xl">payments</icon>
                 </button>

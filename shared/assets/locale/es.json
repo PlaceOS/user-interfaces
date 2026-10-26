@@ -264,7 +264,11 @@
         "BULK_SUCCESS": "Elementos actualizados: {{ count }}",
         "BULK_PARTIAL": "{{ failed }} de {{ total }} elementos no se actualizaron.",
         "SELECT_DATE": "Seleccionar fecha",
-        "HOME": "Inicio"
+        "HOME": "Inicio",
+        "CLOSE": "Cerrar",
+        "MORE_OPTIONS": "Más opciones",
+        "SHOW_QR_CODE": "Mostrar código QR",
+        "UPLOAD_FILE": "Subir archivo"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglés",
@@ -1851,7 +1855,8 @@
             "BULK_REJECT_MSG": "¿Rechazar las reservas seleccionadas ({{ count }})? No puede deshacer esta acción.",
             "UNSAVED_CHANGES_TITLE": "Descartar Cambios",
             "UNSAVED_CHANGES_MSG": "Tiene cambios sin guardar. Si sale de esta página, los perderá.",
-            "UNSAVED_CHANGES_DISCARD": "Descartar"
+            "UNSAVED_CHANGES_DISCARD": "Descartar",
+            "LOCKERS_SHOW": "Mostrar taquillas"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacidad de la sala",

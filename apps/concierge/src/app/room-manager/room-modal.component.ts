@@ -345,6 +345,9 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                                     'APP.CONCIERGE.POI_MAP_SELECT' | translate
                                 "
                                 (click)="selectItemfromMap()"
+                                [attr.aria-label]="
+                                    'APP.CONCIERGE.POI_MAP_SELECT' | translate
+                                "
                             >
                                 <icon>place</icon>
                             </button>

@@ -121,7 +121,12 @@ export function bookedResourcePeriodForBooking(booking: Booking) {
             <h2 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.PARKING_ASSIGN_SPACE_TITLE' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button
+                icon
+                matRipple
+                mat-dialog-close
+                [aria-label]="'COMMON.CLOSE' | translate"
+            >
                 <icon>close</icon>
             </button>
         </header>

@@ -107,6 +107,7 @@ interface ParkingBookingColumnTemplates {
                     [matTooltip]="'COMMON.REFRESH' | translate"
                     data-shortcut="refresh"
                     (click)="refresh()"
+                    [attr.aria-label]="'COMMON.REFRESH' | translate"
                 >
                     <icon>refresh</icon>
                 </button>
@@ -573,6 +574,10 @@ interface ParkingBookingColumnTemplates {
                                         | translate
                                 "
                                 (click)="assignSpace(row)"
+                                [attr.aria-label]="
+                                    'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                        | translate
+                                "
                             >
                                 <icon>add_location</icon>
                             </button>
@@ -593,6 +598,9 @@ interface ParkingBookingColumnTemplates {
                                     'APP.CONCIERGE.PARKING_EDIT' | translate
                                 "
                                 (click)="editReservation(row)"
+                                [attr.aria-label]="
+                                    'APP.CONCIERGE.PARKING_EDIT' | translate
+                                "
                             >
                                 <icon>edit</icon>
                             </button>
@@ -614,6 +622,10 @@ interface ParkingBookingColumnTemplates {
                                         | translate
                                 "
                                 (click)="removeBooking(row)"
+                                [attr.aria-label]="
+                                    'APP.CONCIERGE.BOOKING_REMOVE_TITLE'
+                                        | translate
+                                "
                             >
                                 <icon>delete</icon>
                             </button>

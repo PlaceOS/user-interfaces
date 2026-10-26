@@ -36,6 +36,10 @@ import { StaffStateService } from './staff-state.service';
                             (onsite() ? 'COMMON.CHECK_OUT' : 'COMMON.CHECK_IN')
                                 | translate
                         "
+                        [label]="
+                            (onsite() ? 'COMMON.CHECK_OUT' : 'COMMON.CHECK_IN')
+                                | translate
+                        "
                         [loading]="loading()"
                         [content]="onsite() ? 'event_busy' : 'event_available'"
                         (click)="onsite() ? checkout() : checkin()"
@@ -49,6 +53,9 @@ import { StaffStateService } from './staff-state.service';
                         "
                         [attr.disabled]="!user()?.email"
                         [href]="'mailto:' + user()?.email"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.DIRECTORY_EMAIL' | translate
+                        "
                     >
                         <icon>email</icon>
                     </a>
@@ -60,6 +67,9 @@ import { StaffStateService } from './staff-state.service';
                         "
                         [attr.disabled]="!user()?.phone"
                         [href]="'tel:' + user()?.phone"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.DIRECTORY_PHONE' | translate
+                        "
                     >
                         <icon>call</icon>
                     </a>

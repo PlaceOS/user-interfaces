@@ -14,7 +14,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 
 @Component({
@@ -208,6 +208,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                     matRipple
                     mat-dialog-close
                     class="absolute top-2 right-2"
+                    [aria-label]="'COMMON.CLOSE' | translate"
                 >
                     <icon>close</icon>
                 </button>
@@ -222,6 +223,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
         MatProgressSpinnerModule,
         MatCheckboxModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class AppSettingsModalComponent implements OnInit {

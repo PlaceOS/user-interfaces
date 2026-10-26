@@ -153,6 +153,9 @@ import { ParkingStateService } from './parking-state.service';
                         [matTooltip]="
                             'APP.CONCIERGE.PARKING_SPACE_EDIT' | translate
                         "
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.PARKING_SPACE_EDIT' | translate
+                        "
                     >
                         <icon>edit</icon>
                     </button>
@@ -165,6 +168,9 @@ import { ParkingStateService } from './parking-state.service';
                             'APP.CONCIERGE.PARKING_SPACE_REMOVE' | translate
                         "
                         (click)="removeSpace(row)"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.PARKING_SPACE_REMOVE' | translate
+                        "
                     >
                         <icon>delete</icon>
                     </button>

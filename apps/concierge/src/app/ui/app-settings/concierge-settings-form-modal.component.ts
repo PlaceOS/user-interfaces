@@ -460,6 +460,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Room Bookings"
+                            [attr.aria-expanded]="shown_group() === 'spaces'"
                             (click)="toggleGroup('spaces')"
                         >
                             <icon>{{
@@ -886,6 +888,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Desk Assignments"
+                            [attr.aria-expanded]="shown_group() === 'desks'"
                             (click)="toggleGroup('desks')"
                         >
                             <icon>{{
@@ -940,6 +944,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Visitors"
+                            [attr.aria-expanded]="shown_group() === 'visitors'"
                             (click)="toggleGroup('visitors')"
                         >
                             <icon>{{
@@ -1143,6 +1149,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="PlaceOS Bookings"
+                            [attr.aria-expanded]="shown_group() === 'bookings'"
                             (click)="toggleGroup('bookings')"
                         >
                             <icon>{{
@@ -1375,6 +1383,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Parking"
+                            [attr.aria-expanded]="shown_group() === 'parking'"
                             (click)="toggleGroup('parking')"
                         >
                             <icon>{{
@@ -1630,6 +1640,8 @@ import { UploadButtonComponent } from './upload-button.component';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Locker Bookings"
+                            [attr.aria-expanded]="shown_group() === 'lockers'"
                             (click)="toggleGroup('lockers')"
                         >
                             <icon>{{

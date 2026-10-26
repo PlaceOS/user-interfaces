@@ -252,6 +252,7 @@ import { EventStateService } from './event-state.service';
                 class="mx-auto"
                 [matMenuTriggerFor]="menu"
                 [disabled]="row.state === 'done'"
+                [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
             >
                 <icon>more_vert</icon>
             </button>

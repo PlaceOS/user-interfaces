@@ -90,6 +90,9 @@ interface QR_Codes {
                             qr: qr_codes()[row.id]?.private,
                             item: row,
                         }"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.POI_PRIVATE_QR' | translate
+                        "
                         (click)="loadQrCode(row)"
                     >
                         <icon>qr_code_2</icon>
@@ -107,6 +110,9 @@ interface QR_Codes {
                             item: row,
                         }"
                         [content]="qr_menu"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.POI_PUBLIC_QR' | translate
+                        "
                         (click)="loadPublicQrCode(row)"
                     >
                         <icon>qr_code</icon>
@@ -144,7 +150,13 @@ interface QR_Codes {
                         </button>
                     </div>
                 </ng-template>
-                <button icon default matRipple [matMenuTriggerFor]="menu">
+                <button
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                >
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">

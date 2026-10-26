@@ -48,7 +48,12 @@ import { ParkingUser } from './parking-state.service';
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button
+                        icon
+                        matRipple
+                        mat-dialog-close
+                        [aria-label]="'COMMON.CLOSE' | translate"
+                    >
                         <icon>close</icon>
                     </button>
                 }
@@ -66,6 +71,7 @@ import { ParkingUser } from './parking-state.service';
                             class="bg-secondary text-secondary-content h-12 w-12 min-w-12 rounded-sm"
                             matTooltip="Clear Selected User"
                             (click)="clearUser()"
+                            aria-label="Clear Selected User"
                         >
                             <icon className="material-symbols-outlined">
                                 person_cancel

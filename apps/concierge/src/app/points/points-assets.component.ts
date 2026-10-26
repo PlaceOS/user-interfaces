@@ -92,10 +92,23 @@ export interface PointAsset {
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center justify-end p-2">
-                <button icon default matRipple (click)="edit(row)">
+                <button
+                    icon
+                    default
+                    matRipple
+                    (click)="edit(row)"
+                    [attr.aria-label]="'COMMON.EDIT' | translate"
+                >
                     <icon>edit</icon>
                 </button>
-                <button icon default error matRipple (click)="remove(row)">
+                <button
+                    icon
+                    default
+                    error
+                    matRipple
+                    (click)="remove(row)"
+                    [attr.aria-label]="'COMMON.DELETE' | translate"
+                >
                     <icon>delete</icon>
                 </button>
             </div>

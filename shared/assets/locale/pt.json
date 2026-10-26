@@ -264,7 +264,11 @@
         "BULK_SUCCESS": "Itens atualizados: {{ count }}",
         "BULK_PARTIAL": "{{ failed }} de {{ total }} itens não foram atualizados.",
         "SELECT_DATE": "Selecionar data",
-        "HOME": "Início"
+        "HOME": "Início",
+        "CLOSE": "Fechar",
+        "MORE_OPTIONS": "Mais opções",
+        "SHOW_QR_CODE": "Mostrar código QR",
+        "UPLOAD_FILE": "Enviar arquivo"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglês",
@@ -1851,7 +1855,8 @@
             "BULK_REJECT_MSG": "Rejeitar as reservas selecionadas ({{ count }})? Você não pode desfazer esta ação.",
             "UNSAVED_CHANGES_TITLE": "Descartar Alterações",
             "UNSAVED_CHANGES_MSG": "Você tem alterações não salvas. Se sair desta página, você as perderá.",
-            "UNSAVED_CHANGES_DISCARD": "Descartar"
+            "UNSAVED_CHANGES_DISCARD": "Descartar",
+            "LOCKERS_SHOW": "Mostrar armários"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacidade da sala",

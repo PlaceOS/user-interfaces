@@ -96,6 +96,9 @@ import { ParkingStateService } from './parking-state.service';
                         [matTooltip]="
                             'APP.CONCIERGE.PARKING_USER_EDIT' | translate
                         "
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.PARKING_USER_EDIT' | translate
+                        "
                     >
                         <icon>edit</icon>
                     </button>
@@ -105,6 +108,9 @@ import { ParkingStateService } from './parking-state.service';
                         (click)="removeUser(row)"
                         error
                         [matTooltip]="
+                            'APP.CONCIERGE.PARKING_USER_REMOVE' | translate
+                        "
+                        [attr.aria-label]="
                             'APP.CONCIERGE.PARKING_USER_REMOVE' | translate
                         "
                     >

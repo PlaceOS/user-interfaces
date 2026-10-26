@@ -37,6 +37,9 @@ import { ParkingReportService } from './parking-report.service';
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
                         "
                         (click)="download()"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                        "
                     >
                         <icon>download</icon>
                     </button>

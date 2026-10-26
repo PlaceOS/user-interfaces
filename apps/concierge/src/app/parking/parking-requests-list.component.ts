@@ -56,6 +56,7 @@ import {
                     [matTooltip]="'COMMON.REFRESH' | translate"
                     data-shortcut="refresh"
                     (click)="refresh()"
+                    [attr.aria-label]="'COMMON.REFRESH' | translate"
                 >
                     <icon>refresh</icon>
                 </button>
@@ -352,6 +353,9 @@ import {
                             "
                             [disabled]="request_type(row) !== 'special'"
                             (click)="viewSpecialNeedsRequest(row)"
+                            [attr.aria-label]="
+                                'BOOKINGS.P2_SPECIAL_NEEDS_DETAILS' | translate
+                            "
                         >
                             <icon>description</icon>
                         </button>
@@ -370,6 +374,10 @@ import {
                                         | translate
                                 "
                                 (click)="assignSpace(row)"
+                                [attr.aria-label]="
+                                    'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                        | translate
+                                "
                             >
                                 <icon>add_location</icon>
                             </button>
@@ -388,6 +396,9 @@ import {
                                 'APP.CONCIERGE.PARKING_EDIT' | translate
                             "
                             (click)="editReservation(row)"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.PARKING_EDIT' | translate
+                            "
                         >
                             <icon>edit</icon>
                         </button>

@@ -154,6 +154,7 @@ import {
                         [class.inverse]="view() === 'map'"
                         [routerLink]="['events', 'list']"
                         [matTooltip]="'COMMON.LIST' | translate"
+                        [attr.aria-label]="'COMMON.LIST' | translate"
                     >
                         <icon class="text-2xl">list</icon>
                     </a>
@@ -165,6 +166,7 @@ import {
                         [class.inverse]="view() !== 'map'"
                         [routerLink]="['events', 'map']"
                         [matTooltip]="'COMMON.MAP' | translate"
+                        [attr.aria-label]="'COMMON.MAP' | translate"
                     >
                         <icon class="text-2xl">map</icon>
                     </a>
@@ -249,6 +251,9 @@ import {
                                 'APP.CONCIERGE.PARKING_CSV_UPLOAD' | translate
                             "
                             [disabled]="!options().zones?.length"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.PARKING_CSV_UPLOAD' | translate
+                            "
                         >
                             <icon>upload</icon>
                             <input
@@ -267,6 +272,9 @@ import {
                             [matTooltip]="
                                 'APP.CONCIERGE.PARKING_CSV_DOWNLOAD' | translate
                             "
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.PARKING_CSV_DOWNLOAD' | translate
+                            "
                         >
                             <icon>download</icon>
                         </button>
@@ -277,6 +285,9 @@ import {
                         matRipple
                         (click)="manageRestrictions()"
                         [matTooltip]="
+                            'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate
+                        "
+                        [attr.aria-label]="
                             'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate
                         "
                     >

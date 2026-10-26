@@ -74,7 +74,12 @@ export interface DeskModalData {
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button
+                        icon
+                        matRipple
+                        mat-dialog-close
+                        [aria-label]="'COMMON.CLOSE' | translate"
+                    >
                         <icon>close</icon>
                     </button>
                 }
@@ -169,6 +174,10 @@ export interface DeskModalData {
                                             | translate
                                     "
                                     (click)="selectItemfromMap()"
+                                    [attr.aria-label]="
+                                        'APP.CONCIERGE.POI_MAP_SELECT'
+                                            | translate
+                                    "
                                 >
                                     <icon>place</icon>
                                 </button>
@@ -191,6 +200,9 @@ export interface DeskModalData {
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
                             (click)="clearUser()"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.USER_CLEAR' | translate
+                            "
                         >
                             <icon className="material-symbols-outlined">
                                 person_cancel

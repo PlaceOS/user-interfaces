@@ -95,6 +95,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         "
                         (click)="setOptions({ view: 'grid' })"
                         [matTooltip]="'COMMON.VIEW_AS_GRID' | translate"
+                        [attr.aria-label]="'COMMON.VIEW_AS_GRID' | translate"
                     >
                         <icon class="text-2xl">view_module</icon>
                     </button>
@@ -108,6 +109,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         "
                         (click)="setOptions({ view: 'list' })"
                         [matTooltip]="'COMMON.VIEW_AS_LIST' | translate"
+                        [attr.aria-label]="'COMMON.VIEW_AS_LIST' | translate"
                     >
                         <icon class="text-2xl">view_list</icon>
                     </button>
@@ -121,6 +123,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate
                     "
                     (click)="editConfig()"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate
+                    "
                 >
                     <icon>menu_book</icon>
                 </button>
@@ -132,6 +137,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'APP.CONCIERGE.ASSETS_MANAGE_BOOKING_RULES' | translate
                     "
                     (click)="setRoomAvailability()"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.ASSETS_MANAGE_BOOKING_RULES' | translate
+                    "
                 >
                     <icon>event_available</icon>
                 </button>
@@ -144,6 +152,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate
                         "
                         (click)="manageCategories()"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate
+                        "
                     >
                         <icon>list_alt</icon>
                     </button>

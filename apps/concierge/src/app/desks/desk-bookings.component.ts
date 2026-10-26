@@ -332,6 +332,9 @@ import {
                             default
                             matRipple
                             [matMenuTriggerFor]="actionMenu"
+                            [attr.aria-label]="
+                                'COMMON.MORE_OPTIONS' | translate
+                            "
                         >
                             <icon class="text-2xl">more_vert</icon>
                         </button>
@@ -398,6 +401,7 @@ import {
                 [matTooltip]="'COMMON.REFRESH' | translate"
                 data-shortcut="refresh"
                 (click)="refresh()"
+                [attr.aria-label]="'COMMON.REFRESH' | translate"
             >
                 <icon>refresh</icon>
             </button>

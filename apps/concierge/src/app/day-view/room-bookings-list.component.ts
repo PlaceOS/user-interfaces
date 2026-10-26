@@ -209,6 +209,9 @@ import { EventsStateService } from './events-state.service';
                             default
                             matRipple
                             [matMenuTriggerFor]="action_menu"
+                            [attr.aria-label]="
+                                'COMMON.MORE_OPTIONS' | translate
+                            "
                         >
                             <icon>more_vert</icon>
                         </button>

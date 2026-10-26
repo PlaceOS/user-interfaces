@@ -76,6 +76,7 @@ import { UrlManagementService } from './url-management.service';
                     matRipple
                     customTooltip
                     [content]="qr_menu"
+                    [attr.aria-label]="'COMMON.SHOW_QR_CODE' | translate"
                     (click)="loadQrCode(row)"
                 >
                     <icon>qr_code</icon>
@@ -120,7 +121,14 @@ import { UrlManagementService } from './url-management.service';
                         </button>
                     </div>
                 </ng-template>
-                <button btn icon default matRipple [matMenuTriggerFor]="menu">
+                <button
+                    btn
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                >
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">

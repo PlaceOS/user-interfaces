@@ -49,7 +49,12 @@ import {
                         }}
                     </h2>
                     @if (!loading()) {
-                        <a icon matRipple [routerLink]="['/email-templates']">
+                        <a
+                            icon
+                            matRipple
+                            [routerLink]="['/email-templates']"
+                            [attr.aria-label]="'COMMON.CLOSE' | translate"
+                        >
                             <icon>close</icon>
                         </a>
                     }

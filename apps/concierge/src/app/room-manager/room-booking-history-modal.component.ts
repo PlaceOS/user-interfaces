@@ -35,7 +35,12 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
                         | translate: { name: room.display_name || room.name }
                 }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button
+                icon
+                matRipple
+                mat-dialog-close
+                [aria-label]="'COMMON.CLOSE' | translate"
+            >
                 <icon>close</icon>
             </button>
         </header>

@@ -41,6 +41,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                             request.set(null); requestChange.emit(request())
                         "
                         class="absolute top-1 right-1"
+                        [attr.aria-label]="'COMMON.CLOSE' | translate"
                     >
                         <icon>close</icon>
                     </button>

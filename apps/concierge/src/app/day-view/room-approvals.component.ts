@@ -53,6 +53,9 @@ import { EventsStateService } from './events-state.service';
                     "
                     matTooltipPosition="left"
                     (click)="setShow(!show())"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.ROOMS_PENDING_HIDE' | translate
+                    "
                 >
                     <icon>chevron_right</icon>
                 </button>
@@ -236,6 +239,9 @@ import { EventsStateService } from './events-state.service';
                                     class="border-base-300 bg-base-200 h-12 w-12 rounded-md border"
                                     [disabled]="!!busy"
                                     [matMenuTriggerFor]="menu"
+                                    [attr.aria-label]="
+                                        'COMMON.MORE_OPTIONS' | translate
+                                    "
                                 >
                                     <icon>more_vert</icon>
                                 </button>
@@ -292,6 +298,9 @@ import { EventsStateService } from './events-state.service';
                 (click)="setShow(!show())"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
                 matTooltipPosition="left"
+                [attr.aria-label]="
+                    'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate
+                "
             >
                 <icon>chevron_left</icon>
             </button>

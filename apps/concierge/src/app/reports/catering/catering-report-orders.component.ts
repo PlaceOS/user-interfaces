@@ -55,6 +55,9 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     [matTooltip]="
                         'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
                     "
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                    "
                 >
                     <icon>download</icon>
                 </button>

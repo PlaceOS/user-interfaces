@@ -5,6 +5,7 @@ import {
     InteractiveMapComponent,
     MapPinComponent,
     SimpleTableComponent,
+    TranslatePipe,
 } from '@placeos/components';
 
 import { MatDialogModule } from '@angular/material/dialog';
@@ -24,6 +25,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                 matRipple
                 mat-dialog-close
                 class="absolute top-4 right-4"
+                [aria-label]="'COMMON.CLOSE' | translate"
             >
                 <icon>close</icon>
             </button>
@@ -148,6 +150,7 @@ import { SplitJoinPipe } from './split-join.pipe';
         SimpleTableComponent,
         MatFormFieldModule,
         MatInputModule,
+        TranslatePipe,
     ],
 })
 export class AssetLocationModalComponent {

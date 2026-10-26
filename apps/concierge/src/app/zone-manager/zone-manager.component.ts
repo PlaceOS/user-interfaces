@@ -34,6 +34,7 @@ import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
                                 matRipple
                                 [matMenuTriggerFor]="app_settings_menu"
                                 [matTooltip]="'Organisation App Settings'"
+                                [attr.aria-label]="'Organisation App Settings'"
                             >
                                 <icon>rule_settings</icon>
                             </button>
@@ -44,6 +45,7 @@ import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
                             data-shortcut="new"
                             (click)="addItem()"
                             [matTooltip]="addButtonText() | translate"
+                            [attr.aria-label]="addButtonText() | translate"
                         >
                             <icon>{{addButtonIcon()}}</icon>
                         </button>

@@ -271,7 +271,11 @@
         "SIGN_IN": "Sign in",
         "USER_CONTROLS": "User controls",
         "SELECT_DATE": "Select date",
-        "HOME": "Home"
+        "HOME": "Home",
+        "CLOSE": "Close",
+        "MORE_OPTIONS": "More options",
+        "SHOW_QR_CODE": "Show QR code",
+        "UPLOAD_FILE": "Upload file"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -2030,7 +2034,8 @@
             "BULK_REJECT_MSG": "Reject the selected bookings ({{ count }})? You cannot undo this.",
             "UNSAVED_CHANGES_TITLE": "Discard Changes",
             "UNSAVED_CHANGES_MSG": "You have unsaved changes. If you leave this page, you lose them.",
-            "UNSAVED_CHANGES_DISCARD": "Discard"
+            "UNSAVED_CHANGES_DISCARD": "Discard",
+            "LOCKERS_SHOW": "Show lockers"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Room capacity",

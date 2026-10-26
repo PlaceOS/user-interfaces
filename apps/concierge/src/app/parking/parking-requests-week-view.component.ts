@@ -264,6 +264,10 @@ import {
                                                 | translate
                                         "
                                         (click)="editReservation(booking)"
+                                        [attr.aria-label]="
+                                            'APP.CONCIERGE.PARKING_EDIT'
+                                                | translate
+                                        "
                                     >
                                         <icon class="text-base">edit</icon>
                                     </button>

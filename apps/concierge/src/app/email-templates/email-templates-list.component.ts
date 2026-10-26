@@ -140,6 +140,7 @@ import {
                         matRipple
                         [matMenuTriggerFor]="menu"
                         class="mx-auto"
+                        [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
                     >
                         <icon>more_vert</icon>
                     </button>

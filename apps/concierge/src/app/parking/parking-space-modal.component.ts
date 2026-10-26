@@ -62,7 +62,12 @@ export interface ParkingSpaceModalData {
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button
+                        icon
+                        matRipple
+                        mat-dialog-close
+                        [aria-label]="'COMMON.CLOSE' | translate"
+                    >
                         <icon>close</icon>
                     </button>
                 }
@@ -137,6 +142,9 @@ export interface ParkingSpaceModalData {
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
                             (click)="clearUser()"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.USER_CLEAR' | translate
+                            "
                         >
                             <icon className="material-symbols-outlined">
                                 person_cancel

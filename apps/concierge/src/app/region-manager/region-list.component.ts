@@ -61,6 +61,7 @@ import {
                     default
                     matRipple
                     [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
                 >
                     <icon>more_vert</icon>
                 </button>

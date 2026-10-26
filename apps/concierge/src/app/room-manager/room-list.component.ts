@@ -145,7 +145,13 @@ import { RoomManagementService } from './room-management.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto p-1">
-                <button icon default matRipple [matMenuTriggerFor]="menu">
+                <button
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                >
                     <icon>more_vert</icon>
                 </button>
             </div>

@@ -41,7 +41,12 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         }}
                     </h2>
                     @if (!loading()) {
-                        <a icon matRipple [routerLink]="['/deals-n-offers']">
+                        <a
+                            icon
+                            matRipple
+                            [routerLink]="['/deals-n-offers']"
+                            [attr.aria-label]="'COMMON.CLOSE' | translate"
+                        >
                             <icon>close</icon>
                         </a>
                     }

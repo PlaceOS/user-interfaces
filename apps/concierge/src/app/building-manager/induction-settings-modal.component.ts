@@ -34,7 +34,12 @@ import { errorText } from '../ui/modal-actions';
                 {{ 'APP.CONCIERGE.INDUCTION_HEADER' | translate }}
             </h3>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button
+                    icon
+                    matRipple
+                    mat-dialog-close
+                    [aria-label]="'COMMON.CLOSE' | translate"
+                >
                     <icon class="text-2xl">close</icon>
                 </button>
             }

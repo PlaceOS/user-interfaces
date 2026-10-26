@@ -76,6 +76,7 @@ import {
                 matRipple
                 mat-dialog-close
                 class="bg-base-100 absolute top-2 right-2"
+                [aria-label]="'COMMON.CLOSE' | translate"
             >
                 <icon>close</icon>
             </button>

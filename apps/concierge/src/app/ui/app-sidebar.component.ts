@@ -369,6 +369,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                         <icon
                             class="text-xl transition-transform"
                             [class.-rotate-90]="collapsed()[group.id]"
+                            aria-hidden="true"
                         >
                             arrow_drop_down
                         </icon>
@@ -406,9 +407,11 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                             [matTooltip]="rail() ? (link.name | translate) : ''"
                             matTooltipPosition="right"
                         >
-                            <icon class="text-xl opacity-60">{{
-                                link.icon
-                            }}</icon>
+                            <icon
+                                class="text-xl opacity-60"
+                                aria-hidden="true"
+                                >{{ link.icon }}</icon
+                            >
                             @if (!rail()) {
                                 <span>{{ link.name | translate }}</span>
                             }

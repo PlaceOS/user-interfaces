@@ -73,6 +73,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             icon
                             name="toggle-details-meeting"
                             matRipple
+                            [attr.aria-label]="'COMMON.DETAILS' | translate"
+                            [attr.aria-expanded]="!hide_block().details"
                             (click)="
                                 hide_block.update((b) => ({
                                     ...b,
@@ -114,6 +116,10 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 icon
                                 name="toggle-attendees-meeting"
                                 matRipple
+                                [attr.aria-label]="
+                                    'CALENDAR_EVENT.ATTENDEES' | translate
+                                "
+                                [attr.aria-expanded]="!hide_block().attendees"
                                 (click)="
                                     hide_block.update((b) => ({
                                         ...b,
@@ -169,6 +175,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             icon
                             name="toggle-spaces-meeting"
                             matRipple
+                            [attr.aria-label]="'RESOURCE.ROOM' | translate"
+                            [attr.aria-expanded]="!hide_block().resources"
                             (click)="
                                 hide_block.update((b) => ({
                                     ...b,
@@ -225,6 +233,10 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 icon
                                 name="toggle-catering-meeting"
                                 matRipple
+                                [attr.aria-label]="
+                                    'RESOURCE.CATERING' | translate
+                                "
+                                [attr.aria-expanded]="!hide_block().catering"
                                 (click)="
                                     hide_block.update((b) => ({
                                         ...b,
@@ -343,6 +355,10 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 icon
                                 name="toggle-assets-meeting"
                                 matRipple
+                                [attr.aria-label]="
+                                    'RESOURCE.ASSETS' | translate
+                                "
+                                [attr.aria-expanded]="!hide_block().assets"
                                 (click)="
                                     hide_block.update((b) => ({
                                         ...b,

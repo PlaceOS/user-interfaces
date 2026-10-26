@@ -30,6 +30,7 @@ import {
     FullscreenModalShellComponent,
     IconComponent,
     SettingsToggleComponent,
+    TranslatePipe,
 } from '@placeos/components';
 import {
     applyAppSettings,
@@ -542,6 +543,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Room Bookings"
+                            [attr.aria-expanded]="shown_group() === 'spaces'"
                             (click)="toggleGroup('spaces')"
                         >
                             <icon>{{
@@ -897,6 +900,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Desk Bookings"
+                            [attr.aria-expanded]="shown_group() === 'desks'"
                             (click)="toggleGroup('desks')"
                         >
                             <icon>{{
@@ -1100,6 +1105,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="PlaceOS Bookings"
+                            [attr.aria-expanded]="shown_group() === 'bookings'"
                             (click)="toggleGroup('bookings')"
                         >
                             <icon>{{
@@ -1297,6 +1304,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="PlaceOS Maps"
+                            [attr.aria-expanded]="shown_group() === 'explore'"
                             (click)="toggleGroup('explore')"
                         >
                             <icon>{{
@@ -1500,6 +1509,9 @@ import { errorText } from '../modal-actions';
                                                     matRipple
                                                     class="border-error text-error h-12 w-12 rounded-sm border"
                                                     (click)="removeLegend(i)"
+                                                    [attr.aria-label]="
+                                                        'COMMON.DELETE' | translate
+                                                    "
                                                 >
                                                     <icon>delete</icon>
                                                 </button>
@@ -1600,6 +1612,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Parking Bookings"
+                            [attr.aria-expanded]="shown_group() === 'parking'"
                             (click)="toggleGroup('parking')"
                         >
                             <icon>{{
@@ -1774,6 +1788,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Locker Bookings"
+                            [attr.aria-expanded]="shown_group() === 'lockers'"
                             (click)="toggleGroup('lockers')"
                         >
                             <icon>{{
@@ -1925,6 +1941,7 @@ import { errorText } from '../modal-actions';
         MatInputModule,
         FormsModule,
         UploadButtonComponent,
+        TranslatePipe,
     ],
 })
 export class WorkplaceSettingsFormModalComponent implements OnInit {

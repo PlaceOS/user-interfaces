@@ -63,6 +63,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     icon
                     matRipple
                     [routerLink]="['/surveys', 'list', model().building_id]"
+                    [attr.aria-label]="'COMMON.BACK' | translate"
                 >
                     <icon>arrow_back</icon>
                 </a>
@@ -213,6 +214,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                             class="border-base-300 bg-base-100 h-12 w-12 rounded-sm border"
                             matTooltip="Add Page"
                             (click)="addPage()"
+                            aria-label="Add Page"
                         >
                             <icon>add</icon>
                         </button>
@@ -239,6 +241,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 class="border-base-300 bg-base-100 text-error h-12 w-12 rounded-sm border"
                                 matTooltip="Remove Page"
                                 (click)="removePage()"
+                                aria-label="Remove Page"
                             >
                                 <icon>delete</icon>
                             </button>
@@ -340,6 +343,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 matRipple
                                 matTooltip="Add Question"
                                 (click)="editQuestion()"
+                                aria-label="Add Question"
                             >
                                 <icon>add</icon>
                             </button>
@@ -413,6 +417,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                     class="bg-base-200 flex h-20 h-full flex-col justify-center rounded-sm p-1 hover:cursor-move"
                                     matRipple
                                     matTooltip="Drag Question onto page"
+                                    aria-label="Drag Question onto page"
                                 >
                                     <icon>drag_indicator</icon>
                                 </button>
@@ -427,6 +432,9 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                     matRipple
                                     class="absolute top-1 right-1"
                                     [matMenuTriggerFor]="actionsMenu"
+                                    [attr.aria-label]="
+                                        'COMMON.MORE_OPTIONS' | translate
+                                    "
                                 >
                                     <icon>more_vert</icon>
                                 </button>

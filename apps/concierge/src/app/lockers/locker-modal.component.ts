@@ -66,7 +66,12 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button
+                        icon
+                        matRipple
+                        mat-dialog-close
+                        [aria-label]="'COMMON.CLOSE' | translate"
+                    >
                         <icon>close</icon>
                     </button>
                 }
@@ -100,6 +105,9 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
                             (click)="clearUser()"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.USER_CLEAR' | translate
+                            "
                         >
                             <icon className="material-symbols-outlined">
                                 person_cancel

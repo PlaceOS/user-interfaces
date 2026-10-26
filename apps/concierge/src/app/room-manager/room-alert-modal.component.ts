@@ -32,7 +32,12 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
                 }}
             </h2>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button
+                    icon
+                    matRipple
+                    mat-dialog-close
+                    [aria-label]="'COMMON.CLOSE' | translate"
+                >
                     <icon>close</icon>
                 </button>
             }

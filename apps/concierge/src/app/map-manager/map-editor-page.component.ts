@@ -110,6 +110,7 @@ function localised(
                 matRipple
                 routerLink="/map-management"
                 [matTooltip]="'APP.CONCIERGE.MAPS_BACK' | translate"
+                [attr.aria-label]="'APP.CONCIERGE.MAPS_BACK' | translate"
             >
                 <icon>arrow_back</icon>
             </a>

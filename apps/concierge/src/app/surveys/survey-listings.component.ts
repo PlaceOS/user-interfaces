@@ -18,7 +18,12 @@ import { SurveyService } from './survey.service';
     template: `
         <div class="flex w-full items-center justify-between px-8 py-4">
             <div class="flex">
-                <a icon matRipple [routerLink]="['/surveys']">
+                <a
+                    icon
+                    matRipple
+                    [routerLink]="['/surveys']"
+                    [attr.aria-label]="'COMMON.BACK' | translate"
+                >
                     <icon class="mr-2 flex">arrow_back</icon>
                 </a>
                 <div class="flex flex-col">
@@ -96,6 +101,7 @@ import { SurveyService } from './survey.service';
                     default
                     matRipple
                     [matMenuTriggerFor]="actionsMenu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
                 >
                     <icon>more_vert</icon>
                 </button>

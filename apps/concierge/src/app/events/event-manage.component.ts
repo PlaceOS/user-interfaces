@@ -79,6 +79,7 @@ const EMPTY = [];
                             icon
                             matRipple
                             [routerLink]="['/entertainment', 'events']"
+                            [attr.aria-label]="'COMMON.CLOSE' | translate"
                         >
                             <icon>close</icon>
                         </a>

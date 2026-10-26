@@ -149,6 +149,9 @@ import { PointOfInterest } from './poi-management.service';
                                     'APP.CONCIERGE.POI_MAP_SELECT' | translate
                                 "
                                 (click)="selectPOIfromMap()"
+                                [attr.aria-label]="
+                                    'APP.CONCIERGE.POI_MAP_SELECT' | translate
+                                "
                             >
                                 <icon>place</icon>
                             </button>

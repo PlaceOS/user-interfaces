@@ -355,6 +355,10 @@ import {
                                                     | translate
                                             "
                                             (click)="editReservation(booking)"
+                                            [attr.aria-label]="
+                                                'APP.CONCIERGE.PARKING_EDIT'
+                                                    | translate
+                                            "
                                         >
                                             <icon>edit</icon>
                                         </button>
@@ -377,6 +381,10 @@ import {
                                                     | translate
                                             "
                                             (click)="removeBooking(booking)"
+                                            [attr.aria-label]="
+                                                'APP.CONCIERGE.BOOKING_REMOVE_TITLE'
+                                                    | translate
+                                            "
                                         >
                                             <icon>delete</icon>
                                         </button>

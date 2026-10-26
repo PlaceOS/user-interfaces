@@ -264,7 +264,11 @@
         "BULK_SUCCESS": "更新された項目: {{ count }}",
         "BULK_PARTIAL": "{{ total }} 件中 {{ failed }} 件の項目を更新できませんでした。",
         "SELECT_DATE": "日付を選択",
-        "HOME": "ホーム"
+        "HOME": "ホーム",
+        "CLOSE": "閉じる",
+        "MORE_OPTIONS": "その他のオプション",
+        "SHOW_QR_CODE": "QRコードを表示",
+        "UPLOAD_FILE": "ファイルをアップロード"
     },
     "LANGUAGE": {
         "ENGLISH": "英語",
@@ -1851,7 +1855,8 @@
             "BULK_REJECT_MSG": "選択した予約 ({{ count }}) を却下しますか？この操作は元に戻せません。",
             "UNSAVED_CHANGES_TITLE": "変更を破棄",
             "UNSAVED_CHANGES_MSG": "保存されていない変更があります。このページを離れると、変更は失われます。",
-            "UNSAVED_CHANGES_DISCARD": "破棄"
+            "UNSAVED_CHANGES_DISCARD": "破棄",
+            "LOCKERS_SHOW": "ロッカーを表示"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "会議室の定員",

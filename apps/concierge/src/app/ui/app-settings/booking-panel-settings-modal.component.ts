@@ -235,6 +235,7 @@ don't detect presence in room after a period of time"
                                 matRipple
                                 [disabled]="uploading()"
                                 class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
+                                aria-label="Upload room image"
                             >
                                 <icon>cloud_upload</icon>
                                 <input
@@ -267,6 +268,7 @@ don't detect presence in room after a period of time"
                                 matRipple
                                 [disabled]="uploading()"
                                 class="bg-secondary text-secondary-content relative h-12 w-12 rounded-sm"
+                                aria-label="Upload offline image"
                             >
                                 <icon>cloud_upload</icon>
                                 <input
