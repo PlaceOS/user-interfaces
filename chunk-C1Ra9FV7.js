@@ -1,0 +1,3 @@
+import{Gr as tr,oi as y}from"./chunk-KHJgN2oW.js";import{on as tt}from"./chunk-r-sW5LvC.js";var u=(()=>{class e{constructor(){this._org=y(tt)}transform(t){return this._org.buildings.find(o=>t instanceof Array?t.includes(o.id):o.id===t)}static{this.ɵfac=function(o){return new(o||e)}}static{this.ɵpipe=tr({name:`building`,type:e,pure:!0})}}return e})();var g={free:`#43a047`,pending:`#ffb300`,reserved:`#e65100`,busy:`#e53935`,"signs-of-life":`#1565c0`,"not-bookable":`#757575`,unknown:`#757575`};export{u as n,g as t};
+//# debugId=e412bf7a-76e2-525b-8cd4-10080d5d4c10
+//# sourceMappingURL=chunk-C1Ra9FV7.js.map
