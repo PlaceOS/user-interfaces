@@ -1212,7 +1212,9 @@
         "MORE_OPTIONS": "More options",
         "SHOW_QR_CODE": "Show QR code",
         "UPLOAD_FILE": "Upload file",
-        "QR_CODE": "QR code"
+        "QR_CODE": "QR code",
+        "REORDER_HINT": "Press the up or down arrow key to move",
+        "MOVED_TO_POSITION": "Moved to position {{ position }} of {{ count }}"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

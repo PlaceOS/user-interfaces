@@ -269,7 +269,9 @@
         "MORE_OPTIONS": "Más opciones",
         "SHOW_QR_CODE": "Mostrar código QR",
         "UPLOAD_FILE": "Subir archivo",
-        "QR_CODE": "Código QR"
+        "QR_CODE": "Código QR",
+        "REORDER_HINT": "Pulse la tecla de flecha arriba o abajo para mover",
+        "MOVED_TO_POSITION": "Movido a la posición {{ position }} de {{ count }}"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglés",

@@ -4,6 +4,7 @@ import {
     computed,
     effect,
     inject,
+    Injector,
     OnInit,
     signal,
     untracked,
@@ -19,11 +20,13 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     Building,
+    i18n,
     notifyError,
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
 
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import {
     CdkDragDrop,
     DragDropModule,
@@ -45,6 +48,7 @@ import {
     SurveyOutletComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { restoreFocusAfterRender } from '../ui/restore-focus';
 import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
 import { NewSurveyService, QuestionFilters } from './new-survey.service';
 import { QuestionComponent } from './question.component';
@@ -282,6 +286,19 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                                 cdkDragHandle
                                                 class="border-base-400 bg-base-100 cursor-grab rounded-l rounded-r-none border-y border-l"
                                                 matTooltip="Reorder Question"
+                                                aria-label="Reorder Question"
+                                                [attr.aria-description]="
+                                                    'COMMON.REORDER_HINT'
+                                                        | translate
+                                                "
+                                                (keydown.arrowup)="
+                                                    $event.preventDefault();
+                                                    moveQuestion(idx, idx - 1)
+                                                "
+                                                (keydown.arrowdown)="
+                                                    $event.preventDefault();
+                                                    moveQuestion(idx, idx + 1)
+                                                "
                                             >
                                                 <icon class="text-xl"
                                                     >drag_indicator</icon
@@ -439,6 +456,19 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                     <icon>more_vert</icon>
                                 </button>
                                 <mat-menu #actionsMenu="matMenu">
+                                    <!-- Keyboard alternative to dragging the question onto the page -->
+                                    <button
+                                        mat-menu-item
+                                        [disabled]="!active_page_value()"
+                                        (click)="addToPage(question)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-xl">add</icon>
+                                            <div>Add to Page</div>
+                                        </div>
+                                    </button>
                                     <button
                                         mat-menu-item
                                         (click)="duplicateQuestion(question)"
@@ -547,6 +577,8 @@ export class SurveyBuilderComponent
     implements OnInit, HasUnsavedChanges
 {
     private _org = inject(OrganisationService);
+    private _announcer = inject(LiveAnnouncer);
+    private _injector = inject(Injector);
     private _service = inject(NewSurveyService);
     private _route = inject(ActivatedRoute);
 
@@ -692,6 +724,30 @@ export class SurveyBuilderComponent
         const order = [...this.active_page_value().question_order];
         order.splice(idx, 1);
         this.updateActivePage({ question_order: order });
+    }
+
+    /** Move a question on the active page. The drag handle's arrow keys use it */
+    public moveQuestion(from: number, to: number) {
+        const order = [...this.active_page_value().question_order];
+        if (to < 0 || to >= order.length) return;
+        moveItemInArray(order, from, to);
+        restoreFocusAfterRender(this._injector);
+        this.updateActivePage({ question_order: order });
+        this._announcer.announce(
+            i18n('COMMON.MOVED_TO_POSITION', {
+                position: to + 1,
+                count: order.length,
+            }),
+        );
+    }
+
+    /** Add a question to the end of the active page */
+    public addToPage(question: SurveyQuestion) {
+        const page = this.active_page_value();
+        if (!page) return;
+        this.updateActivePage({
+            question_order: [...page.question_order, question.id],
+        });
     }
 
     public async drop(event: CdkDragDrop<SurveyQuestion[]>) {

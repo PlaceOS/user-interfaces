@@ -269,7 +269,9 @@
         "MORE_OPTIONS": "المزيد من الخيارات",
         "SHOW_QR_CODE": "عرض رمز QR",
         "UPLOAD_FILE": "تحميل ملف",
-        "QR_CODE": "رمز QR"
+        "QR_CODE": "رمز QR",
+        "REORDER_HINT": "اضغط على مفتاح السهم لأعلى أو لأسفل للنقل",
+        "MOVED_TO_POSITION": "تم النقل إلى الموضع {{ position }} من {{ count }}"
     },
     "LANGUAGE": {
         "ENGLISH": "الإنجليزية",

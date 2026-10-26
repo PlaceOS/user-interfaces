@@ -269,7 +269,9 @@
         "MORE_OPTIONS": "その他のオプション",
         "SHOW_QR_CODE": "QRコードを表示",
         "UPLOAD_FILE": "ファイルをアップロード",
-        "QR_CODE": "QRコード"
+        "QR_CODE": "QRコード",
+        "REORDER_HINT": "上下の矢印キーで移動します",
+        "MOVED_TO_POSITION": "{{ count }} 件中 {{ position }} 番目に移動しました"
     },
     "LANGUAGE": {
         "ENGLISH": "英語",

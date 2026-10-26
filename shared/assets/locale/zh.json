@@ -269,7 +269,9 @@
         "MORE_OPTIONS": "更多选项",
         "SHOW_QR_CODE": "显示二维码",
         "UPLOAD_FILE": "上传文件",
-        "QR_CODE": "二维码"
+        "QR_CODE": "二维码",
+        "REORDER_HINT": "按上或下箭头键移动",
+        "MOVED_TO_POSITION": "已移至第 {{ position }} 位，共 {{ count }} 位"
     },
     "LANGUAGE": {
         "ENGLISH": "英语",

@@ -96,6 +96,23 @@ describe('SurveyBuilderComponent', () => {
         ]);
     });
 
+    it('should move a page question one place with the keyboard', () => {
+        spectator.component.updateActivePage({ question_order: [10, 20, 30] });
+        spectator.component.moveQuestion(0, -1);
+        spectator.component.moveQuestion(2, 1);
+        expect(spectator.component.active_page_value().question_order).toEqual([
+            10, 30, 20,
+        ]);
+    });
+
+    it('should add a question to the end of the active page', () => {
+        spectator.component.updateActivePage({ question_order: [10] });
+        spectator.component.addToPage({ id: 20 } as any);
+        expect(spectator.component.active_page_value().question_order).toEqual([
+            10, 20,
+        ]);
+    });
+
     it('should insert a dragged question into the page order', async () => {
         filtered_questions.set([{ id: 99 }, { id: 100 }]);
         spectator.component.updateActivePage({ question_order: [] });
