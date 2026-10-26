@@ -268,7 +268,7 @@ describe('SimpleTableComponent', () => {
             expect(spectator.component.selected()).toHaveLength(2000);
             scrollTo(64000);
             const cell = spectator.query(
-                '[data-row-index="1000"] [role="cell"]',
+                '[data-row-index="1000"] [role="cell"]:not([row-selector])',
             );
             cell.dispatchEvent(new MouseEvent('mouseenter'));
             spectator.click(cell);

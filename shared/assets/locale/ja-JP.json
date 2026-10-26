@@ -262,7 +262,9 @@
         "CLEAR_SELECTION": "選択を解除",
         "BULK_LOADING": "項目を更新中 ({{ count }})...",
         "BULK_SUCCESS": "更新された項目: {{ count }}",
-        "BULK_PARTIAL": "{{ total }} 件中 {{ failed }} 件の項目を更新できませんでした。"
+        "BULK_PARTIAL": "{{ total }} 件中 {{ failed }} 件の項目を更新できませんでした。",
+        "SELECT_DATE": "日付を選択",
+        "HOME": "ホーム"
     },
     "LANGUAGE": {
         "ENGLISH": "英語",

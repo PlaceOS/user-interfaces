@@ -269,7 +269,9 @@
         "BULK_PARTIAL": "{{ failed }} of {{ total }} items did not update.",
         "SIGN_IN_PROMPT": "Sign in to continue.",
         "SIGN_IN": "Sign in",
-        "USER_CONTROLS": "User controls"
+        "USER_CONTROLS": "User controls",
+        "SELECT_DATE": "Select date",
+        "HOME": "Home"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

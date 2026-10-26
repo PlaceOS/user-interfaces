@@ -262,7 +262,9 @@
         "CLEAR_SELECTION": "Limpar seleção",
         "BULK_LOADING": "Atualizando itens ({{ count }})...",
         "BULK_SUCCESS": "Itens atualizados: {{ count }}",
-        "BULK_PARTIAL": "{{ failed }} de {{ total }} itens não foram atualizados."
+        "BULK_PARTIAL": "{{ failed }} de {{ total }} itens não foram atualizados.",
+        "SELECT_DATE": "Selecionar data",
+        "HOME": "Início"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglês",

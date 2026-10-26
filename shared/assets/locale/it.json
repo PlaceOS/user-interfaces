@@ -262,7 +262,9 @@
         "CLEAR_SELECTION": "Cancella selezione",
         "BULK_LOADING": "Aggiornamento elementi ({{ count }})...",
         "BULK_SUCCESS": "Elementi aggiornati: {{ count }}",
-        "BULK_PARTIAL": "{{ failed }} elementi su {{ total }} non sono stati aggiornati."
+        "BULK_PARTIAL": "{{ failed }} elementi su {{ total }} non sono stati aggiornati.",
+        "SELECT_DATE": "Seleziona data",
+        "HOME": "Home"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglese",

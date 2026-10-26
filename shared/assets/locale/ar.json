@@ -262,7 +262,9 @@
         "CLEAR_SELECTION": "مسح التحديد",
         "BULK_LOADING": "جاري تحديث العناصر ({{ count }})...",
         "BULK_SUCCESS": "العناصر المحدثة: {{ count }}",
-        "BULK_PARTIAL": "لم يتم تحديث {{ failed }} من {{ total }} عناصر."
+        "BULK_PARTIAL": "لم يتم تحديث {{ failed }} من {{ total }} عناصر.",
+        "SELECT_DATE": "اختر التاريخ",
+        "HOME": "الرئيسية"
     },
     "LANGUAGE": {
         "ENGLISH": "الإنجليزية",

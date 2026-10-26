@@ -9,7 +9,7 @@ import {
  * How a shortcut acts on its target element. `focus` clicks targets that are
  * not inputs, such as a button that opens a search field.
  */
-export type ShortcutAction = 'focus' | 'click' | 'dblclick';
+export type ShortcutAction = 'focus' | 'click';
 
 export interface KeyboardShortcut {
     /** Lower case `KeyboardEvent.key` value that triggers the shortcut */
@@ -50,11 +50,11 @@ export const KEYBOARD_SHORTCUTS: readonly KeyboardShortcut[] = [
         description: 'APP.CONCIERGE.SHORTCUTS_REFRESH',
     },
     {
-        // The date label in `date-options` resets to today on double click
+        // The date label in `date-options` resets to today on click
         key: 't',
         label: 'T',
         target: 'today',
-        action: 'dblclick',
+        action: 'click',
         description: 'APP.CONCIERGE.SHORTCUTS_TODAY',
     },
     {
@@ -166,10 +166,6 @@ export class KeyboardShortcutsService {
         ) {
             element.focus();
             element.select();
-        } else if (shortcut.action === 'dblclick') {
-            element.dispatchEvent(
-                new MouseEvent('dblclick', { bubbles: true, cancelable: true }),
-            );
         } else {
             element.click();
         }

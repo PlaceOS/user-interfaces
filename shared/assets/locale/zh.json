@@ -262,7 +262,9 @@
         "CLEAR_SELECTION": "清除选择",
         "BULK_LOADING": "正在更新项目 ({{ count }})...",
         "BULK_SUCCESS": "已更新的项目：{{ count }}",
-        "BULK_PARTIAL": "{{ total }} 个项目中有 {{ failed }} 个未更新。"
+        "BULK_PARTIAL": "{{ total }} 个项目中有 {{ failed }} 个未更新。",
+        "SELECT_DATE": "选择日期",
+        "HOME": "首页"
     },
     "LANGUAGE": {
         "ENGLISH": "英语",

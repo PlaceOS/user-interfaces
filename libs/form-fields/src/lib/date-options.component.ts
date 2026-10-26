@@ -48,6 +48,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                 yPosition="top"
                 [class.pointer-events-none]="disabled()"
                 [class.opacity-30]="disabled()"
+                [attr.aria-label]="'COMMON.SELECT_DATE' | translate"
             >
                 <icon>today</icon>
             </button>
@@ -57,6 +58,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
             matRipple
             class="hover:bg-base-200 rounded-sm"
             data-shortcut="previous"
+            [attr.aria-label]="'COMMON.PREVIOUS' | translate"
             (click)="previousDay()"
         >
             <icon>keyboard_arrow_left</icon>
@@ -67,6 +69,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                 matRipple
                 class="hover:bg-base-200 rounded-sm"
                 data-shortcut="next"
+                [attr.aria-label]="'COMMON.NEXT' | translate"
                 (click)="nextDay()"
             >
                 <icon>keyboard_arrow_right</icon>
@@ -75,7 +78,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
         <button
             matRipple
             data-shortcut="today"
-            (dblclick)="setDate()"
+            (click)="setDate()"
             class="display hover:bg-base-200 relative mx-2 flex h-12 items-center justify-center rounded-sm leading-none"
             [class.w-36]="display_mode() === 'day'"
             [class.w-48]="display_mode() === 'week'"
@@ -111,13 +114,14 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                 matRipple
                 class="hover:bg-base-200 rounded-sm"
                 data-shortcut="next"
+                [attr.aria-label]="'COMMON.NEXT' | translate"
                 (click)="nextDay()"
             >
                 <icon>keyboard_arrow_right</icon>
             </button>
         }
         @if (!is_new()) {
-            <div matTooltip="Pick Date">
+            <div [matTooltip]="'COMMON.SELECT_DATE' | translate">
                 <button
                     icon
                     default
@@ -127,6 +131,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                     yPosition="top"
                     [class.pointer-events-none]="disabled()"
                     [class.opacity-30]="disabled()"
+                    [attr.aria-label]="'COMMON.SELECT_DATE' | translate"
                 >
                     <icon>today</icon>
                 </button>
