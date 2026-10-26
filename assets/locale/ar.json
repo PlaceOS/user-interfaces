@@ -269,23 +269,7 @@
         "MORE_OPTIONS": "المزيد من الخيارات",
         "SHOW_QR_CODE": "عرض رمز QR",
         "UPLOAD_FILE": "تحميل ملف",
-        "QR_CODE": "رمز QR",
-        "REORDER_HINT": "اضغط على مفتاح السهم لأعلى أو لأسفل للنقل",
-        "MOVED_TO_POSITION": "تم النقل إلى الموضع {{ position }} من {{ count }}",
-        "INCREASE": "زيادة",
-        "DECREASE": "تقليل",
-        "PREVIOUS_MONTH": "الشهر السابق",
-        "NEXT_MONTH": "الشهر التالي",
-        "COPY_LINK": "نسخ الرابط",
-        "OPEN_FILE": "فتح الملف",
-        "BOLD": "غامق",
-        "ITALIC": "مائل",
-        "UNDERLINE": "تسطير",
-        "BULLETED_LIST": "قائمة نقطية",
-        "NUMBERED_LIST": "قائمة مرقمة",
-        "INSERT_LINK": "إدراج رابط",
-        "INSERT_IMAGE": "إدراج صورة",
-        "ATTACH_FILE": "إرفاق ملف"
+        "QR_CODE": "رمز QR"
     },
     "LANGUAGE": {
         "ENGLISH": "الإنجليزية",
@@ -1875,8 +1859,7 @@
             "UNSAVED_CHANGES_DISCARD": "تجاهل",
             "LOCKERS_SHOW": "عرض الخزائن",
             "VISITORS_ID_IMAGE": "هوية الزائر",
-            "ASSETS_REQUEST_DETAILS": "تفاصيل طلب الأصل",
-            "SHORTCUTS_ENABLED": "استخدام اختصارات المفتاح الواحد"
+            "ASSETS_REQUEST_DETAILS": "تفاصيل طلب الأصل"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "سعة الغرفة",
