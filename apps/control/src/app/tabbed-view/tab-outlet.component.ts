@@ -447,15 +447,17 @@ import { TVControlsComponent } from './tv-controls.component';
                         <div
                             class="flex flex-col items-center sm:flex-row sm:items-stretch sm:justify-center sm:space-x-8"
                         >
-                            @if (!speaker_track()) {
-                                <camera-controls
-                                    class="max-sm:mt-4"
-                                ></camera-controls>
+                            <!-- Phones show the dial view first, as calls are the main task.
+                                 The DOM order matches the visual order, so focus follows it. -->
+                            @if (!speaker_track() && !mobile()) {
+                                <camera-controls></camera-controls>
                             }
-                            <!-- Phones show the dial view first, as calls are the main task -->
                             <video-call-dial-view
-                                class="block max-sm:order-first sm:mt-4"
+                                class="block sm:mt-4"
                             ></video-call-dial-view>
+                            @if (!speaker_track() && mobile()) {
+                                <camera-controls class="mt-4"></camera-controls>
+                            }
                         </div>
                     }
                 }

@@ -7,6 +7,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
 
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { MobileLayoutService } from '../../app/mobile-layout';
 import { DialpadComponent } from '../../app/ui/dialpad.component';
 import { VideoCallDialViewComponent } from '../../app/video-call/video-call-dial-view.component';
 import { VideoCallStateService } from '../../app/video-call/video-call-state.service';
@@ -14,6 +15,7 @@ import { VideoCallStateService } from '../../app/video-call/video-call-state.ser
 describe('VideoCallDialViewComponent', () => {
     let spectator: Spectator<VideoCallDialViewComponent>;
     const show_camera_pip = signal<boolean | null>(null);
+    const mobile = signal(false);
     const call_state = {
         show_camera_pip,
         showCameraPIP: vi.fn(),
@@ -33,14 +35,31 @@ describe('VideoCallDialViewComponent', () => {
             MockModule(MatInputModule),
             MockModule(MatProgressSpinnerModule),
         ],
-        providers: [{ provide: VideoCallStateService, useValue: call_state }],
+        providers: [
+            { provide: VideoCallStateService, useValue: call_state },
+            { provide: MobileLayoutService, useValue: { mobile } },
+        ],
     });
 
     beforeEach(() => {
         show_camera_pip.set(null);
+        mobile.set(false);
         call_state.showCameraPIP.mockClear();
         call_state.dial.mockReset().mockResolvedValue(null);
         spectator = createComponent();
+    });
+
+    it('should put the code before the keypad on phones, so focus follows the screen', () => {
+        const follows = (a: Element, b: Element) =>
+            !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+        expect(
+            follows(spectator.query('dialpad'), spectator.query('input')),
+        ).toBe(true);
+        mobile.set(true);
+        spectator.detectChanges();
+        expect(
+            follows(spectator.query('input'), spectator.query('dialpad')),
+        ).toBe(true);
     });
 
     it('should append pressed digits to the dial number', () => {
