@@ -111,6 +111,7 @@ describe('TopbarHeaderComponent', () => {
             ActionModalComponent,
             expect.objectContaining({
                 panelClass: 'fullscreen-dialog',
+                ariaLabelledBy: 'action-modal-title',
                 data: { title: 'Power', component: PowerTooltipComponent },
             }),
         );

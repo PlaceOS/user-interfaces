@@ -303,15 +303,29 @@ describe('TabOutletComponent', () => {
             const service: any = spectator.inject(ControlStateService);
             service.output_list.set([{ id: 'o1' }, { id: 'o2' }]);
             spectator.detectChanges();
+            expect('button[source]').toHaveAttribute('aria-haspopup', 'dialog');
             spectator.click('button[source]');
-            expect(service.setOutputSource).toHaveBeenCalledWith('i1');
+            expect(service.setSelectedInput).toHaveBeenCalledWith('i1');
+            expect(service.setOutputSource).not.toHaveBeenCalled();
             expect(service.selectDisplay).toHaveBeenCalledWith('i1');
+        });
+
+        it('should close the display list with the view', () => {
+            const service: any = spectator.inject(ControlStateService);
+            const close = vi.fn();
+            service.selectDisplay.mockReturnValue({ close });
+            service.output_list.set([{ id: 'o1' }, { id: 'o2' }]);
+            spectator.detectChanges();
+            spectator.click('button[source]');
+            spectator.component.ngOnDestroy();
+            expect(close).toHaveBeenCalled();
         });
 
         it('should only select the source when the room has one display', () => {
             const service: any = spectator.inject(ControlStateService);
             service.output_list.set([{ id: 'o1' }]);
             spectator.detectChanges();
+            expect('button[source]').not.toHaveAttribute('aria-haspopup');
             spectator.click('button[source]');
             expect(service.setOutputSource).toHaveBeenCalledWith('i1');
             expect(service.selectDisplay).not.toHaveBeenCalled();

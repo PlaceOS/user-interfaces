@@ -12,6 +12,9 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 
+/** ID of the dialog title. Pass it as `ariaLabelledBy` to name the dialog. */
+export const ACTION_MODAL_TITLE_ID = 'action-modal-title';
+
 export interface ActionModalData {
     /** Name of the action. The popup hides its own title on phones. */
     title: string;
@@ -32,7 +35,10 @@ export interface ActionModalData {
             <div
                 class="border-base-200 flex items-center gap-2 border-b py-2 pr-2 pl-4"
             >
-                <h2 class="min-w-0 flex-1 truncate text-lg font-medium">
+                <h2
+                    class="min-w-0 flex-1 truncate text-lg font-medium"
+                    [id]="title_id"
+                >
                     {{ title }}
                 </h2>
                 <button
@@ -67,6 +73,7 @@ export class ActionModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<ActionModalComponent>>(MatDialogRef);
 
+    public readonly title_id = ACTION_MODAL_TITLE_ID;
     public readonly title = this._data.title;
     public readonly component = this._data.component;
     /** Lets the popup close itself, as it does in the tooltip */

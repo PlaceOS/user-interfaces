@@ -10,6 +10,9 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ControlStateService, RoomOutput } from '../control-state.service';
 import { errorText } from '../error-text';
 
+/** ID of the dialog title. Pass it as `ariaLabelledBy` to name the dialog. */
+export const DISPLAY_SELECT_TITLE_ID = 'display-select-title';
+
 export interface DisplaySelectModalData {
     /** ID of the input to show */
     input: string;
@@ -29,7 +32,10 @@ export interface DisplaySelectModalData {
             <div
                 class="border-base-200 flex items-center gap-2 border-b py-2 pr-2 pl-4"
             >
-                <h2 class="min-w-0 flex-1 truncate text-lg font-medium">
+                <h2
+                    class="min-w-0 flex-1 truncate text-lg font-medium"
+                    [id]="title_id"
+                >
                     {{
                         'APP.CONTROL.DISPLAY_SELECT'
                             | translate: { name: input()?.name || '' }
@@ -110,6 +116,7 @@ export class DisplaySelectModalComponent {
     private readonly _outputs = this._state.output_list;
     private readonly _hide_present_all = this._state.hide_present_all;
 
+    public readonly title_id = DISPLAY_SELECT_TITLE_ID;
     /** Whether a routing request is in progress */
     public readonly loading = signal(false);
     /** Details of the input to show */

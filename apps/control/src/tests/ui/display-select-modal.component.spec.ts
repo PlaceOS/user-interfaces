@@ -52,6 +52,10 @@ describe('DisplaySelectModalComponent', () => {
         spectator = createComponent();
     });
 
+    it('should give the title the ID that names the dialog', () => {
+        expect('h2').toHaveAttribute('id', 'display-select-title');
+    });
+
     it('should list each display with its source', () => {
         const rows = spectator.queryAll('button[display]');
         expect(rows).toHaveLength(2);

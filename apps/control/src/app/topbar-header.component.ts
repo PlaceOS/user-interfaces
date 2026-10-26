@@ -15,7 +15,10 @@ import {
 } from '@placeos/components';
 import { ControlStateService } from './control-state.service';
 import { FULLSCREEN_DIALOG } from './mobile-layout';
-import { ActionModalComponent } from './ui/action-modal.component';
+import {
+    ACTION_MODAL_TITLE_ID,
+    ActionModalComponent,
+} from './ui/action-modal.component';
 import { CameraTooltipComponent } from './ui/camera-tooltip.component';
 import { JoinRoomTooltipComponent } from './ui/join-room-tooltip.component';
 import { LightingLevelsTooltipComponent } from './ui/lighting-levels-tooltip.component';
@@ -307,6 +310,7 @@ export class TopbarHeaderComponent extends AsyncHandler {
         this._action_ref?.close();
         this._action_ref = this._dialog.open(ActionModalComponent, {
             ...FULLSCREEN_DIALOG,
+            ariaLabelledBy: ACTION_MODAL_TITLE_ID,
             data: { title: item.name, component },
         });
     }

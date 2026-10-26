@@ -36,6 +36,7 @@ describe('ActionModalComponent', () => {
 
     it('should show the popup component under the action name', () => {
         expect('h2').toHaveText('Lighting');
+        expect('h2').toHaveAttribute('id', 'action-modal-title');
         expect('test-popup').toExist();
     });
 

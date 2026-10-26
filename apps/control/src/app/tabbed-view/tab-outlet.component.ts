@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, log } from '@placeos/common';
 import {
@@ -13,6 +14,7 @@ import { map } from 'rxjs/operators';
 import { ControlStateService, RoomInput } from '../control-state.service';
 import { MobileLayoutService } from '../mobile-layout';
 import { CameraControlsComponent } from '../ui/camera-controls.component';
+import { DisplaySelectModalComponent } from '../ui/display-select-modal.component';
 import { MarkdownPipe } from '../ui/markdown.pipe';
 import { ICON_MAP } from '../ui/output-display.component';
 import { VoiceAssistantComponent } from '../ui/voice-assistant.component';
@@ -131,6 +133,9 @@ import { TVControlsComponent } from './tv-controls.component';
                                     class="border-base-200 flex w-full items-center space-x-4 border-t px-4 py-3 text-left"
                                     [class.text-secondary]="selected"
                                     [attr.aria-pressed]="selected"
+                                    [attr.aria-haspopup]="
+                                        can_pick_display() ? 'dialog' : null
+                                    "
                                     (click)="pickSource(input)"
                                 >
                                     <icon class="text-2xl">
@@ -405,6 +410,8 @@ export class TabOutletComponent extends AsyncHandler {
     private _vc_state = inject(VideoCallStateService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+    private _display_ref: MatDialogRef<DisplaySelectModalComponent> | null =
+        null;
 
     public hearing_tloop = false;
     public readonly icons = ICON_MAP;
@@ -488,10 +495,21 @@ export class TabOutletComponent extends AsyncHandler {
         this._service.setOutputSource(input.id);
     public viewHelp = () => this._service.viewHelp(this.tab()?.help);
 
-    /** Select a source on the phone layout, then ask which display shows it */
+    /**
+     * Select a source on the phone layout, then ask which display shows it.
+     * Only selects the input, so a display picked on the wide layout does not change before the user picks one.
+     */
     public pickSource(input: RoomInput) {
-        this.setInput(input);
-        if (this.can_pick_display()) this._service.selectDisplay(input.id);
+        if (!this.can_pick_display()) return this.setInput(input);
+        this._service.setSelectedInput(input.id);
+        this._display_ref?.close();
+        this._display_ref = this._service.selectDisplay(input.id);
+    }
+
+    /** Close the display list with the view. For example, when the room powers off elsewhere. */
+    public ngOnDestroy() {
+        this._display_ref?.close();
+        super.ngOnDestroy();
     }
 
     constructor() {
