@@ -269,23 +269,7 @@
         "MORE_OPTIONS": "Altre opzioni",
         "SHOW_QR_CODE": "Mostra codice QR",
         "UPLOAD_FILE": "Carica file",
-        "QR_CODE": "Codice QR",
-        "REORDER_HINT": "Premi il tasto freccia su o giù per spostare",
-        "MOVED_TO_POSITION": "Spostato in posizione {{ position }} di {{ count }}",
-        "INCREASE": "Aumenta",
-        "DECREASE": "Diminuisci",
-        "PREVIOUS_MONTH": "Mese precedente",
-        "NEXT_MONTH": "Mese successivo",
-        "COPY_LINK": "Copia link",
-        "OPEN_FILE": "Apri file",
-        "BOLD": "Grassetto",
-        "ITALIC": "Corsivo",
-        "UNDERLINE": "Sottolineato",
-        "BULLETED_LIST": "Elenco puntato",
-        "NUMBERED_LIST": "Elenco numerato",
-        "INSERT_LINK": "Inserisci link",
-        "INSERT_IMAGE": "Inserisci immagine",
-        "ATTACH_FILE": "Allega file"
+        "QR_CODE": "Codice QR"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglese",
@@ -1875,8 +1859,7 @@
             "UNSAVED_CHANGES_DISCARD": "Scarta",
             "LOCKERS_SHOW": "Mostra armadietti",
             "VISITORS_ID_IMAGE": "Documento del visitatore",
-            "ASSETS_REQUEST_DETAILS": "Dettagli della richiesta di risorsa",
-            "SHORTCUTS_ENABLED": "Usa scorciatoie a tasto singolo"
+            "ASSETS_REQUEST_DETAILS": "Dettagli della richiesta di risorsa"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacità della stanza",
