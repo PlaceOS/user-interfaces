@@ -42,6 +42,7 @@ import { ControlStateService } from '../control-state.service';
                         <mat-slider class="mt-2 w-[calc(100%-1rem)]">
                             <input
                                 matSliderThumb
+                                [attr.aria-label]="light?.name"
                                 [ngModel]="light?.value"
                                 (ngModelChange)="setLevel(light, $event)"
                             />

@@ -11,14 +11,14 @@ const PAGE_SIZE = 6;
     template: `
         @if (outputs()?.length) {
             <div
-                class="flex h-1/2 w-full flex-1 flex-col items-center overflow-auto sm:flex-row sm:flex-wrap sm:justify-center"
+                class="flex h-1/2 w-full flex-1 flex-col items-center overflow-auto sm:flex-row sm:flex-wrap sm:justify-center max-sm:landscape:flex-row max-sm:landscape:flex-wrap"
             >
                 @for (
                     output of paged_outputs();
                     track output.id || output.name
                 ) {
                     <output-display
-                        class="w-full min-w-[33%] sm:w-auto"
+                        class="w-full min-w-[33%] sm:w-auto max-sm:landscape:w-1/2"
                         [item]="output"
                     ></output-display>
                 }

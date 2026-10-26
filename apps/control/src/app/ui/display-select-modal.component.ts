@@ -19,7 +19,7 @@ export interface DisplaySelectModalData {
 }
 
 /**
- * Fullscreen display list for phones.
+ * Display list for phones. Opens as a bottom sheet.
  * Opens after the user selects a source, and routes that source to the
  * display that the user selects, or to all displays.
  */
@@ -27,7 +27,7 @@ export interface DisplaySelectModalData {
     selector: 'display-select-modal',
     template: `
         <div
-            class="bg-base-100 text-base-content flex h-full w-full flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+            class="bg-base-100 text-base-content flex max-h-[85dvh] w-full flex-col pb-[env(safe-area-inset-bottom)]"
         >
             <div
                 class="border-base-200 flex items-center gap-2 border-b py-2 pr-2 pl-4"
@@ -47,10 +47,10 @@ export interface DisplaySelectModalData {
                     mat-dialog-close
                     [attr.aria-label]="'COMMON.CLOSE' | translate"
                 >
-                    <icon>close</icon>
+                    <icon aria-hidden="true">close</icon>
                 </button>
             </div>
-            <div class="flex-1 overflow-auto">
+            <div class="min-h-0 flex-1 overflow-auto">
                 @if (show_present_all()) {
                     <button
                         present-all
@@ -59,7 +59,9 @@ export interface DisplaySelectModalData {
                         [disabled]="loading()"
                         (click)="presentToAll()"
                     >
-                        <icon class="text-secondary text-2xl">output</icon>
+                        <icon aria-hidden="true" class="text-secondary text-2xl"
+                            >output</icon
+                        >
                         <span class="flex-1 font-medium">
                             {{ 'APP.CONTROL.PRESENT_ALL' | translate }}
                         </span>
@@ -75,7 +77,9 @@ export interface DisplaySelectModalData {
                         [disabled]="loading()"
                         (click)="select(output)"
                     >
-                        <icon class="text-2xl opacity-60">tv</icon>
+                        <icon aria-hidden="true" class="text-2xl opacity-60"
+                            >tv</icon
+                        >
                         <div class="min-w-0 flex-1">
                             <div class="truncate font-medium">
                                 {{ output.name }}
@@ -88,7 +92,10 @@ export interface DisplaySelectModalData {
                             </div>
                         </div>
                         @if (showing) {
-                            <icon class="text-secondary text-2xl">
+                            <icon
+                                aria-hidden="true"
+                                class="text-secondary text-2xl"
+                            >
                                 check_circle
                             </icon>
                         }

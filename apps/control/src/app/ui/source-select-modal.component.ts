@@ -5,7 +5,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SourceSelectComponent } from './source-select.component';
 
 export class SourceSelectModalData {
@@ -23,13 +23,15 @@ export class SourceSelectModalData {
                 icon
                 matRipple
                 mat-dialog-close
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
                 class="absolute top-8 right-8"
             >
-                <icon>close</icon>
+                <icon aria-hidden="true">close</icon>
             </button>
         </div>
     `,
     imports: [
+        TranslatePipe,
         MatDialogModule,
         IconComponent,
         MatRippleModule,

@@ -73,9 +73,14 @@ import { ControlStateService } from '../control-state.service';
                                 mute
                                 icon
                                 matRipple
+                                [attr.aria-label]="
+                                    'APP.CONTROL.MUTE_NAME'
+                                        | translate: { name: mic.name }
+                                "
+                                [attr.aria-pressed]="!!mute[mic.id]"
                                 (click)="mute[mic.id] = !mute[mic.id]"
                             >
-                                <icon>{{
+                                <icon aria-hidden="true">{{
                                     mute[mic.id]
                                         ? 'volume_off'
                                         : volume[mic.id] > 0
@@ -86,6 +91,10 @@ import { ControlStateService } from '../control-state.service';
                             <mat-slider class="flex-1">
                                 <input
                                     matSliderThumb
+                                    [attr.aria-label]="
+                                        'APP.CONTROL.VOLUME_NAME'
+                                            | translate: { name: mic.name }
+                                    "
                                     [ngModel]="
                                         !mute[mic.id] ? volume[mic.id] : 0
                                     "
@@ -167,9 +176,14 @@ import { ControlStateService } from '../control-state.service';
                                 icon
                                 matRipple
                                 [disabled]="!mic.mute_id?.length"
+                                [attr.aria-label]="
+                                    'APP.CONTROL.MUTE_NAME'
+                                        | translate: { name: mic.name }
+                                "
+                                [attr.aria-pressed]="!!mute[i]"
                                 (click)="mute[i] = !mute[i]"
                             >
-                                <icon>{{
+                                <icon aria-hidden="true">{{
                                     mute[i]
                                         ? 'volume_off'
                                         : volume[i] > 0
@@ -185,6 +199,10 @@ import { ControlStateService } from '../control-state.service';
                             >
                                 <input
                                     matSliderThumb
+                                    [attr.aria-label]="
+                                        'APP.CONTROL.VOLUME_NAME'
+                                            | translate: { name: mic.name }
+                                    "
                                     [ngModel]="!mute[i] ? volume[i] : 0"
                                     (ngModelChange)="
                                         setVolume(i, $event); onChange()

@@ -146,7 +146,7 @@ import {
                             (click)="endCall()"
                         >
                             <div class="flex items-center space-x-4">
-                                <icon>call_end</icon>
+                                <icon aria-hidden="true">call_end</icon>
                                 <span>{{
                                     'APP.CONTROL.VC_END_CALL' | translate
                                 }}</span>
@@ -160,7 +160,7 @@ import {
                             [class.inverse]="!mic_mute()"
                         >
                             <div class="flex items-center space-x-4">
-                                <icon>{{
+                                <icon aria-hidden="true">{{
                                     mic_mute() ? 'mic_off' : 'mic'
                                 }}</icon>
                                 <span>{{
@@ -179,7 +179,7 @@ import {
                             (click)="toggleOnHold()"
                         >
                             <div class="flex items-center space-x-4">
-                                <icon>{{
+                                <icon aria-hidden="true">{{
                                     call()?.Status !== 'OnHold'
                                         ? 'stop'
                                         : 'play_arrow'
@@ -200,7 +200,7 @@ import {
                             [class.inverse]="show_camera_pip()"
                         >
                             <div class="flex items-center space-x-4">
-                                <icon>{{
+                                <icon aria-hidden="true">{{
                                     !show_camera_pip()
                                         ? 'visibility_off'
                                         : 'visibility'

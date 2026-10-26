@@ -36,9 +36,10 @@ import { ControlStateService } from '../control-state.service';
                                 matRipple
                                 class="border-primary text-primary rounded-sm border border-solid"
                                 (click)="performAction(item.name, ctrl.name)"
+                                [attr.aria-label]="ctrl.name"
                                 [matTooltip]="ctrl.name"
                             >
-                                <icon>{{ ctrl.icon }}</icon>
+                                <icon aria-hidden="true">{{ ctrl.icon }}</icon>
                             </button>
                         }
                     </div>

@@ -64,6 +64,7 @@ import { TVControlsComponent } from './tv-controls.component';
                             (click)="onAction()"
                         >
                             <icon
+                                aria-hidden="true"
                                 class="text-3xl sm:text-5xl"
                                 className="material-symbols-outlined"
                                 >{{ tab.icon }}</icon
@@ -110,91 +111,186 @@ import { TVControlsComponent } from './tv-controls.component';
                     class="mb-1 flex min-h-0 w-[calc(100%-1rem)] flex-1 flex-col space-y-2 overflow-auto"
                 >
                     @if (inputs().length) {
-                        <section
-                            sources
-                            class="bg-base-100 text-base-content shrink-0 overflow-hidden rounded-sm shadow-sm"
+                        <!-- Landscape puts the sources and displays side by side -->
+                        <div
+                            class="grid shrink-0 items-start gap-2 landscape:grid-cols-2"
                         >
-                            <h3
-                                class="px-4 pt-3 pb-2 text-sm font-medium opacity-60"
+                            <section
+                                sources
+                                class="bg-base-100 text-base-content shrink-0 overflow-hidden rounded-sm shadow-sm"
                             >
-                                {{ 'APP.CONTROL.INPUTS_AVAILABLE' | translate }}
-                            </h3>
-                            @for (
-                                input of inputs();
-                                track input.id || input.name
-                            ) {
-                                @let selected =
-                                    system()?.selected_input ===
-                                    (input.id || input.name);
-                                @let shown = shown_on()[input.id];
-                                <button
-                                    source
-                                    matRipple
-                                    class="border-base-200 flex w-full items-center space-x-4 border-t px-4 py-3 text-left"
-                                    [class.text-secondary]="selected"
-                                    [attr.aria-pressed]="selected"
-                                    [attr.aria-haspopup]="
-                                        can_pick_display() ? 'dialog' : null
-                                    "
-                                    (click)="pickSource(input)"
+                                <h3
+                                    class="px-4 pt-3 pb-2 text-sm font-medium opacity-60"
                                 >
-                                    <icon class="text-2xl">
-                                        {{
-                                            input.icon ||
-                                                icons[input.type] ||
-                                                'input'
-                                        }}
-                                    </icon>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="truncate font-medium">
-                                            {{ input.name }}
-                                        </div>
-                                        @if (shown) {
-                                            <div
-                                                class="text-base-content truncate text-sm opacity-60"
-                                            >
-                                                {{
-                                                    'APP.CONTROL.DISPLAY_SHOWING'
-                                                        | translate
-                                                            : { names: shown }
-                                                }}
-                                            </div>
-                                        }
-                                    </div>
-                                    @if (can_pick_display()) {
-                                        <icon class="text-2xl opacity-40">
-                                            chevron_right
-                                        </icon>
-                                    } @else if (selected) {
-                                        <icon class="text-2xl">
-                                            check_circle
-                                        </icon>
-                                    }
-                                </button>
-                            }
-                            @if (outputs().length > 1) {
-                                <div class="border-base-200 border-t p-4">
+                                    {{
+                                        'APP.CONTROL.INPUTS_AVAILABLE'
+                                            | translate
+                                    }}
+                                </h3>
+                                @for (
+                                    input of inputs();
+                                    track input.id || input.name
+                                ) {
+                                    @let selected =
+                                        system()?.selected_input ===
+                                        (input.id || input.name);
+                                    @let shown = shown_on()[input.id];
                                     <button
-                                        btn
+                                        source
                                         matRipple
-                                        clear-all
-                                        class="inverse w-full space-x-2"
-                                        [disabled]="!has_routes()"
-                                        (click)="clearAll()"
+                                        class="border-base-200 flex w-full items-center space-x-4 border-t px-4 py-3 text-left"
+                                        [class.text-secondary]="selected"
+                                        [attr.aria-pressed]="selected"
+                                        [attr.aria-haspopup]="
+                                            can_pick_display() ? 'dialog' : null
+                                        "
+                                        (click)="pickSource(input)"
                                     >
-                                        <icon class="text-2xl">
-                                            cancel_presentation
-                                        </icon>
-                                        <div class="pr-4">
+                                        <icon
+                                            class="text-2xl"
+                                            aria-hidden="true"
+                                        >
                                             {{
-                                                'APP.CONTROL.CLEAR_ALL'
-                                                    | translate
+                                                input.icon ||
+                                                    icons[input.type] ||
+                                                    'input'
                                             }}
+                                        </icon>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="truncate font-medium">
+                                                {{ input.name }}
+                                            </div>
+                                            @if (shown) {
+                                                <div
+                                                    class="text-base-content truncate text-sm opacity-60"
+                                                >
+                                                    {{
+                                                        'APP.CONTROL.DISPLAY_SHOWING'
+                                                            | translate
+                                                                : {
+                                                                      names: shown,
+                                                                  }
+                                                    }}
+                                                </div>
+                                            }
                                         </div>
+                                        @if (can_pick_display()) {
+                                            <icon
+                                                class="text-2xl opacity-40"
+                                                aria-hidden="true"
+                                            >
+                                                chevron_right
+                                            </icon>
+                                        } @else if (selected) {
+                                            <icon
+                                                class="text-2xl"
+                                                aria-hidden="true"
+                                            >
+                                                check_circle
+                                            </icon>
+                                        }
                                     </button>
-                                </div>
+                                }
+                            </section>
+                            @if (can_pick_display()) {
+                                <section
+                                    displays
+                                    class="bg-base-100 text-base-content shrink-0 overflow-hidden rounded-sm shadow-sm"
+                                >
+                                    <h3
+                                        class="px-4 pt-3 pb-2 text-sm font-medium opacity-60"
+                                    >
+                                        {{ 'APP.CONTROL.DISPLAYS' | translate }}
+                                    </h3>
+                                    @for (
+                                        display of displays();
+                                        track display.id
+                                    ) {
+                                        <div
+                                            display
+                                            class="border-base-200 flex min-h-14 items-center gap-4 border-t py-1 pr-2 pl-4"
+                                        >
+                                            <icon
+                                                class="text-2xl"
+                                                aria-hidden="true"
+                                                [class.opacity-40]="
+                                                    !display.source
+                                                "
+                                            >
+                                                tv
+                                            </icon>
+                                            <div class="min-w-0 flex-1">
+                                                <div
+                                                    class="truncate font-medium"
+                                                >
+                                                    {{ display.name }}
+                                                </div>
+                                                <div
+                                                    class="truncate text-sm opacity-60"
+                                                >
+                                                    {{
+                                                        display.source ||
+                                                            ('APP.CONTROL.INPUT_EMPTY'
+                                                                | translate)
+                                                    }}
+                                                </div>
+                                            </div>
+                                            @if (display.source) {
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    clear-display
+                                                    [attr.aria-label]="
+                                                        'APP.CONTROL.DISPLAY_CLEAR'
+                                                            | translate
+                                                                : {
+                                                                      name: display.name,
+                                                                  }
+                                                    "
+                                                    (click)="
+                                                        clearDisplay(display.id)
+                                                    "
+                                                >
+                                                    <icon
+                                                        aria-hidden="true"
+                                                        class="opacity-60"
+                                                    >
+                                                        close
+                                                    </icon>
+                                                </button>
+                                            }
+                                        </div>
+                                    }
+                                    @if (outputs().length > 1) {
+                                        <div
+                                            class="border-base-200 border-t p-4"
+                                        >
+                                            <button
+                                                btn
+                                                matRipple
+                                                clear-all
+                                                class="inverse w-full space-x-2"
+                                                [disabled]="!has_routes()"
+                                                (click)="clearAll()"
+                                            >
+                                                <icon
+                                                    class="text-2xl"
+                                                    aria-hidden="true"
+                                                >
+                                                    cancel_presentation
+                                                </icon>
+                                                <div class="pr-4">
+                                                    {{
+                                                        'APP.CONTROL.CLEAR_ALL'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </button>
+                                        </div>
+                                    }
+                                </section>
                             }
-                        </section>
+                        </div>
                     }
                     @if (tab()?.controls || help()) {
                         <section
@@ -212,7 +308,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                         <div
                                             class="mr-2 flex items-center justify-center"
                                         >
-                                            <icon>help</icon>
+                                            <icon aria-hidden="true">help</icon>
                                             <div class="mx-2">
                                                 {{
                                                     'APP.CONTROL.ACTION_HELP'
@@ -277,7 +373,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                 <div
                                     class="mr-2 flex items-center justify-center"
                                 >
-                                    <icon>help</icon>
+                                    <icon aria-hidden="true">help</icon>
                                     <div class="mx-2">
                                         {{
                                             'APP.CONTROL.ACTION_HELP'
@@ -306,7 +402,9 @@ import { TVControlsComponent } from './tv-controls.component';
                                     class="space-x-2"
                                     (click)="presentToAll()"
                                 >
-                                    <icon class="text-2xl">output</icon>
+                                    <icon aria-hidden="true" class="text-2xl"
+                                        >output</icon
+                                    >
                                     <div class="pr-4">
                                         {{
                                             'APP.CONTROL.PRESENT_ALL'
@@ -323,7 +421,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                 [disabled]="!has_routes()"
                                 (click)="clearAll()"
                             >
-                                <icon class="text-2xl"
+                                <icon aria-hidden="true" class="text-2xl"
                                     >cancel_presentation</icon
                                 >
                                 <div class="pr-4">
@@ -349,12 +447,17 @@ import { TVControlsComponent } from './tv-controls.component';
                         <div
                             class="flex flex-col items-center sm:flex-row sm:items-stretch sm:justify-center sm:space-x-8"
                         >
-                            @if (!speaker_track()) {
+                            <!-- Phones show the dial view first, as calls are the main task.
+                                 The DOM order matches the visual order, so focus follows it. -->
+                            @if (!speaker_track() && !mobile()) {
                                 <camera-controls></camera-controls>
                             }
                             <video-call-dial-view
-                                class="mt-4 block"
+                                class="block sm:mt-4"
                             ></video-call-dial-view>
+                            @if (!speaker_track() && mobile()) {
+                                <camera-controls class="mt-4"></camera-controls>
+                            }
                         </div>
                     }
                 }
@@ -474,6 +577,19 @@ export class TabOutletComponent extends AsyncHandler {
         }
         return names;
     });
+    /** Displays on the phone layout, with the name of the source that each one shows */
+    public readonly displays = computed(() => {
+        const inputs = this._available_inputs();
+        return this.outputs().map((output) => ({
+            id: output.id,
+            name: output.name,
+            source: output.source
+                ? inputs.find(
+                      (_) => _.id === output.source || _.ref === output.source,
+                  )?.name || output.source
+                : '',
+        }));
+    });
     private _user_action = signal(false);
     /** Driver's selected tab. A separate computed so other system changes do not re-run the tab sync. */
     private _selected_tab = computed(() => this.system()?.selected_tab);
@@ -566,6 +682,11 @@ export class TabOutletComponent extends AsyncHandler {
 
     public clearAll() {
         this._service.unrouteAll();
+    }
+
+    /** Stop showing a source on one display */
+    public clearDisplay(id: string) {
+        this._service.unroute(id);
     }
 
     public onAction() {

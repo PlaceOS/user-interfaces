@@ -47,7 +47,7 @@ export interface ActionModalData {
                     mat-dialog-close
                     [attr.aria-label]="'COMMON.CLOSE' | translate"
                 >
-                    <icon>close</icon>
+                    <icon aria-hidden="true">close</icon>
                 </button>
             </div>
             <div
