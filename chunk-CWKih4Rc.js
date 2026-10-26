@@ -1,0 +1,1 @@
+import{Qo as hn}from"./main-BDDYF5CE.js";function u(t,o,a){return hn(t,-o,a)}export{u as t};
