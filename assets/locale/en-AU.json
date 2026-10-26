@@ -3371,6 +3371,10 @@
             "MEETING_START_JOIN": "Start and join",
             "PRESENT_ALL": "Present to all",
             "CLEAR_ALL": "Clear all",
+            "DISPLAY_SELECT": "Show {{ name }} on",
+            "DISPLAY_SHOWING": "Showing on {{ names }}",
+            "DISPLAYS_EMPTY": "No displays can show {{ name }}",
+            "ACTIONS": "Room controls",
             "OUTPUT_ON": "Display on",
             "OUTPUT_OFF": "Display off"
         },

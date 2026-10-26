@@ -1990,6 +1990,10 @@
             "MEETING_START_JOIN": "Démarrer et rejoindre",
             "PRESENT_ALL": "Présenter sur tous",
             "CLEAR_ALL": "Tout effacer",
+            "DISPLAY_SELECT": "Afficher {{ name }} sur",
+            "DISPLAY_SHOWING": "Affiché sur {{ names }}",
+            "DISPLAYS_EMPTY": "Aucun écran ne peut afficher {{ name }}",
+            "ACTIONS": "Commandes de la salle",
             "OUTPUT_ON": "Écran allumé",
             "OUTPUT_OFF": "Écran éteint"
         },
