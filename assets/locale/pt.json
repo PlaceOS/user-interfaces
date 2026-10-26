@@ -269,23 +269,7 @@
         "MORE_OPTIONS": "Mais opções",
         "SHOW_QR_CODE": "Mostrar código QR",
         "UPLOAD_FILE": "Enviar arquivo",
-        "QR_CODE": "Código QR",
-        "REORDER_HINT": "Pressione a seta para cima ou para baixo para mover",
-        "MOVED_TO_POSITION": "Movido para a posição {{ position }} de {{ count }}",
-        "INCREASE": "Aumentar",
-        "DECREASE": "Diminuir",
-        "PREVIOUS_MONTH": "Mês anterior",
-        "NEXT_MONTH": "Próximo mês",
-        "COPY_LINK": "Copiar link",
-        "OPEN_FILE": "Abrir arquivo",
-        "BOLD": "Negrito",
-        "ITALIC": "Itálico",
-        "UNDERLINE": "Sublinhado",
-        "BULLETED_LIST": "Lista com marcadores",
-        "NUMBERED_LIST": "Lista numerada",
-        "INSERT_LINK": "Inserir link",
-        "INSERT_IMAGE": "Inserir imagem",
-        "ATTACH_FILE": "Anexar arquivo"
+        "QR_CODE": "Código QR"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglês",
@@ -1875,8 +1859,7 @@
             "UNSAVED_CHANGES_DISCARD": "Descartar",
             "LOCKERS_SHOW": "Mostrar armários",
             "VISITORS_ID_IMAGE": "Documento do visitante",
-            "ASSETS_REQUEST_DETAILS": "Detalhes da solicitação de ativo",
-            "SHORTCUTS_ENABLED": "Usar atalhos de uma tecla"
+            "ASSETS_REQUEST_DETAILS": "Detalhes da solicitação de ativo"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacidade da sala",
