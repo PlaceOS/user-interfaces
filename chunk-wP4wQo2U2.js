@@ -1,0 +1,1 @@
+import{ru as z}from"./main-XLNHAGBA.js";function s(n,o,r){let t=z(n,r?.in);return t.setMinutes(o),t}export{s as t};
