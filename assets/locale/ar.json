@@ -1990,6 +1990,10 @@
             "MEETING_START_JOIN": "البدء والانضمام",
             "PRESENT_ALL": "العرض على الكل",
             "CLEAR_ALL": "مسح الكل",
+            "DISPLAY_SELECT": "عرض {{ name }} على",
+            "DISPLAY_SHOWING": "معروض على {{ names }}",
+            "DISPLAYS_EMPTY": "لا توجد شاشات يمكنها عرض {{ name }}",
+            "ACTIONS": "عناصر التحكم في الغرفة",
             "OUTPUT_ON": "الشاشة قيد التشغيل",
             "OUTPUT_OFF": "الشاشة متوقفة"
         },
