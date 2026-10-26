@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["output-display.component.ts"],
-  "sourcesContent": ["\n            [view] {\n                width: 28vw;\n            }\n\n            /* Phones show one display per row */\n            @media (max-width: 39.99rem) {\n                [view] {\n                    width: 100%;\n                }\n            }\n        "],
-  "mappings": "AACY,CAAA,MACI,MAAA,IACJ,CAGA,OAAA,UAAA,UACI,CAAA,MACI,MAAA,IACJ,CACJ",
+  "sourcesContent": ["\n            [view] {\n                width: 28vw;\n            }\n\n            /* Phones show one display per row */\n            @media (width < 40rem), (height < 30rem) {\n                [view] {\n                    width: 100%;\n                }\n            }\n        "],
+  "mappings": "AACY,CAAA,MACI,MAAA,IACJ,CAGA,OAAA,eAAA,OAAA,gBAAA,OACI,CAAA,MACI,MAAA,IACJ,CACJ",
   "names": []
 }
