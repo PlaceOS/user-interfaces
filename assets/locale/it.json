@@ -1990,6 +1990,10 @@
             "MEETING_START_JOIN": "Avvia e partecipa",
             "PRESENT_ALL": "Presenta su tutti",
             "CLEAR_ALL": "Cancella tutto",
+            "DISPLAY_SELECT": "Mostra {{ name }} su",
+            "DISPLAY_SHOWING": "Visualizzato su {{ names }}",
+            "DISPLAYS_EMPTY": "Nessuno schermo può mostrare {{ name }}",
+            "ACTIONS": "Controlli della sala",
             "OUTPUT_ON": "Schermo acceso",
             "OUTPUT_OFF": "Schermo spento"
         },
