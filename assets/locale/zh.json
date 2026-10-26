@@ -1991,6 +1991,10 @@
             "MEETING_START_JOIN": "开始并加入",
             "PRESENT_ALL": "全部演示",
             "CLEAR_ALL": "全部清除",
+            "DISPLAY_SELECT": "将 {{ name }} 显示在",
+            "DISPLAY_SHOWING": "正在 {{ names }} 上显示",
+            "DISPLAYS_EMPTY": "没有可显示 {{ name }} 的显示屏",
+            "ACTIONS": "房间控制",
             "OUTPUT_ON": "显示器开启",
             "OUTPUT_OFF": "显示器关闭"
         },
