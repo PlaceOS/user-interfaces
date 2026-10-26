@@ -89,7 +89,7 @@ import { RoomManagementService } from './room-management.service';
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="font-mono text-[0.625rem] opacity-30">
+                <div class="font-mono text-[0.625rem] opacity-70">
                     {{ row.id }}
                 </div>
             </button>

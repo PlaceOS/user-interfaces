@@ -24,6 +24,7 @@ import {
     startOfWeek,
 } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 @Component({
     selector: `date-range-calendar`,
@@ -33,10 +34,20 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 {{ month() | date: 'MMMM yyyy' }}
             </div>
             <div class="flex items-center space-x-2">
-                <button icon matRipple (click)="previousMonth()">
+                <button
+                    icon
+                    matRipple
+                    (click)="previousMonth()"
+                    [attr.aria-label]="'COMMON.PREVIOUS_MONTH' | translate"
+                >
                     <icon>chevron_left</icon>
                 </button>
-                <button icon matRipple (click)="nextMonth()">
+                <button
+                    icon
+                    matRipple
+                    (click)="nextMonth()"
+                    [attr.aria-label]="'COMMON.NEXT_MONTH' | translate"
+                >
                     <icon>chevron_right</icon>
                 </button>
             </div>
@@ -102,7 +113,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, IconComponent],
+    imports: [CommonModule, IconComponent, TranslatePipe],
 })
 export class DateRangeCalendarComponent implements OnInit, OnChanges {
     /** Earliest date available the user is allowed to pick */

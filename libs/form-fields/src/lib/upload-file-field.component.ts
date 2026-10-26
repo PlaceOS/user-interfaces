@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { uploadFiles } from '@placeos/cloud-uploads';
 import * as blobUtil from 'blob-util';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
 @Component({
@@ -55,11 +56,16 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                             matRipple
                             target="_blank"
                             rel="noopener noreferrer"
+                            [attr.aria-label]="'COMMON.OPEN_FILE' | translate"
                         >
                             <icon>link</icon>
                         </a>
                     }
-                    <button icon (click)="setValue(null)">
+                    <button
+                        icon
+                        (click)="setValue(null)"
+                        [attr.aria-label]="'COMMON.REMOVE' | translate"
+                    >
                         <icon>close</icon>
                     </button>
                 </div>
@@ -84,7 +90,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
             useValue: UploadPermissionsModalComponent,
         },
     ],
-    imports: [MatProgressSpinnerModule, IconComponent],
+    imports: [MatProgressSpinnerModule, IconComponent, TranslatePipe],
 })
 export class UploadFileFieldComponent implements ControlValueAccessor {
     public readonly item = signal<Attachment | null>(null);

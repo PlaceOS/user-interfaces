@@ -99,7 +99,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                         question().title
                     }}</span>
                     @if (!question().title) {
-                        <span class="mb-4 w-full text-xl opacity-30">{{
+                        <span class="mb-4 w-full text-xl opacity-70">{{
                             'Untitled Question'
                         }}</span>
                     }

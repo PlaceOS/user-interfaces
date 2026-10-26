@@ -129,7 +129,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     @if (id) {
                         {{ (id | parkingSpace | async)?.identifier || id }}
                     } @else {
-                        <span class="opacity-30">
+                        <span class="opacity-70">
                             {{ 'COMMON.EMPTY' | translate }}
                         </span>
                     }
@@ -138,7 +138,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             <ng-template #date_template let-row="row">
                 <div class="p-4">
                     <div>{{ row.date | date: 'mediumDate' : timezone }}</div>
-                    <div class="text-xs opacity-60">
+                    <div class="text-xs opacity-70">
                         {{ row.date | date: time_format : timezone }} -
                         {{ row.date_end | date: time_format : timezone }}
                     </div>
@@ -152,7 +152,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                                 | date: 'shortTime' : timezone
                         }}
                     } @else {
-                        <span class="opacity-30">
+                        <span class="opacity-70">
                             {{ 'COMMON.EMPTY' | translate }}
                         </span>
                     }

@@ -115,7 +115,7 @@ import { EventsStateService } from './events-state.service';
                 <div
                     class="flex w-full flex-col items-center justify-center py-2"
                 >
-                    <div class="opacity-60">{{ date | date: 'MMM' }}</div>
+                    <div class="opacity-70">{{ date | date: 'MMM' }}</div>
                     <div class="text-xl">{{ date | date: 'dd' }}</div>
                 </div>
             </ng-template>
@@ -145,7 +145,7 @@ import { EventsStateService } from './events-state.service';
                     </div>
                     @if (user?.name || attendee_name) {
                         <div
-                            class="max-w-48 truncate text-xs opacity-30 select-all"
+                            class="max-w-48 truncate text-xs opacity-70 select-all"
                         >
                             {{ email }}
                         </div>

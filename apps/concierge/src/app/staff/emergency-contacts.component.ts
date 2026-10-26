@@ -165,7 +165,7 @@ export type { EmergencyContact } from './emergency-contacts.service';
                             (click)="copyToClipboard(row.email)"
                         >
                             <div class="">{{ row.name }}</div>
-                            <div class="font-mono text-[0.625rem] opacity-30">
+                            <div class="font-mono text-[0.625rem] opacity-70">
                                 {{ row.email }}
                             </div>
                         </button>

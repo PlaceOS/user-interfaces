@@ -152,7 +152,13 @@ declare let mapsindoors: any;
                                 >
                                     <div class="">{{ poi.name || poi.id }}</div>
                                     @if (poi.location) {
-                                        <div class="text-xs opacity-30">
+                                        <!-- 70% fails on the selected primary background -->
+                                        <div
+                                            class="text-xs"
+                                            [class.opacity-70]="
+                                                poi.id !== selected()
+                                            "
+                                        >
                                             {{ poi.location }}
                                         </div>
                                     }
@@ -168,7 +174,7 @@ declare let mapsindoors: any;
                                 src="assets/icons/no-results.svg"
                                 class="w-36"
                             />
-                            <div class="text-center opacity-30">
+                            <div class="text-center opacity-70">
                                 {{
                                     'APP.CONCIERGE.POI_MAP_SELECT_RESULTS_EMPTY'
                                         | translate

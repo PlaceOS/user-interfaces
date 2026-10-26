@@ -5,6 +5,7 @@ import {
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 @Component({
     selector: 'a-counter',
@@ -28,6 +29,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 class="border-secondary text-secondary z-10 h-12 w-12 rounded-l rounded-r-none border"
                 [disabled]="!value() || value() === min()"
                 (click)="remove()"
+                [attr.aria-label]="'COMMON.DECREASE' | translate"
             >
                 <icon>remove</icon>
             </button>
@@ -62,6 +64,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 class="border-secondary text-secondary z-10 h-12 w-12 rounded-l-none rounded-r border"
                 [disabled]="value() === max()"
                 (click)="add()"
+                [attr.aria-label]="'COMMON.INCREASE' | translate"
             >
                 <icon>add</icon>
             </button>
@@ -82,7 +85,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             multi: true,
         },
     ],
-    imports: [FormsModule, IconComponent],
+    imports: [FormsModule, IconComponent, TranslatePipe],
 })
 export class CounterComponent implements ControlValueAccessor {
     /** Size of a single step */

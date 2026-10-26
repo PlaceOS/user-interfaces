@@ -56,7 +56,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 <mat-option [value]="level.id">
                                     <div class="flex flex-col-reverse">
                                         @if (use_region) {
-                                            <div class="text-xs opacity-30">
+                                            <div class="text-xs opacity-70">
                                                 {{
                                                     (level.parent_id | building)
                                                         ?.display_name

@@ -355,7 +355,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 } @else {
                     <button
                         matRipple
-                        class="hover:bg-base-200 flex w-full items-center rounded-r-full py-1 pr-1 pl-3 text-xs font-medium uppercase opacity-60 not-first:mt-3"
+                        class="hover:bg-base-200 flex w-full items-center rounded-r-full py-1 pr-1 pl-3 text-xs font-medium uppercase opacity-70 not-first:mt-3"
                         [attr.aria-expanded]="!collapsed()[group.id]"
                         [attr.aria-controls]="'nav-group-' + group.id"
                         (click)="toggleGroup(group.id)"
@@ -439,7 +439,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 <div class="truncate text-sm font-medium">
                     {{ user().name }}
                 </div>
-                <div class="truncate text-xs opacity-60">
+                <div class="truncate text-xs opacity-70">
                     {{
                         'APP.CONCIERGE.USER_GROUP_COUNT'
                             | translate

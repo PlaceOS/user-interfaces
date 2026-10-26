@@ -122,7 +122,7 @@ import { DealsService } from './deals.service';
                                         <h3 class="truncate font-bold">
                                             {{ deal.name }}
                                         </h3>
-                                        <p class="text-sm opacity-50">
+                                        <p class="text-sm opacity-70">
                                             {{
                                                 'COMMON.VALID_UNTIL_DATE'
                                                     | translate
@@ -156,7 +156,7 @@ import { DealsService } from './deals.service';
                                                 | translate
                                         }}
                                     </p>
-                                    <p class="text-sm opacity-50">
+                                    <p class="text-sm opacity-70">
                                         {{
                                             'APP.CONCIERGE.DEALS_EMPTY_BODY'
                                                 | translate
@@ -243,7 +243,7 @@ import { DealsService } from './deals.service';
                         >
                             <div class="line-clamp-4">{{ data }}</div>
                             @if (!data) {
-                                <span class="opacity-30"
+                                <span class="opacity-70"
                                     >No description available</span
                                 >
                             }

@@ -97,6 +97,34 @@ describe('BookingRulesModalComponent', () => {
         expect(spectator.component.selected()).toBe(ruleset);
     });
 
+    it('should move a ruleset one place and save the new order', async () => {
+        (ts_client.showMetadata as any).mockResolvedValue({
+            details: [
+                { id: 'a', name: 'A', conditions: {}, rules: {} },
+                { id: 'b', name: 'B', conditions: {}, rules: {} },
+            ],
+        });
+        spectator = createComponent();
+        await spectator.fixture.whenStable();
+
+        await spectator.component.move(0, -1);
+        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+
+        await spectator.component.move(0, 1);
+        expect(
+            spectator.component.booking_rules().map((rule) => rule.id),
+        ).toEqual(['b', 'a']);
+        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
+            'bld-1',
+            expect.objectContaining({
+                details: [
+                    expect.objectContaining({ id: 'b' }),
+                    expect.objectContaining({ id: 'a' }),
+                ],
+            }),
+        );
+    });
+
     it('should persist a new ruleset and return to the list view', async () => {
         await spectator.fixture.whenStable();
         await spectator.component.save({ name: 'New Rule' } as any);

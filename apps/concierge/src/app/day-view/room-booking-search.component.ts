@@ -55,7 +55,7 @@ import { EventsStateService } from './events-state.service';
                     class="border-base-300 bg-base-100 absolute top-full right-4 max-h-[65vh] w-[18rem] translate-y-2 overflow-auto rounded-sm border shadow-sm"
                 >
                     <div class="bg-base-100 sticky top-0 z-10 rounded-sm p-4">
-                        <div class="text-xs opacity-60">
+                        <div class="text-xs opacity-70">
                             {{
                                 'APP.CONCIERGE.ROOMS_SEARCH_COUNT'
                                     | translate
@@ -68,7 +68,7 @@ import { EventsStateService } from './events-state.service';
                     </div>
                     @if (!filtered().length) {
                         <div
-                            class="flex items-center justify-center p-4 text-center text-sm opacity-30"
+                            class="flex items-center justify-center p-4 text-center text-sm opacity-70"
                         >
                             {{
                                 (events().length
@@ -111,7 +111,7 @@ import { EventsStateService } from './events-state.service';
                                         >
                                             {{ event.title }}
                                         </div>
-                                        <div class="text-xs opacity-60">
+                                        <div class="text-xs opacity-70">
                                             {{ event.date | date: time_format }}
                                             &ndash;
                                             {{
@@ -120,10 +120,10 @@ import { EventsStateService } from './events-state.service';
                                             }}
                                         </div>
                                     </div>
-                                    <div class="truncate text-xs opacity-30">
+                                    <div class="truncate text-xs opacity-70">
                                         {{ event.system?.display_name }}
                                     </div>
-                                    <div class="truncate text-xs opacity-30">
+                                    <div class="truncate text-xs opacity-70">
                                         {{
                                             (event.host | user | async)?.name ||
                                                 event.host

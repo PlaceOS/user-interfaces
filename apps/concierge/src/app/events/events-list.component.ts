@@ -123,7 +123,7 @@ import { EventStateService } from './event-state.service';
                             <mat-option [value]="level.id">
                                 <div class="flex flex-col-reverse">
                                     @if (use_region) {
-                                        <div class="text-xs opacity-30">
+                                        <div class="text-xs opacity-70">
                                             {{
                                                 (level.parent_id | building)
                                                     ?.display_name
@@ -154,7 +154,7 @@ import { EventStateService } from './event-state.service';
         @if (!has_calendar) {
             <div class="absolute inset-0 z-50 flex items-center justify-center">
                 <div class="bg-base-100 absolute inset-0 opacity-80"></div>
-                <p class="max-w-lg text-lg opacity-60">
+                <p class="max-w-lg text-lg opacity-70">
                     {{ 'APP.CONCIERGE.EVENTS_CONFIG_ERROR' | translate }}
                 </p>
             </div>

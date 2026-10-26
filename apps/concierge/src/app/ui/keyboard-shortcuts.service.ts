@@ -3,6 +3,7 @@ import {
     EnvironmentInjector,
     inject,
     Injectable,
+    signal,
 } from '@angular/core';
 
 /**
@@ -76,6 +77,18 @@ export const KEYBOARD_SHORTCUTS: readonly KeyboardShortcut[] = [
 /** Key that opens the list of shortcuts */
 export const SHORTCUTS_HELP_KEY = '?';
 
+/** Local storage key for the user's choice to use the shortcuts */
+const ENABLED_KEY = 'PLACEOS.concierge.shortcuts_enabled';
+
+function readEnabled(): boolean {
+    try {
+        return localStorage.getItem(ENABLED_KEY) !== 'false';
+    } catch {
+        /* ignore privacy-mode errors */
+        return true;
+    }
+}
+
 /** Focused elements that use these keys for their own input */
 const KEY_CONSUMERS = [
     'input',
@@ -113,7 +126,8 @@ export function findShortcutTarget(
 /**
  * Handles single key shortcuts for the whole app. `AppComponent` sends it
  * each window `keydown` event. Shortcuts do nothing while the user types in
- * a field, or while a dialog, menu or select panel is open.
+ * a field, or while a dialog, menu or select panel is open. Users can turn
+ * all of them off in the shortcuts modal (WCAG 2.1.4).
  */
 @Injectable({
     providedIn: 'root',
@@ -121,6 +135,19 @@ export function findShortcutTarget(
 export class KeyboardShortcutsService {
     private _document = inject(DOCUMENT);
     private _injector = inject(EnvironmentInjector);
+
+    /** Whether the single key shortcuts are on */
+    public readonly enabled = signal(readEnabled());
+
+    /** Turn the shortcuts on or off, and remember the choice on this device */
+    public setEnabled(state: boolean) {
+        this.enabled.set(state);
+        try {
+            localStorage.setItem(ENABLED_KEY, `${state}`);
+        } catch {
+            /* ignore privacy-mode errors */
+        }
+    }
 
     /**
      * Open the modal that lists the shortcuts. The dialog service is loaded on
@@ -138,6 +165,7 @@ export class KeyboardShortcutsService {
     /** Run the shortcut for a window `keydown` event, if one matches */
     public handleKeydown(event: KeyboardEvent) {
         if (
+            !this.enabled() ||
             event.defaultPrevented ||
             event.repeat ||
             event.ctrlKey ||

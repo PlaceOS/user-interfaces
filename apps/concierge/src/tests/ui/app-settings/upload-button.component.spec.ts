@@ -37,6 +37,21 @@ describe('UploadButtonComponent', () => {
         vi.restoreAllMocks();
     });
 
+    it('should open the file input once when the button is used', () => {
+        const input = spectator.query<HTMLInputElement>('input[type="file"]');
+        const open = vi.spyOn(input, 'click').mockImplementation(() => null);
+
+        spectator.click('button');
+        expect(open).toHaveBeenCalledTimes(1);
+
+        // A mouse click lands on the input, which opens itself
+        open.mockRestore();
+        const reopen = vi.fn();
+        input.addEventListener('click', reopen);
+        input.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        expect(reopen).toHaveBeenCalledTimes(1);
+    });
+
     it('should have default state', () => {
         expect(spectator.component.uploading()).toBe(false);
         expect(spectator.component.progress()).toBe(0);

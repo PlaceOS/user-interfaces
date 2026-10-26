@@ -16,18 +16,27 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 @Component({
     selector: 'upload-button',
     template: `
+        <!--
+            The button is the control. The file input on top takes mouse clicks
+            and dropped files, and the button opens it for keyboard users
+        -->
         <button
+            type="button"
             icon
             matRipple
             [disabled]="uploading()"
             class="bg-secondary text-secondary-content h-12 w-12 overflow-hidden rounded-sm"
             [title]="value()"
             [attr.aria-label]="'COMMON.UPLOAD_FILE' | translate"
+            (click)="$event.target !== file_input && file_input.click()"
         >
             @if (!uploading()) {
                 <icon>cloud_upload</icon>
             }
             <input
+                #file_input
+                tabindex="-1"
+                aria-hidden="true"
                 type="file"
                 class="absolute inset-0 cursor-pointer opacity-0"
                 (change)="uploadImage($event)"

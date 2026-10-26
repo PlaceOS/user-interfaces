@@ -30,7 +30,7 @@ import {
                     </div>
                 } @else {
                     <div
-                        class="flex h-full w-full flex-col items-center justify-center space-y-4 opacity-30"
+                        class="flex h-full w-full flex-col items-center justify-center space-y-4 opacity-70"
                     >
                         <icon class="text-6xl"></icon>
                         <p>Event not found.</p>

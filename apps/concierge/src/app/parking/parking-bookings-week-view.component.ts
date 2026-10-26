@@ -107,7 +107,7 @@ import {
                                     </span>
                                 </div>
                                 <div
-                                    class="mt-1 opacity-60"
+                                    class="mt-1 opacity-70"
                                     data-testid="parking-booking-time"
                                 >
                                     @if (isAllDayBooking(booking)) {
@@ -131,7 +131,7 @@ import {
                                     !isRequest(booking) &&
                                     !hide_bay_number_column()
                                 ) {
-                                    <div class="mt-0.5 opacity-40">
+                                    <div class="mt-0.5 opacity-70">
                                         {{
                                             bay_name?.identifier ||
                                                 booking.asset_id
@@ -143,14 +143,14 @@ import {
                                     as plate
                                 ) {
                                     <div
-                                        class="mt-0.5 font-mono uppercase opacity-40"
+                                        class="mt-0.5 font-mono uppercase opacity-70"
                                     >
                                         {{ plate }}
                                     </div>
                                 }
                                 @if (matchedUserGroups(booking); as groups) {
                                     <div
-                                        class="mt-0.5 opacity-40"
+                                        class="mt-0.5 opacity-70"
                                         data-testid="parking-request-group"
                                     >
                                         {{
@@ -162,7 +162,7 @@ import {
                                 }
                                 @if (allocationGroup(booking); as group) {
                                     <div
-                                        class="mt-0.5 opacity-40"
+                                        class="mt-0.5 opacity-70"
                                         data-testid="parking-allocation-group"
                                     >
                                         {{
@@ -329,6 +329,10 @@ import {
                                                         | translate
                                                 "
                                                 (click)="assignSpace(booking)"
+                                                [attr.aria-label]="
+                                                    'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                                        | translate
+                                                "
                                             >
                                                 <icon class="text-base"
                                                     >add_location</icon
@@ -393,7 +397,7 @@ import {
                             </div>
                         }
                         @if (!grouped_bookings()[day]?.length) {
-                            <div class="p-4 text-center text-xs opacity-30">
+                            <div class="p-4 text-center text-xs opacity-70">
                                 {{
                                     (isRequestFilter(options().request_filter)
                                         ? 'APP.CONCIERGE.PARKING_REQUESTS_EMPTY'

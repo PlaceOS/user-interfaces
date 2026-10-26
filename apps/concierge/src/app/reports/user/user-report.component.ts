@@ -86,10 +86,10 @@ import { UserReportOptions, UserReportService } from './user-report.service';
                         {{ 'APP.CONCIERGE.REPORTS_USER_HEADER' | translate }}
                     </h2>
                     @if (options().user; as user) {
-                        <p class="text-sm opacity-60">
+                        <p class="text-sm opacity-70">
                             {{ user.name }} ({{ user.email }})
                         </p>
-                        <p class="text-sm opacity-60">
+                        <p class="text-sm opacity-70">
                             {{ options().start | date: 'mediumDate' }} &ndash;
                             {{ options().end | date: 'mediumDate' }}
                         </p>
@@ -99,7 +99,7 @@ import { UserReportOptions, UserReportService } from './user-report.service';
             @if (loading()) {
                 <div class="flex h-full w-full flex-col items-center p-8">
                     <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                    <p class="opacity-30">
+                    <p class="opacity-70">
                         {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
                     </p>
                 </div>
@@ -107,7 +107,7 @@ import { UserReportOptions, UserReportService } from './user-report.service';
                 <div
                     class="screen-only flex h-full w-full flex-col items-center p-8"
                 >
-                    <p class="opacity-30">
+                    <p class="opacity-70">
                         {{ 'APP.CONCIERGE.REPORTS_USER_EMPTY' | translate }}
                     </p>
                 </div>

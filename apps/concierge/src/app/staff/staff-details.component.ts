@@ -15,7 +15,7 @@ import { StaffStateService } from './staff-state.service';
     template: `
         @if (user()) {
             <div
-                class="border-base-200 bg-base-100 flex w-full items-center border-b px-4 py-2 hover:opacity-80"
+                class="border-base-200 bg-base-100 flex w-full items-center border-b px-4 py-2"
                 details
             >
                 <a-user-avatar [user]="user()"></a-user-avatar>
@@ -26,7 +26,7 @@ import { StaffStateService } from './staff-state.service';
                     </div>
                 </div>
                 @if (onsite()) {
-                    <div class="px-4 text-xs opacity-50">
+                    <div class="px-4 text-xs opacity-70">
                         {{ 'APP.CONCIERGE.DIRECTORY_ONSITE' | translate }}
                     </div>
                 }

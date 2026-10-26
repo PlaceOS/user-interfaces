@@ -219,7 +219,7 @@ function localised(
                 }
             </map-editor>
         } @else {
-            <div class="flex flex-1 items-center justify-center opacity-60">
+            <div class="flex flex-1 items-center justify-center opacity-70">
                 {{ loading() }}
             </div>
         }

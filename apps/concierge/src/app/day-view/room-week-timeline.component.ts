@@ -71,7 +71,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
                 timezone
                 class="bg-base-100 min-w-items-center sticky top-0 left-0 z-30 flex justify-center"
             >
-                <div class="m-auto text-xs opacity-30">
+                <div class="m-auto text-xs opacity-70">
                     {{ date() | date: 'zzzz' : tz }}
                 </div>
                 <div
@@ -149,7 +149,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
                                     >
                                         {{ event.title }}
                                     </div>
-                                    <div class="flex-1 text-xs opacity-60">
+                                    <div class="flex-1 text-xs opacity-70">
                                         {{
                                             event.date | date: time_format : tz
                                         }}
@@ -165,10 +165,10 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
                                             }}</span>
                                         }
                                     </div>
-                                    <div class="truncate text-xs opacity-30">
+                                    <div class="truncate text-xs opacity-70">
                                         {{ event.system?.display_name }}
                                     </div>
-                                    <div class="truncate text-xs opacity-30">
+                                    <div class="truncate text-xs opacity-70">
                                         {{
                                             (
                                                 event.host

@@ -162,7 +162,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         <div
                             class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
-                            <h3 class="text-sm opacity-60">
+                            <h3 class="text-sm opacity-70">
                                 {{
                                     'APP.CONCIERGE.REPORTS_TOTAL_SITE_ATTENDANCE'
                                         | translate
@@ -175,7 +175,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         <div
                             class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
-                            <h3 class="text-sm opacity-60">
+                            <h3 class="text-sm opacity-70">
                                 {{
                                     'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS'
                                         | translate
@@ -188,7 +188,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         <div
                             class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
-                            <h3 class="text-sm opacity-60">
+                            <h3 class="text-sm opacity-70">
                                 {{
                                     'APP.CONCIERGE.REPORTS_ACTIVE_TYPES'
                                         | translate
@@ -201,7 +201,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         <div
                             class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
-                            <h3 class="text-sm opacity-60">
+                            <h3 class="text-sm opacity-70">
                                 {{
                                     'APP.CONCIERGE.REPORTS_UNIQUE_PEOPLE'
                                         | translate
@@ -214,7 +214,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         <div
                             class="border-base-300 bg-base-100 rounded-sm border p-4 shadow"
                         >
-                            <h3 class="text-sm opacity-60">
+                            <h3 class="text-sm opacity-70">
                                 {{
                                     'APP.CONCIERGE.REPORTS_BUSINESS_DAYS'
                                         | translate
@@ -256,7 +256,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                                         <p class="mt-2 text-3xl font-semibold">
                                             {{ card.attendance }}
                                         </p>
-                                        <p class="text-sm opacity-60">
+                                        <p class="text-sm opacity-70">
                                             {{
                                                 'APP.CONCIERGE.REPORTS_SITE_ATTENDANCE'
                                                     | translate
@@ -270,7 +270,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                                 >
                                     <div class="bg-base-200 rounded-sm p-3">
                                         <div
-                                            class="text-xs uppercase opacity-60"
+                                            class="text-xs uppercase opacity-70"
                                         >
                                             {{
                                                 'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS'
@@ -283,7 +283,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                                     </div>
                                     <div class="bg-base-200 rounded-sm p-3">
                                         <div
-                                            class="text-xs uppercase opacity-60"
+                                            class="text-xs uppercase opacity-70"
                                         >
                                             {{
                                                 'APP.CONCIERGE.REPORTS_DAILY_AVERAGE'
@@ -296,7 +296,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                                     </div>
                                     <div class="bg-base-200 rounded-sm p-3">
                                         <div
-                                            class="text-xs uppercase opacity-60"
+                                            class="text-xs uppercase opacity-70"
                                         >
                                             {{
                                                 'APP.CONCIERGE.REPORTS_AVERAGE_LENGTH'
@@ -309,7 +309,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                                     </div>
                                     <div class="bg-base-200 rounded-sm p-3">
                                         <div
-                                            class="text-xs uppercase opacity-60"
+                                            class="text-xs uppercase opacity-70"
                                         >
                                             {{
                                                 'APP.CONCIERGE.REPORTS_UNIQUE_PEOPLE'
@@ -325,7 +325,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                                 <div class="mt-4 grid grid-cols-2 gap-3">
                                     <div class="bg-base-200 rounded-sm p-3">
                                         <div
-                                            class="text-xs uppercase opacity-60"
+                                            class="text-xs uppercase opacity-70"
                                         >
                                             {{
                                                 'APP.CONCIERGE.REPORTS_RESOURCES_USED'
@@ -338,14 +338,14 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                                     </div>
                                     <div class="bg-base-200 rounded-sm p-3">
                                         <div
-                                            class="text-xs uppercase opacity-60"
+                                            class="text-xs uppercase opacity-70"
                                         >
                                             {{ card.status_label | translate }}
                                         </div>
                                         <div class="mt-1 text-xl font-medium">
                                             {{ card.status_count }}
                                         </div>
-                                        <div class="text-xs opacity-60">
+                                        <div class="text-xs opacity-70">
                                             {{ card.status_rate }}%
                                         </div>
                                     </div>
@@ -499,7 +499,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                                 {{ row.name }}
                             </div>
                             @if (row.name !== row.id) {
-                                <div class="text-xs opacity-60">
+                                <div class="text-xs opacity-70">
                                     {{ row.id }}
                                 </div>
                             }
@@ -509,7 +509,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     <div
                         class="screen-only flex h-full w-full flex-col items-center p-8"
                     >
-                        <p class="opacity-30">
+                        <p class="opacity-70">
                             {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
                         </p>
                     </div>
@@ -517,7 +517,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             } @else {
                 <div class="flex h-full w-full flex-col items-center p-8">
                     <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                    <p class="opacity-30">
+                    <p class="opacity-70">
                         {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
                     </p>
                 </div>
