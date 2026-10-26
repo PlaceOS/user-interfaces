@@ -1859,7 +1859,8 @@
             "UNSAVED_CHANGES_DISCARD": "Scarta",
             "LOCKERS_SHOW": "Mostra armadietti",
             "VISITORS_ID_IMAGE": "Documento del visitatore",
-            "ASSETS_REQUEST_DETAILS": "Dettagli della richiesta di risorsa"
+            "ASSETS_REQUEST_DETAILS": "Dettagli della richiesta di risorsa",
+            "SHORTCUTS_ENABLED": "Usa scorciatoie a tasto singolo"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacità della stanza",

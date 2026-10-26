@@ -43,6 +43,28 @@ describe('KeyboardShortcutsService', () => {
     afterEach(() => {
         document.removeEventListener('keydown', handler);
         document.body.innerHTML = '';
+        localStorage.clear();
+    });
+
+    it('should ignore every shortcut while the user has turned them off', () => {
+        const search = addElement(
+            '<button id="search" data-shortcut="search"></button>',
+            'search',
+        );
+        const click = vi.fn();
+        search.addEventListener('click', click);
+        spectator.service.setEnabled(false);
+
+        press('/');
+
+        expect(click).not.toHaveBeenCalled();
+    });
+
+    it('should remember when the user turns the shortcuts off', () => {
+        spectator.service.setEnabled(false);
+        expect(
+            localStorage.getItem('PLACEOS.concierge.shortcuts_enabled'),
+        ).toBe('false');
     });
 
     it('should click the first enabled target for the key', () => {

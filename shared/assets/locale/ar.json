@@ -1859,7 +1859,8 @@
             "UNSAVED_CHANGES_DISCARD": "تجاهل",
             "LOCKERS_SHOW": "عرض الخزائن",
             "VISITORS_ID_IMAGE": "هوية الزائر",
-            "ASSETS_REQUEST_DETAILS": "تفاصيل طلب الأصل"
+            "ASSETS_REQUEST_DETAILS": "تفاصيل طلب الأصل",
+            "SHORTCUTS_ENABLED": "استخدام اختصارات المفتاح الواحد"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "سعة الغرفة",

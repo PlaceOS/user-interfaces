@@ -1859,7 +1859,8 @@
             "UNSAVED_CHANGES_DISCARD": "Descartar",
             "LOCKERS_SHOW": "Mostrar armários",
             "VISITORS_ID_IMAGE": "Documento do visitante",
-            "ASSETS_REQUEST_DETAILS": "Detalhes da solicitação de ativo"
+            "ASSETS_REQUEST_DETAILS": "Detalhes da solicitação de ativo",
+            "SHORTCUTS_ENABLED": "Usar atalhos de uma tecla"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacidade da sala",

@@ -1859,7 +1859,8 @@
             "UNSAVED_CHANGES_DISCARD": "Abandonner",
             "LOCKERS_SHOW": "Afficher les casiers",
             "VISITORS_ID_IMAGE": "Pièce d'identité du visiteur",
-            "ASSETS_REQUEST_DETAILS": "Détails de la demande de ressource"
+            "ASSETS_REQUEST_DETAILS": "Détails de la demande de ressource",
+            "SHORTCUTS_ENABLED": "Utiliser les raccourcis à une touche"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacité de la salle",

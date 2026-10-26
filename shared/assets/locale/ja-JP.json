@@ -1859,7 +1859,8 @@
             "UNSAVED_CHANGES_DISCARD": "破棄",
             "LOCKERS_SHOW": "ロッカーを表示",
             "VISITORS_ID_IMAGE": "訪問者の身分証明書",
-            "ASSETS_REQUEST_DETAILS": "資産リクエストの詳細"
+            "ASSETS_REQUEST_DETAILS": "資産リクエストの詳細",
+            "SHORTCUTS_ENABLED": "1キーのショートカットを使用"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "会議室の定員",

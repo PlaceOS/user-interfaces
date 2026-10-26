@@ -3238,7 +3238,8 @@
             "UNSAVED_CHANGES_DISCARD": "Discard",
             "LOCKERS_SHOW": "Show lockers",
             "VISITORS_ID_IMAGE": "Visitor ID",
-            "ASSETS_REQUEST_DETAILS": "Asset request details"
+            "ASSETS_REQUEST_DETAILS": "Asset request details",
+            "SHORTCUTS_ENABLED": "Use single-key shortcuts"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Room capacity",

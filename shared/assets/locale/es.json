@@ -1859,7 +1859,8 @@
             "UNSAVED_CHANGES_DISCARD": "Descartar",
             "LOCKERS_SHOW": "Mostrar taquillas",
             "VISITORS_ID_IMAGE": "Identificación del visitante",
-            "ASSETS_REQUEST_DETAILS": "Detalles de la solicitud de activo"
+            "ASSETS_REQUEST_DETAILS": "Detalles de la solicitud de activo",
+            "SHORTCUTS_ENABLED": "Usar atajos de una sola tecla"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacidad de la sala",

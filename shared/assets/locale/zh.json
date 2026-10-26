@@ -1860,7 +1860,8 @@
             "UNSAVED_CHANGES_DISCARD": "放弃",
             "LOCKERS_SHOW": "显示储物柜",
             "VISITORS_ID_IMAGE": "访客证件",
-            "ASSETS_REQUEST_DETAILS": "资产请求详情"
+            "ASSETS_REQUEST_DETAILS": "资产请求详情",
+            "SHORTCUTS_ENABLED": "使用单键快捷键"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "房间容量",
