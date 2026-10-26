@@ -100,6 +100,24 @@ describe('MeetingFlowDetailsComponent', () => {
         expect(spectator.component.start_time_disabled()).toBe(false);
     });
 
+    it('should show the Teams opt-in when online meetings are enabled', () => {
+        const allow_online_meetings = settingSignal(
+            'events.allow_online_meetings',
+            false,
+        );
+        allow_online_meetings.set(false);
+        spectator = createComponent();
+        spectator.detectChanges();
+
+        expect(spectator.query('settings-toggle')).toBeNull();
+
+        allow_online_meetings.set(true);
+        spectator.detectChanges();
+
+        expect(spectator.query('settings-toggle')).toBeTruthy();
+        allow_online_meetings.set(false);
+    });
+
     it('should filter rooms with the minimum and the maximum of the selected size', () => {
         spectator = createComponent();
         const { setFilters } = spectator.inject(EventFormService);
