@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { form, FormField, submit, validate } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -185,7 +178,6 @@ export async function openBookingModal(
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         TranslatePipe,

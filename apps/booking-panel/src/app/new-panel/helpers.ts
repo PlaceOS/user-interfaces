@@ -56,20 +56,11 @@ export function timelineStart(now = Date.now()) {
     return addMinutes(startOfHour(now), -60).valueOf();
 }
 
-export function timelineData(
-    bookings: CalendarEvent[],
-    now = Date.now(),
-    start = timelineStart(now),
-    step = 10,
-): {
-    blocks: PanelTimelineBlock[];
-    bookings: PanelTimelineBooking[];
-    now: number;
-} {
+/** Grid blocks for the timeline. Depends only on the start time. */
+export function timelineBlocks(start: number, step = 10): PanelTimelineBlock[] {
     const blocks: PanelTimelineBlock[] = [];
     let time = start;
     const end = addMinutes(start, TIMELINE_SPAN).valueOf();
-    const duration = end - start;
 
     while (time < end) {
         blocks.push({
@@ -80,30 +71,41 @@ export function timelineData(
         });
         time = addMinutes(time, step).valueOf();
     }
+    return blocks;
+}
 
-    return {
-        blocks,
-        bookings: bookings
-            .map((booking, index) => {
-                const booking_end = addMinutes(
-                    booking.date,
-                    booking.duration,
-                ).valueOf();
-                const visible_start = Math.max(booking.date, start);
-                const visible_end = Math.min(booking_end, end);
-                return {
-                    id: `${booking.id || booking.date}-${index}`,
-                    start: ((visible_start - start) / duration) * 100,
-                    size: ((visible_end - visible_start) / duration) * 100,
-                    title: `${format(booking.date, 'h:mm a')} - ${format(
-                        booking_end,
-                        'h:mm a',
-                    )}`,
-                };
-            })
-            .filter((booking) => booking.size > 0),
-        now: Math.max(0, Math.min(100, ((now - start) / duration) * 100)),
-    };
+/** Bookings positioned as percentages along the timeline from `start` */
+export function timelineBookings(
+    bookings: CalendarEvent[],
+    start: number,
+): PanelTimelineBooking[] {
+    const end = addMinutes(start, TIMELINE_SPAN).valueOf();
+    const duration = end - start;
+    return bookings
+        .map((booking, index) => {
+            const booking_end = addMinutes(
+                booking.date,
+                booking.duration,
+            ).valueOf();
+            const visible_start = Math.max(booking.date, start);
+            const visible_end = Math.min(booking_end, end);
+            return {
+                id: `${booking.id || booking.date}-${index}`,
+                start: ((visible_start - start) / duration) * 100,
+                size: ((visible_end - visible_start) / duration) * 100,
+                title: `${format(booking.date, 'h:mm a')} - ${format(
+                    booking_end,
+                    'h:mm a',
+                )}`,
+            };
+        })
+        .filter((booking) => booking.size > 0);
+}
+
+/** Position of `now` along the timeline as a percentage from 0 to 100 */
+export function timelineNow(now: number, start: number) {
+    const duration = TIMELINE_SPAN * 60 * 1000;
+    return Math.max(0, Math.min(100, ((now - start) / duration) * 100));
 }
 
 export function nextPeriod(next: CalendarEvent) {

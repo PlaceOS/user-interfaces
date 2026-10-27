@@ -59,6 +59,16 @@ describe('CheckinTimetableComponent', () => {
         expect('[event]').toExist();
     });
 
+    it('should keep the time blocks until the start time moves', () => {
+        // The start moves on the 15 minute step, so 09:01 to 09:02 keeps it
+        vi.useFakeTimers({ now: new Date(2026, 6, 4, 9, 1) });
+        spectator.detectChanges();
+        const blocks = spectator.component.blocks();
+        vi.advanceTimersByTime(60 * 1000);
+        expect(spectator.component.blocks()).toBe(blocks);
+        vi.useRealTimers();
+    });
+
     it('should leave event blocks empty when no events are supplied', () => {
         spectator.detectChanges();
         expect(spectator.component.event_blocks().length).toBe(0);

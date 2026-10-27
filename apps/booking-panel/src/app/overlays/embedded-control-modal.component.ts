@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
@@ -74,7 +68,6 @@ export interface EmbeddedControlModalData {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [SafePipe, MatRippleModule, IconComponent],
 })
 export class EmbeddedControlModalComponent

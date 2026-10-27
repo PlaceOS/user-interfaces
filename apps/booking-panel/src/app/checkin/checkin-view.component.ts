@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -234,7 +233,6 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
         `,
     ],
     providers: [PanelStateService],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,
