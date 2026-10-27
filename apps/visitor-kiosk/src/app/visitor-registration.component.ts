@@ -106,8 +106,12 @@ import { minuteClock } from './minute-clock';
                                 {{ 'FORM.EMAIL_REQUIRED' | translate }}
                             </mat-error>
                         </mat-form-field>
-                        <label>{{ 'FORM.HOST' | translate }}</label>
+                        <label id="register-host-label">{{
+                            'FORM.HOST' | translate
+                        }}</label>
                         <a-user-search-field
+                            role="group"
+                            aria-labelledby="register-host-label"
                             autocomplete="off"
                             [ngModel]="host()"
                             (ngModelChange)="setHost($event)"
@@ -195,10 +199,12 @@ import { minuteClock } from './minute-clock';
                                     </mat-checkbox>
                                 </div>
                             }
-                            <label>
+                            <label id="register-duration-label">
                                 {{ 'FORM.DURATION' | translate }}
                             </label>
                             <a-duration-field
+                                role="group"
+                                aria-labelledby="register-duration-label"
                                 class="text-base"
                                 [ngModel]="form_value().duration"
                                 (ngModelChange)="setDuration($event)"

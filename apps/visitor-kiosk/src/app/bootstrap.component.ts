@@ -45,7 +45,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                 @if (!loading()) {
                     <div class="flex flex-col space-y-2 px-4">
                         @if (regions().length > 1) {
-                            <label>
+                            <label id="bootstrap-region-label">
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
                                         | translate
@@ -56,6 +56,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                 class="no-subscript"
                             >
                                 <mat-select
+                                    aria-labelledby="bootstrap-region-label"
                                     #select
                                     building
                                     [(ngModel)]="active_region"
@@ -109,7 +110,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                             </mat-form-field>
                         }
                         @if (buildings().length) {
-                            <label>
+                            <label id="bootstrap-building-label">
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_BUILDING_MSG'
                                         | translate
@@ -120,6 +121,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                 class="no-subscript"
                             >
                                 <mat-select
+                                    aria-labelledby="bootstrap-building-label"
                                     #select
                                     building
                                     [(ngModel)]="active_building"
@@ -174,7 +176,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                         }
                         @if (levels().length && active_building()) {
                             <div></div>
-                            <label>
+                            <label id="bootstrap-level-label">
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_LEVEL_MSG'
                                         | translate
@@ -185,6 +187,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                 class="no-subscript"
                             >
                                 <mat-select
+                                    aria-labelledby="bootstrap-level-label"
                                     #select
                                     level
                                     [(ngModel)]="active_level"
@@ -238,19 +241,18 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                         }
                         @if (rotations().length) {
                             <div></div>
-                            <label>
+                            <label id="bootstrap-orientation-label">
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_ORIENTATION_MSG'
                                         | translate
                                 }}
-                                Please select an orientation from the dropdown
-                                below
                             </label>
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript"
                             >
                                 <mat-select
+                                    aria-labelledby="bootstrap-orientation-label"
                                     #select
                                     [(ngModel)]="active_rotation"
                                     [placeholder]="
@@ -285,19 +287,18 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                         }
                         @if (locations().length) {
                             <div></div>
-                            <label>
+                            <label id="bootstrap-location-label">
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_LOCATION_MSG'
                                         | translate
                                 }}
-                                Please select an fixed location from the
-                                dropdown below
                             </label>
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript"
                             >
                                 <mat-select
+                                    aria-labelledby="bootstrap-location-label"
                                     #select
                                     [(ngModel)]="active_location"
                                     [placeholder]="

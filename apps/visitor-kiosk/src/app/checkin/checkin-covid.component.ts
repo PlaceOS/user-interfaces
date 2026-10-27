@@ -16,7 +16,9 @@ import { CheckinStateService } from './checkin-state.service';
             <h3 class="mb-4 text-xl font-medium">COVID Disclaimer</h3>
             <ol class="list-inside list-decimal">
                 <li>
-                    Do you have any of the following symptoms?<br /><br />
+                    <span id="checkin-covid-symptoms"
+                        >Do you have any of the following symptoms?</span
+                    ><br /><br />
                     <ul class="mb-4 list-inside list-disc px-4">
                         <li>Fever</li>
                         <li>Cough</li>
@@ -33,7 +35,7 @@ import { CheckinStateService } from './checkin-state.service';
                         <li>Loss of taste or smell</li>
                     </ul>
                     <mat-radio-group
-                        aria-label="Has Symptoms"
+                        aria-labelledby="checkin-covid-symptoms"
                         [(ngModel)]="symptoms"
                     >
                         <mat-radio-button value="true">Yes</mat-radio-button>
@@ -44,10 +46,13 @@ import { CheckinStateService } from './checkin-state.service';
                 </li>
                 <hr class="my-4" />
                 <li>
-                    Have you been in contact with a COVID-19 case in the last 14
-                    days or been asked to self-isolate by a health offical?<br /><br />
+                    <span id="checkin-covid-contact"
+                        >Have you been in contact with a COVID-19 case in the
+                        last 14 days or been asked to self-isolate by a health
+                        offical?</span
+                    ><br /><br />
                     <mat-radio-group
-                        aria-label="COVID contact or self-isolated"
+                        aria-labelledby="checkin-covid-contact"
                         [(ngModel)]="contact"
                     >
                         <mat-radio-button value="true">Yes</mat-radio-button>
