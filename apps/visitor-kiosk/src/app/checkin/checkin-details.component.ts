@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
-import { settingSignal } from '@placeos/common';
+import { notifyError, settingSignal } from '@placeos/common';
 import {
     IconComponent,
     TranslatePipe,
@@ -231,28 +231,39 @@ export class CheckinDetailsComponent implements OnInit {
         }
     }
 
+    /**
+     * Save the form details, then check in the guest.
+     * Opens the induction first if it must come after the details.
+     * On failure, shows an error and shows the form again.
+     */
     public async updateGuest(update = true) {
         this.loading.set(true);
-        if (update) await this._checkin.updateGuest();
-        if (
-            this.induction_after_details() &&
-            this.induction_available() &&
-            this._checkin.event()?.induction !== 'accepted'
-        ) {
+        try {
+            if (update) {
+                await this._checkin.updateGuest().catch((e) => {
+                    notifyError(e);
+                    throw e;
+                });
+            }
+            if (
+                this.induction_after_details() &&
+                this.induction_available() &&
+                this._checkin.event()?.induction !== 'accepted'
+            ) {
+                this._router.navigate(['/checkin', 'induction']);
+                return;
+            }
+            // Shows its own error on failure
+            await this._checkin.checkinGuest();
+            this._router.navigate([
+                '/checkin',
+                this.allow_user_photo() ? 'photo' : 'results',
+            ]);
+        } catch {
+            // Error is already shown
+        } finally {
             this.loading.set(false);
-            this._router.navigate(['/checkin', 'induction']);
-            return;
         }
-        const result = await this._checkin
-            .checkinGuest()
-            .then(() => true)
-            .catch(() => false);
-        this.loading.set(false);
-        if (!result) return;
-        this._router.navigate([
-            '/checkin',
-            this.allow_user_photo() ? 'photo' : 'results',
-        ]);
     }
 
     public previous() {

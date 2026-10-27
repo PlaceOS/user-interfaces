@@ -23,7 +23,7 @@ describe('CheckinDetailsComponent', () => {
         declarations: [mockComponent(IconComponent)],
         providers: [
             MockProvider(CheckinStateService, {
-                updateGuest: vi.fn(),
+                updateGuest: vi.fn(async () => undefined),
                 checkinGuest: vi.fn(async () => null),
                 form: signal({
                     host: '',
@@ -95,6 +95,18 @@ describe('CheckinDetailsComponent', () => {
             '/checkin',
             'induction',
         ]);
+    });
+
+    it('shows the form again when saving guest details fails', async () => {
+        const service = spectator.inject(CheckinStateService);
+        vi.mocked(service.updateGuest).mockRejectedValueOnce(
+            new Error('Save failed'),
+        );
+
+        await spectator.component.updateGuest();
+
+        expect(service.checkinGuest).not.toHaveBeenCalled();
+        expect(spectator.component.loading()).toBe(false);
     });
 
     it('offers a photo when label printing uses its default setting', () => {
