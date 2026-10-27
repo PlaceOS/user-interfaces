@@ -11,5 +11,6 @@ function M($){let e=Math.floor(Math.abs($)),r=$.toString().replace(/^[^.]*\.?/,`
 *)
 */
 export{i as default};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="13e834cc-55ec-52ab-aafd-ebf6b61d60d7")}catch(e){}}();
 //# debugId=13e834cc-55ec-52ab-aafd-ebf6b61d60d7
 //# sourceMappingURL=fr-BBH-5TQG.js.map
