@@ -1,11 +1,4 @@
-import {
-    Component,
-    computed,
-    DoCheck,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
@@ -408,7 +401,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
         FormsModule,
     ],
 })
-export class BootstrapComponent extends AsyncHandler implements OnInit, DoCheck {
+export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
@@ -469,12 +462,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit, DoCheck 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         this.active_region.set(this._org.region);
-        this.handleQueryParams();
+        // Emits the current params at once, then on each later change
+        this.subscription(
+            'query_params',
+            this._route.queryParamMap.subscribe(() => this.handleQueryParams()),
+        );
         this.checkBootstrap();
-    }
-
-    public ngDoCheck() {
-        this.handleQueryParams();
     }
 
     public updateRotations() {

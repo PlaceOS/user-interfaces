@@ -1,7 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { Router, RouterModule } from '@angular/router';
-import { startOfMinute } from 'date-fns';
 
 import {
     AsyncHandler,
@@ -35,6 +34,7 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { CheckinStateService } from './checkin/checkin-state.service';
+import { minuteClock } from './minute-clock';
 
 @Component({
     selector: 'visitor-registration',
@@ -261,7 +261,7 @@ export class VisitorRegistrationComponent
     public readonly form = this._booking_form.form;
     public readonly form_value = this._booking_form.model;
     public readonly loading = signal(false);
-    public readonly now = signal(startOfMinute(Date.now()).valueOf());
+    public readonly now = minuteClock();
     public readonly background = settingSignal('welcome_background');
     public readonly allow_registration_time_options = settingSignal<
         boolean | undefined
@@ -309,11 +309,6 @@ export class VisitorRegistrationComponent
     }
 
     public ngOnInit() {
-        this.interval(
-            'time',
-            () => this.now.set(startOfMinute(Date.now()).valueOf()),
-            30 * 1000,
-        );
         this._booking_form.clearOldState();
         this._booking_form.newForm('visitor');
         this._booking_form.setOptions({ type: 'visitor' });

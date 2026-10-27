@@ -16,7 +16,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import {
-    AsyncHandler,
     CateringItem,
     i18n,
     log,
@@ -123,17 +122,16 @@ import { parseTokenFromUrl } from './token-from-url';
         MatSelectModule,
     ],
 })
-export class CheckinPreferencesComponent
-    extends AsyncHandler
-    implements OnInit
-{
+export class CheckinPreferencesComponent implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _checkin = inject(CheckinStateService);
     private _org = inject(OrganisationService);
     private _last_jwt = '';
 
-    public loading = signal(false);
+    public readonly saving = signal(false);
+    /** Whether the visitor and their saved beverage have loaded */
+    private readonly _visitor_ready = signal(false);
     public type = signal<'save' | 'menu'>('menu');
     public existing_beverage = signal<CateringItem>(null);
     public beverage = signal<CateringItem>(null);
@@ -141,19 +139,23 @@ export class CheckinPreferencesComponent
     public readonly event = this._checkin.event;
     public readonly bld_id = signal('');
     public readonly menu = signal<CateringItem[]>([]);
+    /** Keep the form locked until all of its data has loaded */
+    public readonly loading = computed(
+        () => this.saving() || !this.menu().length || !this._visitor_ready(),
+    );
     public readonly allow_standalone = settingSignal(
         'standalone_visitor_location',
         '',
     );
-    private _menu_load_id = 0;
-
     private readonly _update_bld_id = effect(() => {
         this.bld_id.set(this._org.active_building()?.id || '');
     });
 
-    private readonly _load_menu = effect(async () => {
+    private readonly _load_menu = effect(async (onCleanup) => {
         const bld = this.bld_id();
-        const load_id = ++this._menu_load_id;
+        // Ignore the result after a newer load starts or the page closes
+        let stale = false;
+        onCleanup(() => (stale = true));
         if (!bld) {
             this.menu.set([]);
             return;
@@ -161,49 +163,37 @@ export class CheckinPreferencesComponent
         const menu = await queryCateringItems(bld).catch(
             () => [] as CateringItem[],
         );
-        if (load_id !== this._menu_load_id) return;
-        this.menu.set(
-            menu.filter((_) =>
-                (_.tags || []).find(
-                    (_) =>
-                        _.toLowerCase() === 'drink' ||
-                        _.toLowerCase() === 'drinks' ||
-                        _.toLowerCase() === 'beverage',
-                ),
+        if (stale) return;
+        const drinks = menu.filter((_) =>
+            (_.tags || []).find(
+                (_) =>
+                    _.toLowerCase() === 'drink' ||
+                    _.toLowerCase() === 'drinks' ||
+                    _.toLowerCase() === 'beverage',
             ),
         );
-    });
-
-    private readonly _handle_menu = effect(() => {
-        const menu = this.menu();
-        if (menu.length) {
-            this.loading.set(false);
-            this.clearTimeout('no_menu');
-        } else if (this.bld_id()) {
-            this.timeout(
-                'no_menu',
-                () => {
-                    notifyError('No menu available');
-                    this.next();
-                },
-                1000,
-            );
-        }
+        this.menu.set(drinks);
+        if (drinks.length) return;
+        notifyError('No menu available');
+        this.next();
     });
 
     public ngOnInit(): void {
-        this.loading.set(true);
-        this.loadJwtFromRoute();
         this.type.set('menu');
-        this.timeout('event', () => this.loadExistingBeverage(), 1000);
+        // Read the existing beverage after the visitor lookup completes.
+        // A failed lookup already shows the error page.
+        this.loadJwtFromRoute()
+            .then(() => this.loadExistingBeverage())
+            .then(() => this._visitor_ready.set(true))
+            .catch(() => undefined);
     }
 
     public async update() {
         this.type.set('save');
         if (!this.beverage()) return this.next();
-        this.loading.set(true);
         const booking = this._checkin.event();
         if (!booking) return notifyError(i18n('APP.VISITOR_KIOSK.LOAD_ERROR'));
+        this.saving.set(true);
         const email = booking.asset_id;
         const catering_item = new CateringItem({
             ...this.beverage(),
@@ -211,7 +201,7 @@ export class CheckinPreferencesComponent
         });
         await setGuestCateringItem(email, catering_item, booking.id);
         notifySuccess(i18n('APP.VISITOR_KIOSK.BEVERAGE_SUCCESS'));
-        this.loading.set(false);
+        this.saving.set(false);
         this.next();
     }
 

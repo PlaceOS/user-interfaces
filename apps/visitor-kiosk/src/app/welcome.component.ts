@@ -27,6 +27,7 @@ import {
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
+import { minuteClock } from './minute-clock';
 
 @Component({
     selector: 'app-welcome',
@@ -210,7 +211,7 @@ export class WelcomeComponent
     private _locale = inject(LocaleService);
     private _cdr = inject(ChangeDetectorRef);
 
-    public readonly now = signal(Date.now());
+    public readonly now = minuteClock();
     /** Level to initially load on explore */
     public readonly level = signal('');
     private readonly _level_sync = effect(() =>
@@ -242,7 +243,6 @@ export class WelcomeComponent
     };
 
     public ngOnInit() {
-        this.interval('time', () => this.now.set(Date.now()), 30 * 1000);
         this.level.set(localStorage?.getItem('KIOSK.level'));
         const params = this.route.snapshot.paramMap;
         if (params.has('level')) {

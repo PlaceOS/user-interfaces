@@ -492,8 +492,11 @@ export class CheckinQRScanComponent
                 const canvas = document.createElement('canvas');
                 canvas.width = MOTION_GRID_COLUMNS;
                 canvas.height = MOTION_GRID_ROWS;
+                // Keep the canvas in CPU memory. The scan loop reads it
+                // every scan, and a GPU canvas stalls on each read.
                 this._motion_context = canvas.getContext('2d', {
                     alpha: false,
+                    willReadFrequently: true,
                 });
                 if (!this._motion_context) return null;
                 // Average the pixels in each cell to remove camera noise

@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 import { AuthenticatedImageDirective } from '@placeos/components';
-import { startOfMinute } from 'date-fns';
+import { minuteClock } from '../minute-clock';
 
 @Component({
     selector: '[app-checkin]',
@@ -46,16 +46,7 @@ import { startOfMinute } from 'date-fns';
     imports: [CommonModule, RouterModule, AuthenticatedImageDirective],
 })
 export class CheckinComponent {
-    private readonly _destroy_ref = inject(DestroyRef);
-
     public readonly background = settingSignal('welcome_background');
     public readonly hide_building_image = settingSignal('hide_building_image');
-    public readonly now = signal(startOfMinute(new Date()));
-
-    public constructor() {
-        const interval_id = setInterval(() => {
-            this.now.set(startOfMinute(new Date()));
-        }, 1000);
-        this._destroy_ref.onDestroy(() => clearInterval(interval_id));
-    }
+    public readonly now = minuteClock();
 }
