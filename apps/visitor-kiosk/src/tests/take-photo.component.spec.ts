@@ -52,4 +52,28 @@ describe('TakePhotoComponent', () => {
         expect(spectator.query('button.take-photo')).toBeDisabled();
         expect(spectator.element).toHaveText('videocam_off');
     });
+
+    it('stops the camera and shows a message when no frame arrives', async () => {
+        vi.useFakeTimers();
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        const track = { stop: vi.fn() };
+        vi.stubGlobal('navigator', {
+            mediaDevices: {
+                getUserMedia: vi.fn(async () => ({
+                    getTracks: () => [track],
+                })),
+            },
+        });
+        spectator = createComponent();
+        spectator.detectChanges();
+
+        await vi.advanceTimersByTimeAsync(10_000);
+        spectator.detectChanges();
+
+        expect(spectator.component.camera_error()).toBe(true);
+        expect(spectator.component.loading()).toBe(false);
+        expect(track.stop).toHaveBeenCalled();
+        expect(spectator.query('button.take-photo')).toBeDisabled();
+        vi.useRealTimers();
+    });
 });

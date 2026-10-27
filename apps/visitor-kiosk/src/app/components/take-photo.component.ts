@@ -10,8 +10,11 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, withTimeout } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+
+/** Time to wait for the first camera frame before the camera counts as failed */
+const FIRST_FRAME_TIMEOUT_MS = 10_000;
 
 function stopTracks(stream: MediaStream) {
     for (const track of stream.getTracks()) {
@@ -168,14 +171,19 @@ export class TakePhotoComponent
             video.srcObject = stream;
             // Keep capture disabled until the camera shows a frame
             if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-                await new Promise((resolve) =>
-                    video.addEventListener('loadeddata', resolve, {
-                        once: true,
-                    }),
+                await withTimeout(
+                    new Promise((resolve) =>
+                        video.addEventListener('loadeddata', resolve, {
+                            once: true,
+                        }),
+                    ),
+                    FIRST_FRAME_TIMEOUT_MS,
+                    'Camera did not show a frame.',
                 );
             }
         } catch (error) {
             console.error('Unable to start camera.', error);
+            this.stopCapture();
             if (!this._destroyed) this.camera_error.set(true);
         } finally {
             if (!this._destroyed) this.loading.set(false);
