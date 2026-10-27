@@ -2117,7 +2117,21 @@
             "CHECKOUT": "Fazer check-out do prédio",
             "CHECKOUT_MSG": "Você está com check-in no prédio. Gostaria de fazer check-out?",
             "CHECKOUT_LOADING": "Fazendo check-out do visitante...",
-            "CHECKOUT_SUCCESS": "Check-out do visitante realizado com sucesso."
+            "CHECKOUT_SUCCESS": "Check-out do visitante realizado com sucesso.",
+            "CAMERA_OFF": "Câmera indisponível",
+            "READY_TO_SCAN": "Pronto para escanear o código QR",
+            "SEE_RECEPTION": "Dirija-se à recepção.",
+            "RECEPTION_ASSIST": "Nossa equipe da recepção vai ajudar você.",
+            "CONFIRM_DETAILS": "Confirmar dados",
+            "RETAKE": "Tirar novamente",
+            "MEETING_REJECTED": "Sua reunião foi rejeitada.",
+            "MEETING_FINISHED": "Sua reunião já terminou.",
+            "NOT_CHECKED_IN": "Você ainda não fez check-in.",
+            "ALREADY_CHECKED_IN": "Você já fez check-in.",
+            "INDUCTION_DECLINED": "Você recusou a integração.",
+            "ERROR_CHECKOUT": "Erro ao fazer check-out.",
+            "INVALID_QR_CODE": "Código QR inválido",
+            "IDLE_WARNING": "Você ainda está aí? Esta tela voltará ao início em {{ seconds }} segundos."
         }
     },
     "SIGNAGE_MANAGER": {
