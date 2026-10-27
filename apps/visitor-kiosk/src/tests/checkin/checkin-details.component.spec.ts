@@ -12,12 +12,28 @@ import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 
-import { settingSignal, SettingsService } from '@placeos/common';
+import {
+    setNotifyOutlet,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 import { CheckinDetailsComponent } from '../../app/checkin/checkin-details.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
+// Workspace modules cannot be intercepted by the native unit-test builder, so
+// instead of mocking `notifyError` we spy on the snackbar outlet it routes to.
+function createSnackbarSpy() {
+    return {
+        open: vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        })),
+    };
+}
+
 describe('CheckinDetailsComponent', () => {
     let spectator: SpectatorRouting<CheckinDetailsComponent>;
+    let snackbar: ReturnType<typeof createSnackbarSpy>;
     const createComponent = createRoutingFactory({
         component: CheckinDetailsComponent,
         declarations: [mockComponent(IconComponent)],
@@ -52,8 +68,12 @@ describe('CheckinDetailsComponent', () => {
         settingSignal('induction_after_details', false).set(false);
         settingSignal('allow_user_photo', false).set(false);
         settingSignal('allow_printing_label').set(undefined);
+        snackbar = createSnackbarSpy();
+        setNotifyOutlet(snackbar as any, true);
         spectator = createComponent();
     });
+
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should disable browser autocomplete on every input', () => {
         const inputs = spectator.queryAll('input');
@@ -105,6 +125,11 @@ describe('CheckinDetailsComponent', () => {
 
         await spectator.component.updateGuest();
 
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'Save failed',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
         expect(service.checkinGuest).not.toHaveBeenCalled();
         expect(spectator.component.loading()).toBe(false);
     });
