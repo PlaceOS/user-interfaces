@@ -2130,7 +2130,8 @@
             "ALREADY_CHECKED_IN": "すでにチェックインしています。",
             "INDUCTION_DECLINED": "安全説明を辞退しました。",
             "ERROR_CHECKOUT": "チェックアウトできませんでした。",
-            "INVALID_QR_CODE": "無効なQRコードです"
+            "INVALID_QR_CODE": "無効なQRコードです",
+            "IDLE_WARNING": "まだご利用中ですか？{{ seconds }} 秒後にこの画面は最初に戻ります。"
         }
     },
     "SIGNAGE_MANAGER": {

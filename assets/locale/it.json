@@ -2130,7 +2130,8 @@
             "ALREADY_CHECKED_IN": "Hai già effettuato il check-in.",
             "INDUCTION_DECLINED": "Hai rifiutato l'induzione.",
             "ERROR_CHECKOUT": "Errore durante il check-out.",
-            "INVALID_QR_CODE": "Codice QR non valido"
+            "INVALID_QR_CODE": "Codice QR non valido",
+            "IDLE_WARNING": "Sei ancora lì? Questa schermata tornerà all'inizio tra {{ seconds }} secondi."
         }
     },
     "SIGNAGE_MANAGER": {
