@@ -1917,7 +1917,8 @@
             "EARLY_CHECKIN": "会議は早期にチェックインされました",
             "BOOKING_NEW": "新規予約",
             "BOOKING_HOST": "予約者",
-            "BOOKING_LOADING": "予約リクエストを処理中..."
+            "BOOKING_LOADING": "予約リクエストを処理中...",
+            "BOOKING_DISABLED": "このお部屋はカレンダーから予約してください"
         },
         "CONTROL": {
             "BOOTSTRAP_TITLE": "コントロールパネル設定",
