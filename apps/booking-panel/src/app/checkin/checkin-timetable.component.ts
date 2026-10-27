@@ -5,6 +5,7 @@ import {
     OnInit,
     output,
     signal,
+    untracked,
 } from '@angular/core';
 import { AsyncHandler, CalendarEvent } from '@placeos/common';
 import {
@@ -16,6 +17,8 @@ import {
     subHours,
     subMinutes,
 } from 'date-fns';
+
+import { TIME_FORMAT } from '../new-panel/helpers';
 
 interface TimeBlock {
     id: number;
@@ -96,6 +99,8 @@ interface EventBlock {
 export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
     public readonly events = input<CalendarEvent[]>([]);
     public readonly step = input(15);
+    /** Time format. `HH:mm` shows 24 hour labels. */
+    public readonly time_format = input(TIME_FORMAT);
     public readonly event = output<number>();
 
     public current_time = signal<number>(0);
@@ -108,6 +113,11 @@ export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
         effect(() => {
             this.events(); // track the signal
             this._processEvents();
+        });
+        // Relabel the blocks when the time format setting loads or changes
+        effect(() => {
+            this.time_format();
+            untracked(() => this._generateTimeBlocks(true));
         });
     }
 
@@ -139,8 +149,10 @@ export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
         return '';
     }
 
-    private _generateTimeBlocks() {
+    /** Build the blocks. `force` rebuilds them when the start is the same. */
+    private _generateTimeBlocks(force = false) {
         const blocks: TimeBlock[] = [];
+        const hour_24 = this.time_format() !== TIME_FORMAT;
         const start = roundToNearestMinutes(
             subMinutes(subHours(Date.now(), 1), this.step() / 2),
             {
@@ -148,15 +160,15 @@ export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
             },
         );
         // The start moves once per step. Keep the blocks until then.
-        if (this.blocks()[0]?.id === start.valueOf()) return;
+        if (!force && this.blocks()[0]?.id === start.valueOf()) return;
         let date = start;
         const end = addHours(start, 24);
         while (date < end) {
             blocks.push({
                 id: date.valueOf(),
                 minutes: date.getMinutes(),
-                hour: format(date, 'h'),
-                period: format(date, 'a'),
+                hour: format(date, hour_24 ? 'HH' : 'h'),
+                period: hour_24 ? '' : format(date, 'a'),
             });
             date = addMinutes(date, this.step());
         }

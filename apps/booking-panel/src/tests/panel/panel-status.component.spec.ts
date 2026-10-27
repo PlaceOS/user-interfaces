@@ -24,6 +24,7 @@ describe('PanelViewStatusComponent', () => {
             {
                 provide: PanelStateService,
                 useValue: {
+                    time_format: signal('h:mm a'),
                     status,
                     current,
                     next: signal(null),
@@ -111,6 +112,28 @@ describe('PanelViewStatusComponent', () => {
             spectator = createComponent();
             expect('[checkin-countdown]').not.toExist();
         });
+    });
+
+    it('should point to the calendar when the panel cannot book', () => {
+        panel_settings.set({ disable_book_now: true, show_qr_code: false });
+        spectator.detectChanges();
+        expect('[booking-disabled]').toExist();
+    });
+
+    it('should point to the calendar when the QR code opens a custom page', () => {
+        panel_settings.set({
+            disable_book_now: true,
+            show_qr_code: true,
+            custom_qr_url: 'https://example.com/room',
+        });
+        spectator.detectChanges();
+        expect('[booking-disabled]').toExist();
+    });
+
+    it('should not point to the calendar when the QR code can book', () => {
+        panel_settings.set({ disable_book_now: true, show_qr_code: true });
+        spectator.detectChanges();
+        expect('[booking-disabled]').not.toExist();
     });
 
     it('should show detected people in a free room when enabled', () => {

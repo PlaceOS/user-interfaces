@@ -1,5 +1,5 @@
 import { CalendarEvent } from '@placeos/common';
-import { addMinutes, format } from 'date-fns';
+import { addDays, addMinutes, format, startOfDay } from 'date-fns';
 
 import {
     burnInOffset,
@@ -54,6 +54,23 @@ describe('new-panel helpers', () => {
                 'h:mm a',
             )}`;
             expect(nextPeriod({ date, duration: 30 } as any)).toBe(expected);
+        });
+
+        it('should show the weekday for a booking tomorrow', () => {
+            const date = addDays(startOfDay(FIXED_NOW), 1).valueOf() + 1000;
+            expect(nextPeriod({ date, duration: 30 } as any)).toBe(
+                `${format(date, 'EEE h:mm a')} - ${format(
+                    addMinutes(date, 30),
+                    'h:mm a',
+                )}`,
+            );
+        });
+
+        it('should use the given time format', () => {
+            const date = FIXED_NOW + 60 * 1000;
+            expect(nextPeriod({ date, duration: 30 } as any, 'HH:mm')).toMatch(
+                /^(\w{3} )?\d{2}:\d{2} - \d{2}:\d{2}$/,
+            );
         });
     });
 

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
@@ -23,6 +23,7 @@ import {
                     matRipple
                     quick-book
                     class="h-12 min-w-24 text-lg"
+                    [disabled]="busy()"
                     (click)="quickBook(minutes)"
                 >
                     {{
@@ -37,6 +38,7 @@ import {
                     matRipple
                     extend
                     class="h-12 min-w-24 text-lg"
+                    [disabled]="busy()"
                     (click)="extend()"
                 >
                     {{
@@ -100,6 +102,8 @@ export class PanelViewActionsComponent {
     private _state = inject(PanelStateService);
 
     public readonly extend_minutes = EXTEND_MINUTES;
+    /** Whether a quick booking or extension request is in progress */
+    public readonly busy = signal(false);
 
     private get _can_book() {
         return this._state.setting('disable_book_now') !== true;
@@ -150,11 +154,22 @@ export class PanelViewActionsComponent {
     }
 
     public quickBook(minutes: number) {
-        this._state.quickBook(minutes);
+        return this._run(() => this._state.quickBook(minutes));
     }
 
     public extend() {
-        this._state.extendMeeting();
+        return this._run(() => this._state.extendMeeting());
+    }
+
+    /** Run one request at a time, so a double tap does not book twice */
+    private async _run(request: () => Promise<unknown>) {
+        if (this.busy()) return;
+        this.busy.set(true);
+        try {
+            await request();
+        } finally {
+            this.busy.set(false);
+        }
     }
 
     public viewControl() {

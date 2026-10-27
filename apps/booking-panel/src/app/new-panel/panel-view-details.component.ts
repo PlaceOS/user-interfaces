@@ -7,6 +7,7 @@ import { generateQRCode } from '@placeos/common/qr-code';
 import { CommonModule } from '@angular/common';
 import {
     AuthenticatedImageDirective,
+    IconComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
@@ -28,15 +29,35 @@ import { endingSoon } from './helpers';
                 </div>
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
-            <div name class="absolute top-4 left-4 text-4xl font-medium">
-                {{ sys?.display_name || sys?.name || '' }}
+            <div class="absolute top-4 left-4">
+                <div name class="text-4xl font-medium">
+                    {{ sys?.display_name || sys?.name || '' }}
+                </div>
+                @if (capacity) {
+                    <div
+                        capacity
+                        class="mt-2 flex items-center space-x-2 text-2xl"
+                        [attr.aria-label]="
+                            ('APP.BOOKING_PANEL.ROOM_CAPACITY' | translate) +
+                            ': ' +
+                            capacity
+                        "
+                    >
+                        <icon>group</icon>
+                        <span>{{ capacity }}</span>
+                    </div>
+                }
             </div>
             @if (checkin) {
                 <div
                     qr-checkin
                     class="absolute top-4 right-4 z-50 w-40 space-y-4 text-xl"
                 >
-                    <img class="w-full" [src]="qr_code()" />
+                    <img
+                        class="w-full"
+                        [src]="qr_code()"
+                        [alt]="'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate"
+                    />
                     @if (!hide_qr_text) {
                         <div class="w-full text-lg">
                             {{ 'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate }}
@@ -64,7 +85,7 @@ import { endingSoon } from './helpers';
                 "
             >
                 <p class="text-3xl">
-                    {{ time() | date: 'EEE, MMM d, y h:mm a' }}
+                    {{ time() | date: 'EEE, MMM d, y ' + time_format() }}
                 </p>
                 @if (cur && !hide_meeting_details) {
                     <p class="text-4xl">
@@ -80,7 +101,11 @@ import { endingSoon } from './helpers';
                         {{
                             'APP.BOOKING_PANEL.NEXT_STARTS_AT'
                                 | translate
-                                    : { time: upcoming.date | date: 'h:mm a' }
+                                    : {
+                                          time:
+                                              upcoming.date
+                                              | date: time_format(),
+                                      }
                         }}
                     </p>
                 }
@@ -94,7 +119,12 @@ import { endingSoon } from './helpers';
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe, AuthenticatedImageDirective],
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        AuthenticatedImageDirective,
+        IconComponent,
+    ],
 })
 export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);
@@ -117,6 +147,7 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
     });
 
     public readonly time = signal(Date.now());
+    public readonly time_format = this._state.time_format;
 
     /** Next booking when the `ending_warning` feature is on and the current booking ends soon */
     public readonly ending_next = computed(() => {
@@ -131,6 +162,10 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
 
     public get hide_meeting_title() {
         return this._state.setting('hide_meeting_title');
+    }
+
+    public get capacity() {
+        return this._state.setting('room_capacity');
     }
 
     public get room_image() {

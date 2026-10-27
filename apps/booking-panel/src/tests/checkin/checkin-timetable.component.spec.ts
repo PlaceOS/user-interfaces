@@ -24,6 +24,18 @@ describe('CheckinTimetableComponent', () => {
         expect(first.hour).toEqual(expect.any(String));
     });
 
+    it('should relabel the blocks when the time format changes', () => {
+        spectator.detectChanges();
+        const hour = () =>
+            spectator.component.blocks().find((b) => b.minutes === 0);
+        const date = new Date(hour().id);
+        expect(hour().period).not.toBe('');
+        spectator.setInput('time_format', 'HH:mm');
+        spectator.detectChanges();
+        expect(hour().hour).toBe(`${date.getHours()}`.padStart(2, '0'));
+        expect(hour().period).toBe('');
+    });
+
     it('should render a button for each time block', () => {
         spectator.detectChanges();
         const buttons = spectator.queryAll('button');

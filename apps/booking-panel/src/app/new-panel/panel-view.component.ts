@@ -327,7 +327,7 @@ export class PanelViewComponent
 
     public action() {
         this.timeout('action', () => {
-            const status = this._state.setting('status');
+            const status = this._state.status();
             if (status === 'busy') {
                 if (this._state.setting('enable_end_meeting_button') === true) {
                     this.endMeeting();

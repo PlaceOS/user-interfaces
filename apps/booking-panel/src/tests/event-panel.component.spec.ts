@@ -26,6 +26,7 @@ describe('EventPanelComponent', () => {
             {
                 provide: PanelStateService,
                 useValue: {
+                    time_format: signal('h:mm a'),
                     current,
                     next,
                     space,

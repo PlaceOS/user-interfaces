@@ -3,7 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { AsyncHandler } from '@placeos/common';
-import { IconComponent, SafePipe } from '@placeos/components';
+import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 
 export interface EmbeddedControlModalData {
     control_url: string;
@@ -17,11 +17,14 @@ export interface EmbeddedControlModalData {
             class="bg-secondary absolute w-screen overflow-hidden"
             modal
             (window:click)="reset()"
+            (window:blur)="reset()"
         >
             <div class="h-full w-full border-none">
                 <iframe
+                    #frame
                     class="h-full w-full border-none"
                     [src]="control_url | safe: 'resource'"
+                    (load)="watchFrame(frame)"
                 ></iframe>
             </div>
         </div>
@@ -31,6 +34,7 @@ export interface EmbeddedControlModalData {
                 icon
                 matRipple
                 class="close"
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
                 (click)="close()"
                 (contextmenu)="$event.preventDefault()"
             >
@@ -68,7 +72,7 @@ export interface EmbeddedControlModalData {
             }
         `,
     ],
-    imports: [SafePipe, MatRippleModule, IconComponent],
+    imports: [SafePipe, MatRippleModule, IconComponent, TranslatePipe],
 })
 export class EmbeddedControlModalComponent
     extends AsyncHandler
@@ -102,6 +106,21 @@ export class EmbeddedControlModalComponent
     public reset() {
         this.countdown.set(30);
         this.interval('countdown', () => this.tick(), 1000);
+    }
+
+    /**
+     * Restart the countdown on taps inside the embedded page.
+     * Taps in an iframe do not reach this window. A same-origin page gets a
+     * listener. For other pages, `window:blur` catches the first tap only.
+     */
+    public watchFrame(frame: HTMLIFrameElement) {
+        try {
+            frame.contentWindow?.addEventListener('pointerdown', () =>
+                this.reset(),
+            );
+        } catch {
+            // Cross-origin page. Its events are not accessible.
+        }
     }
 
     /**

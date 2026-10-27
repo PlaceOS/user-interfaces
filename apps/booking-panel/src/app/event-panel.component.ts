@@ -17,6 +17,7 @@ import {
     SanitizePipe,
     TranslatePipe,
 } from '@placeos/components';
+import { dayTimeFormat } from './new-panel/helpers';
 import { PanelStateService } from './panel-state.service';
 
 @Component({
@@ -27,7 +28,7 @@ import { PanelStateService } from './panel-state.service';
                 <h1 class="text-3xl font-medium">{{ space_name() }}</h1>
                 <div class="flex items-center space-x-4 portrait:hidden">
                     <p class="text-2xl">
-                        {{ time() | date: 'shortTime' }}
+                        {{ time() | date: time_format() }}
                     </p>
                     <img
                         auth
@@ -60,7 +61,7 @@ import { PanelStateService } from './panel-state.service';
                                         : {
                                               time:
                                                   current_bkn?.event_end * 1000
-                                                  | date: 'h:mma',
+                                                  | date: time_format(),
                                           }
                             }}
                         </p>
@@ -104,7 +105,7 @@ import { PanelStateService } from './panel-state.service';
                                         : {
                                               time:
                                                   next_bkn?.event_start * 1000
-                                                  | date: 'h:mma',
+                                                  | date: next_format(),
                                           }
                             }}
                         </p>
@@ -125,7 +126,7 @@ import { PanelStateService } from './panel-state.service';
                     [source]="logo()?.src || logo()"
                 />
                 <p class="text-2xl">
-                    {{ time() | date: 'shortTime' }}
+                    {{ time() | date: time_format() }}
                 </p>
             </footer>
             @if (!hide_qr() && checkin) {
@@ -147,7 +148,14 @@ import { PanelStateService } from './panel-state.service';
                         [class.w-56]="show_qr()"
                     >
                         <div qr-checkin class="z-50 w-56 p-3">
-                            <img auth class="w-full" [source]="qr_code()" />
+                            <img
+                                auth
+                                class="w-full"
+                                [source]="qr_code()"
+                                [alt]="
+                                    'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate
+                                "
+                            />
                         </div>
                     </div>
                 </div>
@@ -203,6 +211,11 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
 
     public current = this._state.current;
     public next = this._state.next;
+    public readonly time_format = this._state.time_format;
+    /** Format for the next booking start. Has the weekday when not today. */
+    public readonly next_format = computed(() =>
+        dayTimeFormat(this.next()?.date, this.time_format()),
+    );
 
     public readonly space_name = computed(
         () =>
