@@ -154,5 +154,6 @@ import{a as p,i as o,n as m$1,r as n,t as l}from"./chunk-DzscigDP.js";var fu={};
 (*! @azure/msal-browser v5.23.0 2026-09-23 *)
 */
 export{Y as InteractionRequiredAuthError,Rf as createNestablePublicClientApplication};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="135fba85-44ee-5472-bd41-e9ebcf5ad4ec")}catch(e){}}();
 //# debugId=135fba85-44ee-5472-bd41-e9ebcf5ad4ec
 //# sourceMappingURL=dist-BqRWdbI3.js.map
