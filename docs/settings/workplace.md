@@ -29,8 +29,6 @@ These options live at the root of the settings file (alongside `app`, not inside
 | `environment_bar` | string | – | CSS colour for thin environment identifier bars shown at the top and bottom of the app (useful for marking test/UAT environments). Leave unset to hide the bars. |
 | `css_variables` | object | – | Colour overrides for the light theme. See [theme colour overrides](README.md#theme-colour-overrides). |
 | `css_variables_dark` | object | – | Colour overrides for the dark theme. See [theme colour overrides](README.md#theme-colour-overrides). |
-| `sentry_dsn` | string | – | Connection string for Sentry error reporting. |
-| `sentry_traces_sample_rate` | number | `0.1` | Share of page loads and navigations that Sentry traces, from `0` to `1`. Needs `sentry_dsn`. |
 | `show_changelog` | boolean | `true` | Whether the version number in the user controls links to the changelog modal. |
 | `allow_dark_mode` | boolean | – | Allow users to switch the application to the dark theme. When not set, the app uses the light theme only. |
 | `default_route` | string | `"/landing"` | Route users are redirected to when they enter the application. |

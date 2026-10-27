@@ -11,8 +11,6 @@ The app reads zone settings under `enrolment_app` for the standard `/enrolment/`
 | `name` | string | `"Enrolment"` | If the URL pathname is empty, the app uses this name to make the settings metadata key. |
 | `short_name` | string | `"Enrolment"` | Prefix for console log messages. |
 | `internal_user_domain` | string | – | Email domain that identifies users as internal staff (e.g. `"@yourcompany.com"`). When not set, the domain of the signed-in user's email address is used. The app reads this value one time during startup. Zone settings that load later do not change it, so set it in the domain config `enrolment` object. |
-| `sentry_dsn` | string | – | Sentry DSN for error reporting. When set, application errors are reported to your Sentry instance. |
-| `sentry_traces_sample_rate` | number | `0.1` | Share of page loads and navigations that Sentry traces, from `0` to `1`. Needs `sentry_dsn`. |
 
 ## Guest Form
 
