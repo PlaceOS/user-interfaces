@@ -1,0 +1,4 @@
+import{Kr as tr,si as y}from"./chunk-2_Cm-MgT.js";import{Ft as it}from"./chunk-TcOz-Jcn.js";var u=(()=>{class e{constructor(){this._org=y(it)}transform(t){return this._org.buildings.find(o=>t instanceof Array?t.includes(o.id):o.id===t)}static{this.ɵfac=function(o){return new(o||e)}}static{this.ɵpipe=tr({name:`building`,type:e,pure:!0})}}return e})();var g={free:`#43a047`,pending:`#ffb300`,reserved:`#e65100`,busy:`#e53935`,"signs-of-life":`#1565c0`,"not-bookable":`#757575`,unknown:`#757575`};export{u as n,g as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="46ecb3a8-960e-5bbe-89fd-0e77abf17f2a")}catch(e){}}();
+//# debugId=46ecb3a8-960e-5bbe-89fd-0e77abf17f2a
+//# sourceMappingURL=chunk-DSC9c8NG.js.map
