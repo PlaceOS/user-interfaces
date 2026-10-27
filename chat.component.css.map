@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["chat.component.ts"],
+  "sourcesContent": ["\n            .anim-delay-1 {\n                animation-delay: 0.25s;\n            }\n            .anim-delay-2 {\n                animation-delay: 0.5s;\n            }\n\n            .waiting-margin:last-child {\n                padding-bottom: 2rem;\n            }\n        "],
+  "mappings": "AACY,CAAA,aACI,gBAAA,IACJ,CACA,CAAA,aACI,gBAAA,GACJ,CAEA,CAAA,cAAA,YACI,eAAA,IACJ",
+  "names": []
+}
