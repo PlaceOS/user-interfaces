@@ -19,7 +19,6 @@ import {
     updateBooking,
     updateBookingInductionStatus,
 } from '@placeos/bookings';
-import { SpacePipe } from '@placeos/events';
 import { showGuest } from '@placeos/users';
 
 /** Time to wait for a check-in request before the kiosk shows an error */
@@ -64,7 +63,6 @@ export class CheckinStateService {
     private _error = signal<string>('');
     /** Form for the current guest details */
     public readonly form = signal<CheckinGuestDetails>(guestDetailsForm());
-    private _space_pipe = new SpacePipe();
 
     public readonly photo = this._photo.asReadonly();
     public readonly event = this._booking.asReadonly();

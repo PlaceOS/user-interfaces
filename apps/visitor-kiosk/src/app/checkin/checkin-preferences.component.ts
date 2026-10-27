@@ -16,7 +16,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import {
-    AsyncHandler,
     CateringItem,
     i18n,
     log,
@@ -123,10 +122,7 @@ import { parseTokenFromUrl } from './token-from-url';
         MatSelectModule,
     ],
 })
-export class CheckinPreferencesComponent
-    extends AsyncHandler
-    implements OnInit
-{
+export class CheckinPreferencesComponent implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _checkin = inject(CheckinStateService);
@@ -145,15 +141,15 @@ export class CheckinPreferencesComponent
         'standalone_visitor_location',
         '',
     );
-    private _menu_load_id = 0;
-
     private readonly _update_bld_id = effect(() => {
         this.bld_id.set(this._org.active_building()?.id || '');
     });
 
-    private readonly _load_menu = effect(async () => {
+    private readonly _load_menu = effect(async (onCleanup) => {
         const bld = this.bld_id();
-        const load_id = ++this._menu_load_id;
+        // Ignore the result after a newer load starts or the page closes
+        let stale = false;
+        onCleanup(() => (stale = true));
         if (!bld) {
             this.menu.set([]);
             return;
@@ -161,41 +157,32 @@ export class CheckinPreferencesComponent
         const menu = await queryCateringItems(bld).catch(
             () => [] as CateringItem[],
         );
-        if (load_id !== this._menu_load_id) return;
-        this.menu.set(
-            menu.filter((_) =>
-                (_.tags || []).find(
-                    (_) =>
-                        _.toLowerCase() === 'drink' ||
-                        _.toLowerCase() === 'drinks' ||
-                        _.toLowerCase() === 'beverage',
-                ),
+        if (stale) return;
+        const drinks = menu.filter((_) =>
+            (_.tags || []).find(
+                (_) =>
+                    _.toLowerCase() === 'drink' ||
+                    _.toLowerCase() === 'drinks' ||
+                    _.toLowerCase() === 'beverage',
             ),
         );
-    });
-
-    private readonly _handle_menu = effect(() => {
-        const menu = this.menu();
-        if (menu.length) {
+        this.menu.set(drinks);
+        if (drinks.length) {
             this.loading.set(false);
-            this.clearTimeout('no_menu');
-        } else if (this.bld_id()) {
-            this.timeout(
-                'no_menu',
-                () => {
-                    notifyError('No menu available');
-                    this.next();
-                },
-                1000,
-            );
+            return;
         }
+        notifyError('No menu available');
+        this.next();
     });
 
     public ngOnInit(): void {
         this.loading.set(true);
-        this.loadJwtFromRoute();
         this.type.set('menu');
-        this.timeout('event', () => this.loadExistingBeverage(), 1000);
+        // Read the existing beverage after the visitor lookup completes.
+        // A failed lookup already shows the error page.
+        this.loadJwtFromRoute()
+            .then(() => this.loadExistingBeverage())
+            .catch(() => undefined);
     }
 
     public async update() {

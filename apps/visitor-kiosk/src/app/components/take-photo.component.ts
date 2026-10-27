@@ -122,6 +122,7 @@ export class TakePhotoComponent
     };
 
     public image_url = signal<string | null>(null);
+    private _destroyed = false;
 
     public ngOnInit() {
         this.loading.set(true);
@@ -129,6 +130,7 @@ export class TakePhotoComponent
     }
 
     public ngOnDestroy() {
+        this._destroyed = true;
         this.stopCapture();
     }
 
@@ -137,6 +139,11 @@ export class TakePhotoComponent
         const stream = await navigator.mediaDevices?.getUserMedia(
             this.constraints,
         );
+        // Stop the camera if the visitor left before it opened
+        if (this._destroyed) {
+            for (const track of stream?.getTracks() ?? []) track.stop();
+            return;
+        }
         this._video_el().nativeElement.srcObject = stream;
         this.loading.set(false);
     }
