@@ -64,7 +64,7 @@ import { endingSoon } from './helpers';
                 "
             >
                 <p class="text-3xl">
-                    {{ time() | date: 'EEE, MMM d, y h:mm a' }}
+                    {{ time() | date: 'EEE, MMM d, y ' + time_format() }}
                 </p>
                 @if (cur && !hide_meeting_details) {
                     <p class="text-4xl">
@@ -80,7 +80,11 @@ import { endingSoon } from './helpers';
                         {{
                             'APP.BOOKING_PANEL.NEXT_STARTS_AT'
                                 | translate
-                                    : { time: upcoming.date | date: 'h:mm a' }
+                                    : {
+                                          time:
+                                              upcoming.date
+                                              | date: time_format(),
+                                      }
                         }}
                     </p>
                 }
@@ -117,6 +121,7 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
     });
 
     public readonly time = signal(Date.now());
+    public readonly time_format = this._state.time_format;
 
     /** Next booking when the `ending_warning` feature is on and the current booking ends soon */
     public readonly ending_next = computed(() => {

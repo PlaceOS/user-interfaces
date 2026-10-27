@@ -161,6 +161,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
         >
             <checkin-timetable
                 [events]="bookings()"
+                [time_format]="time_format()"
                 (event)="bookSlot($event)"
             ></checkin-timetable>
         </div>
@@ -247,6 +248,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly state = this._state.status;
     public readonly system = this._state.space;
     public readonly bookings = this._state.bookings;
+    public readonly time_format = this._state.time_format;
     /** Start of the next free slot. Can be in the past when the room is free now. */
     public start = signal<number>(Date.now());
 
@@ -272,7 +274,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
             this._state.current(),
             this._state.next(),
         ),
-        next: nextPeriod(this._state.next()),
+        next: nextPeriod(this._state.next(), this._state.time_format()),
     }));
 
     public get room_image() {

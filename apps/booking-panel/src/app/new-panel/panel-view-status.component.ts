@@ -302,7 +302,7 @@ export class PanelViewStatusComponent extends AsyncHandler {
             this._state.current(),
             this._state.next(),
         ),
-        next: nextPeriod(this._state.next()),
+        next: nextPeriod(this._state.next(), this._state.time_format()),
     }));
 
     public readonly free_svg = `

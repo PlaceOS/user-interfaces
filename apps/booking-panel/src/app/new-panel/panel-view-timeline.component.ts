@@ -237,10 +237,14 @@ export class PanelViewTimelineComponent extends AsyncHandler {
 
     // The clock ticks every second. Only the "now" marker depends on it.
     public readonly blocks = computed(() =>
-        timelineBlocks(this._timeline_start()),
+        timelineBlocks(this._timeline_start(), 10, this._state.time_format()),
     );
     public readonly bookings = computed(() =>
-        timelineBookings(this._state.bookings(), this._timeline_start()),
+        timelineBookings(
+            this._state.bookings(),
+            this._timeline_start(),
+            this._state.time_format(),
+        ),
     );
     public readonly now = computed(() =>
         timelineNow(this._clock(), this._timeline_start()),

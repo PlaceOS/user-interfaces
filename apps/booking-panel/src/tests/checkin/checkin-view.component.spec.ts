@@ -24,6 +24,7 @@ describe('CheckinViewComponent', () => {
     const new_booking = vi.fn();
 
     const state_service = {
+        time_format: signal('h:mm a'),
         status,
         space,
         bookings,

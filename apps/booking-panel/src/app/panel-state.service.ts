@@ -195,6 +195,9 @@ export class PanelStateService extends AsyncHandler {
         return this._settings()[name];
     }
 
+    /** Time format. `app.use_24_hour_time` changes it to `HH:mm`. */
+    public readonly time_format = this._app_settings.time_format_signal;
+
     /** Value of the app setting `app.<key>` */
     public appSetting<T>(key: string): T | undefined {
         return this._app_settings.get(`app.${key}`);
