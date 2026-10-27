@@ -84,6 +84,7 @@ import { parseTokenFromUrl } from './token-from-url';
                     matRipple
                     class="absolute top-2 right-2"
                     [routerLink]="['/welcome']"
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
                 >
                     <icon>close</icon>
                 </a>

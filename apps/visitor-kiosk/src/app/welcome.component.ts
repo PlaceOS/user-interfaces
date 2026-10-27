@@ -47,12 +47,12 @@ import { minuteClock } from './minute-clock';
                             | sanitize: 'html'
                     "
                 ></h3>
-                <div class="flex items-center space-x-4 font-medium">
+                <div class="flex flex-wrap items-center gap-4 font-medium">
                     <a
                         btn
                         matRipple
                         [routerLink]="['/checkin']"
-                        class="bg-base-100 border-base-100 text-base-content w-40 border"
+                        class="bg-base-100 border-base-100 text-base-content min-w-40 border whitespace-nowrap"
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
@@ -65,7 +65,7 @@ import { minuteClock } from './minute-clock';
                         btn
                         matRipple
                         [routerLink]="['/checkout']"
-                        class="bg-base-100 border-base-100 text-base-content w-40 border"
+                        class="bg-base-100 border-base-100 text-base-content min-w-40 border whitespace-nowrap"
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
@@ -79,7 +79,7 @@ import { minuteClock } from './minute-clock';
                             btn
                             matRipple
                             [routerLink]="['/register']"
-                            class="bg-base-100 border-base-100 text-base-content w-40 border"
+                            class="bg-base-100 border-base-100 text-base-content min-w-40 border whitespace-nowrap"
                         >
                             <div class="flex items-center space-x-2">
                                 <div class="ml-2">
@@ -96,7 +96,7 @@ import { minuteClock } from './minute-clock';
                             btn
                             matRipple
                             [routerLink]="['/explore', level()]"
-                            class="bg-base-100 border-base-100 text-base-content w-40 border"
+                            class="bg-base-100 border-base-100 text-base-content min-w-40 border whitespace-nowrap"
                         >
                             <div class="flex items-center space-x-2">
                                 <div class="ml-2">

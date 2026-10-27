@@ -244,7 +244,7 @@ describe('CheckinQRScanComponent', () => {
         await spectator.component.checkEmail('visitor@example.com');
 
         expect(state.setError).toHaveBeenCalledWith(
-            'You are already checked in.',
+            'APP.VISITOR_KIOSK.ALREADY_CHECKED_IN',
         );
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',
@@ -258,7 +258,7 @@ describe('CheckinQRScanComponent', () => {
         await spectator.component.checkEmail('visitor@example.com');
 
         expect(state.setError).toHaveBeenCalledWith(
-            'Your meeting has been rejected.',
+            'APP.VISITOR_KIOSK.MEETING_REJECTED',
         );
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',
@@ -285,11 +285,29 @@ describe('CheckinQRScanComponent', () => {
         await spectator.component.checkEmail('visitor@example.com');
 
         expect(state.setError).toHaveBeenCalledWith(
-            'You have not checked in yet.',
+            'APP.VISITOR_KIOSK.NOT_CHECKED_IN',
         );
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkout',
             'error',
         ]);
+    });
+
+    it('shows an error and skips the lookup for an invalid email', async () => {
+        await spectator.component.checkEmail('visitor');
+        spectator.detectChanges();
+
+        expect(state.loadGuestAndEvent).not.toHaveBeenCalled();
+        expect(spectator.query('input')).toHaveAttribute(
+            'aria-invalid',
+            'true',
+        );
+
+        spectator.component.setEmail('visitor@');
+        spectator.detectChanges();
+        expect(spectator.query('input')).toHaveAttribute(
+            'aria-invalid',
+            'false',
+        );
     });
 });
