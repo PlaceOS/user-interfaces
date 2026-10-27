@@ -1917,7 +1917,8 @@
             "EARLY_CHECKIN": "تم تسجيل الوصول للاجتماع مبكرًا",
             "BOOKING_NEW": "حجز جديد",
             "BOOKING_HOST": "محجوز بواسطة",
-            "BOOKING_LOADING": "جاري معالجة طلب الحجز..."
+            "BOOKING_LOADING": "جاري معالجة طلب الحجز...",
+            "BOOKING_DISABLED": "احجز هذه الغرفة من التقويم الخاص بك"
         },
         "CONTROL": {
             "BOOTSTRAP_TITLE": "إعداد لوحة التحكم",
