@@ -12,6 +12,7 @@ import {
     settingSignal,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -20,11 +21,11 @@ import { CheckinStateService } from './checkin-state.service';
         <div
             class="bg-base-100 relative flex w-lg flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
         >
-            <p class="my-4">
+            <h1 pageHeading class="my-4">
                 {{ 'APP.VISITOR_KIOSK.INDUCTION_MSG' | translate }}
-            </p>
+            </h1>
             <div
-                class="border-base-300 max-h-[50vh] w-full overflow-x-hidden overflow-y-auto rounded-sm border p-4 text-sm whitespace-pre-wrap opacity-60"
+                class="border-base-300 max-h-[50vh] w-full overflow-x-hidden overflow-y-auto rounded-sm border p-4 text-sm whitespace-pre-wrap opacity-70"
             >
                 {{ induction_details() }}
             </div>
@@ -66,6 +67,7 @@ import { CheckinStateService } from './checkin-state.service';
     `,
     styles: [],
     imports: [
+        PageHeadingDirective,
         TranslatePipe,
         IconComponent,
         MatRippleModule,

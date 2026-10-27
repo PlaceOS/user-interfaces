@@ -15,6 +15,8 @@ import {
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
+import { AnnounceDirective } from '../components/announce.directive';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -25,9 +27,9 @@ import { CheckinStateService } from './checkin-state.service';
                 autocomplete="off"
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
-                <h3 class="m-4 text-2xl">
+                <h1 pageHeading class="m-4 text-2xl">
                     {{ 'APP.VISITOR_KIOSK.CONFIRM_DETAILS' | translate }}
-                </h3>
+                </h1>
                 @if (host_name()) {
                     <div field class="mb-4 flex flex-col">
                         <div class="text-sm font-medium">
@@ -152,8 +154,11 @@ import { CheckinStateService } from './checkin-state.service';
                 <div
                     class="bg-base-100 flex flex-col items-center space-y-2 rounded-sm p-16 shadow-sm"
                 >
-                    <mat-spinner [diameter]="48"></mat-spinner>
-                    <div class="my-4 text-lg">
+                    <mat-spinner
+                        [diameter]="48"
+                        aria-hidden="true"
+                    ></mat-spinner>
+                    <div class="my-4 text-lg" announce>
                         {{ 'APP.VISITOR_KIOSK.CHECKIN_LOADING' | translate }}
                     </div>
                 </div>
@@ -178,6 +183,8 @@ import { CheckinStateService } from './checkin-state.service';
         `,
     ],
     imports: [
+        PageHeadingDirective,
+        AnnounceDirective,
         TranslatePipe,
         IconComponent,
         MatProgressSpinnerModule,

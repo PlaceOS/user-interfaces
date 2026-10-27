@@ -27,6 +27,8 @@ import {
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
+import { AnnounceDirective } from '../components/announce.directive';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 
 const SCAN_INTERVAL_MS = 100;
@@ -85,14 +87,14 @@ function shouldDecode(
             class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             [class.hidden]="checking_code()"
         >
-            <h3 class="mt-2 text-xl">
+            <h1 pageHeading class="mt-2 text-xl">
                 {{
                     (flow === 'checkout'
                         ? 'COMMON.CHECK_OUT'
                         : 'COMMON.CHECK_IN'
                     ) | translate
                 }}
-            </h3>
+            </h1>
             <p class="my-4">
                 {{ 'APP.VISITOR_KIOSK.QR_CODE_MSG' | translate }}
             </p>
@@ -132,9 +134,12 @@ function shouldDecode(
                 class="border-base-200 bg-base-200 relative mt-4 overflow-hidden rounded-sm border"
             >
                 <div
-                    class="absolute top-1/2 left-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-30"
+                    class="absolute top-1/2 left-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-70"
+                    [attr.aria-hidden]="scanner_ready() || null"
                 >
-                    <icon class="text-6xl">videocam_off</icon>
+                    <icon class="text-6xl" aria-hidden="true"
+                        >videocam_off</icon
+                    >
                     <p class="text-center">
                         {{
                             (camera_error()
@@ -173,9 +178,10 @@ function shouldDecode(
                         ></span>
                     </div>
                     <div
+                        announce
                         class="bg-base-100/90 text-base-content absolute right-2 bottom-2 z-20 inline-flex items-center gap-2 rounded px-2 py-1 text-sm shadow"
                     >
-                        <span class="status-dot"></span>
+                        <span class="status-dot" aria-hidden="true"></span>
                         {{ 'APP.VISITOR_KIOSK.READY_TO_SCAN' | translate }}
                     </div>
                 }
@@ -190,15 +196,16 @@ function shouldDecode(
                 <icon>close</icon>
             </a>
         </div>
-        <div
-            class="bg-base-100 relative flex flex-col items-center overflow-hidden rounded-sm p-16 shadow-sm"
-            [class.hidden]="!checking_code()"
-        >
-            <mat-spinner diameter="32"></mat-spinner>
-            <p class="my-4">
-                {{ 'APP.VISITOR_KIOSK.LOADING_DETAILS' | translate }}
-            </p>
-        </div>
+        @if (checking_code()) {
+            <div
+                class="bg-base-100 relative flex flex-col items-center overflow-hidden rounded-sm p-16 shadow-sm"
+            >
+                <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
+                <p class="my-4" announce>
+                    {{ 'APP.VISITOR_KIOSK.LOADING_DETAILS' | translate }}
+                </p>
+            </div>
+        }
     `,
     styles: [
         `
@@ -225,6 +232,8 @@ function shouldDecode(
         `,
     ],
     imports: [
+        PageHeadingDirective,
+        AnnounceDirective,
         TranslatePipe,
         IconComponent,
         MatProgressSpinnerModule,

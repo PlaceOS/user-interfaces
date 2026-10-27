@@ -3,6 +3,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { notifyError } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { AnnounceDirective } from '../components/announce.directive';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { TakePhotoComponent } from '../components/take-photo.component';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -13,9 +15,9 @@ import { CheckinStateService } from './checkin-state.service';
             <div
                 class="bg-base-100 relative flex w-[24rem] flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
-                <h3 class="mb-4 text-xl">
+                <h1 pageHeading class="mb-4 text-xl">
                     {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO' | translate }}
-                </h3>
+                </h1>
                 <a-take-photo
                     (captured)="handlePhoto($event)"
                     [back_text]="'APP.VISITOR_KIOSK.SKIP' | translate"
@@ -24,15 +26,21 @@ import { CheckinStateService } from './checkin-state.service';
             </div>
         } @else {
             <div class="m-auto flex flex-col items-center">
-                <mat-spinner [diameter]="48"></mat-spinner>
-                <div class="my-4 text-lg text-white">
+                <mat-spinner [diameter]="48" aria-hidden="true"></mat-spinner>
+                <div class="my-4 text-lg text-white" announce>
                     {{ 'APP.VISITOR_KIOSK.PRINT_LOADING' | translate }}
                 </div>
             </div>
         }
     `,
     styles: [``],
-    imports: [TranslatePipe, MatProgressSpinnerModule, TakePhotoComponent],
+    imports: [
+        PageHeadingDirective,
+        AnnounceDirective,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        TakePhotoComponent,
+    ],
 })
 export class CheckinPhotoComponent implements OnInit {
     private _checkin = inject(CheckinStateService);

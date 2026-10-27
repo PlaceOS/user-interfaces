@@ -27,6 +27,7 @@ import {
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
+import { PageHeadingDirective } from './components/page-heading.directive';
 import { minuteClock } from './minute-clock';
 
 @Component({
@@ -35,18 +36,20 @@ import { minuteClock } from './minute-clock';
         <div class="absolute inset-0 flex items-center overflow-hidden p-8">
             <img
                 auth
+                alt=""
                 [source]="background()"
                 class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             <div class="z-10 flex w-[60%] flex-col justify-center space-y-8">
-                <h3
+                <h1
+                    pageHeading
                     class="mb-4 space-y-4 text-6xl text-white"
                     [innerHTML]="
                         welcome_message() ||
                             ('APP.VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
                             | sanitize: 'html'
                     "
-                ></h3>
+                ></h1>
                 <div class="flex flex-wrap items-center gap-4 font-medium">
                     <a
                         btn
@@ -58,7 +61,9 @@ import { minuteClock } from './minute-clock';
                             <div class="ml-2">
                                 {{ 'COMMON.CHECK_IN' | translate }}
                             </div>
-                            <icon class="text-2xl">chevron_right</icon>
+                            <icon class="text-2xl" aria-hidden="true"
+                                >chevron_right</icon
+                            >
                         </div>
                     </a>
                     <a
@@ -71,7 +76,9 @@ import { minuteClock } from './minute-clock';
                             <div class="ml-2">
                                 {{ 'COMMON.CHECK_OUT' | translate }}
                             </div>
-                            <icon class="text-2xl">chevron_right</icon>
+                            <icon class="text-2xl" aria-hidden="true"
+                                >chevron_right</icon
+                            >
                         </div>
                     </a>
                     @if (can_register()) {
@@ -87,7 +94,9 @@ import { minuteClock } from './minute-clock';
                                         'APP.VISITOR_KIOSK.REGISTER' | translate
                                     }}
                                 </div>
-                                <icon class="text-2xl">chevron_right</icon>
+                                <icon class="text-2xl" aria-hidden="true"
+                                    >chevron_right</icon
+                                >
                             </div>
                         </a>
                     }
@@ -104,7 +113,9 @@ import { minuteClock } from './minute-clock';
                                         'APP.VISITOR_KIOSK.EXPLORE' | translate
                                     }}
                                 </div>
-                                <icon class="text-2xl">place</icon>
+                                <icon class="text-2xl" aria-hidden="true"
+                                    >place</icon
+                                >
                             </div>
                         </a>
                     }
@@ -119,13 +130,17 @@ import { minuteClock } from './minute-clock';
                     [matMenuTriggerFor]="menu"
                 >
                     <div class="flex items-center justify-between">
-                        <icon class="text-2xl text-white">language</icon>
+                        <icon class="text-2xl text-white" aria-hidden="true"
+                            >language</icon
+                        >
                         <div class="ml-2 text-left leading-tight text-white">
                             <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
                             @if (
                                 ('COMMON.LANGUAGE' | translate) !== 'Language'
                             ) {
-                                <div class="text-xs opacity-30">Language</div>
+                                <div class="text-xs opacity-70" lang="en">
+                                    Language
+                                </div>
                             }
                         </div>
                         <div
@@ -151,7 +166,10 @@ import { minuteClock } from './minute-clock';
                             >
                                 <div>{{ lang.name | translate }}</div>
                                 @if ((lang.name | translate) !== lang.local) {
-                                    <div class="text-xs opacity-30">
+                                    <div
+                                        class="text-xs opacity-70"
+                                        [attr.lang]="lang.id"
+                                    >
                                         {{ lang.local }}
                                     </div>
                                 }
@@ -164,6 +182,7 @@ import { minuteClock } from './minute-clock';
             @if (!hide_building_image()) {
                 <img
                     src="assets/img/building.webp"
+                    alt=""
                     class="absolute right-0 bottom-0 w-[60%]"
                 />
             }
@@ -192,6 +211,7 @@ import { minuteClock } from './minute-clock';
         `,
     ],
     imports: [
+        PageHeadingDirective,
         CommonModule,
         TranslatePipe,
         IconComponent,

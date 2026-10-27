@@ -101,7 +101,7 @@ test.describe('US-WELCOME-003: Access Check-In', () => {
         await expect(page).toHaveURL(/.*checkout\/scan/, {
             timeout: ACTION_TIMEOUT,
         });
-        await expect(page.locator('[checkin-qr-scan] h3')).toContainText(
+        await expect(page.locator('[checkin-qr-scan] h1')).toContainText(
             /check-out/i,
         );
     });

@@ -27,6 +27,8 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { getGuestCateringItem, setGuestCateringItem } from '@placeos/users';
+import { AnnounceDirective } from '../components/announce.directive';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 import { parseTokenFromUrl } from './token-from-url';
 
@@ -37,12 +39,17 @@ import { parseTokenFromUrl } from './token-from-url';
             <div
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
-                <h3 class="mb-2 w-full text-xl">
+                <h1
+                    pageHeading
+                    id="checkin-preferences-title"
+                    class="mb-2 w-full text-xl"
+                >
                     {{ 'APP.VISITOR_KIOSK.BEVERAGE_MSG' | translate }}
-                </h3>
+                </h1>
                 <div class="w-full">
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
+                            aria-labelledby="checkin-preferences-title"
                             [(ngModel)]="beverage"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.BEVERAGE_SELECT' | translate
@@ -93,8 +100,8 @@ import { parseTokenFromUrl } from './token-from-url';
             <div
                 class="bg-base-100 relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm p-8 shadow-sm"
             >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <div>
+                <mat-spinner [diameter]="32" aria-hidden="true"></mat-spinner>
+                <div announce>
                     {{
                         (type() === 'menu'
                             ? 'APP.VISITOR_KIOSK.BEVERAGE_MENU_LOADING'
@@ -113,6 +120,8 @@ import { parseTokenFromUrl } from './token-from-url';
         `,
     ],
     imports: [
+        PageHeadingDirective,
+        AnnounceDirective,
         FormsModule,
         TranslatePipe,
         IconComponent,

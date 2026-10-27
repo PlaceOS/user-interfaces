@@ -175,6 +175,8 @@ export class LocaleService {
             }
         }
         localStorage.setItem(`${STORE_KEY}`, locale);
+        // Screen readers use the page language to pick a voice
+        document.documentElement.lang = locale;
         log('LOCALE', `Locale set to "${locale}"`);
     }
 

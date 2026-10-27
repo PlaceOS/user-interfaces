@@ -34,6 +34,8 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { CheckinStateService } from './checkin/checkin-state.service';
+import { AnnounceDirective } from './components/announce.directive';
+import { PageHeadingDirective } from './components/page-heading.directive';
 import { minuteClock } from './minute-clock';
 
 @Component({
@@ -42,12 +44,14 @@ import { minuteClock } from './minute-clock';
         <div class="absolute inset-0 flex items-center p-8">
             <img
                 auth
+                alt=""
                 [source]="background()"
                 class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             @if (!hide_building_image()) {
                 <img
                     src="assets/img/building.webp"
+                    alt=""
                     class="absolute right-0 bottom-0 w-[60%]"
                 />
             }
@@ -58,9 +62,9 @@ import { minuteClock } from './minute-clock';
                     <div
                         class="bg-base-200 sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
                     >
-                        <h3 class="px-2 text-lg font-medium">
+                        <h1 pageHeading class="px-2 text-lg font-medium">
                             {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
-                        </h3>
+                        </h1>
                         <a
                             icon
                             matRipple
@@ -104,8 +108,12 @@ import { minuteClock } from './minute-clock';
                                 {{ 'FORM.EMAIL_REQUIRED' | translate }}
                             </mat-error>
                         </mat-form-field>
-                        <label>{{ 'FORM.HOST' | translate }}</label>
+                        <label id="register-host-label">{{
+                            'FORM.HOST' | translate
+                        }}</label>
                         <a-user-search-field
+                            role="group"
+                            aria-labelledby="register-host-label"
                             autocomplete="off"
                             [ngModel]="host()"
                             (ngModelChange)="setHost($event)"
@@ -193,10 +201,12 @@ import { minuteClock } from './minute-clock';
                                     </mat-checkbox>
                                 </div>
                             }
-                            <label>
+                            <label id="register-duration-label">
                                 {{ 'FORM.DURATION' | translate }}
                             </label>
                             <a-duration-field
+                                role="group"
+                                aria-labelledby="register-duration-label"
                                 class="text-base"
                                 [ngModel]="form_value().duration"
                                 (ngModelChange)="setDuration($event)"
@@ -218,8 +228,10 @@ import { minuteClock } from './minute-clock';
                 <div
                     class="bg-base-100 absolute top-1/2 left-4 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-sm p-16 shadow-sm"
                 >
-                    <mat-spinner diameter="32"></mat-spinner>
-                    <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>
+                    <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
+                    <p announce>
+                        {{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}
+                    </p>
                 </div>
             }
             <div class="absolute top-4 right-4 text-2xl text-white">
@@ -230,6 +242,8 @@ import { minuteClock } from './minute-clock';
     `,
     styles: [``],
     imports: [
+        PageHeadingDirective,
+        AnnounceDirective,
         CommonModule,
         FormsModule,
         TranslatePipe,

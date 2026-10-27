@@ -14,6 +14,7 @@ import { minuteClock } from '../minute-clock';
         >
             <img
                 auth
+                alt=""
                 [source]="background()"
                 class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 print:hidden"
             />
@@ -28,6 +29,7 @@ import { minuteClock } from '../minute-clock';
             @if (!hide_building_image()) {
                 <img
                     src="assets/img/building.webp"
+                    alt=""
                     class="absolute right-0 bottom-0 w-[60%] print:hidden"
                 />
             }

@@ -2131,7 +2131,8 @@
             "ALREADY_CHECKED_IN": "您已经签到。",
             "INDUCTION_DECLINED": "您已拒绝入职须知。",
             "ERROR_CHECKOUT": "签出失败。",
-            "INVALID_QR_CODE": "二维码无效"
+            "INVALID_QR_CODE": "二维码无效",
+            "IDLE_WARNING": "您还在吗？此屏幕将在 {{ seconds }} 秒后返回开始页面。"
         }
     },
     "SIGNAGE_MANAGER": {

@@ -4,7 +4,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { Router, RouterModule } from '@angular/router';
 import { notifyError } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -13,10 +14,14 @@ import { CheckinStateService } from './checkin-state.service';
         <div
             class="bg-base-100 relative overflow-x-hidden overflow-y-auto rounded-sm p-4"
         >
-            <h3 class="mb-4 text-xl font-medium">COVID Disclaimer</h3>
+            <h1 pageHeading class="mb-4 text-xl font-medium">
+                COVID Disclaimer
+            </h1>
             <ol class="list-inside list-decimal">
                 <li>
-                    Do you have any of the following symptoms?<br /><br />
+                    <span id="checkin-covid-symptoms"
+                        >Do you have any of the following symptoms?</span
+                    ><br /><br />
                     <ul class="mb-4 list-inside list-disc px-4">
                         <li>Fever</li>
                         <li>Cough</li>
@@ -33,7 +38,7 @@ import { CheckinStateService } from './checkin-state.service';
                         <li>Loss of taste or smell</li>
                     </ul>
                     <mat-radio-group
-                        aria-label="Has Symptoms"
+                        aria-labelledby="checkin-covid-symptoms"
                         [(ngModel)]="symptoms"
                     >
                         <mat-radio-button value="true">Yes</mat-radio-button>
@@ -44,10 +49,13 @@ import { CheckinStateService } from './checkin-state.service';
                 </li>
                 <hr class="my-4" />
                 <li>
-                    Have you been in contact with a COVID-19 case in the last 14
-                    days or been asked to self-isolate by a health offical?<br /><br />
+                    <span id="checkin-covid-contact"
+                        >Have you been in contact with a COVID-19 case in the
+                        last 14 days or been asked to self-isolate by a health
+                        offical?</span
+                    ><br /><br />
                     <mat-radio-group
-                        aria-label="COVID contact or self-isolated"
+                        aria-labelledby="checkin-covid-contact"
                         [(ngModel)]="contact"
                     >
                         <mat-radio-button value="true">Yes</mat-radio-button>
@@ -61,6 +69,7 @@ import { CheckinStateService } from './checkin-state.service';
             <a
                 icon
                 matRipple
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
                 [attr.disabled]="!symptoms() && !contact()"
                 class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
@@ -84,6 +93,8 @@ import { CheckinStateService } from './checkin-state.service';
         `,
     ],
     imports: [
+        PageHeadingDirective,
+        TranslatePipe,
         MatRadioModule,
         MatRippleModule,
         IconComponent,

@@ -2130,7 +2130,8 @@
             "ALREADY_CHECKED_IN": "لقد سجلت وصولك بالفعل.",
             "INDUCTION_DECLINED": "لقد رفضت التعريف التمهيدي.",
             "ERROR_CHECKOUT": "فشل تسجيل المغادرة.",
-            "INVALID_QR_CODE": "رمز QR غير صالح"
+            "INVALID_QR_CODE": "رمز QR غير صالح",
+            "IDLE_WARNING": "هل ما زلت هنا؟ ستعود هذه الشاشة إلى البداية خلال {{ seconds }} ثانية."
         }
     },
     "SIGNAGE_MANAGER": {
