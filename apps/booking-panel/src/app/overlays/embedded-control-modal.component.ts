@@ -7,6 +7,8 @@ import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 
 export interface EmbeddedControlModalData {
     control_url: string;
+    /** Accessible name of the modal and the embedded page */
+    title: string;
 }
 
 @Component({
@@ -23,6 +25,7 @@ export interface EmbeddedControlModalData {
                 <iframe
                     #frame
                     class="h-full w-full border-none"
+                    [title]="title"
                     [src]="control_url | safe: 'resource'"
                     (load)="watchFrame(frame)"
                 ></iframe>
@@ -38,7 +41,7 @@ export interface EmbeddedControlModalData {
                 (click)="close()"
                 (contextmenu)="$event.preventDefault()"
             >
-                <icon class="mx-2 text-2xl">close</icon>
+                <icon class="mx-2 text-2xl" aria-hidden="true">close</icon>
             </button>
         </div>
     `,
@@ -84,6 +87,7 @@ export class EmbeddedControlModalComponent
 
     /** Control URL to embed into the modal */
     public readonly control_url: string = this._data.control_url;
+    public readonly title = this._data.title;
     /** Display value for the time remain until the modal automatically closes */
     public readonly countdown = signal(30);
 
