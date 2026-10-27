@@ -605,25 +605,31 @@ export class PanelStateService extends AsyncHandler {
                 ...details,
                 date_end: addMinutes(details.date, details.duration).valueOf(),
             }));
+            let event: CalendarEvent;
             try {
-                await this._events.postForm(true);
+                event = await this._events.postForm(true);
             } finally {
                 this._events.clearForm();
             }
+            // postForm() warns and drops the room when the room declines
+            if (!event?.resources?.length) return;
         } else {
             const module = getModule(this.system, 'Bookings');
             if (!details || !module) return;
             const use_as_host = this._app_settings.get(
                 'app.user_as_default_host',
             );
-            await module
-                .execute('book_now', [
+            try {
+                await module.execute('book_now', [
                     details.duration * 60,
                     details.title,
                     details.host || (use_as_host ? currentUser().email : null),
-                ])
-                .catch((e) => notifyError(`Error creating meeting. ${e}`));
+                ]);
+            } catch (e) {
+                return notifyError(`Error creating meeting. ${e}`);
+            }
         }
+        notifySuccess('Successfully created meeting.');
     }
 
     /**
@@ -671,6 +677,7 @@ export class PanelStateService extends AsyncHandler {
             return notifyError(`Error starting meeting. ${e}`);
         }
         this.updateProperty('status', 'busy');
+        notifySuccess('Successfully checked in booking.');
     }
 
     /**
@@ -684,7 +691,7 @@ export class PanelStateService extends AsyncHandler {
         );
         const details = await openConfirmModal(
             {
-                title: 'Are you sure want to end your meeting?',
+                title: 'Are you sure you want to end your meeting?',
                 content:
                     'Ending your meeting early will free up this room for others to use',
                 icon: {
@@ -778,11 +785,13 @@ export class PanelStateService extends AsyncHandler {
      */
     public async callWaiter() {
         const module = getModule(this.system, 'Bookings');
-        if (module) {
-            await module
-                .execute('waiter_call', [Date.now()])
-                .catch((e) => notifyError(`Error calling waiter. ${e}`));
+        if (!module) return;
+        try {
+            await module.execute('waiter_call', [Date.now()]);
+        } catch (e) {
+            return notifyError(`Error calling waiter. ${e}`);
         }
+        notifySuccess('A waiter is on the way.');
     }
 
     /** List to binding */
