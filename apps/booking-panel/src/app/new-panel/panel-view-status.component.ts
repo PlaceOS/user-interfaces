@@ -290,10 +290,15 @@ export class PanelViewStatusComponent extends AsyncHandler {
         return this._state.setting('show_qr_code') !== false;
     }
 
-    /** Whether people can book from the check-in page of the QR code */
+    /**
+     * Whether people can book from the check-in page of the QR code.
+     * A custom QR URL can open any page, so it does not count.
+     */
     public get can_scan_book() {
         return (
-            this.can_scan && this._state.setting('disable_qr_booking') !== true
+            this.can_scan &&
+            !this._state.setting('custom_qr_url') &&
+            this._state.setting('disable_qr_booking') !== true
         );
     }
 

@@ -120,6 +120,16 @@ describe('PanelViewStatusComponent', () => {
         expect('[booking-disabled]').toExist();
     });
 
+    it('should point to the calendar when the QR code opens a custom page', () => {
+        panel_settings.set({
+            disable_book_now: true,
+            show_qr_code: true,
+            custom_qr_url: 'https://example.com/room',
+        });
+        spectator.detectChanges();
+        expect('[booking-disabled]').toExist();
+    });
+
     it('should not point to the calendar when the QR code can book', () => {
         panel_settings.set({ disable_book_now: true, show_qr_code: true });
         spectator.detectChanges();

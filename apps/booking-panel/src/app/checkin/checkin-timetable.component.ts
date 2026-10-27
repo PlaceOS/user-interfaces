@@ -5,6 +5,7 @@ import {
     OnInit,
     output,
     signal,
+    untracked,
 } from '@angular/core';
 import { AsyncHandler, CalendarEvent } from '@placeos/common';
 import {
@@ -113,6 +114,11 @@ export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
             this.events(); // track the signal
             this._processEvents();
         });
+        // Relabel the blocks when the time format setting loads or changes
+        effect(() => {
+            this.time_format();
+            untracked(() => this._generateTimeBlocks(true));
+        });
     }
 
     public ngOnInit() {
@@ -143,7 +149,8 @@ export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
         return '';
     }
 
-    private _generateTimeBlocks() {
+    /** Build the blocks. `force` rebuilds them when the start is the same. */
+    private _generateTimeBlocks(force = false) {
         const blocks: TimeBlock[] = [];
         const hour_24 = this.time_format() !== TIME_FORMAT;
         const start = roundToNearestMinutes(
@@ -153,7 +160,7 @@ export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
             },
         );
         // The start moves once per step. Keep the blocks until then.
-        if (this.blocks()[0]?.id === start.valueOf()) return;
+        if (!force && this.blocks()[0]?.id === start.valueOf()) return;
         let date = start;
         const end = addHours(start, 24);
         while (date < end) {
