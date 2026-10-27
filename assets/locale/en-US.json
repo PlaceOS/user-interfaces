@@ -2311,7 +2311,8 @@
             "ALREADY_CHECKED_IN": "You are already checked in.",
             "INDUCTION_DECLINED": "You have declined the induction.",
             "ERROR_CHECKOUT": "Failed to check out.",
-            "INVALID_QR_CODE": "Invalid QR code"
+            "INVALID_QR_CODE": "Invalid QR code",
+            "IDLE_WARNING": "Are you still there? This screen returns to the start in {{ seconds }} seconds."
         }
     },
     "SIGNAGE_MANAGER": {
