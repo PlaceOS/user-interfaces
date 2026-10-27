@@ -8,6 +8,7 @@ import {
     OrganisationService,
 } from '@placeos/common';
 import {
+    authorise,
     listDashboardAlerts,
     PlaceAlert,
     PlaceAlertDashboard,
@@ -16,7 +17,6 @@ import {
     removeAlertDashboard,
     showAlert,
     showAlertDashboard,
-    token,
     TriggerConditionOperator,
 } from '@placeos/ts-client';
 
@@ -49,6 +49,8 @@ export class DashboardsService extends AsyncHandler {
 
     private _mqtt_broker: mqtt.MqttClient;
     private _connected = false;
+    private _reconnect_attempts = 0;
+    private _destroyed = false;
     /** The latest value of each topic the broker holds, by topic */
     private _values = new Map<string, BrokerValue>();
     private _initialising = signal(false);
@@ -275,37 +277,62 @@ export class DashboardsService extends AsyncHandler {
         this.timeout('listen_to_topics', () => this._listenToAlertTopics());
     }
 
+    protected override destroy() {
+        // nothing may connect again: reconnecting and listening run on after
+        // the timers are cleared, from promises that settle later
+        this._destroyed = true;
+        super.destroy();
+        const client = this._mqtt_broker;
+        delete this._mqtt_broker;
+        this._connected = false;
+        client?.end(true);
+    }
+
     private async _initialiseBroker() {
-        if (this._initialising()) return;
+        if (this._initialising() || this._destroyed) return;
         this._initialising.set(true);
         try {
             await this._org.waitUntilInitialised();
+            if (this._destroyed) return;
             this.unsubWith('alert:');
-            const jwt = token();
             const url = `${location.host}/api/mqtt/`;
             const secure = location.protocol === 'https:';
+            // The broker checks the token only as a connection opens, and the
+            // client's own reconnect reuses the credentials it was created
+            // with, long after that token has expired. Connections are opened
+            // here instead, each with a current token
             this._mqtt_broker = mqtt.connect(
                 `ws${secure ? 's' : ''}://${url}`,
                 {
-                    username: jwt,
-                    password: jwt,
                     keepalive: 30,
+                    manualConnect: true,
+                    reconnectPeriod: 0,
                 },
             );
             this._mqtt_broker.on('connect', () => {
-                // on a reconnection the client subscribes again and is handed
-                // every retained value; a topic removed while it was away
-                // sends nothing, so start from what it is handed
+                this._reconnect_attempts = 0;
+                // each connection starts a clean session and is handed every
+                // retained value as it subscribes; a topic removed while it
+                // was away sends nothing, so start from what it is handed
                 this._values.clear();
                 this._connected = true;
+                if (this._listening) {
+                    this.timeout('listen_to_topics', () =>
+                        this._listenToAlertTopics(),
+                    );
+                }
             });
-            this._mqtt_broker.on('disconnect', () => {
+            this._mqtt_broker.on('close', () => {
                 this._connected = false;
-                delete this._mqtt_broker;
+                this._scheduleReconnect();
             });
+            this._mqtt_broker.on('error', (e) =>
+                log('ALERTS', 'Broker connection error:', e),
+            );
             this._mqtt_broker.on('message', (t, b) =>
                 this._handleBrokerMessage(t, b),
             );
+            await this._connectBroker();
         } catch (e) {
             this.timeout('init_finish', () => this._initialising.set(false));
             throw e;
@@ -313,9 +340,35 @@ export class DashboardsService extends AsyncHandler {
         this.timeout('init_finish', () => this._initialising.set(false));
     }
 
+    /** Opens the broker connection with a current token, renewed if expired */
+    private async _connectBroker() {
+        const client = this._mqtt_broker;
+        if (!client) return;
+        try {
+            const jwt = await authorise();
+            if (client !== this._mqtt_broker) return;
+            client.options.username = jwt;
+            client.options.password = jwt;
+            client.reconnect();
+        } catch (e) {
+            log('ALERTS', 'Failed to authorise the broker connection:', e);
+            this._scheduleReconnect();
+        }
+    }
+
+    private _scheduleReconnect() {
+        if (!this._mqtt_broker) return;
+        const delay = Math.min(30_000, 1000 * 2 ** this._reconnect_attempts);
+        this._reconnect_attempts += 1;
+        this.timeout('broker_reconnect', () => this._connectBroker(), delay);
+    }
+
     private _listenToAlertTopics() {
+        if (!this._mqtt_broker) return;
+        // under the same name as a request to listen, so a newer request
+        // replaces a wait rather than running beside it
         if (!this._connected) {
-            return this.timeout('alert_topics', () =>
+            return this.timeout('listen_to_topics', () =>
                 this._listenToAlertTopics(),
             );
         }

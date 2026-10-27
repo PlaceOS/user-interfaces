@@ -9,8 +9,8 @@ import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
-import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import * as ts_client from '@placeos/ts-client';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 
 import { DashboardsService } from '../app/dashboards/dashboards.service';
 import { AlertNotificationService } from '../app/push-notification.service';
@@ -19,9 +19,11 @@ import { SupportGroupsService } from '../app/support-groups.service';
 
 const { mock_mqtt_connect } = vi.hoisted(() => {
     const client = {
+        options: {} as Record<string, unknown>,
         on: vi.fn(),
         subscribe: vi.fn(),
         unsubscribe: vi.fn(),
+        reconnect: vi.fn(),
         end: vi.fn(),
     };
     return {
@@ -86,13 +88,17 @@ describe('DashboardsService', () => {
         vi.mocked(ts_client.listDashboardAlerts).mockResolvedValue({
             data: [],
         } as any);
-        vi.mocked(ts_client.removeAlertDashboard).mockResolvedValue(
-            undefined,
-        );
+        vi.mocked(ts_client.removeAlertDashboard).mockResolvedValue(undefined);
         vi.mocked(ts_client.removeAlert).mockResolvedValue(undefined);
-        vi.mocked(ts_client.queryModules).mockResolvedValue({ data: [] } as any);
+        vi.mocked(ts_client.queryModules).mockResolvedValue({
+            data: [],
+        } as any);
         vi.mocked(ts_client.systemModuleState).mockResolvedValue({});
         vi.mocked(ts_client.token).mockReturnValue('jwt-token');
+        vi.mocked(ts_client.authorise).mockResolvedValue('jwt-token');
+        const broker = mock_mqtt_connect() as any;
+        broker.options = {};
+        mock_mqtt_connect.mockClear();
 
         confirm_reason = 'close';
         dialog_close = vi.fn();
@@ -196,7 +202,9 @@ describe('DashboardsService', () => {
 
             expect(ts_client.showAlertDashboard).toHaveBeenCalledWith('dash-1');
             expect(spectator.service.dashboard()).toBe(dashboard);
-            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith('dash-1');
+            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith(
+                'dash-1',
+            );
             expect(spectator.service.alerts_list()).toEqual([{ id: 'a1' }]);
         });
     });
@@ -277,7 +285,9 @@ describe('DashboardsService', () => {
             expect(ts_client.removeAlert).toHaveBeenCalledWith('alert-1');
             expect(dialog_close).toHaveBeenCalled();
             expect(notify_open).toHaveBeenCalled();
-            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith('dash-1');
+            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith(
+                'dash-1',
+            );
         });
     });
 
@@ -295,8 +305,12 @@ describe('DashboardsService', () => {
 
             await spectator.service.loadDashboardAlerts();
 
-            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith('dash-1');
-            expect(spectator.service.alerts_list()).toEqual([{ id: 'alert-a' }]);
+            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith(
+                'dash-1',
+            );
+            expect(spectator.service.alerts_list()).toEqual([
+                { id: 'alert-a' },
+            ]);
         });
 
         it('should populate the dashboard alert map when an id is provided', async () => {
@@ -306,7 +320,9 @@ describe('DashboardsService', () => {
 
             await spectator.service.loadDashboardAlerts('dash-2');
 
-            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith('dash-2');
+            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith(
+                'dash-2',
+            );
             expect(spectator.service.dashboard_alert_map()['dash-2']).toEqual([
                 { id: 'alert-b' },
             ]);
@@ -327,12 +343,106 @@ describe('DashboardsService', () => {
 
             expect(mock_mqtt_connect).toHaveBeenCalledTimes(1);
             const [, options] = mock_mqtt_connect.mock.calls[0] as any;
+            // connections are opened by the service, never by the client
             expect(options).toEqual(
+                expect.objectContaining({
+                    manualConnect: true,
+                    reconnectPeriod: 0,
+                }),
+            );
+            const broker = (mock_mqtt_connect as any)();
+            expect(broker.options).toEqual(
                 expect.objectContaining({
                     username: 'jwt-token',
                     password: 'jwt-token',
                 }),
             );
+            expect(broker.reconnect).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    // The broker checks the token only as a connection opens, so each
+    // reconnection needs one that is current, not the one first connected with
+    describe('broker reconnection', () => {
+        const broker = () => (mock_mqtt_connect as any)();
+        const handler = (event: string) =>
+            broker().on.mock.calls.find(([name]) => name === event)[1];
+
+        beforeEach(async () => {
+            vi.useFakeTimers();
+            await spectator.service.listenForDashboardAlerts(true);
+            await flush();
+            handler('connect')();
+            broker().reconnect.mockClear();
+        });
+
+        afterEach(() => {
+            (spectator.service as any).destroy();
+            vi.clearAllTimers();
+            vi.useRealTimers();
+        });
+
+        it('reconnects with a renewed token once the connection drops', async () => {
+            vi.mocked(ts_client.authorise).mockResolvedValue('fresh-token');
+
+            handler('close')();
+            await vi.advanceTimersByTimeAsync(1000);
+
+            expect(ts_client.authorise).toHaveBeenCalled();
+            expect(broker().options.username).toBe('fresh-token');
+            expect(broker().options.password).toBe('fresh-token');
+            expect(broker().reconnect).toHaveBeenCalledTimes(1);
+        });
+
+        it('does not reconnect before a token is available', async () => {
+            let renew: (token: string) => void = () => undefined;
+            vi.mocked(ts_client.authorise).mockReturnValue(
+                new Promise<string>((resolve) => (renew = resolve)),
+            );
+
+            handler('close')();
+            await vi.advanceTimersByTimeAsync(5000);
+            expect(broker().reconnect).not.toHaveBeenCalled();
+
+            renew('fresh-token');
+            await flush();
+            expect(broker().options.username).toBe('fresh-token');
+            expect(broker().reconnect).toHaveBeenCalledTimes(1);
+        });
+
+        it('tries again, backing off, when the token cannot be renewed', async () => {
+            vi.mocked(ts_client.authorise)
+                .mockRejectedValueOnce('Failed to generate token')
+                .mockResolvedValue('fresh-token');
+
+            handler('close')();
+            await vi.advanceTimersByTimeAsync(1000);
+            expect(broker().reconnect).not.toHaveBeenCalled();
+
+            await vi.advanceTimersByTimeAsync(2000);
+            expect(broker().options.username).toBe('fresh-token');
+            expect(broker().reconnect).toHaveBeenCalledTimes(1);
+        });
+
+        it('stops reconnecting once destroyed', async () => {
+            (spectator.service as any).destroy();
+            expect(broker().end).toHaveBeenCalledWith(true);
+
+            handler('close')();
+            await vi.advanceTimersByTimeAsync(60_000);
+            expect(broker().reconnect).not.toHaveBeenCalled();
+        });
+
+        it('subscribes again on each new connection', async () => {
+            await vi.advanceTimersByTimeAsync(1000);
+            broker().subscribe.mockClear();
+
+            handler('close')();
+            await vi.advanceTimersByTimeAsync(1000);
+            handler('connect')();
+            await vi.advanceTimersByTimeAsync(1000);
+
+            expect(broker().subscribe).toHaveBeenCalled();
         });
     });
 
@@ -345,7 +455,9 @@ describe('DashboardsService', () => {
             (spectator.service as any)._handleBrokerMessage(
                 t,
                 Buffer.from(
-                    payload === '' ? '' : JSON.stringify({ time: 1, value: payload }),
+                    payload === ''
+                        ? ''
+                        : JSON.stringify({ time: 1, value: payload }),
                 ),
             );
 
@@ -445,7 +557,9 @@ describe('DashboardsService', () => {
         const other_level = zone('lvl-9', 'bld-2', ['level']);
         const client = () => (mock_mqtt_connect as any)();
         const subscribed = () =>
-            client().subscribe.mock.calls.map(([topic]) => topic).sort();
+            client()
+                .subscribe.mock.calls.map(([topic]) => topic)
+                .sort();
         const listen = () => {
             const service = spectator.service as any;
             service._mqtt_broker = client();
@@ -532,7 +646,9 @@ describe('DashboardsService', () => {
             client().subscribe.mockClear();
 
             group_id.set('group-2');
-            scope.set(groupScope([other_level], [other_level], [other_building]));
+            scope.set(
+                groupScope([other_level], [other_level], [other_building]),
+            );
             TestBed.tick();
             await vi.waitFor(() =>
                 expect(subscribed()).toEqual([
