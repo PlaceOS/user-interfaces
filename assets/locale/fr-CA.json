@@ -2117,7 +2117,21 @@
             "CHECKOUT": "Départ de l'immeuble",
             "CHECKOUT_MSG": "Vous êtes actuellement enregistré(e) dans l'immeuble. Voulez-vous partir?",
             "CHECKOUT_LOADING": "Départ de l'invité...",
-            "CHECKOUT_SUCCESS": "Invité parti avec succès."
+            "CHECKOUT_SUCCESS": "Invité parti avec succès.",
+            "CAMERA_OFF": "Caméra non disponible",
+            "READY_TO_SCAN": "Prêt à balayer le code QR",
+            "SEE_RECEPTION": "Veuillez vous présenter à la réception.",
+            "RECEPTION_ASSIST": "Notre personnel à la réception va vous aider.",
+            "CONFIRM_DETAILS": "Confirmer les renseignements",
+            "RETAKE": "Reprendre",
+            "MEETING_REJECTED": "Votre réunion a été refusée.",
+            "MEETING_FINISHED": "Votre réunion est déjà terminée.",
+            "NOT_CHECKED_IN": "Vous n'êtes pas encore enregistré(e).",
+            "ALREADY_CHECKED_IN": "Vous êtes déjà enregistré(e).",
+            "INDUCTION_DECLINED": "Vous avez refusé l'accueil sécurité.",
+            "ERROR_CHECKOUT": "Échec du départ.",
+            "INVALID_QR_CODE": "Code QR non valide",
+            "IDLE_WARNING": "Êtes-vous toujours là ? Cet écran reviendra au début dans {{ seconds }} secondes."
         }
     },
     "SIGNAGE_MANAGER": {
