@@ -1,0 +1,3 @@
+import{Kn as it,_ as E,ti as we}from"./chunk-DtFN-aJo.js";import{m as Gn}from"./chunk-DHpUa-T9.js";function m(){let t=it(Gn(Date.now()).valueOf()),o,n=()=>{let i=6e4-Date.now()%6e4+50;o=setTimeout(()=>{t.set(Gn(Date.now()).valueOf()),n()},i)};return n(),E(we).onDestroy(()=>clearTimeout(o)),t.asReadonly()}export{m as t};
+//# debugId=138dffff-a71c-5f77-be8b-f0b757301530
+//# sourceMappingURL=chunk-AnJXrEAB.js.map
