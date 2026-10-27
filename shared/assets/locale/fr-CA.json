@@ -2130,7 +2130,8 @@
             "ALREADY_CHECKED_IN": "Vous êtes déjà enregistré(e).",
             "INDUCTION_DECLINED": "Vous avez refusé l'accueil sécurité.",
             "ERROR_CHECKOUT": "Échec du départ.",
-            "INVALID_QR_CODE": "Code QR non valide"
+            "INVALID_QR_CODE": "Code QR non valide",
+            "IDLE_WARNING": "Êtes-vous toujours là ? Cet écran reviendra au début dans {{ seconds }} secondes."
         }
     },
     "SIGNAGE_MANAGER": {

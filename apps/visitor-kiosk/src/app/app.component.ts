@@ -4,6 +4,7 @@ import { PlaceOS_Service, setMocks, settingSignal } from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
+    TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
 import { ChatComponent } from '@placeos/components/chat';
@@ -20,12 +21,29 @@ import { returnToWelcomeWhenIdle } from './inactivity-reset';
         ChatComponent,
         GlobalLoadingComponent,
         SettingsDebugPanelLauncherComponent,
+        TranslatePipe,
     ],
     template: `
         <global-banner />
         <div content class="relative h-1/2 w-full flex-1 overflow-hidden">
             <router-outlet></router-outlet>
         </div>
+        @if (idle.warning_secs(); as seconds) {
+            <div
+                role="alert"
+                class="bg-base-100 text-base-content fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-sm p-4 shadow-lg"
+            >
+                <p>
+                    {{
+                        'APP.VISITOR_KIOSK.IDLE_WARNING'
+                            | translate: { seconds: seconds }
+                    }}
+                </p>
+                <button btn class="w-32" (click)="idle.stay()">
+                    {{ 'COMMON.CONTINUE' | translate }}
+                </button>
+            </div>
+        }
         @defer (when has_chat()) {
             <global-chat />
         }
@@ -60,10 +78,7 @@ export class AppComponent implements OnInit {
     private _has_chat = settingSignal<boolean>('chat.enabled', false);
 
     public readonly has_chat = computed(() => !!this._has_chat());
-
-    constructor() {
-        returnToWelcomeWhenIdle();
-    }
+    public readonly idle = returnToWelcomeWhenIdle();
 
     public ngOnInit(): void {
         VirtualKeyboardComponent.enabled =

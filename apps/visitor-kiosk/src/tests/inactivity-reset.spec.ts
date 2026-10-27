@@ -5,12 +5,13 @@ import { settingSignal } from '@placeos/common';
 import { Subject } from 'rxjs';
 
 import { CheckinStateService } from '../app/checkin/checkin-state.service';
-import { returnToWelcomeWhenIdle } from '../app/inactivity-reset';
+import { IdleReset, returnToWelcomeWhenIdle } from '../app/inactivity-reset';
 
 describe('returnToWelcomeWhenIdle', () => {
     const events = new Subject<unknown>();
     const router = { url: '/welcome', events, navigate: vi.fn() };
     const checkin = { clear: vi.fn() };
+    let idle: IdleReset;
 
     function navigateTo(url: string) {
         router.url = url;
@@ -27,7 +28,7 @@ describe('returnToWelcomeWhenIdle', () => {
                 { provide: CheckinStateService, useValue: checkin },
             ],
         });
-        runInInjectionContext(TestBed.inject(Injector), () =>
+        idle = runInInjectionContext(TestBed.inject(Injector), () =>
             returnToWelcomeWhenIdle(),
         );
     });
@@ -54,6 +55,18 @@ describe('returnToWelcomeWhenIdle', () => {
         expect(router.navigate).not.toHaveBeenCalled();
         vi.advanceTimersByTime(20_000);
         expect(router.navigate).toHaveBeenCalledWith(['/welcome']);
+    });
+
+    it('should warn the visitor 20 seconds before the reset', () => {
+        navigateTo('/checkin/details');
+        vi.advanceTimersByTime(99_999);
+        expect(idle.warning_secs()).toBe(0);
+        vi.advanceTimersByTime(1);
+        expect(idle.warning_secs()).toBe(20);
+        idle.stay();
+        expect(idle.warning_secs()).toBe(0);
+        vi.advanceTimersByTime(119_999);
+        expect(router.navigate).not.toHaveBeenCalled();
     });
 
     it('should stay on the welcome and setup pages', () => {
