@@ -22,7 +22,14 @@ describe('scrubSecrets', () => {
     it('should remove credentials from nested URLs', () => {
         const event = {
             request: { url: 'https://a.b.com/kiosk/#/?x-api-key=abc&lang=en' },
-            breadcrumbs: [{ data: { to: '/#/home?zone=1&bearer_token=xyz' } }],
+            breadcrumbs: [
+                { data: { to: '/#/home?zone=1&bearer_token=xyz' } },
+                {
+                    data: {
+                        to: '/kiosk/?public=true&jwt=j1#/checkin?token=t1',
+                    },
+                },
+            ],
         };
 
         scrubSecrets(event);
@@ -32,6 +39,9 @@ describe('scrubSecrets', () => {
         );
         expect(event.breadcrumbs[0].data.to).toBe(
             '/#/home?zone=1&bearer_token=[Filtered]',
+        );
+        expect(event.breadcrumbs[1].data.to).toBe(
+            '/kiosk/?public=true&jwt=[Filtered]#/checkin?token=[Filtered]',
         );
     });
 

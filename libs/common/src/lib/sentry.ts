@@ -38,11 +38,12 @@ export class LazySentryErrorHandler extends ErrorHandler {
 
 /**
  * URL parameters that carry credentials. Kiosks and panels load with
- * `?x-api-key=` in the URL, and Sentry records URLs in events, breadcrumbs
- * and spans. Breadcrumbs leave the app only inside events.
+ * `?x-api-key=` in the URL, and Visitor Kiosk check-in links carry `jwt` or
+ * `token`. Sentry records URLs in events, breadcrumbs and spans. Breadcrumbs
+ * leave the app only inside events.
  */
 const SECRET_PARAM =
-    /([?&#;](?:x-api-key|api-key|api_key|bearer_token|access_token|refresh_token|code)=)[^&#\s"']+/gi;
+    /([?&#;](?:x-api-key|api-key|api_key|bearer_token|access_token|refresh_token|jwt|token|code)=)[^&#\s"']+/gi;
 /** Sentry normalises events to a few levels before its hooks run */
 const MAX_SCRUB_DEPTH = 20;
 /** SDK state kept on the event. It is not sent, and it holds live objects. */
