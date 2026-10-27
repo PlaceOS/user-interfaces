@@ -56,7 +56,7 @@ import {
                         class="h-12 space-x-2 text-lg"
                         (click)="viewControl()"
                     >
-                        <icon>tune</icon>
+                        <icon aria-hidden="true">tune</icon>
                         <span>{{
                             'APP.BOOKING_PANEL.ROOM_CONTROL' | translate
                         }}</span>
@@ -70,7 +70,7 @@ import {
                         class="h-12 space-x-2 text-lg"
                         (click)="viewCatering()"
                     >
-                        <icon>restaurant</icon>
+                        <icon aria-hidden="true">restaurant</icon>
                         <span>{{ 'RESOURCE.CATERING' | translate }}</span>
                     </button>
                 }
@@ -81,7 +81,7 @@ import {
                     class="h-12 space-x-2 text-lg"
                     (click)="callWaiter()"
                 >
-                    <icon>room_service</icon>
+                    <icon aria-hidden="true">room_service</icon>
                     <span>{{
                         'APP.BOOKING_PANEL.CALL_WAITER' | translate
                     }}</span>

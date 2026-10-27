@@ -31,6 +31,7 @@ import {
             >
                 @if (!reserve_actions) {
                     <div
+                        aria-hidden="true"
                         [innerHTML]="
                             (s === 'busy'
                                 ? in_use_svg
@@ -129,7 +130,7 @@ import {
                         presence
                         class="mt-4 flex items-center space-x-2 rounded-full bg-black/20 px-4 py-1 text-xl"
                     >
-                        <icon>groups</icon>
+                        <icon aria-hidden="true">groups</icon>
                         <span>{{
                             'APP.BOOKING_PANEL.PEOPLE_DETECTED' | translate
                         }}</span>
@@ -183,7 +184,7 @@ import {
                             show_floating_left ? '9rem' : null
                         "
                     >
-                        <icon>event</icon>
+                        <icon aria-hidden="true">event</icon>
                         <p>
                             {{
                                 'APP.BOOKING_PANEL.BOOKING_DISABLED' | translate
@@ -211,6 +212,7 @@ import {
                 class="bg-base-100 text-base-content flex h-full flex-1 flex-col items-center justify-center space-y-4"
             >
                 <div
+                    aria-hidden="true"
                     [innerHTML]="(!es?.next ? free_svg : in_use_svg) | safe"
                 ></div>
                 <h2 class="text-4xl font-medium uppercase">

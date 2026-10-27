@@ -23,6 +23,7 @@ import { endingSoon } from './helpers';
                 <div class="absolute inset-0">
                     <img
                         auth
+                        alt=""
                         class="h-full w-full object-cover object-center"
                         [source]="room_image"
                     />
@@ -37,13 +38,13 @@ import { endingSoon } from './helpers';
                     <div
                         capacity
                         class="mt-2 flex items-center space-x-2 text-2xl"
-                        [attr.aria-label]="
-                            ('APP.BOOKING_PANEL.ROOM_CAPACITY' | translate) +
-                            ': ' +
-                            capacity
-                        "
                     >
-                        <icon>group</icon>
+                        <icon aria-hidden="true">group</icon>
+                        <span class="sr-only"
+                            >{{
+                                'APP.BOOKING_PANEL.ROOM_CAPACITY' | translate
+                            }}:
+                        </span>
                         <span>{{ capacity }}</span>
                     </div>
                 }
