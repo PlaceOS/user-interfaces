@@ -23,6 +23,48 @@ export class LazySentryErrorHandler extends ErrorHandler {
 }
 
 /**
+ * URL parameters that carry credentials. Kiosks and panels load with
+ * `?x-api-key=` in the URL, and Sentry records URLs in events, breadcrumbs
+ * and spans. Breadcrumbs leave the app only inside events.
+ */
+const SECRET_PARAM =
+    /([?&#;](?:x-api-key|api-key|api_key|bearer_token|access_token|refresh_token|code)=)[^&#\s"']+/gi;
+/** Sentry normalises events to a few levels before its hooks run */
+const MAX_SCRUB_DEPTH = 20;
+/** SDK state kept on the event. It is not sent, and it holds live objects. */
+const SDK_METADATA_KEY = 'sdkProcessingMetadata';
+
+/**
+ * Removes credential values from every string in a Sentry event. Sentry
+ * gives its hooks a normalised copy of the event, so values are changed in
+ * place, and only where a credential was found.
+ */
+export function scrubSecrets<T>(value: T, depth = 0): T {
+    if (typeof value === 'string') {
+        return value.replace(SECRET_PARAM, '$1[Filtered]') as T;
+    }
+    if (!value || typeof value !== 'object' || depth > MAX_SCRUB_DEPTH) {
+        return value;
+    }
+    const record = value as Record<string, unknown>;
+    for (const key of Object.keys(record)) {
+        if (depth === 0 && key === SDK_METADATA_KEY) continue;
+        const scrubbed = scrubSecrets(record[key], depth + 1);
+        if (scrubbed !== record[key]) record[key] = scrubbed;
+    }
+    return value;
+}
+
+/** Scrubs an event before it is sent. Drops the event if scrubbing fails. */
+function scrubEvent<T>(event: T): T | null {
+    try {
+        return scrubSecrets(event);
+    } catch {
+        return null;
+    }
+}
+
+/**
  * Loads and starts Sentry when a DSN is set. The SDK is loaded on demand so
  * apps without a DSN never download it.
  *
@@ -51,6 +93,8 @@ export async function initSentry(
                 /^https:\/\/[a-zA-Z0-9_-]*\.[a-zA-Z0-9]*\/api/,
                 /^https:\/\/[a-zA-Z0-9_-]*\.placeos\.run*\/api/,
             ],
+            beforeSend: scrubEvent,
+            beforeSendTransaction: scrubEvent,
         });
         _trace_service = new Sentry.TraceService(router);
         _sentry_handler = Sentry.createErrorHandler({ showDialog: false });
