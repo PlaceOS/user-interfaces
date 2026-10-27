@@ -1,12 +1,15 @@
 import { ErrorHandler } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import * as Sentry from '@sentry/angular';
 
 import {
     initSentry,
+    initSentryFromSettings,
     LazySentryErrorHandler,
     scrubSecrets,
 } from '../lib/sentry';
+import { settingSignal } from '../lib/settings.service';
 
 vi.mock('@sentry/angular', () => ({
     init: vi.fn(),
@@ -64,18 +67,31 @@ describe('LazySentryErrorHandler', () => {
 });
 
 // Last, as Sentry stays started for the rest of the file
-describe('initSentry', () => {
-    it('should start once with the default sample rate', async () => {
-        const router = {} as Router;
+describe('initSentryFromSettings', () => {
+    it('should start once the DSN is set and send early errors', async () => {
+        vi.spyOn(ErrorHandler.prototype, 'handleError').mockImplementation(
+            () => undefined,
+        );
+        const early_error = new Error('Before Sentry');
+        new LazySentryErrorHandler().handleError(early_error);
+        TestBed.runInInjectionContext(() => initSentryFromSettings());
+        TestBed.tick();
+        expect(Sentry.init).not.toHaveBeenCalled();
 
-        await Promise.all([
-            initSentry('https://key@sentry.io/1', router, null),
-            initSentry('https://key@sentry.io/1', router, null),
-        ]);
+        settingSignal('sentry_dsn').set('https://key@sentry.io/1');
+        TestBed.tick();
+        // A second start while the first is loading the SDK
+        void initSentry('https://key@sentry.io/1', TestBed.inject(Router));
 
+        await vi.waitFor(() =>
+            expect(Sentry.createErrorHandler).toHaveBeenCalled(),
+        );
         expect(Sentry.init).toHaveBeenCalledTimes(1);
         expect(Sentry.init).toHaveBeenCalledWith(
             expect.objectContaining({ tracesSampleRate: 0.1 }),
         );
+        const handler = vi.mocked(Sentry.createErrorHandler).mock.results[0]
+            .value as ErrorHandler;
+        expect(handler.handleError).toHaveBeenCalledWith(early_error);
     });
 });

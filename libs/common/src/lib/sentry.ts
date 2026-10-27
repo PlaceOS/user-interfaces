@@ -1,6 +1,7 @@
-import { ErrorHandler } from '@angular/core';
+import { effect, ErrorHandler, inject, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import { log } from './general';
+import { settingSignal } from './settings.service';
 import { VERSION } from './version';
 
 /** Share of transactions to trace when the app does not set one */
@@ -10,21 +11,28 @@ const DEFAULT_TRACES_SAMPLE_RATE = 0.1;
 let _started = false;
 /** Sentry's handler, set once `initSentry` has loaded the SDK */
 let _sentry_handler: ErrorHandler | null = null;
+/** Most errors to keep from before Sentry loads */
+const MAX_EARLY_ERRORS = 10;
+/** Errors from before Sentry loaded, sent when it starts */
+const _early_errors: unknown[] = [];
 /** Held so its router subscriptions live for the life of the app */
 // oxlint-disable-next-line @typescript-eslint/no-unused-vars -- write-only on purpose, see the comment above
 let _trace_service: unknown = null;
 
 /**
- * Application error handler. Logs errors to the console until `initSentry`
- * loads Sentry, then hands them to Sentry's handler. Sentry has no client
- * before `init`, so no reports are lost while it loads.
+ * Application error handler. Logs errors to the console and hands them to
+ * Sentry's handler. Until `initSentry` loads Sentry, it keeps the first few
+ * errors and sends them when Sentry starts.
  *
  * Provide with `{ provide: ErrorHandler, useClass: LazySentryErrorHandler }`.
  */
 export class LazySentryErrorHandler extends ErrorHandler {
     public override handleError(error: unknown): void {
+        super.handleError(error);
         if (_sentry_handler) _sentry_handler.handleError(error);
-        else super.handleError(error);
+        else if (_early_errors.length < MAX_EARLY_ERRORS) {
+            _early_errors.push(error);
+        }
     }
 }
 
@@ -108,8 +116,32 @@ export async function initSentry(
             beforeSendTransaction: scrubEvent,
         });
         _trace_service = new Sentry.TraceService(router);
-        _sentry_handler = Sentry.createErrorHandler({ showDialog: false });
+        // `LazySentryErrorHandler` already logs to the console
+        _sentry_handler = Sentry.createErrorHandler({
+            showDialog: false,
+            logErrors: false,
+        });
+        for (const error of _early_errors.splice(0)) {
+            _sentry_handler.handleError(error);
+        }
     } catch (error) {
         log('APP', 'Failed to load Sentry.', error, 'warn');
     }
+}
+
+/**
+ * Starts Sentry when the `app.sentry_dsn` setting gets a value. Organisation
+ * settings can set it soon after the organisation loads, before sign in
+ * completes. Call in an injection context, such as a constructor.
+ */
+export function initSentryFromSettings() {
+    const router = inject(Router);
+    const dsn = settingSignal<string>('sentry_dsn');
+    const rate = settingSignal<number>('sentry_traces_sample_rate');
+    const watcher = effect(() => {
+        const value = dsn();
+        if (!value) return;
+        watcher.destroy();
+        void initSentry(value, router, untracked(rate));
+    });
 }
