@@ -10,5 +10,6 @@ import"./chunk-HGJ4MBLN.js";function m(u){let n=u;return 5}var s=["ja",[["\u5348
    * found in the LICENSE file at https://angular.dev/license
    *)
 */
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="97ffb4b8-b6dc-51e1-a9d6-370e0546f3f7")}catch(e){}}();
 //# debugId=97ffb4b8-b6dc-51e1-a9d6-370e0546f3f7
 //# sourceMappingURL=chunk-KO3Y5KZH.js.map

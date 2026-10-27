@@ -1918,7 +1918,8 @@
             "EARLY_CHECKIN": "会议已提前签到",
             "BOOKING_NEW": "新预订",
             "BOOKING_HOST": "预订者",
-            "BOOKING_LOADING": "正在处理预订请求..."
+            "BOOKING_LOADING": "正在处理预订请求...",
+            "BOOKING_DISABLED": "请通过您的日历预订此会议室"
         },
         "CONTROL": {
             "BOOTSTRAP_TITLE": "控制面板设置",
