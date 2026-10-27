@@ -2117,7 +2117,21 @@
             "CHECKOUT": "Check-out dall'edificio",
             "CHECKOUT_MSG": "Sei attualmente registrato nell'edificio. Vuoi effettuare il check-out?",
             "CHECKOUT_LOADING": "Check-out ospite in corso...",
-            "CHECKOUT_SUCCESS": "Check-out ospite completato con successo."
+            "CHECKOUT_SUCCESS": "Check-out ospite completato con successo.",
+            "CAMERA_OFF": "Fotocamera non disponibile",
+            "READY_TO_SCAN": "Pronto per la scansione del codice QR",
+            "SEE_RECEPTION": "Rivolgiti alla reception.",
+            "RECEPTION_ASSIST": "Il personale della reception ti aiuterà.",
+            "CONFIRM_DETAILS": "Conferma i dati",
+            "RETAKE": "Scatta di nuovo",
+            "MEETING_REJECTED": "La tua riunione è stata rifiutata.",
+            "MEETING_FINISHED": "La tua riunione è già terminata.",
+            "NOT_CHECKED_IN": "Non hai ancora effettuato il check-in.",
+            "ALREADY_CHECKED_IN": "Hai già effettuato il check-in.",
+            "INDUCTION_DECLINED": "Hai rifiutato l'induzione.",
+            "ERROR_CHECKOUT": "Errore durante il check-out.",
+            "INVALID_QR_CODE": "Codice QR non valido",
+            "IDLE_WARNING": "Sei ancora lì? Questa schermata tornerà all'inizio tra {{ seconds }} secondi."
         }
     },
     "SIGNAGE_MANAGER": {
