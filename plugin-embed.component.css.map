@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["plugin-embed.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                width: 100%;\n                height: 100%;\n            }\n            iframe {\n                width: 100%;\n                height: 100%;\n                border: 0;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,MACA,MAAA,KACA,OAAA,IACJ,CACA,OACI,MAAA,KACA,OAAA,KACA,OAAA,CACJ",
+  "names": []
+}

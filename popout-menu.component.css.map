@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["popout-menu.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n            }\n\n            icon {\n                transition: transform 200ms;\n            }\n\n            button {\n                background-color: #fff;\n                color: rgba(#000, 0.85);\n                font-size: 1.25rem;\n                height: 2.5em;\n                width: 2.5em;\n            }\n\n            button.show icon {\n                transform: rotate(45deg);\n            }\n\n            button.small {\n                transition:\n                    top 200ms,\n                    left 200ms;\n            }\n        "],
+  "mappings": "AACY,MACI,SAAA,QACJ,CAEA,KACI,WAAA,UAAA,GACJ,CAEA,OACI,iBAAA,KACA,MAAA,KAAA,IAAA,CAAA,KACA,UAAA,QACA,OAAA,MACA,MAAA,KACJ,CAEA,MAAA,CAAA,KAAA,KACI,UAAA,OAAA,MACJ,CAEA,MAAA,CAAA,MACI,2BAGJ",
+  "names": []
+}
