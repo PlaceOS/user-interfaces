@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     effect,
     input,
@@ -34,7 +33,7 @@ interface EventBlock {
     selector: 'checkin-timetable',
     template: `
         <div class="relative flex h-16 items-center px-2">
-            @for (blk of blocks(); track blk) {
+            @for (blk of blocks(); track blk.id) {
                 <button
                     class="relative h-full"
                     [style.min-width]="1 * step() + 'px'"
@@ -92,7 +91,6 @@ interface EventBlock {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [],
 })
 export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
@@ -149,6 +147,8 @@ export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
                 nearestTo: this.step() as any,
             },
         );
+        // The start moves once per step. Keep the blocks until then.
+        if (this.blocks()[0]?.id === start.valueOf()) return;
         let date = start;
         const end = addHours(start, 24);
         while (date < end) {

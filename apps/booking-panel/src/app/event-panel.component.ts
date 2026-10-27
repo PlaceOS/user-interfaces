@@ -1,12 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { startOfMinute } from 'date-fns';
 
@@ -174,7 +166,6 @@ import { PanelStateService } from './panel-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,
@@ -192,7 +183,21 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
 
     public system_id = signal<string>('');
     public show_qr = signal<boolean>(false);
-    public qr_code = signal<any>(null);
+    private readonly _qr_url = computed(
+        () => this._state.settings().custom_qr_url,
+    );
+    private readonly _qr_color = computed(
+        () => this._state.settings().custom_qr_color,
+    );
+    /** Check-in QR code. Encoded again only when the QR settings or system change. */
+    public readonly qr_code = computed(() =>
+        generateQRCode(
+            this._qr_url() ||
+                `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`,
+            '#0000',
+            this._qr_color() || '#000',
+        ),
+    );
     public hide_qr = signal<boolean>(false);
     public readonly time = signal(Date.now());
 
@@ -241,27 +246,6 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
 
     public get custom_qr() {
         return !!this._state.setting('custom_qr_url');
-    }
-
-    constructor() {
-        super();
-        effect(() => {
-            const { custom_qr_url, custom_qr_color } = this._state.settings();
-            if (custom_qr_url) {
-                this.qr_code.set(
-                    generateQRCode(
-                        custom_qr_url,
-                        '#0000',
-                        custom_qr_color || '#000',
-                    ),
-                );
-            } else if (!this.qr_code()) {
-                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`;
-                this.qr_code.set(
-                    generateQRCode(url, '#0000', custom_qr_color || '#000'),
-                );
-            }
-        });
     }
 
     public async ngOnInit() {

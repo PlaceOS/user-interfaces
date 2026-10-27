@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
@@ -216,7 +210,6 @@ import {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, SafePipe, IconComponent],
 })
 export class PanelViewStatusComponent extends AsyncHandler {

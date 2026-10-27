@@ -12,7 +12,9 @@ import {
     nextPeriod,
     quickBookDurations,
     releaseCountdown,
-    timelineData,
+    timelineBlocks,
+    timelineBookings,
+    timelineNow,
     timelineSlot,
     timelineStart,
 } from '../../app/new-panel/helpers';
@@ -96,17 +98,11 @@ describe('new-panel helpers', () => {
         });
     });
 
-    describe('timelineData', () => {
-        it('should keep hour markers when the clock moves off the step interval', () => {
-            const timeline = timelineData(
-                [],
-                FIXED_NOW + 60 * 1000,
-                timelineStart(FIXED_NOW),
-            );
+    describe('timeline helpers', () => {
+        it('should mark each hour on the timeline', () => {
+            const blocks = timelineBlocks(timelineStart(FIXED_NOW));
 
-            expect(
-                timeline.blocks.filter((block) => block.on_hour),
-            ).toHaveLength(12);
+            expect(blocks.filter((block) => block.on_hour)).toHaveLength(12);
         });
 
         it('should position bookings using their exact start and end times', () => {
@@ -115,20 +111,20 @@ describe('new-panel helpers', () => {
                 duration: 17,
             } as any;
             const start = timelineStart(FIXED_NOW);
-            const timeline = timelineData([booking], FIXED_NOW, start);
+            const bookings = timelineBookings([booking], start);
 
-            expect(timeline.blocks).toHaveLength(72);
-            expect(timeline.bookings[0].start).toBeCloseTo((93 / 720) * 100);
-            expect(timeline.bookings[0].size).toBeCloseTo((17 / 720) * 100);
+            expect(timelineBlocks(start)).toHaveLength(72);
+            expect(bookings[0].start).toBeCloseTo((93 / 720) * 100);
+            expect(bookings[0].size).toBeCloseTo((17 / 720) * 100);
         });
 
         it('should move the current-time marker between grid intervals', () => {
             const start = timelineStart(FIXED_NOW);
-            const first = timelineData([], FIXED_NOW, start);
-            const second = timelineData([], FIXED_NOW + 30 * 1000, start);
+            const first = timelineNow(FIXED_NOW, start);
+            const second = timelineNow(FIXED_NOW + 30 * 1000, start);
 
-            expect(second.now).toBeGreaterThan(first.now);
-            expect(second.now - first.now).toBeCloseTo((0.5 / 720) * 100);
+            expect(second).toBeGreaterThan(first);
+            expect(second - first).toBeCloseTo((0.5 / 720) * 100);
         });
     });
 

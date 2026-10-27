@@ -1,9 +1,8 @@
+import { signal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { MockProvider } from 'ng-mocks';
-
 import { PlaceOS_Service } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
@@ -15,6 +14,8 @@ import { AppComponent } from '../app/app.component';
 
 describe('AppComponent', () => {
     let spectator: SpectatorRouting<AppComponent>;
+    // The real `has_chat` reads a settings signal
+    const chat_enabled = signal(false);
     const createComponent = createRoutingFactory({
         component: AppComponent,
         declarations: [
@@ -23,14 +24,20 @@ describe('AppComponent', () => {
             mockComponent(GlobalLoadingComponent),
         ],
         providers: [
-            MockProvider(PlaceOS_Service, {
-                has_chat: false,
-                init: vi.fn().mockResolvedValue(undefined),
-            }),
+            {
+                provide: PlaceOS_Service,
+                useValue: {
+                    get has_chat() {
+                        return chat_enabled();
+                    },
+                    init: vi.fn().mockResolvedValue(undefined),
+                },
+            },
         ],
     });
 
     beforeEach(() => {
+        chat_enabled.set(false);
         spectator = createComponent();
     });
 
@@ -51,8 +58,7 @@ describe('AppComponent', () => {
     });
 
     it('should render the chat when chat is enabled', async () => {
-        const placeos = spectator.inject(PlaceOS_Service);
-        (placeos as any).has_chat = true;
+        chat_enabled.set(true);
         spectator.detectChanges();
         await spectator.fixture.whenStable();
         spectator.detectChanges();

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
@@ -94,7 +94,6 @@ import {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, IconComponent, TranslatePipe],
 })
 export class PanelViewActionsComponent {

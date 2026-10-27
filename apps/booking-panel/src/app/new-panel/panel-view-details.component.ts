@@ -1,12 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { startOfMinute } from 'date-fns';
 
 import { AsyncHandler } from '@placeos/common';
@@ -102,7 +94,6 @@ import { endingSoon } from './helpers';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, TranslatePipe, AuthenticatedImageDirective],
 })
 export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
@@ -110,7 +101,20 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
 
     public readonly system = this._state.space;
     public readonly current = this._state.current;
-    public readonly qr_code = signal('');
+    private readonly _qr_url = computed(
+        () => this._state.settings().custom_qr_url,
+    );
+    private readonly _qr_color = computed(
+        () => this._state.settings().custom_qr_color,
+    );
+    /** Check-in QR code. Encoded again only when the QR settings or system change. */
+    public readonly qr_code = computed(() => {
+        const system_id = this._state.system;
+        const url =
+            this._qr_url()?.replace('{system_id}', system_id) ||
+            `${location.origin}${location.pathname}#/checkin/${system_id}`;
+        return generateQRCode(url, '#fff0', this._qr_color() || '#fff');
+    });
 
     public readonly time = signal(Date.now());
 
@@ -143,30 +147,6 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
 
     public get hide_qr_text() {
         return this._state.setting('hide_qr_text');
-    }
-
-    constructor() {
-        super();
-        effect(() => {
-            const { custom_qr_url, custom_qr_color } = this._state.settings();
-            if (custom_qr_url) {
-                this.qr_code.set(
-                    generateQRCode(
-                        custom_qr_url.replace(
-                            '{system_id}',
-                            this._state.system,
-                        ),
-                        '#fff0',
-                        custom_qr_color || '#fff',
-                    ),
-                );
-            } else if (!this.qr_code()) {
-                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
-                this.qr_code.set(
-                    generateQRCode(url, '#fff0', custom_qr_color || '#fff'),
-                );
-            }
-        });
     }
 
     public async ngOnInit() {

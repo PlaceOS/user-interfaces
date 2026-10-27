@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -20,6 +19,8 @@ import { PanelViewActionsComponent } from './panel-view-actions.component';
 import { PanelViewDetailsComponent } from './panel-view-details.component';
 import { PanelViewStatusComponent } from './panel-view-status.component';
 import { PanelViewTimelineComponent } from './panel-view-timeline.component';
+
+const NO_OFFSET: [number, number] = [0, 0];
 
 @Component({
     selector: 'panel-view',
@@ -182,7 +183,6 @@ import { PanelViewTimelineComponent } from './panel-view-timeline.component';
         '[style.--burn-in-y]': 'burn_in()[1] + "px"',
         '(pointerdown)': 'stayAwake()',
     },
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         PanelViewStatusComponent,
         PanelViewDetailsComponent,
@@ -240,7 +240,9 @@ export class PanelViewComponent
     /** Pixel offset of the panel when the `burn_in_protection` feature is on */
     public readonly burn_in = computed<[number, number]>(() => {
         const now = this._state.clock();
-        if (!this._state.hasFeature('burn_in_protection')) return [0, 0];
+        // A shared array keeps the value equal, so each clock tick
+        // does not re-render the panel
+        if (!this._state.hasFeature('burn_in_protection')) return NO_OFFSET;
         return burnInOffset(now);
     });
 

@@ -30,7 +30,7 @@ import {
     Space,
     timePeriodsIntersect,
 } from '@placeos/common';
-import { EventFormService, SpacesService, updateEvent } from '@placeos/events';
+import { EventFormService, updateEvent } from '@placeos/events';
 
 import { openConfirmModal } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
@@ -158,7 +158,6 @@ declare global {
     providedIn: 'root',
 })
 export class PanelStateService extends AsyncHandler {
-    private _spaces = inject(SpacesService);
     private _dialog = inject(MatDialog);
     private _events = inject(EventFormService);
     private _app_settings = inject(SettingsService);
@@ -190,7 +189,6 @@ export class PanelStateService extends AsyncHandler {
     public set system(value: string) {
         if (this._system() === value) return;
         this._system.set(value);
-        this._spaces.loadSpace(value);
     }
 
     public setting<K extends keyof PanelSettings>(name: K): PanelSettings[K] {
@@ -398,7 +396,13 @@ export class PanelStateService extends AsyncHandler {
                     },
                 );
                 if (load_id !== this._load_id) return;
-                this.space.set(new Space(system as any));
+                const space = new Space({
+                    ...(system as any),
+                    level: this._org.levelWithID([...(system.zones || [])]),
+                });
+                this.space.set(space);
+                // Cache the space so new bookings do not load the system again
+                if (space.id) this._space_pipe.updateSpaceList([space]);
             },
             1000,
         );
