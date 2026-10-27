@@ -2118,7 +2118,20 @@
             "CHECKOUT": "从建筑签出",
             "CHECKOUT_MSG": "您当前已签到进入该建筑。您想签出吗？",
             "CHECKOUT_LOADING": "正在签出访客...",
-            "CHECKOUT_SUCCESS": "成功签出访客。"
+            "CHECKOUT_SUCCESS": "成功签出访客。",
+            "CAMERA_OFF": "摄像头不可用",
+            "READY_TO_SCAN": "可以扫描二维码",
+            "SEE_RECEPTION": "请前往前台。",
+            "RECEPTION_ASSIST": "前台工作人员将为您提供帮助。",
+            "CONFIRM_DETAILS": "确认信息",
+            "RETAKE": "重拍",
+            "MEETING_REJECTED": "您的会议已被拒绝。",
+            "MEETING_FINISHED": "您的会议已经结束。",
+            "NOT_CHECKED_IN": "您尚未签到。",
+            "ALREADY_CHECKED_IN": "您已经签到。",
+            "INDUCTION_DECLINED": "您已拒绝入职须知。",
+            "ERROR_CHECKOUT": "签出失败。",
+            "INVALID_QR_CODE": "二维码无效"
         }
     },
     "SIGNAGE_MANAGER": {
