@@ -1,3 +1,4 @@
 import{Nn as lD,_t as T,v as E}from"./chunk-CfJvAIr6.js";import{w as ut}from"./chunk-BsM1NhEI.js";function s(n){return n!=null&&`${n}`!=`false`}var r=new T(`MATERIAL_ANIMATIONS`);var o=null;function d(){return E(r,{optional:!0})?.animationsDisabled||E(lD,{optional:!0})===`NoopAnimations`?`di-disabled`:(o??=E(ut).matchMedia(`(prefers-reduced-motion)`).matches,o?`reduced-motion`:`enabled`)}function b(){return d()!==`enabled`}export{s as n,b as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="a2f89586-bcc4-57eb-b298-2b59458aca53")}catch(e){}}();
 //# debugId=a2f89586-bcc4-57eb-b298-2b59458aca53
 //# sourceMappingURL=chunk-B1fzo83l.js.map
