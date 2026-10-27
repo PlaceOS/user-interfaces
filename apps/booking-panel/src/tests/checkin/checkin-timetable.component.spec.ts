@@ -13,6 +13,8 @@ describe('CheckinTimetableComponent', () => {
         spectator = createComponent();
     });
 
+    afterEach(() => vi.useRealTimers());
+
     it('should generate a full day of time blocks on init', () => {
         spectator.detectChanges();
         // 24 hours at 15-minute steps => 96 blocks
@@ -66,7 +68,6 @@ describe('CheckinTimetableComponent', () => {
         const blocks = spectator.component.blocks();
         vi.advanceTimersByTime(60 * 1000);
         expect(spectator.component.blocks()).toBe(blocks);
-        vi.useRealTimers();
     });
 
     it('should leave event blocks empty when no events are supplied', () => {
