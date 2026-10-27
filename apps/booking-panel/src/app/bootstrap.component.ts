@@ -19,6 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Space } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { AnnounceDirective } from './announce.directive';
 
 @Component({
     selector: '[app-bootstrap]',
@@ -63,6 +64,7 @@ import { TranslatePipe } from '@placeos/components';
                             <mat-spinner
                                 [diameter]="32"
                                 matSuffix
+                                aria-hidden="true"
                             ></mat-spinner>
                         }
                     </mat-form-field>
@@ -83,7 +85,7 @@ import { TranslatePipe } from '@placeos/components';
                                             option.display_name &&
                                             option.display_name !== option.name
                                         ) {
-                                            <div class="text-xs opacity-30">
+                                            <div class="text-xs opacity-70">
                                                 {{ option.name }}
                                             </div>
                                         }
@@ -115,19 +117,22 @@ import { TranslatePipe } from '@placeos/components';
                     </button>
                 } @else {
                     <div load class="my-16 flex flex-col items-center">
-                        <mat-spinner [diameter]="32"></mat-spinner>
-                        <div class="m-4">
+                        <mat-spinner
+                            [diameter]="32"
+                            aria-hidden="true"
+                        ></mat-spinner>
+                        <div class="m-4" announce>
                             {{ 'COMMON.BOOTSTRAP_LOADING' | translate }}
                         </div>
                     </div>
                 }
             </div>
             <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
-                <div class="text-xs opacity-40">
+                <div class="text-xs opacity-70">
                     {{ 'COMMON.CONTROLS_VERSION' | translate }}:
                     {{ version.hash }}
                 </div>
-                <div class="text-xs opacity-40">
+                <div class="text-xs opacity-70">
                     {{ version.time | date: 'longDate' }}
                     ({{ version.time | date: 'shortTime' }})
                 </div>
@@ -157,6 +162,7 @@ import { TranslatePipe } from '@placeos/components';
         MatFormFieldModule,
         MatInputModule,
         FormsModule,
+        AnnounceDirective,
     ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {

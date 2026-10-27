@@ -28,6 +28,7 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { getModule } from '@placeos/ts-client';
+import { AnnounceDirective } from '../announce.directive';
 
 export interface BookingModalData extends HashMap {
     title?: string;
@@ -166,8 +167,11 @@ export async function openBookingModal(
                 <div
                     class="flex h-64 flex-col items-center justify-center space-y-4 p-8"
                 >
-                    <mat-spinner [diameter]="32"></mat-spinner>
-                    <p>
+                    <mat-spinner
+                        [diameter]="32"
+                        aria-hidden="true"
+                    ></mat-spinner>
+                    <p announce>
                         {{ 'APP.BOOKING_PANEL.BOOKING_LOADING' | translate }}
                     </p>
                 </div>
@@ -203,6 +207,7 @@ export async function openBookingModal(
         UserSearchFieldComponent,
         FormField,
         MatDialogModule,
+        AnnounceDirective,
     ],
 })
 export class BookingModalComponent extends AsyncHandler implements OnInit {

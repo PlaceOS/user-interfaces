@@ -432,7 +432,7 @@ test.describe('Version and Metadata Display', () => {
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
         // Version info should be in the bottom right
-        const versionText = page.locator('div.opacity-40');
+        const versionText = page.locator('panel-view [version] div');
         await expect(versionText.first()).toBeVisible({
             timeout: STATUS_TIMEOUT,
         });

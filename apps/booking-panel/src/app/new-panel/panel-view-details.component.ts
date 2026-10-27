@@ -10,6 +10,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { AnnounceDirective } from '../announce.directive';
 import { PanelStateService } from '../panel-state.service';
 import { endingSoon } from './helpers';
 
@@ -97,6 +98,7 @@ import { endingSoon } from './helpers';
                 @if (ending_next(); as upcoming) {
                     <p
                         ending-warning
+                        announce
                         class="bg-warning text-warning-content rounded-sm px-4 py-2 text-2xl"
                     >
                         {{
@@ -125,6 +127,7 @@ import { endingSoon } from './helpers';
         TranslatePipe,
         AuthenticatedImageDirective,
         IconComponent,
+        AnnounceDirective,
     ],
 })
 export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {

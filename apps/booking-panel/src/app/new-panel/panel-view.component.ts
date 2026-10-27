@@ -10,6 +10,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, RemoteLoggingService, VERSION } from '@placeos/common';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
+import { AnnounceDirective } from '../announce.directive';
 import {
     PanelStateService,
     PanelTimelinePosition,
@@ -59,7 +60,7 @@ const NO_OFFSET: [number, number] = [0, 0];
                         (click)="hide_version && $event.stopPropagation()"
                     >
                         @if (!hide_version || show_version()) {
-                            <div class="w-full text-xs opacity-40">
+                            <div class="w-full text-xs opacity-70">
                                 <ng-container
                                     >{{
                                         'COMMON.CONTROLS_VERSION' | translate
@@ -67,7 +68,7 @@ const NO_OFFSET: [number, number] = [0, 0];
                                 </ng-container>
                                 {{ version.hash }}
                             </div>
-                            <div class="w-full text-xs opacity-40">
+                            <div class="w-full text-xs opacity-70">
                                 {{ version.time | date: 'longDate' }}
                                 ({{ version.time | date: 'shortTime' }})
                             </div>
@@ -110,7 +111,7 @@ const NO_OFFSET: [number, number] = [0, 0];
                     "
                 >
                     <div
-                        class="bg-warning absolute top-4 left-4 flex w-1/2 items-center justify-center rounded-sm p-4 text-5xl font-medium text-white shadow-sm"
+                        class="bg-warning text-warning-content absolute top-4 left-4 flex w-1/2 items-center justify-center rounded-sm p-4 text-5xl font-medium shadow-sm"
                     >
                         {{
                             name ||
@@ -148,8 +149,8 @@ const NO_OFFSET: [number, number] = [0, 0];
                 connection-badge
                 class="bg-warning text-warning-content absolute top-4 left-1/2 z-50 flex -translate-x-1/2 items-center space-x-2 rounded-full px-4 py-2 text-lg shadow"
             >
-                <icon>cloud_off</icon>
-                <span>
+                <icon aria-hidden="true">cloud_off</icon>
+                <span announce>
                     {{ 'APP.BOOKING_PANEL.RECONNECTING' | translate }}
                     {{
                         'APP.BOOKING_PANEL.LAST_UPDATED'
@@ -193,6 +194,7 @@ const NO_OFFSET: [number, number] = [0, 0];
         CommonModule,
         TranslatePipe,
         SafePipe,
+        AnnounceDirective,
     ],
 })
 export class PanelViewComponent

@@ -191,12 +191,12 @@ test.describe('Panel View - Version Display', () => {
 
     test('should display version hash', async ({ page }) => {
         // Version info should be in the bottom right corner
-        const versionText = page.locator('panel-view div.opacity-40').first();
+        const versionText = page.locator('panel-view [version] div').first();
         await expect(versionText).toBeVisible({ timeout: STATUS_TIMEOUT });
     });
 
     test('should display version date', async ({ page }) => {
-        const versionElements = page.locator('panel-view div.opacity-40');
+        const versionElements = page.locator('panel-view [version] div');
         const count = await versionElements.count();
         expect(count).toBeGreaterThanOrEqual(1);
     });
