@@ -269,7 +269,23 @@
         "MORE_OPTIONS": "その他のオプション",
         "SHOW_QR_CODE": "QRコードを表示",
         "UPLOAD_FILE": "ファイルをアップロード",
-        "QR_CODE": "QRコード"
+        "QR_CODE": "QRコード",
+        "REORDER_HINT": "上下の矢印キーで移動します",
+        "MOVED_TO_POSITION": "{{ count }} 件中 {{ position }} 番目に移動しました",
+        "INCREASE": "増やす",
+        "DECREASE": "減らす",
+        "PREVIOUS_MONTH": "前の月",
+        "NEXT_MONTH": "次の月",
+        "COPY_LINK": "リンクをコピー",
+        "OPEN_FILE": "ファイルを開く",
+        "BOLD": "太字",
+        "ITALIC": "斜体",
+        "UNDERLINE": "下線",
+        "BULLETED_LIST": "箇条書き",
+        "NUMBERED_LIST": "番号付きリスト",
+        "INSERT_LINK": "リンクを挿入",
+        "INSERT_IMAGE": "画像を挿入",
+        "ATTACH_FILE": "ファイルを添付"
     },
     "LANGUAGE": {
         "ENGLISH": "英語",
@@ -1859,7 +1875,8 @@
             "UNSAVED_CHANGES_DISCARD": "破棄",
             "LOCKERS_SHOW": "ロッカーを表示",
             "VISITORS_ID_IMAGE": "訪問者の身分証明書",
-            "ASSETS_REQUEST_DETAILS": "資産リクエストの詳細"
+            "ASSETS_REQUEST_DETAILS": "資産リクエストの詳細",
+            "SHORTCUTS_ENABLED": "1キーのショートカットを使用"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "会議室の定員",
@@ -2100,7 +2117,21 @@
             "CHECKOUT": "建物からチェックアウト",
             "CHECKOUT_MSG": "現在、建物にチェックインしています。チェックアウトしますか？",
             "CHECKOUT_LOADING": "ゲストをチェックアウト中...",
-            "CHECKOUT_SUCCESS": "ゲストのチェックアウトに成功しました。"
+            "CHECKOUT_SUCCESS": "ゲストのチェックアウトに成功しました。",
+            "CAMERA_OFF": "カメラを使用できません",
+            "READY_TO_SCAN": "QRコードをスキャンする準備ができました",
+            "SEE_RECEPTION": "受付までお越しください。",
+            "RECEPTION_ASSIST": "受付スタッフがご案内します。",
+            "CONFIRM_DETAILS": "詳細の確認",
+            "RETAKE": "撮り直す",
+            "MEETING_REJECTED": "会議は却下されました。",
+            "MEETING_FINISHED": "会議はすでに終了しています。",
+            "NOT_CHECKED_IN": "まだチェックインしていません。",
+            "ALREADY_CHECKED_IN": "すでにチェックインしています。",
+            "INDUCTION_DECLINED": "安全説明を辞退しました。",
+            "ERROR_CHECKOUT": "チェックアウトできませんでした。",
+            "INVALID_QR_CODE": "無効なQRコードです",
+            "IDLE_WARNING": "まだご利用中ですか？{{ seconds }} 秒後にこの画面は最初に戻ります。"
         }
     },
     "SIGNAGE_MANAGER": {
