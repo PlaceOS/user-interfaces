@@ -171,6 +171,22 @@ import {
                         <icon>arrow_forward</icon>
                     </div>
                 }
+                @if (s === 'free' && !can_book && !can_scan_book) {
+                    <div
+                        booking-disabled
+                        class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
+                        [style.padding-left]="
+                            show_floating_left ? '9rem' : null
+                        "
+                    >
+                        <icon>event</icon>
+                        <p>
+                            {{
+                                'APP.BOOKING_PANEL.BOOKING_DISABLED' | translate
+                            }}
+                        </p>
+                    </div>
+                }
                 @if (s === 'busy' && can_end) {
                     <div
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
@@ -272,6 +288,13 @@ export class PanelViewStatusComponent extends AsyncHandler {
 
     public get can_scan() {
         return this._state.setting('show_qr_code') !== false;
+    }
+
+    /** Whether people can book from the check-in page of the QR code */
+    public get can_scan_book() {
+        return (
+            this.can_scan && this._state.setting('disable_qr_booking') !== true
+        );
     }
 
     public get can_end() {

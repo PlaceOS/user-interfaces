@@ -7,6 +7,7 @@ import { generateQRCode } from '@placeos/common/qr-code';
 import { CommonModule } from '@angular/common';
 import {
     AuthenticatedImageDirective,
+    IconComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
@@ -28,8 +29,24 @@ import { endingSoon } from './helpers';
                 </div>
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
-            <div name class="absolute top-4 left-4 text-4xl font-medium">
-                {{ sys?.display_name || sys?.name || '' }}
+            <div class="absolute top-4 left-4">
+                <div name class="text-4xl font-medium">
+                    {{ sys?.display_name || sys?.name || '' }}
+                </div>
+                @if (capacity) {
+                    <div
+                        capacity
+                        class="mt-2 flex items-center space-x-2 text-2xl"
+                        [attr.aria-label]="
+                            ('APP.BOOKING_PANEL.ROOM_CAPACITY' | translate) +
+                            ': ' +
+                            capacity
+                        "
+                    >
+                        <icon>group</icon>
+                        <span>{{ capacity }}</span>
+                    </div>
+                }
             </div>
             @if (checkin) {
                 <div
@@ -98,7 +115,12 @@ import { endingSoon } from './helpers';
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe, AuthenticatedImageDirective],
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        AuthenticatedImageDirective,
+        IconComponent,
+    ],
 })
 export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);
@@ -136,6 +158,10 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
 
     public get hide_meeting_title() {
         return this._state.setting('hide_meeting_title');
+    }
+
+    public get capacity() {
+        return this._state.setting('room_capacity');
     }
 
     public get room_image() {
