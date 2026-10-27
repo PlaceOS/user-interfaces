@@ -1212,7 +1212,23 @@
         "MORE_OPTIONS": "More options",
         "SHOW_QR_CODE": "Show QR code",
         "UPLOAD_FILE": "Upload file",
-        "QR_CODE": "QR code"
+        "QR_CODE": "QR code",
+        "REORDER_HINT": "Press the up or down arrow key to move",
+        "MOVED_TO_POSITION": "Moved to position {{ position }} of {{ count }}",
+        "INCREASE": "Increase",
+        "DECREASE": "Decrease",
+        "PREVIOUS_MONTH": "Previous month",
+        "NEXT_MONTH": "Next month",
+        "COPY_LINK": "Copy link",
+        "OPEN_FILE": "Open file",
+        "BOLD": "Bold",
+        "ITALIC": "Italic",
+        "UNDERLINE": "Underline",
+        "BULLETED_LIST": "Bulleted list",
+        "NUMBERED_LIST": "Numbered list",
+        "INSERT_LINK": "Insert link",
+        "INSERT_IMAGE": "Insert image",
+        "ATTACH_FILE": "Attach file"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -3238,7 +3254,8 @@
             "UNSAVED_CHANGES_DISCARD": "Discard",
             "LOCKERS_SHOW": "Show lockers",
             "VISITORS_ID_IMAGE": "Visitor ID",
-            "ASSETS_REQUEST_DETAILS": "Asset request details"
+            "ASSETS_REQUEST_DETAILS": "Asset request details",
+            "SHORTCUTS_ENABLED": "Use single-key shortcuts"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Room capacity",
