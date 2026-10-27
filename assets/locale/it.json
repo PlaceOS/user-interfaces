@@ -1917,7 +1917,8 @@
             "EARLY_CHECKIN": "Check-in effettuato in anticipo",
             "BOOKING_NEW": "Nuova Prenotazione",
             "BOOKING_HOST": "Prenotato da",
-            "BOOKING_LOADING": "Elaborazione richiesta di prenotazione..."
+            "BOOKING_LOADING": "Elaborazione richiesta di prenotazione...",
+            "BOOKING_DISABLED": "Prenota questa sala dal tuo calendario"
         },
         "CONTROL": {
             "BOOTSTRAP_TITLE": "Impostazione del Pannello di Controllo",
