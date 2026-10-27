@@ -8,5 +8,6 @@ qr/index.js:
 *)
 */
 export{bn as n,Le as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="8631dd54-2897-5a0f-b191-b8b48954463e")}catch(e){}}();
 //# debugId=8631dd54-2897-5a0f-b191-b8b48954463e
 //# sourceMappingURL=chunk-CmUfz9Jx.js.map

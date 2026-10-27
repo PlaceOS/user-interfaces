@@ -11,5 +11,6 @@ function m(u){return 5}var s=[`ja`,[[`午前`,`午後`]],void 0,[[`日`,`月`,`�
 *)
 */
 export{s as default};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="56c53e32-74a4-5023-97ea-9375e0ec6d56")}catch(e){}}();
 //# debugId=56c53e32-74a4-5023-97ea-9375e0ec6d56
 //# sourceMappingURL=ja-DngrQVLH.js.map
