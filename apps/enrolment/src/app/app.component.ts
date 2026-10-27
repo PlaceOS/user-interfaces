@@ -160,7 +160,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         void initSentry(
             this._settings.get('app.sentry_dsn'),
             this._router,
-            0.2,
+            this._settings.get('app.sentry_traces_sample_rate'),
         );
         markInitialisationComplete();
     }

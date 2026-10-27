@@ -1,7 +1,13 @@
 import { ErrorHandler } from '@angular/core';
 import { Router } from '@angular/router';
 import { log } from './general';
+import { VERSION } from './version';
 
+/** Share of transactions to trace when the app does not set one */
+const DEFAULT_TRACES_SAMPLE_RATE = 0.1;
+
+/** Set once `initSentry` has started, so Sentry starts only one time */
+let _started = false;
 /** Sentry's handler, set once `initSentry` has loaded the SDK */
 let _sentry_handler: ErrorHandler | null = null;
 /** Held so its router subscriptions live for the life of the app */
@@ -70,14 +76,16 @@ function scrubEvent<T>(event: T): T | null {
  *
  * @param dsn Sentry DSN from the `app.sentry_dsn` setting
  * @param router Router to trace navigations for
- * @param traces_sample_rate Share of transactions to trace, from 0 to 1
+ * @param traces_sample_rate Share of transactions to trace, from 0 to 1.
+ * Values that are not numbers, such as a missing setting, use the default.
  */
 export async function initSentry(
     dsn: string,
     router: Router,
-    traces_sample_rate = 1.0,
+    traces_sample_rate?: number,
 ) {
-    if (!dsn || _sentry_handler) return;
+    if (!dsn || _started) return;
+    _started = true;
     try {
         const Sentry = await import('./sentry-sdk');
         // Session Replay (rrweb, ~123KB) is intentionally omitted to avoid any
@@ -85,14 +93,17 @@ export async function initSentry(
         // deployments. Error reporting and performance tracing are unaffected.
         Sentry.init({
             dsn,
+            release: VERSION.hash,
+            // Separates UAT and production domains that share a DSN
+            environment: location.hostname,
             integrations: [Sentry.browserTracingIntegration()],
-            tracesSampleRate: traces_sample_rate,
-            // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-            tracePropagationTargets: [
-                'localhost',
-                /^https:\/\/[a-zA-Z0-9_-]*\.[a-zA-Z0-9]*\/api/,
-                /^https:\/\/[a-zA-Z0-9_-]*\.placeos\.run*\/api/,
-            ],
+            tracesSampleRate:
+                typeof traces_sample_rate === 'number'
+                    ? traces_sample_rate
+                    : DEFAULT_TRACES_SAMPLE_RATE,
+            // Trace headers go only to the PlaceOS API on the same origin.
+            // Sentry checks the path of same-origin requests against these.
+            tracePropagationTargets: [/^\/api\//],
             beforeSend: scrubEvent,
             beforeSendTransaction: scrubEvent,
         });

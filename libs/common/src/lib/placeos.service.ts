@@ -491,7 +491,11 @@ export class PlaceOS_Service extends AsyncHandler {
                 `@${currentUser()?.email?.split('@')[1]}`,
         );
         this._initAnalytics();
-        void initSentry(this._settings.get('app.sentry_dsn'), this._router);
+        void initSentry(
+            this._settings.get('app.sentry_dsn'),
+            this._router,
+            this._settings.get('app.sentry_traces_sample_rate'),
+        );
         try {
             this._initFixedDevice();
         } catch {

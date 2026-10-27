@@ -1,6 +1,19 @@
 import { ErrorHandler } from '@angular/core';
+import { Router } from '@angular/router';
+import * as Sentry from '@sentry/angular';
 
-import { LazySentryErrorHandler, scrubSecrets } from '../lib/sentry';
+import {
+    initSentry,
+    LazySentryErrorHandler,
+    scrubSecrets,
+} from '../lib/sentry';
+
+vi.mock('@sentry/angular', () => ({
+    init: vi.fn(),
+    browserTracingIntegration: vi.fn(),
+    createErrorHandler: vi.fn(() => ({ handleError: vi.fn() })),
+    TraceService: vi.fn(),
+}));
 
 describe('scrubSecrets', () => {
     it('should remove credentials from nested URLs', () => {
@@ -47,5 +60,22 @@ describe('LazySentryErrorHandler', () => {
         new LazySentryErrorHandler().handleError(error);
 
         expect(log).toHaveBeenCalledWith(error);
+    });
+});
+
+// Last, as Sentry stays started for the rest of the file
+describe('initSentry', () => {
+    it('should start once with the default sample rate', async () => {
+        const router = {} as Router;
+
+        await Promise.all([
+            initSentry('https://key@sentry.io/1', router, null),
+            initSentry('https://key@sentry.io/1', router, null),
+        ]);
+
+        expect(Sentry.init).toHaveBeenCalledTimes(1);
+        expect(Sentry.init).toHaveBeenCalledWith(
+            expect.objectContaining({ tracesSampleRate: 0.1 }),
+        );
     });
 });
