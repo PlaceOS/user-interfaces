@@ -47,7 +47,7 @@ function stopTracks(stream: MediaStream) {
             ></canvas>
             @if (camera_error()) {
                 <div
-                    class="absolute inset-0 flex flex-col items-center justify-center space-y-2 p-8 text-center opacity-60"
+                    class="absolute inset-0 flex flex-col items-center justify-center space-y-2 p-8 text-center opacity-70"
                 >
                     <icon class="text-6xl" aria-hidden="true"
                         >videocam_off</icon

@@ -138,7 +138,7 @@ import { minuteClock } from './minute-clock';
                             @if (
                                 ('COMMON.LANGUAGE' | translate) !== 'Language'
                             ) {
-                                <div class="text-xs opacity-30" lang="en">
+                                <div class="text-xs opacity-70" lang="en">
                                     Language
                                 </div>
                             }
@@ -167,7 +167,7 @@ import { minuteClock } from './minute-clock';
                                 <div>{{ lang.name | translate }}</div>
                                 @if ((lang.name | translate) !== lang.local) {
                                     <div
-                                        class="text-xs opacity-30"
+                                        class="text-xs opacity-70"
                                         [attr.lang]="lang.id"
                                     >
                                         {{ lang.local }}

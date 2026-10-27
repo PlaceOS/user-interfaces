@@ -134,7 +134,7 @@ function shouldDecode(
                 class="border-base-200 bg-base-200 relative mt-4 overflow-hidden rounded-sm border"
             >
                 <div
-                    class="absolute top-1/2 left-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-30"
+                    class="absolute top-1/2 left-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-70"
                     [attr.aria-hidden]="scanner_ready() || null"
                 >
                     <icon class="text-6xl" aria-hidden="true"

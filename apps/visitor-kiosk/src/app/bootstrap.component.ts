@@ -98,7 +98,7 @@ import { PageHeadingDirective } from './components/page-heading.directive';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                    class="font-mono text-[0.625rem] opacity-70"
                                                 >
                                                     <span class="hidden"
                                                         >&nbsp;[</span
@@ -163,7 +163,7 @@ import { PageHeadingDirective } from './components/page-heading.directive';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="font-mono text-[0.625rem] opacity-60"
+                                                    class="font-mono text-[0.625rem] opacity-70"
                                                 >
                                                     <span class="hidden"
                                                         >&nbsp;[</span
@@ -228,7 +228,7 @@ import { PageHeadingDirective } from './components/page-heading.directive';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                    class="font-mono text-[0.625rem] opacity-70"
                                                 >
                                                     <span class="hidden"
                                                         >&nbsp;[</span
@@ -274,7 +274,7 @@ import { PageHeadingDirective } from './components/page-heading.directive';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                    class="font-mono text-[0.625rem] opacity-70"
                                                 >
                                                     <span class="hidden"
                                                         >&nbsp;[</span
@@ -320,7 +320,7 @@ import { PageHeadingDirective } from './components/page-heading.directive';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                    class="font-mono text-[0.625rem] opacity-70"
                                                 >
                                                     <span class="hidden"
                                                         >&nbsp;[</span
@@ -362,11 +362,11 @@ import { PageHeadingDirective } from './components/page-heading.directive';
                 }
             </div>
             <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
-                <div class="text-xs opacity-40">
+                <div class="text-xs opacity-70">
                     {{ 'COMMON.CONTROLS_VERSION' | translate }}:
                     {{ version.hash }}
                 </div>
-                <div class="text-xs opacity-40">
+                <div class="text-xs opacity-70">
                     {{ version.time | date: 'longDate' }}
                     ({{ version.time | date: 'shortTime' }})
                 </div>
