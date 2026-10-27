@@ -1917,7 +1917,8 @@
             "EARLY_CHECKIN": "Se ha hecho el check-in de la reunión antes de tiempo",
             "BOOKING_NEW": "Nueva Reserva",
             "BOOKING_HOST": "Reservado por",
-            "BOOKING_LOADING": "Procesando solicitud de reserva..."
+            "BOOKING_LOADING": "Procesando solicitud de reserva...",
+            "BOOKING_DISABLED": "Reserve esta sala desde su calendario"
         },
         "CONTROL": {
             "BOOTSTRAP_TITLE": "Configuración del Panel de Control",
