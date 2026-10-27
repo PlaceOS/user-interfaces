@@ -17,7 +17,11 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import {
     DateFieldComponent,
@@ -192,6 +196,25 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                             }
                         </div>
                     }
+                    @if (allow_online_meetings()) {
+                        <settings-toggle
+                            [ngModel]="
+                                form_value().meeting_provider ===
+                                'teamsForBusiness'
+                            "
+                            (ngModelChange)="
+                                model.update((m) => ({
+                                    ...m,
+                                    meeting_provider: $event
+                                        ? 'teamsForBusiness'
+                                        : null,
+                                }))
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                        >
+                            {{ 'CALENDAR_EVENT.TEAMS_MEETING' | translate }}
+                        </settings-toggle>
+                    }
                 </div>
                 <div
                     class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
@@ -268,6 +291,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
         FormField,
         RouterModule,
         TranslatePipe,
+        SettingsToggleComponent,
         MatCheckboxModule,
         HostSelectFieldComponent,
     ],
@@ -316,6 +340,10 @@ export class MeetingFlowDetailsComponent {
     public readonly capacity_options = ROOM_CAPACITY_OPTIONS;
     public readonly recurrence_enabled = settingSignal(
         'events.allow_recurrence',
+        false,
+    );
+    public readonly allow_online_meetings = settingSignal(
+        'events.allow_online_meetings',
         false,
     );
 
