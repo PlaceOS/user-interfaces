@@ -118,7 +118,25 @@ describe('MapViewer overlays', () => {
 });
 
 describe('getMapDetails', () => {
+    beforeEach(() => {
+        // jsdom has no layout, so measure shapes from their own attributes
+        Object.defineProperty(SVGElement.prototype, 'getBBox', {
+            configurable: true,
+            value(this: SVGElement) {
+                const size = (name: string) =>
+                    parseFloat(this.getAttribute(name) || '0');
+                return {
+                    x: size('x'),
+                    y: size('y'),
+                    width: size('width'),
+                    height: size('height'),
+                };
+            },
+        });
+    });
+
     afterEach(() => {
+        Reflect.deleteProperty(SVGElement.prototype, 'getBBox');
         vi.unstubAllGlobals();
         vi.restoreAllMocks();
     });
@@ -131,10 +149,10 @@ describe('getMapDetails', () => {
         );
         vi.spyOn(client, 'token').mockReturnValue('');
         const svg =
-            '<svg xmlns="http://www.w3.org/2000/svg" onload="window.__map_xss = 1">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" onload="window.__map_xss = 1">' +
             '<script>window.__map_xss = 2</script>' +
             '<foreignObject><img src="x" onerror="window.__map_xss = 3"/></foreignObject>' +
-            '<a href=" java\tscript:alert(1)"><rect id="desk" onclick="alert(1)"/></a>' +
+            '<a href=" java\tscript:alert(1)"><rect id="desk" x="20" y="10" width="40" height="20" onclick="alert(1)"/></a>' +
             '</svg>';
         vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(svg)));
         const appended = vi.spyOn(document.body, 'appendChild');
@@ -148,6 +166,13 @@ describe('getMapDetails', () => {
             /onload|onclick|onerror|script|foreignObject/i,
         );
         expect(probe.__map_xss).toBeUndefined();
+        expect(details.element_bounds.get('desk')).toEqual({
+            x: 0.1,
+            y: 0.1,
+            w: 0.2,
+            h: 0.2,
+        });
+        expect(details.aspect_ratio).toBe(2);
         expect(details.raw_data).toBe(svg);
     });
 });
