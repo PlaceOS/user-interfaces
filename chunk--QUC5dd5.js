@@ -1,3 +1,0 @@
-import{n as m,t as l}from"./chunk-BwCtja5l.js";import{An as yh,At as df,o as At}from"./chunk-BTIpnxFx.js";var T={date:`FORM.DATE`,duration:`FORM.DURATION`,title:`FORM.TITLE`,user:`FORM.HOST`,notes:`FORM.NOTES`,plate_number:`BOOKINGS.PARKING_PLATE_NUMBER`,space_restrictions:`BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE`};function S(t,E,n){t().markAsTouched();let e={},s=m(l({},T),{asset_id:n,resources:n});for(let o in s)e[o]=At(s[o]);let R=df(t,E,e);yh(At(`FORM.INVALID_FIELDS`,{field_list:[...new Set(R)].join(`, `)}))}export{S as t};
-//# debugId=6c83c912-67bf-559a-9e07-107688da1c2d
-//# sourceMappingURL=chunk--QUC5dd5.js.map
