@@ -3,6 +3,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { notifyError } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { AnnounceDirective } from '../components/announce.directive';
 import { PageHeadingDirective } from '../components/page-heading.directive';
 import { TakePhotoComponent } from '../components/take-photo.component';
 import { CheckinStateService } from './checkin-state.service';
@@ -25,8 +26,8 @@ import { CheckinStateService } from './checkin-state.service';
             </div>
         } @else {
             <div class="m-auto flex flex-col items-center">
-                <mat-spinner [diameter]="48"></mat-spinner>
-                <div class="my-4 text-lg text-white">
+                <mat-spinner [diameter]="48" aria-hidden="true"></mat-spinner>
+                <div class="my-4 text-lg text-white" announce>
                     {{ 'APP.VISITOR_KIOSK.PRINT_LOADING' | translate }}
                 </div>
             </div>
@@ -35,6 +36,7 @@ import { CheckinStateService } from './checkin-state.service';
     styles: [``],
     imports: [
         PageHeadingDirective,
+        AnnounceDirective,
         TranslatePipe,
         MatProgressSpinnerModule,
         TakePhotoComponent,

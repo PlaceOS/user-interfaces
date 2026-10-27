@@ -34,6 +34,7 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { CheckinStateService } from './checkin/checkin-state.service';
+import { AnnounceDirective } from './components/announce.directive';
 import { PageHeadingDirective } from './components/page-heading.directive';
 import { minuteClock } from './minute-clock';
 
@@ -227,8 +228,10 @@ import { minuteClock } from './minute-clock';
                 <div
                     class="bg-base-100 absolute top-1/2 left-4 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-sm p-16 shadow-sm"
                 >
-                    <mat-spinner diameter="32"></mat-spinner>
-                    <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>
+                    <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
+                    <p announce>
+                        {{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}
+                    </p>
                 </div>
             }
             <div class="absolute top-4 right-4 text-2xl text-white">
@@ -240,6 +243,7 @@ import { minuteClock } from './minute-clock';
     styles: [``],
     imports: [
         PageHeadingDirective,
+        AnnounceDirective,
         CommonModule,
         FormsModule,
         TranslatePipe,

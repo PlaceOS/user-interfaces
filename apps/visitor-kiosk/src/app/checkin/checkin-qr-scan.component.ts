@@ -27,6 +27,7 @@ import {
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
+import { AnnounceDirective } from '../components/announce.directive';
 import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -177,6 +178,7 @@ function shouldDecode(
                         ></span>
                     </div>
                     <div
+                        announce
                         class="bg-base-100/90 text-base-content absolute right-2 bottom-2 z-20 inline-flex items-center gap-2 rounded px-2 py-1 text-sm shadow"
                     >
                         <span class="status-dot" aria-hidden="true"></span>
@@ -194,15 +196,16 @@ function shouldDecode(
                 <icon>close</icon>
             </a>
         </div>
-        <div
-            class="bg-base-100 relative flex flex-col items-center overflow-hidden rounded-sm p-16 shadow-sm"
-            [class.hidden]="!checking_code()"
-        >
-            <mat-spinner diameter="32"></mat-spinner>
-            <p class="my-4">
-                {{ 'APP.VISITOR_KIOSK.LOADING_DETAILS' | translate }}
-            </p>
-        </div>
+        @if (checking_code()) {
+            <div
+                class="bg-base-100 relative flex flex-col items-center overflow-hidden rounded-sm p-16 shadow-sm"
+            >
+                <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
+                <p class="my-4" announce>
+                    {{ 'APP.VISITOR_KIOSK.LOADING_DETAILS' | translate }}
+                </p>
+            </div>
+        }
     `,
     styles: [
         `
@@ -230,6 +233,7 @@ function shouldDecode(
     ],
     imports: [
         PageHeadingDirective,
+        AnnounceDirective,
         TranslatePipe,
         IconComponent,
         MatProgressSpinnerModule,

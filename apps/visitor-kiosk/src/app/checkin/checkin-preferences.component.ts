@@ -27,6 +27,7 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { getGuestCateringItem, setGuestCateringItem } from '@placeos/users';
+import { AnnounceDirective } from '../components/announce.directive';
 import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 import { parseTokenFromUrl } from './token-from-url';
@@ -99,8 +100,8 @@ import { parseTokenFromUrl } from './token-from-url';
             <div
                 class="bg-base-100 relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm p-8 shadow-sm"
             >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <div>
+                <mat-spinner [diameter]="32" aria-hidden="true"></mat-spinner>
+                <div announce>
                     {{
                         (type() === 'menu'
                             ? 'APP.VISITOR_KIOSK.BEVERAGE_MENU_LOADING'
@@ -120,6 +121,7 @@ import { parseTokenFromUrl } from './token-from-url';
     ],
     imports: [
         PageHeadingDirective,
+        AnnounceDirective,
         FormsModule,
         TranslatePipe,
         IconComponent,

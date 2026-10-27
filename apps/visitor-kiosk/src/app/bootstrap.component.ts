@@ -20,6 +20,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
+import { AnnounceDirective } from './components/announce.directive';
 import { PageHeadingDirective } from './components/page-heading.directive';
 
 @Component({
@@ -337,8 +338,11 @@ import { PageHeadingDirective } from './components/page-heading.directive';
                     </div>
                 } @else {
                     <div class="m-auto flex flex-col items-center p-8">
-                        <mat-spinner [diameter]="32"></mat-spinner>
-                        <p>{{ loading() }}</p>
+                        <mat-spinner
+                            [diameter]="32"
+                            aria-hidden="true"
+                        ></mat-spinner>
+                        <p announce>{{ loading() }}</p>
                     </div>
                 }
                 @if (!loading()) {
@@ -397,6 +401,7 @@ import { PageHeadingDirective } from './components/page-heading.directive';
     ],
     imports: [
         PageHeadingDirective,
+        AnnounceDirective,
         CommonModule,
         MatRippleModule,
         TranslatePipe,

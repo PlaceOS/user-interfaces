@@ -12,6 +12,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, withTimeout } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { AnnounceDirective } from './announce.directive';
 
 /** Time to wait for the first camera frame before the camera counts as failed */
 const FIRST_FRAME_TIMEOUT_MS = 10_000;
@@ -51,14 +52,16 @@ function stopTracks(stream: MediaStream) {
                     <icon class="text-6xl" aria-hidden="true"
                         >videocam_off</icon
                     >
-                    <p>{{ 'APP.VISITOR_KIOSK.CAMERA_OFF' | translate }}</p>
+                    <p announce>
+                        {{ 'APP.VISITOR_KIOSK.CAMERA_OFF' | translate }}
+                    </p>
                 </div>
             } @else if (loading()) {
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
                 >
-                    <mat-spinner diameter="32"></mat-spinner>
-                    <div class="text">
+                    <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
+                    <div class="text" announce>
                         {{ 'APP.VISITOR_KIOSK.PLEASE_WAIT' | translate }}
                     </div>
                 </div>
@@ -117,6 +120,7 @@ function stopTracks(stream: MediaStream) {
         `,
     ],
     imports: [
+        AnnounceDirective,
         TranslatePipe,
         IconComponent,
         MatRippleModule,
