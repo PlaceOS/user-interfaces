@@ -49,7 +49,7 @@ import {
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="font-mono text-[0.625rem] opacity-30">
+                <div class="font-mono text-[0.625rem] opacity-70">
                     {{ row.id }}
                 </div>
             </button>
@@ -61,6 +61,7 @@ import {
                     default
                     matRipple
                     [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
                 >
                     <icon>more_vert</icon>
                 </button>

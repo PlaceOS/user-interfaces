@@ -61,7 +61,7 @@ const TAB_DETAILS: Record<
         name: 'RESOURCE.ROOMS',
         icon: 'meeting_room',
         empty: 'APP.WORKPLACE.AVAILABLE_LIST_ROOMS_EMPTY',
-        loading: '',
+        loading: 'BOOKINGS.ROOMS_LOADING',
     },
     lockers: {
         name: 'RESOURCE.LOCKERS',
@@ -165,7 +165,12 @@ const TAB_DETAILS: Record<
                                     tab_details[tab].icon
                                 }}</icon>
                                 <div class="mt-2 text-sm opacity-60">
-                                    {{ tab_details[tab].empty | translate }}
+                                    {{
+                                        (failed()
+                                            ? 'COMMON.LOAD_ERROR'
+                                            : tab_details[tab].empty
+                                        ) | translate
+                                    }}
                                 </div>
                             </div>
                         }
@@ -240,14 +245,20 @@ export class LandingAvailableNowComponent {
             return type && building_id ? { type, building_id } : undefined;
         },
         loader: ({ params: { type, building_id } }) =>
-            this._loadAvailable(type, building_id).catch(
-                () => [] as BookingAsset[],
-            ),
+            this._loadAvailable(type, building_id),
     });
-    public readonly available_resources = computed(
-        () => this._available.value() ?? ([] as BookingAsset[]),
+    public readonly available_resources = computed(() =>
+        this._available.hasValue()
+            ? this._available.value()
+            : ([] as BookingAsset[]),
     );
-    public readonly loading = computed(() => this._available.isLoading());
+    public readonly loading = computed(() =>
+        this.active_tab() === 'rooms'
+            ? this._state.loading_spaces()
+            : this._available.isLoading(),
+    );
+    /** Whether the desks or lockers did not load */
+    public readonly failed = computed(() => !!this._available.error());
 
     /** Number of free resources of the active tab on each level */
     public readonly free_by_level = computed(() => {

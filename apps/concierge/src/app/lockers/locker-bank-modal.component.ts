@@ -55,16 +55,26 @@ import {
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button
+                        icon
+                        matRipple
+                        mat-dialog-close
+                        [aria-label]="'COMMON.CLOSE' | translate"
+                    >
                         <icon>close</icon>
                     </button>
                 }
             </header>
             @if (!loading()) {
                 <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
-                    <label for="name">{{ 'RESOURCE.LEVEL' | translate }}</label>
+                    <label
+                        for="locker-bank-modal-name"
+                        id="locker-bank-modal-name-label"
+                        >{{ 'RESOURCE.LEVEL' | translate }}</label
+                    >
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
+                            aria-labelledby="locker-bank-modal-name-label"
                             [formField]="form.level_id"
                             (selectionChange)="
                                 model.update((m) => ({
@@ -77,7 +87,7 @@ import {
                                 <mat-option [value]="level.id">
                                     <div class="flex flex-col-reverse">
                                         @if (use_region) {
-                                            <div class="text-xs opacity-30">
+                                            <div class="text-xs opacity-70">
                                                 {{
                                                     (level.parent_id | building)
                                                         ?.display_name
@@ -99,11 +109,12 @@ import {
                     </mat-form-field>
                     <div class="flex space-x-4">
                         <div class="flex flex-1 flex-col">
-                            <label for="name">{{
+                            <label for="locker-bank-modal-name-2">{{
                                 'FORM.NAME' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
                                 <input
+                                    id="locker-bank-modal-name-2"
                                     matInput
                                     [formField]="form.name"
                                     [placeholder]="'FORM.NAME' | translate"
@@ -114,11 +125,12 @@ import {
                             </mat-form-field>
                         </div>
                         <div class="flex flex-1 flex-col">
-                            <label for="map-id">{{
+                            <label for="locker-bank-modal-map-id">{{
                                 'EXPLORE.MAP_ID' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
                                 <input
+                                    id="locker-bank-modal-map-id"
                                     matInput
                                     [formField]="form.map_id"
                                     [placeholder]="'EXPLORE.MAP_ID' | translate"
@@ -129,23 +141,31 @@ import {
                             </mat-form-field>
                         </div>
                     </div>
-                    <label for="row">{{ 'COMMON.HEIGHT' | translate }}</label>
+                    <label for="locker-bank-modal-row">{{
+                        'COMMON.HEIGHT' | translate
+                    }}</label>
                     <a-counter
+                        input_id="locker-bank-modal-row"
                         [formField]="form.height"
                         class="mb-4"
                         [min]="1"
                         [max]="16"
                         [render_fn]="render_fn"
                     ></a-counter>
-                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <label for="locker-bank-modal-notes">{{
+                        'FORM.NOTES' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
+                            id="locker-bank-modal-notes"
                             matInput
                             [placeholder]="'FORM.NOTES' | translate"
                             [formField]="form.notes"
                         ></textarea>
                     </mat-form-field>
-                    <label for="tags"> {{ 'COMMON.TAGS' | translate }} </label>
+                    <label for="locker-bank-modal-tags">
+                        {{ 'COMMON.TAGS' | translate }}
+                    </label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-chip-grid
                             name="tags"
@@ -169,6 +189,7 @@ import {
                             }
                         </mat-chip-grid>
                         <input
+                            id="locker-bank-modal-tags"
                             placeholder="Tags..."
                             [matChipInputFor]="chipList"
                             [matChipInputSeparatorKeyCodes]="separators"

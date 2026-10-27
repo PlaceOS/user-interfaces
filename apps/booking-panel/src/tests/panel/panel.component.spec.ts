@@ -221,4 +221,10 @@ describe('PanelViewComponent', () => {
             '2px',
         );
     });
+
+    it('should keep the same burn-in value on clock ticks when disabled', () => {
+        const before = spectator.component.burn_in();
+        clock.set(clock() + 5000);
+        expect(spectator.component.burn_in()).toBe(before);
+    });
 });

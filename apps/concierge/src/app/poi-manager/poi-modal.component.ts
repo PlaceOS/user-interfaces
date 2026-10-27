@@ -56,11 +56,12 @@ import { PointOfInterest } from './poi-management.service';
                     [formField]="form.image"
                 ></image-field>
                 <div class="flex flex-col">
-                    <label for="name">
+                    <label for="poi-modal-name">
                         {{ 'FORM.NAME' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="poi-modal-name"
                             matInput
                             [placeholder]="'FORM.NAME' | translate"
                             [formField]="form.name"
@@ -69,11 +70,15 @@ import { PointOfInterest } from './poi-management.service';
                 </div>
                 @if (building_list().length > 1) {
                     <div class="flex flex-col">
-                        <label for="building">
+                        <label
+                            for="poi-modal-building"
+                            id="poi-modal-building-label"
+                        >
                             {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
                             <mat-select
+                                aria-labelledby="poi-modal-building-label"
                                 [(ngModel)]="building"
                                 [ngModelOptions]="{ standalone: true }"
                                 placeholder="Select Building"
@@ -88,11 +93,12 @@ import { PointOfInterest } from './poi-management.service';
                     </div>
                 }
                 <div class="flex flex-col">
-                    <label for="level">
+                    <label for="poi-modal-level" id="poi-modal-level-label">
                         {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <mat-select
+                            aria-labelledby="poi-modal-level-label"
                             [formField]="form.level_id"
                             placeholder="Select Level"
                         >
@@ -105,11 +111,15 @@ import { PointOfInterest } from './poi-management.service';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="location">
+                    <label
+                        for="poi-modal-location"
+                        id="poi-modal-location-label"
+                    >
                         {{ 'COMMON.LOCATION' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <mat-select
+                            aria-labelledby="poi-modal-location-label"
                             [(ngModel)]="location_type"
                             [ngModelOptions]="{ standalone: true }"
                             placeholder="Location Type"
@@ -149,6 +159,9 @@ import { PointOfInterest } from './poi-management.service';
                                     'APP.CONCIERGE.POI_MAP_SELECT' | translate
                                 "
                                 (click)="selectPOIfromMap()"
+                                [attr.aria-label]="
+                                    'APP.CONCIERGE.POI_MAP_SELECT' | translate
+                                "
                             >
                                 <icon>place</icon>
                             </button>
@@ -194,7 +207,7 @@ import { PointOfInterest } from './poi-management.service';
                         >
                         </settings-toggle>
                     </div>
-                    <label for="media" class="mt-4">
+                    <label for="poi-modal-media" class="mt-4">
                         {{ 'APP.CONCIERGE.POI_MEDIA' | translate }}
                     </label>
                     <div class="flex items-center space-x-2 pt-2">
@@ -203,6 +216,7 @@ import { PointOfInterest } from './poi-management.service';
                             class="no-subscript"
                         >
                             <input
+                                id="poi-modal-media"
                                 matInput
                                 [formField]="form.media_url"
                                 [placeholder]="
@@ -222,10 +236,18 @@ import { PointOfInterest } from './poi-management.service';
                             [types]="['audio', 'video']"
                         ></upload-button>
                     </div>
-                    <label for="extra-details" class="mt-4">
+                    <label
+                        for="poi-modal-extra-details"
+                        id="poi-modal-extra-details-label"
+                        class="mt-4"
+                    >
                         {{ 'APP.CONCIERGE.POI_DETAILS' | translate }}
                     </label>
-                    <div class="space-y-2">
+                    <div
+                        role="group"
+                        aria-labelledby="poi-modal-extra-details-label"
+                        class="space-y-2"
+                    >
                         @for (value of extra_details(); track $index) {
                             <div class="flex items-center space-x-2">
                                 <mat-form-field

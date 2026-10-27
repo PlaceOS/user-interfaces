@@ -1,6 +1,8 @@
 import {
-    appSettingOverrides,
     applyAppSettings,
+    applyBookingFallbacks,
+    appSettingOverrides,
+    LOCKER_BOOKING_FALLBACKS,
     mergeAppSettings,
 } from '../../../app/ui/app-settings/app-settings.utilities';
 
@@ -93,7 +95,12 @@ describe('application settings utilities', () => {
         };
 
         expect(
-            appSettingOverrides(working_settings, inherited_settings),
+            appSettingOverrides(
+                working_settings,
+                inherited_settings,
+                inherited_settings,
+                {},
+            ),
         ).toEqual({
             support_email: '',
             nullable_setting: null,
@@ -108,7 +115,79 @@ describe('application settings utilities', () => {
             appSettingOverrides(
                 { visitors: { bookable_period: { end: 17, start: 8 } } },
                 { visitors: { bookable_period: { start: 8, end: 17 } } },
+                {},
+                {},
             ),
         ).toEqual({});
+    });
+
+    it('should not save untouched settings that the zone does not store', () => {
+        const initial_settings = {
+            default_route: '/visitors',
+            lockers: { available_period: 7 },
+        };
+
+        expect(
+            appSettingOverrides(initial_settings, {}, initial_settings, {}),
+        ).toEqual({});
+    });
+
+    it('should save a changed setting unless it equals the inherited value', () => {
+        const inherited_settings = { lockers: { max_duration: 240 } };
+        const initial_settings = {
+            lockers: { available_period: 7, max_duration: 480 },
+        };
+
+        expect(
+            appSettingOverrides(
+                { lockers: { available_period: 14, max_duration: 240 } },
+                inherited_settings,
+                initial_settings,
+                {},
+            ),
+        ).toEqual({ lockers: { available_period: 14 } });
+    });
+
+    it('should keep stored settings unless they equal the inherited value', () => {
+        const stored_settings = {
+            default_route: '/visitors',
+            lockers: { available_period: 7, max_duration: 240 },
+            unknown_setting: true,
+        };
+
+        expect(
+            appSettingOverrides(
+                stored_settings,
+                { lockers: { max_duration: 240 } },
+                stored_settings,
+                stored_settings,
+            ),
+        ).toEqual({
+            default_route: '/visitors',
+            lockers: { available_period: 7 },
+            unknown_setting: true,
+        });
+    });
+
+    it('should show inherited booking values for unset locker settings', () => {
+        const model = {
+            lockers: { available_period: 90, max_duration: 480 },
+        };
+
+        expect(
+            applyBookingFallbacks(
+                model,
+                {
+                    bookings: {
+                        available_period: 30,
+                        max_duration: 240,
+                        min_duration: 15,
+                    },
+                    lockers: { max_duration: 120 },
+                },
+                'lockers',
+                LOCKER_BOOKING_FALLBACKS,
+            ),
+        ).toEqual({ lockers: { available_period: 30, max_duration: 480 } });
     });
 });

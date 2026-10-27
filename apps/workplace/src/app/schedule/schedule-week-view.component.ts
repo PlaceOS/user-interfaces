@@ -24,7 +24,7 @@ import {
     CalendarEvent,
     OrganisationService,
 } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
@@ -42,7 +42,9 @@ import {
     bookedForLabel,
     isBookingForOtherUser,
     overlapsDay,
+    SCHEDULE_STATUS_LABELS,
     ScheduleStateService,
+    ScheduleStatus,
 } from './schedule-state.service';
 
 interface Weekday {
@@ -71,7 +73,7 @@ interface Weekday {
                             <div
                                 [matTooltip]="
                                     day.is_today
-                                        ? 'Today'
+                                        ? ('COMMON.TODAY' | translate)
                                         : (day.date | date: 'fullDate')
                                 "
                             >
@@ -83,8 +85,14 @@ interface Weekday {
                                 [class.bg-info]="day.is_today"
                                 [class.text-info-content]="day.is_today"
                                 [matTooltip]="
-                                    (bookings_by_date()[day.id]?.length || 0) +
-                                    ' bookings'
+                                    'APP.WORKPLACE.SCHEDULE_BOOKING_COUNT'
+                                        | translate
+                                            : {
+                                                  count:
+                                                      bookings_by_date()[day.id]
+                                                          ?.length || 0,
+                                              }
+                                            : bookings_by_date()[day.id]?.length
                                 "
                             >
                                 {{ bookings_by_date()[day.id]?.length || 0 }}
@@ -121,7 +129,14 @@ interface Weekday {
                                             : '') +
                                         (isBookingForOtherUser(bkn)
                                             ? '
-for ' + bookedForLabel(bkn)
+' +
+                                              ('BOOKINGS.BOOKED_FOR'
+                                                  | translate
+                                                      : {
+                                                            name: bookedForLabel(
+                                                                bkn
+                                                            ),
+                                                        })
                                             : '') +
                                         '
 ' +
@@ -150,8 +165,14 @@ for ' + bookedForLabel(bkn)
                                                 "
                                                 [matTooltip]="
                                                     statusLabel(status)
+                                                        | translate
                                                 "
-                                            ></div>
+                                            >
+                                                <span class="sr-only">{{
+                                                    statusLabel(status)
+                                                        | translate
+                                                }}</span>
+                                            </div>
                                         }
                                     </div>
                                     @if (location(bkn)) {
@@ -172,22 +193,32 @@ for ' + bookedForLabel(bkn)
                                         <div
                                             class="truncate text-xs opacity-60"
                                         >
-                                            Booked by
-                                            {{
+                                            @let booked_by =
                                                 $any(bkn).booked_by_name ||
-                                                    (
-                                                        $any(bkn)
-                                                            .booked_by_email
-                                                        | user
-                                                        | async
-                                                    )?.name ||
+                                                (
                                                     $any(bkn).booked_by_email
+                                                    | user
+                                                    | async
+                                                )?.name ||
+                                                $any(bkn).booked_by_email;
+                                            {{
+                                                'APP.WORKPLACE.SCHEDULE_BOOKED_BY'
+                                                    | translate
+                                                        : { name: booked_by }
                                             }}
                                         </div>
                                         <div
                                             class="truncate text-xs opacity-60"
                                         >
-                                            for {{ bookedForLabel(bkn) }}
+                                            {{
+                                                'BOOKINGS.BOOKED_FOR'
+                                                    | translate
+                                                        : {
+                                                              name: bookedForLabel(
+                                                                  bkn
+                                                              ),
+                                                          }
+                                            }}
                                         </div>
                                     }
                                     <div class="text-xs">
@@ -200,7 +231,12 @@ for ' + bookedForLabel(bkn)
                                     class="flex h-full w-full flex-col items-center justify-center opacity-30"
                                 >
                                     <icon class="text-4xl">event_busy</icon>
-                                    <div>No bookings</div>
+                                    <div>
+                                        {{
+                                            'APP.WORKPLACE.SCHEDULE_DAY_EMPTY'
+                                                | translate
+                                        }}
+                                    </div>
                                 </div>
                             }
                         </div>
@@ -215,6 +251,7 @@ for ' + bookedForLabel(bkn)
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        TranslatePipe,
         UserPipe,
     ],
 })
@@ -307,7 +344,7 @@ export class ScheduleWeekViewComponent {
 
     public bookingStatus(
         booking: Booking | CalendarEvent,
-    ): 'approved' | 'tentative' | 'declined' | 'waitlisted' | null {
+    ): ScheduleStatus | null {
         const status = booking.status;
         if (
             status === 'tentative' &&
@@ -324,15 +361,12 @@ export class ScheduleWeekViewComponent {
             : null;
     }
 
-    public statusLabel(
-        status: 'approved' | 'tentative' | 'declined' | 'waitlisted',
-    ) {
-        return status.charAt(0).toUpperCase() + status.slice(1);
+    /** Locale key of the status label */
+    public statusLabel(status: ScheduleStatus) {
+        return SCHEDULE_STATUS_LABELS[status];
     }
 
-    public statusColor(
-        status: 'approved' | 'tentative' | 'declined' | 'waitlisted',
-    ) {
+    public statusColor(status: ScheduleStatus) {
         if (status === 'approved') return 'var(--success)';
         if (status === 'waitlisted') return 'var(--info)';
         if (status === 'tentative') return 'var(--warn)';

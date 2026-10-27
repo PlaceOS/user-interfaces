@@ -49,6 +49,36 @@ export interface FileDetails {
     blob: Blob;
 }
 
+/** Visitor type. Visitors are `internal` unless marked `external`. */
+export type VisitorInternalOrExternal = 'internal' | 'external';
+
+/** Read a stored visitor type. Anything that is not `external` is `internal`. */
+export function toVisitorInternalOrExternal(
+    value: unknown,
+): VisitorInternalOrExternal {
+    return value === 'external' ? 'external' : 'internal';
+}
+
+/** Visitor flags for one event attendee. */
+export interface AttendeeFlags {
+    international?: boolean;
+    visitor_internal_or_external?: VisitorInternalOrExternal;
+}
+
+/**
+ * Read the visitor flags held on `data`. Only the keys it carries are
+ * included, so a flag is never invented.
+ */
+export function readAttendeeFlags(data: object): AttendeeFlags {
+    const flags: AttendeeFlags = {};
+    if ('international' in data) flags.international = !!data.international;
+    if ('visitor_internal_or_external' in data)
+        flags.visitor_internal_or_external = toVisitorInternalOrExternal(
+            data.visitor_internal_or_external,
+        );
+    return flags;
+}
+
 export interface EventExtensionData {
     /** Whether event is cleaned */
     cleaned?: boolean;
@@ -99,6 +129,12 @@ export interface EventExtensionData {
     view_access: 'PRIVATE' | 'OPEN' | 'PUBLIC';
     /** Copy of the event permission kept in the stored metadata */
     permission?: string;
+    /**
+     * Per-attendee visitor flags, keyed by lower-cased email. Stored on the
+     * event because attendee `extension_data` is stripped before the
+     * Graph/CalendarEvent API payload is built.
+     */
+    attendee_flags?: Record<string, AttendeeFlags | undefined>;
 }
 
 export interface EventListQueryParams {

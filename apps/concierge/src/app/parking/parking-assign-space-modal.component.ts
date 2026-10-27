@@ -121,7 +121,12 @@ export function bookedResourcePeriodForBooking(booking: Booking) {
             <h2 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.PARKING_ASSIGN_SPACE_TITLE' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button
+                icon
+                matRipple
+                mat-dialog-close
+                [aria-label]="'COMMON.CLOSE' | translate"
+            >
                 <icon>close</icon>
             </button>
         </header>
@@ -201,10 +206,11 @@ export function bookedResourcePeriodForBooking(booking: Booking) {
                             class="flex h-full flex-1 flex-col items-center justify-center space-y-4"
                         >
                             <img
+                                alt=""
                                 src="assets/icons/no-results.svg"
                                 class="w-36"
                             />
-                            <div class="text-center opacity-30">
+                            <div class="text-center opacity-70">
                                 {{
                                     'APP.CONCIERGE.PARKING_ASSIGN_SPACE_EMPTY'
                                         | translate

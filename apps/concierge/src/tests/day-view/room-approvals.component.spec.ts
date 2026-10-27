@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
@@ -6,6 +7,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
+import { NEVER, of } from 'rxjs';
 
 import { EventsStateService } from '../../app/day-view/events-state.service';
 import { RoomBookingsApprovalsComponent } from '../../app/day-view/room-approvals.component';
@@ -15,6 +17,17 @@ describe('RoomBookingsApprovalsComponent', () => {
     const pending = signal<CalendarEvent[]>([]);
     const execute = vi.fn(() => Promise.resolve());
     const replace = vi.fn();
+    // Reason the decline confirmation resolves with
+    let confirm_reason: 'done' | 'cancel' = 'done';
+    const dialog_open = vi.fn(() => ({
+        componentInstance: {
+            event: confirm_reason === 'done' ? of({ reason: 'done' }) : NEVER,
+            loading: { set: vi.fn() },
+        },
+        afterClosed: () =>
+            confirm_reason === 'done' ? NEVER : of({ reason: 'cancel' }),
+        close: vi.fn(),
+    }));
     const createComponent = createComponentFactory({
         component: RoomBookingsApprovalsComponent,
         shallow: true,
@@ -29,12 +42,14 @@ describe('RoomBookingsApprovalsComponent', () => {
                 get: vi.fn(() => false),
                 time_format: 'h:mm a',
             } as any),
+            MockProvider(MatDialog, { open: dialog_open } as any),
         ],
     });
 
     beforeEach(() => {
         execute.mockClear();
         replace.mockClear();
+        confirm_reason = 'done';
         pending.set([]);
         spectator = createComponent();
     });
@@ -154,5 +169,35 @@ describe('RoomBookingsApprovalsComponent', () => {
         );
         expect(replace).toHaveBeenCalledTimes(1);
         expect(replace.mock.calls[0][0].status).toBe('declined');
+    });
+
+    it('should not decline a booking when the user cancels', async () => {
+        confirm_reason = 'cancel';
+        const event = new CalendarEvent({
+            id: 'event-1',
+            mailbox: 'room@example.com',
+        });
+
+        await spectator.component.reject(event);
+
+        expect(execute).not.toHaveBeenCalled();
+    });
+
+    it('should show the decline time in the building time zone', async () => {
+        vi.mocked(spectator.inject(SettingsService).get).mockReturnValue(true);
+        (spectator.inject(OrganisationService) as any).building = {
+            timezone: 'Pacific/Honolulu',
+        };
+        const event = new CalendarEvent({
+            id: 'event-1',
+            title: 'Standup',
+            mailbox: 'room@example.com',
+            date: Date.UTC(2026, 0, 1, 0, 0),
+        });
+
+        await spectator.component.reject(event);
+
+        const [, config] = dialog_open.mock.calls.at(-1) as any;
+        expect(config.data.content).toContain('31 Dec 2025 2:00 PM');
     });
 });

@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { LockerGridComponent } from '@placeos/bookings';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'view-locker-bank-modal',
@@ -13,7 +13,12 @@ import { IconComponent } from '@placeos/components';
             <h2 class="text-xl font-medium">
                 View Locker Bank - {{ bank().name }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button
+                icon
+                matRipple
+                mat-dialog-close
+                [aria-label]="'COMMON.CLOSE' | translate"
+            >
                 <icon>close</icon>
             </button>
         </header>
@@ -30,6 +35,7 @@ import { IconComponent } from '@placeos/components';
         MatRippleModule,
         IconComponent,
         LockerGridComponent,
+        TranslatePipe,
     ],
 })
 export class ViewLockerBankModalComponent {

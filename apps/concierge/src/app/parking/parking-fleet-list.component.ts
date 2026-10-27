@@ -54,7 +54,7 @@ import { ParkingStateService } from './parking-state.service';
             <ng-template #name_template let-row="row" let-data="data">
                 <div class="px-4 py-2 leading-tight">
                     <div>{{ data }}</div>
-                    <div class="font-mono text-[0.625rem] opacity-30">
+                    <div class="font-mono text-[0.625rem] opacity-70">
                         {{ row.id }}
                     </div>
                 </div>
@@ -63,7 +63,7 @@ import { ParkingStateService } from './parking-state.service';
                 <div class="p-4 font-mono text-sm uppercase">
                     {{ data }}
                     @if (!data) {
-                        <span class="opacity-30">
+                        <span class="opacity-70">
                             {{ 'COMMON.EMPTY' | translate }}
                         </span>
                     }
@@ -79,6 +79,9 @@ import { ParkingStateService } from './parking-state.service';
                         [matTooltip]="
                             'APP.CONCIERGE.PARKING_FLEET_EDIT' | translate
                         "
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.PARKING_FLEET_EDIT' | translate
+                        "
                     >
                         <icon>edit</icon>
                     </button>
@@ -88,6 +91,9 @@ import { ParkingStateService } from './parking-state.service';
                         error
                         (click)="removeFleetVehicle(row)"
                         [matTooltip]="
+                            'APP.CONCIERGE.PARKING_FLEET_REMOVE' | translate
+                        "
+                        [attr.aria-label]="
                             'APP.CONCIERGE.PARKING_FLEET_REMOVE' | translate
                         "
                     >

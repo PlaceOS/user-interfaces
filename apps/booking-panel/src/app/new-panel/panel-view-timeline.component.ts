@@ -1,15 +1,14 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { AsyncHandler, notifyError } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
-import { timelineData, timelineSlot, timelineStart } from './helpers';
+import {
+    timelineBlocks,
+    timelineBookings,
+    timelineNow,
+    timelineSlot,
+    timelineStart,
+} from './helpers';
 
 @Component({
     selector: 'panel-view-timeline',
@@ -21,9 +20,8 @@ import { timelineData, timelineSlot, timelineStart } from './helpers';
             role="img"
             [attr.aria-label]="'APP.BOOKING_PANEL.SCHEDULE' | translate"
         >
-            @let data = timeline();
             <div timeline-track (click)="bookAt($event)">
-                @for (block of data.blocks; track block.id) {
+                @for (block of blocks(); track block.id) {
                     <div block [class.hour]="block.on_hour">
                         @if (block.on_hour) {
                             <span hour-label>{{ block.hour }}</span>
@@ -31,7 +29,7 @@ import { timelineData, timelineSlot, timelineStart } from './helpers';
                     </div>
                 }
                 <div bookings>
-                    @for (booking of data.bookings; track booking.id) {
+                    @for (booking of bookings(); track booking.id) {
                         <div
                             booking
                             [style.--start]="booking.start + '%'"
@@ -40,7 +38,7 @@ import { timelineData, timelineSlot, timelineStart } from './helpers';
                         ></div>
                     }
                 </div>
-                <div now [style.--now]="data.now + '%'">
+                <div now [style.--now]="now() + '%'">
                     <span now-dot></span>
                     <span now-line></span>
                 </div>
@@ -230,7 +228,6 @@ import { timelineData, timelineSlot, timelineStart } from './helpers';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe],
 })
 export class PanelViewTimelineComponent extends AsyncHandler {
@@ -238,12 +235,19 @@ export class PanelViewTimelineComponent extends AsyncHandler {
     private _clock = signal(Date.now());
     private _timeline_start = signal(timelineStart(this._clock()));
 
-    public readonly timeline = computed(() =>
-        timelineData(
+    // The clock ticks every second. Only the "now" marker depends on it.
+    public readonly blocks = computed(() =>
+        timelineBlocks(this._timeline_start(), 10, this._state.time_format()),
+    );
+    public readonly bookings = computed(() =>
+        timelineBookings(
             this._state.bookings(),
-            this._clock(),
             this._timeline_start(),
+            this._state.time_format(),
         ),
+    );
+    public readonly now = computed(() =>
+        timelineNow(this._clock(), this._timeline_start()),
     );
     public readonly horizontal = input(false);
 

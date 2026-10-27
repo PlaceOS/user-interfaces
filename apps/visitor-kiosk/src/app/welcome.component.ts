@@ -27,6 +27,8 @@ import {
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
+import { PageHeadingDirective } from './components/page-heading.directive';
+import { minuteClock } from './minute-clock';
 
 @Component({
     selector: 'app-welcome',
@@ -34,43 +36,49 @@ import {
         <div class="absolute inset-0 flex items-center overflow-hidden p-8">
             <img
                 auth
+                alt=""
                 [source]="background()"
                 class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             <div class="z-10 flex w-[60%] flex-col justify-center space-y-8">
-                <h3
+                <h1
+                    pageHeading
                     class="mb-4 space-y-4 text-6xl text-white"
                     [innerHTML]="
                         welcome_message() ||
                             ('APP.VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
                             | sanitize: 'html'
                     "
-                ></h3>
-                <div class="flex items-center space-x-4 font-medium">
+                ></h1>
+                <div class="flex flex-wrap items-center gap-4 font-medium">
                     <a
                         btn
                         matRipple
                         [routerLink]="['/checkin']"
-                        class="bg-base-100 border-base-100 text-base-content w-40 border"
+                        class="bg-base-100 border-base-100 text-base-content min-w-40 border whitespace-nowrap"
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
                                 {{ 'COMMON.CHECK_IN' | translate }}
                             </div>
-                            <icon class="text-2xl">chevron_right</icon>
+                            <icon class="text-2xl" aria-hidden="true"
+                                >chevron_right</icon
+                            >
                         </div>
                     </a>
                     <a
                         btn
                         matRipple
                         [routerLink]="['/checkout']"
-                        class="bg-base-100 border-base-100 text-base-content w-40 border"
+                        class="bg-base-100 border-base-100 text-base-content min-w-40 border whitespace-nowrap"
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
                                 {{ 'COMMON.CHECK_OUT' | translate }}
                             </div>
-                            <icon class="text-2xl">chevron_right</icon>
+                            <icon class="text-2xl" aria-hidden="true"
+                                >chevron_right</icon
+                            >
                         </div>
                     </a>
                     @if (can_register()) {
@@ -78,7 +86,7 @@ import {
                             btn
                             matRipple
                             [routerLink]="['/register']"
-                            class="bg-base-100 border-base-100 text-base-content w-40 border"
+                            class="bg-base-100 border-base-100 text-base-content min-w-40 border whitespace-nowrap"
                         >
                             <div class="flex items-center space-x-2">
                                 <div class="ml-2">
@@ -86,7 +94,9 @@ import {
                                         'APP.VISITOR_KIOSK.REGISTER' | translate
                                     }}
                                 </div>
-                                <icon class="text-2xl">chevron_right</icon>
+                                <icon class="text-2xl" aria-hidden="true"
+                                    >chevron_right</icon
+                                >
                             </div>
                         </a>
                     }
@@ -95,7 +105,7 @@ import {
                             btn
                             matRipple
                             [routerLink]="['/explore', level()]"
-                            class="bg-base-100 border-base-100 text-base-content w-40 border"
+                            class="bg-base-100 border-base-100 text-base-content min-w-40 border whitespace-nowrap"
                         >
                             <div class="flex items-center space-x-2">
                                 <div class="ml-2">
@@ -103,7 +113,9 @@ import {
                                         'APP.VISITOR_KIOSK.EXPLORE' | translate
                                     }}
                                 </div>
-                                <icon class="text-2xl">place</icon>
+                                <icon class="text-2xl" aria-hidden="true"
+                                    >place</icon
+                                >
                             </div>
                         </a>
                     }
@@ -118,13 +130,17 @@ import {
                     [matMenuTriggerFor]="menu"
                 >
                     <div class="flex items-center justify-between">
-                        <icon class="text-2xl text-white">language</icon>
+                        <icon class="text-2xl text-white" aria-hidden="true"
+                            >language</icon
+                        >
                         <div class="ml-2 text-left leading-tight text-white">
                             <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
                             @if (
                                 ('COMMON.LANGUAGE' | translate) !== 'Language'
                             ) {
-                                <div class="text-xs opacity-30">Language</div>
+                                <div class="text-xs opacity-70" lang="en">
+                                    Language
+                                </div>
                             }
                         </div>
                         <div
@@ -150,7 +166,10 @@ import {
                             >
                                 <div>{{ lang.name | translate }}</div>
                                 @if ((lang.name | translate) !== lang.local) {
-                                    <div class="text-xs opacity-30">
+                                    <div
+                                        class="text-xs opacity-70"
+                                        [attr.lang]="lang.id"
+                                    >
                                         {{ lang.local }}
                                     </div>
                                 }
@@ -163,6 +182,7 @@ import {
             @if (!hide_building_image()) {
                 <img
                     src="assets/img/building.webp"
+                    alt=""
                     class="absolute right-0 bottom-0 w-[60%]"
                 />
             }
@@ -191,6 +211,7 @@ import {
         `,
     ],
     imports: [
+        PageHeadingDirective,
         CommonModule,
         TranslatePipe,
         IconComponent,
@@ -210,7 +231,7 @@ export class WelcomeComponent
     private _locale = inject(LocaleService);
     private _cdr = inject(ChangeDetectorRef);
 
-    public readonly now = signal(Date.now());
+    public readonly now = minuteClock();
     /** Level to initially load on explore */
     public readonly level = signal('');
     private readonly _level_sync = effect(() =>
@@ -242,7 +263,6 @@ export class WelcomeComponent
     };
 
     public ngOnInit() {
-        this.interval('time', () => this.now.set(Date.now()), 30 * 1000);
         this.level.set(localStorage?.getItem('KIOSK.level'));
         const params = this.route.snapshot.paramMap;
         if (params.has('level')) {

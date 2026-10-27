@@ -37,16 +37,18 @@ import { errorText } from '../ui/modal-actions';
             <form system>
                 <div class="flex flex-col">
                     <label
-                        for="zone"
+                        for="level-modal-zone"
                         [class.error]="
                             form.parent_id().invalid() &&
                             form.parent_id().touched()
                         "
+                        id="level-modal-zone-label"
                     >
                         {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <mat-select
+                            aria-labelledby="level-modal-zone-label"
                             [formField]="form.parent_id"
                             [placeholder]="'COMMON.BUILDING_SELECT' | translate"
                         >
@@ -65,11 +67,12 @@ import { errorText } from '../ui/modal-actions';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="display-name">{{
+                    <label for="level-modal-display-name">{{
                         'FORM.DISPLAY_NAME' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="level-modal-display-name"
                             matInput
                             [placeholder]="'FORM.DISPLAY_NAME' | translate"
                             [formField]="form.display_name"
@@ -86,11 +89,12 @@ import { errorText } from '../ui/modal-actions';
                     <div class="flex-1"></div>
                 </div>
                 <div class="flex flex-col">
-                    <label for="map-id">{{
+                    <label for="level-modal-map-id">{{
                         'APP.CONCIERGE.LEVELS_MAP_URL' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="level-modal-map-id"
                             matInput
                             [placeholder]="
                                 'APP.CONCIERGE.LEVELS_MAP_URL_PLACEHOLDER'

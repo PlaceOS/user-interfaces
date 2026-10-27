@@ -10,12 +10,13 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import {
     BookingDetailsModalComponent,
     BookingFormService,
-    queryBookings,
+    queryBookingsOrThrow,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -96,6 +97,9 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                             [matTooltip]="
                                 'APP.WORKPLACE.DESK_WEEK_PREVIOUS' | translate
                             "
+                            [attr.aria-label]="
+                                'APP.WORKPLACE.DESK_WEEK_PREVIOUS' | translate
+                            "
                             [disabled]="!can_go_previous_week()"
                             (click)="previousWeek()"
                         >
@@ -108,6 +112,9 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                             [matTooltip]="
                                 'APP.WORKPLACE.DESK_WEEK_NEXT' | translate
                             "
+                            [attr.aria-label]="
+                                'APP.WORKPLACE.DESK_WEEK_NEXT' | translate
+                            "
                             [disabled]="!can_go_next_week()"
                             (click)="nextWeek()"
                         >
@@ -116,113 +123,49 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                     </div>
                 </div>
             </div>
-            <!-- Mobile: All days stacked -->
-            <div
-                class="flex flex-col gap-2 pt-2 md:hidden"
-                [class.opacity-60]="loading()"
-            >
-                @for (day of weekdays(); track day.id) {
-                    <div class="flex flex-col">
-                        <div
-                            class="mb-1 flex items-center justify-center space-x-2 text-sm"
-                            [class.opacity-40]="!day.is_bookable"
-                        >
-                            <div class="flex items-center space-x-1">
-                                <icon
-                                    class="text-base"
-                                    [class.opacity-40]="day.is_weekend"
-                                    >{{
-                                        day.is_weekend ? 'star' : 'event_note'
-                                    }}</icon
-                                >
-                                <span class="font-medium uppercase">{{
-                                    day.day_name
-                                }}</span>
-                            </div>
-                            <span
-                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs"
-                                [class.bg-info]="day.is_today"
-                                [class.text-info-content]="day.is_today"
-                            >
-                                {{ day.day_number }}
-                            </span>
-                        </div>
-                        <div
-                            class="border-base-300 min-h-16 flex-1 rounded-lg border p-2"
-                            [class.opacity-40]="!day.is_bookable"
-                            [class.bg-base-200]="day.is_weekend"
-                        >
-                            @if (bookings_by_date()[day.id]?.length; as count) {
-                                @for (
-                                    booking of bookings_by_date()[day.id];
-                                    track booking.id
-                                ) {
-                                    <button
-                                        matRipple
-                                        class="bg-secondary text-secondary-content mb-2 w-full rounded-lg p-2 text-left last:mb-0"
-                                        (click)="viewBooking(booking)"
-                                        [matTooltip]="bookingTooltip(booking)"
-                                    >
-                                        <div
-                                            class="flex items-center space-x-1"
-                                        >
-                                            <icon class="text-sm"
-                                                >location_on</icon
-                                            >
-                                            <span class="truncate text-xs">{{
-                                                buildingName(booking)
-                                            }}</span>
-                                        </div>
-                                        <div
-                                            class="flex items-center space-x-1"
-                                        >
-                                            <icon class="text-sm">desk</icon>
-                                            <span class="truncate text-xs">{{
-                                                deskName(booking)
-                                            }}</span>
-                                        </div>
-                                    </button>
-                                }
-                            } @else if (day.is_bookable) {
-                                <button
-                                    btn
-                                    matRipple
-                                    class="inverse border-base-300 h-full w-full space-x-2 border-2 border-dashed"
-                                    (click)="bookDesk(day.date)"
-                                >
-                                    <icon class="text-xl opacity-60"
-                                        >add_circle_outline</icon
-                                    >
-                                    <span class="text-xs opacity-60">{{
-                                        'COMMON.BOOK_DESK' | translate
-                                    }}</span>
-                                </button>
-                            } @else {
-                                <div
-                                    class="flex h-full min-h-10 w-full items-center justify-center"
-                                >
-                                    <icon class="text-xl opacity-30">desk</icon>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-            </div>
-            <!-- Desktop: 6 columns with stacked weekend -->
-            <div
-                class="hidden gap-2 pt-2 md:grid md:grid-cols-6"
-                [class.opacity-60]="loading()"
-            >
-                <!-- Weekdays (Mon-Fri) -->
-                @for (day of weekdays(); track day.id) {
-                    @if (!day.is_weekend) {
+            @if (failed()) {
+                <div
+                    load-error
+                    class="bg-base-200 flex flex-col items-center justify-center space-y-2 rounded-xl p-8 text-center"
+                >
+                    <icon class="text-4xl opacity-30">error</icon>
+                    <p class="text-sm opacity-60">
+                        {{ 'COMMON.LOAD_ERROR' | translate }}
+                    </p>
+                    <button btn matRipple class="inverse" (click)="reload()">
+                        {{ 'COMMON.RETRY' | translate }}
+                    </button>
+                </div>
+            } @else if (week_loading()) {
+                <div
+                    week-loading
+                    role="status"
+                    class="bg-base-200 flex min-h-40 items-center justify-center rounded-xl p-8"
+                >
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                </div>
+            } @else {
+                <!-- Mobile: All days stacked -->
+                <div
+                    class="flex flex-col gap-2 pt-2 md:hidden"
+                    [class.opacity-60]="loading()"
+                >
+                    @for (day of weekdays(); track day.id) {
                         <div class="flex flex-col">
                             <div
                                 class="mb-1 flex items-center justify-center space-x-2 text-sm"
                                 [class.opacity-40]="!day.is_bookable"
                             >
                                 <div class="flex items-center space-x-1">
-                                    <icon class="text-base">event_note</icon>
+                                    <icon
+                                        class="text-base"
+                                        [class.opacity-40]="day.is_weekend"
+                                        >{{
+                                            day.is_weekend
+                                                ? 'star'
+                                                : 'event_note'
+                                        }}</icon
+                                    >
                                     <span class="font-medium uppercase">{{
                                         day.day_name
                                     }}</span>
@@ -236,8 +179,9 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                                 </span>
                             </div>
                             <div
-                                class="border-base-300 flex min-h-24 flex-1 flex-col space-y-2 rounded-lg border p-2"
+                                class="border-base-300 min-h-16 flex-1 rounded-lg border p-2"
                                 [class.opacity-40]="!day.is_bookable"
+                                [class.bg-base-200]="day.is_weekend"
                             >
                                 @if (
                                     bookings_by_date()[day.id]?.length;
@@ -287,7 +231,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                                     <button
                                         btn
                                         matRipple
-                                        class="inverse border-base-300 h-full w-full flex-col space-y-1 border-2 border-dashed"
+                                        class="inverse border-base-300 h-full w-full space-x-2 border-2 border-dashed"
                                         (click)="bookDesk(day.date)"
                                     >
                                         <icon class="text-xl opacity-60"
@@ -299,106 +243,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                                     </button>
                                 } @else {
                                     <div
-                                        class="flex h-full w-full flex-col items-center justify-center"
-                                    >
-                                        <icon class="text-xl opacity-30"
-                                            >desk</icon
-                                        >
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-                }
-                <!-- Weekend (Sat & Sun stacked) -->
-                <div class="flex flex-col space-y-1">
-                    @for (day of weekend_days(); track day.id) {
-                        <div class="flex flex-1 flex-col">
-                            <div
-                                class="mb-1 flex items-center justify-center space-x-2 text-sm"
-                                [class.opacity-40]="!day.is_bookable"
-                            >
-                                <div class="flex items-center space-x-1">
-                                    <icon class="text-base opacity-40"
-                                        >sunny</icon
-                                    >
-                                    <span class="font-medium uppercase">{{
-                                        day.day_name
-                                    }}</span>
-                                </div>
-                                <span
-                                    class="flex h-6 w-6 items-center justify-center rounded-full text-xs"
-                                    [class.bg-info]="day.is_today"
-                                    [class.text-info-content]="day.is_today"
-                                >
-                                    {{ day.day_number }}
-                                </span>
-                            </div>
-                            <div
-                                class="border-base-300 bg-base-200 flex min-h-12 flex-1 flex-col space-y-2 rounded-lg border p-2"
-                                [class.opacity-40]="!day.is_bookable"
-                            >
-                                @if (
-                                    bookings_by_date()[day.id]?.length;
-                                    as count
-                                ) {
-                                    @for (
-                                        booking of bookings_by_date()[day.id];
-                                        track booking.id
-                                    ) {
-                                        <button
-                                            matRipple
-                                            class="bg-secondary text-secondary-content mb-2 w-full rounded-lg p-2 text-left last:mb-0"
-                                            (click)="viewBooking(booking)"
-                                            [matTooltip]="
-                                                bookingTooltip(booking)
-                                            "
-                                        >
-                                            <div
-                                                class="flex items-center space-x-1"
-                                            >
-                                                <icon class="text-sm"
-                                                    >location_on</icon
-                                                >
-                                                <span
-                                                    class="truncate text-xs"
-                                                    >{{
-                                                        buildingName(booking)
-                                                    }}</span
-                                                >
-                                            </div>
-                                            <div
-                                                class="flex items-center space-x-1"
-                                            >
-                                                <icon class="text-sm"
-                                                    >desk</icon
-                                                >
-                                                <span
-                                                    class="truncate text-xs"
-                                                    >{{
-                                                        deskName(booking)
-                                                    }}</span
-                                                >
-                                            </div>
-                                        </button>
-                                    }
-                                } @else if (day.is_bookable) {
-                                    <button
-                                        btn
-                                        matRipple
-                                        class="inverse border-base-300 h-full w-full gap-2 border-2 border-dashed px-0"
-                                        (click)="bookDesk(day.date)"
-                                    >
-                                        <icon class="text-xl opacity-60"
-                                            >add_circle_outline</icon
-                                        >
-                                        <span class="pr-2 text-xs opacity-60">{{
-                                            'COMMON.BOOK_DESK' | translate
-                                        }}</span>
-                                    </button>
-                                } @else {
-                                    <div
-                                        class="flex h-full w-full flex-col items-center justify-center"
+                                        class="flex h-full min-h-10 w-full items-center justify-center"
                                     >
                                         <icon class="text-xl opacity-30"
                                             >desk</icon
@@ -409,13 +254,159 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                         </div>
                     }
                 </div>
-            </div>
+                <!-- Desktop: days in date order. Weekend days next to each other share a column -->
+                <div
+                    class="hidden gap-2 pt-2 md:grid"
+                    [style.grid-template-columns]="
+                        'repeat(' + columns().length + ', minmax(0, 1fr))'
+                    "
+                    [class.opacity-60]="loading()"
+                >
+                    @for (column of columns(); track column[0].id) {
+                        <div class="flex flex-col space-y-1">
+                            @for (day of column; track day.id) {
+                                <div class="flex flex-1 flex-col">
+                                    <div
+                                        class="mb-1 flex items-center justify-center space-x-2 text-sm"
+                                        [class.opacity-40]="!day.is_bookable"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-1"
+                                        >
+                                            <icon
+                                                class="text-base"
+                                                [class.opacity-40]="
+                                                    day.is_weekend
+                                                "
+                                                >{{
+                                                    day.is_weekend
+                                                        ? 'sunny'
+                                                        : 'event_note'
+                                                }}</icon
+                                            >
+                                            <span
+                                                class="font-medium uppercase"
+                                                >{{ day.day_name }}</span
+                                            >
+                                        </div>
+                                        <span
+                                            class="flex h-6 w-6 items-center justify-center rounded-full text-xs"
+                                            [class.bg-info]="day.is_today"
+                                            [class.text-info-content]="
+                                                day.is_today
+                                            "
+                                        >
+                                            {{ day.day_number }}
+                                        </span>
+                                    </div>
+                                    <div
+                                        class="border-base-300 flex flex-1 flex-col space-y-2 rounded-lg border p-2"
+                                        [class.min-h-24]="!day.is_weekend"
+                                        [class.min-h-12]="day.is_weekend"
+                                        [class.bg-base-200]="day.is_weekend"
+                                        [class.opacity-40]="!day.is_bookable"
+                                    >
+                                        @if (
+                                            bookings_by_date()[day.id]?.length;
+                                            as count
+                                        ) {
+                                            @for (
+                                                booking of bookings_by_date()[
+                                                    day.id
+                                                ];
+                                                track booking.id
+                                            ) {
+                                                <button
+                                                    matRipple
+                                                    class="bg-secondary text-secondary-content mb-2 w-full rounded-lg p-2 text-left last:mb-0"
+                                                    (click)="
+                                                        viewBooking(booking)
+                                                    "
+                                                    [matTooltip]="
+                                                        bookingTooltip(booking)
+                                                    "
+                                                >
+                                                    <div
+                                                        class="flex items-center space-x-1"
+                                                    >
+                                                        <icon class="text-sm"
+                                                            >location_on</icon
+                                                        >
+                                                        <span
+                                                            class="truncate text-xs"
+                                                            >{{
+                                                                buildingName(
+                                                                    booking
+                                                                )
+                                                            }}</span
+                                                        >
+                                                    </div>
+                                                    <div
+                                                        class="flex items-center space-x-1"
+                                                    >
+                                                        <icon class="text-sm"
+                                                            >desk</icon
+                                                        >
+                                                        <span
+                                                            class="truncate text-xs"
+                                                            >{{
+                                                                deskName(
+                                                                    booking
+                                                                )
+                                                            }}</span
+                                                        >
+                                                    </div>
+                                                </button>
+                                            }
+                                        } @else if (day.is_bookable) {
+                                            <button
+                                                btn
+                                                matRipple
+                                                class="inverse border-base-300 h-full w-full border-2 border-dashed"
+                                                [class.flex-col]="
+                                                    !day.is_weekend
+                                                "
+                                                [class.space-y-1]="
+                                                    !day.is_weekend
+                                                "
+                                                [class.gap-2]="day.is_weekend"
+                                                [class.px-0]="day.is_weekend"
+                                                (click)="bookDesk(day.date)"
+                                            >
+                                                <icon class="text-xl opacity-60"
+                                                    >add_circle_outline</icon
+                                                >
+                                                <span
+                                                    class="text-xs opacity-60"
+                                                    >{{
+                                                        'COMMON.BOOK_DESK'
+                                                            | translate
+                                                    }}</span
+                                                >
+                                            </button>
+                                        } @else {
+                                            <div
+                                                class="flex h-full w-full flex-col items-center justify-center"
+                                            >
+                                                <icon class="text-xl opacity-30"
+                                                    >desk</icon
+                                                >
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
         </div>
     `,
     styles: [``],
     imports: [
         CommonModule,
         MatRippleModule,
+        MatProgressSpinnerModule,
         MatTooltipModule,
         IconComponent,
         TranslatePipe,
@@ -436,6 +427,10 @@ export class LandingDeskWeekComponent
     public readonly offset_weekday = settingSignal<WeekdayIndex>(
         'week_start',
         0,
+    );
+    private readonly _use_24_hour_time = settingSignal<boolean>(
+        'use_24_hour_time',
+        false,
     );
     public readonly available_days = settingSignal(
         'desks.available_period',
@@ -472,9 +467,20 @@ export class LandingDeskWeekComponent
         return days;
     });
 
-    public readonly weekend_days = computed(() =>
-        this.weekdays().filter((day) => day.is_weekend),
-    );
+    /**
+     * Columns of the desktop layout, with the days in date order. Weekend
+     * days next to each other share a column: a week from Monday ends with
+     * Saturday and Sunday stacked, a week from Sunday starts with Sunday.
+     */
+    public readonly columns = computed(() => {
+        const columns: WeekDay[][] = [];
+        for (const day of this.weekdays()) {
+            const last = columns[columns.length - 1];
+            if (day.is_weekend && last?.[0].is_weekend) last.push(day);
+            else columns.push([day]);
+        }
+        return columns;
+    });
 
     public readonly week_range = computed(() => {
         const week_start = startOfWeek(this.selected_date(), {
@@ -514,20 +520,30 @@ export class LandingDeskWeekComponent
         loader: ({ params: { date, week_start } }) => {
             const start = startOfWeek(date, { weekStartsOn: week_start });
             const end = endOfWeek(date, { weekStartsOn: week_start });
-            return queryBookings({
+            return queryBookingsOrThrow({
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
                 type: 'desk',
                 include_checked_out: true,
-            }).catch(() => [] as Booking[]);
+            });
         },
     });
 
-    public readonly desk_bookings = computed(
-        () => this._desk_bookings_resource.value() ?? ([] as Booking[]),
+    public readonly desk_bookings = computed(() =>
+        this._desk_bookings_resource.hasValue()
+            ? this._desk_bookings_resource.value()
+            : ([] as Booking[]),
     );
     public readonly loading = computed(() =>
         this._desk_bookings_resource.isLoading(),
+    );
+    /** Whether the bookings of the selected week have not loaded yet */
+    public readonly week_loading = computed(
+        () => this.loading() && !this._desk_bookings_resource.hasValue(),
+    );
+    /** Whether the bookings did not load. The days do not show as free */
+    public readonly failed = computed(
+        () => !!this._desk_bookings_resource.error(),
     );
 
     public readonly bookings_by_date = computed(() => {
@@ -548,6 +564,10 @@ export class LandingDeskWeekComponent
             () => this._desk_bookings_resource.reload(),
             2 * 60 * 1000,
         );
+    }
+
+    public reload(): void {
+        this._desk_bookings_resource.reload();
     }
 
     public goToToday(): void {
@@ -588,9 +608,10 @@ export class LandingDeskWeekComponent
     public bookingTooltip(booking: Booking): string {
         const location = this.buildingName(booking);
         const desk = this.deskName(booking);
+        const time_format = this._use_24_hour_time() ? 'HH:mm' : 'h:mm a';
         const time = booking.all_day
             ? i18n('COMMON.ALL_DAY')
-            : `${format(booking.date, 'h:mm a')} - ${format(booking.date_end, 'h:mm a')}`;
+            : `${format(booking.date, time_format)} - ${format(booking.date_end, time_format)}`;
         return `${desk}\n${location}\n${time}`;
     }
 

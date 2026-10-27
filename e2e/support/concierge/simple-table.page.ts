@@ -18,6 +18,8 @@
  * Since 9c4a026cb7 (2026-10) each row is wrapped in a `[role=row]` element
  * (`[table-header]` for the header, `[table-row]` per data row) with its cells
  * as `[role=cell]`. `readTable` reads that layout, and still reads the flat one.
+ * The bulk selection checkbox cell is marked `[row-selector]` and is skipped,
+ * because the header cells read here do not include it.
  *
  * One quirk the ids do not fix: two different columns share `id="column-date"`
  * (Date and Period). `columnIndex` returns the FIRST match, which is Date;
@@ -91,7 +93,9 @@ export async function readTable(
                 rows: row_els.map((row) =>
                     (
                         Array.from(
-                            row.querySelectorAll(':scope > [role=cell]'),
+                            row.querySelectorAll(
+                                ':scope > [role=cell]:not([row-selector])',
+                            ),
                         ) as HTMLElement[]
                     ).map(text),
                 ),
@@ -288,7 +292,7 @@ export async function rowCell(
         return table
             .locator(':scope > [table-row]')
             .nth(row)
-            .locator(':scope > [role=cell]')
+            .locator(':scope > [role=cell]:not([row-selector])')
             .nth(column);
     }
     return table

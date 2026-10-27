@@ -70,11 +70,12 @@ import { addDays, endOfDay } from 'date-fns';
                 }
                 <div class="flex items-center space-x-2">
                     <div class="flex-1">
-                        <label for="user-name">{{
+                        <label for="parking-booking-modal-user-name">{{
                             'FORM.NAME' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="parking-booking-modal-user-name"
                                 matInput
                                 [formField]="form.user_name"
                                 [placeholder]="'FORM.NAME' | translate"
@@ -85,11 +86,12 @@ import { addDays, endOfDay } from 'date-fns';
                         </mat-form-field>
                     </div>
                     <div class="flex-1">
-                        <label for="email">{{
+                        <label for="parking-booking-modal-email">{{
                             'FORM.EMAIL' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="parking-booking-modal-email"
                                 matInput
                                 [formField]="form.user_email"
                                 [placeholder]="'FORM.EMAIL' | translate"
@@ -101,8 +103,16 @@ import { addDays, endOfDay } from 'date-fns';
                     </div>
                 </div>
                 <div class="relative">
-                    <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                    <a-date-field [formField]="form.date"></a-date-field>
+                    <label
+                        for="parking-booking-modal-date"
+                        id="parking-booking-modal-date-label"
+                        >{{ 'FORM.DATE' | translate }}</label
+                    >
+                    <a-date-field
+                        role="group"
+                        aria-labelledby="parking-booking-modal-date-label"
+                        [formField]="form.date"
+                    ></a-date-field>
                     @if (allow_all_day() && !form.duration().disabled()) {
                         <mat-checkbox
                             [formField]="form.all_day"
@@ -115,11 +125,15 @@ import { addDays, endOfDay } from 'date-fns';
                 @if (!model().all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
-                            <label for="start-time"
+                            <label
+                                for="parking-booking-modal-start-time"
+                                id="parking-booking-modal-start-time-label"
                                 >{{ 'FORM.TIME_START' | translate
                                 }}<span>*</span></label
                             >
                             <a-time-field
+                                role="group"
+                                aria-labelledby="parking-booking-modal-start-time-label"
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
@@ -136,11 +150,15 @@ import { addDays, endOfDay } from 'date-fns';
                             ></a-time-field>
                         </div>
                         <div class="relative w-1/3 flex-1">
-                            <label for="end-time"
+                            <label
+                                for="parking-booking-modal-end-time"
+                                id="parking-booking-modal-end-time-label"
                                 >{{ 'FORM.TIME_END' | translate
                                 }}<span>*</span></label
                             >
                             <a-duration-field
+                                role="group"
+                                aria-labelledby="parking-booking-modal-end-time-label"
                                 [formField]="form.duration"
                                 [time]="model().date"
                                 [max]="max_duration()"
@@ -152,14 +170,18 @@ import { addDays, endOfDay } from 'date-fns';
                         </div>
                     </div>
                 }
-                <label for="parking-space">{{
-                    'APP.CONCIERGE.PARKING_SPACE' | translate
-                }}</label>
+                <label
+                    for="parking-booking-modal-parking-space"
+                    id="parking-booking-modal-parking-space-label"
+                    >{{ 'APP.CONCIERGE.PARKING_SPACE' | translate }}</label
+                >
                 <parking-space-list-field
+                    role="group"
+                    aria-labelledby="parking-booking-modal-parking-space-label"
                     [formField]="form.resources"
                     class="mb-2"
                 ></parking-space-list-field>
-                <label for="plate-number">
+                <label for="parking-booking-modal-plate-number">
                     {{ 'BOOKINGS.PARKING_PLATE_NUMBER' | translate }}
                     @if (user) {
                         <span>*</span>
@@ -167,6 +189,7 @@ import { addDays, endOfDay } from 'date-fns';
                 </label>
                 <mat-form-field appearance="outline" class="w-full">
                     <input
+                        id="parking-booking-modal-plate-number"
                         matInput
                         [formField]="form.plate_number"
                         [placeholder]="
@@ -178,9 +201,12 @@ import { addDays, endOfDay } from 'date-fns';
                     }}</mat-error>
                 </mat-form-field>
                 @if (model().notes) {
-                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <label for="parking-booking-modal-notes">{{
+                        'FORM.NOTES' | translate
+                    }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
+                            id="parking-booking-modal-notes"
                             matInput
                             [formField]="form.notes"
                             rows="3"

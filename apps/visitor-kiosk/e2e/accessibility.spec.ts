@@ -162,19 +162,12 @@ test.describe('Accessibility - Form Labels', () => {
             .locator('input[name="name"]')
             .waitFor({ timeout: LOAD_TIMEOUT });
 
-        // Check for name label
-        const nameLabel = page.locator('label[for="name"]');
-        const nameLabelAlt = page.locator('label:has-text("Name")');
-        const hasNameLabel =
-            (await nameLabel.count()) > 0 || (await nameLabelAlt.count()) > 0;
-        expect(hasNameLabel).toBeTruthy();
-
-        // Check for email label
-        const emailLabel = page.locator('label[for="email"]');
-        const emailLabelAlt = page.locator('label:has-text("Email")');
-        const hasEmailLabel =
-            (await emailLabel.count()) > 0 || (await emailLabelAlt.count()) > 0;
-        expect(hasEmailLabel).toBeTruthy();
+        await expect(page.getByLabel('Name', { exact: true })).toBeVisible({
+            timeout: ACTION_TIMEOUT,
+        });
+        await expect(page.getByLabel('Email', { exact: true })).toBeVisible({
+            timeout: ACTION_TIMEOUT,
+        });
     });
 
     test('should have label for host field', async ({ page }) => {
@@ -183,8 +176,9 @@ test.describe('Accessibility - Form Labels', () => {
             .locator('input[name="name"]')
             .waitFor({ timeout: LOAD_TIMEOUT });
 
-        const hostLabel = page.locator('label:has-text("Host")');
-        await expect(hostLabel).toBeVisible({ timeout: ACTION_TIMEOUT });
+        await expect(page.getByRole('group', { name: 'Host' })).toBeVisible({
+            timeout: ACTION_TIMEOUT,
+        });
     });
 });
 
@@ -196,7 +190,7 @@ test.describe('Accessibility - Color Contrast', () => {
             .waitFor({ timeout: LOAD_TIMEOUT });
 
         // The welcome message should be visible (white text on dark background)
-        const welcomeText = page.locator('h3');
+        const welcomeText = page.locator('h1');
         await expect(welcomeText).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
@@ -207,7 +201,7 @@ test.describe('Accessibility - Color Contrast', () => {
             .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Form header should be visible
-        const header = page.locator('h3');
+        const header = page.locator('h1');
         await expect(header).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 });

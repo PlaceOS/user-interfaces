@@ -189,6 +189,31 @@ describe('NewDeskFlowSuccessComponent', () => {
         },
     );
 
+    it('should show the approval message only for a booking that is not approved', async () => {
+        spectator.component.last_event.set(
+            new Booking({ ...group_booking, approved: true }),
+        );
+        await spectator.fixture.whenStable();
+        expect(spectator.query('[approval]')).toBeNull();
+
+        spectator.component.last_event.set(
+            new Booking({ ...group_booking, approved: false }),
+        );
+        await spectator.fixture.whenStable();
+        expect(spectator.query('[approval]')).toHaveText(
+            'BOOKINGS.SUCCESS_WAIT_APPROVED',
+        );
+    });
+
+    it('should not show the level name in place of a missing building name', () => {
+        spectator.component.building.set(new Building({ name: 'Tower A' }));
+        spectator.component.level.set(new BuildingLevel({ name: 'Level 3' }));
+        expect(spectator.component.location()).toBe('Tower A, Level 3');
+
+        spectator.component.building.set(new Building());
+        expect(spectator.component.location()).toBe('Level 3');
+    });
+
     it('should not report a success count when booking details cannot be loaded', async () => {
         localStorage.setItem(
             'PLACEOS.last_group_booking_ids',

@@ -1,5 +1,13 @@
-import { Injector, signal, WritableSignal } from '@angular/core';
+import {
+    Component,
+    Injector,
+    input,
+    model as modelSignal,
+    signal,
+    WritableSignal,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormValueControl } from '@angular/forms/signals';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
@@ -8,10 +16,17 @@ import {
     generateBookingForm,
 } from '@placeos/bookings';
 import { settingSignal, SettingsService, User } from '@placeos/common';
-import { mockComponent } from '@placeos/common/tests';
 import { UserListFieldComponent } from '@placeos/form-fields';
 
 import { VisitorFlowInvitesComponent } from '../../../app/book/visitor-flow-new/visitor-flow-invites.component';
+
+// Stub for the user list field. A ng-mocks mock of the real field also mocks
+// its Material imports, which removes the checkboxes and radios under test.
+@Component({ selector: 'a-user-list-field', template: '' })
+class UserListFieldStub implements FormValueControl<User[]> {
+    readonly value = modelSignal<User[]>([]);
+    readonly guests_only = input(false);
+}
 
 describe('VisitorFlowInvitesComponent', () => {
     let spectator: Spectator<VisitorFlowInvitesComponent>;
@@ -23,7 +38,15 @@ describe('VisitorFlowInvitesComponent', () => {
 
     const createComponent = createComponentFactory({
         component: VisitorFlowInvitesComponent,
-        declarations: [mockComponent(UserListFieldComponent)],
+        overrideComponents: [
+            [
+                VisitorFlowInvitesComponent,
+                {
+                    remove: { imports: [UserListFieldComponent] },
+                    add: { imports: [UserListFieldStub] },
+                },
+            ],
+        ],
         providers: [
             {
                 provide: SettingsService,
@@ -72,6 +95,7 @@ describe('VisitorFlowInvitesComponent', () => {
             false,
         );
         settingSignal('bookings.multiple_visitors', false).set(false);
+        settingSignal('visitors.reason_required', false).set(false);
         spectator = createComponent({ detectChanges: false });
     });
 
@@ -89,6 +113,15 @@ describe('VisitorFlowInvitesComponent', () => {
         spectator.component.ngOnInit();
         expect(model().title).toBe('Visit');
         expect(model().description).toBe('Visit');
+    });
+
+    it('leaves the reason empty on init when a reason is required', () => {
+        settingSignal('visitors.reason_required', false).set(true);
+
+        spectator.component.ngOnInit();
+
+        expect(model().title).toBe('');
+        expect(model().description).toBe('');
     });
 
     it('does not overwrite an existing booking title on init', () => {

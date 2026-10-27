@@ -16,20 +16,18 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
         <div
             class="bg-base-100 flex w-full items-center space-x-2 p-4 shadow-sm"
         >
-            <date-range-field [week_start]="week_start">
+            <date-range-field [week_start]="week_start" [from]="0">
                 <input
                     #startDate
                     [ngModel]="options()?.start"
                     (ngModelChange)="
-                        $event ? setOptions({ start: $event, user: null }) : ''
+                        $event ? setOptions({ start: $event }) : ''
                     "
                 />
                 <input
                     #endDate
                     [ngModel]="options()?.end"
-                    (ngModelChange)="
-                        $event ? setOptions({ end: $event, user: null }) : ''
-                    "
+                    (ngModelChange)="$event ? setOptions({ end: $event }) : ''"
                 />
             </date-range-field>
             <a-user-search-field
@@ -47,6 +45,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                 [disabled]="!can_download()"
                 (click)="download.emit()"
+                aria-label="Download Report"
             >
                 <icon>download</icon>
             </button>
@@ -57,6 +56,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 [disabled]="!can_download()"
                 matTooltip="Print Report"
                 (click)="print()"
+                aria-label="Print Report"
             >
                 <icon>print</icon>
             </button>

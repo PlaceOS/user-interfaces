@@ -18,6 +18,7 @@ import {
 import {
     AsyncHandler,
     currentUser,
+    errorMessage,
     flatten,
     getInvalidSignalFields,
     i18n,
@@ -241,7 +242,10 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                 await this._waitForLoaded();
                 if (!asset_id || this._destroyed) return;
                 const resource = await this._findDeskResource(asset_id);
-                if (!resource) return;
+                if (this._destroyed) return;
+                if (!resource) {
+                    return notifyError(i18n('BOOKINGS.DESK_LINK_NOT_FOUND'));
+                }
                 const building = resource.zone?.parent_id
                     ? this._org.find(resource.zone.parent_id)
                     : null;
@@ -365,6 +369,9 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
             booking_type: 'desk',
             user: currentUser(),
         }));
+        if (!level?.map_id) {
+            return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
+        }
         const resources = await this._booking_form.listAvailableResources();
         const bookable_desks = resources
             .map((_) => _.map_id || _.id)
@@ -410,50 +417,43 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     }
 
     public async confirmBooking() {
+        if (this.loading()) return;
         if (this.other_user_error()) {
             return notifyError(this.other_user_error());
         }
-        if (this.auto_allocation) {
-            try {
-                await this._booking_form.autoAllocateDesk();
-            } catch (e) {
-                return notifyError(
-                    typeof e === 'string'
-                        ? e
-                        : i18n('BOOKINGS.DESK_AVAILABLE_ERROR'),
-                );
-            }
-        }
-        const { asset_id, resources } = this._booking_form.model();
-        if (resources?.length && asset_id !== resources[0].id) {
-            this._booking_form.model.update((m) => ({
-                ...m,
-                asset_id: resources[0].id,
-            }));
-        }
-        this._booking_form.form().markAsTouched();
-        if (!this._booking_form.form().valid()) {
-            return notifyError(
-                i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidSignalFields(
-                        this._booking_form.form,
-                        this._booking_form.model,
-                    )
-                        .join(', ')
-                        .replace('asset_id', i18n('RESOURCE.DESK')),
-                }),
-            );
-        }
+        // Set before the desk allocation, so a second click cannot start a
+        // second save while the allocation runs.
         this.loading.set(true);
         try {
+            if (this.auto_allocation) {
+                await this._booking_form.autoAllocateDesk();
+            }
+            const { asset_id, resources } = this._booking_form.model();
+            if (resources?.length && asset_id !== resources[0].id) {
+                this._booking_form.model.update((m) => ({
+                    ...m,
+                    asset_id: resources[0].id,
+                }));
+            }
+            this._booking_form.form().markAsTouched();
+            if (!this._booking_form.form().valid()) {
+                return notifyError(
+                    i18n('FORM.INVALID_FIELDS', {
+                        field_list: getInvalidSignalFields(
+                            this._booking_form.form,
+                            this._booking_form.model,
+                        )
+                            .join(', ')
+                            .replace('asset_id', i18n('RESOURCE.DESK')),
+                    }),
+                );
+            }
             await this._postBooking();
             notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_SUCCESS'));
             this._router.navigate(['/book/desk/success']);
         } catch (e) {
             notifyError(
-                typeof e === 'string'
-                    ? e
-                    : i18n(`BOOKINGS.DESK_AVAILABLE_ERROR`),
+                errorMessage(e) || i18n('BOOKINGS.DESK_AVAILABLE_ERROR'),
             );
         } finally {
             this.loading.set(false);

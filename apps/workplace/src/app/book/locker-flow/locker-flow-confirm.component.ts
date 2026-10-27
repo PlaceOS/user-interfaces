@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, model } from '@angular/core';
+import { Component, inject, model, signal } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -9,6 +9,9 @@ import {
     Booking,
     OrganisationService,
     SettingsService,
+    errorMessage,
+    getTimezoneOffsetString,
+    i18n,
     notifyError,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -31,6 +34,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         icon
                         name="close-locker-confirm"
                         matRipple
+                        [attr.aria-label]="'COMMON.CLOSE' | translate"
                         (click)="dismiss()"
                     >
                         <icon class="text-2xl">close</icon>
@@ -41,10 +45,16 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         <section period class="flex space-x-1 px-2 py-4">
             <icon class="text-success text-2xl">done</icon>
             <div details class="space-y-2 text-base">
-                <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
+                <h3 class="text-xl">
+                    {{
+                        booking.title ||
+                            booking_asset?.name ||
+                            ('RESOURCE.LOCKER' | translate)
+                    }}
+                </h3>
                 <div class="flex items-center space-x-2">
                     <icon class="text-xl">calendar_today</icon>
-                    <div date>{{ booking.date | date: 'fullDate' }}</div>
+                    <div date>{{ booking.date | date: 'fullDate' : tz }}</div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <icon class="text-xl">schedule</icon>
@@ -52,10 +62,10 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         {{
                             booking.all_day
                                 ? ('COMMON.ALL_DAY' | translate)
-                                : (booking.date | date: time_format) +
+                                : (booking.date | date: time_format : tz) +
                                   ' - ' +
                                   (booking.date + booking.duration * 60 * 1000
-                                      | date: time_format + ' (z)')
+                                      | date: time_format + ' (z)' : tz)
                         }}
                     </div>
                 </div>
@@ -89,7 +99,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             </section>
         }
         <footer class="border-base-200 mt-4 w-full border-t p-2">
-            @if (!loading()) {
+            @if (!loading() && !submitting()) {
                 <button
                     name="confirm-locker"
                     btn
@@ -120,8 +130,12 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
     public readonly show_close = model(false);
 
     public readonly loading = this._state.loading;
+    /** Set before the first await of `postForm` to block a second submit */
+    public readonly submitting = signal(false);
 
     public readonly postForm = async () => {
+        if (this.submitting()) return;
+        this.submitting.set(true);
         try {
             if (this._state.options()?.group) {
                 const booking = new Booking(this._state.model() as any);
@@ -139,13 +153,27 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
             }
             this.dismiss(true);
         } catch (e) {
-            notifyError(e);
+            this.submitting.set(false);
+            notifyError(errorMessage(e) || i18n('BOOKINGS.ERROR_GENERIC'));
         }
     };
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    /** Offset of the timezone that the booking form uses, or empty for local */
+    public get tz() {
+        const use_building_timezone =
+            this._settings.get('app.bookings.use_building_timezone') ||
+            this._settings.get('app.lockers.use_building_timezone');
+        const timezone = use_building_timezone
+            ? this._org.building?.timezone
+            : '';
+        return timezone
+            ? getTimezoneOffsetString(timezone, new Date(this.booking.date))
+            : '';
     }
 
     public get booking() {
@@ -171,8 +199,11 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
             this.booking.zones.includes(b.id),
         );
         const level = this._org.levelWithID((this.booking_asset as any).zones);
-        return `${level?.display_name || level?.name}${building ? ',' : ''} ${
-            building?.address || building?.display_name || building?.name || ''
-        }`;
+        return [
+            level?.display_name || level?.name,
+            building?.address || building?.display_name || building?.name,
+        ]
+            .filter(Boolean)
+            .join(', ');
     }
 }

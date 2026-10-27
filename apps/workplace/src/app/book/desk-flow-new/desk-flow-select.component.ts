@@ -58,6 +58,8 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                     icon
                     matRipple
                     class="sm:hidden"
+                    [attr.aria-label]="'COMMON.FILTERS' | translate"
+                    [attr.aria-expanded]="filters_open()"
                     (click)="filters_open.set(!filters_open())"
                 >
                     <icon>{{ filters_open() ? 'close' : 'filter_list' }}</icon>
@@ -172,11 +174,15 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         }
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
                         <date-field [formField]="form.date" [to]="end_date()" />
-                        <settings-toggle
-                            class="mb-2"
-                            [formField]="form.all_day"
-                            >{{ 'COMMON.ALL_DAY' | translate }}</settings-toggle
-                        >
+                        @if (allow_all_day()) {
+                            <settings-toggle
+                                class="mb-2"
+                                [formField]="form.all_day"
+                                >{{
+                                    'COMMON.ALL_DAY' | translate
+                                }}</settings-toggle
+                            >
+                        }
                         @if (!field('all_day')) {
                             <label for="date">{{
                                 'FORM.TIME' | translate
@@ -300,6 +306,10 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                         matRipple
                                         name="remove-space-filter"
                                         class="-mr-4"
+                                        [attr.aria-label]="
+                                            'CALENDAR_EVENT.FILTER_REMOVE'
+                                                | translate: { name: feat }
+                                        "
                                         (click)="removeFeature(feat)"
                                     >
                                         <icon>close</icon>
@@ -327,7 +337,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 [class.inverse]="view() !== 'map'"
                                 (click)="setMapView()"
                             >
-                                <icon class="text-2xl">Map</icon>
+                                <icon class="text-2xl">map</icon>
                                 <div class="pr-2">
                                     {{ 'COMMON.MAP' | translate }}
                                 </div>
@@ -367,7 +377,12 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                     <h3 class="px-2 text-xl font-medium">
                         {{ 'COMMON.FILTERS' | translate }}
                     </h3>
-                    <button icon matRipple (click)="filters_open.set(false)">
+                    <button
+                        icon
+                        matRipple
+                        [attr.aria-label]="'COMMON.CLOSE' | translate"
+                        (click)="filters_open.set(false)"
+                    >
                         <icon>close</icon>
                     </button>
                 </div>
@@ -453,9 +468,13 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                     }
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
                     <date-field [formField]="form.date" [to]="end_date()" />
-                    <settings-toggle class="mb-2" [formField]="form.all_day">{{
-                        'COMMON.ALL_DAY' | translate
-                    }}</settings-toggle>
+                    @if (allow_all_day()) {
+                        <settings-toggle
+                            class="mb-2"
+                            [formField]="form.all_day"
+                            >{{ 'COMMON.ALL_DAY' | translate }}</settings-toggle
+                        >
+                    }
                     @if (!field('all_day')) {
                         <label for="date">{{ 'FORM.TIME' | translate }}</label>
                         <div class="flex space-x-2">
@@ -628,6 +647,15 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
             settingSignal('bookings.bookable_hours')() ||
             undefined,
     );
+    public readonly allow_time_changes = computed(
+        () => settingSignal('desks.allow_time_changes')() !== false,
+    );
+    public readonly allow_all_day = computed(
+        () =>
+            this.allow_time_changes() &&
+            (settingSignal('desks.allow_all_day')() ||
+                settingSignal('bookings.allow_all_day')()),
+    );
     public readonly feature_display = settingSignal<Record<string, string>>(
         'desks.feature_decriptions',
         {},
@@ -714,7 +742,8 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     );
 
     public get timezone() {
-        return this._settings.get('app.bookings.use_building_timezone')
+        return this._settings.get('app.bookings.use_building_timezone') ||
+            this._settings.get('app.desks.use_building_timezone')
             ? this._org.building.timezone
             : '';
     }

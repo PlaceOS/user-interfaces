@@ -15,7 +15,7 @@ import { SettingsService } from '@placeos/common';
                 Please read the induction information below before proceeding
             </p>
             <div
-                class="border-base-300 max-h-[50vh] w-full overflow-x-hidden overflow-y-auto rounded-sm border p-4 text-sm whitespace-pre-wrap opacity-60"
+                class="border-base-300 max-h-[50vh] w-full overflow-x-hidden overflow-y-auto rounded-sm border p-4 text-sm whitespace-pre-wrap opacity-70"
             >
                 {{ induction_details }}
             </div>

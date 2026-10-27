@@ -190,4 +190,20 @@ describe('EventManageComponent', () => {
             expect.stringContaining('/metadata/'),
         );
     });
+
+    it('should go back to the list when the event fails to load', async () => {
+        vi.mocked(ts_client.get).mockRejectedValue({ status: 404 } as never);
+        const router = spectator.router;
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+        await spectator.component.ngOnInit();
+        spectator.setRouteParam('id', 'event-1');
+        await vi.waitFor(() =>
+            expect(navigate).toHaveBeenCalledWith(['/entertainment', 'events']),
+        );
+        expect(spectator.component.fetching()).toBe(false);
+        expect(
+            spectator.inject(EventFormService).newForm,
+        ).not.toHaveBeenCalled();
+    });
 });

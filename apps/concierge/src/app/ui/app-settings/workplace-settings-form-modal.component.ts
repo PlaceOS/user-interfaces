@@ -30,10 +30,14 @@ import {
     FullscreenModalShellComponent,
     IconComponent,
     SettingsToggleComponent,
+    TranslatePipe,
 } from '@placeos/components';
 import {
-    appSettingOverrides,
     applyAppSettings,
+    applyBookingFallbacks,
+    appSettingOverrides,
+    AppSettings,
+    LOCKER_BOOKING_FALLBACKS,
     mergeAppSettings,
 } from './app-settings.utilities';
 import {
@@ -63,13 +67,13 @@ import { errorText } from '../modal-actions';
             <form class="flex flex-col space-y-8 pb-4">
                 <section general class="bg-base-100 space-y-2 rounded-sm">
                     <div>
-                        <label for="logo_light">Light Mode Logo</label>
+                        <label for="workplace-settings-form-modal-logo_light">Light Mode Logo</label>
                         <div class="mb-4 flex items-center space-x-2">
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input matInput [formField]="form.logo_light" />
+                                <input id="workplace-settings-form-modal-logo_light" matInput [formField]="form.logo_light" />
                             </mat-form-field>
                             <upload-button
                                 ngModel
@@ -84,13 +88,13 @@ import { errorText } from '../modal-actions';
                         </div>
                     </div>
                     <div>
-                        <label for="logo_dark">Dark Mode Logo</label>
+                        <label for="workplace-settings-form-modal-logo_dark">Dark Mode Logo</label>
                         <div class="mb-4 flex items-center space-x-2">
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input matInput [formField]="form.logo_dark" />
+                                <input id="workplace-settings-form-modal-logo_dark" matInput [formField]="form.logo_dark" />
                             </mat-form-field>
                             <upload-button
                                 ngModel
@@ -105,9 +109,9 @@ import { errorText } from '../modal-actions';
                         </div>
                     </div>
                     <div>
-                        <label for="features">Features</label>
+                        <label for="workplace-settings-form-modal-features" id="workplace-settings-form-modal-features-label">Features</label>
                         <mat-form-field appearance="outline" class="w-full">
-                            <mat-select [formField]="form.features" multiple>
+                            <mat-select aria-labelledby="workplace-settings-form-modal-features-label" [formField]="form.features" multiple>
                                 <mat-option value="spaces"> Rooms </mat-option>
                                 <mat-option value="desks">Desks</mat-option>
                                 <mat-option value="explore">Explore</mat-option>
@@ -136,11 +140,12 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="hide-landing-widgets"
-                            >Hidden Landing Widgets</label
+                        <label for="workplace-settings-form-modal-hide-landing-widgets"
+                             id="workplace-settings-form-modal-hide-landing-widgets-label">Hidden Landing Widgets</label
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                aria-labelledby="workplace-settings-form-modal-hide-landing-widgets-label"
                                 [formField]="form.hide_landing_widgets"
                                 placeholder="None"
                                 multiple
@@ -174,11 +179,12 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="features"
-                            >Hide Global Search Item Types</label
+                        <label for="workplace-settings-form-modal-features-2"
+                             id="workplace-settings-form-modal-features-2-label">Hide Global Search Item Types</label
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                aria-labelledby="workplace-settings-form-modal-features-2-label"
                                 [formField]="form.hide_global_search_items"
                                 multiple
                             >
@@ -212,12 +218,13 @@ import { errorText } from '../modal-actions';
                         </h3>
                         <div class="flex items-center space-x-4">
                             <div class="flex-1">
-                                <label for="banner-type">Type</label>
+                                <label for="workplace-settings-form-modal-banner-type" id="workplace-settings-form-modal-banner-type-label">Type</label>
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
                                 >
                                     <mat-select
+                                        aria-labelledby="workplace-settings-form-modal-banner-type-label"
                                         name="banner-type"
                                         [ngModel]="model().banner?.type || ''"
                                         (ngModelChange)="
@@ -247,12 +254,13 @@ import { errorText } from '../modal-actions';
                                 </mat-form-field>
                             </div>
                             <div class="flex-1">
-                                <label for="banner-type">Message</label>
+                                <label for="workplace-settings-form-modal-banner-type-2">Message</label>
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
                                 >
                                     <input
+                                        id="workplace-settings-form-modal-banner-type-2"
                                         matInput
                                         name="banner-message"
                                         placeholder="Banner Message"
@@ -276,11 +284,12 @@ import { errorText } from '../modal-actions';
                         </div>
                     </div>
                     <div>
-                        <label for="external-support-url">
+                        <label for="workplace-settings-form-modal-external-support-url">
                             External Support URL
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="workplace-settings-form-modal-external-support-url"
                                 matInput
                                 [formField]="form.external_support_url"
                                 placeholder="https://support.com/ticket"
@@ -293,9 +302,10 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="support-email">Support Email</label>
+                        <label for="workplace-settings-form-modal-support-email">Support Email</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="workplace-settings-form-modal-support-email"
                                 matInput
                                 [formField]="form.support_email"
                                 placeholder="support@acme.tech"
@@ -306,9 +316,10 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="default-route">Default Route</label>
+                        <label for="workplace-settings-form-modal-default-route">Default Route</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="workplace-settings-form-modal-default-route"
                                 matInput
                                 [formField]="form.default_route"
                                 placeholder="/landing"
@@ -317,9 +328,10 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="catering-provider">Catering Provider</label>
+                        <label for="workplace-settings-form-modal-catering-provider">Catering Provider</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="workplace-settings-form-modal-catering-provider"
                                 matInput
                                 [formField]="form.catering_provider"
                                 placeholder="Catering Provider"
@@ -331,9 +343,10 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="week-start">Week Start</label>
+                        <label for="workplace-settings-form-modal-week-start" id="workplace-settings-form-modal-week-start-label">Week Start</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                aria-labelledby="workplace-settings-form-modal-week-start-label"
                                 [formField]="form.week_start"
                                 placeholder="Sunday"
                             >
@@ -350,9 +363,10 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="currency">Currency</label>
+                        <label for="workplace-settings-form-modal-currency" id="workplace-settings-form-modal-currency-label">Currency</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                aria-labelledby="workplace-settings-form-modal-currency-label"
                                 [formField]="form.currency"
                                 placeholder="Select currency code"
                                 (openedChange)="
@@ -392,9 +406,10 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="locales">Locales</label>
+                        <label for="workplace-settings-form-modal-locales" id="workplace-settings-form-modal-locales-label">Locales</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                aria-labelledby="workplace-settings-form-modal-locales-label"
                                 [formField]="form.locales"
                                 multiple
                                 placeholder="Select locales"
@@ -486,10 +501,6 @@ import { errorText } from '../modal-actions';
                             [formField]="form.colleagues_require_auth"
                         ></settings-toggle>
                         <settings-toggle
-                            label="Hide landing sidebar"
-                            [formField]="form.hide_landing_sidebar"
-                        ></settings-toggle>
-                        <settings-toggle
                             label="Hide landing spaces"
                             [formField]="form.hide_landing_spaces"
                         ></settings-toggle>
@@ -543,6 +554,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Room Bookings"
+                            [attr.aria-expanded]="shown_group() === 'spaces'"
                             (click)="toggleGroup('spaces')"
                         >
                             <icon>{{
@@ -557,7 +570,7 @@ import { errorText } from '../modal-actions';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div>
-                                    <label for="available-period">
+                                    <label for="workplace-settings-form-modal-available-period" id="workplace-settings-form-modal-available-period-label">
                                         Available Period
                                     </label>
                                     <mat-form-field
@@ -565,6 +578,7 @@ import { errorText } from '../modal-actions';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="workplace-settings-form-modal-available-period-label"
                                             [formField]="form.events.allowed_future_days"
                                         >
                                             @for (
@@ -584,12 +598,13 @@ import { errorText } from '../modal-actions';
                                     </mat-form-field>
                                 </div>
                                 <div>
-                                    <label for="force-host">Force Host</label>
+                                    <label for="workplace-settings-form-modal-force-host">Force Host</label>
                                     <mat-form-field
                                         appearance="outline"
                                         class="w-full"
                                     >
                                         <input
+                                            id="workplace-settings-form-modal-force-host"
                                             matInput
                                             [formField]="form.events.force_host"
                                             placeholder="global.host@acme.tech"
@@ -604,7 +619,7 @@ import { errorText } from '../modal-actions';
                                     </mat-form-field>
                                 </div>
                                 <div>
-                                    <label for="max-duration">
+                                    <label for="workplace-settings-form-modal-max-duration" id="workplace-settings-form-modal-max-duration-label">
                                         Max Duration
                                     </label>
                                     <mat-form-field
@@ -612,6 +627,7 @@ import { errorText } from '../modal-actions';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="workplace-settings-form-modal-max-duration-label"
                                             [formField]="form.events.max_duration"
                                         >
                                             @for (
@@ -631,7 +647,7 @@ import { errorText } from '../modal-actions';
                                 </div>
                                 <div class="flex items-center space-x-4">
                                     <div>
-                                        <label for="setup">
+                                        <label for="workplace-settings-form-modal-setup" id="workplace-settings-form-modal-setup-label">
                                             Default Setup Duration
                                         </label>
                                         <mat-form-field
@@ -639,6 +655,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-setup-label"
                                                 [formField]="form.events.setup"
                                                 placeholder="No default setup"
                                             >
@@ -657,7 +674,7 @@ import { errorText } from '../modal-actions';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="breakdown">
+                                        <label for="workplace-settings-form-modal-breakdown" id="workplace-settings-form-modal-breakdown-label">
                                             Default Breakdown Duration
                                         </label>
                                         <mat-form-field
@@ -665,6 +682,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-breakdown-label"
                                                 [formField]="form.events.breakdown"
                                                 placeholder="No default breakdown"
                                             >
@@ -687,7 +705,7 @@ import { errorText } from '../modal-actions';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="events-bookable-start">
+                                        <label for="workplace-settings-form-modal-events-bookable-start" id="workplace-settings-form-modal-events-bookable-start-label">
                                             Bookable Start
                                         </label>
                                         <mat-form-field
@@ -695,6 +713,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-events-bookable-start-label"
                                                 [formField]="form.events.bookable_hours.start"
                                                 placeholder="None"
                                             >
@@ -713,7 +732,7 @@ import { errorText } from '../modal-actions';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="events-bookable-end">
+                                        <label for="workplace-settings-form-modal-events-bookable-end" id="workplace-settings-form-modal-events-bookable-end-label">
                                             Bookable End
                                         </label>
                                         <mat-form-field
@@ -721,6 +740,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-events-bookable-end-label"
                                                 [formField]="form.events.bookable_hours.end"
                                                 placeholder="None"
                                             >
@@ -774,12 +794,18 @@ import { errorText } from '../modal-actions';
                                         [formField]="form.events.allow_externals"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        label="Enforce room capacity limits"
-                                        [formField]="form.events.strict_capacity_check"
+                                        label="Allow international attendees"
+                                        info="Show a checkbox on the meeting form that flags each attendee as international"
+                                        [formField]="form.events.allow_international"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        label="Allow Visibility options"
-                                        [formField]="form.events.allow_visibility"
+                                        label="Allow attendees to be marked internal or external"
+                                        info="Show a control on the meeting form that marks each attendee as internal (default) or external"
+                                        [formField]="form.events.allow_attendee_internal_or_external"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        label="Enforce room capacity limits"
+                                        [formField]="form.events.strict_capacity_check"
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Disable notes field"
@@ -823,7 +849,7 @@ import { errorText } from '../modal-actions';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="events-all-day-start">
+                                        <label for="workplace-settings-form-modal-events-all-day-start" id="workplace-settings-form-modal-events-all-day-start-label">
                                             All Day Start
                                         </label>
                                         <mat-form-field
@@ -831,6 +857,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-events-all-day-start-label"
                                                 [formField]="form.events.all_day_period.start"
                                             >
                                                 @for (
@@ -848,7 +875,7 @@ import { errorText } from '../modal-actions';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="events-all-day-end">
+                                        <label for="workplace-settings-form-modal-events-all-day-end" id="workplace-settings-form-modal-events-all-day-end-label">
                                             All Day End
                                         </label>
                                         <mat-form-field
@@ -856,6 +883,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-events-all-day-end-label"
                                                 [formField]="form.events.all_day_period.end"
                                             >
                                                 @for (
@@ -892,6 +920,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Desk Bookings"
+                            [attr.aria-expanded]="shown_group() === 'desks'"
                             (click)="toggleGroup('desks')"
                         >
                             <icon>{{
@@ -906,7 +936,7 @@ import { errorText } from '../modal-actions';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div>
-                                    <label for="max-duration">
+                                    <label for="workplace-settings-form-modal-max-duration-2" id="workplace-settings-form-modal-max-duration-2-label">
                                         Max Duration
                                     </label>
                                     <mat-form-field
@@ -914,6 +944,7 @@ import { errorText } from '../modal-actions';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="workplace-settings-form-modal-max-duration-2-label"
                                             [formField]="form.desks.max_duration"
                                         >
                                             @for (
@@ -929,7 +960,7 @@ import { errorText } from '../modal-actions';
                                     </mat-form-field>
                                 </div>
                                 <div>
-                                    <label for="available-period">
+                                    <label for="workplace-settings-form-modal-available-period-2" id="workplace-settings-form-modal-available-period-2-label">
                                         Available Period
                                     </label>
                                     <mat-form-field
@@ -937,6 +968,7 @@ import { errorText } from '../modal-actions';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="workplace-settings-form-modal-available-period-2-label"
                                             [formField]="form.desks.available_period"
                                         >
                                             @for (
@@ -959,7 +991,7 @@ import { errorText } from '../modal-actions';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="desks-bookable-start">
+                                        <label for="workplace-settings-form-modal-desks-bookable-start" id="workplace-settings-form-modal-desks-bookable-start-label">
                                             Bookable Start
                                         </label>
                                         <mat-form-field
@@ -967,6 +999,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-desks-bookable-start-label"
                                                 [formField]="form.desks.bookable_hours.start"
                                             >
                                                 @for (
@@ -984,7 +1017,7 @@ import { errorText } from '../modal-actions';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="desks-bookable-end">
+                                        <label for="workplace-settings-form-modal-desks-bookable-end" id="workplace-settings-form-modal-desks-bookable-end-label">
                                             Bookable End
                                         </label>
                                         <mat-form-field
@@ -992,6 +1025,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-desks-bookable-end-label"
                                                 [formField]="form.desks.bookable_hours.end"
                                             >
                                                 @for (
@@ -1042,14 +1076,6 @@ import { errorText } from '../modal-actions';
                                         label="Allow requesting assets with booking"
                                         [formField]="form.desks.has_assets"
                                     ></settings-toggle>
-                                    <!-- <settings-toggle
-                                                                                                      label="Hide reason field for desk booking"
-                                                                                                      [formField]="form.desks.hide_reason"
-                                                                                                    ></settings-toggle>
-                                                                                                    <settings-toggle
-                                                                                                      label="Require a reason for desk booking"
-                                                                                                      [formField]="form.desks.needs_reason"
-                                                                                                    ></settings-toggle> -->
                                     <settings-toggle
                                         label="Allow Recurring Desk bookings"
                                         [formField]="form.desks.allow_recurrence"
@@ -1103,6 +1129,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="PlaceOS Bookings"
+                            [attr.aria-expanded]="shown_group() === 'bookings'"
                             (click)="toggleGroup('bookings')"
                         >
                             <icon>{{
@@ -1120,7 +1148,7 @@ import { errorText } from '../modal-actions';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="bookings-bookable-start">
+                                        <label for="workplace-settings-form-modal-bookings-bookable-start" id="workplace-settings-form-modal-bookings-bookable-start-label">
                                             Bookable Start
                                         </label>
                                         <mat-form-field
@@ -1128,6 +1156,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-bookings-bookable-start-label"
                                                 [formField]="form.bookings.bookable_hours.start"
                                             >
                                                 @for (
@@ -1145,7 +1174,7 @@ import { errorText } from '../modal-actions';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="bookings-bookable-end">
+                                        <label for="workplace-settings-form-modal-bookings-bookable-end" id="workplace-settings-form-modal-bookings-bookable-end-label">
                                             Bookable End
                                         </label>
                                         <mat-form-field
@@ -1153,6 +1182,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-bookings-bookable-end-label"
                                                 [formField]="form.bookings.bookable_hours.end"
                                             >
                                                 @for (
@@ -1229,7 +1259,7 @@ import { errorText } from '../modal-actions';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="bookings-all-day-start">
+                                        <label for="workplace-settings-form-modal-bookings-all-day-start" id="workplace-settings-form-modal-bookings-all-day-start-label">
                                             All Day Start
                                         </label>
                                         <mat-form-field
@@ -1237,6 +1267,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-bookings-all-day-start-label"
                                                 [formField]="form.bookings.all_day_period.start"
                                                 placeholder="None"
                                             >
@@ -1255,7 +1286,7 @@ import { errorText } from '../modal-actions';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="bookings-all-day-end">
+                                        <label for="workplace-settings-form-modal-bookings-all-day-end" id="workplace-settings-form-modal-bookings-all-day-end-label">
                                             All Day End
                                         </label>
                                         <mat-form-field
@@ -1263,6 +1294,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-bookings-all-day-end-label"
                                                 [formField]="form.bookings.all_day_period.end"
                                                 placeholder="None"
                                             >
@@ -1300,6 +1332,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="PlaceOS Maps"
+                            [attr.aria-expanded]="shown_group() === 'explore'"
                             (click)="toggleGroup('explore')"
                         >
                             <icon>{{
@@ -1314,7 +1348,7 @@ import { errorText } from '../modal-actions';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div>
-                                    <label for="disable">
+                                    <label for="workplace-settings-form-modal-disable" id="workplace-settings-form-modal-disable-label">
                                         Disabled Features
                                     </label>
                                     <mat-form-field
@@ -1322,6 +1356,7 @@ import { errorText } from '../modal-actions';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="workplace-settings-form-modal-disable-label"
                                             [formField]="form.explore.disable"
                                             placeholder="No disabled features"
                                             multiple
@@ -1340,7 +1375,7 @@ import { errorText } from '../modal-actions';
                                 </div>
                                 <div class="flex items-center space-x-4">
                                     <div class="flex-1">
-                                        <label for="disable-actions">
+                                        <label for="workplace-settings-form-modal-disable-actions" id="workplace-settings-form-modal-disable-actions-label">
                                             Disabled Feature Actions
                                         </label>
                                         <mat-form-field
@@ -1348,6 +1383,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-disable-actions-label"
                                                 [formField]="form.explore.disable_actions"
                                                 placeholder="No disabled actions"
                                                 multiple
@@ -1367,7 +1403,7 @@ import { errorText } from '../modal-actions';
                                         </mat-form-field>
                                     </div>
                                     <div class="flex-1">
-                                        <label for="available-period">
+                                        <label for="workplace-settings-form-modal-available-period-3" id="workplace-settings-form-modal-available-period-3-label">
                                             Disabled Feature Labels
                                         </label>
                                         <mat-form-field
@@ -1375,6 +1411,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-available-period-3-label"
                                                 [formField]="form.explore.disable_labels"
                                                 placeholder="No disabled labels"
                                                 multiple
@@ -1396,7 +1433,7 @@ import { errorText } from '../modal-actions';
                                 </div>
                                 <div class="flex items-center space-x-4">
                                     <div class="flex-1">
-                                        <label for="disable-features">
+                                        <label for="workplace-settings-form-modal-disable-features" id="workplace-settings-form-modal-disable-features-label">
                                             Disabled Feature Displays
                                         </label>
                                         <mat-form-field
@@ -1404,6 +1441,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-disable-features-label"
                                                 [formField]="form.explore.disable_features"
                                                 placeholder="No disabled displays"
                                                 multiple
@@ -1423,7 +1461,7 @@ import { errorText } from '../modal-actions';
                                         </mat-form-field>
                                     </div>
                                     <div class="flex-1">
-                                        <label for="disable-styles">
+                                        <label for="workplace-settings-form-modal-disable-styles" id="workplace-settings-form-modal-disable-styles-label">
                                             Disabled Feature Styles
                                         </label>
                                         <mat-form-field
@@ -1431,6 +1469,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-disable-styles-label"
                                                 [formField]="form.explore.disable_styles"
                                                 placeholder="No disabled styles"
                                                 multiple
@@ -1503,6 +1542,9 @@ import { errorText } from '../modal-actions';
                                                     matRipple
                                                     class="border-error text-error h-12 w-12 rounded-sm border"
                                                     (click)="removeLegend(i)"
+                                                    [attr.aria-label]="
+                                                        'COMMON.DELETE' | translate
+                                                    "
                                                 >
                                                     <icon>delete</icon>
                                                 </button>
@@ -1519,7 +1561,7 @@ import { errorText } from '../modal-actions';
                                     </div>
                                 }
                                 <div>
-                                    <label for="hide-device-fields">
+                                    <label for="workplace-settings-form-modal-hide-device-fields" id="workplace-settings-form-modal-hide-device-fields-label">
                                         Hidden Device Fields
                                     </label>
                                     <mat-form-field
@@ -1527,6 +1569,7 @@ import { errorText } from '../modal-actions';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="workplace-settings-form-modal-hide-device-fields-label"
                                             [formField]="form.explore.hide_device_fields"
                                             placeholder="None"
                                             multiple
@@ -1603,6 +1646,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Parking Bookings"
+                            [attr.aria-expanded]="shown_group() === 'parking'"
                             (click)="toggleGroup('parking')"
                         >
                             <icon>{{
@@ -1617,7 +1662,7 @@ import { errorText } from '../modal-actions';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div>
-                                    <label for="max-duration">
+                                    <label for="workplace-settings-form-modal-max-duration-3" id="workplace-settings-form-modal-max-duration-3-label">
                                         Max Duration
                                     </label>
                                     <mat-form-field
@@ -1625,6 +1670,7 @@ import { errorText } from '../modal-actions';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="workplace-settings-form-modal-max-duration-3-label"
                                             [formField]="form.parking.max_duration"
                                         >
                                             @for (
@@ -1640,7 +1686,7 @@ import { errorText } from '../modal-actions';
                                     </mat-form-field>
                                 </div>
                                 <div>
-                                    <label for="available-period">
+                                    <label for="workplace-settings-form-modal-available-period-4" id="workplace-settings-form-modal-available-period-4-label">
                                         Available Period
                                     </label>
                                     <mat-form-field
@@ -1648,6 +1694,7 @@ import { errorText } from '../modal-actions';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="workplace-settings-form-modal-available-period-4-label"
                                             [formField]="form.parking.available_period"
                                         >
                                             @for (
@@ -1670,7 +1717,7 @@ import { errorText } from '../modal-actions';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="parking-bookable-start">
+                                        <label for="workplace-settings-form-modal-parking-bookable-start" id="workplace-settings-form-modal-parking-bookable-start-label">
                                             Bookable Start
                                         </label>
                                         <mat-form-field
@@ -1678,6 +1725,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-parking-bookable-start-label"
                                                 [formField]="form.parking.bookable_hours.start"
                                             >
                                                 @for (
@@ -1695,7 +1743,7 @@ import { errorText } from '../modal-actions';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="parking-bookable-end">
+                                        <label for="workplace-settings-form-modal-parking-bookable-end" id="workplace-settings-form-modal-parking-bookable-end-label">
                                             Bookable End
                                         </label>
                                         <mat-form-field
@@ -1703,6 +1751,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-parking-bookable-end-label"
                                                 [formField]="form.parking.bookable_hours.end"
                                             >
                                                 @for (
@@ -1777,6 +1826,8 @@ import { errorText } from '../modal-actions';
                             icon
                             matRipple
                             class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            aria-label="Locker Bookings"
+                            [attr.aria-expanded]="shown_group() === 'lockers'"
                             (click)="toggleGroup('lockers')"
                         >
                             <icon>{{
@@ -1791,7 +1842,7 @@ import { errorText } from '../modal-actions';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div>
-                                    <label for="max-duration">
+                                    <label for="workplace-settings-form-modal-max-duration-4" id="workplace-settings-form-modal-max-duration-4-label">
                                         Max Duration
                                     </label>
                                     <mat-form-field
@@ -1799,6 +1850,7 @@ import { errorText } from '../modal-actions';
                                         class="w-full"
                                     >
                                         <mat-select
+                                            aria-labelledby="workplace-settings-form-modal-max-duration-4-label"
                                             [formField]="form.lockers.max_duration"
                                         >
                                             @for (
@@ -1817,7 +1869,7 @@ import { errorText } from '../modal-actions';
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
                                     <div>
-                                        <label for="lockers-bookable-start">
+                                        <label for="workplace-settings-form-modal-lockers-bookable-start" id="workplace-settings-form-modal-lockers-bookable-start-label">
                                             Bookable Start
                                         </label>
                                         <mat-form-field
@@ -1825,6 +1877,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-lockers-bookable-start-label"
                                                 [formField]="form.lockers.bookable_hours.start"
                                             >
                                                 @for (
@@ -1842,7 +1895,7 @@ import { errorText } from '../modal-actions';
                                         </mat-form-field>
                                     </div>
                                     <div>
-                                        <label for="lockers-bookable-end">
+                                        <label for="workplace-settings-form-modal-lockers-bookable-end" id="workplace-settings-form-modal-lockers-bookable-end-label">
                                             Bookable End
                                         </label>
                                         <mat-form-field
@@ -1850,6 +1903,7 @@ import { errorText } from '../modal-actions';
                                             class="w-full"
                                         >
                                             <mat-select
+                                                aria-labelledby="workplace-settings-form-modal-lockers-bookable-end-label"
                                                 [formField]="form.lockers.bookable_hours.end"
                                             >
                                                 @for (
@@ -1928,6 +1982,7 @@ import { errorText } from '../modal-actions';
         MatInputModule,
         FormsModule,
         UploadButtonComponent,
+        TranslatePipe,
     ],
 })
 export class WorkplaceSettingsFormModalComponent implements OnInit {
@@ -1943,6 +1998,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
 
     public existing_settings: Record<string, any> = {};
     public old_settings: Record<string, any> = {};
+    /** Form values right after loading, used to find user changes on save. */
+    public initial_settings: AppSettings = {};
     public readonly loading = signal('');
     public readonly shown_group = signal<string>('');
     public readonly currency_filter = signal('');
@@ -1983,7 +2040,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         allow_support_ticket_images: false,
         basic_user_search: false,
         colleagues_require_auth: true,
-        hide_landing_sidebar: false,
         hide_landing_spaces: false,
         hide_landing_rooms: false,
         hide_colleagues: false,
@@ -2019,6 +2075,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             multiple_spaces: false,
             room_as_host: false,
             allow_externals: false,
+            allow_international: false,
+            allow_attendee_internal_or_external: false,
             strict_capacity_check: false,
             hide_notes: false,
             hide_attendees: false,
@@ -2026,7 +2084,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             allow_recurrence: false,
             allow_multiday: false,
             use_bookings: false,
-            allow_visibility: false,
             use_building_timezone: false,
             force_host: '',
             allow_daily_allday_recurrence: false,
@@ -2067,7 +2124,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             can_book_lockers: false,
             has_assets: false,
             hide_reason: false,
-            needs_reason: false,
             allow_recurrence: false,
             default_select_as_map: false,
             show_calendar_links: false,
@@ -2181,14 +2237,22 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
                     : {};
             const metadata = await this._getMetadata(zone.id);
             this.existing_settings = mergeAppSettings(
-                this.model(),
                 DEFAULT_SETTINGS.app,
                 org_metadata,
                 parent_metadata,
             );
             this._patchModel(this.existing_settings);
             this._patchModel(metadata || {});
+            this.model.update((model) =>
+                applyBookingFallbacks(
+                    model,
+                    mergeAppSettings(this.existing_settings, metadata),
+                    'lockers',
+                    LOCKER_BOOKING_FALLBACKS,
+                ),
+            );
             this.old_settings = metadata;
+            this.initial_settings = this.model();
         } catch (e) {
             // Saving defaults over settings that failed to load would lose
             // them, so close instead.
@@ -2223,6 +2287,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         const new_settings = appSettingOverrides(
             working_settings,
             this.existing_settings,
+            this.initial_settings,
+            this.old_settings,
         );
         const user = currentUser();
         new_settings.edited_by = {

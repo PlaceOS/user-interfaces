@@ -89,23 +89,8 @@ test.describe('Building Configuration', () => {
     });
 });
 
-// US-150 / US-151 / US-152 / US-153: Content and communications management.
+// US-151 / US-152 / US-153: Content and communications management.
 test.describe('Communications and Content', () => {
-    test('shows signage media, displays and zones tabs', async ({ page }) => {
-        const routes = [
-            { route: '/#/signage/media', selector: 'signage-media' },
-            { route: '/#/signage/displays', selector: 'signage-displays' },
-            { route: '/#/signage/zones', selector: 'signage-zones' },
-        ];
-
-        for (const { route, selector } of routes) {
-            await gotoMockRoute(page, route);
-            await waitForAppShell(page);
-            await waitForHost(page, '[app-new-staff]');
-            await waitForHost(page, selector);
-        }
-    });
-
     test('shows email template list and manage routes', async ({ page }) => {
         await gotoMockRoute(page, '/#/email-templates');
         await waitForAppShell(page);

@@ -4,6 +4,7 @@ import {
     differenceInSeconds,
     format,
     getMinutes,
+    isSameDay,
     roundToNearestMinutes,
     startOfHour,
     type NearestMinutes,
@@ -25,6 +26,9 @@ export interface PanelTimelineBooking {
     size: number;
     title: string;
 }
+
+/** Default time format. `app.use_24_hour_time` changes it to `HH:mm`. */
+export const TIME_FORMAT = 'h:mm a';
 
 /** Length of the panel timeline in minutes */
 const TIMELINE_SPAN = 12 * 60;
@@ -52,68 +56,89 @@ function overlapsBooking(
     );
 }
 
+/**
+ * Format for the start time of `date`. Adds the weekday when `date` is not
+ * today, so a booking tomorrow does not look like a booking earlier today.
+ */
+export function dayTimeFormat(
+    date: number,
+    time_format = TIME_FORMAT,
+    now = Date.now(),
+) {
+    return isSameDay(date, now) ? time_format : `EEE ${time_format}`;
+}
+
 export function timelineStart(now = Date.now()) {
     return addMinutes(startOfHour(now), -60).valueOf();
 }
 
-export function timelineData(
-    bookings: CalendarEvent[],
-    now = Date.now(),
-    start = timelineStart(now),
+/** Grid blocks for the timeline. Depends only on the start time and format. */
+export function timelineBlocks(
+    start: number,
     step = 10,
-): {
-    blocks: PanelTimelineBlock[];
-    bookings: PanelTimelineBooking[];
-    now: number;
-} {
+    time_format = TIME_FORMAT,
+): PanelTimelineBlock[] {
     const blocks: PanelTimelineBlock[] = [];
     let time = start;
     const end = addMinutes(start, TIMELINE_SPAN).valueOf();
-    const duration = end - start;
+    const hour_format = time_format === TIME_FORMAT ? 'ha' : 'HH';
 
     while (time < end) {
         blocks.push({
             id: `${time}`,
             time,
-            hour: format(time, 'ha'),
+            hour: format(time, hour_format),
             on_hour: getMinutes(time) === 0,
         });
         time = addMinutes(time, step).valueOf();
     }
-
-    return {
-        blocks,
-        bookings: bookings
-            .map((booking, index) => {
-                const booking_end = addMinutes(
-                    booking.date,
-                    booking.duration,
-                ).valueOf();
-                const visible_start = Math.max(booking.date, start);
-                const visible_end = Math.min(booking_end, end);
-                return {
-                    id: `${booking.id || booking.date}-${index}`,
-                    start: ((visible_start - start) / duration) * 100,
-                    size: ((visible_end - visible_start) / duration) * 100,
-                    title: `${format(booking.date, 'h:mm a')} - ${format(
-                        booking_end,
-                        'h:mm a',
-                    )}`,
-                };
-            })
-            .filter((booking) => booking.size > 0),
-        now: Math.max(0, Math.min(100, ((now - start) / duration) * 100)),
-    };
+    return blocks;
 }
 
-export function nextPeriod(next: CalendarEvent) {
+/** Bookings positioned as percentages along the timeline from `start` */
+export function timelineBookings(
+    bookings: CalendarEvent[],
+    start: number,
+    time_format = TIME_FORMAT,
+): PanelTimelineBooking[] {
+    const end = addMinutes(start, TIMELINE_SPAN).valueOf();
+    const duration = end - start;
+    return bookings
+        .map((booking, index) => {
+            const booking_end = addMinutes(
+                booking.date,
+                booking.duration,
+            ).valueOf();
+            const visible_start = Math.max(booking.date, start);
+            const visible_end = Math.min(booking_end, end);
+            return {
+                id: `${booking.id || booking.date}-${index}`,
+                start: ((visible_start - start) / duration) * 100,
+                size: ((visible_end - visible_start) / duration) * 100,
+                title: `${format(booking.date, time_format)} - ${format(
+                    booking_end,
+                    time_format,
+                )}`,
+            };
+        })
+        .filter((booking) => booking.size > 0);
+}
+
+/** Position of `now` along the timeline as a percentage from 0 to 100 */
+export function timelineNow(now: number, start: number) {
+    const duration = TIMELINE_SPAN * 60 * 1000;
+    return Math.max(0, Math.min(100, ((now - start) / duration) * 100));
+}
+
+/** Time range of `next` when it starts within a day. Otherwise empty. */
+export function nextPeriod(next: CalendarEvent, time_format = TIME_FORMAT) {
     const next_diff = Math.ceil(
         differenceInSeconds(next?.date, Date.now()) / 60,
     );
     return next && next_diff < 24 * 60
-        ? `${format(next.date, 'h:mm a')} - ${format(
+        ? `${format(next.date, dayTimeFormat(next.date, time_format))} - ${format(
               addMinutes(next.date, next.duration),
-              'h:mm a',
+              time_format,
           )}`
         : '';
 }

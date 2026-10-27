@@ -1,12 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { startOfMinute } from 'date-fns';
 
 import { AsyncHandler } from '@placeos/common';
@@ -15,8 +7,10 @@ import { generateQRCode } from '@placeos/common/qr-code';
 import { CommonModule } from '@angular/common';
 import {
     AuthenticatedImageDirective,
+    IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { AnnounceDirective } from '../announce.directive';
 import { PanelStateService } from '../panel-state.service';
 import { endingSoon } from './helpers';
 
@@ -30,21 +24,42 @@ import { endingSoon } from './helpers';
                 <div class="absolute inset-0">
                     <img
                         auth
+                        alt=""
                         class="h-full w-full object-cover object-center"
                         [source]="room_image"
                     />
                 </div>
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
-            <div name class="absolute top-4 left-4 text-4xl font-medium">
-                {{ sys?.display_name || sys?.name || '' }}
+            <div class="absolute top-4 left-4">
+                <h1 name class="text-4xl font-medium">
+                    {{ sys?.display_name || sys?.name || '' }}
+                </h1>
+                @if (capacity) {
+                    <div
+                        capacity
+                        class="mt-2 flex items-center space-x-2 text-2xl"
+                    >
+                        <icon aria-hidden="true">group</icon>
+                        <span class="sr-only"
+                            >{{
+                                'APP.BOOKING_PANEL.ROOM_CAPACITY' | translate
+                            }}:
+                        </span>
+                        <span>{{ capacity }}</span>
+                    </div>
+                }
             </div>
             @if (checkin) {
                 <div
                     qr-checkin
                     class="absolute top-4 right-4 z-50 w-40 space-y-4 text-xl"
                 >
-                    <img class="w-full" [src]="qr_code()" />
+                    <img
+                        class="w-full"
+                        [src]="qr_code()"
+                        [alt]="'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate"
+                    />
                     @if (!hide_qr_text) {
                         <div class="w-full text-lg">
                             {{ 'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate }}
@@ -72,7 +87,7 @@ import { endingSoon } from './helpers';
                 "
             >
                 <p class="text-3xl">
-                    {{ time() | date: 'EEE, MMM d, y h:mm a' }}
+                    {{ time() | date: 'EEE, MMM d, y ' + time_format() }}
                 </p>
                 @if (cur && !hide_meeting_details) {
                     <p class="text-4xl">
@@ -83,12 +98,17 @@ import { endingSoon } from './helpers';
                 @if (ending_next(); as upcoming) {
                     <p
                         ending-warning
+                        announce
                         class="bg-warning text-warning-content rounded-sm px-4 py-2 text-2xl"
                     >
                         {{
                             'APP.BOOKING_PANEL.NEXT_STARTS_AT'
                                 | translate
-                                    : { time: upcoming.date | date: 'h:mm a' }
+                                    : {
+                                          time:
+                                              upcoming.date
+                                              | date: time_format(),
+                                      }
                         }}
                     </p>
                 }
@@ -102,17 +122,36 @@ import { endingSoon } from './helpers';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CommonModule, TranslatePipe, AuthenticatedImageDirective],
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        AuthenticatedImageDirective,
+        IconComponent,
+        AnnounceDirective,
+    ],
 })
 export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);
 
     public readonly system = this._state.space;
     public readonly current = this._state.current;
-    public readonly qr_code = signal('');
+    private readonly _qr_url = computed(
+        () => this._state.settings().custom_qr_url,
+    );
+    private readonly _qr_color = computed(
+        () => this._state.settings().custom_qr_color,
+    );
+    /** Check-in QR code. Encoded again only when the QR settings or system change. */
+    public readonly qr_code = computed(() => {
+        const system_id = this._state.system;
+        const url =
+            this._qr_url()?.replace('{system_id}', system_id) ||
+            `${location.origin}${location.pathname}#/checkin/${system_id}`;
+        return generateQRCode(url, '#fff0', this._qr_color() || '#fff');
+    });
 
     public readonly time = signal(Date.now());
+    public readonly time_format = this._state.time_format;
 
     /** Next booking when the `ending_warning` feature is on and the current booking ends soon */
     public readonly ending_next = computed(() => {
@@ -129,6 +168,10 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
         return this._state.setting('hide_meeting_title');
     }
 
+    public get capacity() {
+        return this._state.setting('room_capacity');
+    }
+
     public get room_image() {
         return this._state.setting('room_image');
     }
@@ -143,30 +186,6 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
 
     public get hide_qr_text() {
         return this._state.setting('hide_qr_text');
-    }
-
-    constructor() {
-        super();
-        effect(() => {
-            const { custom_qr_url, custom_qr_color } = this._state.settings();
-            if (custom_qr_url) {
-                this.qr_code.set(
-                    generateQRCode(
-                        custom_qr_url.replace(
-                            '{system_id}',
-                            this._state.system,
-                        ),
-                        '#fff0',
-                        custom_qr_color || '#fff',
-                    ),
-                );
-            } else if (!this.qr_code()) {
-                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
-                this.qr_code.set(
-                    generateQRCode(url, '#fff0', custom_qr_color || '#fff'),
-                );
-            }
-        });
     }
 
     public async ngOnInit() {

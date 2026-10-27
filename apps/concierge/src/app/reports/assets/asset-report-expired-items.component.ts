@@ -53,6 +53,9 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
                         "
                         (click)="download()"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                        "
                     >
                         <icon>download</icon>
                     </button>
@@ -102,7 +105,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             <ng-template #date_template let-data="data">
                 <div class="p-4">
                     @if (!data) {
-                        <span class="opacity-30">{{
+                        <span class="opacity-70">{{
                             'COMMON.DATE_EMPTY' | translate
                         }}</span>
                     }

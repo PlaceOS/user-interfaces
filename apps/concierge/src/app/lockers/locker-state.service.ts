@@ -732,7 +732,7 @@ export class LockerStateService extends AsyncHandler {
             this._dialog,
             {
                 title: i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_TITLE'),
-                content: i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_TITLE', {
+                content: i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_MSG', {
                     name: bank.name,
                 }),
                 icon: { content: 'delete' },
@@ -756,7 +756,7 @@ export class LockerStateService extends AsyncHandler {
             this._dialog,
             {
                 title: i18n('APP.CONCIERGE.LOCKERS_REMOVE_TITLE'),
-                content: i18n('APP.CONCIERGE.LOCKERS_REMOVE_TITLE', {
+                content: i18n('APP.CONCIERGE.LOCKERS_REMOVE_MSG', {
                     name: locker.name,
                 }),
                 icon: { content: 'delete' },

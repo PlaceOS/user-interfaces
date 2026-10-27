@@ -48,7 +48,12 @@ import { ParkingUser } from './parking-state.service';
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button
+                        icon
+                        matRipple
+                        mat-dialog-close
+                        [aria-label]="'COMMON.CLOSE' | translate"
+                    >
                         <icon>close</icon>
                     </button>
                 }
@@ -66,15 +71,19 @@ import { ParkingUser } from './parking-state.service';
                             class="bg-secondary text-secondary-content h-12 w-12 min-w-12 rounded-sm"
                             matTooltip="Clear Selected User"
                             (click)="clearUser()"
+                            aria-label="Clear Selected User"
                         >
                             <icon className="material-symbols-outlined">
                                 person_cancel
                             </icon>
                         </button>
                     </div>
-                    <label for="name">{{ 'FORM.NAME' | translate }}</label>
+                    <label for="parking-user-modal-name">{{
+                        'FORM.NAME' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="parking-user-modal-name"
                             matInput
                             [formField]="form.name"
                             placeholder="Name"
@@ -83,9 +92,12 @@ import { ParkingUser } from './parking-state.service';
                             'FORM.NAME_REQUIRED' | translate
                         }}</mat-error>
                     </mat-form-field>
-                    <label for="email">{{ 'FORM.EMAIL' | translate }}</label>
+                    <label for="parking-user-modal-email">{{
+                        'FORM.EMAIL' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="parking-user-modal-email"
                             matInput
                             [formField]="form.email"
                             [placeholder]="'FORM.EMAIL' | translate"
@@ -96,11 +108,12 @@ import { ParkingUser } from './parking-state.service';
                     </mat-form-field>
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
-                            <label for="plate-number">{{
+                            <label for="parking-user-modal-plate-number">{{
                                 'BOOKINGS.PARKING_PLATE_NUMBER' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
+                                    id="parking-user-modal-plate-number"
                                     matInput
                                     [formField]="form.plate_number"
                                     [placeholder]="
@@ -111,11 +124,12 @@ import { ParkingUser } from './parking-state.service';
                             </mat-form-field>
                         </div>
                         <div class="w-1/3 flex-1">
-                            <label for="car-color">{{
+                            <label for="parking-user-modal-car-color">{{
                                 'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
+                                    id="parking-user-modal-car-color"
                                     matInput
                                     [formField]="form.car_colour"
                                     [placeholder]="
@@ -126,9 +140,12 @@ import { ParkingUser } from './parking-state.service';
                             </mat-form-field>
                         </div>
                     </div>
-                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <label for="parking-user-modal-notes">{{
+                        'FORM.NOTES' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
+                            id="parking-user-modal-notes"
                             matInput
                             [formField]="form.notes"
                             [placeholder]="'FORM.NOTES' | translate"

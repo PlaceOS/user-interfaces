@@ -10,6 +10,7 @@ import {
     playlistMediaIds,
     playlistMediaItems,
     playlistNextPlayLabels,
+    playlistNextPlayTime,
     playlistScheduleExpiryLabel,
     playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
@@ -432,5 +433,71 @@ describe('playlist animation', () => {
         expect(playlistAnimation({ default_animation: 2 })).toBe(
             MediaAnimation.CrossFade,
         );
+    });
+});
+
+describe('next play time', () => {
+    const now = new Date(2026, 0, 5, 12, 0).getTime();
+    const minute = 60_000;
+
+    it('finds the next start of a recurring schedule', () => {
+        expect(
+            playlistNextPlayTime(
+                [{ play_cron: '0 14 * * *', play_period: 30 }],
+                now,
+            ),
+        ).toBe(new Date(2026, 0, 5, 14, 0).getTime());
+    });
+
+    it('counts a recurring play that is under way as playing now', () => {
+        expect(
+            playlistNextPlayTime(
+                [{ play_cron: '0 11 * * *', play_period: 120 }],
+                now,
+            ),
+        ).toBe(now);
+    });
+
+    it('counts a one-off play that is under way as playing now', () => {
+        expect(
+            playlistNextPlayTime(
+                [{ play_at: getUnixTime(now - 10 * minute), play_period: 60 }],
+                now,
+            ),
+        ).toBe(now);
+    });
+
+    it('uses the earliest of several schedules', () => {
+        expect(
+            playlistNextPlayTime(
+                [
+                    { play_cron: '0 18 * * *', play_period: 30 },
+                    { play_at: getUnixTime(now + 30 * minute), play_period: 5 },
+                ],
+                now,
+            ),
+        ).toBe(now + 30 * minute);
+    });
+
+    it('returns null when no play is left', () => {
+        expect(playlistNextPlayTime([], now)).toBeNull();
+        expect(
+            playlistNextPlayTime(
+                [{ play_at: getUnixTime(now - 120 * minute), play_period: 60 }],
+                now,
+            ),
+        ).toBeNull();
+        expect(
+            playlistNextPlayTime(
+                [
+                    {
+                        play_cron: '0 9 * * *',
+                        play_period: 30,
+                        valid_until: getUnixTime(now - minute),
+                    },
+                ],
+                now,
+            ),
+        ).toBeNull();
     });
 });

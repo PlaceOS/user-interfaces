@@ -240,6 +240,8 @@ export class BookingFormService extends AsyncHandler {
     });
     private _booking = signal<Booking>(null);
     private _resource_use: Record<string, string> = {};
+    /** Whether the last resource list load failed */
+    private readonly _resources_failed = signal(false);
     private _loading = signal<string>('');
     private _favourites: Record<BookingType, WritableSignal<string[]>> = {
         ' ': settingSignal('favorites', [], true),
@@ -614,6 +616,14 @@ export class BookingFormService extends AsyncHandler {
         return this._available_resource.value() ?? [];
     });
 
+    /** Signal for whether the last resource list load failed */
+    public readonly load_failed = this._resources_failed.asReadonly();
+
+    /** Load the resource list again after a failure */
+    public reloadResources() {
+        this._resources_resource.reload();
+    }
+
     /** Signal grouping available resources for group bookings */
     public readonly grouped_availability = computed<BookingAsset[][]>(() => {
         const options = this._options();
@@ -716,7 +726,14 @@ export class BookingFormService extends AsyncHandler {
         load: Promise<BookingAsset[]>,
     ): Promise<BookingAsset[]> {
         return load
-            .catch(() => [] as BookingAsset[])
+            .then((list) => {
+                this._resources_failed.set(false);
+                return list;
+            })
+            .catch(() => {
+                this._resources_failed.set(true);
+                return [] as BookingAsset[];
+            })
             .then((list) => {
                 this._loading.set('');
                 return list;
@@ -1424,7 +1441,7 @@ export class BookingFormService extends AsyncHandler {
                 ? selected_zones
                 : [...(this._booking()?.zones || [])],
         );
-        this._loading.set('Saving booking');
+        this._loading.set(i18n('COMMON.SAVING'));
         delete value.booking_asset;
         value.timezone = effective_timezone;
         if (value.all_day) {
@@ -1906,6 +1923,7 @@ export class BookingFormService extends AsyncHandler {
         const form = this.model() as any;
         const group_name = groupName();
         const booking_ids: string[] = [];
+        const invited: User[] = [];
         let parent_id = '';
         let first_booking: Booking = null;
         try {
@@ -1935,11 +1953,24 @@ export class BookingFormService extends AsyncHandler {
                     throw `${visitor.name || visitor.email}: ${this._error_message(error)}`;
                 });
                 if (bkn?.id) booking_ids.push(bkn.id);
+                if (bkn?.id) invited.push(visitor);
                 if (bkn?.id && !first_booking) first_booking = bkn;
             }
         } catch (error) {
-            if (rollback_on_group_error && booking_ids.length) {
-                await rollbackGroupBookings(booking_ids);
+            const rolled_back = rollback_on_group_error && booking_ids.length;
+            if (rolled_back) await rollbackGroupBookings(booking_ids);
+            // Each member patch clears the visitor list on the form. Restore
+            // the visitors without an invite so that a retry invites only them
+            const remaining = rolled_back
+                ? members
+                : members.filter((_) => !invited.includes(_));
+            this._patch({ assets: remaining });
+            this.setOptions({ members: remaining });
+            if (!rolled_back && invited.length) {
+                throw i18n('BOOKINGS.VISITOR_GROUP_PARTIAL', {
+                    names: invited.map((_) => _.name || _.email).join(', '),
+                    error: this._error_message(error),
+                });
             }
             throw this._error_message(error);
         }

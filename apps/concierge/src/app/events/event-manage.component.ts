@@ -24,6 +24,7 @@ import {
     currentUser,
     formatDuration,
     getInvalidSignalFields,
+    i18n,
     notifyError,
     unique,
 } from '@placeos/common';
@@ -47,6 +48,7 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
+import { errorText } from '../ui/modal-actions';
 import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
 import { EventStateService } from './event-state.service';
 
@@ -59,7 +61,7 @@ const EMPTY = [];
             'hasUnsavedChanges() && $event.preventDefault()',
     },
     template: `
-        @if (!loading()) {
+        @if (!loading() && !fetching()) {
             <div class="bg-base-100 absolute inset-0 overflow-auto">
                 <header
                     class="bg-base-200 sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[640px] items-center justify-between rounded-sm border-none px-4 py-2"
@@ -77,6 +79,7 @@ const EMPTY = [];
                             icon
                             matRipple
                             [routerLink]="['/entertainment', 'events']"
+                            [attr.aria-label]="'COMMON.CLOSE' | translate"
                         >
                             <icon>close</icon>
                         </a>
@@ -86,11 +89,12 @@ const EMPTY = [];
                     class="mx-auto my-2 flex w-160 max-w-full flex-col px-4 pb-16"
                 >
                     <section class="flex flex-col space-y-2">
-                        <label for="title"
+                        <label for="event-manage-title"
                             >{{ 'FORM.TITLE' | translate }}<span>*</span></label
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="event-manage-title"
                                 matInput
                                 [formField]="form.title"
                                 placeholder="e.g. Team Meeting"
@@ -99,15 +103,19 @@ const EMPTY = [];
                                 {{ 'FORM.TITLE_REQUIRED' | translate }}
                             </mat-error>
                         </mat-form-field>
-                        <label for="host"
+                        <label
+                            for="event-manage-host"
+                            id="event-manage-host-label"
                             >{{ 'FORM.HOST' | translate }}<span>*</span></label
                         >
                         <div class="pb-4">
                             <a-user-search-field
+                                role="group"
+                                aria-labelledby="event-manage-host-label"
                                 [formField]="form.organiser"
                             ></a-user-search-field>
                         </div>
-                        <label for="tags">{{
+                        <label for="event-manage-tags">{{
                             'COMMON.TAGS' | translate
                         }}</label>
                         <mat-form-field
@@ -125,6 +133,7 @@ const EMPTY = [];
                                     </mat-chip-row>
                                 }
                                 <input
+                                    id="event-manage-tags"
                                     placeholder="Add new tags relevant to this event..."
                                     [matChipInputFor]="chipList"
                                     [matChipInputSeparatorKeyCodes]="separators"
@@ -168,10 +177,15 @@ const EMPTY = [];
                         </h3>
                         <div class="flex flex-wrap items-center sm:space-x-2">
                             <div class="relative min-w-[256px] flex-1">
-                                <label for="date">
+                                <label
+                                    for="event-manage-date"
+                                    id="event-manage-date-label"
+                                >
                                     {{ 'FORM.DATE' | translate }}<span>*</span>
                                 </label>
                                 <a-date-field
+                                    role="group"
+                                    aria-labelledby="event-manage-date-label"
                                     [formField]="form.date"
                                     [to]="end_date"
                                 >
@@ -179,11 +193,16 @@ const EMPTY = [];
                                 </a-date-field>
                             </div>
                             <div class="relative min-w-[256px] flex-1">
-                                <label for="date">
+                                <label
+                                    for="event-manage-date-2"
+                                    id="event-manage-date-2-label"
+                                >
                                     {{ 'FORM.DATE_END' | translate }}
                                     <span>*</span>
                                 </label>
                                 <a-date-field
+                                    role="group"
+                                    aria-labelledby="event-manage-date-2-label"
                                     [formField]="form.date_end"
                                     [from]="start_date()"
                                     [to]="end_date"
@@ -195,11 +214,16 @@ const EMPTY = [];
                         @if (!model().all_day) {
                             <div class="flex items-center space-x-2">
                                 <div class="w-1/3 flex-1">
-                                    <label for="start-time">
+                                    <label
+                                        for="event-manage-start-time"
+                                        id="event-manage-start-time-label"
+                                    >
                                         {{ 'FORM.TIME_START' | translate }}
                                         <span>*</span>
                                     </label>
                                     <a-time-field
+                                        role="group"
+                                        aria-labelledby="event-manage-start-time-label"
                                         name="start-time"
                                         [ngModel]="model().date"
                                         (ngModelChange)="
@@ -216,11 +240,16 @@ const EMPTY = [];
                                     ></a-time-field>
                                 </div>
                                 <div class="w-1/3 flex-1">
-                                    <label for="end-time">
+                                    <label
+                                        for="event-manage-end-time"
+                                        id="event-manage-end-time-label"
+                                    >
                                         {{ 'FORM.TIME_END' | translate }}
                                         <span>*</span>
                                     </label>
                                     <a-time-field
+                                        role="group"
+                                        aria-labelledby="event-manage-end-time-label"
                                         name="end-time"
                                         [ngModel]="
                                             model().date_end ||
@@ -244,12 +273,13 @@ const EMPTY = [];
                             </div>
                         }
                         <div class="flex flex-col">
-                            <label for="display-name">
+                            <label for="event-manage-display-name">
                                 {{ 'COMMON.TIMEZONE' | translate }}
                             </label>
                             <mat-form-field appearance="outline">
                                 <icon matPrefix class="text-2xl"> search </icon>
                                 <input
+                                    id="event-manage-display-name"
                                     matInput
                                     [formField]="form.timezone"
                                     [placeholder]="
@@ -348,11 +378,15 @@ const EMPTY = [];
                             </button>
                         </div>
                         @if (model().attendance_type !== 'ONLINE') {
-                            <label for="location">
+                            <label
+                                for="event-manage-location"
+                                id="event-manage-location-label"
+                            >
                                 {{ 'RESOURCE.BUILDING' | translate }}
                             </label>
                             <mat-form-field appearance="outline">
                                 <mat-select
+                                    aria-labelledby="event-manage-location-label"
                                     [ngModel]="building_zone"
                                     [ngModelOptions]="{ standalone: true }"
                                     (ngModelChange)="setBuilding($event)"
@@ -375,11 +409,16 @@ const EMPTY = [];
                             </mat-form-field>
                             <div class="flex space-x-2">
                                 <div class="flex flex-2 flex-col">
-                                    <label for="level">{{
-                                        'RESOURCE.LEVEL' | translate
-                                    }}</label>
+                                    <label
+                                        for="event-manage-level"
+                                        id="event-manage-level-label"
+                                        >{{
+                                            'RESOURCE.LEVEL' | translate
+                                        }}</label
+                                    >
                                     <mat-form-field appearance="outline">
                                         <mat-select
+                                            aria-labelledby="event-manage-level-label"
                                             [ngModel]="level_zone"
                                             [ngModelOptions]="{
                                                 standalone: true,
@@ -405,11 +444,16 @@ const EMPTY = [];
                                     </mat-form-field>
                                 </div>
                                 <div class="flex flex-3 flex-col">
-                                    <label for="level">{{
-                                        'RESOURCE.ROOM' | translate
-                                    }}</label>
+                                    <label
+                                        for="event-manage-level-2"
+                                        id="event-manage-level-2-label"
+                                        >{{
+                                            'RESOURCE.ROOM' | translate
+                                        }}</label
+                                    >
                                     <mat-form-field appearance="outline">
                                         <mat-select
+                                            aria-labelledby="event-manage-level-2-label"
                                             [(ngModel)]="resource"
                                             [ngModelOptions]="{
                                                 standalone: true,
@@ -450,18 +494,28 @@ const EMPTY = [];
                             {{ 'APP.CONCIERGE.EVENTS_INFO' | translate }}
                         </h3>
                         <ng-container>
-                            <label for="description">
+                            <label
+                                for="event-manage-description"
+                                id="event-manage-description-label"
+                            >
                                 {{ 'COMMON.DESCRIPTION' | translate }}
                             </label>
                             <div class="mb-16">
                                 <rich-text-input
+                                    role="group"
+                                    aria-labelledby="event-manage-description-label"
                                     [formField]="form.body"
                                 ></rich-text-input>
                             </div>
-                            <label for="images">
+                            <label
+                                for="event-manage-images"
+                                id="event-manage-images-label"
+                            >
                                 {{ 'COMMON.IMAGES' | translate }}
                             </label>
                             <image-list-field
+                                role="group"
+                                aria-labelledby="event-manage-images-label"
                                 [formField]="form.images"
                             ></image-list-field>
                         </ng-container>
@@ -482,7 +536,14 @@ const EMPTY = [];
                 class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center space-y-4"
             >
                 <mat-spinner diameter="48"></mat-spinner>
-                <p>{{ 'APP.CONCIERGE.EVENTS_SAVING' | translate }}</p>
+                <p>
+                    {{
+                        (fetching()
+                            ? 'COMMON.LOADING'
+                            : 'APP.CONCIERGE.EVENTS_SAVING'
+                        ) | translate
+                    }}
+                </p>
             </div>
         }
     `,
@@ -520,6 +581,8 @@ export class EventManageComponent
     private _settings = inject(SettingsService);
 
     public readonly loading = signal(false);
+    /** True while the event to edit loads. Hides the form, so a save cannot create a copy. */
+    public readonly fetching = signal(false);
     public readonly resource = signal<string>('');
 
     public readonly form = this._form_state.form;
@@ -606,62 +669,68 @@ export class EventManageComponent
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
-                    let booking = await showEvent(params.get('id'), {
-                        calendar: this._state.calendar,
-                    });
-                    // Staff API can keep more than one metadata record for an
-                    // event, and the metadata route can return an old one.
-                    // Group events already include their current metadata.
-                    let metadata: Partial<EventExtensionData> = {};
-                    if (!booking.extension_data?.shared_event) {
-                        const space = await space_pipe.transform(
-                            this._state.calendar,
+                    this.fetching.set(true);
+                    try {
+                        await this._loadEvent(params.get('id'), space_pipe);
+                    } catch (e) {
+                        notifyError(
+                            i18n('APP.CONCIERGE.EVENTS_LOAD_ERROR', {
+                                error: errorText(e),
+                            }),
                         );
-                        metadata = await showEventMetadata(
-                            params.get('id'),
-                            space?.id || booking.system?.id,
-                            { ical_uid: booking.ical_uid },
-                        ).catch(() => ({}));
+                        this._router.navigate(['/entertainment', 'events']);
+                    } finally {
+                        this.fetching.set(false);
                     }
-                    booking = new CalendarEvent({
-                        ...booking,
-                        extension_data: {
-                            ...booking.extension_data,
-                            ...metadata,
-                        },
-                    });
-                    if (!booking)
-                        return this._router.navigate([
-                            '/entertainment',
-                            'events',
-                        ]);
-                    this._form_state.newForm(booking);
-                    this.resource.set(
-                        booking.resources.find(
-                            (_) => _.email !== this._state.calendar,
-                        )?.email,
-                    );
-                    this.model.update((m) => ({
-                        ...m,
-                        tags: booking.extension_data?.tags || [],
-                        organiser: new StaffUser({
-                            id: booking.organiser?.id,
-                            email: booking.host,
-                            name: booking.organiser?.name,
-                        }),
-                        resources: booking.resources.filter(
-                            (_) => _.email !== this._state.calendar,
-                        ),
-                        ...metadata,
-                    }));
-                    if (!this.model().view_access)
-                        this.model.update((m) => ({
-                            ...m,
-                            view_access: 'OPEN',
-                        }));
                 }
             }),
         );
+    }
+
+    /** Load the event with `id` into the form. Throws when the event cannot load. */
+    private async _loadEvent(id: string, space_pipe: SpacePipe) {
+        let booking = await showEvent(id, {
+            calendar: this._state.calendar,
+        });
+        // Staff API can keep more than one metadata record for an
+        // event, and the metadata route can return an old one.
+        // Group events already include their current metadata.
+        let metadata: Partial<EventExtensionData> = {};
+        if (!booking.extension_data?.shared_event) {
+            const space = await space_pipe.transform(this._state.calendar);
+            metadata = await showEventMetadata(
+                id,
+                space?.id || booking.system?.id,
+                { ical_uid: booking.ical_uid },
+            ).catch(() => ({}));
+        }
+        booking = new CalendarEvent({
+            ...booking,
+            extension_data: {
+                ...booking.extension_data,
+                ...metadata,
+            },
+        });
+        this._form_state.newForm(booking);
+        this.resource.set(
+            booking.resources.find((_) => _.email !== this._state.calendar)
+                ?.email,
+        );
+        this.model.update((m) => ({
+            ...m,
+            tags: booking.extension_data?.tags || [],
+            organiser: new StaffUser({
+                id: booking.organiser?.id,
+                email: booking.host,
+                name: booking.organiser?.name,
+            }),
+            resources: booking.resources.filter(
+                (_) => _.email !== this._state.calendar,
+            ),
+            ...metadata,
+        }));
+        if (!this.model().view_access)
+            this.model.update((m) => ({ ...m, view_access: 'OPEN' }));
     }
 
     public setBuilding(bld: Building) {

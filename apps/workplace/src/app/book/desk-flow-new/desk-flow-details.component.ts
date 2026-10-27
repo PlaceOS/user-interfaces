@@ -66,20 +66,25 @@ export type DeskFormType = 'single' | 'group' | 'other';
                                     }}</icon>
                                     <span>{{
                                         form_type_config()[active_form()].label
+                                            | translate
                                     }}</span>
                                 </div>
                             </mat-select-trigger>
                             <mat-option value="single">
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-xl">person</icon>
-                                    <span>Single</span>
+                                    <span>{{
+                                        'BOOKINGS.DESK_LONE' | translate
+                                    }}</span>
                                 </div>
                             </mat-option>
                             @if (allow_groups()) {
                                 <mat-option value="group">
                                     <div class="flex items-center space-x-2">
                                         <icon class="text-xl">group_add</icon>
-                                        <span>Group</span>
+                                        <span>{{
+                                            'BOOKINGS.DESK_GROUP' | translate
+                                        }}</span>
                                     </div>
                                 </mat-option>
                             }
@@ -87,7 +92,10 @@ export type DeskFormType = 'single' | 'group' | 'other';
                                 <mat-option value="other">
                                     <div class="flex items-center space-x-2">
                                         <icon class="text-xl">person_add</icon>
-                                        <span>Book for other</span>
+                                        <span>{{
+                                            'BOOKINGS.DESK_BOOK_FOR_OTHER'
+                                                | translate
+                                        }}</span>
                                     </div>
                                 </mat-option>
                             }
@@ -106,7 +114,7 @@ export type DeskFormType = 'single' | 'group' | 'other';
                         (click)="setActiveForm('single')"
                     >
                         <icon class="text-xl">person</icon>
-                        <div>Single</div>
+                        <div>{{ 'BOOKINGS.DESK_LONE' | translate }}</div>
                     </button>
                     @if (allow_groups()) {
                         <button
@@ -117,7 +125,7 @@ export type DeskFormType = 'single' | 'group' | 'other';
                             (click)="setActiveForm('group')"
                         >
                             <icon class="text-xl">group_add</icon>
-                            <div>Group</div>
+                            <div>{{ 'BOOKINGS.DESK_GROUP' | translate }}</div>
                         </button>
                     }
                     @if (can_book_for_others()) {
@@ -129,7 +137,9 @@ export type DeskFormType = 'single' | 'group' | 'other';
                             (click)="setActiveForm('other')"
                         >
                             <icon class="text-xl">person_add</icon>
-                            <div>Book for other</div>
+                            <div>
+                                {{ 'BOOKINGS.DESK_BOOK_FOR_OTHER' | translate }}
+                            </div>
                         </button>
                     }
                 </div>
@@ -199,6 +209,8 @@ export type DeskFormType = 'single' | 'group' | 'other';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [range]="bookable_hours()"
+                                [use_24hr]="use_24hr()"
+                                [timezone]="timezone"
                             />
                         </div>
                         <div class="flex-1">
@@ -274,9 +286,14 @@ export type DeskFormType = 'single' | 'group' | 'other';
                                 (click)="findAvailableTime()"
                             >
                                 <div class="hidden sm:flex">
-                                    {{ 'Find Available time' }}
+                                    {{
+                                        'CALENDAR_EVENT.FIND_AVAILABILITY'
+                                            | translate
+                                    }}
                                 </div>
-                                <div class="flex sm:hidden">Availability</div>
+                                <div class="flex sm:hidden">
+                                    {{ 'COMMON.AVAILABILITY' | translate }}
+                                </div>
                             </button>
                         </a-user-list-field>
                         <p
@@ -336,9 +353,9 @@ export class DeskFlowDetailsComponent {
     /** Selected booking type. The parent flow reads it when it confirms */
     public readonly active_form = model<DeskFormType>('single');
     public readonly form_type_config = signal({
-        single: { icon: 'person', label: 'Single' },
-        group: { icon: 'group_add', label: 'Group' },
-        other: { icon: 'person_add', label: 'Book for other' },
+        single: { icon: 'person', label: 'BOOKINGS.DESK_LONE' },
+        group: { icon: 'group_add', label: 'BOOKINGS.DESK_GROUP' },
+        other: { icon: 'person_add', label: 'BOOKINGS.DESK_BOOK_FOR_OTHER' },
     });
     public readonly form_value = this._booking_form.model;
     public readonly requires_locker = computed(() =>

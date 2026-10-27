@@ -7,6 +7,9 @@ const baseURL = process.env['BASE_URL'] || 'http://localhost:4218';
 
 export default defineConfig({
     ...nxE2EPreset(__filename, { testDir: './e2e' }),
+    // Story tests chain several pages, and the app load alone can wait up to
+    // LOAD_TIMEOUT (30s), so the 30s default fails them on a busy machine
+    timeout: 90_000,
     reporter: [
         ['list'],
         [

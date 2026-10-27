@@ -19,7 +19,12 @@ import { removeAssetCategory } from '@placeos/ts-client';
             <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button
+                icon
+                matRipple
+                mat-dialog-close
+                [aria-label]="'COMMON.CLOSE' | translate"
+            >
                 <icon>close</icon>
             </button>
         </header>
@@ -40,6 +45,9 @@ import { removeAssetCategory } from '@placeos/ts-client';
                             "
                             class="border-secondary text-secondary h-12 w-12 rounded-sm border"
                             (click)="edit(category)"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.ASSETS_CATEGORY_EDIT' | translate
+                            "
                         >
                             <icon>edit</icon>
                         </button>
@@ -52,6 +60,10 @@ import { removeAssetCategory } from '@placeos/ts-client';
                             "
                             class="border-error text-error h-12 w-12 rounded-sm border"
                             (click)="remove(category)"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.ASSETS_CATEGORY_REMOVE'
+                                    | translate
+                            "
                         >
                             <icon>delete</icon>
                         </button>

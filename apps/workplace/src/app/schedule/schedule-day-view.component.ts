@@ -27,7 +27,9 @@ import {
     BOOKING_TYPE_COLORS,
     CalendarEvent,
     OrganisationService,
+    SettingsService,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
@@ -45,7 +47,9 @@ import {
     isBookingForOtherUser,
     itemEnd,
     overlapsDay,
+    SCHEDULE_STATUS_LABELS,
     ScheduleStateService,
+    ScheduleStatus,
 } from './schedule-state.service';
 
 interface TimeSlot {
@@ -75,8 +79,11 @@ interface PositionedBooking {
                     <div
                         class="border-base-300 bg-base-100 text-base-content rounded-md border px-2 py-1 text-sm"
                     >
-                        {{ dayBookings().length }} booking{{
-                            dayBookings().length !== 1 ? 's' : ''
+                        {{
+                            'APP.WORKPLACE.SCHEDULE_BOOKING_COUNT'
+                                | translate
+                                    : { count: dayBookings().length }
+                                    : dayBookings().length
                         }}
                     </div>
                 </div>
@@ -161,7 +168,14 @@ interface PositionedBooking {
                                             : '') +
                                         (isBookingForOtherUser(item.booking)
                                             ? '
-for ' + bookedForLabel(item.booking)
+' +
+                                              ('BOOKINGS.BOOKED_FOR'
+                                                  | translate
+                                                      : {
+                                                            name: bookedForLabel(
+                                                                item.booking
+                                                            ),
+                                                        })
                                             : '') +
                                         '
 ' +
@@ -224,8 +238,14 @@ for ' + bookedForLabel(item.booking)
                                                 "
                                                 [matTooltip]="
                                                     statusLabel(status)
+                                                        | translate
                                                 "
-                                            ></div>
+                                            >
+                                                <span class="sr-only">{{
+                                                    statusLabel(status)
+                                                        | translate
+                                                }}</span>
+                                            </div>
                                         }
                                     </div>
                                     @if (item.height > 3) {
@@ -287,25 +307,35 @@ for ' + bookedForLabel(item.booking)
                                         <div
                                             class="mt-1 truncate text-xs opacity-60"
                                         >
-                                            Booked by
-                                            {{
+                                            @let booked_by =
                                                 $any(item.booking)
                                                     .booked_by_name ||
-                                                    (
-                                                        $any(item.booking)
-                                                            .booked_by_email
-                                                        | user
-                                                        | async
-                                                    )?.name ||
+                                                (
                                                     $any(item.booking)
                                                         .booked_by_email
+                                                    | user
+                                                    | async
+                                                )?.name ||
+                                                $any(item.booking)
+                                                    .booked_by_email;
+                                            {{
+                                                'APP.WORKPLACE.SCHEDULE_BOOKED_BY'
+                                                    | translate
+                                                        : { name: booked_by }
                                             }}
                                         </div>
                                         <div
                                             class="mt-1 truncate text-xs opacity-60"
                                         >
-                                            for
-                                            {{ bookedForLabel(item.booking) }}
+                                            {{
+                                                'BOOKINGS.BOOKED_FOR'
+                                                    | translate
+                                                        : {
+                                                              name: bookedForLabel(
+                                                                  item.booking
+                                                              ),
+                                                          }
+                                            }}
                                         </div>
                                     }
                                 </button>
@@ -317,12 +347,19 @@ for ' + bookedForLabel(item.booking)
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, MatRippleModule, MatTooltipModule, UserPipe],
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        MatTooltipModule,
+        TranslatePipe,
+        UserPipe,
+    ],
 })
 export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
     private _state = inject(ScheduleStateService);
     private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
 
     public readonly date = input(Date.now());
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
@@ -369,11 +406,14 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
 
     public readonly timeSlots = computed(() => {
         const slots: TimeSlot[] = [];
+        const hour_format = this._settings.get('app.use_24_hour_time')
+            ? 'HH:mm'
+            : 'h a';
         for (let hour = this.START_HOUR; hour <= this.END_HOUR; hour++) {
             const date = setHours(setMinutes(new Date(), 0), hour);
             slots.push({
                 hour,
-                label: format(date, 'h a'),
+                label: format(date, hour_format),
             });
         }
         return slots;
@@ -546,7 +586,7 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
 
     public bookingStatus(
         booking: Booking | CalendarEvent,
-    ): 'approved' | 'tentative' | 'declined' | 'waitlisted' | null {
+    ): ScheduleStatus | null {
         const status = booking.status;
         if (
             status === 'tentative' &&
@@ -563,15 +603,12 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
             : null;
     }
 
-    public statusLabel(
-        status: 'approved' | 'tentative' | 'declined' | 'waitlisted',
-    ) {
-        return status.charAt(0).toUpperCase() + status.slice(1);
+    /** Locale key of the status label */
+    public statusLabel(status: ScheduleStatus) {
+        return SCHEDULE_STATUS_LABELS[status];
     }
 
-    public statusColor(
-        status: 'approved' | 'tentative' | 'declined' | 'waitlisted',
-    ) {
+    public statusColor(status: ScheduleStatus) {
         if (status === 'approved') return 'var(--success)';
         if (status === 'waitlisted') return 'var(--info)';
         if (status === 'tentative') return 'var(--warn)';

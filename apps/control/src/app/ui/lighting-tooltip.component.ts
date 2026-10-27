@@ -15,7 +15,7 @@ import {
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm p-4 shadow-sm"
+            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm p-4 shadow-sm max-sm:my-0 max-sm:flex-1 max-sm:rounded-none max-sm:shadow-none"
         >
             @if (lights()[0]) {
                 <div hidden>
@@ -28,7 +28,7 @@ import {
                     ></i>
                 </div>
             }
-            <h3 class="mb-2 text-xl font-medium">
+            <h3 class="mb-2 text-xl font-medium max-sm:hidden">
                 {{ 'APP.CONTROL.LIGHTING' | translate }}
             </h3>
             @if (light?.states?.length) {
@@ -37,7 +37,7 @@ import {
                         state
                         btn
                         matRipple
-                        class="w-64"
+                        class="w-64 max-sm:w-full"
                         [class.inverse]="state !== light.state"
                         binding
                         onEvent="click"

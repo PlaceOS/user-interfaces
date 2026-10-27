@@ -15,6 +15,7 @@ import {
     ControlStateService,
     RoomInput,
 } from '../../app/control-state.service';
+import { MobileLayoutService } from '../../app/mobile-layout';
 import { DeviceOutputListComponent } from '../../app/tabbed-view/output-list.component';
 import { TabOutletComponent } from '../../app/tabbed-view/tab-outlet.component';
 import { TVControlsComponent } from '../../app/tabbed-view/tv-controls.component';
@@ -27,6 +28,7 @@ import { VideoCallStateService } from '../../app/video-call/video-call-state.ser
 
 describe('TabOutletComponent', () => {
     let spectator: SpectatorRouting<TabOutletComponent>;
+    const mobile = signal(false);
     const createComponent = createRoutingFactory({
         component: TabOutletComponent,
         params: { system: 'sys1', tab: 'tab1' },
@@ -51,21 +53,26 @@ describe('TabOutletComponent', () => {
                 tabs: signal([]),
                 available_inputs: signal([]),
                 help_items: signal([]),
+                preview_outputs: signal(false),
+                selectDisplay: vi.fn(),
                 setOutputSource: vi.fn(),
                 setSelectedInput: vi.fn(),
                 routeToAll: vi.fn(),
                 unrouteAll: vi.fn(),
+                unroute: vi.fn(),
                 viewHelp: vi.fn(),
             }),
             MockProvider(VideoCallStateService, {
                 call: signal(null),
                 speaker_track: signal(null),
             }),
+            { provide: MobileLayoutService, useValue: { mobile } },
         ],
     });
 
     beforeEach(() => {
         vi.clearAllMocks();
+        mobile.set(false);
         spectator = createComponent();
     });
 
@@ -275,5 +282,83 @@ describe('TabOutletComponent', () => {
         spectator.detectChanges();
         expect(ngMocks.input('[video-call-page]', 'reserve_top')).toBe(true);
         call_state.call.set(null);
+    });
+
+    describe('phone layout', () => {
+        const laptop = { id: 'i1', name: 'Laptop' } as RoomInput;
+
+        beforeEach(() => {
+            mobile.set(true);
+            const service: any = spectator.inject(ControlStateService);
+            service.tabs.set([{ id: 'tab1', name: 'Tab 1', icon: 'tv' }]);
+            service.available_inputs.set([laptop]);
+            spectator.detectChanges();
+        });
+
+        it('should list the sources instead of the output bar', () => {
+            expect(spectator.queryAll('button[source]')).toHaveLength(1);
+            expect('device-output-list').not.toExist();
+        });
+
+        it('should ask for a display after a source is selected', () => {
+            const service: any = spectator.inject(ControlStateService);
+            service.output_list.set([{ id: 'o1' }, { id: 'o2' }]);
+            spectator.detectChanges();
+            expect('button[source]').toHaveAttribute('aria-haspopup', 'dialog');
+            spectator.click('button[source]');
+            expect(service.setSelectedInput).toHaveBeenCalledWith('i1');
+            expect(service.setOutputSource).not.toHaveBeenCalled();
+            expect(service.selectDisplay).toHaveBeenCalledWith('i1');
+        });
+
+        it('should close the display list with the view', () => {
+            const service: any = spectator.inject(ControlStateService);
+            const close = vi.fn();
+            service.selectDisplay.mockReturnValue({ close });
+            service.output_list.set([{ id: 'o1' }, { id: 'o2' }]);
+            spectator.detectChanges();
+            spectator.click('button[source]');
+            spectator.component.ngOnDestroy();
+            expect(close).toHaveBeenCalled();
+        });
+
+        it('should only select the source when the room has one display', () => {
+            const service: any = spectator.inject(ControlStateService);
+            service.output_list.set([{ id: 'o1' }]);
+            spectator.detectChanges();
+            expect('button[source]').not.toHaveAttribute('aria-haspopup');
+            spectator.click('button[source]');
+            expect(service.setOutputSource).toHaveBeenCalledWith('i1');
+            expect(service.selectDisplay).not.toHaveBeenCalled();
+        });
+
+        it('should show which displays show each source', () => {
+            const service: any = spectator.inject(ControlStateService);
+            service.output_list.set([
+                { id: 'o1', name: 'Left', source: 'i1' },
+                { id: 'o2', name: 'Right', source: 'i1' },
+                { id: 'o3', name: 'Rear' },
+            ]);
+            spectator.detectChanges();
+            expect(spectator.component.shown_on()).toEqual({
+                i1: 'Left, Right',
+            });
+        });
+
+        it('should list what each display shows and clear one display', () => {
+            const service: any = spectator.inject(ControlStateService);
+            service.output_list.set([
+                { id: 'o1', name: 'Left', source: 'i1' },
+                { id: 'o2', name: 'Right' },
+            ]);
+            spectator.detectChanges();
+            const rows = spectator.queryAll('[displays] [display]');
+            expect(rows).toHaveLength(2);
+            expect(rows[0]).toContainText('Laptop');
+            expect(rows[1]).toContainText('APP.CONTROL.INPUT_EMPTY');
+            expect(spectator.queryAll('button[clear-display]')).toHaveLength(1);
+            spectator.click('button[clear-display]');
+            expect(service.unroute).toHaveBeenCalledWith('o1');
+        });
     });
 });

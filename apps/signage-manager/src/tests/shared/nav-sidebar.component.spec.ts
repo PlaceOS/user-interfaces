@@ -156,11 +156,15 @@ describe('NavSidebarComponent', () => {
     it('applies and persists a new locale selection', async () => {
         const set_item = vi.spyOn(Storage.prototype, 'setItem');
         const component = await createComponent();
+        // jsdom cannot reload the page, so drop the scheduled reload
+        vi.useFakeTimers();
 
         component.setLocale('fr');
 
         expect(locale.setLocale).toHaveBeenCalledWith('fr');
         expect(set_item).toHaveBeenCalledWith('PLACEOS.locale', 'fr');
+        vi.clearAllTimers();
+        vi.useRealTimers();
         set_item.mockRestore();
     });
 

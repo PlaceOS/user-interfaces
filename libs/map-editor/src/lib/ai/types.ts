@@ -80,6 +80,16 @@ export interface MapAIUsageInfo {
     attempts?: number | null;
 }
 
+/** The server's repair round: one more call naming the ops it rejected and why. */
+export interface MapAIRepairInfo {
+    /** Ops the server rejected in the first answer. */
+    rejected: number;
+    /** Ops it rejected in the second answer; null when that answer was unusable. */
+    remaining: number | null;
+    /** Whether the second answer replaced the first. */
+    used: boolean;
+}
+
 /** A map edit job as the editor sees it. */
 export interface MapAIJob {
     id: string;
@@ -101,6 +111,8 @@ export interface MapAIJob {
     server_issues: Record<string, string>;
     questions: string[];
     usage: MapAIUsageInfo | null;
+    /** Absent unless the server asked the model again about the ops it rejected. */
+    repair?: MapAIRepairInfo | null;
     resolution: MapAIResolution | null;
     error_kind: MapAIErrorKind | string | null;
     error_message: string | null;

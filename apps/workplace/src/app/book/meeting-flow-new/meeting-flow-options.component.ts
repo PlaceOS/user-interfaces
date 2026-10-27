@@ -9,12 +9,13 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AssetListFieldComponent } from '@placeos/assets';
 import {
     CateringListFieldComponent,
@@ -220,6 +221,7 @@ interface SpaceLocation {
                         [formField]="form.attendees"
                         [time]="form_value().date"
                         [guests]="allow_externals()"
+                        [flags]="true"
                     >
                         <button
                             btn
@@ -228,11 +230,27 @@ interface SpaceLocation {
                             (click)="findAvailableTime()"
                         >
                             <div class="hidden sm:flex">
-                                {{ 'Find Available time' }}
+                                {{ 'CALENDAR_EVENT.FIND_AVAILABILITY' | translate }}
                             </div>
-                            <div class="fle sm:hidden">Availability</div>
+                            <div class="flex sm:hidden">
+                                {{ 'COMMON.AVAILABILITY' | translate }}
+                            </div>
                         </button>
                     </a-user-list-field>
+                    @if (can_notify_new_attendees_only()) {
+                        <mat-checkbox
+                            name="notify-new-attendees-only"
+                            [(ngModel)]="notify_new_attendees_only"
+                            [ngModelOptions]="{
+                                standalone: true,
+                            }"
+                        >
+                            {{
+                                'CALENDAR_EVENT.NOTIFY_NEW_ATTENDEES_ONLY'
+                                    | translate
+                            }}
+                        </mat-checkbox>
+                    }
                 }
                 @if (show_capacity_warning()) {
                     <div
@@ -355,8 +373,17 @@ interface SpaceLocation {
             </div>
         </div>
         <div
-            class="sticky bottom-0 mt-4 flex justify-end rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
+            class="sticky bottom-0 mt-4 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
         >
+            <a
+                btn
+                matRipple
+                class="inverse w-40 cursor-pointer"
+                [routerLink]="[]"
+                [queryParams]="{ view: 1 }"
+            >
+                {{ 'COMMON.BACK' | translate }}
+            </a>
             <button
                 btn
                 matRipple
@@ -405,6 +432,7 @@ interface SpaceLocation {
         UserListFieldComponent,
         FormsModule,
         FormField,
+        MatCheckboxModule,
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
@@ -412,6 +440,7 @@ interface SpaceLocation {
         CateringListFieldComponent,
         AssetListFieldComponent,
         RichTextInputComponent,
+        RouterModule,
     ],
 })
 export class MeetingFlowOptionsComponent {
@@ -426,6 +455,10 @@ export class MeetingFlowOptionsComponent {
 
     public readonly form_value = this._event_form.model;
     public readonly loading = signal(false);
+    public readonly can_notify_new_attendees_only =
+        this._event_form.can_notify_new_attendees_only;
+    public readonly notify_new_attendees_only =
+        this._event_form.notify_new_attendees_only;
     public readonly allow_externals = settingSignal(
         'events.allow_externals',
         false,

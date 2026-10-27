@@ -98,7 +98,7 @@ import {
                                         }}
                                     </span>
                                 </div>
-                                <div class="mt-1 opacity-60">
+                                <div class="mt-1 opacity-70">
                                     {{
                                         isAllDayBooking(booking)
                                             ? ('COMMON.ALL_DAY' | translate)
@@ -118,7 +118,7 @@ import {
                                     as plate
                                 ) {
                                     <div
-                                        class="mt-0.5 font-mono uppercase opacity-40"
+                                        class="mt-0.5 font-mono uppercase opacity-70"
                                     >
                                         {{ plate }}
                                     </div>
@@ -243,6 +243,10 @@ import {
                                                     | translate
                                             "
                                             (click)="assignSpace(booking)"
+                                            [attr.aria-label]="
+                                                'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                                    | translate
+                                            "
                                         >
                                             <icon class="text-base"
                                                 >add_location</icon
@@ -264,6 +268,10 @@ import {
                                                 | translate
                                         "
                                         (click)="editReservation(booking)"
+                                        [attr.aria-label]="
+                                            'APP.CONCIERGE.PARKING_EDIT'
+                                                | translate
+                                        "
                                     >
                                         <icon class="text-base">edit</icon>
                                     </button>
@@ -271,7 +279,7 @@ import {
                             </div>
                         }
                         @if (!grouped_requests()[day]?.length) {
-                            <div class="p-4 text-center text-xs opacity-30">
+                            <div class="p-4 text-center text-xs opacity-70">
                                 {{
                                     'APP.CONCIERGE.PARKING_REQUESTS_EMPTY'
                                         | translate

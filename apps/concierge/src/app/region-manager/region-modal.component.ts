@@ -37,11 +37,12 @@ import { errorText } from '../ui/modal-actions';
         >
             <form>
                 <div class="flex flex-col">
-                    <label for="display-name">
+                    <label for="region-modal-display-name">
                         {{ 'FORM.DISPLAY_NAME' | translate }}
                     </label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="region-modal-display-name"
                             matInput
                             [placeholder]="'FORM.DISPLAY_NAME' | translate"
                             [formField]="form.display_name"
@@ -49,12 +50,13 @@ import { errorText } from '../ui/modal-actions';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="display-name">
+                    <label for="region-modal-display-name-2">
                         {{ 'COMMON.TIMEZONE' | translate }}
                     </label>
                     <mat-form-field appearance="outline">
                         <icon matPrefix class="text-2xl">search</icon>
                         <input
+                            id="region-modal-display-name-2"
                             matInput
                             [formField]="form.timezone"
                             [placeholder]="'COMMON.TIMEZONE' | translate"

@@ -1,6 +1,13 @@
 import { ApplicationRef } from '@angular/core';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService, setNotifyOutlet } from '@placeos/common';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    setNotifyOutlet,
+    SettingsService,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
@@ -12,6 +19,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 describe('VisitorsReportService', () => {
     let spectator: SpectatorService<VisitorsReportService>;
     let allow_international: boolean;
+    let allow_international_events: boolean;
     let notify_open: ReturnType<typeof vi.fn>;
     let downloads: ReturnType<typeof captureDownloads>;
 
@@ -25,6 +33,9 @@ describe('VisitorsReportService', () => {
                 get: vi.fn((name: string) => {
                     if (name === 'app.visitors.allow_international') {
                         return allow_international;
+                    }
+                    if (name === 'app.events.allow_international') {
+                        return allow_international_events;
                     }
                     if (name === 'app.use_region') return false;
                     return undefined;
@@ -44,6 +55,7 @@ describe('VisitorsReportService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         allow_international = false;
+        allow_international_events = false;
         notify_open = vi.fn(() => ({
             onAction: () => ({ subscribe: () => undefined }),
             dismiss: () => undefined,
@@ -122,5 +134,24 @@ describe('VisitorsReportService', () => {
         expect(downloads.filename).toMatch(
             /^report\+assets\+2026-04-06-2026-04-07\.tsv$/,
         );
+    });
+
+    it('should include the international column when only the events setting is enabled', async () => {
+        allow_international_events = true;
+        spectator.service.setOptions({ start: day_1, end: day_1 });
+        spectator.service.generateReport();
+        await settle();
+        await spectator.service.downloadReport();
+        const text = await downloads.text();
+        expect(text).toContain('international');
+    });
+
+    it('should leave the international column out when no setting is enabled', async () => {
+        spectator.service.setOptions({ start: day_1, end: day_1 });
+        spectator.service.generateReport();
+        await settle();
+        await spectator.service.downloadReport();
+        const text = await downloads.text();
+        expect(text).not.toContain('international');
     });
 });

@@ -78,4 +78,10 @@ describe('CounterComponent', () => {
 
         expect('[value]').toHaveExactText(' 10 ');
     });
+
+    it('should give the input the id that a label can point to', () => {
+        expect('[value] input').not.toHaveAttribute('id');
+        spectator.setInput({ input_id: 'capacity' });
+        expect('[value] input').toHaveAttribute('id', 'capacity');
+    });
 });

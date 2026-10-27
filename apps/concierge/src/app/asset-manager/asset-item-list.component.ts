@@ -51,6 +51,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         class="border-base-200 bg-base-200 flex h-12 w-12 items-center justify-center overflow-hidden border"
                                     >
                                         <img
+                                            alt=""
                                             *ngIf="
                                                 asset.images?.length;
                                                 else placeholder
@@ -61,6 +62,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         />
                                         <ng-template #placeholder>
                                             <img
+                                                alt=""
                                                 class="m-auto"
                                                 src="assets/icons/asset-placeholder.svg"
                                             />
@@ -73,7 +75,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                             {{ asset.name }}
                                         </div>
                                         <div
-                                            class="text-xs opacity-60"
+                                            class="text-xs opacity-70"
                                             *ngIf="
                                                 asset.asset_count ||
                                                 asset.assets?.length
@@ -108,6 +110,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         class="bg-base-200 flex h-32 w-full items-center justify-center overflow-hidden"
                                     >
                                         <img
+                                            alt=""
                                             auth
                                             *ngIf="
                                                 asset.images?.length;
@@ -118,6 +121,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         />
                                         <ng-template #placeholder>
                                             <img
+                                                alt=""
                                                 class="m-auto w-16"
                                                 src="assets/icons/asset-placeholder.svg"
                                             />
@@ -130,7 +134,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                             {{ asset.name }}
                                         </div>
                                         <div
-                                            class="text-xs opacity-60"
+                                            class="text-xs opacity-70"
                                             *ngIf="
                                                 asset.asset_count ||
                                                 asset.assets?.length
@@ -162,7 +166,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             <div
                 class="flex h-full w-full flex-col items-center justify-center space-y-4 p-8"
             >
-                <p class="opacity-40">
+                <p class="opacity-70">
                     {{
                         options().search
                             ? 'No matching assets found'

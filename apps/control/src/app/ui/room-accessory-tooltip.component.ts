@@ -14,17 +14,17 @@ import { ControlStateService } from '../control-state.service';
     selector: 'room-accessory-tooltip',
     template: `
         <div
-            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm p-2 shadow-sm"
+            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm p-2 shadow-sm max-sm:my-0 max-sm:flex-1 max-sm:rounded-none max-sm:shadow-none"
         >
             <h3
-                class="bg-base-200 w-full rounded-sm px-4 py-2 text-xl font-medium"
+                class="bg-base-200 w-full rounded-sm px-4 py-2 text-xl font-medium max-sm:hidden"
             >
                 {{ 'APP.CONTROL.ACCESSORIES' | translate }}
             </h3>
             @if (list()?.length) {
                 @for (item of list(); track item) {
                     <div
-                        class="border-base-300 flex w-full min-w-[20rem] items-center space-x-2 rounded-sm border p-2"
+                        class="border-base-300 flex w-full min-w-[20rem] items-center space-x-2 rounded-sm border p-2 max-sm:min-w-0"
                     >
                         <div class="flex-1 pr-8 pl-2 font-medium">
                             {{ item.name }}
@@ -36,9 +36,10 @@ import { ControlStateService } from '../control-state.service';
                                 matRipple
                                 class="border-primary text-primary rounded-sm border border-solid"
                                 (click)="performAction(item.name, ctrl.name)"
+                                [attr.aria-label]="ctrl.name"
                                 [matTooltip]="ctrl.name"
                             >
-                                <icon>{{ ctrl.icon }}</icon>
+                                <icon aria-hidden="true">{{ ctrl.icon }}</icon>
                             </button>
                         }
                     </div>

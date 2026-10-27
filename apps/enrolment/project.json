@@ -48,6 +48,7 @@
             },
             "configurations": {
                 "staging": {
+                    "sourceMap": true,
                     "optimization": true,
                     "fileReplacements": [
                         {
@@ -62,6 +63,11 @@
                     "serviceWorker": "apps/enrolment/ngsw-config.json"
                 },
                 "production": {
+                    "sourceMap": {
+                        "scripts": true,
+                        "styles": false,
+                        "hidden": true
+                    },
                     "budgets": [
                         {
                             "type": "initial",

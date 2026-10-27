@@ -16,7 +16,7 @@ import { DurationPipe } from './ui/duration.pipe';
         @if (capture_mod()) {
             <div
                 recording
-                class="divide-base-200 text-base-content flex items-center divide-x text-xs"
+                class="divide-base-200 text-base-content flex items-center divide-x overflow-x-auto text-xs max-sm:w-full"
             >
                 <div hidden>
                     <i
@@ -57,6 +57,9 @@ import { DurationPipe } from './ui/duration.pipe';
                     <button
                         place-action="stop"
                         icon
+                        [attr.aria-label]="
+                            'APP.CONTROL.RECORDING_STOP' | translate
+                        "
                         matRipple
                         class="rounded-none"
                         [disabled]="!rec_status || rec_status === 'stopped'"
@@ -66,7 +69,7 @@ import { DurationPipe } from './ui/duration.pipe';
                         onEvent="click"
                         exec="stop"
                     >
-                        <icon>stop</icon>
+                        <icon aria-hidden="true">stop</icon>
                     </button>
                 </div>
                 <div class="flex h-12 w-12 items-center justify-center">
@@ -75,6 +78,12 @@ import { DurationPipe } from './ui/duration.pipe';
                             rec_status === 'playing' ? 'pause' : 'start'
                         "
                         icon
+                        [attr.aria-label]="
+                            (rec_status === 'playing'
+                                ? 'APP.CONTROL.RECORDING_PAUSE'
+                                : 'APP.CONTROL.RECORDING_START'
+                            ) | translate
+                        "
                         matRipple
                         class="rounded-none"
                         binding
@@ -83,7 +92,7 @@ import { DurationPipe } from './ui/duration.pipe';
                         onEvent="click"
                         [exec]="rec_status === 'playing' ? 'pause' : 'start'"
                     >
-                        <icon>{{
+                        <icon aria-hidden="true">{{
                             rec_status === 'playing' ? 'pause' : 'play_arrow'
                         }}</icon>
                     </button>
@@ -122,14 +131,22 @@ import { DurationPipe } from './ui/duration.pipe';
         <div class="flex-1"></div>
         @if (has_master_audio() !== false) {
             <div
-                class="text-base-content flex w-lg max-w-[50%] items-center space-x-2 px-4 py-2"
+                class="text-base-content flex w-full items-center space-x-2 px-4 py-2 sm:w-lg sm:max-w-[50%]"
             >
-                <button icon matRipple mute (click)="toggleMute()">
-                    <icon>{{ volume_icon() }}</icon>
+                <button
+                    icon
+                    matRipple
+                    mute
+                    [attr.aria-label]="'APP.CONTROL.MUTE' | translate"
+                    [attr.aria-pressed]="!!system()?.mute"
+                    (click)="toggleMute()"
+                >
+                    <icon aria-hidden="true">{{ volume_icon() }}</icon>
                 </button>
                 <mat-slider class="flex-1" [class.opacity-50]="system()?.mute">
                     <input
                         matSliderThumb
+                        [attr.aria-label]="'APP.CONTROL.VOLUME' | translate"
                         [ngModel]="system()?.volume || 0"
                         (ngModelChange)="setVolume($event)"
                 /></mat-slider>
@@ -146,6 +163,15 @@ import { DurationPipe } from './ui/duration.pipe';
                 align-items: center;
                 height: 3.5rem;
                 overflow: hidden;
+            }
+
+            /* Phones put recording controls and volume on separate rows */
+            @media (width < 40rem), (height < 30rem) {
+                :host {
+                    flex-wrap: wrap;
+                    height: auto;
+                    min-height: 3.5rem;
+                }
             }
         `,
     ],

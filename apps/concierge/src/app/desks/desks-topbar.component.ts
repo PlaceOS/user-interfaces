@@ -79,19 +79,31 @@ import { DesksStateService } from './desks-state.service';
                     data-shortcut="new"
                     (click)="newDesk()"
                     [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
+                    [attr.aria-label]="'APP.CONCIERGE.DESKS_NEW' | translate"
                 >
                     <icon>add</icon>
                 </button>
             }
             @if (manage()) {
+                <!--
+                    The button is the control. The file input on top takes mouse clicks
+                    and dropped files, and the button opens it for keyboard users
+                -->
                 <button
                     icon
                     default
                     matRipple
                     [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
+                    "
+                    (click)="$event.target !== file_input && file_input.click()"
                 >
                     <icon>cloud_upload</icon>
                     <input
+                        #file_input
+                        tabindex="-1"
+                        aria-hidden="true"
                         type="file"
                         class="absolute inset-0 opacity-0"
                         (change)="loadCSVData($any($event))"
@@ -107,6 +119,9 @@ import { DesksStateService } from './desks-state.service';
                     [matTooltip]="
                         'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
                     "
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
+                    "
                 >
                     <icon>download</icon>
                 </button>
@@ -118,6 +133,9 @@ import { DesksStateService } from './desks-state.service';
                     matRipple
                     (click)="manageRestrictions()"
                     [matTooltip]="
+                        'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
+                    "
+                    [attr.aria-label]="
                         'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
                     "
                 >

@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 import { PanelStateService } from '../panel-state.service';
@@ -37,6 +31,7 @@ import {
             >
                 @if (!reserve_actions) {
                     <div
+                        aria-hidden="true"
                         [innerHTML]="
                             (s === 'busy'
                                 ? in_use_svg
@@ -47,9 +42,9 @@ import {
                         "
                     ></div>
                 }
-                <h3 class="mt-4 text-4xl font-medium uppercase">
+                <h2 class="mt-4 text-4xl font-medium uppercase">
                     {{ 'APP.BOOKING_PANEL.NOW' | translate }}
-                </h3>
+                </h2>
                 <p class="mt-4 text-2xl font-light">
                     @if (es?.current?.length) {
                         @if (es?.current[0]) {
@@ -135,71 +130,94 @@ import {
                         presence
                         class="mt-4 flex items-center space-x-2 rounded-full bg-black/20 px-4 py-1 text-xl"
                     >
-                        <icon>groups</icon>
+                        <icon aria-hidden="true">groups</icon>
                         <span>{{
                             'APP.BOOKING_PANEL.PEOPLE_DETECTED' | translate
                         }}</span>
                     </p>
                 }
                 @if (s === 'pending' && can_book) {
-                    <div
+                    <button
+                        action-prompt
+                        type="button"
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                         [style.padding-left]="
                             show_floating_left ? '9rem' : null
                         "
                     >
-                        <p class="uppercase">
+                        <span class="uppercase">
                             {{
                                 (can_scan
                                     ? 'APP.BOOKING_PANEL.CHECKIN_INPUT'
                                     : 'APP.BOOKING_PANEL.CHECKIN_INPUT_NOSCAN'
                                 ) | translate
                             }}
-                        </p>
-                        <icon>arrow_forward</icon>
-                    </div>
+                        </span>
+                        <icon aria-hidden="true">arrow_forward</icon>
+                    </button>
                 }
                 @if (s === 'free' && can_book) {
-                    <div
+                    <button
+                        action-prompt
+                        type="button"
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                         [style.padding-left]="
                             show_floating_left ? '9rem' : null
                         "
                     >
-                        <p class="uppercase">
+                        <span class="uppercase">
                             {{
                                 (can_scan
                                     ? 'APP.BOOKING_PANEL.BOOKING_INPUT'
                                     : 'APP.BOOKING_PANEL.BOOKING_INPUT_NOSCAN'
                                 ) | translate
                             }}
-                        </p>
-                        <icon>arrow_forward</icon>
-                    </div>
+                        </span>
+                        <icon aria-hidden="true">arrow_forward</icon>
+                    </button>
                 }
-                @if (s === 'busy' && can_end) {
+                @if (s === 'free' && !can_book && !can_scan_book) {
                     <div
+                        booking-disabled
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                         [style.padding-left]="
                             show_floating_left ? '9rem' : null
                         "
                     >
-                        <p class="uppercase">
-                            {{ 'APP.BOOKING_PANEL.END_INPUT' | translate }}
+                        <icon aria-hidden="true">event</icon>
+                        <p>
+                            {{
+                                'APP.BOOKING_PANEL.BOOKING_DISABLED' | translate
+                            }}
                         </p>
-                        <icon>arrow_forward</icon>
                     </div>
+                }
+                @if (s === 'busy' && can_end) {
+                    <button
+                        action-prompt
+                        type="button"
+                        class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
+                        [style.padding-left]="
+                            show_floating_left ? '9rem' : null
+                        "
+                    >
+                        <span class="uppercase">
+                            {{ 'APP.BOOKING_PANEL.END_INPUT' | translate }}
+                        </span>
+                        <icon aria-hidden="true">arrow_forward</icon>
+                    </button>
                 }
             </div>
             <div
                 class="bg-base-100 text-base-content flex h-full flex-1 flex-col items-center justify-center space-y-4"
             >
                 <div
+                    aria-hidden="true"
                     [innerHTML]="(!es?.next ? free_svg : in_use_svg) | safe"
                 ></div>
-                <h3 class="text-4xl font-medium uppercase">
+                <h2 class="text-4xl font-medium uppercase">
                     {{ 'COMMON.NEXT' | translate }}
-                </h3>
+                </h2>
                 <p class="text-2xl font-light">
                     {{
                         es?.next ||
@@ -216,7 +234,6 @@ import {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, SafePipe, IconComponent],
 })
 export class PanelViewStatusComponent extends AsyncHandler {
@@ -281,6 +298,18 @@ export class PanelViewStatusComponent extends AsyncHandler {
         return this._state.setting('show_qr_code') !== false;
     }
 
+    /**
+     * Whether people can book from the check-in page of the QR code.
+     * A custom QR URL can open any page, so it does not count.
+     */
+    public get can_scan_book() {
+        return (
+            this.can_scan &&
+            !this._state.setting('custom_qr_url') &&
+            this._state.setting('disable_qr_booking') !== true
+        );
+    }
+
     public get can_end() {
         return this._state.setting('enable_end_meeting_button') === true;
     }
@@ -309,7 +338,7 @@ export class PanelViewStatusComponent extends AsyncHandler {
             this._state.current(),
             this._state.next(),
         ),
-        next: nextPeriod(this._state.next()),
+        next: nextPeriod(this._state.next(), this._state.time_format()),
     }));
 
     public readonly free_svg = `

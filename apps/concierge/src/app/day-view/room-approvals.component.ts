@@ -1,7 +1,15 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
+import {
+    Component,
+    computed,
+    inject,
+    LOCALE_ID,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -18,9 +26,11 @@ import {
     BuildingPipe,
     IconComponent,
     LevelPipe,
+    openConfirmModal,
     TranslatePipe,
 } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
+import { errorText } from '../ui/modal-actions';
 import { EventsStateService } from './events-state.service';
 
 @Component({
@@ -43,6 +53,9 @@ import { EventsStateService } from './events-state.service';
                     "
                     matTooltipPosition="left"
                     (click)="setShow(!show())"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.ROOMS_PENDING_HIDE' | translate
+                    "
                 >
                     <icon>chevron_right</icon>
                 </button>
@@ -79,8 +92,8 @@ import { EventsStateService } from './events-state.service';
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
                     >
-                        <img src="assets/icons/no-pending.svg" />
-                        <p class="opacity-30">
+                        <img alt="" src="assets/icons/no-pending.svg" />
+                        <p class="opacity-70">
                             {{
                                 'APP.CONCIERGE.ROOMS_PENDING_EMPTY' | translate
                             }}
@@ -107,7 +120,7 @@ import { EventsStateService } from './events-state.service';
                             event.system;
                         @let busy = in_progress()[event.id];
                         <h3 class="font-medium">{{ event.title }}</h3>
-                        <p class="mb-2 text-xs opacity-30">
+                        <p class="mb-2 text-xs opacity-70">
                             {{ event.date | date: 'mediumDate' : tz }}
                             {{ event.date | date: time_format : tz }} &ndash;
                             {{ event.date_end | date: time_format : tz }}
@@ -122,6 +135,7 @@ import { EventsStateService } from './events-state.service';
                                 class="bg-base-200 mb-2 h-32 w-full overflow-hidden rounded-sm"
                             >
                                 <img
+                                    alt=""
                                     auth
                                     class="min-h-full min-w-full object-cover object-center"
                                     [source]="space?.images[0]"
@@ -146,7 +160,7 @@ import { EventsStateService } from './events-state.service';
                                             'No Location'
                                     }}
                                 </div>
-                                <div class="text-xs opacity-50">
+                                <div class="text-xs opacity-70">
                                     {{ bld?.display_name || bld?.name }},
                                     {{ lvl?.display_name || lvl?.name }}
                                 </div>
@@ -226,6 +240,9 @@ import { EventsStateService } from './events-state.service';
                                     class="border-base-300 bg-base-200 h-12 w-12 rounded-md border"
                                     [disabled]="!!busy"
                                     [matMenuTriggerFor]="menu"
+                                    [attr.aria-label]="
+                                        'COMMON.MORE_OPTIONS' | translate
+                                    "
                                 >
                                     <icon>more_vert</icon>
                                 </button>
@@ -282,6 +299,9 @@ import { EventsStateService } from './events-state.service';
                 (click)="setShow(!show())"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
                 matTooltipPosition="left"
+                [attr.aria-label]="
+                    'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate
+                "
             >
                 <icon>chevron_left</icon>
             </button>
@@ -315,6 +335,8 @@ export class RoomBookingsApprovalsComponent implements OnInit {
     private _state = inject(EventsStateService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
+    private _locale = inject(LOCALE_ID);
 
     public readonly show = signal(true);
     public readonly in_progress = signal<
@@ -408,7 +430,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             );
         } catch (e) {
             this._clearInProgress([event]);
-            return notifyError(`Failed to approve booking: ${e}`);
+            return notifyError(`Failed to approve booking: ${errorText(e)}`);
         }
         this._clearInProgress([event]);
         this.status.update((s) => ({ ...s, [event.id]: 'accept' }));
@@ -429,7 +451,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             );
         } catch (e) {
             this._clearInProgress(events);
-            return notifyError(`Failed to approve series: ${e}`);
+            return notifyError(`Failed to approve series: ${errorText(e)}`);
         }
         this._clearInProgress(events);
         this._setSeriesStatus(event, 'accept');
@@ -439,7 +461,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
 
     public async reject(event: CalendarEvent) {
         const mod = this._org.module('approvals', 'RoomBookingApproval');
-        if (!mod) return;
+        if (!mod || !(await this._confirmDecline(event, false))) return;
         this._setInProgress([event], 'decline');
         try {
             await mod.execute(
@@ -449,7 +471,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             );
         } catch (e) {
             this._clearInProgress([event]);
-            return notifyError(`Failed to decline booking: ${e}`);
+            return notifyError(`Failed to decline booking: ${errorText(e)}`);
         }
         this._clearInProgress([event]);
         this.status.update((s) => ({ ...s, [event.id]: 'decline' }));
@@ -459,7 +481,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
 
     public async rejectSeries(event: CalendarEvent) {
         const mod = this._org.module('approvals', 'RoomBookingApproval');
-        if (!mod) return;
+        if (!mod || !(await this._confirmDecline(event, true))) return;
         const events = this._seriesEvents(event);
         this._setInProgress(events, 'decline');
         try {
@@ -470,12 +492,36 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             );
         } catch (e) {
             this._clearInProgress(events);
-            return notifyError(`Failed to decline series: ${e}`);
+            return notifyError(`Failed to decline series: ${errorText(e)}`);
         }
         this._clearInProgress(events);
         this._setSeriesStatus(event, 'decline');
         this._replaceSeriesEvents(event, 'declined');
         notifySuccess('Booking series declined');
+    }
+
+    /** Ask before declining. The row then shows its own progress state. */
+    private async _confirmDecline(event: CalendarEvent, series: boolean) {
+        // Same time zone as the row, so the dialog shows the time the user sees
+        const time = formatDate(
+            event.date,
+            `dd MMM yyyy ${this.time_format}`,
+            this._locale,
+            this.tz || undefined,
+        );
+        const details = await openConfirmModal(
+            {
+                title: series ? 'Decline booking series' : 'Decline booking',
+                content: series
+                    ? `Decline all occurrences of "${event.title}", including the booking at ${time}?`
+                    : `Decline "${event.title}" at ${time}?`,
+                icon: { content: 'event_busy' },
+                confirm_text: 'Decline',
+            },
+            this._dialog,
+        );
+        details.close();
+        return details.reason === 'done';
     }
 
     private _seriesEvents(event: CalendarEvent) {

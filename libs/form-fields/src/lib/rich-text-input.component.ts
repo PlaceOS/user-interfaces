@@ -22,6 +22,7 @@ import {
 } from '@placeos/common';
 import { apiKey, token } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 import type Squire from 'squire-rte';
 
@@ -63,6 +64,8 @@ import type Squire from 'squire-rte';
                         [class.border-info]="toolbar_state().bold"
                         [class.text-info]="toolbar_state().bold"
                         (click)="toggleBold()"
+                        [attr.aria-label]="'COMMON.BOLD' | translate"
+                        [attr.aria-pressed]="!!toolbar_state().bold"
                     >
                         <icon>format_bold</icon>
                     </button>
@@ -73,6 +76,8 @@ import type Squire from 'squire-rte';
                         [class.border-info]="toolbar_state().italic"
                         [class.text-info]="toolbar_state().italic"
                         (click)="toggleItalic()"
+                        [attr.aria-label]="'COMMON.ITALIC' | translate"
+                        [attr.aria-pressed]="!!toolbar_state().italic"
                     >
                         <icon>format_italic</icon>
                     </button>
@@ -83,6 +88,8 @@ import type Squire from 'squire-rte';
                         [class.border-info]="toolbar_state().underline"
                         [class.text-info]="toolbar_state().underline"
                         (click)="toggleUnderline()"
+                        [attr.aria-label]="'COMMON.UNDERLINE' | translate"
+                        [attr.aria-pressed]="!!toolbar_state().underline"
                     >
                         <icon>format_underlined</icon>
                     </button>
@@ -93,6 +100,8 @@ import type Squire from 'squire-rte';
                         [class.border-info]="toolbar_state().unordered_list"
                         [class.text-info]="toolbar_state().unordered_list"
                         (click)="makeUnorderedList()"
+                        [attr.aria-label]="'COMMON.BULLETED_LIST' | translate"
+                        [attr.aria-pressed]="!!toolbar_state().unordered_list"
                     >
                         <icon>format_list_bulleted</icon>
                     </button>
@@ -103,6 +112,8 @@ import type Squire from 'squire-rte';
                         [class.border-info]="toolbar_state().ordered_list"
                         [class.text-info]="toolbar_state().ordered_list"
                         (click)="makeOrderedList()"
+                        [attr.aria-label]="'COMMON.NUMBERED_LIST' | translate"
+                        [attr.aria-pressed]="!!toolbar_state().ordered_list"
                     >
                         <icon>format_list_numbered</icon>
                     </button>
@@ -113,6 +124,8 @@ import type Squire from 'squire-rte';
                         [class.border-info]="toolbar_state().link"
                         [class.text-info]="toolbar_state().link"
                         (click)="insertLink()"
+                        [attr.aria-label]="'COMMON.INSERT_LINK' | translate"
+                        [attr.aria-pressed]="!!toolbar_state().link"
                     >
                         <icon>link</icon>
                     </button>
@@ -122,6 +135,9 @@ import type Squire from 'squire-rte';
                             type="button"
                             class="border-base-300 rounded border px-2 py-1 text-sm"
                             (click)="insertImage()"
+                            [attr.aria-label]="
+                                'COMMON.INSERT_IMAGE' | translate
+                            "
                         >
                             <icon>image</icon>
                         </button>
@@ -130,6 +146,7 @@ import type Squire from 'squire-rte';
                             type="button"
                             class="border-base-300 rounded border px-2 py-1 text-sm"
                             (click)="insertAttachment()"
+                            [attr.aria-label]="'COMMON.ATTACH_FILE' | translate"
                         >
                             <icon>attachment</icon>
                         </button>
@@ -186,7 +203,7 @@ import type Squire from 'squire-rte';
             multi: true,
         },
     ],
-    imports: [IconComponent],
+    imports: [IconComponent, TranslatePipe],
 })
 export class RichTextInputComponent
     extends AsyncHandler

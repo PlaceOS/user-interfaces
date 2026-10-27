@@ -58,6 +58,22 @@ describe('PanelViewActionsComponent', () => {
         expect(state.quickBook).toHaveBeenCalledWith(15);
     });
 
+    it('should send one quick booking for a double tap', async () => {
+        let finish: () => void = () => undefined;
+        state.quickBook.mockReturnValueOnce(
+            new Promise<void>((resolve) => (finish = resolve)),
+        );
+        features = ['quick_book'];
+        spectator.detectChanges();
+        spectator.component.quickBook(15);
+        spectator.component.quickBook(15);
+        expect(state.quickBook).toHaveBeenCalledTimes(1);
+        finish();
+        await spectator.fixture.whenStable();
+        spectator.component.quickBook(15);
+        expect(state.quickBook).toHaveBeenCalledTimes(2);
+    });
+
     it('should hide quick book when the booking form needs a host', () => {
         features = ['quick_book'];
         panel_settings.set({ disable_book_now_host: false });

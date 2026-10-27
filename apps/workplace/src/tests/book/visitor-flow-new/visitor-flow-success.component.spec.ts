@@ -113,12 +113,15 @@ describe('VisitorFlowSuccessComponent', () => {
         expect(spectator.component.ical_link()).toBe('');
     });
 
-    it('reports single-visitor mode by default', () => {
+    it('reports single-visitor mode when one visitor was invited', async () => {
+        settingSignal('bookings.multiple_visitors', false).set(true);
+        last_count = 1;
+        await spectator.component.ngOnInit();
         expect(spectator.component.multiple()).toBe(false);
     });
 
-    it('reports multi-visitor mode when the setting is enabled', () => {
-        settingSignal('bookings.multiple_visitors', false).set(true);
+    it('reports multi-visitor mode when several visitors were invited', async () => {
+        await spectator.component.ngOnInit();
         expect(spectator.component.multiple()).toBe(true);
     });
 

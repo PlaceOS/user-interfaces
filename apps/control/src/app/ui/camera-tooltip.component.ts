@@ -37,7 +37,9 @@ import {
     selector: 'camera-tooltip',
     template: `
         @if (camera_list()?.length) {
-            <div class="bg-base-100 my-2 flex flex-col rounded-sm shadow-sm">
+            <div
+                class="bg-base-100 my-2 flex flex-col rounded-sm shadow-sm max-sm:my-0 max-sm:flex-1 max-sm:rounded-none max-sm:shadow-none"
+            >
                 <mat-form-field appearance="outline" class="no-subscript m-2">
                     <mat-select
                         [ngModel]="active_camera()"
@@ -62,12 +64,14 @@ import {
                         </h3>
                         @if (presets().length) {
                             @for (name of presets(); track name) {
-                                <div class="flex items-center space-x-2">
+                                <div
+                                    class="flex items-center space-x-2 max-sm:w-full"
+                                >
                                     <button
                                         preset
                                         btn
                                         matRipple
-                                        class="w-48"
+                                        class="w-48 max-sm:w-auto max-sm:flex-1"
                                         [class.inverse]="preset() !== name"
                                         (click)="recallPreset(name)"
                                     >
@@ -77,10 +81,16 @@ import {
                                         <button
                                             icon
                                             matRipple
+                                            [attr.aria-label]="
+                                                'APP.CONTROL.CAMERA_PRESET_DELETE'
+                                                    | translate: { name }
+                                            "
                                             class="border-error bg-base-100 text-error h-12 w-12 rounded-sm border"
                                             (click)="removePreset(name)"
                                         >
-                                            <icon>delete</icon>
+                                            <icon aria-hidden="true"
+                                                >delete</icon
+                                            >
                                         </button>
                                     }
                                 </div>
@@ -99,9 +109,12 @@ import {
                             icon
                             matRipple
                             class="absolute top-1 right-4"
+                            [attr.aria-label]="
+                                'APP.CONTROL.CAMERA_PRESET_ADD' | translate
+                            "
                             [matMenuTriggerFor]="menu"
                         >
-                            <icon>add</icon>
+                            <icon aria-hidden="true">add</icon>
                         </button>
                         <mat-menu #menu="matMenu">
                             <div class="flex w-full flex-col px-2">
@@ -156,6 +169,9 @@ import {
                                 <button
                                     zoom-in
                                     icon
+                                    [attr.aria-label]="
+                                        'APP.CONTROL.ZOOM_IN' | translate
+                                    "
                                     matRipple
                                     class="touch-none rounded-sm select-none"
                                     (pointerdown)="startZoom('in', $event)"
@@ -164,7 +180,7 @@ import {
                                     (lostpointercapture)="stopZoom()"
                                     (contextmenu)="$event.preventDefault()"
                                 >
-                                    <icon>add</icon>
+                                    <icon aria-hidden="true">add</icon>
                                 </button>
                                 <div
                                     class="border-base-200 flex h-10 w-10 items-center justify-center border-t border-b text-xs"
@@ -174,6 +190,9 @@ import {
                                 <button
                                     zoom-out
                                     icon
+                                    [attr.aria-label]="
+                                        'APP.CONTROL.ZOOM_OUT' | translate
+                                    "
                                     matRipple
                                     class="touch-none rounded-sm select-none"
                                     (pointerdown)="startZoom('out', $event)"
@@ -182,7 +201,7 @@ import {
                                     (lostpointercapture)="stopZoom()"
                                     (contextmenu)="$event.preventDefault()"
                                 >
-                                    <icon>remove</icon>
+                                    <icon aria-hidden="true">remove</icon>
                                 </button>
                             </div>
                         </div>
@@ -203,7 +222,7 @@ import {
             </div>
         } @else {
             <div
-                class="bg-base-100 my-2 flex flex-col rounded-sm p-8 text-center shadow-sm"
+                class="bg-base-100 my-2 flex flex-col rounded-sm p-8 text-center shadow-sm max-sm:my-0 max-sm:flex-1 max-sm:rounded-none max-sm:shadow-none"
             >
                 <p>{{ 'APP.CONTROL.CAMERAS_EMPTY' | translate }}</p>
             </div>

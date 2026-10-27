@@ -8,7 +8,6 @@ import {
     Router,
 } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
-import { TraceService } from '@sentry/angular';
 import { Subject } from 'rxjs';
 
 import { GoogleAnalyticsService } from '../lib/google-analytics.service';
@@ -60,7 +59,6 @@ describe('PlaceOS analytics startup', () => {
                     MatSnackBar,
                     ActivatedRoute,
                     SwUpdate,
-                    TraceService,
                     HotkeysService,
                     LocaleService,
                     MapsPeopleService,

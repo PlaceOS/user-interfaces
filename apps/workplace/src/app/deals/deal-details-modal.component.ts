@@ -45,7 +45,9 @@ import {
                     {{ 'COMMON.DESCRIPTION' | translate }}
                 </h4>
                 <p class="pb-4 text-sm">{{ deal.description }}</p>
-                <h4 class="font-medium">Validity Period</h4>
+                <h4 class="font-medium">
+                    {{ 'COMMON.VALID_UNTIL' | translate }}
+                </h4>
                 <p class="pb-4 text-sm">
                     {{ deal.expires_at | date: 'mediumDate' }}
                 </p>
@@ -57,6 +59,7 @@ import {
                 matRipple
                 mat-dialog-close
                 class="bg-base-100 absolute top-2 right-2"
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
             >
                 <icon>close</icon>
             </button>

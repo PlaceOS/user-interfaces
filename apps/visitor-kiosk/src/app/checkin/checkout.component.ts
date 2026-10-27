@@ -1,14 +1,11 @@
-import {
-    Component,
-    OnInit,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
 import { OrganisationService, i18n, notifySuccess } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { AnnounceDirective } from '../components/announce.directive';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -18,19 +15,20 @@ import { CheckinStateService } from './checkin-state.service';
             <div
                 class="bg-base-100 relative flex w-md flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
-                <h3 class="mb-2 w-full text-xl">
+                <h1 pageHeading class="mb-2 w-full text-xl">
                     {{ 'APP.VISITOR_KIOSK.CHECKOUT' | translate }}
-                </h3>
+                </h1>
                 <div class="mt-2 mb-4 w-full">
                     {{ 'APP.VISITOR_KIOSK.CHECKOUT_MSG' | translate }}
                 </div>
                 <div class="flex w-full items-center justify-end gap-2">
                     <button
-                        btn class="inverse error w-32 bg-error/10"
+                        btn
+                        class="inverse error bg-error/10 w-32"
                         matRipple
                         [routerLink]="['/welcome']"
                     >
-                        {{'COMMON.CANCEL' | translate}}
+                        {{ 'COMMON.CANCEL' | translate }}
                     </button>
                     <button btn matRipple class="w-32" (click)="checkout()">
                         {{ 'COMMON.CHECK_OUT' | translate }}
@@ -41,8 +39,8 @@ import { CheckinStateService } from './checkin-state.service';
             <div
                 class="bg-base-100 relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm p-8 shadow-sm"
             >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <div>
+                <mat-spinner [diameter]="32" aria-hidden="true"></mat-spinner>
+                <div announce>
                     {{ 'APP.VISITOR_KIOSK.CHECKOUT_LOADING' | translate }}
                 </div>
             </div>
@@ -56,6 +54,8 @@ import { CheckinStateService } from './checkin-state.service';
         `,
     ],
     imports: [
+        PageHeadingDirective,
+        AnnounceDirective,
         MatRippleModule,
         TranslatePipe,
         MatProgressSpinnerModule,

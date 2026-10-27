@@ -22,7 +22,6 @@ import { LockerStateService } from './locker-state.service';
     selector: 'locker-bookings',
     template: `
         @let more_pages = has_more_pages();
-        <div class="h-4 w-full"></div>
         <div
             class="w-fit min-w-full px-8 pt-4"
             [class.pb-16]="!loading() && more_pages"
@@ -30,6 +29,7 @@ import { LockerStateService } from './locker-state.service';
         >
             <simple-table
                 [error]="load_error()"
+                [loading]="bookings_loading()"
                 (retry)="retryLoad()"
                 [selectable]="bulk_actions()"
                 [row_key]="rowKey"
@@ -85,7 +85,7 @@ import { LockerStateService } from './locker-state.service';
                 <div
                     class="flex w-full flex-col items-center justify-center py-2"
                 >
-                    <div class="opacity-60">{{ date | date: 'MMM' }}</div>
+                    <div class="opacity-70">{{ date | date: 'MMM' }}</div>
                     <div class="text-xl">{{ date | date: 'dd' }}</div>
                 </div>
             </ng-template>
@@ -142,7 +142,7 @@ import { LockerStateService } from './locker-state.service';
                         }}
                     </div>
                     @if (row.user_name) {
-                        <div class="text-xs opacity-30 select-all">
+                        <div class="text-xs opacity-70 select-all">
                             {{ row.user_email }}
                         </div>
                     }
@@ -348,6 +348,9 @@ export class LockerBookingsComponent {
     private _settings = inject(SettingsService);
 
     public readonly loading = signal('');
+    public readonly bookings_loading = computed(() =>
+        this._state.loading().includes('[BOOKINGS]'),
+    );
     public readonly filters = this._state.filters;
     public readonly search = this._state.search;
     public readonly has_more_pages = this._state.has_more_pages;

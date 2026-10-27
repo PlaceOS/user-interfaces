@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { IconComponent, SafePipe } from '@placeos/components';
+import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: 'fullscreen-embed',
@@ -12,17 +12,25 @@ import { IconComponent, SafePipe } from '@placeos/components';
                 matRipple
                 mat-dialog-close
                 class="absolute right-2 top-2 rounded border border-base-300 bg-base-100"
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
             >
                 <icon>close</icon>
             </button>
             <iframe
                 class="h-full w-full"
+                [title]="'APP.WORKPLACE.EMBED_TITLE' | translate"
                 [src]="embed_url() | safe: 'resource'"
             ></iframe>
         </div>
     `,
     styles: [``],
-    imports: [IconComponent, MatRippleModule, SafePipe, MatDialogModule],
+    imports: [
+        IconComponent,
+        MatRippleModule,
+        SafePipe,
+        TranslatePipe,
+        MatDialogModule,
+    ],
 })
 export class FullscreenEmbedComponent {
     private _data: string = inject(MAT_DIALOG_DATA);

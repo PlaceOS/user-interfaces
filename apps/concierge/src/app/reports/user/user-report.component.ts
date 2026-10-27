@@ -54,6 +54,7 @@ import { UserReportOptions, UserReportService } from './user-report.service';
                 [disabled]="!rows().length"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
                 (click)="downloadReport()"
+                [attr.aria-label]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
             >
                 <icon>download</icon>
             </button>
@@ -64,6 +65,7 @@ import { UserReportOptions, UserReportService } from './user-report.service';
                 [disabled]="!rows().length"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
                 (click)="print()"
+                [attr.aria-label]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
             >
                 <icon>print</icon>
             </button>
@@ -72,17 +74,22 @@ import { UserReportOptions, UserReportService } from './user-report.service';
             class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >
             <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                <img auth class="h-12" [source]="logo()?.src || logo()" />
+                <img
+                    alt=""
+                    auth
+                    class="h-12"
+                    [source]="logo()?.src || logo()"
+                />
                 <div class="flex-1"></div>
                 <div class="px-2 text-right">
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.REPORTS_USER_HEADER' | translate }}
                     </h2>
                     @if (options().user; as user) {
-                        <p class="text-sm opacity-60">
+                        <p class="text-sm opacity-70">
                             {{ user.name }} ({{ user.email }})
                         </p>
-                        <p class="text-sm opacity-60">
+                        <p class="text-sm opacity-70">
                             {{ options().start | date: 'mediumDate' }} &ndash;
                             {{ options().end | date: 'mediumDate' }}
                         </p>
@@ -92,7 +99,7 @@ import { UserReportOptions, UserReportService } from './user-report.service';
             @if (loading()) {
                 <div class="flex h-full w-full flex-col items-center p-8">
                     <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                    <p class="opacity-30">
+                    <p class="opacity-70">
                         {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
                     </p>
                 </div>
@@ -100,7 +107,7 @@ import { UserReportOptions, UserReportService } from './user-report.service';
                 <div
                     class="screen-only flex h-full w-full flex-col items-center p-8"
                 >
-                    <p class="opacity-30">
+                    <p class="opacity-70">
                         {{ 'APP.CONCIERGE.REPORTS_USER_EMPTY' | translate }}
                     </p>
                 </div>

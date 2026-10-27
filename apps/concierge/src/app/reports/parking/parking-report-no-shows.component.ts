@@ -37,6 +37,9 @@ import { ParkingReportService } from './parking-report.service';
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
                         "
                         (click)="download()"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                        "
                     >
                         <icon>download</icon>
                     </button>
@@ -82,7 +85,7 @@ import { ParkingReportService } from './parking-report.service';
                 <div class="min-w-0 p-4 break-words">
                     <div>{{ row.host }}</div>
                     @if (row.email && row.email !== row.host) {
-                        <div class="text-xs opacity-60">{{ row.email }}</div>
+                        <div class="text-xs opacity-70">{{ row.email }}</div>
                     }
                 </div>
             </ng-template>
@@ -107,7 +110,7 @@ import { ParkingReportService } from './parking-report.service';
             <ng-template #incidents_template let-row="row">
                 <div class="bg-base-200/40 px-4 py-2">
                     <table class="w-full text-left">
-                        <thead class="text-xs font-medium opacity-60">
+                        <thead class="text-xs font-medium opacity-70">
                             <tr>
                                 <th scope="col" class="pr-4 pb-1">
                                     {{ 'FORM.DATE' | translate }}
@@ -133,7 +136,7 @@ import { ParkingReportService } from './parking-report.service';
                                             incident.date
                                                 | date: 'mediumDate' : timezone
                                         }}
-                                        <div class="text-xs opacity-60">
+                                        <div class="text-xs opacity-70">
                                             {{
                                                 incident.date
                                                     | date

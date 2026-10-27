@@ -8,6 +8,7 @@ import {
     notifyError,
     notifySuccess,
     OrganisationService,
+    withTimeout,
 } from '@placeos/common';
 import { addMinutes, getUnixTime, isSameDay } from 'date-fns';
 
@@ -18,8 +19,11 @@ import {
     updateBooking,
     updateBookingInductionStatus,
 } from '@placeos/bookings';
-import { SpacePipe } from '@placeos/events';
 import { showGuest } from '@placeos/users';
+
+/** Time to wait for a check-in request before the kiosk shows an error */
+const REQUEST_TIMEOUT_MS = 10_000;
+const TIMEOUT_MESSAGE = 'Request timed out. Please try again.';
 
 export interface CheckinGuestDetails {
     host: string;
@@ -59,7 +63,6 @@ export class CheckinStateService {
     private _error = signal<string>('');
     /** Form for the current guest details */
     public readonly form = signal<CheckinGuestDetails>(guestDetailsForm());
-    private _space_pipe = new SpacePipe();
 
     public readonly photo = this._photo.asReadonly();
     public readonly event = this._booking.asReadonly();
@@ -67,6 +70,8 @@ export class CheckinStateService {
     public readonly error = this._error.asReadonly();
 
     public metadata = '';
+    /** ID of the latest lookup. Results from older lookups are ignored. */
+    private _lookup_id = 0;
 
     constructor() {
         // Keep every key defined so signal-forms never drops a sub-field bound
@@ -104,20 +109,33 @@ export class CheckinStateService {
         this._error.set(message);
     }
 
-    /** Load guest and event data */
+    /**
+     * Load guest and event data into the check-in state.
+     * Rejects if the lookup takes longer than `REQUEST_TIMEOUT_MS`, or if a
+     * newer lookup starts first.
+     */
     public async loadGuestAndEvent(email: string, event_id?: string) {
+        const id = ++this._lookup_id;
+        const result = await withTimeout(
+            this._findGuestAndEvent(email, event_id),
+            REQUEST_TIMEOUT_MS,
+            TIMEOUT_MESSAGE,
+        );
+        if (id !== this._lookup_id) throw new Error('Lookup was replaced.');
+        this._guest.set(result.guest);
+        this._booking.set(result.event);
+        this.form.set(guestDetailsForm(result.guest, result.event.user_email));
+        return result;
+    }
+
+    /** Find the guest and their event. Does not change the check-in state. */
+    private async _findGuestAndEvent(email: string, event_id?: string) {
         const guest = await showGuest(email);
         if (!guest.booking && event_id) {
             const event = await showBooking(event_id);
-            this._guest.set(guest);
-            this._booking.set(event);
-            this.form.set(guestDetailsForm(guest, event.user_email));
             return { guest, event };
         }
         if (guest.booking) {
-            this._guest.set(guest);
-            this._booking.set(guest.booking);
-            this.form.set(guestDetailsForm(guest, guest.booking.user_email));
             return { guest, event: guest.booking };
         }
         // Without a zone, the API lists only the kiosk account's own bookings
@@ -139,19 +157,20 @@ export class CheckinStateService {
         if (todays_events.length <= 0) {
             throw new Error(i18n('APP.VISITOR_KIOSK.NOT_FOUND', { email }));
         }
-        this._guest.set(guest);
-        this._booking.set(todays_events[0]);
-        this.form.set(guestDetailsForm(guest, todays_events[0].user_email));
         return { guest, event: todays_events[0] };
     }
 
+    /**
+     * Save the form details and `data` to the current booking.
+     * Rejects if the save fails or takes longer than `REQUEST_TIMEOUT_MS`.
+     */
     public async updateGuest(data?: HashMap) {
         const guest = this._guest();
         const form = this.form();
         if (!guest || !form) return;
         const booking = this._booking() || guest.extension_data.event;
         if (!booking || this.metadata) return;
-        const updated_booking = await updateBooking(
+        const save = updateBooking(
             booking.id,
             new Booking({
                 ...booking,
@@ -169,6 +188,12 @@ export class CheckinStateService {
                     phone: form.phone || booking.extension_data?.phone,
                 },
             }).toJSON(),
+        );
+        // A save that ends after the timeout must not change the state
+        const updated_booking = await withTimeout(
+            save,
+            REQUEST_TIMEOUT_MS,
+            TIMEOUT_MESSAGE,
         );
         this.setBooking(updated_booking);
     }
@@ -191,22 +216,40 @@ export class CheckinStateService {
         await updateBookingInductionStatus(event.id, 'declined');
     }
 
+    /**
+     * Set the check-in state of the current booking.
+     * Shows an error and rejects if the request fails or takes longer than
+     * `REQUEST_TIMEOUT_MS`.
+     */
     public async checkinGuest(state = true) {
         const guest = this._guest();
         const event = this._booking() || guest?.extension_data?.event;
         if (!guest || !event) return;
-        const checkin_fn = checkinBooking(event.id, state);
+        const checkin_fn = withTimeout(
+            checkinBooking(event.id, state),
+            REQUEST_TIMEOUT_MS,
+            TIMEOUT_MESSAGE,
+        );
         const vars = {
             guest: guest.name,
             host: event.user_name || event.user_email,
         };
         const result = await checkin_fn.catch(async (e) => {
-            notifyError(e || i18n('APP.VISITOR_KIOSK.ERROR_CHECKIN', vars));
+            // Show visitors a plain message. Keep the details for staff.
+            console.error('Unable to update check-in state.', e);
+            notifyError(
+                state
+                    ? i18n('APP.VISITOR_KIOSK.ERROR_CHECKIN', vars)
+                    : i18n('APP.VISITOR_KIOSK.ERROR_CHECKOUT'),
+            );
             throw e;
         });
         if (!result) return;
 
-        notifySuccess(i18n('APP.VISITOR_KIOSK.SUCCESS_CHECKIN', vars));
+        // The checkout page shows its own success message
+        if (state) {
+            notifySuccess(i18n('APP.VISITOR_KIOSK.SUCCESS_CHECKIN', vars));
+        }
         this.metadata = '';
     }
 }

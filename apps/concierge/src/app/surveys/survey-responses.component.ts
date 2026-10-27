@@ -50,6 +50,7 @@ import { NewSurveyService } from './new-survey.service';
 
                         survey()?.building_id,
                     ]"
+                    [attr.aria-label]="'COMMON.BACK' | translate"
                 >
                     <icon class="flex">arrow_back</icon>
                 </a>
@@ -62,18 +63,31 @@ import { NewSurveyService } from './new-survey.service';
                     </div>
                 </div>
             </div>
-            <date-range-field [week_start]="week_start">
-                <input
-                    #startDate
-                    [ngModel]="options().start"
-                    (ngModelChange)="$event ? setStartDate($event) : ''"
-                />
-                <input
-                    #endDate
-                    [ngModel]="options().end"
-                    (ngModelChange)="$event ? setEndDate($event) : ''"
-                />
-            </date-range-field>
+            <div class="flex items-center space-x-2">
+                <date-range-field [week_start]="week_start" [from]="0">
+                    <input
+                        #startDate
+                        [ngModel]="options().start"
+                        (ngModelChange)="$event ? setStartDate($event) : ''"
+                    />
+                    <input
+                        #endDate
+                        [ngModel]="options().end"
+                        (ngModelChange)="$event ? setEndDate($event) : ''"
+                    />
+                </date-range-field>
+                @if (options().start || options().end) {
+                    <button
+                        icon
+                        type="button"
+                        [attr.aria-label]="'COMMON.CLEAR' | translate"
+                        [title]="'COMMON.CLEAR' | translate"
+                        (click)="clearDates()"
+                    >
+                        <icon>close</icon>
+                    </button>
+                }
+            </div>
         </header>
         <div class="mb-4 flex justify-end space-x-4 px-8">
             <div
@@ -145,7 +159,7 @@ import { NewSurveyService } from './new-survey.service';
             <div
                 class="flex min-h-40 w-full flex-col items-center justify-center"
             >
-                <span class="text-lg opacity-30">{{
+                <span class="text-lg opacity-70">{{
                     'APP.CONCIERGE.SURVEY_ANSWERS_EMPTY' | translate
                 }}</span>
             </div>
@@ -256,5 +270,14 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
 
     public setEndDate(date: number) {
         this.options.update((options) => ({ ...options, end: date }));
+    }
+
+    /** Remove the date range, so the page shows all answers again. */
+    public clearDates() {
+        this.options.update((options) => ({
+            ...options,
+            start: undefined,
+            end: undefined,
+        }));
     }
 }

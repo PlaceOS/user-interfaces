@@ -99,7 +99,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                         question().title
                     }}</span>
                     @if (!question().title) {
-                        <span class="mb-4 w-full text-xl opacity-30">{{
+                        <span class="mb-4 w-full text-xl opacity-70">{{
                             'Untitled Question'
                         }}</span>
                     }
@@ -176,6 +176,9 @@ import { QuestionType, QuestionTypeOptions } from './types';
                                                 matRipple
                                                 class="border-error text-error h-12 min-w-12 rounded-sm border"
                                                 (click)="deleteOption(i)"
+                                                [attr.aria-label]="
+                                                    'COMMON.DELETE' | translate
+                                                "
                                             >
                                                 <icon> delete_outline</icon>
                                             </button>

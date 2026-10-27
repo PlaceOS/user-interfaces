@@ -213,6 +213,33 @@ describe('AppSettingsModalComponent', () => {
         );
     });
 
+    it('should block saving when stored settings fail to load', async () => {
+        vi.mocked(ts_client.showMetadata).mockImplementation(((id: string) =>
+            id === 'zone-1'
+                ? Promise.reject({ status: 500 })
+                : Promise.resolve({ details: {} })) as never);
+        vi.mocked(ts_client.updateMetadata).mockClear();
+        await spectator.component.ngOnInit();
+
+        await spectator.component.save();
+
+        expect(spectator.component.load_failed()).toBe(true);
+        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should allow saving when a zone has no stored settings', async () => {
+        vi.mocked(ts_client.showMetadata).mockRejectedValue({
+            status: 404,
+        } as never);
+        vi.mocked(ts_client.updateMetadata).mockClear();
+        await spectator.component.ngOnInit();
+
+        await spectator.component.save();
+
+        expect(spectator.component.load_failed()).toBe(false);
+        expect(ts_client.updateMetadata).toHaveBeenCalled();
+    });
+
     it('should build features list from active_features', () => {
         spectator.component.active_features.set({
             spaces: true,

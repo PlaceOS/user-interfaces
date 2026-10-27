@@ -2,15 +2,17 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
     OrganisationService,
+    i18n,
     notifyError,
     notifyInfo,
     notifySuccess,
     settingSignal,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -19,11 +21,11 @@ import { CheckinStateService } from './checkin-state.service';
         <div
             class="bg-base-100 relative flex w-lg flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
         >
-            <p class="my-4">
+            <h1 pageHeading class="my-4">
                 {{ 'APP.VISITOR_KIOSK.INDUCTION_MSG' | translate }}
-            </p>
+            </h1>
             <div
-                class="border-base-300 max-h-[50vh] w-full overflow-x-hidden overflow-y-auto rounded-sm border p-4 text-sm whitespace-pre-wrap opacity-60"
+                class="border-base-300 max-h-[50vh] w-full overflow-x-hidden overflow-y-auto rounded-sm border p-4 text-sm whitespace-pre-wrap opacity-70"
             >
                 {{ induction_details() }}
             </div>
@@ -35,6 +37,7 @@ import { CheckinStateService } from './checkin-state.service';
                     btn
                     matRipple
                     class="clear w-32 underline"
+                    [disabled]="loading()"
                     (click)="decline()"
                 >
                     {{ 'APP.VISITOR_KIOSK.DECLINE' | translate }}
@@ -43,16 +46,35 @@ import { CheckinStateService } from './checkin-state.service';
                     btn
                     matRipple
                     class="w-32"
-                    [disabled]="!agree()"
+                    [disabled]="!agree() || loading()"
                     (click)="continue()"
                 >
                     {{ 'COMMON.ACCEPT' | translate }}
                 </button>
             </div>
+            @if (!loading()) {
+                <a
+                    icon
+                    matRipple
+                    class="absolute top-0 right-0"
+                    [routerLink]="['/welcome']"
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                >
+                    <icon>close</icon>
+                </a>
+            }
         </div>
     `,
     styles: [],
-    imports: [TranslatePipe, MatRippleModule, MatCheckboxModule, FormsModule],
+    imports: [
+        PageHeadingDirective,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatCheckboxModule,
+        FormsModule,
+        RouterModule,
+    ],
 })
 export class CheckinInductionComponent implements OnInit {
     private _checkin = inject(CheckinStateService);
@@ -100,22 +122,36 @@ export class CheckinInductionComponent implements OnInit {
     }
 
     public async decline() {
+        if (this.loading()) return;
         this.loading.set(true);
-        await this._checkin.declineInduction().catch((err) => {
-            notifyError('Error declining induction', err);
-            throw err;
-        });
-        this._checkin.setError('You have declined the induction.');
+        const declined = await this._checkin
+            .declineInduction()
+            .then(() => true)
+            .catch((err) => {
+                notifyError('Error declining induction', err);
+                return false;
+            });
+        this.loading.set(false);
+        if (!declined) return;
+        this._checkin.setError(i18n('APP.VISITOR_KIOSK.INDUCTION_DECLINED'));
         notifyInfo('Induction declined successfully');
         this._router.navigate(['/checkin', 'error']);
     }
 
     public async continue() {
+        if (this.loading()) return;
         this.loading.set(true);
-        await this._checkin.completeInduction().catch((err) => {
-            notifyError('Error completing induction', err);
-            throw err;
-        });
+        const completed = await this._checkin
+            .completeInduction()
+            .then(() => true)
+            .catch((err) => {
+                notifyError('Error completing induction', err);
+                return false;
+            });
+        if (!completed) {
+            this.loading.set(false);
+            return;
+        }
         notifySuccess('Induction completed successfully');
         if (this.induction_after_details()) {
             const checked_in = await this._checkin

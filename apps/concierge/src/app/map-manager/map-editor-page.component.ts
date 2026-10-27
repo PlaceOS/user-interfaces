@@ -110,6 +110,7 @@ function localised(
                 matRipple
                 routerLink="/map-management"
                 [matTooltip]="'APP.CONCIERGE.MAPS_BACK' | translate"
+                [attr.aria-label]="'APP.CONCIERGE.MAPS_BACK' | translate"
             >
                 <icon>arrow_back</icon>
             </a>
@@ -218,7 +219,7 @@ function localised(
                 }
             </map-editor>
         } @else {
-            <div class="flex flex-1 items-center justify-center opacity-60">
+            <div class="flex flex-1 items-center justify-center opacity-70">
                 {{ loading() }}
             </div>
         }

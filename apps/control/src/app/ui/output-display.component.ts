@@ -33,7 +33,7 @@ export const ICON_MAP = {
                     >
                         {{ item()?.name }}
                     </div>
-                    <icon class="text-7xl">{{
+                    <icon aria-hidden="true" class="text-7xl">{{
                         input()?.icon || icons[input()?.type] || 'add_to_queue'
                     }}</icon>
                     <p class="font-medium">
@@ -48,8 +48,17 @@ export const ICON_MAP = {
                     </p>
                 </div>
                 <div class="flex w-full items-center space-x-2">
-                    <button icon matRipple (click)="setMute(!item().mute)">
-                        <icon>{{
+                    <button
+                        icon
+                        matRipple
+                        [attr.aria-label]="
+                            'APP.CONTROL.MUTE_NAME'
+                                | translate: { name: item().name }
+                        "
+                        [attr.aria-pressed]="!!item().mute"
+                        (click)="setMute(!item().mute)"
+                    >
+                        <icon aria-hidden="true">{{
                             item().mute
                                 ? 'volume_off'
                                 : item().volume > 0
@@ -60,6 +69,10 @@ export const ICON_MAP = {
                     <mat-slider class="flex-1"
                         ><input
                             matSliderThumb
+                            [attr.aria-label]="
+                                'APP.CONTROL.VOLUME_NAME'
+                                    | translate: { name: item().name }
+                            "
                             [ngModel]="!item().mute ? item().volume : 0"
                             (ngModelChange)="setVolume($event)"
                     /></mat-slider>
@@ -71,6 +84,13 @@ export const ICON_MAP = {
         `
             [view] {
                 width: 28vw;
+            }
+
+            /* Phones show one display per row */
+            @media (width < 40rem), (height < 30rem) {
+                [view] {
+                    width: 100%;
+                }
             }
         `,
     ],

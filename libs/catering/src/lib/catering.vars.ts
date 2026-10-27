@@ -50,8 +50,6 @@ export function statusList(): CateringStatusOption[] {
     ];
 }
 
-export const CATERING_STATUSES = statusList();
-
 /** Order of the steps that an order goes through before delivery */
 const STATUS_STEPS: CateringOrderStatus[] = [
     'pending',

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { BookingFormService } from '@placeos/bookings';
-import { setCurrentUser } from '@placeos/common';
+import { setCurrentUser, settingSignal } from '@placeos/common';
 import { TeamQuickActionsComponent } from '../../app/team-schedule/team-quick-actions.component';
 import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
 
@@ -106,6 +106,19 @@ describe('TeamQuickActionsComponent', () => {
             'x@example.com',
             'y@example.com',
         ]);
+    });
+
+    it('should disable booking in select mode until a colleague is selected', () => {
+        settingSignal<string[]>('features').set(['desks']);
+        select_mode.set(true);
+        spectator.detectChanges();
+        const button = spectator.query<HTMLButtonElement>('button');
+        expect(button.disabled).toBe(true);
+
+        selected_count.set(1);
+        spectator.detectChanges();
+        expect(button.disabled).toBe(false);
+        settingSignal<string[]>('features').set([]);
     });
 
     it('should not duplicate the current user if already in the group', () => {

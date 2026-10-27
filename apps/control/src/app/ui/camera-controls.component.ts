@@ -54,6 +54,9 @@ import {
                             <button
                                 zoom-in
                                 icon
+                                [attr.aria-label]="
+                                    'APP.CONTROL.ZOOM_IN' | translate
+                                "
                                 matRipple
                                 class="touch-none rounded-sm select-none"
                                 (pointerdown)="startZoom('in', $event)"
@@ -62,7 +65,7 @@ import {
                                 (lostpointercapture)="stopZoom()"
                                 (contextmenu)="$event.preventDefault()"
                             >
-                                <icon>add</icon>
+                                <icon aria-hidden="true">add</icon>
                             </button>
                             <div
                                 class="border-base-200 flex h-10 w-10 items-center justify-center border-t border-b text-xs"
@@ -72,6 +75,9 @@ import {
                             <button
                                 zoom-out
                                 icon
+                                [attr.aria-label]="
+                                    'APP.CONTROL.ZOOM_OUT' | translate
+                                "
                                 matRipple
                                 class="touch-none rounded-sm select-none"
                                 (pointerdown)="startZoom('out', $event)"
@@ -80,7 +86,7 @@ import {
                                 (lostpointercapture)="stopZoom()"
                                 (contextmenu)="$event.preventDefault()"
                             >
-                                <icon>remove</icon>
+                                <icon aria-hidden="true">remove</icon>
                             </button>
                         </div>
                     </div>

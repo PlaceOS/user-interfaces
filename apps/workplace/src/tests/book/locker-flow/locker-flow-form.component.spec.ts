@@ -57,7 +57,10 @@ describe('BookLockerFlowFormComponent', () => {
         spectator = createComponent({
             providers: [
                 MockProvider(BookingFormService, {
-                    form: () => ({ valid: () => form_valid }),
+                    form: () => ({
+                        valid: () => form_valid,
+                        markAsTouched: vi.fn(),
+                    }),
                     model,
                     setView: vi.fn(),
                 } as any),

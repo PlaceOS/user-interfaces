@@ -17,6 +17,9 @@ import { IconComponent } from './icon.component';
             class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2"
             [class.border-base-300]="!value()"
             [class.border-info]="value()"
+            [attr.role]="toggle() ? 'switch' : 'checkbox'"
+            [attr.aria-checked]="!!value()"
+            [attr.aria-description]="!inline() ? info() : null"
             (click)="setValue(!value())"
         >
             <div
@@ -29,11 +32,11 @@ import { IconComponent } from './icon.component';
                 >
                     <div>{{ label() }}<ng-content></ng-content></div>
                     @if (info() && inline()) {
-                        <div class="text-xs opacity-30">{{ info() }}</div>
+                        <div class="text-xs opacity-70">{{ info() }}</div>
                     }
                 </div>
                 @if (info() && !inline()) {
-                    <icon [matTooltip]="info()">info</icon>
+                    <icon aria-hidden="true" [matTooltip]="info()">info</icon>
                 }
             </div>
             @if (value()) {
@@ -55,12 +58,17 @@ import { IconComponent } from './icon.component';
                             [class.bg-base-400]="!value()"
                             [class.bg-info-light]="value()"
                         >
-                            <icon>{{ value() ? 'done' : 'remove' }}</icon>
+                            <icon aria-hidden="true">{{
+                                value() ? 'done' : 'remove'
+                            }}</icon>
                         </div>
                     </div>
                 </div>
             } @else {
+                <!-- Visual only. The button is the checkbox for assistive technology -->
                 <mat-checkbox
+                    aria-hidden="true"
+                    [tabIndex]="-1"
                     [ngModel]="value()"
                     (ngModelChange)="setValue($event)"
                     class="pointer-events-none"

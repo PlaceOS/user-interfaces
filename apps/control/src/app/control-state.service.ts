@@ -27,7 +27,12 @@ import { openConfirmModal } from '@placeos/components';
 import { CalendarService, queryEvents, SpacesService } from '@placeos/events';
 import { endOfDay, getUnixTime } from 'date-fns';
 import { CONTROL_STORE_KEY } from './control-store-key';
+import { BOTTOM_SHEET_DIALOG } from './mobile-layout';
 import { systemBinding } from './system-binding';
+import {
+    DISPLAY_SELECT_TITLE_ID,
+    DisplaySelectModalComponent,
+} from './ui/display-select-modal.component';
 import { HelpModalComponent } from './ui/help-modal.component';
 import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
@@ -551,6 +556,15 @@ export class ControlStateService extends AsyncHandler {
     public switchSource(output: string) {
         this._dialog.open(SourceSelectModalComponent, {
             data: { output },
+        });
+    }
+
+    /** Open the display list for an input as a bottom sheet. The phone layout uses it to route a source. */
+    public selectDisplay(input: string) {
+        return this._dialog.open(DisplaySelectModalComponent, {
+            ...BOTTOM_SHEET_DIALOG,
+            ariaLabelledBy: DISPLAY_SELECT_TITLE_ID,
+            data: { input },
         });
     }
 

@@ -161,6 +161,13 @@ const EMPTY_FAVS: string[] = [];
                         class="absolute top-1 right-1"
                         [class.text-info]="favorites.includes(space?.id)"
                         (click)="toggleFavourite(space)"
+                        [attr.aria-label]="
+                            (favorites.includes(space?.id)
+                                ? 'COMMON.FAVOURITES_REMOVE'
+                                : 'COMMON.FAVOURITES_ADD'
+                            ) | translate
+                        "
+                        [attr.aria-pressed]="favorites.includes(space?.id)"
                     >
                         <icon
                             [className]="

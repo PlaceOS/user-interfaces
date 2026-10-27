@@ -45,7 +45,7 @@ import { EventsStateService } from './events-state.service';
                 <simple-table
                     [error]="load_error()"
                     (retry)="retryLoad()"
-                    class="block min-w-368 text-sm"
+                    class="block min-w-240 text-sm"
                     [data]="bookings()"
                     [columns]="[
                         {
@@ -115,7 +115,7 @@ import { EventsStateService } from './events-state.service';
                 <div
                     class="flex w-full flex-col items-center justify-center py-2"
                 >
-                    <div class="opacity-60">{{ date | date: 'MMM' }}</div>
+                    <div class="opacity-70">{{ date | date: 'MMM' }}</div>
                     <div class="text-xl">{{ date | date: 'dd' }}</div>
                 </div>
             </ng-template>
@@ -145,7 +145,7 @@ import { EventsStateService } from './events-state.service';
                     </div>
                     @if (user?.name || attendee_name) {
                         <div
-                            class="max-w-48 truncate text-xs opacity-30 select-all"
+                            class="max-w-48 truncate text-xs opacity-70 select-all"
                         >
                             {{ email }}
                         </div>
@@ -209,6 +209,9 @@ import { EventsStateService } from './events-state.service';
                             default
                             matRipple
                             [matMenuTriggerFor]="action_menu"
+                            [attr.aria-label]="
+                                'COMMON.MORE_OPTIONS' | translate
+                            "
                         >
                             <icon>more_vert</icon>
                         </button>
@@ -254,7 +257,7 @@ import { EventsStateService } from './events-state.service';
                                     </div>
                                 </button>
                             }
-                            @if (row.recurring_event_id) {
+                            @if (can_delete() && row.recurring_event_id) {
                                 <button
                                     mat-menu-item
                                     (click)="cancel(row, true)"

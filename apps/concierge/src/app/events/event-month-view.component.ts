@@ -27,7 +27,7 @@ import { EventStateService } from './event-state.service';
                 @for (weekday of weekdays(); track $index) {
                     <div
                         weekday
-                        class="relative flex h-12 items-center justify-center p-2 text-sm opacity-60"
+                        class="relative flex h-12 items-center justify-center p-2 text-sm opacity-70"
                     >
                         {{ weekday | date: 'EEEE' }}
                     </div>
@@ -59,7 +59,7 @@ import { EventStateService } from './event-state.service';
                                     class="bg-info absolute inset-y-0 left-0 w-1.5"
                                 ></div>
                                 <div
-                                    class="h-full truncate text-left text-sm opacity-60"
+                                    class="h-full truncate text-left text-sm opacity-70"
                                 >
                                     {{ $any(event).date | date: 'shortTime' }}
                                     &mdash;
@@ -121,7 +121,7 @@ import { EventStateService } from './event-state.service';
                                             {{ $any(event).title }}
                                         </div>
                                         <div
-                                            class="bg-base-200 text-base-content rounded-sm px-2 py-1 text-xs opacity-60"
+                                            class="bg-base-200 text-base-content rounded-sm px-2 py-1 text-xs opacity-70"
                                         >
                                             {{
                                                 $any(event).date

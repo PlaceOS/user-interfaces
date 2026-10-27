@@ -9,12 +9,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
-import { settingSignal } from '@placeos/common';
+import { notifyError, settingSignal } from '@placeos/common';
 import {
     IconComponent,
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
+import { AnnounceDirective } from '../components/announce.directive';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -25,41 +27,45 @@ import { CheckinStateService } from './checkin-state.service';
                 autocomplete="off"
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
-                <h3 class="m-4 text-2xl">Confirm Details</h3>
+                <h1 pageHeading class="m-4 text-2xl">
+                    {{ 'APP.VISITOR_KIOSK.CONFIRM_DETAILS' | translate }}
+                </h1>
+                @if (host_name()) {
+                    <div field class="mb-4 flex flex-col">
+                        <div class="text-sm font-medium">
+                            {{ 'FORM.HOST' | translate }}
+                        </div>
+                        <div class="text-lg">{{ host_name() }}</div>
+                    </div>
+                }
                 <div field class="flex flex-col">
-                    <label form="host">{{ 'FORM.HOST' | translate }}</label>
+                    <label for="details-name">
+                        {{ 'FORM.NAME' | translate }}
+                    </label>
                     <mat-form-field appearance="outline">
                         <input
-                            keyboard
-                            matInput
-                            autocomplete="off"
-                            [formField]="form.host"
-                            [placeholder]="'FORM.HOST' | translate"
-                        />
-                        <mat-error>
-                            {{ 'FORM.EMAIL_REQUIRED' | translate }}
-                        </mat-error>
-                    </mat-form-field>
-                </div>
-                <div field class="flex flex-col">
-                    <label form="name">{{ 'FORM.NAME' | translate }}</label>
-                    <mat-form-field appearance="outline">
-                        <input
+                            id="details-name"
                             keyboard
                             matInput
                             autocomplete="off"
                             [formField]="form.name"
                             [placeholder]="'FORM.NAME' | translate"
                         />
-                        <mat-error>Please enter your full name</mat-error>
+                        <mat-error>
+                            {{ 'FORM.NAME_REQUIRED' | translate }}
+                        </mat-error>
                     </mat-form-field>
                 </div>
                 <div field class="flex flex-col">
-                    <label form="email">{{ 'FORM.EMAIL' | translate }}</label>
+                    <label for="details-email">
+                        {{ 'FORM.EMAIL' | translate }}
+                    </label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="details-email"
                             keyboard
                             matInput
+                            type="email"
                             autocomplete="off"
                             [formField]="form.email"
                             [placeholder]="'FORM.EMAIL' | translate"
@@ -70,11 +76,12 @@ import { CheckinStateService } from './checkin-state.service';
                     </mat-form-field>
                 </div>
                 <div field class="flex flex-col">
-                    <label form="email">{{
-                        'APP.VISITOR_KIOSK.PHONE' | translate
-                    }}</label>
+                    <label for="details-phone">
+                        {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}
+                    </label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="details-phone"
                             keyboard
                             matInput
                             type="tel"
@@ -87,11 +94,12 @@ import { CheckinStateService } from './checkin-state.service';
                     </mat-form-field>
                 </div>
                 <div field class="flex flex-col">
-                    <label form="org">{{
-                        'COMMON.ORGANISATION' | translate
-                    }}</label>
+                    <label for="details-org">
+                        {{ 'COMMON.ORGANISATION' | translate }}
+                    </label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="details-org"
                             keyboard
                             matInput
                             autocomplete="off"
@@ -102,11 +110,12 @@ import { CheckinStateService } from './checkin-state.service';
                 </div>
                 @if (allow_pass_number()) {
                     <div field class="flex flex-col">
-                        <label form="pass">
+                        <label for="details-pass">
                             {{ 'BOOKINGS.PASS_NUMBER' | translate }}
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="details-pass"
                                 keyboard
                                 matInput
                                 autocomplete="off"
@@ -133,6 +142,7 @@ import { CheckinStateService } from './checkin-state.service';
                     matRipple
                     class="absolute top-0 right-0"
                     [routerLink]="['/welcome']"
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
                 >
                     <icon>close</icon>
                 </a>
@@ -144,8 +154,11 @@ import { CheckinStateService } from './checkin-state.service';
                 <div
                     class="bg-base-100 flex flex-col items-center space-y-2 rounded-sm p-16 shadow-sm"
                 >
-                    <mat-spinner [diameter]="48"></mat-spinner>
-                    <div class="my-4 text-lg">
+                    <mat-spinner
+                        [diameter]="48"
+                        aria-hidden="true"
+                    ></mat-spinner>
+                    <div class="my-4 text-lg" announce>
                         {{ 'APP.VISITOR_KIOSK.CHECKIN_LOADING' | translate }}
                     </div>
                 </div>
@@ -170,6 +183,8 @@ import { CheckinStateService } from './checkin-state.service';
         `,
     ],
     imports: [
+        PageHeadingDirective,
+        AnnounceDirective,
         TranslatePipe,
         IconComponent,
         MatProgressSpinnerModule,
@@ -185,12 +200,14 @@ export class CheckinDetailsComponent implements OnInit {
     private _router = inject(Router);
 
     public readonly form = signalForm(this._checkin.form, (p) => {
-        required(p.host, { message: 'Host is required' });
         required(p.name, { message: 'Name is required' });
         required(p.email, { message: 'Email is required' });
         email(p.email, { message: 'Email is invalid' });
-        required(p.organisation, { message: 'Organisation is required' });
     });
+    /** Host of the meeting. The visitor can see the host, but not change it. */
+    public readonly host_name = computed(
+        () => this._checkin.event()?.user_name || this._checkin.form().host,
+    );
     public readonly loading = signal(false);
     public readonly ready_form = computed(() => !this.loading());
     public readonly induction_after_details = settingSignal(
@@ -231,28 +248,43 @@ export class CheckinDetailsComponent implements OnInit {
         }
     }
 
+    /**
+     * Save the form details, then check in the guest.
+     * Opens the induction first if it must come after the details.
+     * On failure, shows an error and shows the form again.
+     */
     public async updateGuest(update = true) {
-        this.loading.set(true);
-        if (update) await this._checkin.updateGuest();
-        if (
-            this.induction_after_details() &&
-            this.induction_available() &&
-            this._checkin.event()?.induction !== 'accepted'
-        ) {
-            this.loading.set(false);
-            this._router.navigate(['/checkin', 'induction']);
+        if (update && this.form().invalid()) {
+            this.form().markAsTouched();
             return;
         }
-        const result = await this._checkin
-            .checkinGuest()
-            .then(() => true)
-            .catch(() => false);
-        this.loading.set(false);
-        if (!result) return;
-        this._router.navigate([
-            '/checkin',
-            this.allow_user_photo() ? 'photo' : 'results',
-        ]);
+        this.loading.set(true);
+        try {
+            if (update) {
+                await this._checkin.updateGuest().catch((e) => {
+                    notifyError(e);
+                    throw e;
+                });
+            }
+            if (
+                this.induction_after_details() &&
+                this.induction_available() &&
+                this._checkin.event()?.induction !== 'accepted'
+            ) {
+                this._router.navigate(['/checkin', 'induction']);
+                return;
+            }
+            // Shows its own error on failure
+            await this._checkin.checkinGuest();
+            this._router.navigate([
+                '/checkin',
+                this.allow_user_photo() ? 'photo' : 'results',
+            ]);
+        } catch {
+            // Error is already shown
+        } finally {
+            this.loading.set(false);
+        }
     }
 
     public previous() {

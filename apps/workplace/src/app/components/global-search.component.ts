@@ -17,15 +17,31 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ExploreSearchService } from '@placeos/explore';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
 
+/** Translation keys of the search result types. Role types show as is */
+const TYPE_NAMES: Record<string, string> = {
+    space: 'RESOURCE.ROOM',
+    user: 'COMMON.PERSON',
+    contact: 'COMMON.PERSON',
+    feature: 'APP.WORKPLACE.SEARCH_TYPE_FEATURE',
+};
+
 @Component({
     selector: 'global-search',
     template: `
-        <div class="relative h-full w-12">
+        <div
+            class="relative h-full w-12"
+            (focusout)="onFocusOut($event)"
+            (keydown.escape)="close()"
+        >
             <button
+                #button
                 icon
                 name="global-search"
                 matRipple
                 class="bg-base-200 h-10 w-10 rounded-full"
+                [attr.aria-label]="
+                    'APP.WORKPLACE.GLOBAL_SEARCH_LABEL' | translate
+                "
                 (click)="showInput()"
             >
                 <icon class="text-2xl">search</icon>
@@ -45,10 +61,12 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                 <input
                     #input
                     [placeholder]="'APP.WORKPLACE.GLOBAL_SEARCH' | translate"
+                    [attr.aria-label]="
+                        'APP.WORKPLACE.GLOBAL_SEARCH_LABEL' | translate
+                    "
                     class="w-1/2 flex-1 py-2 outline-hidden"
                     [(ngModel)]="filter_str"
                     (ngModelChange)="setFilter($event)"
-                    (blur)="hideInput()"
                 />
                 @if (loading()) {
                     <mat-spinner [diameter]="32"></mat-spinner>
@@ -65,22 +83,10 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                         open: show(),
                     }"
                 >
-                    @if (!results().length && filter_str()) {
+                    @if (!results().length && !loading()) {
                         <div empty class="w-full p-4 text-center opacity-60">
                             {{ 'COMMON.SEARCH_EMPTY' | translate }}
                         </div>
-                    } @else {
-                        @if (!results().length) {
-                            <div
-                                empty
-                                class="w-full p-4 text-center opacity-60"
-                            >
-                                {{
-                                    'APP.WORKPLACE.GLOBAL_SEARCH_START'
-                                        | translate
-                                }}
-                            </div>
-                        }
                     }
                     @if (!loading() && filter_str()) {
                         @for (
@@ -115,7 +121,10 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                                 <div
                                     class="bg-secondary text-secondary-content rounded-sm p-2 text-xs font-medium text-white capitalize"
                                 >
-                                    {{ option.type }}
+                                    {{
+                                        type_names[option.type] || option.type
+                                            | translate
+                                    }}
                                 </div>
                             </a>
                         }
@@ -154,6 +163,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
     ],
 })
 export class GlobalSearchComponent extends AsyncHandler implements OnInit {
+    private _element = inject<ElementRef<HTMLElement>>(ElementRef);
     private _service = inject(ExploreSearchService);
     private _schedule = inject(ScheduleStateService);
 
@@ -168,8 +178,12 @@ export class GlobalSearchComponent extends AsyncHandler implements OnInit {
             ? this.filter_str.set('')
             : this._service.setFilter(s);
 
+    public readonly type_names = TYPE_NAMES;
+
     public readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
+    private readonly _button_el =
+        viewChild<ElementRef<HTMLButtonElement>>('button');
 
     constructor() {
         super();
@@ -192,5 +206,20 @@ export class GlobalSearchComponent extends AsyncHandler implements OnInit {
 
     public hideInput() {
         this.timeout('close', () => this.show.set(false));
+    }
+
+    /** Hide the search when the focus leaves it, e.g. on tab past the results */
+    public onFocusOut(event: FocusEvent) {
+        const next = event.relatedTarget as Node | null;
+        if (next && this._element.nativeElement.contains(next)) return;
+        this.hideInput();
+    }
+
+    /** Hide the search at once and focus the search button */
+    public close() {
+        if (!this.show()) return;
+        this.clearTimeout('close');
+        this.show.set(false);
+        this._button_el()?.nativeElement.focus();
     }
 }

@@ -28,6 +28,7 @@ describe('LockerBookingsComponent', () => {
             search: signal(''),
             has_more_pages: signal(false),
             load_error: signal(false),
+            loading: signal(''),
             lockers: signal([{ id: 'locker-1', name: 'Locker 1' }]),
             filtered_bookings: signal([
                 { id: 'bk-1', date: 1_000, duration: 30 },

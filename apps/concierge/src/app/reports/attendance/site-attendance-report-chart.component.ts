@@ -46,7 +46,11 @@ Chart.register(
 
 @Component({
     selector: 'site-attendance-report-chart-canvas',
-    template: `<canvas #dailyChart></canvas>`,
+    template: `<canvas
+        #dailyChart
+        role="img"
+        aria-label="Daily attendance"
+    ></canvas>`,
     styles: [
         `
             :host {

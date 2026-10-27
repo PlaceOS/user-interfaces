@@ -63,6 +63,18 @@ describe('ControlStatusBarComponent', () => {
         expect('button[mute]').toExist();
     });
 
+    it('should name the mute button and expose its state', () => {
+        expect('button[mute]').toHaveAttribute(
+            'aria-label',
+            'APP.CONTROL.MUTE',
+        );
+        expect('button[mute]').toHaveAttribute('aria-pressed', 'false');
+        const service = spectator.inject(ControlStateService);
+        (service as any).system.set({ mute: true });
+        spectator.detectChanges();
+        expect('button[mute]').toHaveAttribute('aria-pressed', 'true');
+    });
+
     it('should show the volume level', () => {
         const service = spectator.inject(ControlStateService);
         (service as any).system.set({ volume: 45 });

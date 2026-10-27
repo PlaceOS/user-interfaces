@@ -85,10 +85,38 @@ describe('LandingDeskWeekComponent', () => {
         }
     });
 
-    it('should expose only weekend days via weekend_days', () => {
-        const weekend = spectator.component.weekend_days();
-        expect(weekend.length).toBe(2);
-        expect(weekend.every((d) => d.is_weekend)).toBe(true);
+    it('should keep the desktop columns in date order for a week from Sunday', () => {
+        const names = spectator.component
+            .columns()
+            .map((column) => column.map((day) => getDay(day.date)));
+        expect(names).toEqual([[0], [1], [2], [3], [4], [5], [6]]);
+    });
+
+    it('should stack Saturday and Sunday in the last column for a week from Monday', () => {
+        spectator.component.offset_weekday.set(1);
+        const names = spectator.component
+            .columns()
+            .map((column) => column.map((day) => getDay(day.date)));
+        expect(names).toEqual([[1], [2], [3], [4], [5], [6, 0]]);
+    });
+
+    it('should show an error, not free days, when the bookings do not load', async () => {
+        query_bookings.mockRejectedValue(new Error('offline'));
+        spectator.detectChanges();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        spectator.detectChanges();
+        expect(spectator.component.failed()).toBe(true);
+        expect(spectator.query('[load-error]')).toExist();
+        expect(spectator.query('button[btn].border-dashed')).not.toExist();
+    });
+
+    it('should not show free days while the bookings load', async () => {
+        query_bookings.mockReturnValue(new Promise(() => null));
+        spectator.detectChanges();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        spectator.detectChanges();
+        expect(spectator.query('[week-loading]')).toExist();
+        expect(spectator.query('button[btn].border-dashed')).not.toExist();
     });
 
     it('should report the current week and reset to today', () => {
@@ -116,11 +144,8 @@ describe('LandingDeskWeekComponent', () => {
     });
 
     it('should not move beyond the available booking window', () => {
-        spectator.component.available_days.set(3);
-        // Jump far enough forward that the next week is out of range.
-        spectator.component.selected_date.set(
-            addDays(Date.now(), 2).valueOf(),
-        );
+        // Only today is bookable, so the next week is always out of range.
+        spectator.component.available_days.set(0);
         expect(spectator.component.can_go_next_week()).toBe(false);
         const before = spectator.component.selected_date();
         spectator.component.nextWeek();

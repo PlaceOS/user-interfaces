@@ -26,10 +26,20 @@ import { EventWeekViewComponent } from './event-week-view.component';
                 <div class="pl-4 font-medium">
                     {{ options().date | date: 'MMM yyyy' }}
                 </div>
-                <button icon matRipple (click)="previousPeriod()">
+                <button
+                    icon
+                    matRipple
+                    (click)="previousPeriod()"
+                    [attr.aria-label]="'COMMON.PREVIOUS' | translate"
+                >
                     <icon>chevron_left</icon>
                 </button>
-                <button icon matRipple (click)="nextPeriod()">
+                <button
+                    icon
+                    matRipple
+                    (click)="nextPeriod()"
+                    [attr.aria-label]="'COMMON.NEXT' | translate"
+                >
                     <icon>chevron_right</icon>
                 </button>
             </div>

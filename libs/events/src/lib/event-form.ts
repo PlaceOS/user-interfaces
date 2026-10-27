@@ -13,8 +13,10 @@ import {
     LOCAL_TIMEZONE,
     onFieldChange,
     SettingsService,
+    readAttendeeFlags,
     setupFormTimeSync,
     User,
+    type AttendeeFlags,
     type FormTimeSyncHandle,
     type SignalFormRef,
 } from '@placeos/common';
@@ -67,6 +69,45 @@ export interface EventFormValue {
     meeting_provider: any;
 }
 
+/**
+ * Copy the flags stored on the event extension data onto each matching
+ * attendee's `extension_data`, so the form controls show the saved values.
+ */
+function withAttendeeFlags(
+    attendees: User[],
+    flags: Record<string, AttendeeFlags | undefined> | undefined,
+) {
+    if (!flags) return attendees;
+    return attendees.map((user) => {
+        const stored = flags[(user.email || '').toLowerCase()];
+        if (!stored) return user;
+        return new User({
+            ...user,
+            extension_data: {
+                ...user.extension_data,
+                ...readAttendeeFlags(stored),
+            },
+        });
+    });
+}
+
+/**
+ * Collect the visitor flags held on each attendee's `extension_data`, keyed
+ * by lower-cased email. Attendees without either key are left out.
+ */
+export function attendeeFlagsFrom(
+    attendees: User[],
+): Record<string, AttendeeFlags> {
+    const flags: Record<string, AttendeeFlags> = {};
+    for (const attendee of attendees || []) {
+        const email = (attendee.email || '').toLowerCase();
+        if (!email) continue;
+        const entry = readAttendeeFlags(attendee.extension_data || {});
+        if (Object.keys(entry).length) flags[email] = entry;
+    }
+    return flags;
+}
+
 /** Build the raw event form value from a calendar event. */
 export function eventFormValue(
     event: CalendarEvent = new CalendarEvent(),
@@ -82,7 +123,10 @@ export function eventFormValue(
         organiser: event.organiser || ({ email: event.host || '' } as User),
         creator: event.creator || currentUser()?.email || '',
         calendar: event.calendar || '',
-        attendees: event.attendees || [],
+        attendees: withAttendeeFlags(
+            event.attendees || [],
+            event.extension_data?.attendee_flags,
+        ),
         resources: event.resources || [],
         title: event.title || '',
         body: event.body || '',

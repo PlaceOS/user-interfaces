@@ -39,6 +39,7 @@ import {
     EventFormService,
     newCalendarEventFromBooking,
     queryEvents,
+    queryEventsOrThrow,
     removeEvent,
     requestSpacesForZone,
     SpacesService,
@@ -64,6 +65,9 @@ import {
 
 export type EventSource = 'api' | 'driver' | 'ws';
 
+/** Work locations where the user has said that they are not in the office */
+const AWAY_LOCATIONS = ['wfh', 'aol', 'sick'];
+
 export interface ScheduleOptions {
     period: 'day' | 'week' | 'month' | 'range';
 }
@@ -88,6 +92,16 @@ export function isBookingForOtherUser(
         user_email !== current_user_email
     );
 }
+
+/** Locale keys of the status labels in the day and week views */
+export const SCHEDULE_STATUS_LABELS = {
+    approved: 'COMMON.APPROVED',
+    tentative: 'COMMON.STATUS_PENDING',
+    declined: 'COMMON.DECLINED',
+    waitlisted: 'APP.WORKPLACE.SCHEDULE_STATUS_WAITLISTED',
+} as const;
+
+export type ScheduleStatus = keyof typeof SCHEDULE_STATUS_LABELS;
 
 export function bookedForLabel(item: Booking | CalendarEvent) {
     if (!(item instanceof Booking)) return '';
@@ -155,7 +169,10 @@ export class ScheduleStateService extends AsyncHandler {
 
     private _poll = signal(0);
     private _event_sources = signal<EventSource[]>(['api']);
-    private _loading = signal(false);
+    /** Number of booking requests in progress */
+    private _pending = signal(0);
+    /** Event sources whose last request failed */
+    private _failed_sources = signal<EventSource[]>([]);
     private _options = signal<ScheduleOptions>({ period: 'day' });
     private _filters = signal<ScheduleFilters>({
         shown_types: [
@@ -171,6 +188,8 @@ export class ScheduleStateService extends AsyncHandler {
     private _date = signal(Date.now());
     private _end_date = signal<number | null>(null);
     private _deleted: string[] = [];
+    /** Building that the type filter defaults were last set for */
+    private _type_defaults_building = '';
     private _ignore_cancel: string[] = [];
     private _network_requested = false;
     private _network_started = false;
@@ -212,7 +231,9 @@ export class ScheduleStateService extends AsyncHandler {
         if (end === null) return null;
         return end >= startOfDay(this._date()).valueOf() ? end : null;
     });
-    public readonly loading = this._loading.asReadonly();
+    public readonly loading = computed(() => this._pending() > 0);
+    /** Whether a request for events failed, so the list can be incomplete */
+    public readonly failed = computed(() => this._failed_sources().length > 0);
     public readonly event_sources = this._event_sources.asReadonly();
 
     private readonly _query_params = computed(() => {
@@ -530,6 +551,22 @@ export class ScheduleStateService extends AsyncHandler {
         this._filters.set({ ...filters, shown_types: new_types });
     }
 
+    /**
+     * Show or hide each booking type from the building features. Only the
+     * first call for a building changes the filters, so the choices of the
+     * user are kept.
+     */
+    public setTypeDefaults(
+        building_id: string,
+        types: Record<string, boolean>,
+    ) {
+        if (this._type_defaults_building === building_id) return;
+        this._type_defaults_building = building_id;
+        for (const [name, state] of Object.entries(types)) {
+            this.setType(name, state);
+        }
+    }
+
     public setBookingsForOthers(state: boolean) {
         const filters = this._filters();
         if (filters.show_bookings_for_others === state) return;
@@ -579,11 +616,9 @@ export class ScheduleStateService extends AsyncHandler {
                     active = false;
                     for (const cleanup of cleanups) cleanup();
                 });
-                this._loading.set(true);
-                const spaces = await requestSpacesForZone(bld.id)
-                    .toPromise()
-                    .catch(() => []);
-                this._loading.set(false);
+                const spaces = await this._track(
+                    requestSpacesForZone(bld.id).toPromise(),
+                ).catch(() => []);
                 // The source or building can change while the list loads
                 if (!active) return;
                 const events_by_space: CalendarEvent[][] = [];
@@ -630,20 +665,26 @@ export class ScheduleStateService extends AsyncHandler {
                     !bld?.id
                 ) {
                     this._user_bookings.set([]);
+                    this._setFailed('driver', false);
                     return;
                 }
-                this._loading.set(true);
                 const mod = this._org.module(
                     'location_services',
                     'LocationServices',
                 );
+                let failed = false;
                 const list = mod?.system
-                    ? await mod.execute('my_bookings').catch(() => [])
+                    ? await this._track(mod.execute('my_bookings')).catch(
+                          () => {
+                              failed = true;
+                              return [];
+                          },
+                      )
                     : [];
                 this._user_bookings.set(
                     (list || []).map((_) => new CalendarEvent(_)),
                 );
-                this._loading.set(false);
+                this._setFailed('driver', failed);
             },
             { injector: this._injector },
         );
@@ -659,20 +700,30 @@ export class ScheduleStateService extends AsyncHandler {
                     !query_params
                 ) {
                     this._api_events.set([]);
+                    this._setFailed('api', false);
                     return;
                 }
                 const { date, end_date, period } = query_params;
-                this._loading.set(true);
                 const query = this._periodQuery(period, date, end_date);
+                // queryAllBookings returns an empty list on failure, so only
+                // the events request can report an error
+                let failed = false;
                 const list = this._settings.get('app.events.use_bookings')
-                    ? await queryAllBookings({ ...query, type: 'room' })
+                    ? await this._track(
+                          queryAllBookings({ ...query, type: 'room' }),
+                      )
                           .then((_) =>
                               _.map((i) => newCalendarEventFromBooking(i)),
                           )
                           .catch(() => [])
-                    : await queryEvents({ ...query }).catch(() => []);
+                    : await this._track(queryEventsOrThrow({ ...query })).catch(
+                          () => {
+                              failed = true;
+                              return [];
+                          },
+                      );
                 this._api_events.set(list);
-                this.timeout('end_loading', () => this._loading.set(false));
+                this._setFailed('api', failed);
             },
             { injector: this._injector },
         );
@@ -691,15 +742,10 @@ export class ScheduleStateService extends AsyncHandler {
                     return;
                 }
                 const { date, end_date, period } = query_params;
-                this._loading.set(true);
-                const list = await this._bookingQuery(
-                    type,
-                    period,
-                    date,
-                    end_date,
+                const list = await this._track(
+                    this._bookingQuery(type, period, date, end_date),
                 );
                 target.set(map_list(list));
-                this.timeout('end_loading', () => this._loading.set(false));
             },
             { injector: this._injector },
         );
@@ -774,9 +820,29 @@ export class ScheduleStateService extends AsyncHandler {
                         })
                         .filter((item) => item),
                 );
-                this.timeout('end_loading', () => this._loading.set(false));
             },
             { injector: this._injector },
+        );
+    }
+
+    /** Count `request` as in progress until it settles */
+    private async _track<T>(request: Promise<T>): Promise<T> {
+        this._pending.update((count) => count + 1);
+        try {
+            return await request;
+        } finally {
+            this._pending.update((count) => Math.max(0, count - 1));
+        }
+    }
+
+    /** `update` does not track the signal, so effects can call this */
+    private _setFailed(source: EventSource, failed: boolean) {
+        this._failed_sources.update((list) =>
+            list.includes(source) === failed
+                ? list
+                : failed
+                  ? [...list, source]
+                  : list.filter((_) => _ !== source),
         );
     }
 
@@ -881,7 +947,9 @@ export class ScheduleStateService extends AsyncHandler {
     private async _checkCancel() {
         const user = currentUser();
         if (!user?.id) return;
-        const is_home = user.location !== 'wfo';
+        // No work preference for the time reads as 'ooo'. Only an explicit
+        // choice that is not the office counts as away.
+        const is_home = AWAY_LOCATIONS.includes(user.location);
         const auto_release = this._settings.get('app.auto_release');
         if (
             !auto_release ||
@@ -920,7 +988,6 @@ export class ScheduleStateService extends AsyncHandler {
                 const start_time = booking.is_all_day
                     ? setHours(booking.date, auto_release.all_day_start)
                     : booking.date;
-                this._dialog.closeAll();
                 const diff = differenceInMinutes(
                     addMinutes(start_time, time_after || 0),
                     Date.now(),
@@ -931,23 +998,30 @@ export class ScheduleStateService extends AsyncHandler {
                     time.getTime() + 60 * 1000,
                     Date.now(),
                 );
-                const wording = type === 'parking' ? 'reservation' : 'booking';
+                const is_parking = type === 'parking';
+                this._dialog.closeAll();
                 const result = await openConfirmModal(
                     {
-                        title: `Keep ${type} ${wording}`,
-                        content: `You have indicated you are not in the office.
-                                Your  ${wording} for "<i>${
-                                    booking.asset_name || booking.title
-                                }</i>" at ${format(
+                        title: is_parking
+                            ? i18n('APP.WORKPLACE.AUTO_RELEASE_PARKING_TITLE')
+                            : i18n('APP.WORKPLACE.AUTO_RELEASE_TITLE', {
+                                  type,
+                              }),
+                        content: i18n(
+                            is_parking
+                                ? 'APP.WORKPLACE.AUTO_RELEASE_PARKING_MSG'
+                                : 'APP.WORKPLACE.AUTO_RELEASE_MSG',
+                            {
+                                name: booking.asset_name || booking.title,
+                                start: format(
                                     booking.date,
                                     this._settings.time_format,
-                                )} will be cancelled at ${format(
-                                    time,
-                                    this._settings.time_format,
-                                )}.<br/><br/>
-                                Do you wish to keep this ${wording}?`,
+                                ),
+                                end: format(time, this._settings.time_format),
+                            },
+                        ),
                         icon: { content: 'event_busy' },
-                        confirm_text: 'Keep',
+                        confirm_text: i18n('APP.WORKPLACE.AUTO_RELEASE_KEEP'),
                         close_delay: close_after,
                     },
                     this._dialog,
@@ -956,8 +1030,10 @@ export class ScheduleStateService extends AsyncHandler {
                     this._ignore_cancel.push(booking.id);
                     continue;
                 }
-                result.loading('Checking in booking...');
-                await setBookingCheckedIn(booking, true);
+                result.loading(i18n('APP.WORKPLACE.AUTO_RELEASE_LOADING'));
+                await setBookingCheckedIn(booking, true).catch(() =>
+                    notifyError(i18n('BOOKINGS.CHECK_IN_ERROR')),
+                );
                 result.close();
             }
         }
@@ -1037,7 +1113,10 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public async remove(item: CalendarEvent | Booking, remove_series = false) {
-        const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
+        const time = format(
+            item.date,
+            `dd MMM yyyy ${this._settings.time_format}`,
+        );
         const resource_name =
             item instanceof CalendarEvent
                 ? item.title || item.space?.display_name
@@ -1138,7 +1217,10 @@ export class ScheduleStateService extends AsyncHandler {
         }
 
         // Otherwise, check out the booking to end it now
-        const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
+        const time = format(
+            item.date,
+            `dd MMM yyyy ${this._settings.time_format}`,
+        );
         const resp = await openConfirmModal(
             {
                 title: i18n('APP.WORKPLACE.SCHEDULE_END_TITLE'),

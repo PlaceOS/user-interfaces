@@ -1,12 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { startOfMinute } from 'date-fns';
 
@@ -25,6 +17,7 @@ import {
     SanitizePipe,
     TranslatePipe,
 } from '@placeos/components';
+import { dayTimeFormat } from './new-panel/helpers';
 import { PanelStateService } from './panel-state.service';
 
 @Component({
@@ -35,7 +28,7 @@ import { PanelStateService } from './panel-state.service';
                 <h1 class="text-3xl font-medium">{{ space_name() }}</h1>
                 <div class="flex items-center space-x-4 portrait:hidden">
                     <p class="text-2xl">
-                        {{ time() | date: 'shortTime' }}
+                        {{ time() | date: time_format() }}
                     </p>
                     <img
                         auth
@@ -68,7 +61,7 @@ import { PanelStateService } from './panel-state.service';
                                         : {
                                               time:
                                                   current_bkn?.event_end * 1000
-                                                  | date: 'h:mma',
+                                                  | date: time_format(),
                                           }
                             }}
                         </p>
@@ -112,7 +105,7 @@ import { PanelStateService } from './panel-state.service';
                                         : {
                                               time:
                                                   next_bkn?.event_start * 1000
-                                                  | date: 'h:mma',
+                                                  | date: next_format(),
                                           }
                             }}
                         </p>
@@ -133,7 +126,7 @@ import { PanelStateService } from './panel-state.service';
                     [source]="logo()?.src || logo()"
                 />
                 <p class="text-2xl">
-                    {{ time() | date: 'shortTime' }}
+                    {{ time() | date: time_format() }}
                 </p>
             </footer>
             @if (!hide_qr() && checkin) {
@@ -143,6 +136,8 @@ import { PanelStateService } from './panel-state.service';
                     <button
                         book-tag
                         matRipple
+                        aria-controls="event-qr-code"
+                        [attr.aria-expanded]="show_qr()"
                         (click)="toggleQRShow()"
                         class="border-base-300 bg-base-100 relative z-20 h-28 w-12 rounded-l-lg border-y border-l uppercase"
                     >
@@ -150,12 +145,21 @@ import { PanelStateService } from './panel-state.service';
                     </button>
                     <div
                         qr-code-out
+                        id="event-qr-code"
+                        [attr.aria-hidden]="!show_qr() || null"
                         class="border-base-300 bg-base-100 z-10 overflow-hidden rounded-l-lg border shadow-sm"
                         [class.w-0]="!show_qr()"
                         [class.w-56]="show_qr()"
                     >
                         <div qr-checkin class="z-50 w-56 p-3">
-                            <img auth class="w-full" [source]="qr_code()" />
+                            <img
+                                auth
+                                class="w-full"
+                                [source]="qr_code()"
+                                [alt]="
+                                    'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate
+                                "
+                            />
                         </div>
                     </div>
                 </div>
@@ -174,7 +178,6 @@ import { PanelStateService } from './panel-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,
@@ -192,12 +195,31 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
 
     public system_id = signal<string>('');
     public show_qr = signal<boolean>(false);
-    public qr_code = signal<any>(null);
+    private readonly _qr_url = computed(
+        () => this._state.settings().custom_qr_url,
+    );
+    private readonly _qr_color = computed(
+        () => this._state.settings().custom_qr_color,
+    );
+    /** Check-in QR code. Encoded again only when the QR settings or system change. */
+    public readonly qr_code = computed(() =>
+        generateQRCode(
+            this._qr_url() ||
+                `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`,
+            '#0000',
+            this._qr_color() || '#000',
+        ),
+    );
     public hide_qr = signal<boolean>(false);
     public readonly time = signal(Date.now());
 
     public current = this._state.current;
     public next = this._state.next;
+    public readonly time_format = this._state.time_format;
+    /** Format for the next booking start. Has the weekday when not today. */
+    public readonly next_format = computed(() =>
+        dayTimeFormat(this.next()?.date, this.time_format()),
+    );
 
     public readonly space_name = computed(
         () =>
@@ -241,27 +263,6 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
 
     public get custom_qr() {
         return !!this._state.setting('custom_qr_url');
-    }
-
-    constructor() {
-        super();
-        effect(() => {
-            const { custom_qr_url, custom_qr_color } = this._state.settings();
-            if (custom_qr_url) {
-                this.qr_code.set(
-                    generateQRCode(
-                        custom_qr_url,
-                        '#0000',
-                        custom_qr_color || '#000',
-                    ),
-                );
-            } else if (!this.qr_code()) {
-                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`;
-                this.qr_code.set(
-                    generateQRCode(url, '#0000', custom_qr_color || '#000'),
-                );
-            }
-        });
     }
 
     public async ngOnInit() {

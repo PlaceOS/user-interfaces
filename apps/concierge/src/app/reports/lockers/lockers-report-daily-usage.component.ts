@@ -59,6 +59,9 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
                         "
                         (click)="download()"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                        "
                     >
                         <icon>download</icon>
                     </button>

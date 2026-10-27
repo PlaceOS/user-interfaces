@@ -110,6 +110,7 @@ describe('DirectoryUserListComponent', () => {
 
         expect(spectator.component.search_results()).toEqual([]);
         expect(spectator.component.loading()).toBe(false);
+        expect(spectator.component.failed()).toBe(true);
     });
 
     it('should group and sort users by the first letter of their name', () => {
@@ -123,5 +124,21 @@ describe('DirectoryUserListComponent', () => {
         expect(groups['A'].map((_) => _.name)).toEqual(['Aaron', 'Alice']);
         expect(groups['B'].map((_) => _.name)).toEqual(['Bob']);
         expect(groups['C']).toEqual([]);
+    });
+
+    it('should group accented names by their base letter and other names under #', () => {
+        spectator.component.search_results.set([
+            { name: 'Émile', email: 'e@x.com' },
+            { name: 'élodie', email: 'el@x.com' },
+            { name: '1st Floor Desk', email: 'd@x.com' },
+            { name: '王伟', email: 'w@x.com' },
+        ] as User[]);
+
+        const groups = spectator.component.grouped_results();
+        expect(groups['E'].map((_) => _.name)).toEqual(['élodie', 'Émile']);
+        expect(groups['#'].map((_) => _.name)).toEqual([
+            '1st Floor Desk',
+            '王伟',
+        ]);
     });
 });

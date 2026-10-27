@@ -47,7 +47,7 @@ describe('ParkingFlowSuccessComponent', () => {
     });
 
     it('should resolve the location from the booking building and level', () => {
-        expect(spectator.component.location).toBe('Headquarters, Level 1, ');
+        expect(spectator.component.location).toBe('Headquarters, Level 1');
     });
 
     it('should return Unknown when there is no successful booking', () => {

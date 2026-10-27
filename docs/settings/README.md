@@ -77,6 +77,17 @@ Apps that use the shared settings service read two maps of CSS variables. Each k
 }
 ```
 
+## Error reporting
+
+Apps that use the shared organisation loader, and Enrolment, send errors and traces to Sentry when `sentry_dsn` is set. Survey, Outlook Add-in, App Loader, Map Studio, `public` and `redirect` do not use Sentry.
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `sentry_dsn` | string | – | Sentry DSN. When set, the app loads Sentry and reports errors to it. |
+| `sentry_traces_sample_rate` | number | `0.1` | Share of page loads and navigations that Sentry traces, from `0` to `1`. Needs `sentry_dsn`. |
+
+The app removes API keys and tokens from URLs before it sends an event.
+
 ## Domain configuration
 
 The loading screen shows before the zone settings load. Its colours come from the `config` object of the domain (authority) in Backoffice, not from zone metadata.

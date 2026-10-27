@@ -89,7 +89,10 @@ describe('LandingStateService', () => {
     });
 
     it('should exclude inactive bookings from upcoming events', () => {
-        const date = Date.now() - 60 * 60 * 1000;
+        const now = new Date().setHours(12, 0, 0, 0);
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(now);
+        const date = now - 60 * 60 * 1000;
         filtered_bookings.set([
             new Booking({
                 id: 'active',

@@ -44,6 +44,7 @@ describe('LandingAvailableNowComponent', () => {
             MockProvider(LandingStateService, {
                 level_occupancy: signal(LEVELS),
                 free_space_list,
+                loading_spaces: signal(false),
                 watchSpaceStatuses: vi.fn(() => release_statuses),
             } as any),
             MockProvider(SettingsService, {

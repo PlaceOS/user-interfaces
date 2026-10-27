@@ -7,6 +7,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { landingFeatures } from '../landing-new/landing-features';
 import type { TopMenuEmbedItem } from './top-menu.component';
 
 interface FooterMenuItem {
@@ -178,11 +179,12 @@ const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
                     name="footer-nav-home"
                     routerLinkActive="text-secondary active font-medium bg-secondary/10"
                 >
-                    <icon filled class="text-2xl">home</icon>
+                    <icon filled class="text-2xl" aria-hidden="true">home</icon>
                     <icon
                         outline
                         className="material-symbols-outlined"
                         class="m-0! text-2xl"
+                        aria-hidden="true"
                         >home</icon
                     >
                     <span class="text-sm">{{
@@ -192,6 +194,8 @@ const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
                 <button
                     matRipple
                     class="border-base-300 z-10 mb-4 flex h-12 w-12 items-center justify-center rounded-full border"
+                    [attr.aria-label]="'APP.WORKPLACE.MENU' | translate"
+                    [attr.aria-expanded]="show_book_items()"
                     (click)="show_book_items.set(!show_book_items())"
                     [class.bg-base-200]="!show_book_items()"
                     [class.border-info!]="show_book_items()"
@@ -199,29 +203,36 @@ const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
                     [class.text-info-content]="show_book_items()"
                     [class.shadow-md]="show_book_items()"
                 >
-                    <icon class="text-2xl">{{
+                    <icon class="text-2xl" aria-hidden="true">{{
                         show_book_items() ? 'close' : 'add'
                     }}</icon>
                 </button>
-                <a
-                    matRipple
-                    class="relative flex flex-1 flex-col items-center justify-center rounded-lg"
-                    [routerLink]="['/explore']"
-                    [attr.disabled]="!features().includes('explore')"
-                    [class.opacity-0]="!features().includes('explore')"
-                    routerLinkActive="text-secondary active font-medium bg-secondary/10"
-                >
-                    <icon filled class="text-2xl">place</icon>
-                    <icon
-                        outline
-                        className="material-symbols-outlined"
-                        class="m-0! text-2xl"
-                        >place</icon
+                @if (features().includes('explore')) {
+                    <a
+                        matRipple
+                        name="footer-nav-explore"
+                        class="relative flex flex-1 flex-col items-center justify-center rounded-lg"
+                        [routerLink]="['/explore']"
+                        routerLinkActive="text-secondary active font-medium bg-secondary/10"
                     >
-                    <span class="text-sm">{{
-                        'APP.WORKPLACE.MENU_EXPLORE' | translate
-                    }}</span>
-                </a>
+                        <icon filled class="text-2xl" aria-hidden="true"
+                            >place</icon
+                        >
+                        <icon
+                            outline
+                            className="material-symbols-outlined"
+                            class="m-0! text-2xl"
+                            aria-hidden="true"
+                            >place</icon
+                        >
+                        <span class="text-sm">{{
+                            'APP.WORKPLACE.MENU_EXPLORE' | translate
+                        }}</span>
+                    </a>
+                } @else {
+                    <!-- Keeps the menu button in the centre -->
+                    <div class="flex-1"></div>
+                }
                 <div
                     class="absolute top-0 left-1/2 h-2 w-24 -translate-x-1/2 -translate-y-full overflow-hidden"
                 >
@@ -268,10 +279,8 @@ export class FooterMenuComponent extends AsyncHandler {
             this._settings.theme === 'dark'
         );
     });
-    public readonly features = computed<string[]>(() => {
-        this._org.active_building();
-        return this._settings.get('app.features') || [];
-    });
+    /** Features of the user, limited by `app.feature_groups` like the top menu */
+    public readonly features = landingFeatures();
     public readonly default_page = computed<string>(() => {
         this._org.active_building();
         return this._settings.get('app.default_route') || '/landing';

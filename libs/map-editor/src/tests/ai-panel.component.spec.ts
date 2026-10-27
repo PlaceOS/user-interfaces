@@ -3,7 +3,7 @@ import {
     MapEditorAiPanelComponent,
     readableModel,
 } from '../lib/ai/ai-panel.component';
-import { MapAIEditRequest } from '../lib/ai/types';
+import { MapAIEditRequest, MapAIJob } from '../lib/ai/types';
 import { MapDocument } from '../lib/map-document';
 import { MapOp } from '../lib/ops';
 import {
@@ -156,6 +156,36 @@ describe('MapEditorAiPanelComponent', () => {
                 : null,
         );
         expect(markers).toEqual(['1:true 2:true', '1:true 2:false']);
+    });
+
+    it('notes the rejected changes the server had the AI correct, and only when it used them', async () => {
+        const proposal = async (repair: MapAIJob['repair']) => {
+            const sequence = jobSequence({
+                summary: 'Recoloured.',
+                ops: [recolour(doc, 'area-1.01-status', '#d1fae5')],
+                repair,
+            });
+            const fixture = await mount(
+                new FakeTransport({
+                    edit: sequence.accepted,
+                    polls: sequence.polls,
+                }),
+            );
+            await fixture.componentInstance.thread()!.submit('Recolour');
+            await settle(fixture);
+            const note = text(fixture, '[proposal-card] [repaired]');
+            TestBed.resetTestingModule();
+            doc = MapDocument.load(OFFICE);
+            session = new FakeSession(doc);
+            return note;
+        };
+        expect(await proposal({ rejected: 3, remaining: 1, used: true })).toBe(
+            'Rejected changes corrected automatically: 2',
+        );
+        expect(await proposal({ rejected: 2, remaining: 2, used: false })).toBe(
+            '',
+        );
+        expect(await proposal(undefined)).toBe('');
     });
 
     it('renders nothing visible when the deployment has no map AI', async () => {

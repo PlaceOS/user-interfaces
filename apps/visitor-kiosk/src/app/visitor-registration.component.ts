@@ -1,7 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { Router, RouterModule } from '@angular/router';
-import { startOfMinute } from 'date-fns';
 
 import {
     AsyncHandler,
@@ -35,6 +34,9 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { CheckinStateService } from './checkin/checkin-state.service';
+import { AnnounceDirective } from './components/announce.directive';
+import { PageHeadingDirective } from './components/page-heading.directive';
+import { minuteClock } from './minute-clock';
 
 @Component({
     selector: 'visitor-registration',
@@ -42,12 +44,14 @@ import { CheckinStateService } from './checkin/checkin-state.service';
         <div class="absolute inset-0 flex items-center p-8">
             <img
                 auth
+                alt=""
                 [source]="background()"
                 class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             @if (!hide_building_image()) {
                 <img
                     src="assets/img/building.webp"
+                    alt=""
                     class="absolute right-0 bottom-0 w-[60%]"
                 />
             }
@@ -58,53 +62,69 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                     <div
                         class="bg-base-200 sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
                     >
-                        <h3 class="px-2 text-lg font-medium">
+                        <h1 pageHeading class="px-2 text-lg font-medium">
                             {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
-                        </h3>
-                        <a icon matRipple [routerLink]="['/welcome']">
+                        </h1>
+                        <a
+                            icon
+                            matRipple
+                            [routerLink]="['/welcome']"
+                            [attr.aria-label]="'COMMON.CLOSE' | translate"
+                        >
                             <icon>close</icon>
                         </a>
                     </div>
                     <div class="p-4">
-                        <label for="name"> {{ 'FORM.NAME' | translate }}</label>
+                        <label for="register-name">
+                            {{ 'FORM.NAME' | translate }}
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="register-name"
                                 keyboard
                                 matInput
                                 autocomplete="off"
                                 [formField]="form.asset_name"
                                 [placeholder]="'FORM.NAME' | translate"
                             />
-                            <mat-error>A valid email is required</mat-error>
                         </mat-form-field>
-                        <label for="email">
-                            {{ 'FORM.EMAIL' | translate }}</label
-                        >
+                        <label for="register-email">
+                            {{ 'FORM.EMAIL' | translate }}
+                        </label>
                         <mat-form-field
                             appearance="outline"
                             class="mb-0 w-full"
                         >
                             <input
+                                id="register-email"
                                 keyboard
                                 matInput
+                                type="email"
                                 autocomplete="off"
                                 [formField]="form.asset_id"
                                 [placeholder]="'FORM.EMAIL' | translate"
                             />
-                            <mat-error>A valid email is required</mat-error>
+                            <mat-error>
+                                {{ 'FORM.EMAIL_REQUIRED' | translate }}
+                            </mat-error>
                         </mat-form-field>
-                        <label for="user">Host</label>
+                        <label id="register-host-label">{{
+                            'FORM.HOST' | translate
+                        }}</label>
                         <a-user-search-field
+                            role="group"
+                            aria-labelledby="register-host-label"
                             autocomplete="off"
                             [ngModel]="host()"
                             (ngModelChange)="setHost($event)"
                             [class.mb-4]="!host()"
                         ></a-user-search-field>
-                        <label form="phone">
-                            {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
-                        >
+                        <label for="register-phone">
+                            {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="register-phone"
                                 keyboard
                                 matInput
                                 type="tel"
@@ -115,11 +135,12 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 "
                             />
                         </mat-form-field>
-                        <label form="org">
-                            {{ 'COMMON.ORGANISATION' | translate }}</label
-                        >
+                        <label for="register-org">
+                            {{ 'COMMON.ORGANISATION' | translate }}
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="register-org"
                                 keyboard
                                 matInput
                                 autocomplete="off"
@@ -129,7 +150,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 "
                             />
                         </mat-form-field>
-                        <label form="reason">
+                        <label for="register-reason">
                             {{ 'BOOKINGS.VISITOR_REASON' | translate }}
                         </label>
                         <mat-form-field
@@ -137,6 +158,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             class="no-subscript mb-4 w-full"
                         >
                             <input
+                                id="register-reason"
                                 keyboard
                                 matInput
                                 autocomplete="off"
@@ -148,7 +170,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             />
                         </mat-form-field>
                         @if (allow_pass_number()) {
-                            <label form="pass">
+                            <label for="register-pass">
                                 {{ 'BOOKINGS.PASS_NUMBER' | translate }}
                             </label>
                             <mat-form-field
@@ -156,6 +178,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 class="no-subscript mb-4 w-full"
                             >
                                 <input
+                                    id="register-pass"
                                     keyboard
                                     matInput
                                     autocomplete="off"
@@ -178,10 +201,12 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                     </mat-checkbox>
                                 </div>
                             }
-                            <label form="duration">
+                            <label id="register-duration-label">
                                 {{ 'FORM.DURATION' | translate }}
                             </label>
                             <a-duration-field
+                                role="group"
+                                aria-labelledby="register-duration-label"
                                 class="text-base"
                                 [ngModel]="form_value().duration"
                                 (ngModelChange)="setDuration($event)"
@@ -203,8 +228,10 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                 <div
                     class="bg-base-100 absolute top-1/2 left-4 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-sm p-16 shadow-sm"
                 >
-                    <mat-spinner diameter="32"></mat-spinner>
-                    <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>
+                    <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
+                    <p announce>
+                        {{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}
+                    </p>
                 </div>
             }
             <div class="absolute top-4 right-4 text-2xl text-white">
@@ -215,6 +242,8 @@ import { CheckinStateService } from './checkin/checkin-state.service';
     `,
     styles: [``],
     imports: [
+        PageHeadingDirective,
+        AnnounceDirective,
         CommonModule,
         FormsModule,
         TranslatePipe,
@@ -261,7 +290,7 @@ export class VisitorRegistrationComponent
     public readonly form = this._booking_form.form;
     public readonly form_value = this._booking_form.model;
     public readonly loading = signal(false);
-    public readonly now = signal(startOfMinute(Date.now()).valueOf());
+    public readonly now = minuteClock();
     public readonly background = settingSignal('welcome_background');
     public readonly allow_registration_time_options = settingSignal<
         boolean | undefined
@@ -309,11 +338,6 @@ export class VisitorRegistrationComponent
     }
 
     public ngOnInit() {
-        this.interval(
-            'time',
-            () => this.now.set(startOfMinute(Date.now()).valueOf()),
-            30 * 1000,
-        );
         this._booking_form.clearOldState();
         this._booking_form.newForm('visitor');
         this._booking_form.setOptions({ type: 'visitor' });
@@ -332,20 +356,24 @@ export class VisitorRegistrationComponent
 
     public async register() {
         this.form().markAsTouched();
-        if (!this.form().valid()) {
+        // The booking form does not require a name or host, but a visitor
+        // registration does. List every missing field in one message.
+        const invalid_fields = [
+            ...(this.form_value().asset_name?.trim()
+                ? []
+                : [i18n('FORM.NAME')]),
+            ...getInvalidSignalFields(this.form, this._booking_form.model, {
+                asset_id: i18n('FORM.EMAIL'),
+                title: i18n('BOOKINGS.VISITOR_REASON'),
+                date: i18n('FORM.DATE'),
+                duration: i18n('FORM.DURATION'),
+            }),
+            ...(this.host() ? [] : [i18n('FORM.HOST')]),
+        ];
+        if (invalid_fields.length) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidSignalFields(
-                        this.form,
-                        this._booking_form.model,
-                    ).join(', '),
-                }),
-            );
-        }
-        if (!this.host()) {
-            return notifyError(
-                i18n('FORM.INVALID_FIELDS', {
-                    field_list: i18n('FORM.HOST'),
+                    field_list: invalid_fields.join(', '),
                 }),
             );
         }

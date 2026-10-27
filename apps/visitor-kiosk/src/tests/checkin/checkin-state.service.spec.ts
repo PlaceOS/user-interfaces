@@ -2,7 +2,7 @@ import {
     SpectatorService,
     createServiceFactory,
 } from '@ngneat/spectator/vitest';
-import { Booking, OrganisationService } from '@placeos/common';
+import { Booking, OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { get, patch, post, put, query } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
@@ -83,11 +83,56 @@ describe('CheckinStateService', () => {
         );
     });
 
+    it('ignores a guest lookup that times out', async () => {
+        vi.useFakeTimers();
+        let resolveGuest: (value: unknown) => void;
+        vi.mocked(get).mockImplementationOnce(
+            () => new Promise((resolve) => (resolveGuest = resolve)) as any,
+        );
+        const lookup = expect(
+            spectator.service.loadGuestAndEvent('a@b.com', 'event-1234'),
+        ).rejects.toThrow('Request timed out');
+
+        await vi.advanceTimersByTimeAsync(10_000);
+        await lookup;
+        resolveGuest({});
+        await vi.runAllTimersAsync();
+
+        expect(spectator.service.event()).toBeNull();
+        expect(spectator.service.guest()).toBeNull();
+        vi.useRealTimers();
+    });
+
     it('should allow updating guests', async () => {
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
         await spectator.service.updateGuest({ one: true });
         // updateBooking issues a patch under the hood
         expect(patch).toHaveBeenCalled();
+    });
+
+    it('ignores a guest details save that times out', async () => {
+        vi.useFakeTimers();
+        const booking = new Booking({
+            id: 'event-1234',
+            asset_id: 'a@b.com',
+            user_email: 'host@b.com',
+        });
+        spectator.service.setBooking(booking);
+        let resolveSave: (value: unknown) => void;
+        vi.mocked(patch).mockImplementationOnce(
+            () => new Promise((resolve) => (resolveSave = resolve)) as any,
+        );
+        const save = expect(spectator.service.updateGuest()).rejects.toThrow(
+            'Request timed out',
+        );
+
+        await vi.advanceTimersByTimeAsync(10_000);
+        await save;
+        resolveSave({ id: 'other-event' });
+        await vi.runAllTimersAsync();
+
+        expect(spectator.service.event()).toBe(booking);
+        vi.useRealTimers();
     });
 
     it('stores additional guest details on the booking', async () => {
@@ -167,5 +212,28 @@ describe('CheckinStateService', () => {
             expect.stringContaining('check_in'),
             '',
         );
+    });
+
+    it('shows a plain checkout message when checkout fails', async () => {
+        const snackbar = {
+            open: vi.fn(() => ({
+                onAction: () => ({ subscribe: () => undefined }),
+                dismiss: () => undefined,
+            })),
+        };
+        setNotifyOutlet(snackbar as any, true);
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
+        vi.mocked(post).mockRejectedValueOnce(new Error('e.json'));
+
+        await expect(spectator.service.checkinGuest(false)).rejects.toThrow();
+
+        expect(snackbar.open).toHaveBeenCalledTimes(1);
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'APP.VISITOR_KIOSK.ERROR_CHECKOUT',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+        setNotifyOutlet(null, true);
     });
 });

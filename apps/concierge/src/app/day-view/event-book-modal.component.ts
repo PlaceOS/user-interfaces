@@ -73,6 +73,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             icon
                             name="toggle-details-meeting"
                             matRipple
+                            [attr.aria-label]="'COMMON.DETAILS' | translate"
+                            [attr.aria-expanded]="!hide_block().details"
                             (click)="
                                 hide_block.update((b) => ({
                                     ...b,
@@ -114,6 +116,10 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 icon
                                 name="toggle-attendees-meeting"
                                 matRipple
+                                [attr.aria-label]="
+                                    'CALENDAR_EVENT.ATTENDEES' | translate
+                                "
+                                [attr.aria-expanded]="!hide_block().attendees"
                                 (click)="
                                     hide_block.update((b) => ({
                                         ...b,
@@ -136,6 +142,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 class="mt-4"
                                 [formField]="form.attendees"
                                 [guests]="allow_externals"
+                                [flags]="true"
                             ></a-user-list-field>
                             @if (can_notify_new_attendees_only()) {
                                 <mat-checkbox
@@ -168,6 +175,8 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             icon
                             name="toggle-spaces-meeting"
                             matRipple
+                            [attr.aria-label]="'RESOURCE.ROOM' | translate"
+                            [attr.aria-expanded]="!hide_block().resources"
                             (click)="
                                 hide_block.update((b) => ({
                                     ...b,
@@ -224,6 +233,10 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 icon
                                 name="toggle-catering-meeting"
                                 matRipple
+                                [attr.aria-label]="
+                                    'RESOURCE.CATERING' | translate
+                                "
+                                [attr.aria-expanded]="!hide_block().catering"
                                 (click)="
                                     hide_block.update((b) => ({
                                         ...b,
@@ -342,6 +355,10 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 icon
                                 name="toggle-assets-meeting"
                                 matRipple
+                                [attr.aria-label]="
+                                    'RESOURCE.ASSETS' | translate
+                                "
+                                [attr.aria-expanded]="!hide_block().assets"
                                 (click)="
                                     hide_block.update((b) => ({
                                         ...b,
@@ -394,10 +411,15 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             </div>
                         </h3>
                         <div class="flex w-full flex-col">
-                            <label for="notes">
+                            <label
+                                for="event-book-modal-notes"
+                                id="event-book-modal-notes-label"
+                            >
                                 {{ 'CALENDAR_EVENT.NOTES_INFO' | translate }}
                             </label>
                             <rich-text-input
+                                role="group"
+                                aria-labelledby="event-book-modal-notes-label"
                                 [formField]="form.body"
                                 [placeholder]="
                                     'CALENDAR_EVENT.NOTES_INFO' | translate

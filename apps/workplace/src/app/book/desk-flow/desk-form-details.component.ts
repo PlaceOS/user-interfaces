@@ -435,10 +435,6 @@ export class NewDeskFormDetailsComponent
         );
     }
 
-    public get needs_reason() {
-        return this._settings.get('app.desks.needs_reason') === true;
-    }
-
     public get auto_allocation() {
         return !!this._state.auto_allocation;
     }

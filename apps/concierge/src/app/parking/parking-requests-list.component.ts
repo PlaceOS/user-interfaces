@@ -36,7 +36,7 @@ import {
         <div class="w-fit min-w-full px-8">
             <div class="flex items-center justify-end gap-2 px-2 py-1 text-xs">
                 @if (last_updated()) {
-                    <span class="opacity-60">
+                    <span class="opacity-70">
                         {{
                             'COMMON.LAST_UPDATED'
                                 | translate
@@ -56,6 +56,7 @@ import {
                     [matTooltip]="'COMMON.REFRESH' | translate"
                     data-shortcut="refresh"
                     (click)="refresh()"
+                    [attr.aria-label]="'COMMON.REFRESH' | translate"
                 >
                     <icon>refresh</icon>
                 </button>
@@ -174,7 +175,7 @@ import {
                     <div class="px-4 py-2">
                         <div>{{ row.user_name || row.user_email }}</div>
                         @if (row.user_name && row.user_email) {
-                            <div class="text-xs opacity-30">
+                            <div class="text-xs opacity-70">
                                 {{ row.user_email }}
                             </div>
                         }
@@ -186,7 +187,7 @@ import {
                             {{ row.booked_by_name || row.booked_by_email }}
                         </div>
                         @if (row.booked_by_name && row.booked_by_email) {
-                            <div class="text-xs opacity-30">
+                            <div class="text-xs opacity-70">
                                 {{ row.booked_by_email }}
                             </div>
                         }
@@ -240,7 +241,7 @@ import {
                     <div class="p-4 font-mono text-sm uppercase">
                         {{ row?.extension_data?.plate_number }}
                         @if (!row?.extension_data?.plate_number) {
-                            <span class="opacity-30">
+                            <span class="opacity-70">
                                 {{ 'COMMON.EMPTY' | translate }}
                             </span>
                         }
@@ -352,6 +353,9 @@ import {
                             "
                             [disabled]="request_type(row) !== 'special'"
                             (click)="viewSpecialNeedsRequest(row)"
+                            [attr.aria-label]="
+                                'BOOKINGS.P2_SPECIAL_NEEDS_DETAILS' | translate
+                            "
                         >
                             <icon>description</icon>
                         </button>
@@ -370,6 +374,10 @@ import {
                                         | translate
                                 "
                                 (click)="assignSpace(row)"
+                                [attr.aria-label]="
+                                    'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                        | translate
+                                "
                             >
                                 <icon>add_location</icon>
                             </button>
@@ -388,6 +396,9 @@ import {
                                 'APP.CONCIERGE.PARKING_EDIT' | translate
                             "
                             (click)="editReservation(row)"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.PARKING_EDIT' | translate
+                            "
                         >
                             <icon>edit</icon>
                         </button>

@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
 import { ControlSpaceListItemComponent } from './list-item.component';
 
@@ -22,7 +22,11 @@ import { ControlSpaceListItemComponent } from './list-item.component';
                 appearance="outline"
             >
                 <icon class="text-xl" matPrefix>search</icon>
-                <input matInput [(ngModel)]="search" placeholder="Search..." />
+                <input
+                    matInput
+                    [(ngModel)]="search"
+                    [placeholder]="'COMMON.SEARCH' | translate"
+                />
                 @if (loading()) {
                     <mat-spinner
                         matSuffix
@@ -41,14 +45,15 @@ import { ControlSpaceListItemComponent } from './list-item.component';
                     ></a-control-space-list-item>
                 }
             </div>
-        } @else {
+        } @else if (!loading()) {
             <div class="flex flex-col items-center space-y-4 p-8 opacity-30">
                 <icon class="text-6xl">no_meeting_room</icon>
                 <p>
                     {{
                         search()
-                            ? ' No matches for "' + search() + '"'
-                            : 'No controllable spaces'
+                            ? ('APP.WORKPLACE.CONTROL_SEARCH_EMPTY'
+                              | translate: { search: search() })
+                            : ('APP.WORKPLACE.CONTROL_EMPTY' | translate)
                     }}
                 </p>
             </div>
@@ -77,6 +82,7 @@ import { ControlSpaceListItemComponent } from './list-item.component';
         IconComponent,
         ControlSpaceListItemComponent,
         MatProgressSpinnerModule,
+        TranslatePipe,
     ],
 })
 export class ControlSpaceListComponent extends AsyncHandler {
@@ -105,7 +111,7 @@ export class ControlSpaceListComponent extends AsyncHandler {
         if (!search) return list;
         return list.filter((space) => {
             const bld = this._org.buildings.find(
-                (building) => building.id === space.level.parent_id,
+                (building) => building.id === space.level?.parent_id,
             );
             const space_name = (space.name || '').toLowerCase();
             const level_name = (

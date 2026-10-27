@@ -1,11 +1,13 @@
+import { DatePipe } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
+    computed,
     effect,
     input,
     OnInit,
     output,
     signal,
+    untracked,
 } from '@angular/core';
 import { AsyncHandler, CalendarEvent } from '@placeos/common';
 import {
@@ -17,6 +19,8 @@ import {
     subHours,
     subMinutes,
 } from 'date-fns';
+
+import { TIME_FORMAT } from '../new-panel/helpers';
 
 interface TimeBlock {
     id: number;
@@ -34,11 +38,13 @@ interface EventBlock {
     selector: 'checkin-timetable',
     template: `
         <div class="relative flex h-16 items-center px-2">
-            @for (blk of blocks(); track blk) {
+            @for (blk of blocks(); track blk.id) {
                 <button
                     class="relative h-full"
-                    [style.min-width]="1 * step() + 'px'"
-                    (click)="event.emit(blk.id)"
+                    [style.min-width]="scale * step() + 'px'"
+                    [attr.aria-label]="blk.id | date: time_format()"
+                    [attr.aria-disabled]="booked_blocks().has(blk.id) || null"
+                    (click)="!booked_blocks().has(blk.id) && event.emit(blk.id)"
                 >
                     @if (blk.minutes % 60 === 0) {
                         <div
@@ -61,15 +67,15 @@ interface EventBlock {
                     <div
                         event
                         class="bg-base-200 absolute bottom-0 h-12 opacity-40"
-                        [style.left]="8 + blk.start + 'px'"
-                        [style.width]="blk.length + 'px'"
+                        [style.left]="8 + scale * blk.start + 'px'"
+                        [style.width]="scale * blk.length + 'px'"
                     ></div>
                 }
             }
             <div
                 current
                 class="bg-primary pointer-events-none absolute bottom-0 h-12 w-0.5"
-                [style.left]="8 + current_time() + 'px'"
+                [style.left]="8 + scale * current_time() + 'px'"
             >
                 <div
                     class="bg-primary absolute top-0 left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
@@ -92,24 +98,49 @@ interface EventBlock {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [],
+    imports: [DatePipe],
 })
 export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
     public readonly events = input<CalendarEvent[]>([]);
     public readonly step = input(15);
+    /** Time format. `HH:mm` shows 24 hour labels. */
+    public readonly time_format = input(TIME_FORMAT);
     public readonly event = output<number>();
+    /** Pixels per minute. 2 makes each 15 minute slot 30px wide, over the 24px minimum touch target. */
+    public readonly scale = 2;
 
     public current_time = signal<number>(0);
 
     public blocks = signal<TimeBlock[]>([]);
     public event_blocks = signal<EventBlock[]>([]);
 
+    /** IDs of the time blocks that overlap a booking. Screen readers read these slots as unavailable. */
+    public readonly booked_blocks = computed(() => {
+        const step = this.step() * 60 * 1000;
+        const events = this.events() || [];
+        return new Set(
+            this.blocks()
+                .filter((blk) =>
+                    events.some(
+                        (e) =>
+                            e.date < blk.id + step &&
+                            e.date + e.duration * 60 * 1000 > blk.id,
+                    ),
+                )
+                .map((blk) => blk.id),
+        );
+    });
+
     constructor() {
         super();
         effect(() => {
             this.events(); // track the signal
             this._processEvents();
+        });
+        // Relabel the blocks when the time format setting loads or changes
+        effect(() => {
+            this.time_format();
+            untracked(() => this._generateTimeBlocks(true));
         });
     }
 
@@ -141,22 +172,26 @@ export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
         return '';
     }
 
-    private _generateTimeBlocks() {
+    /** Build the blocks. `force` rebuilds them when the start is the same. */
+    private _generateTimeBlocks(force = false) {
         const blocks: TimeBlock[] = [];
+        const hour_24 = this.time_format() !== TIME_FORMAT;
         const start = roundToNearestMinutes(
             subMinutes(subHours(Date.now(), 1), this.step() / 2),
             {
                 nearestTo: this.step() as any,
             },
         );
+        // The start moves once per step. Keep the blocks until then.
+        if (!force && this.blocks()[0]?.id === start.valueOf()) return;
         let date = start;
         const end = addHours(start, 24);
         while (date < end) {
             blocks.push({
                 id: date.valueOf(),
                 minutes: date.getMinutes(),
-                hour: format(date, 'h'),
-                period: format(date, 'a'),
+                hour: format(date, hour_24 ? 'HH' : 'h'),
+                period: hour_24 ? '' : format(date, 'a'),
             });
             date = addMinutes(date, this.step());
         }

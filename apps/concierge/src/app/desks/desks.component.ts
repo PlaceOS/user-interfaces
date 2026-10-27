@@ -122,7 +122,7 @@ import { DesksStateService } from './desks-state.service';
                                 <mat-option [value]="level.id">
                                     <div class="flex flex-col-reverse">
                                         @if (use_region) {
-                                            <div class="text-xs opacity-30">
+                                            <div class="text-xs opacity-70">
                                                 {{
                                                     (level.parent_id | building)
                                                         ?.display_name
@@ -156,6 +156,9 @@ import { DesksStateService } from './desks-state.service';
                             "
                             (click)="rejectAll()"
                             [disabled]="loading()"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.REJECT_ALL' | translate
+                            "
                         >
                             <icon>event_busy</icon>
                         </button>
@@ -165,6 +168,10 @@ import { DesksStateService } from './desks-state.service';
                                 default
                                 matRipple
                                 [matTooltip]="
+                                    'APP.CONCIERGE.DOWNLOAD_USER_LIST'
+                                        | translate
+                                "
+                                [attr.aria-label]="
                                     'APP.CONCIERGE.DOWNLOAD_USER_LIST'
                                         | translate
                                 "
@@ -189,9 +196,17 @@ import { DesksStateService } from './desks-state.service';
                                     | translate
                             "
                             (click)="viewQRCodes()"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.DESKS_VIEW_QR_CODE_LIST'
+                                    | translate
+                            "
                         >
                             <icon>qr_code</icon>
                         </button>
+                        <!--
+                            The button is the control. The file input on top takes mouse clicks
+                            and dropped files, and the button opens it for keyboard users
+                        -->
                         <button
                             icon
                             default
@@ -199,9 +214,19 @@ import { DesksStateService } from './desks-state.service';
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
                             "
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
+                            "
+                            (click)="
+                                $event.target !== file_input &&
+                                    file_input.click()
+                            "
                         >
                             <icon>cloud_upload</icon>
                             <input
+                                #file_input
+                                tabindex="-1"
+                                aria-hidden="true"
                                 type="file"
                                 class="absolute inset-0 opacity-0"
                                 (change)="loadCSVData($any($event))"
@@ -215,6 +240,9 @@ import { DesksStateService } from './desks-state.service';
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
                             "
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
+                            "
                         >
                             <icon>download</icon>
                         </button>
@@ -224,6 +252,9 @@ import { DesksStateService } from './desks-state.service';
                             matRipple
                             (click)="manageRestrictions()"
                             [matTooltip]="
+                                'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
+                            "
+                            [attr.aria-label]="
                                 'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
                             "
                         >
@@ -250,7 +281,11 @@ import { DesksStateService } from './desks-state.service';
                     ref="noopener noreferrer"
                     class="border-base-200 bg-base-100 m-2 block rounded-lg border p-2"
                 >
-                    <img class="w-48" [src]="desk.qr_code" />
+                    <img
+                        [alt]="'COMMON.QR_CODE' | translate"
+                        class="w-48"
+                        [src]="desk.qr_code"
+                    />
                 </a>
                 <div
                     class="bg-base-200 mx-2 mt-2 w-48 rounded-sm p-2 text-center font-mono text-sm"

@@ -107,6 +107,10 @@ export type { EmergencyContact } from './emergency-contacts.service';
                                             | translate
                                     "
                                     (click)="manageRoles()"
+                                    [attr.aria-label]="
+                                        'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
+                                            | translate
+                                    "
                                 >
                                     <icon>list_alt</icon>
                                 </button>
@@ -161,7 +165,7 @@ export type { EmergencyContact } from './emergency-contacts.service';
                             (click)="copyToClipboard(row.email)"
                         >
                             <div class="">{{ row.name }}</div>
-                            <div class="font-mono text-[0.625rem] opacity-30">
+                            <div class="font-mono text-[0.625rem] opacity-70">
                                 {{ row.email }}
                             </div>
                         </button>
@@ -194,6 +198,9 @@ export type { EmergencyContact } from './emergency-contacts.service';
                                     'APP.CONCIERGE.CONTACTS_EDIT' | translate
                                 "
                                 (click)="editContact(row)"
+                                [attr.aria-label]="
+                                    'APP.CONCIERGE.CONTACTS_EDIT' | translate
+                                "
                             >
                                 <icon>edit</icon>
                             </button>
@@ -204,6 +211,9 @@ export type { EmergencyContact } from './emergency-contacts.service';
                                 error
                                 (click)="removeContact(row)"
                                 [matTooltip]="
+                                    'APP.CONCIERGE.CONTACTS_REMOVE' | translate
+                                "
+                                [attr.aria-label]="
                                     'APP.CONCIERGE.CONTACTS_REMOVE' | translate
                                 "
                             >

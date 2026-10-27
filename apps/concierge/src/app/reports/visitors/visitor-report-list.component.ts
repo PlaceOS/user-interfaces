@@ -17,6 +17,7 @@ import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
+import { showVisitorFlag } from '../../visitors/visitor-flags';
 import { VisitorsReportService } from './visitors-report.service';
 
 const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
@@ -71,6 +72,9 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
                         "
                         (click)="download()"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                        "
                     >
                         <icon>download</icon>
                     </button>
@@ -143,12 +147,14 @@ export class VisitorReportListComponent {
 
     public readonly print = input(false);
     public get allow_international() {
-        return !!this._settings.get('app.visitors.allow_international');
+        return showVisitorFlag(this._settings, this._state.bookings(), 'international');
     }
 
     public get allow_visitor_internal_or_external() {
-        return !!this._settings.get(
-            'app.visitors.allow_visitor_internal_or_external',
+        return showVisitorFlag(
+            this._settings,
+            this._state.bookings(),
+            'visitor_internal_or_external',
         );
     }
 

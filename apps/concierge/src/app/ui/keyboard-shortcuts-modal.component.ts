@@ -1,24 +1,43 @@
 import { Component, DOCUMENT, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 
 import {
     findShortcutTarget,
     KEYBOARD_SHORTCUTS,
+    KeyboardShortcutsService,
     SHORTCUTS_HELP_KEY,
 } from './keyboard-shortcuts.service';
 
-/** Lists the keyboard shortcuts and shows which work on the current page */
+/**
+ * Lists the keyboard shortcuts, shows which work on the current page, and
+ * lets the user turn them off
+ */
 @Component({
     selector: 'keyboard-shortcuts-modal',
     template: `
         <header>
             <h2>{{ 'APP.CONCIERGE.SHORTCUTS_TITLE' | translate }}</h2>
-            <button icon mat-dialog-close>
+            <button
+                icon
+                mat-dialog-close
+                [aria-label]="'COMMON.CLOSE' | translate"
+            >
                 <icon>close</icon>
             </button>
         </header>
-        <main class="w-md p-4">
+        <main class="w-md space-y-4 p-4">
+            <settings-toggle
+                [toggle]="true"
+                [label]="'APP.CONCIERGE.SHORTCUTS_ENABLED' | translate"
+                [ngModel]="shortcuts_service.enabled()"
+                (ngModelChange)="shortcuts_service.setEnabled($event)"
+            ></settings-toggle>
             <ul class="flex flex-col gap-2">
                 @for (item of shortcuts; track item.label) {
                     <li
@@ -44,10 +63,17 @@ import {
             </ul>
         </main>
     `,
-    imports: [MatDialogModule, IconComponent, TranslatePipe],
+    imports: [
+        FormsModule,
+        MatDialogModule,
+        IconComponent,
+        SettingsToggleComponent,
+        TranslatePipe,
+    ],
 })
 export class KeyboardShortcutsModalComponent {
     private _document = inject(DOCUMENT);
+    public readonly shortcuts_service = inject(KeyboardShortcutsService);
 
     public readonly shortcuts = [
         ...KEYBOARD_SHORTCUTS.map((_) => ({

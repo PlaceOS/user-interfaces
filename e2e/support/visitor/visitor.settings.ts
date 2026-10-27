@@ -114,8 +114,8 @@ export const ALLOW_EXTRAS = {
 /**
  * Make the reason mandatory (PPT-2782).
  *
- * The `visitor-flow-new` page does not read this: the reason starts as
- * "Visit", and an emptied reason is sent as "Visit".
+ * The `visitor-flow-new` page reads this: the reason starts empty, and an
+ * emptied reason is refused instead of being sent as "Visit".
  */
 export const REASON_REQUIRED = {
     'app.visitors.reason_required': true,

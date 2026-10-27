@@ -13,6 +13,8 @@ describe('CheckinTimetableComponent', () => {
         spectator = createComponent();
     });
 
+    afterEach(() => vi.useRealTimers());
+
     it('should generate a full day of time blocks on init', () => {
         spectator.detectChanges();
         // 24 hours at 15-minute steps => 96 blocks
@@ -20,6 +22,18 @@ describe('CheckinTimetableComponent', () => {
         const first = spectator.component.blocks()[0];
         expect(first.id).toEqual(expect.any(Number));
         expect(first.hour).toEqual(expect.any(String));
+    });
+
+    it('should relabel the blocks when the time format changes', () => {
+        spectator.detectChanges();
+        const hour = () =>
+            spectator.component.blocks().find((b) => b.minutes === 0);
+        const date = new Date(hour().id);
+        expect(hour().period).not.toBe('');
+        spectator.setInput('time_format', 'HH:mm');
+        spectator.detectChanges();
+        expect(hour().hour).toBe(`${date.getHours()}`.padStart(2, '0'));
+        expect(hour().period).toBe('');
     });
 
     it('should render a button for each time block', () => {
@@ -57,6 +71,31 @@ describe('CheckinTimetableComponent', () => {
         spectator.setInput('events', [{ date: Date.now(), duration: 30 }]);
         spectator.detectChanges();
         expect('[event]').toExist();
+    });
+
+    it('should keep the time blocks until the start time moves', () => {
+        // The start moves on the 15 minute step, so 09:01 to 09:02 keeps it
+        vi.useFakeTimers({ now: new Date(2026, 6, 4, 9, 1) });
+        spectator.detectChanges();
+        const blocks = spectator.component.blocks();
+        vi.advanceTimersByTime(60 * 1000);
+        expect(spectator.component.blocks()).toBe(blocks);
+    });
+
+    it('should name each time block and mark booked blocks unavailable', () => {
+        spectator.detectChanges();
+        const start = spectator.component.blocks()[4].id;
+        spectator.setInput('events', [{ date: start, duration: 30 }]);
+        spectator.detectChanges();
+        const buttons = spectator.queryAll('button');
+        const disabled = buttons.map((b) => b.getAttribute('aria-disabled'));
+        expect(disabled.slice(3, 7)).toEqual([null, 'true', 'true', null]);
+        expect(buttons[4].getAttribute('aria-label')).toMatch(/\d:\d\d/);
+        const emitted: number[] = [];
+        spectator.component.event.subscribe((v) => emitted.push(v));
+        spectator.click(buttons[4]);
+        spectator.click(buttons[3]);
+        expect(emitted).toEqual([spectator.component.blocks()[3].id]);
     });
 
     it('should leave event blocks empty when no events are supplied', () => {

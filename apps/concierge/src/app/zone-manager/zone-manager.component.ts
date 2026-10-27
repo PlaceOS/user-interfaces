@@ -30,27 +30,24 @@ import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
                     <div class="flex items-center gap-2">
                         @if (selected_tab() === 0) {
                             <button
-                                icon
+                                icon default
                                 matRipple
                                 [matMenuTriggerFor]="app_settings_menu"
                                 [matTooltip]="'Organisation App Settings'"
+                                [attr.aria-label]="'Organisation App Settings'"
                             >
-                                <icon>more_vert</icon>
+                                <icon>rule_settings</icon>
                             </button>
                         }
                         <button
-                            btn
+                            icon default
                             matRipple
                             data-shortcut="new"
                             (click)="addItem()"
-                            class="w-48"
+                            [matTooltip]="addButtonText() | translate"
+                            [attr.aria-label]="addButtonText() | translate"
                         >
-                            <div class="flex items-center space-x-2">
-                                <icon>shadow_add</icon>
-                                <div class="pr-2">
-                                    {{ addButtonText() | translate }}
-                                </div>
-                            </div>
+                            <icon>{{addButtonIcon()}}</icon>
                         </button>
                     </div>
                 </header>
@@ -175,6 +172,13 @@ export class ZoneManagerComponent extends AsyncHandler implements OnInit {
         if (tab_index === 0) return 'APP.CONCIERGE.REGIONS_ADD';
         if (tab_index === 1) return 'APP.CONCIERGE.BUILDINGS_ADD';
         return 'APP.CONCIERGE.LEVELS_ADD';
+    });
+
+    public readonly addButtonIcon = computed(() => {
+        const tab_index = this.selected_tab();
+        if (tab_index === 0) return 'shadow_add';
+        if (tab_index === 1) return 'domain_add';
+        return 'library_add';
     });
 
     public readonly addItem = () => {

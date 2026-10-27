@@ -18,6 +18,7 @@ describe('PanelViewDetailsComponent', () => {
             {
                 provide: PanelStateService,
                 useValue: {
+                    time_format: signal('h:mm a'),
                     space,
                     current,
                     next,

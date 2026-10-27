@@ -108,7 +108,7 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                 >
                     <div>{{ row.id || row.map_id }}</div>
                     @if (row.id && row.map_id !== row.id) {
-                        <div class="font-mono text-[0.625rem] opacity-30">
+                        <div class="font-mono text-[0.625rem] opacity-70">
                             {{ row.map_id }}
                         </div>
                     }
@@ -136,7 +136,7 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
             </ng-template>
             <ng-template #assigned_template let-row="row" let-data="data">
                 @if (!data) {
-                    <div class="p-4 opacity-30">
+                    <div class="p-4 opacity-70">
                         {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
                     </div>
                 }
@@ -147,7 +147,7 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                     >
                         <div class="">{{ row.assigned_name || data }}</div>
                         @if (row.assigned_name) {
-                            <div class="font-mono text-[0.625rem] opacity-30">
+                            <div class="font-mono text-[0.625rem] opacity-70">
                                 {{ data }}
                             </div>
                         }
@@ -166,6 +166,9 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                             'APP.CONCIERGE.DESKS_ACTION_PRINT_QR' | translate
                         "
                         (click)="loadQrCode(row)"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.DESKS_ACTION_PRINT_QR' | translate
+                        "
                     >
                         <icon>qr_code</icon>
                     </button>
@@ -177,6 +180,9 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                             'APP.CONCIERGE.DESKS_ACTION_EDIT' | translate
                         "
                         (click)="editDesk(row)"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.DESKS_ACTION_EDIT' | translate
+                        "
                     >
                         <icon>edit</icon>
                     </button>
@@ -189,6 +195,9 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                             'APP.CONCIERGE.DESKS_ACTION_REMOVE' | translate
                         "
                         (click)="removeDesk(row)"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.DESKS_ACTION_REMOVE' | translate
+                        "
                     >
                         <icon>delete</icon>
                     </button>
@@ -203,6 +212,7 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                                         class="border-base-200 bg-base-100 mx-4 my-2 block rounded-lg border p-2"
                                     >
                                         <img
+                                            [alt]="'COMMON.QR_CODE' | translate"
                                             class="w-48"
                                             [src]="qr_code().get(row.id)"
                                         />

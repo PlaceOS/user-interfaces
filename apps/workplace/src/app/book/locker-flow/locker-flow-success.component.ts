@@ -3,7 +3,11 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    getTimezoneOffsetString,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import {
     IconComponent,
     SafePipe,
@@ -31,31 +35,31 @@ import {
                         'BOOKINGS.ITEM_BOOKED'
                             | translate
                                 : {
-                                      name:
-                                          (last_event.asset_name ||
-                                              last_event.asset_id) +
-                                          ', ' +
-                                          location,
+                                      name: heading_name,
                                   }
                     }}
                 </h2>
                 <img src="assets/icons/locker-success.svg" />
                 <p class="text-center">
                     {{
-                        'APP.WORKPLACE.LOCKER_SUCCESS_MSG'
+                        (last_event.all_day
+                            ? 'APP.WORKPLACE.LOCKER_SUCCESS_MSG_ALLDAY'
+                            : 'APP.WORKPLACE.LOCKER_SUCCESS_MSG'
+                        )
                             | translate
                                 : {
                                       name: last_event.asset_name,
                                       place: location,
                                       date:
-                                          last_event.date | date: 'mediumDate',
+                                          last_event.date
+                                          | date: 'mediumDate' : tz,
                                       time:
                                           (last_event.date
-                                              | date: time_format) +
+                                              | date: time_format : tz) +
                                           ' - ' +
                                           (last_event.date +
                                               last_event.duration * 60 * 1000
-                                              | date: time_format),
+                                              | date: time_format : tz),
                                   }
                     }}
                 </p>
@@ -145,10 +149,22 @@ export class BookLockerFlowSuccessComponent implements OnInit {
             this.last_event.zones.includes(_.id),
         );
         const level = this._org.levelWithID(this.last_event.zones);
-        return (
-            (building ? `${building.display_name || building.name}, ` : '') +
-            (level ? `${level.display_name || level.name}, ` : '')
-        );
+        return [
+            building?.display_name || building?.name,
+            level?.display_name || level?.name,
+        ]
+            .filter(Boolean)
+            .join(', ');
+    }
+
+    /** Locker name and location for the success heading */
+    public get heading_name() {
+        return [
+            this.last_event.asset_name || this.last_event.asset_id,
+            this.location,
+        ]
+            .filter(Boolean)
+            .join(', ');
     }
 
     public get last_event() {
@@ -161,6 +177,13 @@ export class BookLockerFlowSuccessComponent implements OnInit {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    /** Offset of the timezone that the booking was made in */
+    public get tz() {
+        const event = this.last_event;
+        if (!event?.timezone) return '';
+        return getTimezoneOffsetString(event.timezone, new Date(event.date));
     }
 
     public readonly viewCalendarLinks = () =>

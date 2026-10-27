@@ -56,10 +56,13 @@ const TYPE_ICONS = new Map<string, { icon: string; tooltip: string }>([
             <a
                 name="view-booking-details"
                 class="relative w-full cursor-pointer overflow-hidden"
+                [attr.cancelled]="is_cancelled() ? '' : null"
                 [routerLink]="['./']"
                 [queryParams]="{
                     booking: booking()?.id,
+                    event: null,
                 }"
+                queryParamsHandling="merge"
                 (click)="viewDetails()"
             >
                 <div

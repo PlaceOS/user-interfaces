@@ -89,7 +89,7 @@ import { RoomManagementService } from './room-management.service';
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="font-mono text-[0.625rem] opacity-30">
+                <div class="font-mono text-[0.625rem] opacity-70">
                     {{ row.id }}
                 </div>
             </button>
@@ -145,7 +145,13 @@ import { RoomManagementService } from './room-management.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto p-1">
-                <button icon default matRipple [matMenuTriggerFor]="menu">
+                <button
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                >
                     <icon>more_vert</icon>
                 </button>
             </div>

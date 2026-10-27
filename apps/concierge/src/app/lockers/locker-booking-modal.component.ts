@@ -73,11 +73,12 @@ import { addDays, endOfDay } from 'date-fns';
                 }
                 <div class="flex items-center space-x-2">
                     <div class="flex-1">
-                        <label for="user-name">{{
+                        <label for="locker-booking-modal-user-name">{{
                             'FORM.NAME' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="locker-booking-modal-user-name"
                                 matInput
                                 [formField]="form.user_name"
                                 [placeholder]="'FORM.NAME' | translate"
@@ -88,11 +89,12 @@ import { addDays, endOfDay } from 'date-fns';
                         </mat-form-field>
                     </div>
                     <div class="flex-1">
-                        <label for="email">{{
+                        <label for="locker-booking-modal-email">{{
                             'FORM.EMAIL' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="locker-booking-modal-email"
                                 matInput
                                 [formField]="form.user_email"
                                 [placeholder]="'FORM.EMAIL' | translate"
@@ -107,8 +109,8 @@ import { addDays, endOfDay } from 'date-fns';
                     class="relative"
                     [class.pointer-events-none]="disable_date"
                 >
-                    <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                    <a-date-field [formField]="form.date"></a-date-field>
+                    <label for="locker-booking-modal-date" id="locker-booking-modal-date-label">{{ 'FORM.DATE' | translate }}</label>
+                    <a-date-field role="group" aria-labelledby="locker-booking-modal-date-label" [formField]="form.date"></a-date-field>
                     @if (allow_all_day && !disable_date) {
                         <mat-checkbox
                             [formField]="form.all_day"
@@ -121,11 +123,13 @@ import { addDays, endOfDay } from 'date-fns';
                 @if (!model().all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
-                            <label for="start-time">
+                            <label for="locker-booking-modal-start-time" id="locker-booking-modal-start-time-label">
                                 {{ 'FORM.TIME_START' | translate
                                 }}<span>*</span>
                             </label>
                             <a-time-field
+                                role="group"
+                                aria-labelledby="locker-booking-modal-start-time-label"
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
@@ -142,11 +146,13 @@ import { addDays, endOfDay } from 'date-fns';
                         </div>
                         @if (!hide_end) {
                             <div class="relative w-1/3 flex-1">
-                                <label for="end-time">
+                                <label for="locker-booking-modal-end-time" id="locker-booking-modal-end-time-label">
                                     {{ 'FORM.TIME_END' | translate
                                     }}<span>*</span>
                                 </label>
                                 <a-duration-field
+                                    role="group"
+                                    aria-labelledby="locker-booking-modal-end-time-label"
                                     [formField]="form.duration"
                                     [time]="model().date"
                                     [max]="max_duration"
@@ -159,8 +165,10 @@ import { addDays, endOfDay } from 'date-fns';
                         }
                     </div>
                 }
-                <label for="locker">{{ 'RESOURCE.LOCKER' | translate }}</label>
+                <label for="locker-booking-modal-locker" id="locker-booking-modal-locker-label">{{ 'RESOURCE.LOCKER' | translate }}</label>
                 <locker-list-field
+                    role="group"
+                    aria-labelledby="locker-booking-modal-locker-label"
                     [formField]="form.resources"
                     class="mb-2"
                 ></locker-list-field>
@@ -237,7 +245,7 @@ export class LockerBookingModalComponent
                 Date.now(),
                 this._settings.get('app.lockers.available_period') ||
                     this._settings.get('app.bookings.available_period') ||
-                    7,
+                    90,
             ),
         );
     }

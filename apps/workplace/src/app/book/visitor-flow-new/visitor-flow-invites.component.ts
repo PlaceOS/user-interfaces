@@ -50,6 +50,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
+                                    id="visitor-name"
                                     [formField]="form.asset_name"
                                     [placeholder]="
                                         'BOOKINGS.VISITOR_NAME_PLACEHOLDER'
@@ -65,7 +66,10 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                 @for (item of filtered_visitors(); track item) {
                                     <mat-option
                                         [value]="item.name"
-                                        (click)="setVisitor(item)"
+                                        (onSelectionChange)="
+                                            $event.isUserInput &&
+                                                setVisitor(item)
+                                        "
                                     >
                                         <div
                                             class="flex flex-col leading-tight"
@@ -92,6 +96,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
+                                    id="visitor-email"
                                     type="email"
                                     [formField]="form.asset_id"
                                     [placeholder]="
@@ -111,7 +116,10 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                 @for (item of filtered_visitors(); track item) {
                                     <mat-option
                                         [value]="item.email"
-                                        (click)="setVisitor(item)"
+                                        (onSelectionChange)="
+                                            $event.isUserInput &&
+                                                setVisitor(item)
+                                        "
                                     >
                                         <div
                                             class="flex flex-col leading-tight"
@@ -141,6 +149,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
+                                    id="company"
                                     [formField]="form.company"
                                     [placeholder]="
                                         'COMMON.ORGANISATION' | translate
@@ -155,6 +164,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
+                                    id="phone"
                                     type="tel"
                                     [formField]="form.phone"
                                     [placeholder]="
@@ -167,7 +177,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                     </div>
                 } @else {
                     <div class="flex flex-col">
-                        <label for="visitor-name">
+                        <label>
                             {{ 'BOOKINGS.VISITOR_LIST' | translate }}
                             <span>*</span>
                         </label>
@@ -185,6 +195,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
+                                id="pass"
                                 [formField]="form.pass_number"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
@@ -372,6 +383,11 @@ export class VisitorFlowInvitesComponent
         false,
     );
 
+    public readonly reason_required = settingSignal(
+        'visitors.reason_required',
+        false,
+    );
+
     public get form() {
         return this._booking_form.form;
     }
@@ -411,10 +427,14 @@ export class VisitorFlowInvitesComponent
         );
         this.subscription('name', () => name_handle.destroy());
 
+        // The reason is the booking title. When it is required the field has
+        // to start empty so the visitor's host has to type one — defaulting it
+        // here would undo the empty value the details step sets.
         if (
             !this.model().id &&
             !this.model().title &&
-            !this.model().description
+            !this.model().description &&
+            !this.reason_required()
         ) {
             this.model.update((m) => ({
                 ...m,

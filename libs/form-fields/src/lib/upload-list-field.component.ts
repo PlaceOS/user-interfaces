@@ -13,6 +13,7 @@ import { takeWhile } from 'rxjs/operators';
 import * as blobUtil from 'blob-util';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
 @Component({
@@ -71,11 +72,20 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                                         matRipple
                                         target="_blank"
                                         rel="noopener noreferrer"
+                                        [attr.aria-label]="
+                                            'COMMON.OPEN_FILE' | translate
+                                        "
                                     >
                                         <icon>link</icon>
                                     </a>
                                 }
-                                <button icon (click)="removeFile(item)">
+                                <button
+                                    icon
+                                    (click)="removeFile(item)"
+                                    [attr.aria-label]="
+                                        'COMMON.REMOVE' | translate
+                                    "
+                                >
                                     <icon>close</icon>
                                 </button>
                             </div>
@@ -103,7 +113,12 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
             useValue: UploadPermissionsModalComponent,
         },
     ],
-    imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule],
+    imports: [
+        MatProgressSpinnerModule,
+        IconComponent,
+        MatRippleModule,
+        TranslatePipe,
+    ],
 })
 export class UploadListFieldComponent implements ControlValueAccessor {
     public readonly list = signal<Attachment[]>([]);

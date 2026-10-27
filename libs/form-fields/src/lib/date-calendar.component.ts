@@ -26,6 +26,7 @@ import {
     startOfWeek,
 } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 interface DateItem {
     id: number;
@@ -51,6 +52,7 @@ interface DateItem {
                         name="schedule-next-month"
                         [disabled]="displayed_dates()[0]?.id < from()"
                         (click)="changeMonth(-1)"
+                        [attr.aria-label]="'COMMON.PREVIOUS_MONTH' | translate"
                     >
                         <icon>chevron_left</icon>
                     </button>
@@ -60,6 +62,7 @@ interface DateItem {
                         name="schedule-previous-month"
                         [disabled]="displayed_dates()[34]?.id > to()"
                         (click)="changeMonth(1)"
+                        [attr.aria-label]="'COMMON.NEXT_MONTH' | translate"
                     >
                         <icon>chevron_right</icon>
                     </button>
@@ -115,7 +118,7 @@ interface DateItem {
             multi: true,
         },
     ],
-    imports: [CommonModule, IconComponent, MatRippleModule],
+    imports: [CommonModule, IconComponent, MatRippleModule, TranslatePipe],
 })
 export class DateCalendarComponent
     extends AsyncHandler

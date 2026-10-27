@@ -76,10 +76,14 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                     </div>
                     <div class="flex space-x-4">
                         <div class="h-20 flex-1">
-                            <label for="min-duration"
+                            <label
+                                for="booking-panel-settings-modal-min-duration"
+                                id="booking-panel-settings-modal-min-duration-label"
                                 >Minimum Booking Duration</label
                             >
                             <a-duration-field
+                                role="group"
+                                aria-labelledby="booking-panel-settings-modal-min-duration-label"
                                 [formField]="form.min_duration"
                                 [min]="0"
                                 [step]="model().max_duration > 60 ? 15 : 5"
@@ -87,10 +91,14 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                             ></a-duration-field>
                         </div>
                         <div class="h-20 flex-1">
-                            <label for="max-duration"
+                            <label
+                                for="booking-panel-settings-modal-max-duration"
+                                id="booking-panel-settings-modal-max-duration-label"
                                 >Maximum Booking Duration</label
                             >
                             <a-duration-field
+                                role="group"
+                                aria-labelledby="booking-panel-settings-modal-max-duration-label"
                                 [formField]="form.max_duration"
                                 [min]="
                                     model().min_duration +
@@ -105,10 +113,14 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                 </div>
                 <div class="flex space-x-4">
                     <div class="flex-1">
-                        <label for="pending_before"
+                        <label
+                            for="booking-panel-settings-modal-pending_before"
+                            id="booking-panel-settings-modal-pending_before-label"
                             >Allow check-in before meeting</label
                         >
                         <a-duration-field
+                            role="group"
+                            aria-labelledby="booking-panel-settings-modal-pending_before-label"
                             [formField]="form.pending_before"
                             [min]="0"
                             [step]="5"
@@ -116,10 +128,14 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                         ></a-duration-field>
                     </div>
                     <div class="flex-1">
-                        <label for="pending_period"
+                        <label
+                            for="booking-panel-settings-modal-pending_period"
+                            id="booking-panel-settings-modal-pending_period-label"
                             >Cancel not checked-in meetings after</label
                         >
                         <a-duration-field
+                            role="group"
+                            aria-labelledby="booking-panel-settings-modal-pending_period-label"
                             [formField]="form.pending_period"
                             [min]="0"
                             [step]="5"
@@ -158,9 +174,12 @@ don't detect presence in room after a period of time"
                     ></settings-toggle>
                 </div>
                 <div class="mb-2">
-                    <label for="custom-qr-url">Custom QR Code URL</label>
+                    <label for="booking-panel-settings-modal-custom-qr-url"
+                        >Custom QR Code URL</label
+                    >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
+                            id="booking-panel-settings-modal-custom-qr-url"
                             matInput
                             placeholder="/workplace/#/book/room/?room_id=sys-123456"
                             [formField]="form.custom_qr_url"
@@ -175,9 +194,12 @@ don't detect presence in room after a period of time"
                     </mat-form-field>
                 </div>
                 <div class="mb-2">
-                    <label for="custom-qr-color">Custom QR Color</label>
+                    <label for="booking-panel-settings-modal-custom-qr-color"
+                        >Custom QR Color</label
+                    >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
+                            id="booking-panel-settings-modal-custom-qr-color"
                             matInput
                             placeholder="#4A2C89"
                             [formField]="form.custom_qr_color"
@@ -186,9 +208,12 @@ don't detect presence in room after a period of time"
                 </div>
                 <div class="flex space-x-4">
                     <div class="flex-1">
-                        <label for="control-ui">Control UI URL</label>
+                        <label for="booking-panel-settings-modal-control-ui"
+                            >Control UI URL</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="booking-panel-settings-modal-control-ui"
                                 matInput
                                 [formField]="form.control_ui"
                                 placeholder="https://control.example.com/..."
@@ -199,9 +224,12 @@ don't detect presence in room after a period of time"
                         </mat-form-field>
                     </div>
                     <div class="flex-1">
-                        <label for="catering-ui">Catering UI URL</label>
+                        <label for="booking-panel-settings-modal-catering-ui"
+                            >Catering UI URL</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="booking-panel-settings-modal-catering-ui"
                                 matInput
                                 [formField]="form.catering_ui"
                                 placeholder="https://catering.example.com/..."
@@ -214,13 +242,16 @@ don't detect presence in room after a period of time"
                 </div>
                 <div class="flex space-x-4">
                     <div class="flex-1">
-                        <label for="room-image">Room Image URL</label>
+                        <label for="booking-panel-settings-modal-room-image"
+                            >Room Image URL</label
+                        >
                         <div class="flex space-x-2">
                             <mat-form-field
                                 appearance="outline"
                                 class="w-1/2 flex-1"
                             >
                                 <input
+                                    id="booking-panel-settings-modal-room-image"
                                     matInput
                                     placeholder="/assets/images/room_test1.png"
                                     [formField]="form.room_image"
@@ -229,15 +260,27 @@ don't detect presence in room after a period of time"
                                     Room Image must be a valid URL
                                 </mat-error>
                             </mat-form-field>
+                            <!--
+                                The button is the control. The file input on top takes mouse clicks
+                                and dropped files, and the button opens it for keyboard users
+                            -->
                             <button
                                 type="button"
                                 icon
                                 matRipple
                                 [disabled]="uploading()"
                                 class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
+                                aria-label="Upload room image"
+                                (click)="
+                                    $event.target !== file_input_1 &&
+                                        file_input_1.click()
+                                "
                             >
                                 <icon>cloud_upload</icon>
                                 <input
+                                    #file_input_1
+                                    tabindex="-1"
+                                    aria-hidden="true"
                                     type="file"
                                     class="absolute inset-0 opacity-0"
                                     (change)="uploadImage($event, 'room_image')"
@@ -246,13 +289,16 @@ don't detect presence in room after a period of time"
                         </div>
                     </div>
                     <div class="flex-1">
-                        <label for="offline-image">Offline Image URL</label>
+                        <label for="booking-panel-settings-modal-offline-image"
+                            >Offline Image URL</label
+                        >
                         <div class="flex space-x-2">
                             <mat-form-field
                                 appearance="outline"
                                 class="w-1/2 flex-1"
                             >
                                 <input
+                                    id="booking-panel-settings-modal-offline-image"
                                     matInput
                                     placeholder="/assets/images/offline1.png"
                                     [formField]="form.offline_image"
@@ -267,9 +313,17 @@ don't detect presence in room after a period of time"
                                 matRipple
                                 [disabled]="uploading()"
                                 class="bg-secondary text-secondary-content relative h-12 w-12 rounded-sm"
+                                aria-label="Upload offline image"
+                                (click)="
+                                    $event.target !== file_input_2 &&
+                                        file_input_2.click()
+                                "
                             >
                                 <icon>cloud_upload</icon>
                                 <input
+                                    #file_input_2
+                                    tabindex="-1"
+                                    aria-hidden="true"
                                     type="file"
                                     class="absolute inset-0 opacity-0"
                                     (change)="

@@ -3,8 +3,7 @@
  *
  * Both of these are off by default, and both are the kind of thing that only
  * breaks for the customers who turned them on — which is exactly the class of
- * bug an e2e suite is for. `visitors.reason_required` is PPT-2782, and its
- * test is `fixme`: the `visitor-flow-new` page does not read that setting.
+ * bug an e2e suite is for. `visitors.reason_required` is PPT-2782.
  *
  * The settings are applied per BROWSER CONTEXT rather than seeded onto the org
  * zone (see `visitor.settings.ts`). Two specs can therefore demand opposite
@@ -63,21 +62,14 @@ test.describe('visitor invite settings', () => {
     });
 
     /**
-     * VIS-08. `fixme`, because the `visitor-flow-new` page does not read
-     * `visitors.reason_required`.
+     * VIS-08.
      *
-     * Measured with the setting on: the reason field starts as "Visit", not
-     * empty. With the field cleared by hand, Confirm sends `POST /bookings`
-     * with `title: "Visit"` and gets a 201 — `confirmBooking` puts the default
-     * back (`title || description || 'Visit'`). No file under
-     * `visitor-flow-new` reads the setting. The old form
-     * (`invite-visitor-form`) had the validator, but `/book/visitor` no longer
-     * opens that form.
-     *
-     * Written as it should pass once the page honours the setting. It fails
-     * today at the first assertion, because the field holds "Visit".
+     * With `visitors.reason_required` on, the `visitor-flow-new` page starts
+     * the reason EMPTY, so the host has to type one. Without the setting the
+     * reason defaults to "Visit", which is why a spec that forgot to clear
+     * the field would send successfully and prove nothing.
      */
-    test.fixme('with a reason required, sending without one is refused', async ({
+    test('with a reason required, sending without one is refused', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
@@ -90,8 +82,8 @@ test.describe('visitor invite settings', () => {
         await form.open();
         await form.useSingleMode();
 
-        // With the setting on, the old form started the reason EMPTY. Without
-        // it the reason defaults to "Visit", so a spec that forgot to clear the
+        // With the setting on, the form starts the reason EMPTY. Without it
+        // the reason defaults to "Visit", so a spec that forgot to clear the
         // field would send successfully and prove nothing.
         await expect(
             form.reason,

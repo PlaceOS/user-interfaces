@@ -71,7 +71,12 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
         >
             <div class="w-full">
                 <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                    <img auth class="h-12" [source]="logo()?.src || logo()" />
+                    <img
+                        alt=""
+                        auth
+                        class="h-12"
+                        [source]="logo()?.src || logo()"
+                    />
                     <div class="flex-1"></div>
                     <h2 class="px-2 text-2xl font-medium">
                         {{ 'APP.CONCIERGE.REPORTS_PARKING_HEADER' | translate }}
@@ -99,7 +104,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
                     <div
                         class="screen-only flex h-full w-full flex-col items-center p-8"
                     >
-                        <p class="opacity-30">
+                        <p class="opacity-70">
                             {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
                         </p>
                     </div>
@@ -107,7 +112,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             } @else {
                 <div class="flex h-full w-full flex-col items-center p-8">
                     <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                    <p class="opacity-30">
+                    <p class="opacity-70">
                         {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
                     </p>
                 </div>

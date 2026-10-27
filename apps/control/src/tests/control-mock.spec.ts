@@ -19,4 +19,14 @@ describe('Control mock', () => {
 
         expect(system.selected_camera).toBe('Camera1');
     });
+
+    it('should route an input to every output', () => {
+        const system = createSystemModule({});
+
+        system.$route_all('HDMI');
+
+        for (const output of system.outputs) {
+            expect(system[`output/${output}`].source).toBe('HDMI');
+        }
+    });
 });

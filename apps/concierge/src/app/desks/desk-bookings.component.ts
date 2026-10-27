@@ -17,7 +17,10 @@ import {
     canChangeDeskBooking,
     isDeskBookingRejected,
 } from './desk-booking-actions';
-import { DesksStateService } from './desks-state.service';
+import {
+    DESK_BOOKING_SEARCH_KEYS,
+    DesksStateService,
+} from './desks-state.service';
 
 @Component({
     selector: 'desk-bookings',
@@ -25,19 +28,12 @@ import { DesksStateService } from './desks-state.service';
         <div class="w-fit min-w-full px-8 pb-16">
             <simple-table
                 [error]="load_error()"
+                [loading]="state_loading()"
                 (retry)="retryLoad()"
-                class="block min-w-368 text-sm"
+                class="block min-w-288 text-sm"
                 [data]="bookings()"
                 [filter]="filters().search"
-                [filter_on]="[
-                    'user_name',
-                    'asset_name',
-                    'user_email',
-                    'asset_id',
-                    'status',
-                    'group',
-                    'title',
-                ]"
+                [filter_on]="search_keys"
                 [columns]="[
                     {
                         key: 'date',
@@ -109,7 +105,7 @@ import { DesksStateService } from './desks-state.service';
                 <div
                     class="flex w-full flex-col items-center justify-center py-2"
                 >
-                    <div class="opacity-60">{{ date | date: 'MMM' }}</div>
+                    <div class="opacity-70">{{ date | date: 'MMM' }}</div>
                     <div class="text-xl">{{ date | date: 'dd' }}</div>
                 </div>
             </ng-template>
@@ -117,7 +113,7 @@ import { DesksStateService } from './desks-state.service';
                 <div class="p-4 font-mono text-[0.625rem]">
                     {{ row.group || row.extension_data?.group }}
                     @if (!(row.group || row.extension_data?.group)) {
-                        <span class="opacity-30">
+                        <span class="opacity-70">
                             {{ 'APP.CONCIERGE.DESKS_GROUP_EMPTY' | translate }}
                         </span>
                     }
@@ -160,7 +156,7 @@ import { DesksStateService } from './desks-state.service';
                     </div>
                     @if (user?.name) {
                         <div
-                            class="max-w-48 truncate text-xs opacity-30 select-all"
+                            class="max-w-48 truncate text-xs opacity-70 select-all"
                         >
                             {{ email }}
                         </div>
@@ -336,6 +332,9 @@ import { DesksStateService } from './desks-state.service';
                             default
                             matRipple
                             [matMenuTriggerFor]="actionMenu"
+                            [attr.aria-label]="
+                                'COMMON.MORE_OPTIONS' | translate
+                            "
                         >
                             <icon class="text-2xl">more_vert</icon>
                         </button>
@@ -386,7 +385,7 @@ import { DesksStateService } from './desks-state.service';
         <div
             class="z-30 bg-base-100 border-base-300 fixed right-8 bottom-4 flex items-center justify-end gap-2 rounded-xl border px-2 py-1 shadow-lg"
         >
-            <span class="mr-8 text-xs opacity-60">
+            <span class="mr-8 text-xs opacity-70">
                 {{
                     'COMMON.LAST_UPDATED'
                         | translate
@@ -402,6 +401,7 @@ import { DesksStateService } from './desks-state.service';
                 [matTooltip]="'COMMON.REFRESH' | translate"
                 data-shortcut="refresh"
                 (click)="refresh()"
+                [attr.aria-label]="'COMMON.REFRESH' | translate"
             >
                 <icon>refresh</icon>
             </button>
@@ -442,12 +442,16 @@ export class DeskBookingsComponent implements OnInit {
 
     public loading = signal<string>('');
     public readonly filters = this._state.filters;
+    public readonly search_keys = DESK_BOOKING_SEARCH_KEYS;
     public readonly has_more_pages = this._state.has_more_pages;
     public readonly can_delete = settingSignal('desks.allow_deleting', false);
     public readonly bookings = computed(() => {
         const all_bookings = this._state.bookings();
-        if (!this._state.loading()) return all_bookings;
-        // While loading, filter to only show bookings matching the newly selected zones
+        // Keep the rows on screen for "Load more", a refresh or a desk reload
+        if (!this._state.loading() || !this._state.filters_changed()) {
+            return all_bookings;
+        }
+        // After a filter change, only show bookings matching the newly selected zones
         const selected_zones = this.filters().zones || [];
         const active_zones = selected_zones.filter(
             (z) => z && z !== 'All' && z !== '-1',

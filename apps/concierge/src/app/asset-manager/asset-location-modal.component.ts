@@ -5,6 +5,7 @@ import {
     InteractiveMapComponent,
     MapPinComponent,
     SimpleTableComponent,
+    TranslatePipe,
 } from '@placeos/components';
 
 import { MatDialogModule } from '@angular/material/dialog';
@@ -24,6 +25,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                 matRipple
                 mat-dialog-close
                 class="absolute top-4 right-4"
+                [aria-label]="'COMMON.CLOSE' | translate"
             >
                 <icon>close</icon>
             </button>
@@ -86,7 +88,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                             [features]="selected_feature()"
                         ></interactive-map>
                     } @else {
-                        <p class="opacity-30">
+                        <p class="opacity-70">
                             Select a space from the list to view map location
                         </p>
                     }
@@ -148,6 +150,7 @@ import { SplitJoinPipe } from './split-join.pipe';
         SimpleTableComponent,
         MatFormFieldModule,
         MatInputModule,
+        TranslatePipe,
     ],
 })
 export class AssetLocationModalComponent {

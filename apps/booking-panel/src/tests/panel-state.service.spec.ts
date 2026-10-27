@@ -14,6 +14,8 @@ import { EventFormService, SpacePipe, SpacesService } from '@placeos/events';
 import * as ts_client from '@placeos/ts-client';
 import { Subject } from 'rxjs';
 
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
+
 import { PanelStateService } from '../app/panel-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -132,4 +134,35 @@ describe('PanelStateService booking submission', () => {
             expect(close).toHaveBeenCalledOnce();
         },
     );
+
+    describe('success message', () => {
+        const notify_open = vi.fn((_msg: string) => ({
+            onAction: () => new Subject<void>(),
+        }));
+
+        beforeEach(() =>
+            setNotifyOutlet(
+                { open: notify_open } as unknown as Parameters<
+                    typeof setNotifyOutlet
+                >[0],
+                true,
+            ),
+        );
+
+        afterEach(() => setNotifyOutlet(null, true));
+
+        const messages = () => notify_open.mock.calls.map(([msg]) => msg);
+
+        it('confirms an API booking that the room accepts', async () => {
+            event_form.postForm.mockResolvedValue({ resources: [room] });
+            await service.makeBooking({ date: Date.now(), duration: 30 }, true);
+            expect(messages()).toContain('Successfully created meeting.');
+        });
+
+        it('does not confirm an API booking that the room declines', async () => {
+            event_form.postForm.mockResolvedValue({ resources: [] });
+            await service.makeBooking({ date: Date.now(), duration: 30 }, true);
+            expect(messages()).not.toContain('Successfully created meeting.');
+        });
+    });
 });

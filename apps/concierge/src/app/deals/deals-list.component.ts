@@ -47,6 +47,7 @@ import { DealsService } from './deals.service';
                         [class.inverse]="display() !== 'list'"
                         (click)="display.set('list')"
                         [matTooltip]="'COMMON.LIST' | translate"
+                        [attr.aria-label]="'COMMON.LIST' | translate"
                     >
                         <icon class="text-2xl">list</icon>
                     </button>
@@ -58,6 +59,7 @@ import { DealsService } from './deals.service';
                         [class.inverse]="display() !== 'grid'"
                         (click)="display.set('grid')"
                         [matTooltip]="'COMMON.GRID' | translate"
+                        [attr.aria-label]="'COMMON.GRID' | translate"
                     >
                         <icon class="text-2xl">browse</icon>
                     </button>
@@ -91,7 +93,7 @@ import { DealsService } from './deals.service';
                     <div
                         class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
                     >
-                        @for (deal of deals(); track deal.id) {
+                        @for (deal of filtered_deals(); track deal.id) {
                             <div>
                                 <button
                                     class="border-base-300 bg-base-100 mx-auto flex flex-col items-center overflow-hidden rounded-lg border shadow-sm"
@@ -120,7 +122,7 @@ import { DealsService } from './deals.service';
                                         <h3 class="truncate font-bold">
                                             {{ deal.name }}
                                         </h3>
-                                        <p class="text-sm opacity-50">
+                                        <p class="text-sm opacity-70">
                                             {{
                                                 'COMMON.VALID_UNTIL_DATE'
                                                     | translate
@@ -136,7 +138,7 @@ import { DealsService } from './deals.service';
                                 </button>
                             </div>
                         }
-                        @if (deals().length <= 0) {
+                        @if (filtered_deals().length <= 0) {
                             <div
                                 class="bg-base-200 col-span-6 flex w-full flex-col items-center justify-center rounded-lg p-16"
                             >
@@ -154,7 +156,7 @@ import { DealsService } from './deals.service';
                                                 | translate
                                         }}
                                     </p>
-                                    <p class="text-sm opacity-50">
+                                    <p class="text-sm opacity-70">
                                         {{
                                             'APP.CONCIERGE.DEALS_EMPTY_BODY'
                                                 | translate
@@ -241,7 +243,7 @@ import { DealsService } from './deals.service';
                         >
                             <div class="line-clamp-4">{{ data }}</div>
                             @if (!data) {
-                                <span class="opacity-30"
+                                <span class="opacity-70"
                                     >No description available</span
                                 >
                             }
@@ -261,6 +263,9 @@ import { DealsService } from './deals.service';
                                 default
                                 matRipple
                                 [matMenuTriggerFor]="menu"
+                                [attr.aria-label]="
+                                    'COMMON.MORE_OPTIONS' | translate
+                                "
                             >
                                 <icon>more_vert</icon>
                             </button>

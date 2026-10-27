@@ -40,11 +40,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         >
             <form>
                 <div class="flex flex-1 flex-col space-y-2">
-                    <label for="name">{{
+                    <label for="asset-form-name">{{
                         'APP.CONCIERGE.ASSETS_PRODUCT' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="asset-form-name"
                             matInput
                             [ngModel]="product()?.name || 'No Product'"
                             [ngModelOptions]="{ standalone: true }"
@@ -54,11 +55,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="serial-number">{{
+                        <label for="asset-form-serial-number">{{
                             'APP.CONCIERGE.ASSETS_ITEM_ASSET_SERIAL' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
                             <input
+                                id="asset-form-serial-number"
                                 matInput
                                 [placeholder]="
                                     'APP.CONCIERGE.ASSETS_ITEM_ASSET_SERIAL'
@@ -73,11 +75,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         </mat-form-field>
                     </div>
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="identifier">{{
+                        <label for="asset-form-identifier">{{
                             'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
                             <input
+                                id="asset-form-identifier"
                                 matInput
                                 [placeholder]="
                                     'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME'
@@ -95,11 +98,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </div>
                 </div>
                 <div class="flex flex-1 flex-col space-y-2">
-                    <label for="purchase-order-id">{{
-                        'APP.CONCIERGE.ASSETS_ORDER_ID' | translate
-                    }}</label>
+                    <label
+                        for="asset-form-purchase-order-id"
+                        id="asset-form-purchase-order-id-label"
+                        >{{
+                            'APP.CONCIERGE.ASSETS_ORDER_ID' | translate
+                        }}</label
+                    >
                     <mat-form-field appearance="outline">
                         <mat-select
+                            aria-labelledby="asset-form-purchase-order-id-label"
                             [formField]="form.purchase_order_id"
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_ORDER_SELECT' | translate
@@ -115,7 +123,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             }
                             @if (!purchase_orders().length) {
                                 <mat-option
-                                    class="opacity-60"
+                                    class="opacity-70"
                                     [disabled]="true"
                                 >
                                     {{
@@ -131,11 +139,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-1 flex-col space-y-2">
-                    <label for="serial-number">{{
+                    <label for="asset-form-serial-number-2">{{
                         'APP.CONCIERGE.ASSETS_BARCODE' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            id="asset-form-serial-number-2"
                             matInput
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_BARCODE' | translate

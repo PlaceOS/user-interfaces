@@ -42,11 +42,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         >
             <form>
                 <div class="flex flex-col space-y-2">
-                    <label for="name"
+                    <label for="asset-group-form-name"
                         >{{ 'FORM.NAME' | translate }}<span>*</span></label
                     >
                     <mat-form-field appearance="outline">
                         <input
+                            id="asset-group-form-name"
                             matInput
                             [placeholder]="'FORM.NAME' | translate"
                             [formField]="form.name"
@@ -57,12 +58,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col space-y-2">
-                    <label for="name"
+                    <label
+                        for="asset-group-form-name-2"
+                        id="asset-group-form-name-2-label"
                         >{{ 'COMMON.CATEGORY' | translate
                         }}<span>*</span></label
                     >
                     <mat-form-field appearance="outline">
                         <mat-select
+                            aria-labelledby="asset-group-form-name-2-label"
                             [formField]="form.category_id"
                             [placeholder]="'COMMON.CATEGORY' | translate"
                             (click)="current_category.set(model().category_id)"
@@ -90,12 +94,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col space-y-2">
-                    <label for="brand"
+                    <label for="asset-group-form-brand"
                         >{{ 'APP.CONCIERGE.ASSETS_ITEM_BRAND' | translate
                         }}<span>*</span></label
                     >
                     <mat-form-field appearance="outline">
                         <input
+                            id="asset-group-form-brand"
                             matInput
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_ITEM_BRAND' | translate
@@ -109,11 +114,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col space-y-2">
-                    <label for="description">{{
+                    <label for="asset-group-form-description">{{
                         'COMMON.DESCRIPTION' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
+                            id="asset-group-form-description"
                             matInput
                             placeholder="Description of the product"
                             [formField]="form.description"
@@ -124,10 +130,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col space-y-2">
-                    <label for="images">{{
-                        'COMMON.IMAGES' | translate
-                    }}</label>
+                    <label
+                        for="asset-group-form-images"
+                        id="asset-group-form-images-label"
+                        >{{ 'COMMON.IMAGES' | translate }}</label
+                    >
                     <image-list-field
+                        role="group"
+                        aria-labelledby="asset-group-form-images-label"
                         [formField]="form.images"
                     ></image-list-field>
                 </div>

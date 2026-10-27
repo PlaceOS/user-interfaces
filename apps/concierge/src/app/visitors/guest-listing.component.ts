@@ -29,6 +29,7 @@ import {
 } from '@placeos/components';
 import { UserDetails, UserLabelComponent } from '@placeos/users';
 import { ParkingStateService } from '../parking/parking-state.service';
+import { showVisitorFlag } from './visitor-flags';
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
@@ -36,6 +37,7 @@ import { VisitorsStateService } from './visitors-state.service';
     template: `
         <simple-table
             [error]="load_error()"
+            [loading]="loading()"
             (retry)="retryLoad()"
             class="z-0 block px-8 text-sm print:hidden"
             [min_width]="72 + extra_width + 'rem'"
@@ -203,7 +205,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     {{ row.asset_name || row.asset_id }}
                 </button>
                 @if (row.asset_name && row.asset_id) {
-                    <div class="text-xs opacity-30">
+                    <div class="text-xs opacity-70">
                         {{ row.asset_id }}
                     </div>
                 }
@@ -252,7 +254,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4 py-2">
                 <div>{{ row.user_name || row.user_email }}</div>
                 @if (row.user_name && row.user_email) {
-                    <div class="text-xs opacity-30">
+                    <div class="text-xs opacity-70">
                         {{ row.user_email }}
                     </div>
                 }
@@ -280,6 +282,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     class="bg-base-100 my-2 flex w-[20rem] flex-col space-y-2 rounded-sm p-2"
                 >
                     <img
+                        [alt]="'APP.CONCIERGE.VISITORS_ID_IMAGE' | translate"
                         [src]="row.extension_data?.id_data?.url"
                         class="max-h-80 max-w-[20rem] object-contain"
                     />
@@ -421,7 +424,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4">
                 {{ data * 1000 | date: time_format : tz() }}
                 @if (timezone()) {
-                    <span class="text-xs opacity-30">
+                    <span class="text-xs opacity-70">
                         {{ data * 1000 | date: 'zzzz' : tz() }}
                     </span>
                 }
@@ -431,7 +434,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4">
                 {{ row.extension_data.pass_number }}
                 @if (!row.extension_data.pass_number) {
-                    <span class="opacity-30">No Pass</span>
+                    <span class="opacity-70">No Pass</span>
                 }
             </div>
         </ng-template>
@@ -440,7 +443,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 @if (row.extension_data?.international) {
                     {{ 'COMMON.YES' | translate }}
                 } @else {
-                    <span class="opacity-30">{{
+                    <span class="opacity-70">{{
                         'COMMON.NO' | translate
                     }}</span>
                 }
@@ -454,7 +457,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 ) {
                     {{ 'COMMON.TYPE_EXTERNAL' | translate }}
                 } @else {
-                    <span class="opacity-30">{{
+                    <span class="opacity-70">{{
                         'COMMON.TYPE_INTERNAL' | translate
                     }}</span>
                 }
@@ -471,7 +474,7 @@ import { VisitorsStateService } from './visitors-state.service';
                             : tz()
                 }}
                 @if (timezone()) {
-                    <span class="text-xs opacity-30">
+                    <span class="text-xs opacity-70">
                         {{ row.date | date: 'zzzz' : tz() }}
                     </span>
                 }
@@ -479,7 +482,13 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center p-2">
-                <button icon default matRipple [matMenuTriggerFor]="guest_menu">
+                <button
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="guest_menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                >
                     <icon>more_horiz</icon>
                 </button>
                 <mat-menu #guest_menu="matMenu">
@@ -710,6 +719,9 @@ import { VisitorsStateService } from './visitors-state.service';
                     default
                     matRipple
                     (click)="editVisitorNotes(row)"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.VISITORS_NOTES_EDIT' | translate
+                    "
                 >
                     <icon>edit_square</icon>
                 </button>
@@ -738,6 +750,9 @@ import { VisitorsStateService } from './visitors-state.service';
                 icon
                 matRipple
                 (click)="downloadVisitorList()"
+                [attr.aria-label]="
+                    'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate
+                "
             >
                 <icon>download</icon>
             </button>
@@ -786,6 +801,7 @@ export class GuestListingComponent extends AsyncHandler {
     public readonly printing = signal('');
     public readonly guests = this._state.filtered_bookings;
     public readonly load_error = this._state.load_error;
+    public readonly loading = this._state.loading;
     public readonly retryLoad = () => this._state.poll();
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
@@ -831,12 +847,14 @@ export class GuestListingComponent extends AsyncHandler {
     }
 
     public get allow_international() {
-        return !!this._settings.get('app.visitors.allow_international');
+        return showVisitorFlag(this._settings, this._state.bookings(), 'international');
     }
 
     public get allow_visitor_internal_or_external() {
-        return !!this._settings.get(
-            'app.visitors.allow_visitor_internal_or_external',
+        return showVisitorFlag(
+            this._settings,
+            this._state.bookings(),
+            'visitor_internal_or_external',
         );
     }
 
@@ -995,7 +1013,9 @@ export class GuestListingComponent extends AsyncHandler {
     }
 
     public async setPass(row: Booking, pass = '') {
-        await this._state.setExt(row, 'pass_number', pass || null);
+        if (!(await this._state.setExt(row, 'pass_number', pass || null))) {
+            return;
+        }
         this.pass_number.set('');
         notifySuccess(i18n('APP.CONCIERGE.VISITORS_SAVED_PASS'));
     }

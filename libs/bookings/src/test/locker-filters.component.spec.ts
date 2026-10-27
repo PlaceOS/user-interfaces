@@ -162,6 +162,16 @@ describe('LockerFiltersComponent', () => {
         );
     });
 
+    it('should fall back to the bookings available period', () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation((key: string) =>
+            key === 'app.bookings.available_period' ? 30 : undefined,
+        );
+        expect(spectator.component.end_date()).toBe(
+            endOfDay(addDays(Date.now(), 30)).valueOf(),
+        );
+    });
+
     it('should set the active building on the org service', () => {
         spectator.component.setBuilding({ id: 'bld-2' });
         expect(org_building_setter).toEqual({ id: 'bld-2' });

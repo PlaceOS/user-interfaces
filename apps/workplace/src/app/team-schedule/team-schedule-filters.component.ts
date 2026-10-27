@@ -31,6 +31,7 @@ import {
                         [class.clear]="filters().view !== 'all'"
                         [routerLink]="[]"
                         [queryParams]="{ view: 'all' }"
+                        [attr.aria-label]="'COMMON.ALL_COLLEAGUES' | translate"
                         (click)="setFilters({ view: 'all' })"
                     >
                         <icon class="text-xl">groups</icon>
@@ -45,6 +46,7 @@ import {
                         [class.clear]="filters().view !== 'favorites'"
                         [routerLink]="[]"
                         [queryParams]="{ view: 'favorites' }"
+                        [attr.aria-label]="'COMMON.FAVOURITES' | translate"
                         (click)="setFilters({ view: 'favorites' })"
                     >
                         <icon class="text-xl">star</icon>
@@ -59,6 +61,7 @@ import {
                         [class.clear]="filters().view !== 'team'"
                         [routerLink]="[]"
                         [queryParams]="{ view: 'team' }"
+                        [attr.aria-label]="'COMMON.MY_TEAM' | translate"
                         (click)="setFilters({ view: 'team' })"
                     >
                         <icon class="text-xl">person</icon>
@@ -67,17 +70,18 @@ import {
                         </div>
                     </a>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2 sm:flex-nowrap">
+                    <!-- The search has its own line on small screens -->
                     <mat-form-field
                         appearance="outline"
-                        class="no-subscript min-w-64 flex-1 sm:flex-0"
+                        class="no-subscript w-full sm:w-auto sm:min-w-64 sm:flex-0"
                     >
                         <icon matPrefix class="relative -left-1 text-2xl"
                             >search</icon
                         >
                         <input
                             matInput
-                            placeholder="Search..."
+                            [placeholder]="'COMMON.SEARCH' | translate"
                             [ngModel]="filters().search"
                             (ngModelChange)="setFilters({ search: $event })"
                         />
@@ -94,6 +98,9 @@ import {
                         btn
                         matRipple
                         class="inverse min-h-12 min-w-12 p-0"
+                        [attr.aria-label]="
+                            'APP.WORKPLACE.DESK_WEEK_PREVIOUS' | translate
+                        "
                         (click)="previousWeek()"
                     >
                         <icon class="text-2xl">keyboard_arrow_left</icon>
@@ -102,6 +109,9 @@ import {
                         btn
                         matRipple
                         class="inverse min-h-12 min-w-12 p-0"
+                        [attr.aria-label]="
+                            'APP.WORKPLACE.DESK_WEEK_NEXT' | translate
+                        "
                         (click)="nextWeek()"
                     >
                         <icon class="text-2xl">keyboard_arrow_right</icon>

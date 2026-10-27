@@ -421,11 +421,7 @@ export function playlistExpiredAt(
 
 /** Status badge of a playlist in a list. Null when it needs no badge. */
 export type PlaylistStatus =
-    | 'expired'
-    | 'pending'
-    | 'awaiting_approval'
-    | 'awaiting_review'
-    | null;
+    'expired' | 'pending' | 'awaiting_approval' | 'awaiting_review' | null;
 
 /**
  * Status of a playlist for list badges. Expiry uses `playlistExpiredAt`, so
@@ -661,6 +657,27 @@ function nextSchedulePlays(
         count,
         allows: createScheduleMaskFilter(schedule),
     }).map((start) => ({ start, period }));
+}
+
+/**
+ * Time in milliseconds when the schedules next play, from `now`. A play that
+ * is under way plays at `now`. Null when no play is left.
+ */
+export function playlistNextPlayTime(
+    schedules: Partial<PlaylistSchedule>[],
+    now = Date.now(),
+): number | null {
+    let next = Infinity;
+    for (const schedule of schedules) {
+        // Search back one play period, so a play that is under way is found.
+        // One-off plays already count until they end.
+        const from = isPlayOnceSchedule(schedule)
+            ? now
+            : now - schedulePeriod(schedule) * 60_000;
+        const [play] = nextSchedulePlays(schedule, 1, from);
+        if (play) next = Math.min(next, Math.max(play.start.getTime(), now));
+    }
+    return Number.isFinite(next) ? next : null;
 }
 
 /** Time ranges of the next plays of all the schedules, earliest first. */

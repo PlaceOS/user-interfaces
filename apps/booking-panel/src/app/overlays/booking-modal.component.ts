@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { form, FormField, submit, validate } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -35,6 +28,7 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { getModule } from '@placeos/ts-client';
+import { AnnounceDirective } from '../announce.directive';
 
 export interface BookingModalData extends HashMap {
     title?: string;
@@ -52,6 +46,7 @@ export async function openBookingModal(
     const ref = dialog.open(BookingModalComponent, {
         data,
         disableClose: true,
+        ariaLabelledBy: 'booking-modal-title',
         backdropClass: ['pointer-events-none', 'bg-black', 'opacity-60'],
     });
     const result = await new Promise<DialogEvent>((resolve) => {
@@ -87,12 +82,17 @@ export async function openBookingModal(
             <header
                 class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
-                <h2 class="px-2 text-xl font-medium">
+                <h2 id="booking-modal-title" class="px-2 text-xl font-medium">
                     {{ 'APP.BOOKING_PANEL.BOOKING_NEW' | translate }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple (click)="cancel()">
-                        <icon>close</icon>
+                    <button
+                        icon
+                        matRipple
+                        [attr.aria-label]="'COMMON.CLOSE' | translate"
+                        (click)="cancel()"
+                    >
+                        <icon aria-hidden="true">close</icon>
                     </button>
                 }
             </header>
@@ -103,13 +103,15 @@ export async function openBookingModal(
                 >
                     @if (!hide_host()) {
                         <div class="field">
-                            <label for="host"
+                            <label id="booking-host-label"
                                 >{{
                                     'APP.BOOKING_PANEL.BOOKING_HOST'
                                         | translate
                                 }}<span>*</span></label
                             >
                             <a-user-search-field
+                                role="group"
+                                aria-labelledby="booking-host-label"
                                 name="host"
                                 [query_fn]="searchStaff"
                                 [formField]="form.organiser"
@@ -121,20 +123,24 @@ export async function openBookingModal(
                     <div class="flex space-x-2">
                         @if (future) {
                             <div class="flex-1">
-                                <label for="start-time">{{
+                                <label id="booking-start-label">{{
                                     'FORM.TIME_START' | translate
                                 }}</label>
                                 <a-time-field
+                                    role="group"
+                                    aria-labelledby="booking-start-label"
                                     name="start-time"
                                     [formField]="form.date"
                                 ></a-time-field>
                             </div>
                         }
                         <div class="flex-1">
-                            <label for="duration">{{
+                            <label id="booking-duration-label">{{
                                 'FORM.DURATION' | translate
                             }}</label>
                             <a-duration-field
+                                role="group"
+                                aria-labelledby="booking-duration-label"
                                 [min]="min_duration"
                                 [max]="max_duration"
                                 [step]="max_duration < 120 ? 5 : 15"
@@ -144,12 +150,13 @@ export async function openBookingModal(
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <label for="title">{{
+                        <label for="booking-title">{{
                             'FORM.TITLE' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
+                                id="booking-title"
                                 [placeholder]="'FORM.TITLE' | translate"
                                 [formField]="form.title"
                             />
@@ -160,8 +167,11 @@ export async function openBookingModal(
                 <div
                     class="flex h-64 flex-col items-center justify-center space-y-4 p-8"
                 >
-                    <mat-spinner [diameter]="32"></mat-spinner>
-                    <p>
+                    <mat-spinner
+                        [diameter]="32"
+                        aria-hidden="true"
+                    ></mat-spinner>
+                    <p announce>
                         {{ 'APP.BOOKING_PANEL.BOOKING_LOADING' | translate }}
                     </p>
                 </div>
@@ -185,7 +195,6 @@ export async function openBookingModal(
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         TranslatePipe,
@@ -198,6 +207,7 @@ export async function openBookingModal(
         UserSearchFieldComponent,
         FormField,
         MatDialogModule,
+        AnnounceDirective,
     ],
 })
 export class BookingModalComponent extends AsyncHandler implements OnInit {

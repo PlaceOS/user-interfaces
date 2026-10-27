@@ -138,7 +138,10 @@ describe('[Booking API]', () => {
                 next: () =>
                     Promise.resolve({
                         total: 3,
-                        data: [new Booking({ id: 'b-2' }), new Booking({ id: 'b-3' })],
+                        data: [
+                            new Booking({ id: 'b-2' }),
+                            new Booking({ id: 'b-3' }),
+                        ],
                         next: null,
                     }),
             });
@@ -149,10 +152,18 @@ describe('[Booking API]', () => {
                 type: 'desk',
             });
 
-            expect(list.map((booking) => booking.id)).toEqual(['b-1', 'b-2', 'b-3']);
+            expect(list.map((booking) => booking.id)).toEqual([
+                'b-1',
+                'b-2',
+                'b-3',
+            ]);
             expect(ts_client.query).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    query_params: { period_start: 1, period_end: 2, type: 'desk' },
+                    query_params: {
+                        period_start: 1,
+                        period_end: 2,
+                        type: 'desk',
+                    },
                     endpoint: `/api/staff/v1/bookings`,
                 }),
             );
@@ -283,6 +294,41 @@ describe('[Booking API]', () => {
 
             expect(ts_client.post).toHaveBeenCalledTimes(2);
             expect(max_concurrent_requests).toBe(1);
+        });
+
+        it('should lift visitor flags onto the booking extension data', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            const post_spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({ id: 'visitor-booking-1' } as never);
+            const flagged = [
+                new User({
+                    id: 'visitor-1',
+                    email: 'visitor.one@external.com',
+                    name: 'Visitor One',
+                    extension_data: {
+                        international: true,
+                        visitor_internal_or_external: 'external',
+                    },
+                }),
+                new User(visitors[1]),
+            ];
+
+            await createBookingsForEvent(event, 'visitor', flagged);
+
+            expect(post_spy.mock.calls[0][1]).toMatchObject({
+                extension_data: expect.objectContaining({
+                    international: true,
+                    visitor_internal_or_external: 'external',
+                }),
+            });
+            const unflagged = post_spy.mock.calls[1][1] as any;
+            expect(unflagged.extension_data).not.toHaveProperty(
+                'international',
+            );
+            expect(unflagged.extension_data).not.toHaveProperty(
+                'visitor_internal_or_external',
+            );
         });
 
         it('should remove created visitor bookings when a later request fails', async () => {

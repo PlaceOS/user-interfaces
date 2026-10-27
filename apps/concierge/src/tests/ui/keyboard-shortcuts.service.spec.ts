@@ -43,6 +43,28 @@ describe('KeyboardShortcutsService', () => {
     afterEach(() => {
         document.removeEventListener('keydown', handler);
         document.body.innerHTML = '';
+        localStorage.clear();
+    });
+
+    it('should ignore every shortcut while the user has turned them off', () => {
+        const search = addElement(
+            '<button id="search" data-shortcut="search"></button>',
+            'search',
+        );
+        const click = vi.fn();
+        search.addEventListener('click', click);
+        spectator.service.setEnabled(false);
+
+        press('/');
+
+        expect(click).not.toHaveBeenCalled();
+    });
+
+    it('should remember when the user turns the shortcuts off', () => {
+        spectator.service.setEnabled(false);
+        expect(
+            localStorage.getItem('PLACEOS.concierge.shortcuts_enabled'),
+        ).toBe('false');
     });
 
     it('should click the first enabled target for the key', () => {
@@ -92,17 +114,17 @@ describe('KeyboardShortcutsService', () => {
         expect(click).toHaveBeenCalledTimes(1);
     });
 
-    it('should double click the date label to go to today', () => {
+    it('should click the date label to go to today', () => {
         const label = addElement(
             '<button id="today" data-shortcut="today"></button>',
             'today',
         );
-        const dblclick = vi.fn();
-        label.addEventListener('dblclick', dblclick);
+        const click = vi.fn();
+        label.addEventListener('click', click);
 
         press('t');
 
-        expect(dblclick).toHaveBeenCalledTimes(1);
+        expect(click).toHaveBeenCalledTimes(1);
     });
 
     it('should ignore keys while the user types in a field', () => {

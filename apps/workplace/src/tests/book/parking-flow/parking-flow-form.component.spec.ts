@@ -67,7 +67,7 @@ describe('ParkingFlowFormComponent', () => {
             resources: [],
             plate_number: '',
         });
-        form = () => ({ valid: () => valid_flag });
+        form = () => ({ valid: () => valid_flag, markAsTouched: vi.fn() });
         user_details = signal<unknown>(null);
         dismiss_value = true;
         open_result = {
@@ -109,7 +109,7 @@ describe('ParkingFlowFormComponent', () => {
             notify_open.mock.calls.some(
                 (c) =>
                     typeof c[0] === 'string' &&
-                    c[0].includes('Some fields are invalid.'),
+                    c[0].includes('FORM.INVALID_FIELDS'),
             ),
         ).toBe(true);
         expect(sheet.open).not.toHaveBeenCalled();

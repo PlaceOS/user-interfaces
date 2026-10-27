@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,6 +20,8 @@ import { UserSearchFieldComponent } from '../lib/user-search-field.component';
 
 describe('UserListFieldComponent', () => {
     let spectator: Spectator<UserListFieldComponent>;
+    /** Values returned by the mocked settings signal method, by key */
+    const settings_map: Record<string, unknown> = {};
     const createComponent = createComponentFactory({
         component: UserListFieldComponent,
         declarations: [
@@ -29,7 +32,16 @@ describe('UserListFieldComponent', () => {
         ],
         providers: [
             MockProvider(MatDialog, { open: vi.fn(() => ({})) } as any),
-            MockProvider(SettingsService, { get: vi.fn() }),
+            MockProvider(SettingsService, {
+                get: vi.fn(),
+                signal: vi.fn((name: string, default_value?: unknown) =>
+                    signal(
+                        name in settings_map
+                            ? settings_map[name]
+                            : default_value,
+                    ),
+                ),
+            } as any),
         ],
         imports: [
             MatChipsModule,
@@ -62,7 +74,10 @@ describe('UserListFieldComponent', () => {
         trigger_proto.writeValue = original_write;
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        for (const key of Object.keys(settings_map)) delete settings_map[key];
+        spectator = createComponent();
+    });
 
     it('should be able to be disabled', () => {
         expect('[form-field]').not.toHaveAttribute('disabled');
@@ -186,5 +201,78 @@ describe('UserListFieldComponent', () => {
         spectator.setInput({ hide_actions: false });
         spectator.detectChanges();
         expect('[actions] button').toHaveLength(3);
+    });
+
+    describe('attendee flags', () => {
+        beforeEach(() => {
+            settings_map['events.allow_international'] = true;
+            settings_map['events.allow_attendee_internal_or_external'] = true;
+            spectator = createComponent();
+            spectator.setInput({ flags: true });
+            spectator.component.writeValue([
+                new User({ name: 'Visitor', email: 'visitor@example.com' }),
+            ]);
+            spectator.detectChanges();
+        });
+
+        it('should show the international checkbox and type radio when enabled', () => {
+            expect('mat-checkbox').toExist();
+            expect('mat-radio-group').toExist();
+            expect('mat-radio-button').toHaveLength(2);
+        });
+
+        it('should hide the flag controls when the flags input is off', () => {
+            spectator.setInput({ flags: false });
+            spectator.detectChanges();
+            expect('mat-checkbox').not.toExist();
+            expect('mat-radio-group').not.toExist();
+        });
+
+        it('should store the international flag on a copy of the user', () => {
+            const original = spectator.component.active_list()[0];
+            spectator.click('mat-checkbox input');
+            const item = spectator.component.active_list()[0];
+            expect(item).not.toBe(original);
+            expect(spectator.component.getAttendeeInternational(item)).toBe(
+                true,
+            );
+            // The original can be shared with a cached event.
+            expect(original.extension_data.international).toBeUndefined();
+        });
+
+        it('should store the internal/external type on the user', () => {
+            const original = spectator.component.active_list()[0];
+            expect(spectator.component.getAttendeeType(original)).toBe(
+                'internal',
+            );
+            spectator.click(
+                'mat-radio-group mat-radio-button[value="external"] input',
+            );
+            const item = spectator.component.active_list()[0];
+            expect(spectator.component.getAttendeeType(item)).toBe('external');
+            expect(item.extension_data.visitor_internal_or_external).toBe(
+                'external',
+            );
+        });
+
+        it('should emit the updated list through the form control', () => {
+            const onChange = vi.fn();
+            spectator.component.registerOnChange(onChange);
+            spectator.click('mat-checkbox input');
+            expect(onChange).toHaveBeenCalled();
+        });
+
+        it('should hide the flag controls when the settings are off', () => {
+            settings_map['events.allow_international'] = false;
+            settings_map['events.allow_attendee_internal_or_external'] = false;
+            spectator = createComponent();
+            spectator.setInput({ flags: true });
+            spectator.component.writeValue([
+                new User({ name: 'Visitor', email: 'visitor@example.com' }),
+            ]);
+            spectator.detectChanges();
+            expect('mat-checkbox').not.toExist();
+            expect('mat-radio-group').not.toExist();
+        });
     });
 });

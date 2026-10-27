@@ -115,6 +115,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - Users can preview a media item from the list or grid.
+- The list view shows the groups each media item is shared with, right aligned before the actions menu. The groups load when the item scrolls into view, are hidden when the item is only held by the selected group, and collapse to a group count that lists the groups on hover when the row is too narrow.
 - Users with update permission can edit media details.
 - Users with update permission can add media to a playlist.
 - Users with share permission can share media.
@@ -159,6 +160,7 @@ These stories cover the current app workflows:
 - Users can preview a playlist item.
 - Users with update permission can reorder playlist items by drag and drop, or with the move up and move down actions in the item menu.
 - Distribution playlists cannot be reordered from the item list.
+- Distribution playlists can show their items by when they next play from the current time. An item that is playing counts as playing now, and items with no plays left go last in saved order. The sort only changes the view: the saved playlist order does not change, and item actions and selection apply to the same items. The browser keeps the sort choice, so distribution playlists open sorted until the user turns it off.
 - Users with update permission can remove media from the playlist.
 - Adding media to a distribution playlist always asks for the item schedule first. When adding media fails, an error shows.
 - Users can expand, collapse, and edit item schedules.

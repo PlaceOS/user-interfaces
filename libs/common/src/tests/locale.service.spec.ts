@@ -53,6 +53,11 @@ describe('LocaleService', () => {
         expect(localStorage.getItem('APP.locale')).toBe('fr-FR');
     });
 
+    it('should set the page language to the set locale', () => {
+        spectator.service.setLocale('ja-JP');
+        expect(document.documentElement.lang).toBe('ja-JP');
+    });
+
     it('should notify of locale changes', () => {
         const before = spectator.service.changes();
         spectator.service.setLocale('fr-FR');

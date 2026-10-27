@@ -58,7 +58,7 @@ import { ParkingRequestFormDetailsComponent } from 'apps/workplace/src/app/book/
                         </div>
                     </div>
                     <div class="px-6 py-4">
-                        <p class="opacity-60">
+                        <p class="opacity-70">
                             {{
                                 'BOOKINGS.PARKING_REQUEST_SUBTITLE' | translate
                             }}

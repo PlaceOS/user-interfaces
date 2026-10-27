@@ -99,13 +99,27 @@ export interface UploadDetails {
                             actions
                             class="absolute top-0 right-0 left-0 flex items-center justify-center space-x-2 opacity-0"
                         >
-                            <button icon (click)="copyLink(url)">
+                            <button
+                                icon
+                                (click)="copyLink(url)"
+                                [attr.aria-label]="
+                                    'COMMON.COPY_LINK' | translate
+                                "
+                            >
                                 <icon>link</icon>
                             </button>
-                            <button icon (click)="viewImage(url)">
+                            <button
+                                icon
+                                (click)="viewImage(url)"
+                                [attr.aria-label]="'COMMON.VIEW' | translate"
+                            >
                                 <icon>visibility</icon>
                             </button>
-                            <button icon (click)="removeImage(url)">
+                            <button
+                                icon
+                                (click)="removeImage(url)"
+                                [attr.aria-label]="'COMMON.REMOVE' | translate"
+                            >
                                 <icon>close</icon>
                             </button>
                         </div>
@@ -147,6 +161,7 @@ export interface UploadDetails {
                     [disabled]="offset() === 0"
                     class="bg-base-100 absolute top-1/2 left-0 -translate-y-1/2 transform"
                     (click)="previousOffset()"
+                    [attr.aria-label]="'COMMON.PREVIOUS' | translate"
                 >
                     <icon>chevron_left</icon>
                 </button>
@@ -158,6 +173,7 @@ export interface UploadDetails {
                     [disabled]="offset() >= length() - view_space()"
                     class="bg-base-100 absolute top-1/2 right-0 -translate-y-1/2 transform"
                     (click)="nextOffset()"
+                    [attr.aria-label]="'COMMON.NEXT' | translate"
                 >
                     <icon>chevron_right</icon>
                 </button>

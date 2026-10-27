@@ -2,7 +2,8 @@
  * Page object for `/book/meeting/form` — the `meeting-flow-new` booking flow.
  *
  * This is the page object for the meeting flow. The flow it replaced
- * (`meeting-flow-form` and the room picker modal) is no longer routed.
+ * (`meeting-flow-form` and the room picker modal) opens only when
+ * `use_legacy_flows` is set.
  *
  * ## Three steps on one route
  *
@@ -74,13 +75,11 @@ export class MeetingFlow {
 
     /**
      * A step of the header, by its `view` number. A click goes to that step.
-     *
-     * The three links have no name, and their icons change with the step that
-     * is shown, so they are matched on their position. The Back link of the
-     * room step is the only other link in the flow, and it is a `btn`.
+     * Matched on the `name` of each step control.
      */
     stepLink(view: 0 | 1 | 2): Locator {
-        return this.root.locator('a:not([btn])').nth(view);
+        const names = ['step-details', 'step-select-room', 'step-confirm'];
+        return this.root.locator(`[name="${names[view]}"]`);
     }
 
     // -------------------------------------------------------- step 1: details
@@ -88,6 +87,11 @@ export class MeetingFlow {
     /** The title input. `name$=".title"` because the name is form-scoped. */
     get title(): Locator {
         return this.details.locator('input[name$=".title"]');
+    }
+
+    /** The inline error of the title. Shows when a search is refused for no title. */
+    get titleError(): Locator {
+        return this.details.locator('mat-form-field:has(input[name$=".title"]) mat-error');
     }
 
     get dateButton(): Locator {

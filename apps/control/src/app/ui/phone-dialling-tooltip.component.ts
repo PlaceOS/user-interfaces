@@ -12,7 +12,7 @@ import { DialpadComponent } from './dialpad.component';
     selector: 'phone-dialling-tooltip',
     template: `
         <div
-            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm p-4 shadow-sm"
+            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm p-4 shadow-sm max-sm:my-0 max-sm:flex-1 max-sm:rounded-none max-sm:shadow-none"
         >
             <mat-form-field appearance="outline" class="h-13 w-full">
                 <input
@@ -22,8 +22,14 @@ import { DialpadComponent } from './dialpad.component';
                     [placeholder]="'FORM.PHONE' | translate"
                 />
                 @if (system()?.phone) {
-                    <button icon matRipple matSuffix (click)="clear()">
-                        <icon>close</icon>
+                    <button
+                        icon
+                        matRipple
+                        matSuffix
+                        [attr.aria-label]="'COMMON.CLEAR' | translate"
+                        (click)="clear()"
+                    >
+                        <icon aria-hidden="true">close</icon>
                     </button>
                 }
             </mat-form-field>

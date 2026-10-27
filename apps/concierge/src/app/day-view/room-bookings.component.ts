@@ -74,6 +74,9 @@ const EMPTY = [];
                     [matTooltip]="
                         'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
                     "
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
+                    "
                     [disabled]="downloading()"
                     (click)="downloadAttendeeList()"
                 >
@@ -105,8 +108,11 @@ const EMPTY = [];
                         [class.bg-secondary!]="view() === 'timeline'"
                         [class.text-secondary-content]="view() === 'timeline'"
                         [class.opacity-70]="view() !== 'timeline'"
-                        [matTooltip]="'COMMON.DAY' | translate"
+                        [matTooltip]="'APP.CONCIERGE.VIEW_TIMELINE' | translate"
                         (click)="setView('timeline')"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.VIEW_TIMELINE' | translate
+                        "
                     >
                         <icon class="text-2xl">view_timeline</icon>
                     </button>
@@ -119,6 +125,7 @@ const EMPTY = [];
                         [class.opacity-70]="view() !== 'list'"
                         [matTooltip]="'COMMON.LIST' | translate"
                         (click)="setView('list')"
+                        [attr.aria-label]="'COMMON.LIST' | translate"
                     >
                         <icon class="text-2xl">view_list</icon>
                     </button>
@@ -136,7 +143,7 @@ const EMPTY = [];
                             <mat-option [value]="level.id">
                                 <div class="flex flex-col-reverse">
                                     @if (use_region) {
-                                        <div class="text-xs opacity-30">
+                                        <div class="text-xs opacity-70">
                                             {{
                                                 (level.parent_id | building)
                                                     ?.display_name
@@ -189,6 +196,9 @@ const EMPTY = [];
                                             matRipple
                                             class="text-base-300 hover:text-base-content"
                                             (click)="setFilter(type.id, true)"
+                                            [attr.aria-label]="
+                                                'COMMON.REMOVE' | translate
+                                            "
                                         >
                                             <icon class="text-xl">close</icon>
                                         </button>

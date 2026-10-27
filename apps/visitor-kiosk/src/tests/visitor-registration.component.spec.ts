@@ -109,6 +109,26 @@ describe('VisitorRegistrationComponent', () => {
         vi.useRealTimers();
     });
 
+    it('does not register a visitor without a name', async () => {
+        const booking_form = spectator.inject(BookingFormService);
+        const post_form = vi.spyOn(booking_form, 'postForm');
+        vi.useFakeTimers();
+        TestBed.runInInjectionContext(() => spectator.component.ngOnInit());
+        vi.useRealTimers();
+        spectator.component.setHost(
+            new User({ id: 'host-1', email: 'host@example.com' }),
+        );
+        booking_form.model.update((m) => ({
+            ...m,
+            asset_name: ' ',
+            asset_id: 'visitor@example.com',
+        }));
+
+        await spectator.component.register();
+
+        expect(post_form).not.toHaveBeenCalled();
+    });
+
     it('should keep cleared host blank in the backing model', () => {
         spectator.component.setHost(null);
 

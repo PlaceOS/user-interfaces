@@ -49,6 +49,7 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                         icon
                         matRipple
                         [routerLink]="['/book/assets', 'list', 'items']"
+                        [attr.aria-label]="'COMMON.BACK' | translate"
                     >
                         <icon>arrow_back</icon>
                     </a>
@@ -107,7 +108,7 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                             @if (item()?.description) {
                                 {{ item()?.description || '~No Description~' }}
                             } @else {
-                                <span class="opacity-30">{{
+                                <span class="opacity-70">{{
                                     'COMMON.NO_DESCRIPTION' | translate
                                 }}</span>
                             }
@@ -262,6 +263,10 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                                             'APP.CONCIERGE.ASSETS_ITEM_ASSET_EDIT'
                                                 | translate
                                         "
+                                        [attr.aria-label]="
+                                            'APP.CONCIERGE.ASSETS_ITEM_ASSET_EDIT'
+                                                | translate
+                                        "
                                     >
                                         <icon>edit</icon>
                                     </a>
@@ -272,6 +277,10 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                                         error
                                         (click)="removeAsset(row)"
                                         [matTooltip]="
+                                            'APP.CONCIERGE.ASSETS_ITEM_ASSET_REMOVE'
+                                                | translate
+                                        "
+                                        [attr.aria-label]="
                                             'APP.CONCIERGE.ASSETS_ITEM_ASSET_REMOVE'
                                                 | translate
                                         "
@@ -403,6 +412,9 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                                             id: row.id,
                                             group_id: row?.id,
                                         }"
+                                        [attr.aria-label]="
+                                            'COMMON.EDIT' | translate
+                                        "
                                     >
                                         <icon class="text-lg">edit</icon>
                                     </a>
@@ -412,6 +424,9 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                                         matRipple
                                         error
                                         (click)="removePurchaseOrder(row)"
+                                        [attr.aria-label]="
+                                            'COMMON.DELETE' | translate
+                                        "
                                     >
                                         <icon class="text-lg">delete</icon>
                                     </button>
@@ -433,7 +448,7 @@ import { confirmAction, errorText } from '../ui/modal-actions';
             <div class="p-4">
                 {{ data * 1000 | date: 'mediumDate' }}
                 @if (!data) {
-                    <span class="opacity-30">
+                    <span class="opacity-70">
                         {{ 'COMMON.DATE_EMPTY' | translate }}
                     </span>
                 }
@@ -588,18 +603,17 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        this.timeout(
-            'no_asset',
-            () => this._router.navigate([this._state.base_route]),
-            1000,
-        );
-        // Clear the loading state and fallback navigation once the active
-        // product has resolved.
+        // Wait for the asset request to finish. Go back to the list only
+        // when the server has no such asset or the request failed.
         const ref = effect(
             () => {
-                if (!this._state.active_product()) return;
-                this.clearTimeout('no_asset');
-                this.loading.set(false);
+                const status = this._state.active_product_status();
+                if (this._state.active_product()) {
+                    this.loading.set(false);
+                } else if (status === 'resolved') {
+                    notifyError('Unable to find the selected asset.');
+                    this._router.navigate([this._state.base_route]);
+                } else return;
                 ref.destroy();
             },
             { injector: this._injector },

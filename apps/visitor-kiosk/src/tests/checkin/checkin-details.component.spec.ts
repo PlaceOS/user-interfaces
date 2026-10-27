@@ -12,23 +12,39 @@ import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 
-import { settingSignal, SettingsService } from '@placeos/common';
+import {
+    setNotifyOutlet,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 import { CheckinDetailsComponent } from '../../app/checkin/checkin-details.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
+// Workspace modules cannot be intercepted by the native unit-test builder, so
+// instead of mocking `notifyError` we spy on the snackbar outlet it routes to.
+function createSnackbarSpy() {
+    return {
+        open: vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        })),
+    };
+}
+
 describe('CheckinDetailsComponent', () => {
     let spectator: SpectatorRouting<CheckinDetailsComponent>;
+    let snackbar: ReturnType<typeof createSnackbarSpy>;
     const createComponent = createRoutingFactory({
         component: CheckinDetailsComponent,
         declarations: [mockComponent(IconComponent)],
         providers: [
             MockProvider(CheckinStateService, {
-                updateGuest: vi.fn(),
+                updateGuest: vi.fn(async () => undefined),
                 checkinGuest: vi.fn(async () => null),
                 form: signal({
                     host: '',
-                    name: '',
-                    email: '',
+                    name: 'Visitor',
+                    email: 'visitor@example.com',
                     phone: '',
                     organisation: '',
                     pass_number: '',
@@ -52,8 +68,12 @@ describe('CheckinDetailsComponent', () => {
         settingSignal('induction_after_details', false).set(false);
         settingSignal('allow_user_photo', false).set(false);
         settingSignal('allow_printing_label').set(undefined);
+        snackbar = createSnackbarSpy();
+        setNotifyOutlet(snackbar as any, true);
         spectator = createComponent();
     });
+
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should disable browser autocomplete on every input', () => {
         const inputs = spectator.queryAll('input');
@@ -73,12 +93,23 @@ describe('CheckinDetailsComponent', () => {
         spectator.click('button[next]');
         await new Promise((resolve) => setTimeout(resolve, 0));
         await spectator.fixture.whenStable();
-        // expect(service.updateGuest).toHaveBeenCalledTimes(1);
+        expect(service.updateGuest).toHaveBeenCalledTimes(1);
         expect(service.checkinGuest).toHaveBeenCalledTimes(1);
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',
-            'scan',
+            'results',
         ]);
+    });
+
+    it('does not check in while a required detail is missing', async () => {
+        const service = spectator.inject(CheckinStateService);
+        service.form.update((form) => ({ ...form, name: '' }));
+
+        await spectator.component.updateGuest();
+
+        expect(service.updateGuest).not.toHaveBeenCalled();
+        expect(service.checkinGuest).not.toHaveBeenCalled();
+        service.form.update((form) => ({ ...form, name: 'Visitor' }));
     });
 
     it('waits for induction acceptance before checking in', async () => {
@@ -95,6 +126,23 @@ describe('CheckinDetailsComponent', () => {
             '/checkin',
             'induction',
         ]);
+    });
+
+    it('shows the form again when saving guest details fails', async () => {
+        const service = spectator.inject(CheckinStateService);
+        vi.mocked(service.updateGuest).mockRejectedValueOnce(
+            new Error('Save failed'),
+        );
+
+        await spectator.component.updateGuest();
+
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'Save failed',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+        expect(service.checkinGuest).not.toHaveBeenCalled();
+        expect(spectator.component.loading()).toBe(false);
     });
 
     it('offers a photo when label printing uses its default setting', () => {

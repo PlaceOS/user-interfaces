@@ -7,17 +7,26 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { i18n, notifyError } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { errorText } from '../error-text';
+import { MobileLayoutService } from '../mobile-layout';
 import { DialpadComponent } from '../ui/dialpad.component';
 import { VideoCallStateService } from './video-call-state.service';
 
 @Component({
     selector: 'video-call-dial-view',
     template: `
-        <div class="flex justify-center">
+        <div
+            class="flex flex-col items-center sm:flex-row sm:items-start sm:justify-center"
+        >
             @if (!loading()) {
                 <ng-container class="">
-                    <dialpad (pressed)="addDigit($event)"></dialpad>
-                    <div class="flex flex-col pt-8">
+                    <!-- Phones show the code above the keypad, as a phone dialler does.
+                         The DOM order matches the visual order, so focus follows it. -->
+                    @if (!mobile()) {
+                        <dialpad (pressed)="addDigit($event)"></dialpad>
+                    }
+                    <div
+                        class="flex w-full max-w-xs flex-col sm:w-auto sm:max-w-none sm:pt-8"
+                    >
                         <p class="px-2 pt-4">
                             {{ 'APP.CONTROL.VC_ENTER_CODE' | translate }}
                         </p>
@@ -35,6 +44,12 @@ import { VideoCallStateService } from './video-call-state.service';
                                 />
                             </mat-form-field>
                         </div>
+                        @if (mobile()) {
+                            <dialpad
+                                class="self-center"
+                                (pressed)="addDigit($event)"
+                            ></dialpad>
+                        }
                         <div class="w-full p-2">
                             <button
                                 btn
@@ -56,7 +71,7 @@ import { VideoCallStateService } from './video-call-state.service';
                                 [class.inverse]="show_pip"
                             >
                                 <div class="flex items-center space-x-4">
-                                    <icon>{{
+                                    <icon aria-hidden="true">{{
                                         !show_pip
                                             ? 'visibility_off'
                                             : 'visibility'
@@ -96,6 +111,8 @@ import { VideoCallStateService } from './video-call-state.service';
 export class VideoCallDialViewComponent {
     private _call = inject(VideoCallStateService);
 
+    /** Whether to show the phone layout */
+    public readonly mobile = inject(MobileLayoutService).mobile;
     public readonly dial_number = signal('');
     public readonly loading = signal(false);
     private readonly _show_camera_pip = this._call.show_camera_pip;

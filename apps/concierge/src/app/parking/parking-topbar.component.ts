@@ -154,6 +154,7 @@ import {
                         [class.inverse]="view() === 'map'"
                         [routerLink]="['events', 'list']"
                         [matTooltip]="'COMMON.LIST' | translate"
+                        [attr.aria-label]="'COMMON.LIST' | translate"
                     >
                         <icon class="text-2xl">list</icon>
                     </a>
@@ -165,6 +166,7 @@ import {
                         [class.inverse]="view() !== 'map'"
                         [routerLink]="['events', 'map']"
                         [matTooltip]="'COMMON.MAP' | translate"
+                        [attr.aria-label]="'COMMON.MAP' | translate"
                     >
                         <icon class="text-2xl">map</icon>
                     </a>
@@ -182,7 +184,7 @@ import {
                                 <mat-option [value]="level.id">
                                     <div class="flex flex-col-reverse">
                                         @if (use_region) {
-                                            <div class="text-xs opacity-30">
+                                            <div class="text-xs opacity-70">
                                                 {{
                                                     (level.parent_id | building)
                                                         ?.display_name
@@ -215,7 +217,7 @@ import {
                                 <mat-option [value]="level.id">
                                     <div class="flex flex-col-reverse">
                                         @if (use_region) {
-                                            <div class="text-xs opacity-30">
+                                            <div class="text-xs opacity-70">
                                                 {{
                                                     (level.parent_id | building)
                                                         ?.display_name
@@ -241,6 +243,10 @@ import {
             @if (section() === 'manage') {
                 <div class="flex gap-2">
                     @if (view() === 'spaces') {
+                        <!--
+                            The button is the control. The file input on top takes mouse clicks
+                            and dropped files, and the button opens it for keyboard users
+                        -->
                         <button
                             icon
                             default
@@ -249,9 +255,19 @@ import {
                                 'APP.CONCIERGE.PARKING_CSV_UPLOAD' | translate
                             "
                             [disabled]="!options().zones?.length"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.PARKING_CSV_UPLOAD' | translate
+                            "
+                            (click)="
+                                $event.target !== file_input &&
+                                    file_input.click()
+                            "
                         >
                             <icon>upload</icon>
                             <input
+                                #file_input
+                                tabindex="-1"
+                                aria-hidden="true"
                                 type="file"
                                 accept=".csv"
                                 class="absolute inset-0 opacity-0"
@@ -267,6 +283,9 @@ import {
                             [matTooltip]="
                                 'APP.CONCIERGE.PARKING_CSV_DOWNLOAD' | translate
                             "
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.PARKING_CSV_DOWNLOAD' | translate
+                            "
                         >
                             <icon>download</icon>
                         </button>
@@ -277,6 +296,9 @@ import {
                         matRipple
                         (click)="manageRestrictions()"
                         [matTooltip]="
+                            'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate
+                        "
+                        [attr.aria-label]="
                             'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate
                         "
                     >
@@ -290,20 +312,22 @@ import {
                     matTooltip="Parking Spaces Occupied"
                 >
                     @let occupied = occupied_bookings().length || 0;
+                    @let total = spaces().length || 0;
                     {{ occupied }} of
-                    {{ spaces().length || '' }}
+                    {{ total }}
                     <icon class="ml-1! text-lg">car_lock</icon>
-                    @let percent = occupied / (spaces().length || 0);
+                    <!-- Ratio from 0 to 1. Zero spaces counts as empty. -->
+                    @let percent = total ? occupied / total : 0;
                     <span
                         class="rounded-sm px-2 py-1 font-mono text-xs"
-                        [class.bg-error]="percent === 100"
-                        [class.text-error-content]="percent === 100"
-                        [class.bg-warning]="percent > 50 && percent < 100"
+                        [class.bg-error]="percent >= 1"
+                        [class.text-error-content]="percent >= 1"
+                        [class.bg-warning]="percent >= 0.5 && percent < 1"
                         [class.text-warning-content]="
-                            percent > 50 && percent < 100
+                            percent >= 0.5 && percent < 1
                         "
-                        [class.bg-success]="percent < 50"
-                        [class.text-success-content]="percent < 50"
+                        [class.bg-success]="percent < 0.5"
+                        [class.text-success-content]="percent < 0.5"
                         >{{ percent * 100 | number: '2.0-0' }}%</span
                     >
                 </div>

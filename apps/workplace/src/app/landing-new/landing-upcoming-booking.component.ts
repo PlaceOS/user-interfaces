@@ -25,10 +25,12 @@ import {
     BuildingLevel,
     CalendarEvent,
     currentUser,
+    formatDuration,
     i18n,
     notifyError,
     notifySuccess,
     OrganisationService,
+    settingSignal,
 } from '@placeos/common';
 import {
     BindingDirective,
@@ -49,6 +51,16 @@ import { debounce, distinctUntilChanged } from 'rxjs/operators';
 import { LandingStateService } from '../landing/landing-state.service';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
 import { landingFeatures } from './landing-features';
+
+/** Minutes as hours and minutes, e.g. "1 hour 5 minutes" or "0 minutes" */
+function formatMinutes(total: number): string {
+    const minutes = Math.max(0, total);
+    if (!minutes) return formatDuration({ minutes }, { zero: true });
+    return formatDuration({
+        hours: Math.floor(minutes / 60),
+        minutes: minutes % 60,
+    });
+}
 
 /** Item that the map locate modal shows */
 interface MapLocateTarget {
@@ -102,9 +114,8 @@ interface MapLocateTarget {
                             <icon>schedule</icon>
                             <div>
                                 {{
-                                    'APP.WORKPLACE.UPCOMING_ENDS_IN'
-                                        | translate
-                                            : { minutes: minutesUntilEnd() }
+                                    'APP.WORKPLACE.UPCOMING_ENDS_IN_TIME'
+                                        | translate: { time: timeUntilEnd() }
                                 }}
                             </div>
                         </div>
@@ -115,9 +126,8 @@ interface MapLocateTarget {
                             <icon>timelapse</icon>
                             <div>
                                 {{
-                                    'APP.WORKPLACE.UPCOMING_STARTS_IN'
-                                        | translate
-                                            : { minutes: minutesUntilStart() }
+                                    'APP.WORKPLACE.UPCOMING_STARTS_IN_TIME'
+                                        | translate: { time: timeUntilStart() }
                                 }}
                             </div>
                         </div>
@@ -160,7 +170,7 @@ interface MapLocateTarget {
                                 <button
                                     btn
                                     matRipple
-                                    [disabled]="checkinDisabled()"
+                                    [disabled]="checkinDisabled() || checking_in()"
                                     class="flex-1 space-x-2"
                                     [class.white]="!isCheckedIn()"
                                     [class.bg-success]="isCheckedIn()"
@@ -182,9 +192,12 @@ interface MapLocateTarget {
                             }
                             <button
                                 btn
-                                matRiple
+                                matRipple
                                 name="edit-booking"
                                 [matTooltip]="'BOOKINGS.ACTION_EDIT' | translate"
+                                [attr.aria-label]="
+                                    'BOOKINGS.ACTION_EDIT' | translate
+                                "
                                 matTooltipPosition="left"
                                 [disabled]="!canEdit()"
                                 class="white inverse h-12 px-0"
@@ -215,8 +228,11 @@ interface MapLocateTarget {
                             </button>
                             <button
                                 btn
-                                matRiple
+                                matRipple
                                 [matTooltip]="
+                                    'BOOKINGS.ACTION_DELETE' | translate
+                                "
+                                [attr.aria-label]="
                                     'BOOKINGS.ACTION_DELETE' | translate
                                 "
                                 matTooltipPosition="left"
@@ -244,6 +260,13 @@ interface MapLocateTarget {
                     </div>
                 </div>
             </div>
+        } @else if (show_placeholder()) {
+            <div
+                upcoming-loading
+                role="status"
+                class="bg-grad border-base-300 col-span-2 min-h-48 animate-pulse rounded-lg border"
+                [attr.aria-label]="'COMMON.LOADING' | translate"
+            ></div>
         } @else {
             <div
                 class="bg-grad border-base-300 text-brand-content col-span-2 flex min-h-48 flex-col items-start justify-center space-y-2 rounded-lg border p-4"
@@ -353,6 +376,18 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     private readonly _current_time_tick = toSignal(timer(0, 1000), {
         initialValue: 0,
     });
+    private readonly _use_24_hour_time = settingSignal<boolean>(
+        'use_24_hour_time',
+        false,
+    );
+    /** Set when the schedule has finished its first load */
+    private readonly _schedule_loaded = signal(false);
+    /** Show a placeholder, not the empty card, until the schedule loads */
+    public readonly show_placeholder = computed(
+        () => !this._schedule_loaded(),
+    );
+    /** Set while a check in request is in progress */
+    public readonly checking_in = signal(false);
 
     public readonly edit_fn = (i: CalendarEvent) => this._schedule.edit(i);
     public readonly edit_booking_fn = (i: Booking) =>
@@ -443,8 +478,12 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     public readonly eventTimeDisplay = computed(() => {
         const event = this.nextEvent();
         if (!event) return '';
-        const start = format(event.date, 'h:mm a');
-        const end = format(event.date + event.duration * 60 * 1000, 'h:mm a');
+        const time_format = this._use_24_hour_time() ? 'HH:mm' : 'h:mm a';
+        const start = format(event.date, time_format);
+        const end = format(
+            event.date + event.duration * 60 * 1000,
+            time_format,
+        );
         const day = isSameDay(event.date, Date.now())
             ? i18n('COMMON.TODAY')
             : format(event.date, 'MMM d');
@@ -452,6 +491,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     });
 
     public readonly isInProgress = computed(() => {
+        this._current_time_tick();
         const event = this.nextEvent();
         if (!event) return false;
         const now = Date.now();
@@ -459,17 +499,28 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     });
 
     public readonly minutesUntilStart = computed(() => {
+        this._current_time_tick();
         const event = this.nextEvent();
         if (!event) return 0;
         return differenceInMinutes(event.date, Date.now());
     });
 
     public readonly minutesUntilEnd = computed(() => {
+        this._current_time_tick();
         const event = this.nextEvent();
         if (!event) return 0;
         const end_time = event.date + event.duration * 60 * 1000;
         return differenceInMinutes(end_time, Date.now());
     });
+
+    /** Time until the next booking starts, e.g. "1 hour 5 minutes" */
+    public readonly timeUntilStart = computed(() =>
+        formatMinutes(this.minutesUntilStart()),
+    );
+    /** Time until the booking in progress ends */
+    public readonly timeUntilEnd = computed(() =>
+        formatMinutes(this.minutesUntilEnd()),
+    );
 
     private readonly _checked_in = computed(() => {
         const event = this.nextEvent();
@@ -505,6 +556,20 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     constructor() {
         super();
+        let was_loading = false;
+        effect(() => {
+            if (this._schedule.loading()) was_loading = true;
+            else if (was_loading) this._schedule_loaded.set(true);
+        });
+        // Stop the placeholder if the first load is never seen. A request
+        // that is still running ends the placeholder when it completes
+        this.timeout(
+            'schedule_loaded',
+            () => {
+                if (!this._schedule.loading()) this._schedule_loaded.set(true);
+            },
+            10 * 1000,
+        );
         effect(() => {
             const events = this._state.upcoming_events();
             const event = events?.[0];
@@ -547,8 +612,9 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public async checkIn() {
         const event = this.nextEvent();
-        if (!event) return;
+        if (!event || this.checking_in()) return;
 
+        this.checking_in.set(true);
         try {
             if (event instanceof Booking) {
                 // Checks in one occurrence when the booking is recurring
@@ -572,6 +638,8 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
             this._state.refreshUpcomingEvents();
         } catch (error) {
             notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
+        } finally {
+            this.checking_in.set(false);
         }
     }
 

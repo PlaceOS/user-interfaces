@@ -243,6 +243,8 @@ describe('PlaylistScheduleFormComponent', () => {
         return { fixture, component: fixture.componentInstance, model };
     }
 
+    // The first full render of the form can pass the default 5s timeout when
+    // the whole suite runs in parallel
     it('shows dates for skipped and played occurrences in tooltips and list rows', async () => {
         const { fixture, component, model } = setup({
             has_mask: true,
@@ -284,7 +286,7 @@ describe('PlaylistScheduleFormComponent', () => {
             valid_until: Date.UTC(2026, 0, 2, 14),
         }));
         expect(component.mask_occurrence_dates().length).toBe(2);
-    });
+    }, 15000);
 
     it('finds the whole 128-occurrence monthly cycle', () => {
         const { component } = setup({

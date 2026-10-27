@@ -76,15 +76,17 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 @if (is_new) {
                     <div class="flex flex-col">
                         <label
-                            for="zone"
+                            for="room-modal-zone"
                             [class.error]="
                                 form.zone().invalid() && form.zone().touched()
                             "
+                            id="room-modal-zone-label"
                         >
                             {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
                             <mat-select
+                                aria-labelledby="room-modal-zone-label"
                                 [formField]="form.zone"
                                 [placeholder]="
                                     'APP.CONCIERGE.ROOMS_SELECT_LEVEL'
@@ -107,7 +109,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                     @if (form.name) {
                         <div class="flex flex-1 flex-col">
                             <label
-                                for="system-name"
+                                for="room-modal-system-name"
                                 [class.error]="
                                     form.name().invalid() &&
                                     form.name().touched()
@@ -117,6 +119,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             </label>
                             <mat-form-field appearance="outline">
                                 <input
+                                    id="room-modal-system-name"
                                     matInput
                                     [placeholder]="'FORM.NAME' | translate"
                                     [formField]="form.name"
@@ -132,7 +135,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                     @if (form.email) {
                         <div class="flex flex-1 flex-col">
                             <label
-                                for="system-email"
+                                for="room-modal-system-email"
                                 [class.error]="
                                     form.email().invalid() &&
                                     form.email().touched()
@@ -142,6 +145,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             </label>
                             <mat-form-field appearance="outline">
                                 <input
+                                    id="room-modal-system-email"
                                     matInput
                                     [placeholder]="'FORM.EMAIL' | translate"
                                     [formField]="form.email"
@@ -158,11 +162,12 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 <div class="flex space-x-2">
                     @if (form.display_name) {
                         <div class="flex flex-1 flex-col">
-                            <label for="display-name">{{
+                            <label for="room-modal-display-name">{{
                                 'FORM.DISPLAY_NAME' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
                                 <input
+                                    id="room-modal-display-name"
                                     matInput
                                     [placeholder]="
                                         'FORM.DISPLAY_NAME' | translate
@@ -174,11 +179,12 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                     }
                     @if (form.display_name) {
                         <div class="flex flex-1 flex-col">
-                            <label for="code-name">{{
+                            <label for="room-modal-code-name">{{
                                 'COMMON.CODE' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
                                 <input
+                                    id="room-modal-code-name"
                                     matInput
                                     [placeholder]="'COMMON.CODE' | translate"
                                     [formField]="form.code"
@@ -189,7 +195,11 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 </div>
                 <div class="flex space-x-2">
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="setup" class="flex items-center">
+                        <label
+                            for="room-modal-setup"
+                            class="flex items-center"
+                            id="room-modal-setup-label"
+                        >
                             {{
                                 'APP.CONCIERGE.ROOMS_DEFAULT_SETUP' | translate
                             }}
@@ -203,12 +213,18 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             </icon>
                         </label>
                         <a-duration-field
+                            role="group"
+                            aria-labelledby="room-modal-setup-label"
                             [formField]="settings_form.setup"
                             [min]="0"
                         ></a-duration-field>
                     </div>
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="breakdown" class="flex items-center">
+                        <label
+                            for="room-modal-breakdown"
+                            class="flex items-center"
+                            id="room-modal-breakdown-label"
+                        >
                             {{
                                 'APP.CONCIERGE.ROOMS_DEFAULT_BREAKDOWN'
                                     | translate
@@ -224,6 +240,8 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             </icon>
                         </label>
                         <a-duration-field
+                            role="group"
+                            aria-labelledby="room-modal-breakdown-label"
                             [min]="0"
                             [formField]="settings_form.breakdown"
                         ></a-duration-field>
@@ -252,7 +270,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 @if (form.capacity) {
                     <div class="mb-4 flex flex-col">
                         <label
-                            for="capacity"
+                            for="room-modal-capacity"
                             [class.error]="
                                 form.capacity().invalid() &&
                                 form.capacity().touched()
@@ -261,6 +279,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             {{ 'COMMON.CAPACITY' | translate }}
                         </label>
                         <a-counter
+                            input_id="room-modal-capacity"
                             class="w-full"
                             [formField]="form.capacity"
                             [min]="0"
@@ -270,11 +289,12 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 }
                 @if (form.description) {
                     <div class="flex flex-col">
-                        <label for="description">{{
+                        <label for="room-modal-description">{{
                             'COMMON.DESCRIPTION' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
                             <textarea
+                                id="room-modal-description"
                                 matInput
                                 [placeholder]="'COMMON.DESCRIPTION' | translate"
                                 [formField]="form.description"
@@ -323,12 +343,13 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 }
                 @if (form.map_id) {
                     <div class="flex flex-col">
-                        <label for="map_id">{{
+                        <label for="room-modal-map_id">{{
                             'EXPLORE.MAP_ID' | translate
                         }}</label>
                         <div class="flex space-x-2">
                             <mat-form-field appearance="outline">
                                 <input
+                                    id="room-modal-map_id"
                                     matInput
                                     [placeholder]="
                                         'EXPLORE.MAP_ID_PLACEHOLDER' | translate
@@ -345,6 +366,9 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                                     'APP.CONCIERGE.POI_MAP_SELECT' | translate
                                 "
                                 (click)="selectItemfromMap()"
+                                [attr.aria-label]="
+                                    'APP.CONCIERGE.POI_MAP_SELECT' | translate
+                                "
                             >
                                 <icon>place</icon>
                             </button>
@@ -352,12 +376,13 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                     </div>
                 }
                 <div class="flex flex-col">
-                    <label for="timezone">{{
+                    <label for="room-modal-timezone">{{
                         'COMMON.TIMEZONE' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <icon matPrefix class="text-2xl">search</icon>
                         <input
+                            id="room-modal-timezone"
                             matInput
                             [formField]="form.timezone"
                             [placeholder]="'COMMON.TIMEZONE' | translate"
@@ -379,10 +404,14 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 </div>
                 @if (form.images) {
                     <div class="flex flex-col">
-                        <label for="images">{{
-                            'COMMON.IMAGE' | translate
-                        }}</label>
+                        <label
+                            for="room-modal-images"
+                            id="room-modal-images-label"
+                            >{{ 'COMMON.IMAGE' | translate }}</label
+                        >
                         <image-list-field
+                            role="group"
+                            aria-labelledby="room-modal-images-label"
                             [formField]="form.images"
                         ></image-list-field>
                     </div>
@@ -390,7 +419,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 @if (form.timetable_url) {
                     <div class="flex flex-col">
                         <label
-                            for="timetable-url"
+                            for="room-modal-timetable-url"
                             [class.error]="
                                 form.timetable_url().invalid() &&
                                 form.timetable_url().touched()
@@ -400,6 +429,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                         </label>
                         <mat-form-field appearance="outline">
                             <input
+                                id="room-modal-timetable-url"
                                 matInput
                                 [placeholder]="
                                     'COMMON.TIMETABLE_URL' | translate
@@ -415,7 +445,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 @if (form.room_booking_url) {
                     <div class="flex flex-col">
                         <label
-                            for="room-booking-url"
+                            for="room-modal-room-booking-url"
                             [class.error]="
                                 form.room_booking_url().invalid() &&
                                 form.room_booking_url().touched()
@@ -425,6 +455,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                         </label>
                         <mat-form-field appearance="outline">
                             <input
+                                id="room-modal-room-booking-url"
                                 matInput
                                 [placeholder]="
                                     'COMMON.ROOM_BOOKING_URL' | translate

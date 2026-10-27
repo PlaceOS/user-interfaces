@@ -19,7 +19,7 @@ import { EventStateService } from './event-state.service';
                     class="sticky top-0 z-10 flex h-16 min-h-16 justify-end"
                 >
                     <div class="bg-base-100 h-10 pt-6">
-                        <div class="px-2 text-xs opacity-30">
+                        <div class="px-2 text-xs opacity-70">
                             {{ now | date: 'zzzz' }}
                         </div>
                     </div>
@@ -28,7 +28,7 @@ import { EventStateService } from './event-state.service';
                     <div class="bg-base-100 relative min-h-10 w-full flex-1">
                         <div
                             hour
-                            class="absolute top-0 right-1 -translate-y-1/2 text-xs whitespace-nowrap opacity-60"
+                            class="absolute top-0 right-1 -translate-y-1/2 text-xs whitespace-nowrap opacity-70"
                         >
                             {{ hour }} {{ i >= 12 ? 'PM' : 'AM' }}
                         </div>
@@ -45,7 +45,7 @@ import { EventStateService } from './event-state.service';
                             date
                             class="border-base-200 flex min-w-48 flex-1 flex-col items-center justify-center border-r p-4"
                         >
-                            <div class="text-sm opacity-60">
+                            <div class="text-sm opacity-70">
                                 {{ date | date: 'EEEE' }}
                             </div>
                             <div>{{ date | date: 'd' }}</div>
@@ -78,7 +78,7 @@ import { EventStateService } from './event-state.service';
                                     class="bg-info absolute inset-y-0 left-0 w-1.5"
                                 ></div>
                                 <div
-                                    class="h-full text-left text-sm opacity-60"
+                                    class="h-full text-left text-sm opacity-70"
                                 >
                                     {{ event.date | date: 'shortTime' }} &mdash;
                                     {{ event.title }}

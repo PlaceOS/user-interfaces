@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -8,7 +7,7 @@ import {
     signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, notifyError } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -16,6 +15,9 @@ import { getNextFreeTimeSlot } from '@placeos/events';
 import { currentPeriod, nextPeriod } from '../new-panel/helpers';
 import { PanelStateService } from '../panel-state.service';
 import { CheckinTimetableComponent } from './checkin-timetable.component';
+
+/** Length of a check-in timetable slot in minutes */
+const SLOT_MINUTES = 15;
 
 @Component({
     selector: 'checkin-view',
@@ -28,20 +30,17 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 ></div>
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
-            <div
-                name
-                class="absolute bottom-4 left-4 z-10 text-3xl font-medium"
-            >
+            <h1 name class="absolute bottom-4 left-4 z-10 text-3xl font-medium">
                 {{
                     system()?.display_name ||
                         system()?.name ||
                         '&lt;Unknown Space&gt;'
                 }}
-            </div>
+            </h1>
         </div>
-        <h3 class="px-4 pt-4 text-xl font-medium">
+        <h2 class="px-4 pt-4 text-xl font-medium">
             {{ 'APP.BOOKING_PANEL.UPCOMING' | translate }}
-        </h3>
+        </h2>
         <div class="bg-base-100 space-y-2 p-2">
             <div
                 class="border-base-300 flex items-center rounded-sm border p-2 shadow-sm"
@@ -52,7 +51,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                     [class.bg-success]="state() === 'free'"
                     [class.bg-warning]="state() === 'pending'"
                 ></div>
-                <div class="flex-1 px-2 text-sm">
+                <div id="checkin-now" class="flex-1 px-2 text-sm">
                     <div class="text-lg font-medium uppercase">
                         {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                     </div>
@@ -112,13 +111,20 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         btn
                         matRipple
                         class="w-24"
+                        aria-describedby="checkin-now"
                         (click)="checkInCurrent()"
                     >
                         {{ 'COMMON.CHECK_IN' | translate }}
                     </button>
                 }
                 @if (state() === 'free' && can_book()) {
-                    <button btn matRipple class="w-24" (click)="newBooking()">
+                    <button
+                        btn
+                        matRipple
+                        class="w-24"
+                        aria-describedby="checkin-now"
+                        (click)="newBooking()"
+                    >
                         {{ 'COMMON.BOOK' | translate }}
                     </button>
                 }
@@ -131,7 +137,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                     [class.bg-error]="event_state()?.next"
                     [class.bg-success]="!event_state()?.next"
                 ></div>
-                <div class="flex-1 px-2 text-sm">
+                <div id="checkin-next" class="flex-1 px-2 text-sm">
                     <div class="text-lg font-medium uppercase">
                         {{ 'COMMON.NEXT' | translate }}
                     </div>
@@ -142,11 +148,13 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         }}
                     </div>
                 </div>
-                @if (can_book()) {
+                @if (can_book() && state() !== 'free') {
                     <button
                         btn
                         matRipple
+                        book-next
                         class="w-24"
+                        aria-describedby="checkin-next"
                         (click)="bookSlot(start())"
                     >
                         {{ 'COMMON.BOOK' | translate }}
@@ -154,14 +162,17 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 }
             </div>
         </div>
-        <h3 class="px-4 pt-4 pb-2 text-xl font-medium">
+        <h2 id="checkin-schedule" class="px-4 pt-4 pb-2 text-xl font-medium">
             {{ 'APP.BOOKING_PANEL.SCHEDULE' | translate }}
-        </h3>
+        </h2>
         <div
+            role="group"
+            aria-labelledby="checkin-schedule"
             class="border-base-300 mx-2 flex items-center overflow-auto rounded-sm border shadow-sm"
         >
             <checkin-timetable
                 [events]="bookings()"
+                [time_format]="time_format()"
                 (event)="bookSlot($event)"
             ></checkin-timetable>
         </div>
@@ -229,12 +240,12 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 background-color: #f8f8fa;
                 height: 100%;
                 width: 100%;
-                overflow: hidden;
+                overflow-x: hidden;
+                overflow-y: auto;
             }
         `,
     ],
     providers: [PanelStateService],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,
@@ -249,6 +260,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly state = this._state.status;
     public readonly system = this._state.space;
     public readonly bookings = this._state.bookings;
+    public readonly time_format = this._state.time_format;
     /** Start of the next free slot. Can be in the past when the room is free now. */
     public start = signal<number>(Date.now());
 
@@ -263,8 +275,13 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     };
     // Timetable and next free slot pass an absolute start time; treat any
     // slot past now as a future booking so the chosen time isn't overwritten.
-    public readonly bookSlot = (d: number) =>
+    // A timetable slot that has ended cannot be booked.
+    public readonly bookSlot = (d: number) => {
+        if (d + SLOT_MINUTES * 60 * 1000 <= Date.now()) {
+            return notifyError('This time is not available to book');
+        }
         this.newBooking(d, d > Date.now());
+    };
 
     public has_user = signal<boolean>(true);
 
@@ -274,7 +291,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
             this._state.current(),
             this._state.next(),
         ),
-        next: nextPeriod(this._state.next()),
+        next: nextPeriod(this._state.next(), this._state.time_format()),
     }));
 
     public get room_image() {

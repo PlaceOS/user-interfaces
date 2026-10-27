@@ -62,7 +62,7 @@ import { ParkingStateService } from './parking-state.service';
                     (click)="copyToClipboard(row.id)"
                 >
                     <div class="">{{ data }}</div>
-                    <div class="font-mono text-[0.625rem] opacity-30">
+                    <div class="font-mono text-[0.625rem] opacity-70">
                         {{ row.email }}
                     </div>
                 </button>
@@ -80,7 +80,7 @@ import { ParkingStateService } from './parking-state.service';
                 <div class="p-4 font-mono text-sm uppercase">
                     {{ data }}
                     @if (!data) {
-                        <span class="opacity-30">
+                        <span class="opacity-70">
                             {{ 'COMMON.EMPTY' | translate }}
                         </span>
                     }
@@ -96,6 +96,9 @@ import { ParkingStateService } from './parking-state.service';
                         [matTooltip]="
                             'APP.CONCIERGE.PARKING_USER_EDIT' | translate
                         "
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.PARKING_USER_EDIT' | translate
+                        "
                     >
                         <icon>edit</icon>
                     </button>
@@ -105,6 +108,9 @@ import { ParkingStateService } from './parking-state.service';
                         (click)="removeUser(row)"
                         error
                         [matTooltip]="
+                            'APP.CONCIERGE.PARKING_USER_REMOVE' | translate
+                        "
+                        [attr.aria-label]="
                             'APP.CONCIERGE.PARKING_USER_REMOVE' | translate
                         "
                     >

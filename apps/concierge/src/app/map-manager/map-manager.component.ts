@@ -82,7 +82,7 @@ import { MapManagementService } from './map-management.service';
                         </mat-select>
                     </mat-form-field>
                     <div class="w-2 flex-1"></div>
-                    <div class="text-sm opacity-60">
+                    <div class="text-sm opacity-70">
                         {{
                             'APP.CONCIERGE.MAPS_COUNT'
                                 | translate: { count: rows().length }
@@ -162,7 +162,7 @@ import { MapManagementService } from './map-management.service';
                 (click)="copyToClipboard(row.id)"
             >
                 <div>{{ data }}</div>
-                <div class="font-mono text-[0.625rem] opacity-30">
+                <div class="font-mono text-[0.625rem] opacity-70">
                     {{ row.id }}
                 </div>
             </button>
@@ -187,6 +187,9 @@ import { MapManagementService } from './map-management.service';
                     matRipple
                     [matTooltip]="'APP.CONCIERGE.MAPS_COPY_URL' | translate"
                     (click)="copyToClipboard(row.map_id)"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.MAPS_COPY_URL' | translate
+                    "
                 >
                     <icon>content_copy</icon>
                 </button>
@@ -200,10 +203,17 @@ import { MapManagementService } from './map-management.service';
                     matRipple
                     (click)="editMap(row)"
                     [matTooltip]="'APP.CONCIERGE.MAPS_EDIT' | translate"
+                    [attr.aria-label]="'APP.CONCIERGE.MAPS_EDIT' | translate"
                 >
                     <icon>edit</icon>
                 </button>
-                <button icon default matRipple [matMenuTriggerFor]="menu">
+                <button
+                    icon
+                    default
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
+                >
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">

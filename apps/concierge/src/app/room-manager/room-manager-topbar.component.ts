@@ -52,7 +52,7 @@ import { RoomManagementService } from './room-management.service';
                         <mat-option [value]="level.id">
                             <div class="flex flex-col-reverse">
                                 @if (use_region) {
-                                    <div class="text-xs opacity-30">
+                                    <div class="text-xs opacity-70">
                                         {{
                                             (level.parent_id | building)
                                                 ?.display_name
@@ -75,6 +75,9 @@ import { RoomManagementService } from './room-management.service';
                 matRipple
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate"
+                [attr.aria-label]="
+                    'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate
+                "
             >
                 <icon>lock_open</icon>
             </button>

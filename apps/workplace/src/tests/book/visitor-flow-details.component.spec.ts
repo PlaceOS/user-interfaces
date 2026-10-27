@@ -78,6 +78,7 @@ describe('VisitorFlowDetailsComponent', () => {
                     model.update((m) => ({
                         ...m,
                         id: '',
+                        booking_type: 'visitor',
                         asset_id: '',
                         asset_name: '',
                         company: '',
@@ -113,6 +114,7 @@ describe('VisitorFlowDetailsComponent', () => {
         settingSignal('bookings.min_duration').set(30);
         settingSignal('bookings.max_duration').set(180);
         settingSignal('bookings.custom_duration_options').set([]);
+        settingSignal('visitors.reason_required').set(false);
         now = Date.now();
         spectator = createComponent();
     });
@@ -220,5 +222,31 @@ describe('VisitorFlowDetailsComponent', () => {
         spectator.detectChanges();
 
         expect(spectator.component.selected_building_id()).toBe('bld-2');
+    });
+
+    it('should keep the default reason and optional reason field when the setting is off', () => {
+        spectator.component.ngOnInit();
+
+        expect(spectator.component.reason_required()).toBe(false);
+        expect(model().title).toBe('Visit');
+        expect(form.title().required()).toBe(false);
+    });
+
+    it('should require a reason and start with an empty reason when the setting is on', () => {
+        settingSignal('visitors.reason_required').set(true);
+        spectator.detectChanges();
+
+        spectator.component.ngOnInit();
+
+        expect(spectator.component.reason_required()).toBe(true);
+        expect(model().title).toBe('');
+        expect(form.title().required()).toBe(true);
+    });
+
+    it('should mark the booking form dirty when the user edits the reason', () => {
+        spectator.typeInElement('Supplier meeting', '#reason');
+
+        expect(model().title).toBe('Supplier meeting');
+        expect(form().dirty()).toBe(true);
     });
 });

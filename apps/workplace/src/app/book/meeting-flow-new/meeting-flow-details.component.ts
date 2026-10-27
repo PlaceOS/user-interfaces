@@ -1,19 +1,27 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatRippleModule } from '@angular/material/core';
+import { ErrorStateMatcher, MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
-    i18n,
-    notifyError,
     OrganisationService,
     settingSignal,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import {
     DateFieldComponent,
@@ -49,12 +57,17 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                     >
                     <mat-form-field appearance="outline">
                         <input
+                            #title_input
                             matInput
                             [formField]="form.title"
+                            [errorStateMatcher]="title_error"
                             [placeholder]="
                                 'CALENDAR_EVENT.TITLE_PLACEHOLDER' | translate
                             "
                         />
+                        <mat-error>{{
+                            'FORM.TITLE_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                     <div
                         class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
@@ -91,6 +104,8 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [range]="bookable_hours()"
+                                [use_24hr]="use_24hr()"
+                                [timezone]="timezone"
                                 [disabled]="start_time_disabled()"
                             />
                         </div>
@@ -181,6 +196,25 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                             }
                         </div>
                     }
+                    @if (allow_online_meetings()) {
+                        <settings-toggle
+                            [ngModel]="
+                                form_value().meeting_provider ===
+                                'teamsForBusiness'
+                            "
+                            (ngModelChange)="
+                                model.update((m) => ({
+                                    ...m,
+                                    meeting_provider: $event
+                                        ? 'teamsForBusiness'
+                                        : null,
+                                }))
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                        >
+                            {{ 'CALENDAR_EVENT.TEAMS_MEETING' | translate }}
+                        </settings-toggle>
+                    }
                 </div>
                 <div
                     class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
@@ -257,6 +291,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
         FormField,
         RouterModule,
         TranslatePipe,
+        SettingsToggleComponent,
         MatCheckboxModule,
         HostSelectFieldComponent,
     ],
@@ -307,6 +342,10 @@ export class MeetingFlowDetailsComponent {
         'events.allow_recurrence',
         false,
     );
+    public readonly allow_online_meetings = settingSignal(
+        'events.allow_online_meetings',
+        false,
+    );
 
     public readonly bookable_hours = settingSignal<
         { start: number; end: number } | undefined
@@ -328,6 +367,12 @@ export class MeetingFlowDetailsComponent {
     public readonly has_title = computed(
         () => !!this.form_value()?.title?.trim(),
     );
+    /** Shows the title error once the title field is touched and empty */
+    public readonly title_error: ErrorStateMatcher = {
+        isErrorState: () => this.form.title().touched() && !this.has_title(),
+    };
+    private readonly _title_input =
+        viewChild<ElementRef<HTMLInputElement>>('title_input');
     public readonly start_time_disabled = computed(
         () => this.form_value().all_day || this.form.date().disabled(),
     );
@@ -346,7 +391,8 @@ export class MeetingFlowDetailsComponent {
 
     public searchRooms() {
         if (!this.has_title()) {
-            notifyError(i18n('CALENDAR_EVENT.ERROR_TITLE_REQUIRED_SEARCH'));
+            this.form.title().markAsTouched();
+            this._title_input()?.nativeElement.focus();
             return;
         }
 

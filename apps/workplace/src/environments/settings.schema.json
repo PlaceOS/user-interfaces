@@ -10,6 +10,12 @@
             "type": "string",
             "description": "Connector string for setting up Sentry"
         },
+        "sentry_traces_sample_rate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Share of page loads and navigations that Sentry traces, from 0 to 1. Defaults to 0.1."
+        },
         "show_changelog": {
             "type": "boolean",
             "description": "Whether the version in user controls links to the changelog modal"
@@ -275,6 +281,10 @@
                     "type": "boolean",
                     "description": "Whether international phone numbers are accepted for visitors"
                 },
+                "allow_visitor_internal_or_external": {
+                    "type": "boolean",
+                    "description": "Whether each invited visitor can be marked internal or external"
+                },
                 "allow_pass_number": {
                     "type": "boolean",
                     "description": "Whether a pass number field is shown for each visitor"
@@ -330,6 +340,14 @@
                 "allow_externals": {
                     "type": "boolean",
                     "description": "Whether external (non-directory) attendees can be added to meetings"
+                },
+                "allow_international": {
+                    "type": "boolean",
+                    "description": "Whether each attendee can be flagged as international on the meeting form"
+                },
+                "allow_attendee_internal_or_external": {
+                    "type": "boolean",
+                    "description": "Whether each attendee can be marked internal or external on the meeting form"
                 },
                 "allow_recurrence": {
                     "type": "boolean",
@@ -494,10 +512,6 @@
                 "min_duration": {
                     "type": "number",
                     "description": "Minimum desk booking duration in minutes. Overrides app.bookings.min_duration. Defaults to 30"
-                },
-                "needs_reason": {
-                    "type": "boolean",
-                    "description": "Whether desk bookings require a reason to be entered"
                 },
                 "use_building_timezone": {
                     "type": "boolean",
@@ -870,6 +884,10 @@
             "type": "boolean",
             "description": "Whether new feature hints should be shown in the UI"
         },
+        "use_legacy_flows": {
+            "type": "boolean",
+            "description": "Whether the home page and the desk, meeting and visitor booking flows use their legacy versions"
+        },
         "basic_user_search": {
             "type": "boolean",
             "description": "Whether colleague search should use basic user directory queries instead of the staff search API"
@@ -919,7 +937,7 @@
         },
         "idle_timeout": {
             "type": "number",
-            "description": "Minutes of user inactivity on the meeting form before prompting to discard changes. Defaults to 5"
+            "description": "Minutes of user inactivity on the legacy meeting form before prompting to discard changes. Defaults to 5"
         },
         "use_region": {
             "type": "boolean",

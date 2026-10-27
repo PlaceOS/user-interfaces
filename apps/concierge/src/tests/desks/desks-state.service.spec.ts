@@ -1032,6 +1032,29 @@ describe('DesksStateService', () => {
         expect(refresh_spy).toHaveBeenCalled();
     });
 
+    it('should only reject the desk bookings that match the search', async () => {
+        mockConfirm();
+        const list = [
+            { id: 'booking-1', status: 'approved', user_name: 'Alice Ng' },
+            { id: 'booking-2', status: 'approved', user_name: 'Bob Lee' },
+        ];
+        Object.defineProperty(spectator.service, 'paged_bookings', {
+            value: () => ({ list, total: list.length, has_next: false }),
+        });
+        spectator.service.setFilters({ search: 'alice' });
+
+        await spectator.service.rejectAllDesks();
+
+        expect(vi.mocked(ts_client_mod.post)).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings/booking-1/reject'),
+            expect.anything(),
+        );
+        expect(vi.mocked(ts_client_mod.post)).not.toHaveBeenCalledWith(
+            expect.stringContaining('/bookings/booking-2/reject'),
+            expect.anything(),
+        );
+    });
+
     it('should close the reject all confirmation when a desk rejection fails', async () => {
         const confirm_ref = mockConfirm();
         Object.defineProperty(spectator.service, 'paged_bookings', {

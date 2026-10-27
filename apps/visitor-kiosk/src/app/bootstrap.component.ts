@@ -1,11 +1,4 @@
-import {
-    Component,
-    computed,
-    DoCheck,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
@@ -27,6 +20,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
+import { AnnounceDirective } from './components/announce.directive';
+import { PageHeadingDirective } from './components/page-heading.directive';
 
 @Component({
     selector: '[bootstrap]',
@@ -39,7 +34,9 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                 <header
                     class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
                 >
-                    <div>{{ 'APP.VISITOR_KIOSK.APP' | translate }}</div>
+                    <h1 pageHeading>
+                        {{ 'APP.VISITOR_KIOSK.APP' | translate }}
+                    </h1>
                     <div class="relative overflow-hidden rounded-sm px-2 py-1">
                         <div
                             class="bg-base-100 absolute inset-0 z-0 opacity-10"
@@ -52,7 +49,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                 @if (!loading()) {
                     <div class="flex flex-col space-y-2 px-4">
                         @if (regions().length > 1) {
-                            <label>
+                            <label id="bootstrap-region-label">
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
                                         | translate
@@ -63,6 +60,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                 class="no-subscript"
                             >
                                 <mat-select
+                                    aria-labelledby="bootstrap-region-label"
                                     #select
                                     building
                                     [(ngModel)]="active_region"
@@ -100,7 +98,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                    class="font-mono text-[0.625rem] opacity-70"
                                                 >
                                                     <span class="hidden"
                                                         >&nbsp;[</span
@@ -116,7 +114,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                             </mat-form-field>
                         }
                         @if (buildings().length) {
-                            <label>
+                            <label id="bootstrap-building-label">
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_BUILDING_MSG'
                                         | translate
@@ -127,6 +125,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                 class="no-subscript"
                             >
                                 <mat-select
+                                    aria-labelledby="bootstrap-building-label"
                                     #select
                                     building
                                     [(ngModel)]="active_building"
@@ -164,7 +163,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="font-mono text-[0.625rem] opacity-60"
+                                                    class="font-mono text-[0.625rem] opacity-70"
                                                 >
                                                     <span class="hidden"
                                                         >&nbsp;[</span
@@ -181,7 +180,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                         }
                         @if (levels().length && active_building()) {
                             <div></div>
-                            <label>
+                            <label id="bootstrap-level-label">
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_LEVEL_MSG'
                                         | translate
@@ -192,6 +191,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                 class="no-subscript"
                             >
                                 <mat-select
+                                    aria-labelledby="bootstrap-level-label"
                                     #select
                                     level
                                     [(ngModel)]="active_level"
@@ -228,7 +228,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                    class="font-mono text-[0.625rem] opacity-70"
                                                 >
                                                     <span class="hidden"
                                                         >&nbsp;[</span
@@ -245,19 +245,18 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                         }
                         @if (rotations().length) {
                             <div></div>
-                            <label>
+                            <label id="bootstrap-orientation-label">
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_ORIENTATION_MSG'
                                         | translate
                                 }}
-                                Please select an orientation from the dropdown
-                                below
                             </label>
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript"
                             >
                                 <mat-select
+                                    aria-labelledby="bootstrap-orientation-label"
                                     #select
                                     [(ngModel)]="active_rotation"
                                     [placeholder]="
@@ -275,7 +274,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                    class="font-mono text-[0.625rem] opacity-70"
                                                 >
                                                     <span class="hidden"
                                                         >&nbsp;[</span
@@ -292,19 +291,18 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                         }
                         @if (locations().length) {
                             <div></div>
-                            <label>
+                            <label id="bootstrap-location-label">
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_LOCATION_MSG'
                                         | translate
                                 }}
-                                Please select an fixed location from the
-                                dropdown below
                             </label>
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript"
                             >
                                 <mat-select
+                                    aria-labelledby="bootstrap-location-label"
                                     #select
                                     [(ngModel)]="active_location"
                                     [placeholder]="
@@ -322,7 +320,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                                     }}
                                                 </div>
                                                 <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                    class="font-mono text-[0.625rem] opacity-70"
                                                 >
                                                     <span class="hidden"
                                                         >&nbsp;[</span
@@ -340,8 +338,11 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                     </div>
                 } @else {
                     <div class="m-auto flex flex-col items-center p-8">
-                        <mat-spinner [diameter]="32"></mat-spinner>
-                        <p>{{ loading() }}</p>
+                        <mat-spinner
+                            [diameter]="32"
+                            aria-hidden="true"
+                        ></mat-spinner>
+                        <p announce>{{ loading() }}</p>
                     </div>
                 }
                 @if (!loading()) {
@@ -361,11 +362,11 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                 }
             </div>
             <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
-                <div class="text-xs opacity-40">
+                <div class="text-xs opacity-70">
                     {{ 'COMMON.CONTROLS_VERSION' | translate }}:
                     {{ version.hash }}
                 </div>
-                <div class="text-xs opacity-40">
+                <div class="text-xs opacity-70">
                     {{ version.time | date: 'longDate' }}
                     ({{ version.time | date: 'shortTime' }})
                 </div>
@@ -399,6 +400,8 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
         `,
     ],
     imports: [
+        PageHeadingDirective,
+        AnnounceDirective,
         CommonModule,
         MatRippleModule,
         TranslatePipe,
@@ -408,7 +411,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
         FormsModule,
     ],
 })
-export class BootstrapComponent extends AsyncHandler implements OnInit, DoCheck {
+export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
@@ -469,12 +472,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit, DoCheck 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         this.active_region.set(this._org.region);
-        this.handleQueryParams();
+        // Emits the current params at once, then on each later change
+        this.subscription(
+            'query_params',
+            this._route.queryParamMap.subscribe(() => this.handleQueryParams()),
+        );
         this.checkBootstrap();
-    }
-
-    public ngDoCheck() {
-        this.handleQueryParams();
     }
 
     public updateRotations() {

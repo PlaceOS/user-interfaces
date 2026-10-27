@@ -22,6 +22,7 @@ import {
     AsyncHandler,
     CalendarEvent,
     currentUser,
+    i18n,
     log,
     notifyError,
     notifySuccess,
@@ -30,7 +31,7 @@ import {
     Space,
     timePeriodsIntersect,
 } from '@placeos/common';
-import { EventFormService, SpacesService, updateEvent } from '@placeos/events';
+import { EventFormService, updateEvent } from '@placeos/events';
 
 import { openConfirmModal } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
@@ -44,7 +45,10 @@ import {
 } from 'date-fns';
 import { canExtend, EXTEND_MINUTES, freeMinutes } from './new-panel/helpers';
 import { openBookingModal } from './overlays/booking-modal.component';
-import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
+import {
+    EmbeddedControlModalComponent,
+    EmbeddedControlModalData,
+} from './overlays/embedded-control-modal.component';
 
 export type PanelTimelinePosition =
     | 'left'
@@ -158,7 +162,6 @@ declare global {
     providedIn: 'root',
 })
 export class PanelStateService extends AsyncHandler {
-    private _spaces = inject(SpacesService);
     private _dialog = inject(MatDialog);
     private _events = inject(EventFormService);
     private _app_settings = inject(SettingsService);
@@ -190,12 +193,14 @@ export class PanelStateService extends AsyncHandler {
     public set system(value: string) {
         if (this._system() === value) return;
         this._system.set(value);
-        this._spaces.loadSpace(value);
     }
 
     public setting<K extends keyof PanelSettings>(name: K): PanelSettings[K] {
         return this._settings()[name];
     }
+
+    /** Time format. `app.use_24_hour_time` changes it to `HH:mm`. */
+    public readonly time_format = this._app_settings.time_format_signal;
 
     /** Value of the app setting `app.<key>` */
     public appSetting<T>(key: string): T | undefined {
@@ -398,7 +403,13 @@ export class PanelStateService extends AsyncHandler {
                     },
                 );
                 if (load_id !== this._load_id) return;
-                this.space.set(new Space(system as any));
+                const space = new Space({
+                    ...(system as any),
+                    level: this._org.levelWithID([...(system.zones || [])]),
+                });
+                this.space.set(space);
+                // Cache the space so new bookings do not load the system again
+                if (space.id) this._space_pipe.updateSpaceList([space]);
             },
             1000,
         );
@@ -598,25 +609,31 @@ export class PanelStateService extends AsyncHandler {
                 ...details,
                 date_end: addMinutes(details.date, details.duration).valueOf(),
             }));
+            let event: CalendarEvent;
             try {
-                await this._events.postForm(true);
+                event = await this._events.postForm(true);
             } finally {
                 this._events.clearForm();
             }
+            // postForm() warns and drops the room when the room declines
+            if (!event?.resources?.length) return;
         } else {
             const module = getModule(this.system, 'Bookings');
             if (!details || !module) return;
             const use_as_host = this._app_settings.get(
                 'app.user_as_default_host',
             );
-            await module
-                .execute('book_now', [
+            try {
+                await module.execute('book_now', [
                     details.duration * 60,
                     details.title,
                     details.host || (use_as_host ? currentUser().email : null),
-                ])
-                .catch((e) => notifyError(`Error creating meeting. ${e}`));
+                ]);
+            } catch (e) {
+                return notifyError(`Error creating meeting. ${e}`);
+            }
         }
+        notifySuccess('Successfully created meeting.');
     }
 
     /**
@@ -664,6 +681,7 @@ export class PanelStateService extends AsyncHandler {
             return notifyError(`Error starting meeting. ${e}`);
         }
         this.updateProperty('status', 'busy');
+        notifySuccess('Successfully checked in booking.');
     }
 
     /**
@@ -677,7 +695,7 @@ export class PanelStateService extends AsyncHandler {
         );
         const details = await openConfirmModal(
             {
-                title: 'Are you sure want to end your meeting?',
+                title: 'Are you sure you want to end your meeting?',
                 content:
                     'Ending your meeting early will free up this room for others to use',
                 icon: {
@@ -712,18 +730,28 @@ export class PanelStateService extends AsyncHandler {
     }
     /** Open the room control UI in an embedded modal */
     public viewControl() {
-        this._openEmbedded(this._settings().control_ui);
+        this._openEmbedded(
+            this._settings().control_ui,
+            i18n('APP.BOOKING_PANEL.ROOM_CONTROL'),
+        );
     }
 
     /** Open the catering UI in an embedded modal */
     public viewCatering() {
-        this._openEmbedded(this._settings().catering_ui);
+        this._openEmbedded(
+            this._settings().catering_ui,
+            i18n('RESOURCE.CATERING'),
+        );
     }
 
-    private _openEmbedded(control_url?: string) {
+    private _openEmbedded(control_url: string | undefined, title: string) {
         if (!control_url) return;
-        this._dialog.open(EmbeddedControlModalComponent, {
-            data: { control_url },
+        this._dialog.open<
+            EmbeddedControlModalComponent,
+            EmbeddedControlModalData
+        >(EmbeddedControlModalComponent, {
+            data: { control_url, title },
+            ariaLabel: title,
         });
     }
 
@@ -771,11 +799,13 @@ export class PanelStateService extends AsyncHandler {
      */
     public async callWaiter() {
         const module = getModule(this.system, 'Bookings');
-        if (module) {
-            await module
-                .execute('waiter_call', [Date.now()])
-                .catch((e) => notifyError(`Error calling waiter. ${e}`));
+        if (!module) return;
+        try {
+            await module.execute('waiter_call', [Date.now()]);
+        } catch (e) {
+            return notifyError(`Error calling waiter. ${e}`);
         }
+        notifySuccess('A waiter is on the way.');
     }
 
     /** List to binding */

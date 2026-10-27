@@ -10,6 +10,7 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
+import { SettingsToggleComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { MeetingFlowDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow-new/meeting-flow-details.component';
 import { addDays, endOfDay } from 'date-fns';
@@ -72,6 +73,11 @@ describe('MeetingFlowDetailsComponent', () => {
         });
     });
 
+    afterEach(() => {
+        // `settingSignal` keeps one signal for each key at module level.
+        settingSignal('events.allow_online_meetings').set(false);
+    });
+
     it('should disable the start time when editing an in-progress meeting', () => {
         // A saved (has id) event with a start time in the recent past is
         // `started`/`in_progress`, which the form schema locks the start time
@@ -98,6 +104,32 @@ describe('MeetingFlowDetailsComponent', () => {
     it('should keep the start time enabled for editable meetings', () => {
         spectator = createComponent();
         expect(spectator.component.start_time_disabled()).toBe(false);
+    });
+
+    it('should show the Teams opt-in when online meetings are enabled', () => {
+        const allow_online_meetings = settingSignal(
+            'events.allow_online_meetings',
+            false,
+        );
+        allow_online_meetings.set(false);
+        spectator = createComponent();
+        spectator.detectChanges();
+
+        expect(spectator.query(SettingsToggleComponent)).toBeNull();
+
+        allow_online_meetings.set(true);
+        spectator.detectChanges();
+
+        const toggle = spectator.query(SettingsToggleComponent);
+        expect(toggle).toBeTruthy();
+
+        toggle.setValue(true);
+        expect(spectator.component.form_value().meeting_provider).toBe(
+            'teamsForBusiness',
+        );
+
+        toggle.setValue(false);
+        expect(spectator.component.form_value().meeting_provider).toBeNull();
     });
 
     it('should filter rooms with the minimum and the maximum of the selected size', () => {
@@ -127,6 +159,22 @@ describe('MeetingFlowDetailsComponent', () => {
             capacity: -1,
             capacity_max: undefined,
         });
+    });
+
+    it('should mark the title field as invalid when searching without a title', () => {
+        event = new CalendarEvent({ id: '', title: '', date: Date.now() });
+        spectator = createComponent();
+        const navigate = vi.spyOn(spectator.router, 'navigate');
+        expect(spectator.component.title_error.isErrorState(null, null)).toBe(
+            false,
+        );
+
+        spectator.component.searchRooms();
+
+        expect(spectator.component.title_error.isErrorState(null, null)).toBe(
+            true,
+        );
+        expect(navigate).not.toHaveBeenCalled();
     });
 
     it('should limit the date to the allowed future days setting', () => {

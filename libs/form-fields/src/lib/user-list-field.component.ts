@@ -33,11 +33,18 @@ import { first } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { User } from '@placeos/common';
+import {
+    toVisitorInternalOrExternal,
+    User,
+    type AttendeeFlags,
+    type VisitorInternalOrExternal,
+} from '@placeos/common';
 import { authority, queryUsers } from '@placeos/ts-client';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -188,12 +195,19 @@ const DENIED_FILE_TYPES = [
                             </span>
                         </div>
                     </button>
+                    <!--
+                        The button is the control. The file input on top takes mouse clicks
+                        and dropped files, and the button opens it for keyboard users
+                    -->
                     <button
                         btn
                         matRipple
                         type="button"
                         name="upload-csv"
                         class="inverse relative flex-1 sm:flex-none"
+                        (click)="
+                            $event.target !== file_input && file_input.click()
+                        "
                     >
                         <div class="flex items-center justify-center">
                             <span class="hidden sm:inline">
@@ -204,6 +218,9 @@ const DENIED_FILE_TYPES = [
                             </span>
                         </div>
                         <input
+                            #file_input
+                            tabindex="-1"
+                            aria-hidden="true"
                             class="absolute inset-0 opacity-0"
                             type="file"
                             (change)="addUsersFromFile($event)"
@@ -231,6 +248,64 @@ const DENIED_FILE_TYPES = [
                     <ng-content />
                 </div>
             }
+            @if (show_international() && active_list().length) {
+                <div class="mt-2 flex flex-col">
+                    <label>{{
+                        'BOOKINGS.INTERNATIONAL_VISITORS' | translate
+                    }}</label>
+                    <div class="flex flex-wrap gap-x-4 gap-y-2">
+                        @for (
+                            item of active_list();
+                            track item.id || item.email
+                        ) {
+                            <mat-checkbox
+                                [ngModel]="getAttendeeInternational(item)"
+                                (ngModelChange)="
+                                    setAttendeeInternational(item, $event)
+                                "
+                                [ngModelOptions]="{
+                                    standalone: true,
+                                }"
+                            >
+                                {{ item.name || item.email }}
+                            </mat-checkbox>
+                        }
+                    </div>
+                </div>
+            }
+            @if (show_internal_or_external() && active_list().length) {
+                <div class="mt-2 flex flex-col">
+                    <label>{{
+                        'BOOKINGS.VISITOR_INTERNAL_OR_EXTERNAL' | translate
+                    }}</label>
+                    <div class="flex flex-col gap-y-2">
+                        @for (
+                            item of active_list();
+                            track item.id || item.email
+                        ) {
+                            <div class="flex flex-wrap items-center gap-x-4">
+                                <span>{{ item.name || item.email }}</span>
+                                <mat-radio-group
+                                    [ngModel]="getAttendeeType(item)"
+                                    (ngModelChange)="
+                                        setAttendeeType(item, $event)
+                                    "
+                                    [ngModelOptions]="{
+                                        standalone: true,
+                                    }"
+                                >
+                                    <mat-radio-button value="internal">
+                                        {{ 'COMMON.TYPE_INTERNAL' | translate }}
+                                    </mat-radio-button>
+                                    <mat-radio-button value="external">
+                                        {{ 'COMMON.TYPE_EXTERNAL' | translate }}
+                                    </mat-radio-button>
+                                </mat-radio-group>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
     `,
     styles: [``],
@@ -246,6 +321,8 @@ const DENIED_FILE_TYPES = [
         MatFormFieldModule,
         MatChipsModule,
         MatAutocompleteModule,
+        MatCheckboxModule,
+        MatRadioModule,
         FormsModule,
         MatRippleModule,
         TranslatePipe,
@@ -273,6 +350,11 @@ export class UserListFieldComponent
     public readonly guests_only = input(false);
     /** Whether optional actions should be shown */
     public readonly hide_actions = input(false);
+    /**
+     * Whether each selected user can be flagged as international and marked
+     * internal or external. Values are stored on the user's `extension_data`.
+     */
+    public readonly flags = input(false);
     /** Whether as custom template will be provided outside the component */
     public readonly custom_template = input(false);
     /** Function for filtering the results of the user list */
@@ -291,6 +373,23 @@ export class UserListFieldComponent
     private readonly _use_basic_user_search = this._settings.signal(
         'basic_user_search',
         false,
+    );
+    private readonly _allow_international = this._settings.signal(
+        'events.allow_international',
+        false,
+    );
+    private readonly _allow_internal_or_external = this._settings.signal(
+        'events.allow_attendee_internal_or_external',
+        false,
+    );
+
+    /** Whether the per-user international checkbox block should show */
+    public readonly show_international = computed(
+        () => this.flags() && !!this._allow_international(),
+    );
+    /** Whether the per-user internal/external radio block should show */
+    public readonly show_internal_or_external = computed(
+        () => this.flags() && !!this._allow_internal_or_external(),
     );
 
     private async searchStaff(q: string): Promise<User[]> {
@@ -432,6 +531,49 @@ export class UserListFieldComponent
         if (index < 0 || index >= list.length) return;
         list.splice(index, 1);
         this.setValue(list);
+    }
+
+    /** Whether the given user is flagged as an international visitor */
+    public getAttendeeInternational(item: User): boolean {
+        return !!item?.extension_data?.international;
+    }
+
+    /** Internal/external type of the given user. Defaults to `internal` */
+    public getAttendeeType(item: User): VisitorInternalOrExternal {
+        return toVisitorInternalOrExternal(
+            item?.extension_data?.visitor_internal_or_external,
+        );
+    }
+
+    /** Flag the given user as international, or not */
+    public setAttendeeInternational(item: User, international: boolean) {
+        this._setAttendeeFlags(item, { international: !!international });
+    }
+
+    /** Set the internal/external type of the given user */
+    public setAttendeeType(item: User, type: VisitorInternalOrExternal) {
+        this._setAttendeeFlags(item, {
+            visitor_internal_or_external: toVisitorInternalOrExternal(type),
+        });
+    }
+
+    /**
+     * Replace the user with a copy that holds the new flags, and emit the
+     * updated list. The user is copied, not changed, because it can be shared
+     * with a cached event, and a cancelled edit must not change that event.
+     */
+    private _setAttendeeFlags(item: User, flags: AttendeeFlags) {
+        if (!item) return;
+        this.setValue(
+            this.active_list().map((user) =>
+                user === item
+                    ? new User({
+                          ...user,
+                          extension_data: { ...user.extension_data, ...flags },
+                      })
+                    : user,
+            ),
+        );
     }
 
     /**

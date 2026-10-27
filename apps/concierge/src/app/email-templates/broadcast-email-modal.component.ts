@@ -42,7 +42,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
         >
             <form class="mx-auto flex max-w-3xl flex-col">
                 <label
-                    for="subject"
+                    for="broadcast-email-modal-subject"
                     [class.error]="
                         form.subject().invalid() && form.subject().touched()
                     "
@@ -51,6 +51,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                 </label>
                 <mat-form-field appearance="outline">
                     <input
+                        id="broadcast-email-modal-subject"
                         matInput
                         [formField]="form.subject"
                         placeholder="Email subject"
@@ -61,16 +62,20 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                 </mat-form-field>
 
                 <label
-                    for="recipient_group"
+                    for="broadcast-email-modal-recipient_group"
                     [class.error]="
                         form.recipient_group().invalid() &&
                         form.recipient_group().touched()
                     "
+                    id="broadcast-email-modal-recipient_group-label"
                 >
                     Send to<span>*</span>
                 </label>
                 <mat-form-field appearance="outline">
-                    <mat-select [formField]="form.recipient_group">
+                    <mat-select
+                        aria-labelledby="broadcast-email-modal-recipient_group-label"
+                        [formField]="form.recipient_group"
+                    >
                         @for (option of recipient_options; track option.id) {
                             <mat-option [value]="option.id">
                                 {{ option.name }}
@@ -79,7 +84,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                     </mat-select>
                 </mat-form-field>
                 @if (model().recipient_group !== 'custom') {
-                    <div class="-mt-4 mb-4 text-sm opacity-60">
+                    <div class="-mt-4 mb-4 text-sm opacity-70">
                         Recipients are resolved from today's bookings for the
                         active building or region.
                     </div>
@@ -116,7 +121,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                     <div
                         class="flex items-center justify-between px-4 py-3 text-sm"
                     >
-                        <span class="opacity-60">Recipients</span>
+                        <span class="opacity-70">Recipients</span>
                         @if (resolving_recipients()) {
                             <span>Loading...</span>
                         } @else {
@@ -133,7 +138,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                         </ul>
                     } @else if (!resolving_recipients()) {
                         <div
-                            class="border-base-200 border-t px-4 py-3 text-sm opacity-60"
+                            class="border-base-200 border-t px-4 py-3 text-sm opacity-70"
                         >
                             No recipients found
                         </div>
@@ -141,7 +146,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                 </div>
 
                 <label
-                    for="message_plaintext"
+                    for="broadcast-email-modal-message_plaintext"
                     [class.error]="
                         form.message_plaintext().invalid() &&
                         form.message_plaintext().touched()
@@ -151,6 +156,7 @@ type BroadcastRecipientGroup = 'rooms' | 'desks' | 'parking' | 'all' | 'custom';
                 </label>
                 <mat-form-field appearance="outline">
                     <textarea
+                        id="broadcast-email-modal-message_plaintext"
                         matInput
                         rows="12"
                         [formField]="form.message_plaintext"

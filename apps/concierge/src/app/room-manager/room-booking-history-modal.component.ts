@@ -35,13 +35,18 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
                         | translate: { name: room.display_name || room.name }
                 }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button
+                icon
+                matRipple
+                mat-dialog-close
+                [aria-label]="'COMMON.CLOSE' | translate"
+            >
                 <icon>close</icon>
             </button>
         </header>
         <main class="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
             <div class="flex items-center justify-between px-4 pt-2 pb-3">
-                <div class="text-sm opacity-60">
+                <div class="text-sm opacity-70">
                     {{
                         'APP.CONCIERGE.ROOMS_HISTORY_COUNT'
                             | translate: { count: bookings().length }
@@ -148,9 +153,9 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
                 <div
                     class="flex w-full flex-col items-center justify-center py-2"
                 >
-                    <div class="opacity-60">{{ date | date: 'MMM' }}</div>
+                    <div class="opacity-70">{{ date | date: 'MMM' }}</div>
                     <div class="text-xl">{{ date | date: 'dd' }}</div>
-                    <div class="text-xs opacity-60">
+                    <div class="text-xs opacity-70">
                         {{ date | date: 'yyyy' }}
                     </div>
                 </div>
@@ -177,7 +182,7 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
                     </div>
                     @if (user?.name) {
                         <div
-                            class="max-w-48 truncate text-xs opacity-30 select-all"
+                            class="max-w-48 truncate text-xs opacity-70 select-all"
                         >
                             {{ email }}
                         </div>
@@ -217,7 +222,7 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
                     } @else {
                         @let changes = histories()[row.id] || [];
                         @if (!changes.length) {
-                            <div class="py-4 text-center text-sm opacity-60">
+                            <div class="py-4 text-center text-sm opacity-70">
                                 {{
                                     'APP.CONCIERGE.ROOMS_HISTORY_CHANGES_EMPTY'
                                         | translate
@@ -225,7 +230,7 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
                             </div>
                         } @else {
                             <div
-                                class="mb-2 text-xs font-medium uppercase opacity-60"
+                                class="mb-2 text-xs font-medium uppercase opacity-70"
                             >
                                 {{
                                     'APP.CONCIERGE.ROOMS_HISTORY_CHANGES_HEADER'
@@ -261,7 +266,7 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
                                                     </span>
                                                 }
                                             </div>
-                                            <div class="text-xs opacity-60">
+                                            <div class="text-xs opacity-70">
                                                 {{
                                                     change.updated_at * 1000
                                                         | date: 'medium'

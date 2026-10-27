@@ -13,10 +13,10 @@ import { ControlStateService } from '../control-state.service';
     selector: 'lighting-scene-tooltip',
     template: `
         <div
-            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm px-2 pt-2 pb-4 shadow-sm"
+            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm px-2 pt-2 pb-4 shadow-sm max-sm:my-0 max-sm:flex-1 max-sm:rounded-none max-sm:shadow-none"
         >
             <h3
-                class="bg-base-200 w-full rounded-sm px-4 py-2 text-xl font-medium"
+                class="bg-base-200 w-full rounded-sm px-4 py-2 text-xl font-medium max-sm:hidden"
             >
                 {{ 'APP.CONTROL.ACTION_LIGHT_SCENES' | translate }}
             </h3>
@@ -26,14 +26,16 @@ import { ControlStateService } from '../control-state.service';
                         state
                         btn
                         matRipple
-                        class="mx-2 w-64"
+                        class="mx-2 w-64 max-sm:w-[calc(100%-1rem)]"
                         [class.inverse]="scene() !== item.id"
                         (click)="setScene(item.name)"
                     >
                         <div class="flex flex-1 items-center space-x-4">
-                            <icon [style.opacity]="item.opacity || 1">{{
-                                item.icon
-                            }}</icon>
+                            <icon
+                                aria-hidden="true"
+                                [style.opacity]="item.opacity || 1"
+                                >{{ item.icon }}</icon
+                            >
                             <div class="flex-1">{{ item.name }}</div>
                         </div>
                     </button>

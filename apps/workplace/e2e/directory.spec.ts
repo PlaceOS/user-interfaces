@@ -21,9 +21,7 @@ test.describe('Directory', () => {
     }) => {
         // Mock staff includes "Sarah Chen"; matching is a case-insensitive
         // substring over name/email and requires the minimum search length.
-        const search = page.locator(
-            'input[placeholder="Search for a person..."]',
-        );
+        const search = page.locator('[a-directory-user-list] mat-form-field input');
         await search.fill('sar');
 
         const results = page.locator('[a-directory-user-list] div[user]');
@@ -34,9 +32,7 @@ test.describe('Directory', () => {
     test('US-050: search waits for the configured minimum number of characters', async ({
         page,
     }) => {
-        const search = page.locator(
-            'input[placeholder="Search for a person..."]',
-        );
+        const search = page.locator('[a-directory-user-list] mat-form-field input');
         await search.fill('sa');
         await expect(page.locator('[a-directory-user-list] div[user]')).toHaveCount(
             0,
@@ -51,9 +47,7 @@ test.describe('Directory', () => {
     test('US-051: locate action opens the map focused on the colleague', async ({
         page,
     }) => {
-        const search = page.locator(
-            'input[placeholder="Search for a person..."]',
-        );
+        const search = page.locator('[a-directory-user-list] mat-form-field input');
         await search.fill('sar');
 
         const locate = page

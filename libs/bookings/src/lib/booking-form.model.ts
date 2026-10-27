@@ -21,21 +21,17 @@ import {
     onFieldChange,
     settingSignal,
     setupFormTimeSync,
+    toVisitorInternalOrExternal,
     User,
     type FormTimeSyncHandle,
     type SignalFormRef,
+    type VisitorInternalOrExternal,
 } from '@placeos/common';
 import { addMinutes, isAfter } from 'date-fns';
 
-/** Visitor type. Visitors are `internal` unless marked `external`. */
-export type VisitorInternalOrExternal = 'internal' | 'external';
-
-/** Read a stored visitor type. Anything that is not `external` is `internal`. */
-export function toVisitorInternalOrExternal(
-    value: unknown,
-): VisitorInternalOrExternal {
-    return value === 'external' ? 'external' : 'internal';
-}
+// Declared in `@placeos/common` so events and form fields can share them.
+// Re-exported so existing `@placeos/bookings` imports keep working.
+export { toVisitorInternalOrExternal, type VisitorInternalOrExternal };
 
 /** Raw value held by the booking form model. */
 export interface BookingFormValue {
@@ -277,6 +273,10 @@ export function generateBookingForm(
         'parking.require_space_restriction',
         false,
     );
+    const require_visitor_reason = settingSignal<boolean>(
+        'visitors.reason_required',
+        false,
+    );
     const booking_form = form<BookingFormValue>(
         model,
         (p) => {
@@ -297,6 +297,20 @@ export function generateBookingForm(
             validate(p.plate_number, ({ value, valueOf }) =>
                 valueOf(p.booking_type) === 'parking' &&
                 require_plate_number() &&
+                !`${value() || ''}`.trim()
+                    ? { kind: 'required' }
+                    : undefined,
+            );
+            // Visitor invites can require a reason (`title`) via settings.
+            // Scope to visitor bookings, the same as the plate number rules.
+            required(p.title, {
+                when: ({ valueOf }) =>
+                    valueOf(p.booking_type) === 'visitor' &&
+                    require_visitor_reason(),
+            });
+            validate(p.title, ({ value, valueOf }) =>
+                valueOf(p.booking_type) === 'visitor' &&
+                require_visitor_reason() &&
                 !`${value() || ''}`.trim()
                     ? { kind: 'required' }
                     : undefined,

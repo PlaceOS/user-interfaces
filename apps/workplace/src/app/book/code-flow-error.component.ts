@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -13,28 +13,13 @@ import { TranslatePipe } from '@placeos/components';
                 class="flex min-h-0 flex-1 flex-col items-center justify-center space-y-2 overflow-y-auto p-8"
             >
                 <h2 class="text-2xl font-medium">
-                    {{
-                        'APP.WORKPLACE.RESOURCE_CHECKED_IN_FAILED'
-                            | translate: { type: asset_type() }
-                    }}
+                    {{ copy().title | translate: { type: asset_type() } }}
                 </h2>
                 <div class="py-4">
                     <img src="assets/icons/not-found.svg" class="h-32 sm:h-64" />
                 </div>
                 <p class="max-w-lg text-center">
-                    @switch (type()) {
-                        @case ('not_started') {
-                            Booking has not started yet. Please try again once
-                            the booking has commenced.
-                        }
-                        @case ('wrong_resource') {
-                            You have booking with a different resource.
-                        }
-                        @default {
-                            You do not have a booking. Would you like to book
-                            this desk?
-                        }
-                    }
+                    {{ copy().message | translate }}
                 </p>
             </main>
             <footer
@@ -51,7 +36,7 @@ import { TranslatePipe } from '@placeos/components';
                         {{ 'APP.WORKPLACE.TRY_AGAIN' | translate }}
                     </a>
                 }
-                @if (type() !== 'not_started') {
+                @if (type() !== 'not_started' && type() !== 'space_error') {
                     <a
                         btn
                         matRipple
@@ -91,6 +76,31 @@ export class CodeFlowErrorComponent extends AsyncHandler implements OnInit {
     public readonly type = signal('other');
     public readonly asset_type = signal('resource');
     public readonly asset_id = signal('');
+    /** Heading and message keys for the error type */
+    public readonly copy = computed(() => {
+        switch (this.type()) {
+            case 'not_started':
+                return {
+                    title: 'APP.WORKPLACE.CODE_NOT_STARTED_TITLE',
+                    message: 'APP.WORKPLACE.CODE_NOT_STARTED_MSG',
+                };
+            case 'wrong_resource':
+                return {
+                    title: 'APP.WORKPLACE.RESOURCE_CHECKED_IN_FAILED',
+                    message: 'APP.WORKPLACE.CODE_WRONG_RESOURCE_MSG',
+                };
+            case 'space_error':
+                return {
+                    title: 'APP.WORKPLACE.RESOURCE_CHECKED_IN_FAILED',
+                    message: 'APP.WORKPLACE.CODE_SPACE_ERROR_MSG',
+                };
+            default:
+                return {
+                    title: 'APP.WORKPLACE.RESOURCE_CHECKED_IN_FAILED',
+                    message: 'APP.WORKPLACE.CODE_NO_BOOKING_MSG',
+                };
+        }
+    });
 
     public asset = null;
 

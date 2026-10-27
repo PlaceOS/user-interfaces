@@ -80,6 +80,8 @@ export class TeamScheduleService {
 
     // Loading state - starts true, set to false after initial load completes
     public readonly loading = signal(true);
+    /** Whether the colleagues did not load */
+    public readonly failed = signal(false);
     /** Whether the colleagues are loaded. Cleared when they change */
     private _initialized = false;
     /** Number of open screens that show the team members */
@@ -116,9 +118,12 @@ export class TeamScheduleService {
             start,
             end: addDays(start, 4),
         });
+        const today = startOfDay(Date.now()).valueOf();
         return days.map((date) => ({
             date: date.valueOf(),
             is_today: isSameDay(date, new Date()),
+            // A desk cannot be booked on a past day
+            is_past: date.valueOf() < today,
         }));
     });
 
@@ -411,7 +416,11 @@ export class TeamScheduleService {
     private async _fetchColleagues(): Promise<StaffUser[]> {
         const user = currentUser();
         if (!user?.id) return [];
-        return loadContacts(user.id).catch(() => [] as StaffUser[]);
+        this.failed.set(false);
+        return loadContacts(user.id).catch(() => {
+            this.failed.set(true);
+            return [] as StaffUser[];
+        });
     }
 
     /** Get favourite team member IDs from user settings */

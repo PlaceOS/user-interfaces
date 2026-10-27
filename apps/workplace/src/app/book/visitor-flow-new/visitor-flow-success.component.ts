@@ -49,7 +49,7 @@ import { BookingFormService } from '@placeos/bookings';
                 <img class="mx-auto" src="assets/icons/sent.svg" />
                 <p>
                     {{
-                        (multiple() && count() > 1
+                        (multiple()
                             ? 'BOOKINGS.VISITOR_SENT_MSG_MULTIPLE'
                             : 'BOOKINGS.VISITOR_SENT_MSG'
                         )
@@ -126,7 +126,7 @@ import { BookingFormService } from '@placeos/bookings';
                         (click)="bookAnother()"
                     >
                         {{
-                            (multiple() && count() > 1
+                            (multiple()
                                 ? 'BOOKINGS.VISITOR_BOOK_ANOTHER_MULTIPLE'
                                 : 'BOOKINGS.VISITOR_BOOK_ANOTHER'
                             ) | translate
@@ -158,16 +158,14 @@ export class VisitorFlowSuccessComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _router = inject(Router);
 
-    public readonly multiple = settingSignal(
-        'bookings.multiple_visitors',
-        false,
-    );
     public readonly show_links = settingSignal(
         'visitors.show_calendar_links',
         false,
     );
     public readonly last_success = signal<Booking>(null);
     public readonly count = signal(1);
+    /** Whether the invite went to more than one visitor */
+    public readonly multiple = computed(() => this.count() > 1);
 
     public readonly building = computed(() =>
         !this.last_success()

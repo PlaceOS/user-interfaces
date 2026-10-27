@@ -5,6 +5,7 @@ import {
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 @Component({
     selector: 'a-counter',
@@ -28,6 +29,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 class="border-secondary text-secondary z-10 h-12 w-12 rounded-l rounded-r-none border"
                 [disabled]="!value() || value() === min()"
                 (click)="remove()"
+                [attr.aria-label]="'COMMON.DECREASE' | translate"
             >
                 <icon>remove</icon>
             </button>
@@ -46,6 +48,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 <input
                     type="text"
                     class="absolute inset-0 rounded-none p-2 opacity-0 focus:opacity-100"
+                    [attr.id]="input_id() || null"
                     [ngModel]="value()"
                     (ngModelChange)="value.set($event)"
                     (focus)="focused.set(true)"
@@ -61,6 +64,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 class="border-secondary text-secondary z-10 h-12 w-12 rounded-l-none rounded-r border"
                 [disabled]="value() === max()"
                 (click)="add()"
+                [attr.aria-label]="'COMMON.INCREASE' | translate"
             >
                 <icon>add</icon>
             </button>
@@ -81,7 +85,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             multi: true,
         },
     ],
-    imports: [FormsModule, IconComponent],
+    imports: [FormsModule, IconComponent, TranslatePipe],
 })
 export class CounterComponent implements ControlValueAccessor {
     /** Size of a single step */
@@ -92,6 +96,8 @@ export class CounterComponent implements ControlValueAccessor {
     public readonly min = input(0);
     /** Custom function for rendering the counter value */
     public readonly render_fn = input<(v: number) => string>(undefined);
+    /** ID of the editable input, so that a `<label for>` can name it */
+    public readonly input_id = input<string>(undefined);
     /** Whether form control is disabled */
     public readonly disabled = model<boolean>(undefined);
     /** Current value of the counter */

@@ -323,7 +323,7 @@ test.describe('Registration - Form Layout', () => {
             .locator('input[name="name"]')
             .waitFor({ timeout: LOAD_TIMEOUT });
 
-        const header = page.locator('h3');
+        const header = page.locator('h1');
         await expect(header).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 

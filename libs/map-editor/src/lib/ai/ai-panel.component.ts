@@ -268,6 +268,16 @@ export function readableModel(model: string): string {
                                                             }}
                                                         </p>
                                                     }
+                                                    @if (repairNote(turn)) {
+                                                        <p
+                                                            class="meta"
+                                                            repaired
+                                                        >
+                                                            {{
+                                                                repairNote(turn)
+                                                            }}
+                                                        </p>
+                                                    }
                                                     @if (
                                                         turn.proposal.questions
                                                             .length
@@ -2245,6 +2255,18 @@ export class MapEditorAiPanelComponent implements OnInit, OnDestroy {
                       })
                     : '';
         }
+    }
+
+    /** How many rejected changes the server's repair round corrected, when it did. */
+    public repairNote(turn: ThreadTurn): string {
+        const thread = this.thread();
+        if (!thread || turn.kind !== 'proposal') return '';
+        const repair = turn.proposal.job.repair;
+        if (!repair?.used) return '';
+        const corrected = repair.rejected - (repair.remaining ?? 0);
+        return corrected > 0
+            ? format(thread.strings.repaired_note, { count: corrected })
+            : '';
     }
 
     public outcomeText(turn: ThreadTurn): string {

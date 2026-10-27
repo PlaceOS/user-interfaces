@@ -21,6 +21,7 @@ import {
     currentUser,
     formatRecurrence,
     fromBookingRecurrence,
+    i18n,
     OrganisationService,
     SettingsService,
     unique,
@@ -140,7 +141,12 @@ interface GroupBookingListItem {
                     </div>
                 }
                 @if (show_booked_for()) {
-                    <p class="text-sm">Booked for {{ booked_for_name() }}</p>
+                    <p class="text-sm">
+                        {{
+                            'BOOKINGS.DESK_BOOKED_FOR'
+                                | translate: { name: booked_for_name() }
+                        }}
+                    </p>
                 }
                 @if (is_group() && group_booking_items().length > 0) {
                     <div
@@ -210,8 +216,9 @@ interface GroupBookingListItem {
                         }}
                     </p>
                 }
-                @if (true) {
-                    <p>
+                <!-- A booking that is not approved yet has the tentative status -->
+                @if (last_event()?.status === 'tentative') {
+                    <p approval>
                         {{ 'BOOKINGS.SUCCESS_WAIT_APPROVED' | translate }}
                     </p>
                 }
@@ -306,9 +313,14 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
     public readonly group_load_error = signal(false);
     public readonly group_failures = signal<GroupBookingFailure[]>([]);
     private readonly _desk_names = signal(new Map<string, string>());
-    public readonly location = computed(() => {
-        return `${this.building()?.display_name || this.level()?.name}, ${this.level()?.display_name || this.level()?.name}`;
-    });
+    public readonly location = computed(() =>
+        [
+            this.building()?.display_name || this.building()?.name,
+            this.level()?.display_name || this.level()?.name,
+        ]
+            .filter((_) => _)
+            .join(', '),
+    );
 
     public readonly last_event = signal<Booking>(null);
     public readonly group_members = computed(() => {
@@ -345,7 +357,7 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
                     email: failure.email,
                     asset_name: failure.asset_id
                         ? desk_names.get(failure.asset_id) || failure.asset_id
-                        : 'No desk assigned',
+                        : i18n('BOOKINGS.DESK_NOT_ASSIGNED'),
                     failed: true,
                     error: failure.error,
                 }));

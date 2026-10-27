@@ -14,7 +14,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 
 @Component({
@@ -186,7 +186,18 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                     <button btn matRipple class="inverse w-32" mat-dialog-close>
                         Discard
                     </button>
-                    <button btn matRipple class="w-32" (click)="save()">
+                    <button
+                        btn
+                        matRipple
+                        class="w-32"
+                        [disabled]="load_failed()"
+                        [title]="
+                            load_failed()
+                                ? 'Settings did not load. Close and try again.'
+                                : ''
+                        "
+                        (click)="save()"
+                    >
                         Save
                     </button>
                 </footer>
@@ -197,6 +208,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                     matRipple
                     mat-dialog-close
                     class="absolute top-2 right-2"
+                    [aria-label]="'COMMON.CLOSE' | translate"
                 >
                     <icon>close</icon>
                 </button>
@@ -211,6 +223,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
         MatProgressSpinnerModule,
         MatCheckboxModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class AppSettingsModalComponent implements OnInit {
@@ -254,6 +267,8 @@ export class AppSettingsModalComponent implements OnInit {
     ];
     public readonly desk_features = ['allow_all_day'];
     public readonly loading = signal('');
+    /** True when stored settings failed to load. Blocks saving. */
+    public readonly load_failed = signal(false);
     public combined_settings: Record<string, any> = {};
     public readonly active_features = signal<Record<string, boolean>>({});
 
@@ -340,23 +355,16 @@ export class AppSettingsModalComponent implements OnInit {
     public async ngOnInit() {
         this.loading.set('Loading settings...');
         this._dialog_ref.disableClose = true;
-        const zone_settings: any = (
-            await showMetadata(this.zone.id, `${this.workplace_key}`).catch(
-                () => ({ details: {} }),
-            )
-        ).details;
-        const parent_settings: any = (
-            await showMetadata(
-                this.zone.parent_id,
-                `${this.workplace_key}`,
-            ).catch(() => ({ details: {} }))
-        ).details;
-        const org_settings: any = (
-            await showMetadata(
-                this._org.organisation.id,
-                `${this.workplace_key}`,
-            ).catch(() => ({ details: {} }))
-        ).details;
+        const zone_settings: any = await this._loadSettings(this.zone.id);
+        const parent_settings: any = await this._loadSettings(
+            this.zone.parent_id,
+        );
+        const org_settings: any = await this._loadSettings(
+            this._org.organisation.id,
+        );
+        if (this.load_failed()) {
+            notifyError('Failed to load settings. Saving is disabled.');
+        }
         const combined_settings = {
             ...org_settings,
             ...parent_settings,
@@ -414,7 +422,26 @@ export class AppSettingsModalComponent implements OnInit {
         this._dialog_ref.disableClose = false;
     }
 
+    /**
+     * Settings stored on the zone with `id`. A zone with no stored settings
+     * gives an empty object. Other failures set `load_failed`, because a save
+     * would then write the defaults over the stored settings.
+     */
+    private async _loadSettings(id?: string): Promise<Record<string, unknown>> {
+        if (!id) return {};
+        try {
+            const { details } = await showMetadata(id, `${this.workplace_key}`);
+            return details && !Array.isArray(details) ? details : {};
+        } catch (e) {
+            if ((e as { status?: number })?.status !== 404) {
+                this.load_failed.set(true);
+            }
+            return {};
+        }
+    }
+
     public async save() {
+        if (this.load_failed()) return;
         const details = this.buildSettings();
         this.loading.set('Saving settings...');
         this._dialog_ref.disableClose = true;

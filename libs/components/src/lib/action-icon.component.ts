@@ -13,6 +13,7 @@ import { IconComponent } from './icon.component';
             class="relative"
             [class.success]="state() === 'success'"
             [disabled]="loading() || disabled()"
+            [attr.aria-label]="label() || null"
             title=""
         >
             <icon root [className]="className()" [icon]="icon()">
@@ -65,6 +66,8 @@ export class ActionIconComponent {
     public readonly className = input<string>('material-symbols-rounded');
     /** Icon to display */
     public readonly content = input<string>(undefined);
+    /** Accessible name of the button. Icon-only buttons need one */
+    public readonly label = input<string>(undefined);
     /** Whether action is being processed */
     public readonly loading = input<boolean>(undefined);
     /** Whether action is being processed */

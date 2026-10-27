@@ -104,7 +104,7 @@ import {
                 >
                 </simple-table>
                 <ng-template #date_template let-data="data">
-                    <div class="p-4 opacity-60">
+                    <div class="p-4 opacity-70">
                         {{ data * 1000 | date: 'mediumDate' }}
                     </div>
                 </ng-template>
@@ -112,7 +112,7 @@ import {
                     <div class="p-4">
                         {{ (data | building)?.display_name }}
                         @if (!(data | building)) {
-                            <span class="opacity-30">
+                            <span class="opacity-70">
                                 {{ 'RESOURCE.BUILDING_EMPTY' | translate }}
                             </span>
                         }
@@ -122,12 +122,12 @@ import {
                     <div class="px-4 py-2 text-sm leading-tight">
                         {{ triggerName(data) }}
                         @if (!data) {
-                            <span class="opacity-30">
+                            <span class="opacity-70">
                                 {{ 'COMMON.TRIGGER_EMPTY' | translate }}
                             </span>
                         }
                         @if (triggerDescription(data)) {
-                            <div class="text-xs opacity-30">
+                            <div class="text-xs opacity-70">
                                 {{ triggerDescription(data) }}
                             </div>
                         }
@@ -140,6 +140,7 @@ import {
                         matRipple
                         [matMenuTriggerFor]="menu"
                         class="mx-auto"
+                        [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
                     >
                         <icon>more_vert</icon>
                     </button>

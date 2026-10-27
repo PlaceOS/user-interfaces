@@ -1,10 +1,11 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import {
     CdkDragDrop,
     DragDropModule,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
 
-import { Component, inject, resource, signal } from '@angular/core';
+import { Component, Injector, inject, resource, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -30,6 +31,7 @@ import {
 } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rules-form.component';
+import { restoreFocusAfterRender } from './restore-focus';
 
 @Component({
     selector: 'app-booking-rules-modal',
@@ -150,6 +152,22 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                         'APP.CONCIERGE.BOOKING_RULESET_REORDER'
                                                             | translate
                                                     "
+                                                    [attr.aria-label]="
+                                                        'APP.CONCIERGE.BOOKING_RULESET_REORDER'
+                                                            | translate
+                                                    "
+                                                    [attr.aria-description]="
+                                                        'COMMON.REORDER_HINT'
+                                                            | translate
+                                                    "
+                                                    (keydown.arrowup)="
+                                                        $event.preventDefault();
+                                                        move(i, i - 1)
+                                                    "
+                                                    (keydown.arrowdown)="
+                                                        $event.preventDefault();
+                                                        move(i, i + 1)
+                                                    "
                                                 >
                                                     <icon>drag_indicator</icon>
                                                 </button>
@@ -170,7 +188,7 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                             }}
                                                         </div>
                                                         <div
-                                                            class="font-mono text-[0.625rem] opacity-30"
+                                                            class="font-mono text-[0.625rem] opacity-70"
                                                         >
                                                             {{ row.zone }}
                                                         </div>
@@ -266,6 +284,10 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                         'APP.CONCIERGE.BOOKING_RULESET_EDIT'
                                                             | translate
                                                     "
+                                                    [attr.aria-label]="
+                                                        'APP.CONCIERGE.BOOKING_RULESET_EDIT'
+                                                            | translate
+                                                    "
                                                 >
                                                     <icon>edit</icon>
                                                 </button>
@@ -275,6 +297,10 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                     class="rounded-sm"
                                                     (click)="removeRuleset(row)"
                                                     [matTooltip]="
+                                                        'APP.CONCIERGE.BOOKING_RULESET_REMOVE'
+                                                            | translate
+                                                    "
+                                                    [attr.aria-label]="
                                                         'APP.CONCIERGE.BOOKING_RULESET_REMOVE'
                                                             | translate
                                                     "
@@ -304,7 +330,7 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                             track key
                                                         ) {
                                                             <dt
-                                                                class="font-medium opacity-60"
+                                                                class="font-medium opacity-70"
                                                             >
                                                                 {{
                                                                     CONDITION_LABELS[
@@ -330,7 +356,7 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                                     </dl>
                                                 } @else {
                                                     <div
-                                                        class="text-xs opacity-30"
+                                                        class="text-xs opacity-70"
                                                     >
                                                         No conditions configured
                                                     </div>
@@ -340,7 +366,7 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                     </div>
                                 } @empty {
                                     <div
-                                        class="border-base-300 flex items-center justify-center border-x border-b p-8 opacity-30"
+                                        class="border-base-300 flex items-center justify-center border-x border-b p-8 opacity-70"
                                     >
                                         {{
                                             load_failed()
@@ -420,12 +446,16 @@ export class BookingRulesModalComponent {
     }>(MAT_DIALOG_DATA);
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
+    private _announcer = inject(LiveAnnouncer);
+    private _injector = inject(Injector);
 
     public readonly loading = signal(false);
     public readonly view = signal<'list' | 'form'>('list');
     public readonly activate_save = signal(false);
     public readonly selected = signal<BookingRuleset | null>(null);
     public readonly change = signal(0);
+    /** True while a new order saves. Blocks more moves until it is stored */
+    public readonly saving_order = signal(false);
     /** True when the stored rulesets could not be read. */
     public readonly load_failed = signal(false);
     public readonly show_children = signal<Record<string, boolean>>({});
@@ -576,21 +606,43 @@ export class BookingRulesModalComponent {
         }
     }
 
-    public async drop(event: CdkDragDrop<BookingRuleset[]>) {
-        if (event.previousIndex === event.currentIndex) return;
-        if (!this._canWrite()) return;
+    public drop(event: CdkDragDrop<BookingRuleset[]>) {
+        return this.move(event.previousIndex, event.currentIndex);
+    }
+
+    /**
+     * Move a ruleset and save the new order. Drag and drop, and the arrow keys
+     * on the drag handle, use it. The list shows the new order at once, so the
+     * rows and the keyboard focus stay in place. A failed save reloads the
+     * stored order.
+     */
+    public async move(from: number, to: number) {
         const rules = [...this.booking_rules()];
-        moveItemInArray(rules, event.previousIndex, event.currentIndex);
-        await updateMetadata(this._org.building.id, {
-            name: `${this.type}_booking_rules`,
-            description: `${this.type} Booking Rules`,
-            details: rules,
-        }).catch((_) => {
+        if (from === to || to < 0 || to >= rules.length) return;
+        if (this.saving_order() || !this._canWrite()) return;
+        moveItemInArray(rules, from, to);
+        restoreFocusAfterRender(this._injector);
+        this._booking_rules.value.set(rules);
+        this.saving_order.set(true);
+        try {
+            await updateMetadata(this._org.building.id, {
+                name: `${this.type}_booking_rules`,
+                description: `${this.type} Booking Rules`,
+                details: rules,
+            });
+            notifySuccess('Successfully updated booking rules order.');
+            this._announcer.announce(
+                i18n('COMMON.MOVED_TO_POSITION', {
+                    position: to + 1,
+                    count: rules.length,
+                }),
+            );
+        } catch {
             notifyError('Error saving booking rules order change.');
-            throw _;
-        });
-        notifySuccess('Successfully updated booking rules order.');
-        this.change.set(Date.now());
+            this._booking_rules.reload();
+        } finally {
+            this.saving_order.set(false);
+        }
     }
 
     public async save(new_ruleset?: BookingRuleset) {
