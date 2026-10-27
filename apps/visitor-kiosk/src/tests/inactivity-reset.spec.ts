@@ -63,6 +63,8 @@ describe('returnToWelcomeWhenIdle', () => {
         expect(idle.warning_secs()).toBe(0);
         vi.advanceTimersByTime(1);
         expect(idle.warning_secs()).toBe(20);
+        vi.advanceTimersByTime(5_000);
+        expect(idle.warning_secs()).toBe(15);
         idle.stay();
         expect(idle.warning_secs()).toBe(0);
         vi.advanceTimersByTime(119_999);

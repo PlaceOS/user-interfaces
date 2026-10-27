@@ -39,6 +39,7 @@ export function returnToWelcomeWhenIdle(): IdleReset {
     const warning_secs = signal(0);
     let timer: ReturnType<typeof setTimeout> | undefined;
     let warning_timer: ReturnType<typeof setTimeout> | undefined;
+    let countdown: ReturnType<typeof setInterval> | undefined;
 
     const isIdleRoute = () => {
         const path = router.url.split('?')[0];
@@ -49,7 +50,8 @@ export function returnToWelcomeWhenIdle(): IdleReset {
     const clear = () => {
         clearTimeout(timer);
         clearTimeout(warning_timer);
-        timer = warning_timer = undefined;
+        clearInterval(countdown);
+        timer = warning_timer = countdown = undefined;
         warning_secs.set(0);
     };
     const restart = () => {
@@ -58,7 +60,14 @@ export function returnToWelcomeWhenIdle(): IdleReset {
         if (!(secs > 0) || isIdleRoute()) return;
         const warn_secs = Math.min(IDLE_WARNING_SECS, secs);
         warning_timer = setTimeout(
-            () => warning_secs.set(warn_secs),
+            () => {
+                warning_secs.set(warn_secs);
+                // Stops at 1, because the reset clears the warning at 0
+                countdown = setInterval(
+                    () => warning_secs.update((left) => Math.max(left - 1, 1)),
+                    1000,
+                );
+            },
             (secs - warn_secs) * 1000,
         );
         timer = setTimeout(() => {

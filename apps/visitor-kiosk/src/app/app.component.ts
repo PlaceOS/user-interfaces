@@ -11,6 +11,7 @@ import { ChatComponent } from '@placeos/components/chat';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
 import { parseTokenFromUrl } from './checkin/token-from-url';
+import { AnnounceDirective } from './components/announce.directive';
 import { returnToWelcomeWhenIdle } from './inactivity-reset';
 
 @Component({
@@ -22,6 +23,7 @@ import { returnToWelcomeWhenIdle } from './inactivity-reset';
         GlobalLoadingComponent,
         SettingsDebugPanelLauncherComponent,
         TranslatePipe,
+        AnnounceDirective,
     ],
     template: `
         <global-banner />
@@ -30,10 +32,10 @@ import { returnToWelcomeWhenIdle } from './inactivity-reset';
         </div>
         @if (idle.warning_secs(); as seconds) {
             <div
-                role="alert"
                 class="bg-base-100 text-base-content fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-sm p-4 shadow-lg"
             >
-                <p>
+                <!-- Read once. A live region would read each second -->
+                <p announce>
                     {{
                         'APP.VISITOR_KIOSK.IDLE_WARNING'
                             | translate: { seconds: seconds }
