@@ -1,5 +1,6 @@
 import {
     ApplicationConfig,
+    ErrorHandler,
     inject,
     LOCALE_ID,
     provideAppInitializer,
@@ -13,7 +14,11 @@ import {
     withHashLocation,
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
-import { LocaleService, registerActiveLocale } from '@placeos/common';
+import {
+    LazySentryErrorHandler,
+    LocaleService,
+    registerActiveLocale,
+} from '@placeos/common';
 import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
@@ -161,17 +166,10 @@ export const APP_CONFIG: ApplicationConfig = {
             withHashLocation(),
             withComponentInputBinding(),
         ),
-        // {
-        //     provide: ErrorHandler,
-        //     useValue: Sentry.createErrorHandler({
-        //         showDialog: false,
-        //     }),
-        // },
-        // {
-        //     provide: Sentry.TraceService,
-        //     deps: [Router],
-        // },
-
+        {
+            provide: ErrorHandler,
+            useClass: LazySentryErrorHandler,
+        },
         {
             provide: LOCALE_ID,
             deps: [LocaleService],

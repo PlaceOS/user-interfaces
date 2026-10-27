@@ -21,3 +21,11 @@ start. Each changelog includes commits that change the application, its transiti
 Nx dependencies, or files under `shared/`. Builds include `CHANGELOG.md` when
 generation and artifact transfer succeed. Changelog generation, upload, download,
 or copy failures do not block tests, builds, or deployment.
+
+## Sentry source maps
+
+Production builds of the apps that use Sentry make hidden source maps: the scripts do not link to them. Staging builds keep their linked source maps. The build writes a debug ID into each script and its source map.
+
+After each build in the `BUILD` workflow, CI runs `.github/scripts/register-sentry-debug-ids.mjs`. The script adds code that registers each script's debug ID for the Sentry SDK, and updates the service worker hashes. CI then uploads the source maps to the `placeos-dev` project in the `place-technology` Sentry organisation. The upload needs the `SENTRY_AUTH_TOKEN` repository secret. Without the secret, CI does not change the build and skips the upload. An upload failure does not block the deployment.
+
+The `BUILD` and `PR Flow` workflows delete the source maps from production builds before deployment.

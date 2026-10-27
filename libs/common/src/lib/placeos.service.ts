@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { inject, Injectable, signal } from '@angular/core';
+import { ErrorHandler, inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
@@ -58,7 +58,7 @@ import {
 import { lazySnackbar, notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
 import { createNativeAuthUrl, setupPlace } from './placeos';
-import { initSentry } from './sentry';
+import { initSentryFromSettings } from './sentry';
 import { SettingsService } from './settings.service';
 import { finishTeamsSignIn, startTeamsHost } from './teams-host';
 import { setInternalUserDomain } from './types/user.class';
@@ -127,11 +127,19 @@ export class PlaceOS_Service extends AsyncHandler {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _maps = inject(MapsPeopleService);
+    /** Reports startup failures to the console and Sentry */
+    private _error_handler = inject(ErrorHandler);
 
     private _zone = '';
     private _region = '';
     private _initial_token = '';
     private _domain_resolve: (() => void) | null = null;
+
+    constructor() {
+        super();
+        // Started here, not in `init`, so errors during sign in are reported
+        initSentryFromSettings();
+    }
 
     private async _handleNativeAuthRedirect(url: string): Promise<void> {
         const callback_url = new URL(url);
@@ -464,7 +472,7 @@ export class PlaceOS_Service extends AsyncHandler {
                 'Organisation loading timed out.',
             );
         } catch (error) {
-            console.error(error);
+            this._error_handler.handleError(error);
             requestInitReload();
             return;
         }
@@ -480,7 +488,7 @@ export class PlaceOS_Service extends AsyncHandler {
                 'Current user loading timed out.',
             );
         } catch (error) {
-            console.error(error);
+            this._error_handler.handleError(error);
             this.onInitError();
             return;
         }
@@ -491,7 +499,6 @@ export class PlaceOS_Service extends AsyncHandler {
                 `@${currentUser()?.email?.split('@')[1]}`,
         );
         this._initAnalytics();
-        void initSentry(this._settings.get('app.sentry_dsn'), this._router);
         try {
             this._initFixedDevice();
         } catch {

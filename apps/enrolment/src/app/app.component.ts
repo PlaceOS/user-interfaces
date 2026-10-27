@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ErrorHandler, inject, OnInit } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 
@@ -9,7 +9,7 @@ import {
     failInitialisation,
     firstTruthyValueFrom,
     initialisationFailure,
-    initSentry,
+    initSentryFromSettings,
     lazySnackbar,
     log,
     markInitialisationComplete,
@@ -23,7 +23,7 @@ import {
 } from '@placeos/common';
 import { setInternalUserDomain } from '@placeos/users';
 
-import { Router, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import {
     GlobalBannerComponent,
     ServiceWorkerUpdateCardComponent,
@@ -79,13 +79,20 @@ import { PlaceAuthority, token } from '@placeos/ts-client';
     ],
 })
 export class AppComponent extends AsyncHandler implements OnInit {
-    private _router = inject(Router);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _cache = inject(SwUpdate);
     private _snackbar = lazySnackbar();
     private _clipboard = inject(Clipboard);
+    /** Reports startup failures to the console and Sentry */
+    private _error_handler = inject(ErrorHandler);
     public readonly initialisation_error = initialisationFailure();
+
+    constructor() {
+        super();
+        // Started here, not in `ngOnInit`, so errors during sign in are reported
+        initSentryFromSettings();
+    }
 
     public retry(): void {
         retryInitialisation();
@@ -109,7 +116,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             }
             authority = await response.json();
         } catch (error) {
-            console.error(error);
+            this._error_handler.handleError(error);
             failInitialisation(
                 'Enrolment could not connect to the server. Check the connection, then try again.',
             );
@@ -122,19 +129,20 @@ export class AppComponent extends AsyncHandler implements OnInit {
         settings.mock =
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
+        // Apply the domain config before sign in, so a `sentry_dsn` in it can
+        // report a sign in failure. It also sets `internal_user_domain`.
+        this._settings.setOverrides([authority.config?.enrolment || {}]);
         /** Wait for authentication details to load */
         try {
             await setupPlace(settings);
         } catch (error) {
-            console.error(error);
+            this._error_handler.handleError(error);
             failInitialisation(
                 'Enrolment could not authenticate. Check the connection, then try again.',
             );
             return;
         }
         setupCache(this._cache, this._settings.get('service_worker') || {});
-        // Apply the domain config first, so it can set `internal_user_domain`
-        this._settings.setOverrides([authority.config?.enrolment || {}]);
         setInternalUserDomain(
             this._settings.get('app.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`,
@@ -156,12 +164,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 providers: [Amazon, Azure, Google, OpenStack] as any,
             });
         });
-
-        void initSentry(
-            this._settings.get('app.sentry_dsn'),
-            this._router,
-            0.2,
-        );
         markInitialisationComplete();
     }
 }

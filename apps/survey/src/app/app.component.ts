@@ -31,34 +31,8 @@ import {
 
 import { mocksInit } from '@placeos/mocks';
 import { convertPairStringToMap, setAPI_Key } from '@placeos/ts-client';
-// import * as Sentry from '@sentry/angular';
 
 const START_QUERY = location.search;
-
-// export function initSentry(dsn: string, sample_rate = 0.1) {
-//     if (!dsn) return;
-//     Sentry.init({
-//         dsn,
-//         integrations: [
-//             Sentry.browserTracingIntegration(),
-//             Sentry.replayIntegration({
-//                 maskAllText: false,
-//                 blockAllMedia: false,
-//             }),
-//         ],
-//         // Performance Monitoring
-//         tracesSampleRate: 1.0, //  Capture 100% of the transactions
-//         // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-//         tracePropagationTargets: [
-//             'localhost',
-//             /^https:\/\/[a-zA-Z0-9_-]*\.[a-zA-Z0-9]*\/api/,
-//             /^https:\/\/[a-zA-Z0-9_-]*\.placeos\.run*\/api/,
-//         ],
-//         // Session Replay
-//         replaysSessionSampleRate: sample_rate, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-//         replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
-//     });
-// }
 
 @Component({
     selector: 'app-root',
@@ -100,7 +74,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _locale = inject(LocaleService);
     private _cache = inject(SwUpdate);
     private _snackbar = lazySnackbar();
-    // private _tracing = inject(Sentry.TraceService);
 
     public async ngOnInit() {
         setNotifyOutlet(this._snackbar);
@@ -187,7 +160,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this.clearTimeout('wait_for_user');
         this._initLocale();
         markInitialisationComplete();
-        // initSentry(this._settings.get('app.sentry_dsn'));
     }
 
     private _initLocale() {

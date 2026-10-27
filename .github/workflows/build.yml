@@ -239,6 +239,28 @@ jobs:
               run: |
                   bunx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
+            # The build writes a debug ID into each script and its source map.
+            # The script registers the IDs at runtime for the Sentry SDK. An
+            # upload failure does not block the deployment.
+            - name: Upload source maps to Sentry
+              run: |
+                  if [[ -z "$SENTRY_AUTH_TOKEN" ]]; then
+                      echo "SENTRY_AUTH_TOKEN is not set. Skipping source map upload."
+                      exit 0
+                  fi
+                  bun .github/scripts/register-sentry-debug-ids.mjs "$FOLDER"
+                  bunx sentry-cli sourcemaps upload "$FOLDER" ||
+                      echo "::warning::Source map upload to Sentry failed."
+              env:
+                  FOLDER: dist/apps/${{ matrix.package }}/browser
+                  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+                  SENTRY_ORG: place-technology
+                  SENTRY_PROJECT: placeos-dev
+
+            - name: Remove source maps from production builds
+              if: ${{ env.configuration == 'production' }}
+              run: find "dist/apps/${{ matrix.package }}/browser" -name '*.map' -delete
+
             - name: Download application changelogs
               id: download_changelogs
               continue-on-error: true
