@@ -269,7 +269,23 @@
         "MORE_OPTIONS": "Plus d'options",
         "SHOW_QR_CODE": "Afficher le code QR",
         "UPLOAD_FILE": "Téléverser un fichier",
-        "QR_CODE": "Code QR"
+        "QR_CODE": "Code QR",
+        "REORDER_HINT": "Appuyez sur la flèche haut ou bas pour déplacer",
+        "MOVED_TO_POSITION": "Déplacé en position {{ position }} sur {{ count }}",
+        "INCREASE": "Augmenter",
+        "DECREASE": "Diminuer",
+        "PREVIOUS_MONTH": "Mois précédent",
+        "NEXT_MONTH": "Mois suivant",
+        "COPY_LINK": "Copier le lien",
+        "OPEN_FILE": "Ouvrir le fichier",
+        "BOLD": "Gras",
+        "ITALIC": "Italique",
+        "UNDERLINE": "Souligné",
+        "BULLETED_LIST": "Liste à puces",
+        "NUMBERED_LIST": "Liste numérotée",
+        "INSERT_LINK": "Insérer un lien",
+        "INSERT_IMAGE": "Insérer une image",
+        "ATTACH_FILE": "Joindre un fichier"
     },
     "LANGUAGE": {
         "ENGLISH": "Anglais",
@@ -1859,7 +1875,8 @@
             "UNSAVED_CHANGES_DISCARD": "Abandonner",
             "LOCKERS_SHOW": "Afficher les casiers",
             "VISITORS_ID_IMAGE": "Pièce d'identité du visiteur",
-            "ASSETS_REQUEST_DETAILS": "Détails de la demande de ressource"
+            "ASSETS_REQUEST_DETAILS": "Détails de la demande de ressource",
+            "SHORTCUTS_ENABLED": "Utiliser les raccourcis à une touche"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacité de la salle",
@@ -2100,7 +2117,21 @@
             "CHECKOUT": "Départ du bâtiment",
             "CHECKOUT_MSG": "Vous êtes actuellement enregistré dans le bâtiment. Souhaitez-vous effectuer votre départ ?",
             "CHECKOUT_LOADING": "Checking out guest...",
-            "CHECKOUT_SUCCESS": "Successfully checked out guest."
+            "CHECKOUT_SUCCESS": "Successfully checked out guest.",
+            "CAMERA_OFF": "Caméra indisponible",
+            "READY_TO_SCAN": "Prêt à scanner le code QR",
+            "SEE_RECEPTION": "Veuillez vous adresser à l’accueil.",
+            "RECEPTION_ASSIST": "Notre personnel d’accueil va vous aider.",
+            "CONFIRM_DETAILS": "Confirmer les informations",
+            "RETAKE": "Reprendre",
+            "MEETING_REJECTED": "Votre réunion a été refusée.",
+            "MEETING_FINISHED": "Votre réunion est déjà terminée.",
+            "NOT_CHECKED_IN": "Vous n’êtes pas encore enregistré.",
+            "ALREADY_CHECKED_IN": "Vous êtes déjà enregistré.",
+            "INDUCTION_DECLINED": "Vous avez refusé l’induction.",
+            "ERROR_CHECKOUT": "Erreur lors du départ.",
+            "INVALID_QR_CODE": "Code QR non valide",
+            "IDLE_WARNING": "Êtes-vous toujours là ? Cet écran reviendra au début dans {{ seconds }} secondes."
         }
     },
     "SIGNAGE_MANAGER": {
