@@ -110,6 +110,31 @@ describe('CheckinStateService', () => {
         expect(patch).toHaveBeenCalled();
     });
 
+    it('ignores a guest details save that times out', async () => {
+        vi.useFakeTimers();
+        const booking = new Booking({
+            id: 'event-1234',
+            asset_id: 'a@b.com',
+            user_email: 'host@b.com',
+        });
+        spectator.service.setBooking(booking);
+        let resolveSave: (value: unknown) => void;
+        vi.mocked(patch).mockImplementationOnce(
+            () => new Promise((resolve) => (resolveSave = resolve)) as any,
+        );
+        const save = expect(spectator.service.updateGuest()).rejects.toThrow(
+            'Request timed out',
+        );
+
+        await vi.advanceTimersByTimeAsync(10_000);
+        await save;
+        resolveSave({ id: 'other-event' });
+        await vi.runAllTimersAsync();
+
+        expect(spectator.service.event()).toBe(booking);
+        vi.useRealTimers();
+    });
+
     it('stores additional guest details on the booking', async () => {
         spectator.service.setBooking(
             new Booking({

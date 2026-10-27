@@ -22,8 +22,9 @@ import {
 import { SpacePipe } from '@placeos/events';
 import { showGuest } from '@placeos/users';
 
-/** Time to wait for a guest and event lookup before the kiosk shows an error */
-const LOOKUP_TIMEOUT_MS = 10_000;
+/** Time to wait for a check-in request before the kiosk shows an error */
+const REQUEST_TIMEOUT_MS = 10_000;
+const TIMEOUT_MESSAGE = 'Request timed out. Please try again.';
 
 export interface CheckinGuestDetails {
     host: string;
@@ -112,15 +113,15 @@ export class CheckinStateService {
 
     /**
      * Load guest and event data into the check-in state.
-     * Rejects if the lookup takes longer than `LOOKUP_TIMEOUT_MS`, or if a
+     * Rejects if the lookup takes longer than `REQUEST_TIMEOUT_MS`, or if a
      * newer lookup starts first.
      */
     public async loadGuestAndEvent(email: string, event_id?: string) {
         const id = ++this._lookup_id;
         const result = await withTimeout(
             this._findGuestAndEvent(email, event_id),
-            LOOKUP_TIMEOUT_MS,
-            'Request timed out. Please try again.',
+            REQUEST_TIMEOUT_MS,
+            TIMEOUT_MESSAGE,
         );
         if (id !== this._lookup_id) throw new Error('Lookup was replaced.');
         this._guest.set(result.guest);
@@ -161,13 +162,17 @@ export class CheckinStateService {
         return { guest, event: todays_events[0] };
     }
 
+    /**
+     * Save the form details and `data` to the current booking.
+     * Rejects if the save fails or takes longer than `REQUEST_TIMEOUT_MS`.
+     */
     public async updateGuest(data?: HashMap) {
         const guest = this._guest();
         const form = this.form();
         if (!guest || !form) return;
         const booking = this._booking() || guest.extension_data.event;
         if (!booking || this.metadata) return;
-        const updated_booking = await updateBooking(
+        const save = updateBooking(
             booking.id,
             new Booking({
                 ...booking,
@@ -185,6 +190,12 @@ export class CheckinStateService {
                     phone: form.phone || booking.extension_data?.phone,
                 },
             }).toJSON(),
+        );
+        // A save that ends after the timeout must not change the state
+        const updated_booking = await withTimeout(
+            save,
+            REQUEST_TIMEOUT_MS,
+            TIMEOUT_MESSAGE,
         );
         this.setBooking(updated_booking);
     }
@@ -207,11 +218,20 @@ export class CheckinStateService {
         await updateBookingInductionStatus(event.id, 'declined');
     }
 
+    /**
+     * Set the check-in state of the current booking.
+     * Shows an error and rejects if the request fails or takes longer than
+     * `REQUEST_TIMEOUT_MS`.
+     */
     public async checkinGuest(state = true) {
         const guest = this._guest();
         const event = this._booking() || guest?.extension_data?.event;
         if (!guest || !event) return;
-        const checkin_fn = checkinBooking(event.id, state);
+        const checkin_fn = withTimeout(
+            checkinBooking(event.id, state),
+            REQUEST_TIMEOUT_MS,
+            TIMEOUT_MESSAGE,
+        );
         const vars = {
             guest: guest.name,
             host: event.user_name || event.user_email,
