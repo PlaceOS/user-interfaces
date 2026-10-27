@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["timetable.component.ts"],
+  "sourcesContent": ["\n            [hour]:last-child {\n                border: none !important;\n            }\n\n            .arrow {\n                width: 0;\n                height: 0;\n                border-top: 0.6rem solid transparent;\n                border-bottom: 0.6rem solid transparent;\n                border-left: 0.75rem solid var(--secondary);\n            }\n        "],
+  "mappings": "AACY,CAAA,KAAA,YACI,OAAA,cACJ,CAEA,CAAA,MACI,MAAA,EACA,OAAA,EACA,WAAA,MAAA,MAAA,YACA,cAAA,MAAA,MAAA,YACA,YAAA,OAAA,MAAA,IAAA,YACJ",
+  "names": []
+}
