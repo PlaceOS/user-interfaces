@@ -33,9 +33,9 @@ import { TranslatePipe } from '@placeos/components';
                 <header
                     class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
                 >
-                    <div>
+                    <h1>
                         {{ 'APP.BOOKING_PANEL.BOOTSTRAP_TITLE' | translate }}
-                    </div>
+                    </h1>
                     <div class="relative overflow-hidden rounded-sm px-2 py-1">
                         <div
                             class="bg-base-100 absolute inset-0 z-0 opacity-10"

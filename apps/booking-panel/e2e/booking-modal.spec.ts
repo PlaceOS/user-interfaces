@@ -20,7 +20,7 @@ test.describe('Booking Modal - Opening', () => {
         page,
     }) => {
         // Click on the main panel button
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
 
         // Wait for potential modal
         await page.waitForTimeout(2000);
@@ -32,7 +32,7 @@ test.describe('Booking Modal - Opening', () => {
     });
 
     test('should show dialog container when modal opens', async ({ page }) => {
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         // Check for any dialog container
@@ -49,7 +49,7 @@ test.describe('Booking Modal - Form Fields', () => {
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         // If booking modal opened, check for duration field
@@ -65,7 +65,7 @@ test.describe('Booking Modal - Form Fields', () => {
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         const titleField = page.locator('input[name="title"]');
@@ -78,7 +78,7 @@ test.describe('Booking Modal - Form Fields', () => {
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         // Host field visibility depends on disable_book_now_host setting
@@ -89,7 +89,7 @@ test.describe('Booking Modal - Form Fields', () => {
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         // Time field only appears for future bookings
@@ -102,7 +102,7 @@ test.describe('Booking Modal - Actions', () => {
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         const saveButton = page.locator('button[name="save"]');
@@ -115,7 +115,7 @@ test.describe('Booking Modal - Actions', () => {
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         const closeButton = page.locator(
@@ -130,7 +130,7 @@ test.describe('Booking Modal - Actions', () => {
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         const closeButton = page.locator('[mat-dialog-close]');
@@ -181,7 +181,7 @@ test.describe('Booking Modal - Validation', () => {
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         const saveButton = page.locator('button[name="save"]');
@@ -208,7 +208,7 @@ test.describe('Booking Modal - Confirmation Dialog', () => {
             await pendingStatus.isVisible({ timeout: 5000 }).catch(() => false)
         ) {
             // Click to check in
-            await page.locator('panel-view > button').click();
+            await page.locator('panel-view > [panel-surface]').click();
             await page.waitForTimeout(2000);
 
             // Should show confirmation dialog
@@ -228,7 +228,7 @@ test.describe('Booking Modal - Confirmation Dialog', () => {
 
         if (await busyStatus.isVisible({ timeout: 5000 }).catch(() => false)) {
             // Click to potentially end meeting (if enabled)
-            await page.locator('panel-view > button').click();
+            await page.locator('panel-view > [panel-surface]').click();
             await page.waitForTimeout(2000);
 
             // May show end meeting confirmation if enable_end_meeting_button is true
@@ -241,7 +241,7 @@ test.describe('Booking Modal - Loading State', () => {
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         // If booking modal is open, fill required fields and save
@@ -266,7 +266,7 @@ test.describe('Booking Modal - Duration Constraints', () => {
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         const durationField = page.locator('a-duration-field');
@@ -282,7 +282,7 @@ test.describe('Booking Modal - Duration Constraints', () => {
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        await page.locator('panel-view > button').click();
+        await page.locator('panel-view > [panel-surface]').click();
         await page.waitForTimeout(2000);
 
         const durationField = page.locator('a-duration-field');

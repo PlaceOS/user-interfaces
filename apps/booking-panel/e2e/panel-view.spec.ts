@@ -29,9 +29,8 @@ test.describe('Panel View - Core Functionality', () => {
     });
 
     test('should have clickable panel area', async ({ page }) => {
-        const panelButton = page.locator('panel-view > button');
-        await expect(panelButton).toBeVisible({ timeout: STATUS_TIMEOUT });
-        await expect(panelButton).toBeEnabled();
+        const panelSurface = page.locator('panel-view > [panel-surface]');
+        await expect(panelSurface).toBeVisible({ timeout: STATUS_TIMEOUT });
     });
 });
 
@@ -74,13 +73,13 @@ test.describe('Panel View - Status Display', () => {
 
     test('should display NOW section', async ({ page }) => {
         await expect(
-            page.locator('panel-view-status h3', { hasText: /now/i }),
+            page.locator('panel-view-status h2', { hasText: /now/i }),
         ).toBeVisible({ timeout: STATUS_TIMEOUT });
     });
 
     test('should display NEXT section', async ({ page }) => {
         await expect(
-            page.locator('panel-view-status h3', { hasText: /next/i }),
+            page.locator('panel-view-status h2', { hasText: /next/i }),
         ).toBeVisible({ timeout: STATUS_TIMEOUT });
     });
 
@@ -126,11 +125,11 @@ test.describe('Panel View - User Interactions', () => {
     });
 
     test('should respond to click/tap on panel', async ({ page }) => {
-        const panelButton = page.locator('panel-view > button');
-        await expect(panelButton).toBeVisible({ timeout: STATUS_TIMEOUT });
+        const panelSurface = page.locator('panel-view > [panel-surface]');
+        await expect(panelSurface).toBeVisible({ timeout: STATUS_TIMEOUT });
 
         // Click should trigger action (booking, check-in, or end meeting based on status)
-        await panelButton.click();
+        await panelSurface.click();
 
         // Wait for any potential modal or state change
         await page.waitForTimeout(1000);

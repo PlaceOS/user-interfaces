@@ -41,9 +41,9 @@ import {
                         "
                     ></div>
                 }
-                <h3 class="mt-4 text-4xl font-medium uppercase">
+                <h2 class="mt-4 text-4xl font-medium uppercase">
                     {{ 'APP.BOOKING_PANEL.NOW' | translate }}
-                </h3>
+                </h2>
                 <p class="mt-4 text-2xl font-light">
                     @if (es?.current?.length) {
                         @if (es?.current[0]) {
@@ -136,40 +136,44 @@ import {
                     </p>
                 }
                 @if (s === 'pending' && can_book) {
-                    <div
+                    <button
+                        action-prompt
+                        type="button"
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                         [style.padding-left]="
                             show_floating_left ? '9rem' : null
                         "
                     >
-                        <p class="uppercase">
+                        <span class="uppercase">
                             {{
                                 (can_scan
                                     ? 'APP.BOOKING_PANEL.CHECKIN_INPUT'
                                     : 'APP.BOOKING_PANEL.CHECKIN_INPUT_NOSCAN'
                                 ) | translate
                             }}
-                        </p>
-                        <icon>arrow_forward</icon>
-                    </div>
+                        </span>
+                        <icon aria-hidden="true">arrow_forward</icon>
+                    </button>
                 }
                 @if (s === 'free' && can_book) {
-                    <div
+                    <button
+                        action-prompt
+                        type="button"
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                         [style.padding-left]="
                             show_floating_left ? '9rem' : null
                         "
                     >
-                        <p class="uppercase">
+                        <span class="uppercase">
                             {{
                                 (can_scan
                                     ? 'APP.BOOKING_PANEL.BOOKING_INPUT'
                                     : 'APP.BOOKING_PANEL.BOOKING_INPUT_NOSCAN'
                                 ) | translate
                             }}
-                        </p>
-                        <icon>arrow_forward</icon>
-                    </div>
+                        </span>
+                        <icon aria-hidden="true">arrow_forward</icon>
+                    </button>
                 }
                 @if (s === 'free' && !can_book && !can_scan_book) {
                     <div
@@ -188,17 +192,19 @@ import {
                     </div>
                 }
                 @if (s === 'busy' && can_end) {
-                    <div
+                    <button
+                        action-prompt
+                        type="button"
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                         [style.padding-left]="
                             show_floating_left ? '9rem' : null
                         "
                     >
-                        <p class="uppercase">
+                        <span class="uppercase">
                             {{ 'APP.BOOKING_PANEL.END_INPUT' | translate }}
-                        </p>
-                        <icon>arrow_forward</icon>
-                    </div>
+                        </span>
+                        <icon aria-hidden="true">arrow_forward</icon>
+                    </button>
                 }
             </div>
             <div
@@ -207,9 +213,9 @@ import {
                 <div
                     [innerHTML]="(!es?.next ? free_svg : in_use_svg) | safe"
                 ></div>
-                <h3 class="text-4xl font-medium uppercase">
+                <h2 class="text-4xl font-medium uppercase">
                     {{ 'COMMON.NEXT' | translate }}
-                </h3>
+                </h2>
                 <p class="text-2xl font-light">
                     {{
                         es?.next ||

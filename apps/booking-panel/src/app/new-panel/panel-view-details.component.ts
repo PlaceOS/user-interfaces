@@ -30,9 +30,9 @@ import { endingSoon } from './helpers';
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div class="absolute top-4 left-4">
-                <div name class="text-4xl font-medium">
+                <h1 name class="text-4xl font-medium">
                     {{ sys?.display_name || sys?.name || '' }}
-                </div>
+                </h1>
                 @if (capacity) {
                     <div
                         capacity

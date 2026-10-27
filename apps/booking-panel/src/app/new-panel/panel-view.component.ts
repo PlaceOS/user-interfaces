@@ -25,8 +25,9 @@ const NO_OFFSET: [number, number] = [0, 0];
 @Component({
     selector: 'panel-view',
     template: `
-        <button
-            class="relative flex h-full w-full items-stretch overflow-hidden"
+        <div
+            panel-surface
+            class="relative flex h-full w-full items-stretch overflow-hidden text-center"
             (click)="action()"
         >
             @let position = timeline_position;
@@ -128,7 +129,7 @@ const NO_OFFSET: [number, number] = [0, 0];
                     </div>
                 </div>
             }
-        </button>
+        </div>
         @if (!show_offline) {
             <panel-view-actions
                 class="absolute z-30"
@@ -325,6 +326,12 @@ export class PanelViewComponent
     public readonly checkin = () => this._state.checkin();
     public readonly endMeeting = () => this._state.confirmEnd();
 
+    /**
+     * Book, check in or end the meeting for the current status.
+     * Runs on a tap anywhere on the panel. Keyboard and screen reader users
+     * use the action prompt button in `panel-view-status`. Its click bubbles
+     * up to here.
+     */
     public action() {
         this.timeout('action', () => {
             const status = this._state.status();

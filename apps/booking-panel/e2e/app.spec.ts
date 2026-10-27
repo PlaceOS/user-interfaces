@@ -109,7 +109,7 @@ test.describe('Room Status Display (US-001 to US-005)', () => {
 
         // Check that the NOW section exists
         await expect(
-            statusPanel.locator('h3:has-text("NOW"), h3:has-text("now")', {
+            statusPanel.locator('h2:has-text("NOW"), h2:has-text("now")', {
                 hasText: /now/i,
             }),
         ).toBeVisible();
@@ -123,7 +123,7 @@ test.describe('Room Status Display (US-001 to US-005)', () => {
 
         // Should show NEXT section
         await expect(
-            statusPanel.locator('h3', { hasText: /next/i }),
+            statusPanel.locator('h2', { hasText: /next/i }),
         ).toBeVisible();
     });
 

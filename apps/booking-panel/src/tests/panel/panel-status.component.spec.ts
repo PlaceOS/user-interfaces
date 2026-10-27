@@ -70,9 +70,7 @@ describe('PanelViewStatusComponent', () => {
         show_timeline.set(true);
         await spectator.fixture.whenStable();
 
-        const action = spectator.query<HTMLElement>(
-            'div.absolute.inset-x-0.top-0',
-        );
+        const action = spectator.query<HTMLElement>('[action-prompt]');
         expect(action.style.paddingLeft).toBe('9rem');
     });
 
