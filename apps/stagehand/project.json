@@ -49,6 +49,7 @@
             },
             "configurations": {
                 "staging": {
+                    "sourceMap": true,
                     "optimization": true,
                     "fileReplacements": [
                         {
@@ -63,6 +64,11 @@
                     "serviceWorker": "apps/stagehand/ngsw-config.json"
                 },
                 "production": {
+                    "sourceMap": {
+                        "scripts": true,
+                        "styles": false,
+                        "hidden": true
+                    },
                     "fileReplacements": [
                         {
                             "replace": "libs/mocks/src/index.ts",

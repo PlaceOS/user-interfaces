@@ -253,6 +253,10 @@ jobs:
               run: |
                   bunx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
+            - name: Remove source maps from production builds
+              if: ${{ env.configuration == 'production' }}
+              run: find "dist/apps/${{ matrix.package }}/browser" -name '*.map' -delete
+
             - name: Download application changelogs
               id: download_changelogs
               continue-on-error: true
