@@ -12,6 +12,7 @@ import { generateQRCode } from '@placeos/common/qr-code';
 import { SanitizePipe, TranslatePipe } from '@placeos/components';
 import { UserLabelComponent } from '@placeos/users';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 
 const DEFAULT_TEMPLATE = `
@@ -30,14 +31,14 @@ const DEFAULT_TEMPLATE = `
                 class="bg-base-100 relative flex w-xl flex-col items-center space-y-4 overflow-hidden rounded-sm p-4 shadow-sm print:hidden"
             >
                 @let ev = event();
-                <h3 class="text-xl">
+                <h1 pageHeading class="text-xl">
                     {{
                         (ev.extension_data?.self_registered
                             ? 'APP.VISITOR_KIOSK.CHECKED_IN_MSG_SELF_REG'
                             : 'APP.VISITOR_KIOSK.CHECKED_IN_MSG'
                         ) | translate
                     }}
-                </h3>
+                </h1>
                 <div
                     class=""
                     [innerHTML]="result_template() | sanitize: 'html'"
@@ -98,6 +99,7 @@ const DEFAULT_TEMPLATE = `
     ],
     providers: [DatePipe],
     imports: [
+        PageHeadingDirective,
         CommonModule,
         MatRippleModule,
         TranslatePipe,

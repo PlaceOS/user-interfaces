@@ -34,6 +34,7 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { CheckinStateService } from './checkin/checkin-state.service';
+import { PageHeadingDirective } from './components/page-heading.directive';
 import { minuteClock } from './minute-clock';
 
 @Component({
@@ -60,9 +61,9 @@ import { minuteClock } from './minute-clock';
                     <div
                         class="bg-base-200 sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
                     >
-                        <h3 class="px-2 text-lg font-medium">
+                        <h1 pageHeading class="px-2 text-lg font-medium">
                             {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
-                        </h3>
+                        </h1>
                         <a
                             icon
                             matRipple
@@ -238,6 +239,7 @@ import { minuteClock } from './minute-clock';
     `,
     styles: [``],
     imports: [
+        PageHeadingDirective,
         CommonModule,
         FormsModule,
         TranslatePipe,

@@ -3,6 +3,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { notifyError } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { TakePhotoComponent } from '../components/take-photo.component';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -13,9 +14,9 @@ import { CheckinStateService } from './checkin-state.service';
             <div
                 class="bg-base-100 relative flex w-[24rem] flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
-                <h3 class="mb-4 text-xl">
+                <h1 pageHeading class="mb-4 text-xl">
                     {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO' | translate }}
-                </h3>
+                </h1>
                 <a-take-photo
                     (captured)="handlePhoto($event)"
                     [back_text]="'APP.VISITOR_KIOSK.SKIP' | translate"
@@ -32,7 +33,12 @@ import { CheckinStateService } from './checkin-state.service';
         }
     `,
     styles: [``],
-    imports: [TranslatePipe, MatProgressSpinnerModule, TakePhotoComponent],
+    imports: [
+        PageHeadingDirective,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        TakePhotoComponent,
+    ],
 })
 export class CheckinPhotoComponent implements OnInit {
     private _checkin = inject(CheckinStateService);

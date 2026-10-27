@@ -15,7 +15,7 @@ test.describe('US-CHECKOUT-001: Initiate Checkout', () => {
         await navigateWithConfig(page, CHECKOUT_SCAN_URL);
 
         await expect(page).toHaveURL(/.*checkout\/scan/);
-        await expect(page.locator('[checkin-qr-scan] h3')).toContainText(
+        await expect(page.locator('[checkin-qr-scan] h1')).toContainText(
             /check-out/i,
         );
     });

@@ -190,7 +190,7 @@ test.describe('Accessibility - Color Contrast', () => {
             .waitFor({ timeout: LOAD_TIMEOUT });
 
         // The welcome message should be visible (white text on dark background)
-        const welcomeText = page.locator('h3');
+        const welcomeText = page.locator('h1');
         await expect(welcomeText).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
@@ -201,7 +201,7 @@ test.describe('Accessibility - Color Contrast', () => {
             .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Form header should be visible
-        const header = page.locator('h3');
+        const header = page.locator('h1');
         await expect(header).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 });

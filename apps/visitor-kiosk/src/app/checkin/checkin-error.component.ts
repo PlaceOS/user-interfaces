@@ -3,6 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { isPublicMode } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -11,9 +12,9 @@ import { CheckinStateService } from './checkin-state.service';
         <div
             class="bg-base-100 relative m-4 flex flex-col items-center space-y-4 overflow-hidden rounded-sm px-16 py-4 text-center shadow-sm"
         >
-            <h3 class="pb-2 text-2xl">
+            <h1 pageHeading class="pb-2 text-2xl">
                 {{ 'APP.VISITOR_KIOSK.SEE_RECEPTION' | translate }}
-            </h3>
+            </h1>
             @if (error(); as error_message) {
                 <p>{{ error_message }}</p>
             }
@@ -43,7 +44,12 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
-    imports: [TranslatePipe, MatRippleModule, RouterModule],
+    imports: [
+        PageHeadingDirective,
+        TranslatePipe,
+        MatRippleModule,
+        RouterModule,
+    ],
 })
 export class CheckinErrorComponent {
     private _checkin = inject(CheckinStateService);

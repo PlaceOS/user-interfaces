@@ -27,6 +27,7 @@ import {
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
+import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 
 const SCAN_INTERVAL_MS = 100;
@@ -85,14 +86,14 @@ function shouldDecode(
             class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             [class.hidden]="checking_code()"
         >
-            <h3 class="mt-2 text-xl">
+            <h1 pageHeading class="mt-2 text-xl">
                 {{
                     (flow === 'checkout'
                         ? 'COMMON.CHECK_OUT'
                         : 'COMMON.CHECK_IN'
                     ) | translate
                 }}
-            </h3>
+            </h1>
             <p class="my-4">
                 {{ 'APP.VISITOR_KIOSK.QR_CODE_MSG' | translate }}
             </p>
@@ -228,6 +229,7 @@ function shouldDecode(
         `,
     ],
     imports: [
+        PageHeadingDirective,
         TranslatePipe,
         IconComponent,
         MatProgressSpinnerModule,

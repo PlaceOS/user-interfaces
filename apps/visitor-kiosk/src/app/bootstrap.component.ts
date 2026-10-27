@@ -20,6 +20,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
+import { PageHeadingDirective } from './components/page-heading.directive';
 
 @Component({
     selector: '[bootstrap]',
@@ -32,7 +33,9 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                 <header
                     class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
                 >
-                    <div>{{ 'APP.VISITOR_KIOSK.APP' | translate }}</div>
+                    <h1 pageHeading>
+                        {{ 'APP.VISITOR_KIOSK.APP' | translate }}
+                    </h1>
                     <div class="relative overflow-hidden rounded-sm px-2 py-1">
                         <div
                             class="bg-base-100 absolute inset-0 z-0 opacity-10"
@@ -393,6 +396,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
         `,
     ],
     imports: [
+        PageHeadingDirective,
         CommonModule,
         MatRippleModule,
         TranslatePipe,

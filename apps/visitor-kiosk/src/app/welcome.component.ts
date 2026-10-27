@@ -27,6 +27,7 @@ import {
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
+import { PageHeadingDirective } from './components/page-heading.directive';
 import { minuteClock } from './minute-clock';
 
 @Component({
@@ -40,14 +41,15 @@ import { minuteClock } from './minute-clock';
                 class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             <div class="z-10 flex w-[60%] flex-col justify-center space-y-8">
-                <h3
+                <h1
+                    pageHeading
                     class="mb-4 space-y-4 text-6xl text-white"
                     [innerHTML]="
                         welcome_message() ||
                             ('APP.VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
                             | sanitize: 'html'
                     "
-                ></h3>
+                ></h1>
                 <div class="flex flex-wrap items-center gap-4 font-medium">
                     <a
                         btn
@@ -204,6 +206,7 @@ import { minuteClock } from './minute-clock';
         `,
     ],
     imports: [
+        PageHeadingDirective,
         CommonModule,
         TranslatePipe,
         IconComponent,
