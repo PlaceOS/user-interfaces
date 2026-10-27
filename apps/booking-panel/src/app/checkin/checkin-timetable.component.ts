@@ -1,5 +1,7 @@
+import { DatePipe } from '@angular/common';
 import {
     Component,
+    computed,
     effect,
     input,
     OnInit,
@@ -39,8 +41,10 @@ interface EventBlock {
             @for (blk of blocks(); track blk.id) {
                 <button
                     class="relative h-full"
-                    [style.min-width]="1 * step() + 'px'"
-                    (click)="event.emit(blk.id)"
+                    [style.min-width]="scale * step() + 'px'"
+                    [attr.aria-label]="blk.id | date: time_format()"
+                    [attr.aria-disabled]="booked_blocks().has(blk.id) || null"
+                    (click)="!booked_blocks().has(blk.id) && event.emit(blk.id)"
                 >
                     @if (blk.minutes % 60 === 0) {
                         <div
@@ -63,15 +67,15 @@ interface EventBlock {
                     <div
                         event
                         class="bg-base-200 absolute bottom-0 h-12 opacity-40"
-                        [style.left]="8 + blk.start + 'px'"
-                        [style.width]="blk.length + 'px'"
+                        [style.left]="8 + scale * blk.start + 'px'"
+                        [style.width]="scale * blk.length + 'px'"
                     ></div>
                 }
             }
             <div
                 current
                 class="bg-primary pointer-events-none absolute bottom-0 h-12 w-0.5"
-                [style.left]="8 + current_time() + 'px'"
+                [style.left]="8 + scale * current_time() + 'px'"
             >
                 <div
                     class="bg-primary absolute top-0 left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
@@ -94,7 +98,7 @@ interface EventBlock {
             }
         `,
     ],
-    imports: [],
+    imports: [DatePipe],
 })
 export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
     public readonly events = input<CalendarEvent[]>([]);
@@ -102,11 +106,30 @@ export class CheckinTimetableComponent extends AsyncHandler implements OnInit {
     /** Time format. `HH:mm` shows 24 hour labels. */
     public readonly time_format = input(TIME_FORMAT);
     public readonly event = output<number>();
+    /** Pixels per minute. 2 makes each 15 minute slot 30px wide, over the 24px minimum touch target. */
+    public readonly scale = 2;
 
     public current_time = signal<number>(0);
 
     public blocks = signal<TimeBlock[]>([]);
     public event_blocks = signal<EventBlock[]>([]);
+
+    /** IDs of the time blocks that overlap a booking. Screen readers read these slots as unavailable. */
+    public readonly booked_blocks = computed(() => {
+        const step = this.step() * 60 * 1000;
+        const events = this.events() || [];
+        return new Set(
+            this.blocks()
+                .filter((blk) =>
+                    events.some(
+                        (e) =>
+                            e.date < blk.id + step &&
+                            e.date + e.duration * 60 * 1000 > blk.id,
+                    ),
+                )
+                .map((blk) => blk.id),
+        );
+    });
 
     constructor() {
         super();

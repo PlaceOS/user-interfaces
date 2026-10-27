@@ -30,20 +30,17 @@ const SLOT_MINUTES = 15;
                 ></div>
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
-            <div
-                name
-                class="absolute bottom-4 left-4 z-10 text-3xl font-medium"
-            >
+            <h1 name class="absolute bottom-4 left-4 z-10 text-3xl font-medium">
                 {{
                     system()?.display_name ||
                         system()?.name ||
                         '&lt;Unknown Space&gt;'
                 }}
-            </div>
+            </h1>
         </div>
-        <h3 class="px-4 pt-4 text-xl font-medium">
+        <h2 class="px-4 pt-4 text-xl font-medium">
             {{ 'APP.BOOKING_PANEL.UPCOMING' | translate }}
-        </h3>
+        </h2>
         <div class="bg-base-100 space-y-2 p-2">
             <div
                 class="border-base-300 flex items-center rounded-sm border p-2 shadow-sm"
@@ -54,7 +51,7 @@ const SLOT_MINUTES = 15;
                     [class.bg-success]="state() === 'free'"
                     [class.bg-warning]="state() === 'pending'"
                 ></div>
-                <div class="flex-1 px-2 text-sm">
+                <div id="checkin-now" class="flex-1 px-2 text-sm">
                     <div class="text-lg font-medium uppercase">
                         {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                     </div>
@@ -114,13 +111,20 @@ const SLOT_MINUTES = 15;
                         btn
                         matRipple
                         class="w-24"
+                        aria-describedby="checkin-now"
                         (click)="checkInCurrent()"
                     >
                         {{ 'COMMON.CHECK_IN' | translate }}
                     </button>
                 }
                 @if (state() === 'free' && can_book()) {
-                    <button btn matRipple class="w-24" (click)="newBooking()">
+                    <button
+                        btn
+                        matRipple
+                        class="w-24"
+                        aria-describedby="checkin-now"
+                        (click)="newBooking()"
+                    >
                         {{ 'COMMON.BOOK' | translate }}
                     </button>
                 }
@@ -133,7 +137,7 @@ const SLOT_MINUTES = 15;
                     [class.bg-error]="event_state()?.next"
                     [class.bg-success]="!event_state()?.next"
                 ></div>
-                <div class="flex-1 px-2 text-sm">
+                <div id="checkin-next" class="flex-1 px-2 text-sm">
                     <div class="text-lg font-medium uppercase">
                         {{ 'COMMON.NEXT' | translate }}
                     </div>
@@ -150,6 +154,7 @@ const SLOT_MINUTES = 15;
                         matRipple
                         book-next
                         class="w-24"
+                        aria-describedby="checkin-next"
                         (click)="bookSlot(start())"
                     >
                         {{ 'COMMON.BOOK' | translate }}
@@ -157,10 +162,12 @@ const SLOT_MINUTES = 15;
                 }
             </div>
         </div>
-        <h3 class="px-4 pt-4 pb-2 text-xl font-medium">
+        <h2 id="checkin-schedule" class="px-4 pt-4 pb-2 text-xl font-medium">
             {{ 'APP.BOOKING_PANEL.SCHEDULE' | translate }}
-        </h3>
+        </h2>
         <div
+            role="group"
+            aria-labelledby="checkin-schedule"
             class="border-base-300 mx-2 flex items-center overflow-auto rounded-sm border shadow-sm"
         >
             <checkin-timetable

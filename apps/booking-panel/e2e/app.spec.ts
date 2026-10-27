@@ -419,7 +419,7 @@ test.describe('Real-Time Updates (US-028 to US-029)', () => {
 
         // Should show upcoming section with status indicators
         await expect(
-            page.locator('h3:has-text("Upcoming"), h3', {
+            page.locator('h2:has-text("Upcoming"), h2', {
                 hasText: /upcoming/i,
             }),
         ).toBeVisible({ timeout: STATUS_TIMEOUT });

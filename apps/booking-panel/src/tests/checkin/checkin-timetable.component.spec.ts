@@ -82,6 +82,22 @@ describe('CheckinTimetableComponent', () => {
         expect(spectator.component.blocks()).toBe(blocks);
     });
 
+    it('should name each time block and mark booked blocks unavailable', () => {
+        spectator.detectChanges();
+        const start = spectator.component.blocks()[4].id;
+        spectator.setInput('events', [{ date: start, duration: 30 }]);
+        spectator.detectChanges();
+        const buttons = spectator.queryAll('button');
+        const disabled = buttons.map((b) => b.getAttribute('aria-disabled'));
+        expect(disabled.slice(3, 7)).toEqual([null, 'true', 'true', null]);
+        expect(buttons[4].getAttribute('aria-label')).toMatch(/\d:\d\d/);
+        const emitted: number[] = [];
+        spectator.component.event.subscribe((v) => emitted.push(v));
+        spectator.click(buttons[4]);
+        spectator.click(buttons[3]);
+        expect(emitted).toEqual([spectator.component.blocks()[3].id]);
+    });
+
     it('should leave event blocks empty when no events are supplied', () => {
         spectator.detectChanges();
         expect(spectator.component.event_blocks().length).toBe(0);
