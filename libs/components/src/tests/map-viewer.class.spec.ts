@@ -1,4 +1,7 @@
-import { MapViewer } from '../lib/map-viewer.class';
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as client from '@placeos/ts-client';
+import { getMapDetails, MapViewer } from '../lib/map-viewer.class';
 
 describe('MapViewer overlays', () => {
     beforeEach(() => {
@@ -111,5 +114,65 @@ describe('MapViewer overlays', () => {
         expect(wrappers[0].firstChild).toBe(pin);
         expect(removed).toHaveBeenCalled();
         viewer.destroy();
+    });
+});
+
+describe('getMapDetails', () => {
+    beforeEach(() => {
+        // jsdom has no layout, so measure shapes from their own attributes
+        Object.defineProperty(SVGElement.prototype, 'getBBox', {
+            configurable: true,
+            value(this: SVGElement) {
+                const size = (name: string) =>
+                    parseFloat(this.getAttribute(name) || '0');
+                return {
+                    x: size('x'),
+                    y: size('y'),
+                    width: size('width'),
+                    height: size('height'),
+                };
+            },
+        });
+    });
+
+    afterEach(() => {
+        Reflect.deleteProperty(SVGElement.prototype, 'getBBox');
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+    });
+
+    it('removes active content before the map SVG enters the page', async () => {
+        const probe = window as unknown as Record<string, unknown>;
+        delete probe.__map_xss;
+        vi.spyOn(client, 'authority').mockReturnValue(
+            {} as ReturnType<typeof client.authority>,
+        );
+        vi.spyOn(client, 'token').mockReturnValue('');
+        const svg =
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" onload="window.__map_xss = 1">' +
+            '<script>window.__map_xss = 2</script>' +
+            '<foreignObject><img src="x" onerror="window.__map_xss = 3"/></foreignObject>' +
+            '<a href=" java\tscript:alert(1)"><rect id="desk" x="20" y="10" width="40" height="20" onclick="alert(1)"/></a>' +
+            '</svg>';
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(svg)));
+        const appended = vi.spyOn(document.body, 'appendChild');
+
+        const details = await getMapDetails('/maps/active-content.svg');
+        await new Promise((resolve) => setTimeout(resolve, 40));
+
+        const inserted = (appended.mock.calls[0][0] as HTMLElement).innerHTML;
+        expect(inserted).toContain('id="desk"');
+        expect(inserted).not.toMatch(
+            /onload|onclick|onerror|script|foreignObject/i,
+        );
+        expect(probe.__map_xss).toBeUndefined();
+        expect(details.element_bounds.get('desk')).toEqual({
+            x: 0.1,
+            y: 0.1,
+            w: 0.2,
+            h: 0.2,
+        });
+        expect(details.aspect_ratio).toBe(2);
+        expect(details.raw_data).toBe(svg);
     });
 });
