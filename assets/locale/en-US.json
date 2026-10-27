@@ -2098,7 +2098,8 @@
             "EARLY_CHECKIN": "Meeting has been checked in early",
             "BOOKING_NEW": "New Booking",
             "BOOKING_HOST": "Booked by",
-            "BOOKING_LOADING": "Processing booking request..."
+            "BOOKING_LOADING": "Processing booking request...",
+            "BOOKING_DISABLED": "Book this room from your calendar"
         },
         "CONTROL": {
             "BOOTSTRAP_TITLE": "Control Panel",
