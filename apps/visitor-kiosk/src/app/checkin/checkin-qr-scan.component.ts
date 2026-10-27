@@ -9,7 +9,12 @@ import {
     viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, notifyError, settingSignal } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    notifyError,
+    settingSignal,
+} from '@placeos/common';
 import { type QRCamera, QRCanvas, frameLoop, rearCamera } from 'qr/dom.js';
 
 import { FormsModule } from '@angular/forms';
@@ -99,21 +104,30 @@ function shouldDecode(
                     <input
                         keyboard
                         matInput
-                        [(ngModel)]="email"
-                        placeholder="Enter email..."
+                        [ngModel]="email()"
+                        (ngModelChange)="setEmail($event)"
+                        [placeholder]="'FORM.EMAIL' | translate"
+                        [attr.aria-label]="'FORM.EMAIL' | translate"
+                        [attr.aria-invalid]="email_error()"
+                        aria-describedby="email-error"
                         type="email"
                         autocomplete="off"
-                        (blur)="checkEmail(email())"
                         (keyup.enter)="checkEmail(email())"
                     />
-                    <mat-error>{{
-                        'APP.VISITOR_KIOSK.INVALID_EMAIL' | translate
-                    }}</mat-error>
                 </mat-form-field>
                 <button btn matRipple (click)="checkEmail(email())">
                     {{ 'APP.VISITOR_KIOSK.FIND_DETAILS' | translate }}
                 </button>
             </div>
+            <p
+                id="email-error"
+                class="text-error mt-1 w-full text-sm"
+                aria-live="polite"
+            >
+                @if (email_error()) {
+                    {{ 'APP.VISITOR_KIOSK.INVALID_EMAIL' | translate }}
+                }
+            </p>
             <div
                 class="border-base-200 bg-base-200 relative mt-4 overflow-hidden rounded-sm border"
             >
@@ -122,7 +136,12 @@ function shouldDecode(
                 >
                     <icon class="text-6xl">videocam_off</icon>
                     <p class="text-center">
-                        {{ 'APP.VISITOR_KIOSK.CAMERA_UNAVAILABLE' | translate }}
+                        {{
+                            (camera_error()
+                                ? 'APP.VISITOR_KIOSK.CAMERA_OFF'
+                                : 'APP.VISITOR_KIOSK.CAMERA_UNAVAILABLE'
+                            ) | translate
+                        }}
                     </p>
                 </div>
                 <video
@@ -157,7 +176,7 @@ function shouldDecode(
                         class="bg-base-100/90 text-base-content absolute right-2 bottom-2 z-20 inline-flex items-center gap-2 rounded px-2 py-1 text-sm shadow"
                     >
                         <span class="status-dot"></span>
-                        Ready to scan QR code
+                        {{ 'APP.VISITOR_KIOSK.READY_TO_SCAN' | translate }}
                     </div>
                 }
             </div>
@@ -166,6 +185,7 @@ function shouldDecode(
                 matRipple
                 class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
             >
                 <icon>close</icon>
             </a>
@@ -231,8 +251,12 @@ export class CheckinQRScanComponent
 
     public readonly checking_code = signal(false);
     public readonly scanner_ready = signal(false);
+    /** Whether the camera could not start */
+    public readonly camera_error = signal(false);
     /** Email address of the visitor */
     public readonly email = signal('');
+    /** Whether the visitor submitted an email address that is not valid */
+    public readonly email_error = signal(false);
     public readonly induction_enabled = settingSignal(
         'induction_enabled',
         false,
@@ -300,7 +324,7 @@ export class CheckinQRScanComponent
                   : ''
         ).trim();
         if (!visitor_email && !event_id) {
-            notifyError('Invalid QRCode');
+            notifyError(i18n('APP.VISITOR_KIOSK.INVALID_QR_CODE'));
             void this.setupQRReader();
             this.checking_code.set(false);
             return;
@@ -319,14 +343,17 @@ export class CheckinQRScanComponent
         }
     }
 
+    public setEmail(email: string) {
+        this.email.set(email);
+        this.email_error.set(false);
+    }
+
     public async checkEmail(email: string) {
-        if (
-            this.checking_code() ||
-            !email ||
-            !email.includes('@') ||
-            email.length < 5
-        )
+        if (this.checking_code()) return;
+        if (!email || !email.includes('@') || email.length < 5) {
+            this.email_error.set(true);
             return;
+        }
         this.checking_code.set(true);
         try {
             await this._checkin.loadGuestAndEvent(email);
@@ -336,7 +363,7 @@ export class CheckinQRScanComponent
             this.handleError(
                 err instanceof Error
                     ? err.message
-                    : 'Unable to find visitor or a meeting associated with the given email address.',
+                    : i18n('APP.VISITOR_KIOSK.LOAD_ERROR'),
             );
         } finally {
             if (!this._destroyed) {
@@ -349,27 +376,27 @@ export class CheckinQRScanComponent
     private _routeForEvent() {
         const event = this._checkin.event();
         if (!event) {
-            this.handleError('Unable to find visitor booking.');
+            this.handleError(i18n('APP.VISITOR_KIOSK.LOAD_ERROR'));
             return;
         }
         if (event.rejected) {
-            this.handleError('Your meeting has been rejected.');
+            this.handleError(i18n('APP.VISITOR_KIOSK.MEETING_REJECTED'));
             return;
         }
         if (event.checked_out_at) {
-            this.handleError('Your meeting has already finished.');
+            this.handleError(i18n('APP.VISITOR_KIOSK.MEETING_FINISHED'));
             return;
         }
         if (this.flow === 'checkout') {
             if (!event.checked_in_at) {
-                this.handleError('You have not checked in yet.');
+                this.handleError(i18n('APP.VISITOR_KIOSK.NOT_CHECKED_IN'));
                 return;
             }
             this._router.navigate(['/checkout', 'confirm']);
             return;
         }
         if (event.checked_in_at) {
-            this.handleError('You are already checked in.');
+            this.handleError(i18n('APP.VISITOR_KIOSK.ALREADY_CHECKED_IN'));
             return;
         }
         if (
@@ -425,6 +452,7 @@ export class CheckinQRScanComponent
             decoder?.clear();
             center_decoder?.clear();
             this.scanner_ready.set(false);
+            this.camera_error.set(true);
             console.error('Unable to start QR scanner.', error);
         }
     }

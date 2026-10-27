@@ -11,7 +11,13 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+
+function stopTracks(stream: MediaStream) {
+    for (const track of stream.getTracks()) {
+        track.stop();
+    }
+}
 
 @Component({
     selector: 'a-take-photo',
@@ -35,7 +41,14 @@ import { TranslatePipe } from '@placeos/components';
                 class="absolute top-1/2 left-1/2 mx-auto h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                 [class.opacity-0]="!has_photo()"
             ></canvas>
-            @if (loading()) {
+            @if (camera_error()) {
+                <div
+                    class="absolute inset-0 flex flex-col items-center justify-center space-y-2 p-8 text-center opacity-60"
+                >
+                    <icon class="text-6xl">videocam_off</icon>
+                    <p>{{ 'APP.VISITOR_KIOSK.CAMERA_OFF' | translate }}</p>
+                </div>
+            } @else if (loading()) {
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
                 >
@@ -60,6 +73,7 @@ import { TranslatePipe } from '@placeos/components';
                     class="take-photo flex-1"
                     btn
                     matRipple
+                    [disabled]="loading() || camera_error()"
                     (click)="takePhoto()"
                 >
                     {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO_ACTION' | translate }}
@@ -71,7 +85,7 @@ import { TranslatePipe } from '@placeos/components';
                     matRipple
                     (click)="cancelPhoto()"
                 >
-                    {{ 'COMMON.CANCEL' | translate }}
+                    {{ 'APP.VISITOR_KIOSK.RETAKE' | translate }}
                 </button>
                 <button btn matRipple class="flex-1" (click)="acceptPhoto()">
                     {{ 'COMMON.ACCEPT' | translate }}
@@ -97,7 +111,12 @@ import { TranslatePipe } from '@placeos/components';
             }
         `,
     ],
-    imports: [TranslatePipe, MatRippleModule, MatProgressSpinnerModule],
+    imports: [
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+    ],
 })
 export class TakePhotoComponent
     extends AsyncHandler
@@ -108,6 +127,9 @@ export class TakePhotoComponent
     public readonly back = output();
     public has_photo = signal(false);
     public loading = signal(false);
+    /** Whether the camera could not start */
+    public readonly camera_error = signal(false);
+    private _destroyed = false;
 
     private readonly _video_el =
         viewChild<ElementRef<HTMLVideoElement>>('video');
@@ -122,7 +144,6 @@ export class TakePhotoComponent
     };
 
     public image_url = signal<string | null>(null);
-    private _destroyed = false;
 
     public ngOnInit() {
         this.loading.set(true);
@@ -136,33 +157,45 @@ export class TakePhotoComponent
 
     private async startCapture() {
         this.image_url.set(null);
-        const stream = await navigator.mediaDevices?.getUserMedia(
-            this.constraints,
-        );
-        // Stop the camera if the visitor left before it opened
-        if (this._destroyed) {
-            for (const track of stream?.getTracks() ?? []) track.stop();
-            return;
+        this.camera_error.set(false);
+        try {
+            const media = navigator.mediaDevices;
+            if (!media) throw new Error('Camera API is not available.');
+            const stream = await media.getUserMedia(this.constraints);
+            // The visitor can leave the page before the camera starts
+            if (this._destroyed) return stopTracks(stream);
+            const video = this._video_el().nativeElement;
+            video.srcObject = stream;
+            // Keep capture disabled until the camera shows a frame
+            if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+                await new Promise((resolve) =>
+                    video.addEventListener('loadeddata', resolve, {
+                        once: true,
+                    }),
+                );
+            }
+        } catch (error) {
+            console.error('Unable to start camera.', error);
+            if (!this._destroyed) this.camera_error.set(true);
+        } finally {
+            if (!this._destroyed) this.loading.set(false);
         }
-        this._video_el().nativeElement.srcObject = stream;
-        this.loading.set(false);
     }
 
     private stopCapture() {
         const el = this._video_el().nativeElement;
         if (!el?.srcObject) return;
-        const stream = el.srcObject as MediaStream;
-        for (const track of stream.getVideoTracks()) {
-            track.stop();
-        }
+        stopTracks(el.srcObject as MediaStream);
     }
 
     public takePhoto() {
+        const vid_el = this._video_el().nativeElement;
+        // No camera frame yet. Do not capture a blank photo.
+        if (vid_el.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
+        const { videoWidth, videoHeight } = vid_el;
         this.loading.set(true);
         const canvas = this._canvas_el().nativeElement;
         const ctx = canvas.getContext('2d');
-        const vid_el = this._video_el().nativeElement;
-        const { videoWidth, videoHeight } = vid_el;
 
         const cw = canvas.width;
         const ch = canvas.height;

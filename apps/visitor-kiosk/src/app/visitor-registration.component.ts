@@ -61,50 +61,62 @@ import { minuteClock } from './minute-clock';
                         <h3 class="px-2 text-lg font-medium">
                             {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
                         </h3>
-                        <a icon matRipple [routerLink]="['/welcome']">
+                        <a
+                            icon
+                            matRipple
+                            [routerLink]="['/welcome']"
+                            [attr.aria-label]="'COMMON.CLOSE' | translate"
+                        >
                             <icon>close</icon>
                         </a>
                     </div>
                     <div class="p-4">
-                        <label for="name"> {{ 'FORM.NAME' | translate }}</label>
+                        <label for="register-name">
+                            {{ 'FORM.NAME' | translate }}
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="register-name"
                                 keyboard
                                 matInput
                                 autocomplete="off"
                                 [formField]="form.asset_name"
                                 [placeholder]="'FORM.NAME' | translate"
                             />
-                            <mat-error>A valid email is required</mat-error>
                         </mat-form-field>
-                        <label for="email">
-                            {{ 'FORM.EMAIL' | translate }}</label
-                        >
+                        <label for="register-email">
+                            {{ 'FORM.EMAIL' | translate }}
+                        </label>
                         <mat-form-field
                             appearance="outline"
                             class="mb-0 w-full"
                         >
                             <input
+                                id="register-email"
                                 keyboard
                                 matInput
+                                type="email"
                                 autocomplete="off"
                                 [formField]="form.asset_id"
                                 [placeholder]="'FORM.EMAIL' | translate"
                             />
-                            <mat-error>A valid email is required</mat-error>
+                            <mat-error>
+                                {{ 'FORM.EMAIL_REQUIRED' | translate }}
+                            </mat-error>
                         </mat-form-field>
-                        <label for="user">Host</label>
+                        <label>{{ 'FORM.HOST' | translate }}</label>
                         <a-user-search-field
                             autocomplete="off"
                             [ngModel]="host()"
                             (ngModelChange)="setHost($event)"
                             [class.mb-4]="!host()"
                         ></a-user-search-field>
-                        <label form="phone">
-                            {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
-                        >
+                        <label for="register-phone">
+                            {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="register-phone"
                                 keyboard
                                 matInput
                                 type="tel"
@@ -115,11 +127,12 @@ import { minuteClock } from './minute-clock';
                                 "
                             />
                         </mat-form-field>
-                        <label form="org">
-                            {{ 'COMMON.ORGANISATION' | translate }}</label
-                        >
+                        <label for="register-org">
+                            {{ 'COMMON.ORGANISATION' | translate }}
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="register-org"
                                 keyboard
                                 matInput
                                 autocomplete="off"
@@ -129,7 +142,7 @@ import { minuteClock } from './minute-clock';
                                 "
                             />
                         </mat-form-field>
-                        <label form="reason">
+                        <label for="register-reason">
                             {{ 'BOOKINGS.VISITOR_REASON' | translate }}
                         </label>
                         <mat-form-field
@@ -137,6 +150,7 @@ import { minuteClock } from './minute-clock';
                             class="no-subscript mb-4 w-full"
                         >
                             <input
+                                id="register-reason"
                                 keyboard
                                 matInput
                                 autocomplete="off"
@@ -148,7 +162,7 @@ import { minuteClock } from './minute-clock';
                             />
                         </mat-form-field>
                         @if (allow_pass_number()) {
-                            <label form="pass">
+                            <label for="register-pass">
                                 {{ 'BOOKINGS.PASS_NUMBER' | translate }}
                             </label>
                             <mat-form-field
@@ -156,6 +170,7 @@ import { minuteClock } from './minute-clock';
                                 class="no-subscript mb-4 w-full"
                             >
                                 <input
+                                    id="register-pass"
                                     keyboard
                                     matInput
                                     autocomplete="off"
@@ -178,7 +193,7 @@ import { minuteClock } from './minute-clock';
                                     </mat-checkbox>
                                 </div>
                             }
-                            <label form="duration">
+                            <label>
                                 {{ 'FORM.DURATION' | translate }}
                             </label>
                             <a-duration-field
@@ -327,20 +342,24 @@ export class VisitorRegistrationComponent
 
     public async register() {
         this.form().markAsTouched();
-        if (!this.form().valid()) {
+        // The booking form does not require a name or host, but a visitor
+        // registration does. List every missing field in one message.
+        const invalid_fields = [
+            ...(this.form_value().asset_name?.trim()
+                ? []
+                : [i18n('FORM.NAME')]),
+            ...getInvalidSignalFields(this.form, this._booking_form.model, {
+                asset_id: i18n('FORM.EMAIL'),
+                title: i18n('BOOKINGS.VISITOR_REASON'),
+                date: i18n('FORM.DATE'),
+                duration: i18n('FORM.DURATION'),
+            }),
+            ...(this.host() ? [] : [i18n('FORM.HOST')]),
+        ];
+        if (invalid_fields.length) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidSignalFields(
-                        this.form,
-                        this._booking_form.model,
-                    ).join(', '),
-                }),
-            );
-        }
-        if (!this.host()) {
-            return notifyError(
-                i18n('FORM.INVALID_FIELDS', {
-                    field_list: i18n('FORM.HOST'),
+                    field_list: invalid_fields.join(', '),
                 }),
             );
         }

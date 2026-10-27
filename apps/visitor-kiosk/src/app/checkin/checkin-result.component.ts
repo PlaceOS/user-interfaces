@@ -19,7 +19,7 @@ const DEFAULT_TEMPLATE = `
     Welcome, you have a meeting at {{ time }} with {{ host_name }}.
     <br />{{ host_name }} has been notified and will be with you shortly.
 </p>
-<p>{{ can_use_lift }}</p>
+<p class="text-center">{{ can_use_lift }}</p>
 `;
 
 @Component({
@@ -148,7 +148,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
             .replace(
                 /{{ can_use_lift }}/g,
                 event?.extension_data?.can_use_lift
-                    ? `Please use the vistor access lift over there`
+                    ? `Please use the visitor access lift over there`
                     : `Please wait in the lobby.`,
             );
         try {

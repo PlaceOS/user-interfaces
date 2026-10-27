@@ -2,7 +2,7 @@ import {
     SpectatorService,
     createServiceFactory,
 } from '@ngneat/spectator/vitest';
-import { Booking, OrganisationService } from '@placeos/common';
+import { Booking, OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { get, patch, post, put, query } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
@@ -212,5 +212,28 @@ describe('CheckinStateService', () => {
             expect.stringContaining('check_in'),
             '',
         );
+    });
+
+    it('shows a plain checkout message when checkout fails', async () => {
+        const snackbar = {
+            open: vi.fn(() => ({
+                onAction: () => ({ subscribe: () => undefined }),
+                dismiss: () => undefined,
+            })),
+        };
+        setNotifyOutlet(snackbar as any, true);
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
+        vi.mocked(post).mockRejectedValueOnce(new Error('e.json'));
+
+        await expect(spectator.service.checkinGuest(false)).rejects.toThrow();
+
+        expect(snackbar.open).toHaveBeenCalledTimes(1);
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'APP.VISITOR_KIOSK.ERROR_CHECKOUT',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+        setNotifyOutlet(null, true);
     });
 });

@@ -43,8 +43,8 @@ describe('CheckinDetailsComponent', () => {
                 checkinGuest: vi.fn(async () => null),
                 form: signal({
                     host: '',
-                    name: '',
-                    email: '',
+                    name: 'Visitor',
+                    email: 'visitor@example.com',
                     phone: '',
                     organisation: '',
                     pass_number: '',
@@ -93,12 +93,23 @@ describe('CheckinDetailsComponent', () => {
         spectator.click('button[next]');
         await new Promise((resolve) => setTimeout(resolve, 0));
         await spectator.fixture.whenStable();
-        // expect(service.updateGuest).toHaveBeenCalledTimes(1);
+        expect(service.updateGuest).toHaveBeenCalledTimes(1);
         expect(service.checkinGuest).toHaveBeenCalledTimes(1);
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',
-            'scan',
+            'results',
         ]);
+    });
+
+    it('does not check in while a required detail is missing', async () => {
+        const service = spectator.inject(CheckinStateService);
+        service.form.update((form) => ({ ...form, name: '' }));
+
+        await spectator.component.updateGuest();
+
+        expect(service.updateGuest).not.toHaveBeenCalled();
+        expect(service.checkinGuest).not.toHaveBeenCalled();
+        service.form.update((form) => ({ ...form, name: 'Visitor' }));
     });
 
     it('waits for induction acceptance before checking in', async () => {

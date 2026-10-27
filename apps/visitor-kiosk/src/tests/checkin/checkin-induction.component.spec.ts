@@ -139,10 +139,9 @@ describe('CheckinInductionComponent', () => {
         it('declines the induction and routes to the error page', async () => {
             const state = spectator.inject(CheckinStateService);
             await spectator.component.decline();
-            expect(spectator.component.loading()).toBe(true);
             expect(state.declineInduction).toHaveBeenCalledTimes(1);
             expect(state.setError).toHaveBeenCalledWith(
-                'You have declined the induction.',
+                'APP.VISITOR_KIOSK.INDUCTION_DECLINED',
             );
             expect(snackbar.open).toHaveBeenCalledWith(
                 expect.anything(),

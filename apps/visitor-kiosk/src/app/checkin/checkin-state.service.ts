@@ -235,12 +235,21 @@ export class CheckinStateService {
             host: event.user_name || event.user_email,
         };
         const result = await checkin_fn.catch(async (e) => {
-            notifyError(e || i18n('APP.VISITOR_KIOSK.ERROR_CHECKIN', vars));
+            // Show visitors a plain message. Keep the details for staff.
+            console.error('Unable to update check-in state.', e);
+            notifyError(
+                state
+                    ? i18n('APP.VISITOR_KIOSK.ERROR_CHECKIN', vars)
+                    : i18n('APP.VISITOR_KIOSK.ERROR_CHECKOUT'),
+            );
             throw e;
         });
         if (!result) return;
 
-        notifySuccess(i18n('APP.VISITOR_KIOSK.SUCCESS_CHECKIN', vars));
+        // The checkout page shows its own success message
+        if (state) {
+            notifySuccess(i18n('APP.VISITOR_KIOSK.SUCCESS_CHECKIN', vars));
+        }
         this.metadata = '';
     }
 }
