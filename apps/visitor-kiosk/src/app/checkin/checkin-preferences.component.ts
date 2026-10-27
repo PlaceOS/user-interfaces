@@ -129,7 +129,9 @@ export class CheckinPreferencesComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _last_jwt = '';
 
-    public loading = signal(false);
+    public readonly saving = signal(false);
+    /** Whether the visitor and their saved beverage have loaded */
+    private readonly _visitor_ready = signal(false);
     public type = signal<'save' | 'menu'>('menu');
     public existing_beverage = signal<CateringItem>(null);
     public beverage = signal<CateringItem>(null);
@@ -137,6 +139,10 @@ export class CheckinPreferencesComponent implements OnInit {
     public readonly event = this._checkin.event;
     public readonly bld_id = signal('');
     public readonly menu = signal<CateringItem[]>([]);
+    /** Keep the form locked until all of its data has loaded */
+    public readonly loading = computed(
+        () => this.saving() || !this.menu().length || !this._visitor_ready(),
+    );
     public readonly allow_standalone = settingSignal(
         'standalone_visitor_location',
         '',
@@ -167,30 +173,27 @@ export class CheckinPreferencesComponent implements OnInit {
             ),
         );
         this.menu.set(drinks);
-        if (drinks.length) {
-            this.loading.set(false);
-            return;
-        }
+        if (drinks.length) return;
         notifyError('No menu available');
         this.next();
     });
 
     public ngOnInit(): void {
-        this.loading.set(true);
         this.type.set('menu');
         // Read the existing beverage after the visitor lookup completes.
         // A failed lookup already shows the error page.
         this.loadJwtFromRoute()
             .then(() => this.loadExistingBeverage())
+            .then(() => this._visitor_ready.set(true))
             .catch(() => undefined);
     }
 
     public async update() {
         this.type.set('save');
         if (!this.beverage()) return this.next();
-        this.loading.set(true);
         const booking = this._checkin.event();
         if (!booking) return notifyError(i18n('APP.VISITOR_KIOSK.LOAD_ERROR'));
+        this.saving.set(true);
         const email = booking.asset_id;
         const catering_item = new CateringItem({
             ...this.beverage(),
@@ -198,7 +201,7 @@ export class CheckinPreferencesComponent implements OnInit {
         });
         await setGuestCateringItem(email, catering_item, booking.id);
         notifySuccess(i18n('APP.VISITOR_KIOSK.BEVERAGE_SUCCESS'));
-        this.loading.set(false);
+        this.saving.set(false);
         this.next();
     }
 
