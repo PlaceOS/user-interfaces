@@ -51,6 +51,16 @@ describe('EmbeddedControlModalComponent', () => {
         expect('.close').toExist();
     });
 
+    it('should restart the countdown on taps inside the embedded page', async () => {
+        const page = new EventTarget();
+        spectator.component.watchFrame({
+            contentWindow: page,
+        } as unknown as HTMLIFrameElement);
+        await vi.advanceTimersByTimeAsync(10_000);
+        page.dispatchEvent(new Event('pointerdown'));
+        expect(spectator.component.countdown()).toBe(30);
+    });
+
     it('should close after 30 seconds without interaction', async () => {
         const spy = vi.spyOn(spectator.component, 'close');
         await vi.advanceTimersByTimeAsync(30_000);
