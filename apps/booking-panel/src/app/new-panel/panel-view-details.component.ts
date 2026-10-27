@@ -53,7 +53,11 @@ import { endingSoon } from './helpers';
                     qr-checkin
                     class="absolute top-4 right-4 z-50 w-40 space-y-4 text-xl"
                 >
-                    <img class="w-full" [src]="qr_code()" />
+                    <img
+                        class="w-full"
+                        [src]="qr_code()"
+                        [alt]="'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate"
+                    />
                     @if (!hide_qr_text) {
                         <div class="w-full text-lg">
                             {{ 'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate }}

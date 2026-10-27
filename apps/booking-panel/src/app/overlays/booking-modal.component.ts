@@ -84,7 +84,12 @@ export async function openBookingModal(
                     {{ 'APP.BOOKING_PANEL.BOOKING_NEW' | translate }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple (click)="cancel()">
+                    <button
+                        icon
+                        matRipple
+                        [attr.aria-label]="'COMMON.CLOSE' | translate"
+                        (click)="cancel()"
+                    >
                         <icon>close</icon>
                     </button>
                 }

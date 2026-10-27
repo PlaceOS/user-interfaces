@@ -148,7 +148,14 @@ import { PanelStateService } from './panel-state.service';
                         [class.w-56]="show_qr()"
                     >
                         <div qr-checkin class="z-50 w-56 p-3">
-                            <img auth class="w-full" [source]="qr_code()" />
+                            <img
+                                auth
+                                class="w-full"
+                                [source]="qr_code()"
+                                [alt]="
+                                    'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate
+                                "
+                            />
                         </div>
                     </div>
                 </div>
