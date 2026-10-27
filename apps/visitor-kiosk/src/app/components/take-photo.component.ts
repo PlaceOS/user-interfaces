@@ -48,7 +48,9 @@ function stopTracks(stream: MediaStream) {
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-2 p-8 text-center opacity-60"
                 >
-                    <icon class="text-6xl">videocam_off</icon>
+                    <icon class="text-6xl" aria-hidden="true"
+                        >videocam_off</icon
+                    >
                     <p>{{ 'APP.VISITOR_KIOSK.CAMERA_OFF' | translate }}</p>
                 </div>
             } @else if (loading()) {

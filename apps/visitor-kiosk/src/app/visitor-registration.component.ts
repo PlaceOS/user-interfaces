@@ -42,12 +42,14 @@ import { minuteClock } from './minute-clock';
         <div class="absolute inset-0 flex items-center p-8">
             <img
                 auth
+                alt=""
                 [source]="background()"
                 class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             @if (!hide_building_image()) {
                 <img
                     src="assets/img/building.webp"
+                    alt=""
                     class="absolute right-0 bottom-0 w-[60%]"
                 />
             }

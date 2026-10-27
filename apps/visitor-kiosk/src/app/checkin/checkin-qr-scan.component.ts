@@ -133,8 +133,11 @@ function shouldDecode(
             >
                 <div
                     class="absolute top-1/2 left-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-30"
+                    [attr.aria-hidden]="scanner_ready() || null"
                 >
-                    <icon class="text-6xl">videocam_off</icon>
+                    <icon class="text-6xl" aria-hidden="true"
+                        >videocam_off</icon
+                    >
                     <p class="text-center">
                         {{
                             (camera_error()
@@ -175,7 +178,7 @@ function shouldDecode(
                     <div
                         class="bg-base-100/90 text-base-content absolute right-2 bottom-2 z-20 inline-flex items-center gap-2 rounded px-2 py-1 text-sm shadow"
                     >
-                        <span class="status-dot"></span>
+                        <span class="status-dot" aria-hidden="true"></span>
                         {{ 'APP.VISITOR_KIOSK.READY_TO_SCAN' | translate }}
                     </div>
                 }

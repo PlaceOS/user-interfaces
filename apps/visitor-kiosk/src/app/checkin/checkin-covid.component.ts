@@ -4,7 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { Router, RouterModule } from '@angular/router';
 import { notifyError } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -61,6 +61,7 @@ import { CheckinStateService } from './checkin-state.service';
             <a
                 icon
                 matRipple
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
                 [attr.disabled]="!symptoms() && !contact()"
                 class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
@@ -87,6 +88,7 @@ import { CheckinStateService } from './checkin-state.service';
         MatRadioModule,
         MatRippleModule,
         IconComponent,
+        TranslatePipe,
         RouterModule,
         FormsModule,
     ],

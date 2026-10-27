@@ -35,6 +35,7 @@ import { minuteClock } from './minute-clock';
         <div class="absolute inset-0 flex items-center overflow-hidden p-8">
             <img
                 auth
+                alt=""
                 [source]="background()"
                 class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
@@ -58,7 +59,9 @@ import { minuteClock } from './minute-clock';
                             <div class="ml-2">
                                 {{ 'COMMON.CHECK_IN' | translate }}
                             </div>
-                            <icon class="text-2xl">chevron_right</icon>
+                            <icon class="text-2xl" aria-hidden="true"
+                                >chevron_right</icon
+                            >
                         </div>
                     </a>
                     <a
@@ -71,7 +74,9 @@ import { minuteClock } from './minute-clock';
                             <div class="ml-2">
                                 {{ 'COMMON.CHECK_OUT' | translate }}
                             </div>
-                            <icon class="text-2xl">chevron_right</icon>
+                            <icon class="text-2xl" aria-hidden="true"
+                                >chevron_right</icon
+                            >
                         </div>
                     </a>
                     @if (can_register()) {
@@ -87,7 +92,9 @@ import { minuteClock } from './minute-clock';
                                         'APP.VISITOR_KIOSK.REGISTER' | translate
                                     }}
                                 </div>
-                                <icon class="text-2xl">chevron_right</icon>
+                                <icon class="text-2xl" aria-hidden="true"
+                                    >chevron_right</icon
+                                >
                             </div>
                         </a>
                     }
@@ -104,7 +111,9 @@ import { minuteClock } from './minute-clock';
                                         'APP.VISITOR_KIOSK.EXPLORE' | translate
                                     }}
                                 </div>
-                                <icon class="text-2xl">place</icon>
+                                <icon class="text-2xl" aria-hidden="true"
+                                    >place</icon
+                                >
                             </div>
                         </a>
                     }
@@ -119,7 +128,9 @@ import { minuteClock } from './minute-clock';
                     [matMenuTriggerFor]="menu"
                 >
                     <div class="flex items-center justify-between">
-                        <icon class="text-2xl text-white">language</icon>
+                        <icon class="text-2xl text-white" aria-hidden="true"
+                            >language</icon
+                        >
                         <div class="ml-2 text-left leading-tight text-white">
                             <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
                             @if (
@@ -164,6 +175,7 @@ import { minuteClock } from './minute-clock';
             @if (!hide_building_image()) {
                 <img
                     src="assets/img/building.webp"
+                    alt=""
                     class="absolute right-0 bottom-0 w-[60%]"
                 />
             }
