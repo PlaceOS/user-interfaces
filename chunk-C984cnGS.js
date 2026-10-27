@@ -21,5 +21,6 @@ chart.js/dist/chart.js:
 *)
 */
 export{Sl as a,kr as c,Pl as i,pn as l,Dl as n,gn as o,Ml as r,kl as s,Cl as t,wl as u};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="6322bdbc-1d92-5136-9027-7766a4146dfb")}catch(e){}}();
 //# debugId=6322bdbc-1d92-5136-9027-7766a4146dfb
 //# sourceMappingURL=chunk-C984cnGS.js.map
