@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["camera-snapshot-modal.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                min-width: 500px;\n                max-width: 90vw;\n            }\n\n            svg {\n                font: inherit;\n            }\n\n            text {\n                fill: white;\n                stroke: black;\n                stroke-width: 0.5px;\n                stroke-linejoin: round;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,MACA,UAAA,MACA,UAAA,IACJ,CAEA,IACI,KAAA,OACJ,CAEA,KACI,KAAA,KACA,OAAA,KACA,aAAA,KACA,gBAAA,KACJ",
+  "names": []
+}

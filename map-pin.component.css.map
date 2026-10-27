@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["map-pin.component.ts"],
+  "sourcesContent": ["\n            [name='message'],\n            [name='pin'] {\n                animation: fade-in-top 1s;\n            }\n\n            @keyframes fade-in-top {\n                0% {\n                    opacity: 0;\n                    transform: translateY(-100%);\n                }\n                100% {\n                    opacity: 1;\n                    transform: translateY(0%);\n                }\n            }\n        "],
+  "mappings": "AACY,CAAA,yBAEI,UAAA,YAAA,EACJ,CAEA,WAHI,YAIA,GACI,QAAA,EACA,UAAA,WAAA,MACJ,CACA,GACI,QAAA,EACA,UAAA,WAAA,EACJ,CACJ",
+  "names": []
+}

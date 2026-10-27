@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["remote-support.component.ts"],
+  "sourcesContent": ["\n            [snap] {\n                transition: border 200ms;\n            }\n\n            [snap] icon {\n                display: none;\n            }\n\n            [snap]:hover icon {\n                display: block;\n            }\n        "],
+  "mappings": "AACY,CAAA,MACI,WAAA,OAAA,GACJ,CAEA,CAAA,MAAA,KACI,QAAA,IACJ,CAEA,CAAA,KAAA,OAAA,KACI,QAAA,KACJ",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["sidebar.component.ts"],
+  "sourcesContent": ["\n            [sidebar],\n            [header] {\n                transition: width 200ms;\n            }\n        "],
+  "mappings": "AACY,CAAA,kBAEI,WAAA,MAAA,GACJ",
+  "names": []
+}
