@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["rich-text-input.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                width: 100%;\n            }\n\n            :host ::ng-deep .squire-editor {\n                border-radius: 0.25rem;\n                border: 1px solid var(--base-300);\n                padding: 0.5rem;\n                min-height: 8rem;\n                width: 100%;\n                outline: none;\n            }\n\n            :host ::ng-deep .squire-editor:empty::before {\n                content: attr(data-placeholder);\n                color: var(--base-content);\n                opacity: 0.5;\n            }\n\n            :host ::ng-deep .squire-editor ul {\n                list-style-type: disc;\n                margin: 0.5rem 0;\n                padding-left: 1.5rem;\n            }\n\n            :host ::ng-deep .squire-editor ol {\n                list-style-type: decimal;\n                margin: 0.5rem 0;\n                padding-left: 1.5rem;\n            }\n\n            :host ::ng-deep .squire-editor li {\n                margin: 0.125rem 0;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,MACA,MAAA,IACJ,CAEA,MAAA,UAAA,CAAA,4BACI,OACA,OAAA,IAAA,MAAA,IAAA,oBACA,MACA,WAAA,KACA,MAAA,KACA,QAAA,IACJ,CAEA,MAAA,UAAA,CATA,aASA,MAAA,QACI,QAAA,KAAA,kBACA,MAAA,IAAA,gBACA,QAAA,EACJ,CAEA,MAAA,UAAA,CAfA,cAeA,GACI,gBAAA,YACA,MAAA,EACA,aAAA,MACJ,CAEA,MAAA,UAAA,CArBA,cAqBA,GACI,gBAAA,eACA,MAAA,EACA,aAAA,MACJ,CAEA,MAAA,UAAA,CA3BA,cA2BA,UACI,QAAA,CACJ",
+  "names": []
+}
