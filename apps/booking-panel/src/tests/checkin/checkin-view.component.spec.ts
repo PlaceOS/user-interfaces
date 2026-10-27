@@ -184,6 +184,21 @@ describe('CheckinViewComponent', () => {
         expect(new_booking).toHaveBeenCalledWith(past, true, false, true);
     });
 
+    it('should not book a timetable slot that has ended', () => {
+        setting.mockReturnValue(undefined);
+        spectator.detectChanges();
+        spectator.component.bookSlot(Date.now() - 20 * 60 * 1000);
+        expect(new_booking).not.toHaveBeenCalled();
+    });
+
+    it('should offer one book button while the room is free', () => {
+        status.set('free');
+        setting.mockReturnValue(undefined);
+        spectator.detectChanges();
+        expect('button.w-24').toHaveLength(1);
+        expect('[book-next]').not.toExist();
+    });
+
     it('should describe the next period when an upcoming event exists', () => {
         next.set({ date: Date.now() + 90 * 60 * 1000, duration: 30 });
         spectator.detectChanges();

@@ -7,7 +7,7 @@ import {
     signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, notifyError } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -15,6 +15,9 @@ import { getNextFreeTimeSlot } from '@placeos/events';
 import { currentPeriod, nextPeriod } from '../new-panel/helpers';
 import { PanelStateService } from '../panel-state.service';
 import { CheckinTimetableComponent } from './checkin-timetable.component';
+
+/** Length of a check-in timetable slot in minutes */
+const SLOT_MINUTES = 15;
 
 @Component({
     selector: 'checkin-view',
@@ -141,10 +144,11 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         }}
                     </div>
                 </div>
-                @if (can_book()) {
+                @if (can_book() && state() !== 'free') {
                     <button
                         btn
                         matRipple
+                        book-next
                         class="w-24"
                         (click)="bookSlot(start())"
                     >
@@ -229,7 +233,8 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 background-color: #f8f8fa;
                 height: 100%;
                 width: 100%;
-                overflow: hidden;
+                overflow-x: hidden;
+                overflow-y: auto;
             }
         `,
     ],
@@ -263,8 +268,13 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     };
     // Timetable and next free slot pass an absolute start time; treat any
     // slot past now as a future booking so the chosen time isn't overwritten.
-    public readonly bookSlot = (d: number) =>
+    // A timetable slot that has ended cannot be booked.
+    public readonly bookSlot = (d: number) => {
+        if (d + SLOT_MINUTES * 60 * 1000 <= Date.now()) {
+            return notifyError('This time is not available to book');
+        }
         this.newBooking(d, d > Date.now());
+    };
 
     public has_user = signal<boolean>(true);
 
