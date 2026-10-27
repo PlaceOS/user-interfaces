@@ -10,6 +10,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, RemoteLoggingService, VERSION } from '@placeos/common';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
+import { AnnounceDirective } from '../announce.directive';
 import {
     PanelStateService,
     PanelTimelinePosition,
@@ -25,8 +26,9 @@ const NO_OFFSET: [number, number] = [0, 0];
 @Component({
     selector: 'panel-view',
     template: `
-        <button
-            class="relative flex h-full w-full items-stretch overflow-hidden"
+        <div
+            panel-surface
+            class="relative flex h-full w-full items-stretch overflow-hidden text-center"
             (click)="action()"
         >
             @let position = timeline_position;
@@ -58,7 +60,7 @@ const NO_OFFSET: [number, number] = [0, 0];
                         (click)="hide_version && $event.stopPropagation()"
                     >
                         @if (!hide_version || show_version()) {
-                            <div class="w-full text-xs opacity-40">
+                            <div class="w-full text-xs opacity-70">
                                 <ng-container
                                     >{{
                                         'COMMON.CONTROLS_VERSION' | translate
@@ -66,7 +68,7 @@ const NO_OFFSET: [number, number] = [0, 0];
                                 </ng-container>
                                 {{ version.hash }}
                             </div>
-                            <div class="w-full text-xs opacity-40">
+                            <div class="w-full text-xs opacity-70">
                                 {{ version.time | date: 'longDate' }}
                                 ({{ version.time | date: 'shortTime' }})
                             </div>
@@ -109,7 +111,7 @@ const NO_OFFSET: [number, number] = [0, 0];
                     "
                 >
                     <div
-                        class="bg-warning absolute top-4 left-4 flex w-1/2 items-center justify-center rounded-sm p-4 text-5xl font-medium text-white shadow-sm"
+                        class="bg-warning text-warning-content absolute top-4 left-4 flex w-1/2 items-center justify-center rounded-sm p-4 text-5xl font-medium shadow-sm"
                     >
                         {{
                             name ||
@@ -128,7 +130,7 @@ const NO_OFFSET: [number, number] = [0, 0];
                     </div>
                 </div>
             }
-        </button>
+        </div>
         @if (!show_offline) {
             <panel-view-actions
                 class="absolute z-30"
@@ -147,8 +149,8 @@ const NO_OFFSET: [number, number] = [0, 0];
                 connection-badge
                 class="bg-warning text-warning-content absolute top-4 left-1/2 z-50 flex -translate-x-1/2 items-center space-x-2 rounded-full px-4 py-2 text-lg shadow"
             >
-                <icon>cloud_off</icon>
-                <span>
+                <icon aria-hidden="true">cloud_off</icon>
+                <span announce>
                     {{ 'APP.BOOKING_PANEL.RECONNECTING' | translate }}
                     {{
                         'APP.BOOKING_PANEL.LAST_UPDATED'
@@ -192,6 +194,7 @@ const NO_OFFSET: [number, number] = [0, 0];
         CommonModule,
         TranslatePipe,
         SafePipe,
+        AnnounceDirective,
     ],
 })
 export class PanelViewComponent
@@ -325,6 +328,12 @@ export class PanelViewComponent
     public readonly checkin = () => this._state.checkin();
     public readonly endMeeting = () => this._state.confirmEnd();
 
+    /**
+     * Book, check in or end the meeting for the current status.
+     * Runs on a tap anywhere on the panel. Keyboard and screen reader users
+     * use the action prompt button in `panel-view-status`. Its click bubbles
+     * up to here.
+     */
     public action() {
         this.timeout('action', () => {
             const status = this._state.status();

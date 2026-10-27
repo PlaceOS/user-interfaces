@@ -22,6 +22,7 @@ import {
     AsyncHandler,
     CalendarEvent,
     currentUser,
+    i18n,
     log,
     notifyError,
     notifySuccess,
@@ -44,7 +45,10 @@ import {
 } from 'date-fns';
 import { canExtend, EXTEND_MINUTES, freeMinutes } from './new-panel/helpers';
 import { openBookingModal } from './overlays/booking-modal.component';
-import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
+import {
+    EmbeddedControlModalComponent,
+    EmbeddedControlModalData,
+} from './overlays/embedded-control-modal.component';
 
 export type PanelTimelinePosition =
     | 'left'
@@ -726,18 +730,28 @@ export class PanelStateService extends AsyncHandler {
     }
     /** Open the room control UI in an embedded modal */
     public viewControl() {
-        this._openEmbedded(this._settings().control_ui);
+        this._openEmbedded(
+            this._settings().control_ui,
+            i18n('APP.BOOKING_PANEL.ROOM_CONTROL'),
+        );
     }
 
     /** Open the catering UI in an embedded modal */
     public viewCatering() {
-        this._openEmbedded(this._settings().catering_ui);
+        this._openEmbedded(
+            this._settings().catering_ui,
+            i18n('RESOURCE.CATERING'),
+        );
     }
 
-    private _openEmbedded(control_url?: string) {
+    private _openEmbedded(control_url: string | undefined, title: string) {
         if (!control_url) return;
-        this._dialog.open(EmbeddedControlModalComponent, {
-            data: { control_url },
+        this._dialog.open<
+            EmbeddedControlModalComponent,
+            EmbeddedControlModalData
+        >(EmbeddedControlModalComponent, {
+            data: { control_url, title },
+            ariaLabel: title,
         });
     }
 

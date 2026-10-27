@@ -109,7 +109,7 @@ test.describe('Room Status Display (US-001 to US-005)', () => {
 
         // Check that the NOW section exists
         await expect(
-            statusPanel.locator('h3:has-text("NOW"), h3:has-text("now")', {
+            statusPanel.locator('h2:has-text("NOW"), h2:has-text("now")', {
                 hasText: /now/i,
             }),
         ).toBeVisible();
@@ -123,7 +123,7 @@ test.describe('Room Status Display (US-001 to US-005)', () => {
 
         // Should show NEXT section
         await expect(
-            statusPanel.locator('h3', { hasText: /next/i }),
+            statusPanel.locator('h2', { hasText: /next/i }),
         ).toBeVisible();
     });
 
@@ -419,7 +419,7 @@ test.describe('Real-Time Updates (US-028 to US-029)', () => {
 
         // Should show upcoming section with status indicators
         await expect(
-            page.locator('h3:has-text("Upcoming"), h3', {
+            page.locator('h2:has-text("Upcoming"), h2', {
                 hasText: /upcoming/i,
             }),
         ).toBeVisible({ timeout: STATUS_TIMEOUT });
@@ -432,7 +432,7 @@ test.describe('Version and Metadata Display', () => {
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
         // Version info should be in the bottom right
-        const versionText = page.locator('div.opacity-40');
+        const versionText = page.locator('panel-view [version] div');
         await expect(versionText.first()).toBeVisible({
             timeout: STATUS_TIMEOUT,
         });

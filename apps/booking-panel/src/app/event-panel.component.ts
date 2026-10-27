@@ -136,6 +136,8 @@ import { PanelStateService } from './panel-state.service';
                     <button
                         book-tag
                         matRipple
+                        aria-controls="event-qr-code"
+                        [attr.aria-expanded]="show_qr()"
                         (click)="toggleQRShow()"
                         class="border-base-300 bg-base-100 relative z-20 h-28 w-12 rounded-l-lg border-y border-l uppercase"
                     >
@@ -143,6 +145,8 @@ import { PanelStateService } from './panel-state.service';
                     </button>
                     <div
                         qr-code-out
+                        id="event-qr-code"
+                        [attr.aria-hidden]="!show_qr() || null"
                         class="border-base-300 bg-base-100 z-10 overflow-hidden rounded-l-lg border shadow-sm"
                         [class.w-0]="!show_qr()"
                         [class.w-56]="show_qr()"

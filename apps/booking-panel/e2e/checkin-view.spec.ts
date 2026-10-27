@@ -29,13 +29,13 @@ test.describe('Checkin View - Core Layout', () => {
     });
 
     test('should display Upcoming section heading', async ({ page }) => {
-        await expect(page.locator('h3', { hasText: /upcoming/i })).toBeVisible({
+        await expect(page.locator('h2', { hasText: /upcoming/i })).toBeVisible({
             timeout: STATUS_TIMEOUT,
         });
     });
 
     test('should display Schedule section heading', async ({ page }) => {
-        await expect(page.locator('h3', { hasText: /schedule/i })).toBeVisible({
+        await expect(page.locator('h2', { hasText: /schedule/i })).toBeVisible({
             timeout: STATUS_TIMEOUT,
         });
     });

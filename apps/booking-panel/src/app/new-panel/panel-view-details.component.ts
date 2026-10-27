@@ -10,6 +10,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { AnnounceDirective } from '../announce.directive';
 import { PanelStateService } from '../panel-state.service';
 import { endingSoon } from './helpers';
 
@@ -23,6 +24,7 @@ import { endingSoon } from './helpers';
                 <div class="absolute inset-0">
                     <img
                         auth
+                        alt=""
                         class="h-full w-full object-cover object-center"
                         [source]="room_image"
                     />
@@ -30,20 +32,20 @@ import { endingSoon } from './helpers';
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div class="absolute top-4 left-4">
-                <div name class="text-4xl font-medium">
+                <h1 name class="text-4xl font-medium">
                     {{ sys?.display_name || sys?.name || '' }}
-                </div>
+                </h1>
                 @if (capacity) {
                     <div
                         capacity
                         class="mt-2 flex items-center space-x-2 text-2xl"
-                        [attr.aria-label]="
-                            ('APP.BOOKING_PANEL.ROOM_CAPACITY' | translate) +
-                            ': ' +
-                            capacity
-                        "
                     >
-                        <icon>group</icon>
+                        <icon aria-hidden="true">group</icon>
+                        <span class="sr-only"
+                            >{{
+                                'APP.BOOKING_PANEL.ROOM_CAPACITY' | translate
+                            }}:
+                        </span>
                         <span>{{ capacity }}</span>
                     </div>
                 }
@@ -96,6 +98,7 @@ import { endingSoon } from './helpers';
                 @if (ending_next(); as upcoming) {
                     <p
                         ending-warning
+                        announce
                         class="bg-warning text-warning-content rounded-sm px-4 py-2 text-2xl"
                     >
                         {{
@@ -124,6 +127,7 @@ import { endingSoon } from './helpers';
         TranslatePipe,
         AuthenticatedImageDirective,
         IconComponent,
+        AnnounceDirective,
     ],
 })
 export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
