@@ -2117,7 +2117,20 @@
             "CHECKOUT": "تسجيل المغادرة من المبنى",
             "CHECKOUT_MSG": "أنت مسجل حاليًا في المبنى. هل ترغب في تسجيل المغادرة؟",
             "CHECKOUT_LOADING": "جاري تسجيل مغادرة الضيف...",
-            "CHECKOUT_SUCCESS": "تم تسجيل مغادرة الضيف بنجاح."
+            "CHECKOUT_SUCCESS": "تم تسجيل مغادرة الضيف بنجاح.",
+            "CAMERA_OFF": "الكاميرا غير متاحة",
+            "READY_TO_SCAN": "جاهز لمسح رمز QR",
+            "SEE_RECEPTION": "يرجى التوجه إلى مكتب الاستقبال.",
+            "RECEPTION_ASSIST": "سيساعدك موظفو الاستقبال.",
+            "CONFIRM_DETAILS": "تأكيد التفاصيل",
+            "RETAKE": "إعادة الالتقاط",
+            "MEETING_REJECTED": "تم رفض اجتماعك.",
+            "MEETING_FINISHED": "لقد انتهى اجتماعك بالفعل.",
+            "NOT_CHECKED_IN": "لم تقم بتسجيل الوصول بعد.",
+            "ALREADY_CHECKED_IN": "لقد سجلت وصولك بالفعل.",
+            "INDUCTION_DECLINED": "لقد رفضت التعريف التمهيدي.",
+            "ERROR_CHECKOUT": "فشل تسجيل المغادرة.",
+            "INVALID_QR_CODE": "رمز QR غير صالح"
         }
     },
     "SIGNAGE_MANAGER": {

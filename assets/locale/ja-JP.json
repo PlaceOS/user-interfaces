@@ -2117,7 +2117,20 @@
             "CHECKOUT": "建物からチェックアウト",
             "CHECKOUT_MSG": "現在、建物にチェックインしています。チェックアウトしますか？",
             "CHECKOUT_LOADING": "ゲストをチェックアウト中...",
-            "CHECKOUT_SUCCESS": "ゲストのチェックアウトに成功しました。"
+            "CHECKOUT_SUCCESS": "ゲストのチェックアウトに成功しました。",
+            "CAMERA_OFF": "カメラを使用できません",
+            "READY_TO_SCAN": "QRコードをスキャンする準備ができました",
+            "SEE_RECEPTION": "受付までお越しください。",
+            "RECEPTION_ASSIST": "受付スタッフがご案内します。",
+            "CONFIRM_DETAILS": "詳細の確認",
+            "RETAKE": "撮り直す",
+            "MEETING_REJECTED": "会議は却下されました。",
+            "MEETING_FINISHED": "会議はすでに終了しています。",
+            "NOT_CHECKED_IN": "まだチェックインしていません。",
+            "ALREADY_CHECKED_IN": "すでにチェックインしています。",
+            "INDUCTION_DECLINED": "安全説明を辞退しました。",
+            "ERROR_CHECKOUT": "チェックアウトできませんでした。",
+            "INVALID_QR_CODE": "無効なQRコードです"
         }
     },
     "SIGNAGE_MANAGER": {
