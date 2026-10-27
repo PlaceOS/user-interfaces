@@ -1,4 +1,7 @@
-import { MapViewer } from '../lib/map-viewer.class';
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as client from '@placeos/ts-client';
+import { getMapDetails, MapViewer } from '../lib/map-viewer.class';
 
 describe('MapViewer overlays', () => {
     beforeEach(() => {
@@ -111,5 +114,40 @@ describe('MapViewer overlays', () => {
         expect(wrappers[0].firstChild).toBe(pin);
         expect(removed).toHaveBeenCalled();
         viewer.destroy();
+    });
+});
+
+describe('getMapDetails', () => {
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+    });
+
+    it('removes active content before the map SVG enters the page', async () => {
+        const probe = window as unknown as Record<string, unknown>;
+        delete probe.__map_xss;
+        vi.spyOn(client, 'authority').mockReturnValue(
+            {} as ReturnType<typeof client.authority>,
+        );
+        vi.spyOn(client, 'token').mockReturnValue('');
+        const svg =
+            '<svg xmlns="http://www.w3.org/2000/svg" onload="window.__map_xss = 1">' +
+            '<script>window.__map_xss = 2</script>' +
+            '<foreignObject><img src="x" onerror="window.__map_xss = 3"/></foreignObject>' +
+            '<a href=" java\tscript:alert(1)"><rect id="desk" onclick="alert(1)"/></a>' +
+            '</svg>';
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(svg)));
+        const appended = vi.spyOn(document.body, 'appendChild');
+
+        const details = await getMapDetails('/maps/active-content.svg');
+        await new Promise((resolve) => setTimeout(resolve, 40));
+
+        const inserted = (appended.mock.calls[0][0] as HTMLElement).innerHTML;
+        expect(inserted).toContain('id="desk"');
+        expect(inserted).not.toMatch(
+            /onload|onclick|onerror|script|foreignObject/i,
+        );
+        expect(probe.__map_xss).toBeUndefined();
+        expect(details.raw_data).toBe(svg);
     });
 });

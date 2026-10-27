@@ -187,9 +187,52 @@ function getElementBoundsInSvgSpace(
     };
 }
 
+const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+
+/**
+ * Remove content that can run script from an SVG parsed in an inert
+ * document. Map files can come from users or external hosts, so this must
+ * run before the SVG enters the live page. Removes `<script>`,
+ * `<foreignObject>` and non-SVG elements, event handler attributes, and
+ * attributes with `javascript:` URLs (e.g. links and animation values).
+ */
+function removeActiveSvgContent(svg: SVGSVGElement) {
+    for (const element of [svg, ...Array.from(svg.querySelectorAll('*'))]) {
+        if (
+            element.namespaceURI !== SVG_NAMESPACE ||
+            element.localName === 'script' ||
+            element.localName === 'foreignObject'
+        ) {
+            element.remove();
+            continue;
+        }
+        for (const { name, value } of Array.from(element.attributes)) {
+            // Browsers ignore whitespace and control characters in URL schemes
+            const url = value.replace(/[\s\u0000-\u001f]/g, '').toLowerCase();
+            if (
+                name.toLowerCase().startsWith('on') ||
+                url.includes('javascript:')
+            ) {
+                element.removeAttribute(name);
+            }
+        }
+    }
+}
+
 /** Take SVG image as a string render in place and generate normalised bounds for each element with an ID */
 function generateElementBounds(data: string): ElementBoundsResult {
     const bounds_map = new Map<string, MapElementBounds>();
+
+    // Parse in an inert document, like the image render, so nothing in the
+    // file runs before its active content is removed
+    const parsed = new DOMParser()
+        .parseFromString(data, 'image/svg+xml')
+        .querySelector('svg');
+    if (!(parsed instanceof SVGSVGElement)) {
+        return { bounds: bounds_map, aspect_ratio: 1 };
+    }
+    removeActiveSvgContent(parsed);
+    const svg_element = document.importNode(parsed, true);
 
     // Create a temporary container to render the SVG
     const container = document.createElement('div');
@@ -198,14 +241,8 @@ function generateElementBounds(data: string): ElementBoundsResult {
     container.style.pointerEvents = 'none';
     container.style.left = '-9999px';
     container.style.top = '-9999px';
-    container.innerHTML = data;
+    container.appendChild(svg_element);
     document.body.appendChild(container);
-
-    const svg_element = container.querySelector('svg');
-    if (!svg_element) {
-        document.body.removeChild(container);
-        return { bounds: bounds_map, aspect_ratio: 1 };
-    }
 
     const {
         x: svg_x,
