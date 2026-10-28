@@ -25,12 +25,15 @@ export function eventDescription(event: PublicEvent) {
     return event.description || event.body || event.details || '';
 }
 
+/**
+ * Plain text of the event description. The HTML is parsed into an inert
+ * document, so scripts and event handlers in the description do not run.
+ */
 export function eventDescriptionText(event: PublicEvent) {
     const html = `${eventDescription(event)}`;
     if (!html) return '';
-    const element = document.createElement('div');
-    element.innerHTML = html;
-    return (element.textContent || element.innerText || '').trim();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return (doc.body.textContent || '').trim();
 }
 
 export function isSystemEvent(event: PublicEvent) {

@@ -492,21 +492,6 @@ import { VisitorsStateService } from './visitors-state.service';
                     <icon>more_horiz</icon>
                 </button>
                 <mat-menu #guest_menu="matMenu">
-                    <button
-                        mat-menu-item
-                        [disabled]="!row.attachment?.length"
-                        (click)="viewAttachments(row)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">attachment</icon>
-                            <div>
-                                {{
-                                    'APP.CONCIERGE.VISITORS_ACTION_ATTACHMENTS'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                    </button>
                     @if (
                         has_parking && !row.extension_data.parking_booking_id
                     ) {
@@ -1018,12 +1003,5 @@ export class GuestListingComponent extends AsyncHandler {
         }
         this.pass_number.set('');
         notifySuccess(i18n('APP.CONCIERGE.VISITORS_SAVED_PASS'));
-    }
-
-    public viewAttachments(row: any) {
-        // Open attachment viewer for the visitor
-        if (row.attachment?.length) {
-            window.open(row.attachment[0], '_blank');
-        }
     }
 }

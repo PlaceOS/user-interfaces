@@ -19,6 +19,7 @@ import {
     FURNITURE_ASSETS,
     HANDLES,
     HANDLE_CURSORS,
+    HEX_COLOR_RE,
     Handle,
     TYPE_COLORS,
 } from './constants';
@@ -1110,7 +1111,10 @@ export class CanvasComponent {
             ? FURNITURE_ASSETS.find((a) => a.id === type)
             : undefined;
         if (!asset) return null;
-        const color = object.stroke_color ?? '#333';
+        // The colour goes into trusted markup, and imported or saved maps can
+        // hold any string, so anything but a hex colour could inject markup
+        const stroke = object.stroke_color ?? '';
+        const color = HEX_COLOR_RE.test(stroke) ? stroke : '#333';
         return this._trusted(`furniture:${asset.id}:${color}`, () =>
             asset.svg.replace(/currentColor/g, color),
         );

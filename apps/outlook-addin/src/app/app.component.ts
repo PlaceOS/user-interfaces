@@ -238,11 +238,24 @@ export class AppComponent extends AsyncHandler implements OnInit {
                     dialog = result.value;
                     dialog.addEventHandler(
                         Office.EventType.DialogMessageReceived,
-                        (event) =>
+                        (event) => {
+                            // The dialog can navigate to other sites during
+                            // sign in. Only this add-in may send the token.
+                            // `origin` is undefined on clients without
+                            // DialogOrigin 1.1, which only take messages
+                            // from this origin.
+                            if (
+                                'origin' in event &&
+                                event.origin &&
+                                event.origin !== location.origin
+                            ) {
+                                return;
+                            }
                             finish(
                                 'message' in event ? event.message : '',
                                 'Microsoft sign in did not return a token. Try again.',
-                            ),
+                            );
+                        },
                     );
                     // The user closed the dialog.
                     dialog.addEventHandler(

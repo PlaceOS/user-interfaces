@@ -14,6 +14,7 @@ import {
     isWithinBookableHours,
     jsonToCsv,
     markUserDateChange,
+    removeUrlParam,
     responseErrorMessage,
     setupFormTimeSync,
     timePeriodsIntersect,
@@ -1523,6 +1524,22 @@ describe('General Methods', () => {
 
         it('should read other thrown values like errorMessage', async () => {
             expect(await responseErrorMessage('Desk taken')).toBe('Desk taken');
+        });
+    });
+
+    describe('removeUrlParam', () => {
+        it('should remove only the named query param from the page URL', () => {
+            const start = location.href;
+            history.replaceState(
+                null,
+                '',
+                '/page?x-api-key=secret&lang=fr#/route',
+            );
+            removeUrlParam('x-api-key');
+            expect(location.pathname + location.search + location.hash).toBe(
+                '/page?lang=fr#/route',
+            );
+            history.replaceState(null, '', start);
         });
     });
 

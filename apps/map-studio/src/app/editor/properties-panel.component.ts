@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 
 import { MapObject, MapObjectType, PlaceOSEntityType } from '../data/types';
-import { OBJECT_TYPES } from './constants';
+import { HEX_COLOR_RE, OBJECT_TYPES } from './constants';
 import { EditorStateService } from './editor-state.service';
 
 const ENTITY_TYPES: (PlaceOSEntityType | '')[] = [
@@ -17,8 +17,6 @@ const ENTITY_ID_PLACEHOLDERS: Record<PlaceOSEntityType, string> = {
     module: 'mod-XXXXXXXX',
     zone: 'zone-XXXXXXXX',
 };
-
-const HEX_COLOR_RE = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
 type EditableField =
     | 'label'

@@ -1,4 +1,7 @@
-import { isSystemEvent } from '../app/public-event.helpers';
+import {
+    eventDescriptionText,
+    isSystemEvent,
+} from '../app/public-event.helpers';
 
 describe('public event helpers', () => {
     it('should identify system events from the event flag', () => {
@@ -17,5 +20,18 @@ describe('public event helpers', () => {
         expect(isSystemEvent({ id: 'booking', body: 'Public event' })).toBe(
             false,
         );
+    });
+
+    it('should read description text without creating elements in the page', () => {
+        const create = vi.spyOn(document, 'createElement');
+        expect(
+            eventDescriptionText({
+                id: 'talk',
+                description:
+                    '<p>Hello <b>there</b></p><img src="x" onerror="alert(1)">',
+            }),
+        ).toBe('Hello there');
+        expect(create).not.toHaveBeenCalled();
+        create.mockRestore();
     });
 });

@@ -20,6 +20,7 @@ import {
     setTranslationService,
     setupCache,
     setupPlace,
+    storeApiKeyFromUrl,
     withTimeout,
 } from '@placeos/common';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
@@ -30,7 +31,11 @@ import {
 } from '@placeos/components';
 
 import { mocksInit } from '@placeos/mocks';
-import { convertPairStringToMap, setAPI_Key } from '@placeos/ts-client';
+import {
+    clientId,
+    convertPairStringToMap,
+    setAPI_Key,
+} from '@placeos/ts-client';
 
 const START_QUERY = location.search;
 
@@ -123,14 +128,17 @@ export class AppComponent extends AsyncHandler implements OnInit {
         /** Add query parameters if removed due to hash routing */
         if (START_QUERY) {
             const query = convertPairStringToMap(START_QUERY.substring(1));
-            this._router.navigate([], {
+            await this._router.navigate([], {
                 relativeTo: this._route,
                 queryParams: query,
+                replaceUrl: true,
             });
         }
         /** Wait for authentication details to load */
         try {
-            await setupPlace(settings);
+            await setupPlace(settings).finally(() =>
+                this._storeApiKeyFromUrl(),
+            );
         } catch (error) {
             console.error(error);
             failInitialisation(
@@ -160,6 +168,24 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this.clearTimeout('wait_for_user');
         this._initLocale();
         markInitialisationComplete();
+    }
+
+    /**
+     * Store the `x-api-key` and remove it from the URL, so it does not stay in
+     * the browser history. Runs when `setupPlace` settles, as ts-client stores
+     * the key under the client ID that setup computes. The key can be in the
+     * page query and in the hash route, which gets a copy of the page query.
+     */
+    private _storeApiKeyFromUrl() {
+        storeApiKeyFromUrl();
+        const api_key = this._route.snapshot.queryParamMap.get('x-api-key');
+        if (!api_key || !clientId()) return;
+        setAPI_Key(api_key);
+        this._router.navigate([], {
+            queryParams: { 'x-api-key': null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 
     private _initLocale() {

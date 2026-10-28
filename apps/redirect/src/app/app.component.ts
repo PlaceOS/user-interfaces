@@ -11,6 +11,7 @@ import {
     retryInitialisation,
     SettingsService,
     setupPlace,
+    storeApiKeyFromUrl,
     withTimeout,
 } from '@placeos/common';
 
@@ -116,7 +117,7 @@ export class AppComponent implements OnInit {
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
         try {
-            await setupPlace(settings);
+            await setupPlace(settings).finally(storeApiKeyFromUrl);
             await withTimeout(
                 firstTruthyValueFrom(current_user),
                 30_000,

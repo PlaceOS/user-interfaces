@@ -1,9 +1,11 @@
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection, SecurityContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { DomSanitizer } from '@angular/platform-browser';
 
 import { DbChanges, DbService } from '../app/data/db';
 import { PlaceOSService } from '../app/data/placeos.service';
 import { StoreService } from '../app/data/store.service';
+import { MapObject } from '../app/data/types';
 import { CanvasComponent } from '../app/editor/canvas.component';
 import { EditorStateService } from '../app/editor/editor-state.service';
 
@@ -587,5 +589,37 @@ describe('CanvasComponent pointer presses', () => {
 
         expect(editor.dirty()).toBe(true);
         expect(editor.can_undo()).toBe(true);
+    });
+});
+
+describe('CanvasComponent furniture art', () => {
+    const art = (stroke_color: string) => {
+        TestBed.configureTestingModule({
+            providers: [
+                provideZonelessChangeDetection(),
+                { provide: DbService, useClass: MapDbService },
+                EditorStateService,
+            ],
+        });
+        const canvas =
+            TestBed.createComponent(CanvasComponent).componentInstance;
+        const html = canvas.furnitureArt({
+            stroke_color,
+            metadata: { furnitureType: 'desk-single' },
+        } as unknown as MapObject);
+        return TestBed.inject(DomSanitizer).sanitize(
+            SecurityContext.HTML,
+            html,
+        );
+    };
+
+    it('paints the art with a hex stroke colour', () => {
+        expect(art('#ff0000')).toContain('#ff0000');
+    });
+
+    it('does not put a stroke that is not a hex colour into the markup', () => {
+        const markup = art('"/><img src=x onerror=alert(1)>');
+        expect(markup).not.toContain('onerror');
+        expect(markup).toContain('#333');
     });
 });

@@ -107,7 +107,7 @@ const NO_OFFSET: [number, number] = [0, 0];
                     class="absolute inset-0 z-40 bg-contain bg-center bg-no-repeat"
                     [style.background-color]="offline_color"
                     [style.background-image]="
-                        'url(' + offline_image + ')' | safe: 'resource'
+                        'url(' + offline_image + ')' | safe: 'style'
                     "
                 >
                     <div
