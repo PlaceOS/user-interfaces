@@ -108,13 +108,14 @@ test.describe('concierge zone management', () => {
         // Every row must name the building it hangs off, or the hierarchy is
         // being flattened.
         const building_col = columnIndex(snapshot, 'building');
+        const building_label = building.display_name || building.name;
         for (const row of snapshot.rows) {
             expect(
                 row[building_col],
-                `each level must name its parent building (${building.name}). A ` +
+                `each level must name its parent building (${building_label}). A ` +
                     `blank here means the level is orphaned or the page is not ` +
                     `resolving the parent`,
-            ).toContain(building.name);
+            ).toContain(building_label);
         }
     });
 

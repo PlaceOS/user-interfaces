@@ -335,7 +335,7 @@ export async function seed(): Promise<void> {
         const shape = await ensureOrgShape(api);
         console.log(
             `  org shape  org_zone ${shape.org_zone_set ? 'set' : 'ok'}, region ${shape.region}, ` +
-                `${shape.buildings.length} building(s), ${shape.moved} moved, workplace_app on org + building`,
+                `${shape.buildings.length} building(s), ${shape.moved} moved, ${shape.filled} zone(s) given a timezone/name, workplace_app on org + building`,
         );
         const desks = await ensureDesks(api);
         console.log(`  desks      ${desks.count} on ${desks.zone}`);
