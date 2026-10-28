@@ -175,6 +175,23 @@ describe('ExploreMapViewComponent', () => {
         expect(devices).not.toBeDisabled();
     });
 
+    it('should turn a toggle off when settings lock its layer later', async () => {
+        options.set({ is_public: true, disable: [] });
+        spectator.component.hide_devices.set(false);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+        const devices = spectator.queryAll('settings-toggle button')[1];
+        expect(devices).toHaveAttribute('aria-checked', 'true');
+
+        locked_groups.set(['devices']);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+        expect(devices).toBeDisabled();
+        expect(devices).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('should collapse two or more map toggles', () => {
         spectator.component.hide_devices.set(false);
         spectator.component.hide_sensors.set(false);

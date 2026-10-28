@@ -82,7 +82,10 @@ const EMPTY = [];
                     @if (!hide_zones()) {
                         <settings-toggle
                             [label]="'EXPLORE.AREAS' | translate"
-                            [ngModel]="!options()?.disable?.includes('zones')"
+                            [ngModel]="
+                                !options()?.disable?.includes('zones') &&
+                                !locked_groups().includes('zones')
+                            "
                             [disabled]="locked_groups().includes('zones')"
                             (ngModelChange)="toggleFeature('zones', $event)"
                         />
@@ -90,7 +93,10 @@ const EMPTY = [];
                     @if (!hide_devices()) {
                         <settings-toggle
                             label="Show Devices"
-                            [ngModel]="!options()?.disable?.includes('devices')"
+                            [ngModel]="
+                                !options()?.disable?.includes('devices') &&
+                                !locked_groups().includes('devices')
+                            "
                             [disabled]="locked_groups().includes('devices')"
                             (ngModelChange)="toggleFeature('devices', $event)"
                         />
@@ -98,7 +104,10 @@ const EMPTY = [];
                     @if (!hide_sensors()) {
                         <settings-toggle
                             label="Show Sensors"
-                            [ngModel]="!options()?.disable?.includes('sensors')"
+                            [ngModel]="
+                                !options()?.disable?.includes('sensors') &&
+                                !locked_groups().includes('sensors')
+                            "
                             [disabled]="locked_groups().includes('sensors')"
                             (ngModelChange)="toggleFeature('sensors', $event)"
                         />
