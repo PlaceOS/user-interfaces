@@ -383,7 +383,7 @@ Request types (`forced_time` locks the form to a fixed window and hides the shif
 | `explore.show_zone_labels` | boolean | – | Show zone labels on the explore map. |
 | `explore.show_zone_sensor_info` | boolean | – | Show sensor information in the zone labels. |
 | `explore.area_count_key` | string | – | Key in the zone data that gives the people count of an area. Falls back to `count`. |
-| `explore.disable` | string[] | – | Map feature groups to turn off in every map view. A comma-separated string is also valid. |
+| `explore.disable` | string[] | – | Map feature groups to turn off in every map view. The explore map also hides the Areas, Devices and Sensors toggles of these groups, because users cannot turn them on. A comma-separated string is also valid. |
 | `explore.disable_actions` | string[] | – | Map feature groups whose click actions are turned off. A comma-separated string is also valid. |
 | `explore.disable_features` | string[] | – | Map feature groups whose features (such as tooltips) are turned off. A comma-separated string is also valid. |
 | `explore.disable_labels` | string[] | – | Map feature groups whose labels are turned off. A comma-separated string is also valid. |
