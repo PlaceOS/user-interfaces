@@ -66,10 +66,12 @@ describe('scrubSecrets', () => {
 
 describe('scrubEnvelope', () => {
     it('should scrub recordings and update their length', () => {
-        // Replay records the page URL, and CSS URLs with escaped quotes
+        // Replay records the page URL, CSS URLs with escaped quotes, and
+        // text that is longer in UTF-8 bytes than in characters
         const recording = JSON.stringify([
             { data: { href: 'https://a.b.com/kiosk/?x-api-key=abc#/' } },
             { data: { style: 'url("/img.png?token=t1")' } },
+            { data: { text: 'Café 東京' } },
         ]);
         const envelope = [
             {},
@@ -89,8 +91,11 @@ describe('scrubEnvelope', () => {
         expect(JSON.parse(payload)).toEqual([
             { data: { href: 'https://a.b.com/kiosk/?x-api-key=[Filtered]#/' } },
             { data: { style: 'url("/img.png?token=[Filtered]")' } },
+            { data: { text: 'Café 東京' } },
         ]);
-        expect(header.length).toBe(payload.length);
+        const bytes = new TextEncoder().encode(payload).length;
+        expect(bytes).toBeGreaterThan(payload.length);
+        expect(header.length).toBe(bytes);
     });
 });
 
