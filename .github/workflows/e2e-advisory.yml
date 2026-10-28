@@ -93,7 +93,9 @@ jobs:
         # To fall back to GitHub-hosted, set `runs-on: ubuntu-latest` and restore
         # the `Raise vm.max_map_count` step (see below).
         runs-on: [self-hosted, placeos-e2e]
-        timeout-minutes: 45
+        # Includes up to 120 minutes waiting for the native e2e job (see "Wait for
+        # the native e2e job to finish").
+        timeout-minutes: 165
         env:
             E2E_BACKEND_URL: https://localhost:9443
             # The runner is a 12-core, 16 GB Mac that also hosts the stack's
@@ -142,6 +144,19 @@ jobs:
             - name: Setup version
               run: bun run postinstall
 
+            # The runner Mac also runs place-technology/placeos-native-wpa's Patrol
+            # job, through a second runner. Its stack (compose project
+            # placeos-e2e-native) and Android emulator leave no room in colima's
+            # VM and the machine's 16 GB for this stack, so wait while it is up.
+            # That job waits for this one's stack in the same way.
+            - name: Wait for the native e2e job to finish
+              timeout-minutes: 120
+              run: |
+                  while [ -n "$(docker ps -q --filter label=com.docker.compose.project=placeos-e2e-native)" ]; do
+                      echo "native e2e stack is up; waiting"
+                      sleep 30
+                  done
+
             # A self-hosted machine is NOT a fresh VM. A previous aborted run can
             # leave the stack up or the dev-server port held, and the failure that
             # causes ("port already in use", or specs hitting a half-torn-down
@@ -151,8 +166,8 @@ jobs:
                   e2e/stack/down.sh --volumes || true
                   # Playwright refuses to start its webServer if 4214 is held.
                   lsof -nP -iTCP:4214 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 || true
-                  # Images the previous run's pull replaced. The runner is dedicated
-                  # to this job, so nothing else on the host owns a dangling image.
+                  # Images the previous run's pull replaced. A running stack's images
+                  # are never dangling, so this leaves the native job's alone.
                   docker image prune -f || true
                   docker system df || true
 
