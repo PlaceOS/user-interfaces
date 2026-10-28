@@ -1199,7 +1199,6 @@
             "VISITORS_NOTES_SUCCESS": "成功保存访客备注。",
             "VISITORS_ACTION_APPROVE": "批准访客",
             "VISITORS_ACTION_DECLINE": "拒绝访客",
-            "VISITORS_ACTION_ATTACHMENTS": "查看附件",
             "VISITORS_ACTION_PARKING": "预留停车位",
             "VISITORS_ACTION_REMOTE": "将访客设置为远程",
             "VISITORS_ACTION_ONSITE": "将访客设置为现场",

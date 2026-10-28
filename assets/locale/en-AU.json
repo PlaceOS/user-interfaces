@@ -2520,7 +2520,6 @@
             "VISITORS_NOTES_SUCCESS": "Successfully saved visitor notes.",
             "VISITORS_ACTION_APPROVE": "Approve Visitor",
             "VISITORS_ACTION_DECLINE": "Decline Visitor",
-            "VISITORS_ACTION_ATTACHMENTS": "View Attachments",
             "VISITORS_ACTION_PARKING": "Reserve Parking Space",
             "VISITORS_ACTION_REMOTE": "Set visitor as Remote",
             "VISITORS_ACTION_ONSITE": "Set visitor as Onsite",
