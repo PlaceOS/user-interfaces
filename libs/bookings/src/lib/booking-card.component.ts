@@ -225,9 +225,15 @@ export class BookingCardComponent {
         'parking.show_waitlist',
         true,
     );
-    public readonly hide_selected_parking_space = this._settings.signal(
+    private readonly _hide_selected_parking_space = this._settings.signal(
         'parking.hide_selected_space',
         false,
+    );
+    /** Whether to hide the parking space name of this booking */
+    public readonly hide_selected_parking_space = computed(
+        () =>
+            this.booking()?.booking_type === 'parking' &&
+            this._hide_selected_parking_space(),
     );
 
     /** Request status of the booking, `pending` for anything but parking requests */
@@ -345,9 +351,15 @@ export class BookingCardComponent {
         return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
     });
 
-    public readonly location = computed(() =>
-        bookingLocationString(this.booking(), this._org),
-    );
+    /** Location row text. Shows only the level when the parking space is hidden. */
+    public readonly location = computed(() => {
+        const booking = this.booking();
+        if (this.hide_selected_parking_space()) {
+            const level = this._org.levelWithID(booking.zones);
+            return level?.display_name || level?.name || '';
+        }
+        return bookingLocationString(booking, this._org);
+    });
 
     public readonly period = computed(() => {
         const booking = this.booking();
@@ -370,10 +382,7 @@ export class BookingCardComponent {
     public readonly resource_label = computed(() => {
         const booking = this.booking();
         if (!booking) return '';
-        if (
-            booking.booking_type === 'parking' &&
-            this.hide_selected_parking_space()
-        ) {
+        if (this.hide_selected_parking_space()) {
             return i18n('RESOURCE.PARKING');
         }
         if (booking.booking_type !== 'visitor') {

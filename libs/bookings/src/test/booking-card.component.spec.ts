@@ -11,7 +11,7 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
-import { Booking, SettingsService } from '@placeos/common';
+import { Booking, BuildingLevel, SettingsService } from '@placeos/common';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BookingCardComponent } from '../lib/booking-card.component';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
@@ -42,6 +42,9 @@ describe('BookingCardComponent', () => {
         settings_service.get.mockReset();
         settings_service.get.mockImplementation(() => undefined);
         spectator = createComponent();
+        vi.mocked(
+            spectator.inject(OrganisationService).levelWithID,
+        ).mockReset();
     });
 
     it('should show event details', () => {
@@ -277,5 +280,27 @@ describe('BookingCardComponent', () => {
         });
 
         expect(spectator.component.resource_label()).toBe('RESOURCE.PARKING');
+    });
+
+    it('should show only the level in the location of a hidden parking space', () => {
+        vi.mocked(
+            spectator.inject(OrganisationService).levelWithID,
+        ).mockReturnValue(new BuildingLevel({ display_name: 'Level 1' }));
+        const parking = () =>
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'parking-1',
+                asset_name: 'Parking 1',
+                zones: ['level-1'],
+            });
+        spectator.setInput({ booking: parking() });
+        expect(spectator.component.location()).toBe('Parking 1 - Level 1');
+
+        settings_service.get.mockImplementation((name: string) =>
+            name === 'app.parking.hide_selected_space' ? true : undefined,
+        );
+        spectator.setInput({ booking: parking() });
+        expect(spectator.component.location()).toBe('Level 1');
     });
 });
