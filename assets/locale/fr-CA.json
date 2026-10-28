@@ -1199,7 +1199,6 @@
             "VISITORS_NOTES_SUCCESS": "Notes du visiteur enregistrées avec succès.",
             "VISITORS_ACTION_APPROVE": "Approuver le visiteur",
             "VISITORS_ACTION_DECLINE": "Refuser le visiteur",
-            "VISITORS_ACTION_ATTACHMENTS": "Voir les pièces jointes",
             "VISITORS_ACTION_PARKING": "Réserver une place de stationnement",
             "VISITORS_ACTION_REMOTE": "Définir le visiteur comme distant",
             "VISITORS_ACTION_ONSITE": "Définir le visiteur comme sur site",
