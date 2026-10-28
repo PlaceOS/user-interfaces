@@ -622,6 +622,18 @@ export function parseWebUrl(url: string, base?: string): URL | null {
 }
 
 /**
+ * Remove a query parameter from the page URL without a reload. Use it after
+ * reading a secret such as `x-api-key`, so the secret does not stay in the
+ * browser history or in links that people copy.
+ */
+export function removeUrlParam(name: string) {
+    const url = new URL(location.href);
+    if (!url.searchParams.has(name)) return;
+    url.searchParams.delete(name);
+    history.replaceState(history.state, '', url);
+}
+
+/**
  * Text content of an HTML string. Parsed into an inert document, so scripts
  * and event handlers in the string do not run.
  */

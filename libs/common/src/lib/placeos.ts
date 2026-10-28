@@ -1,4 +1,11 @@
-import { PlaceAuthOptions, setAppHeaders, setup } from '@placeos/ts-client';
+import {
+    PlaceAuthOptions,
+    setAPI_Key,
+    setAppHeaders,
+    setup,
+} from '@placeos/ts-client';
+
+import { removeUrlParam } from './general';
 import {
     getNativeRedirectUri,
     isNativeApp,
@@ -201,4 +208,17 @@ export async function setupPlace(
             },
         );
     });
+}
+
+/**
+ * Store the `x-api-key` from the page query, then remove it from the URL, so
+ * the key does not stay in the browser history. Call it after `setupPlace`:
+ * ts-client stores the key under the client ID that setup computes, and reads
+ * the key from the URL until then.
+ */
+export function storeApiKeyFromUrl() {
+    const key = new URLSearchParams(location.search).get('x-api-key');
+    if (!key) return;
+    setAPI_Key(key);
+    removeUrlParam('x-api-key');
 }

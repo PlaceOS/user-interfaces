@@ -20,6 +20,7 @@ import {
     setTranslationService,
     setupCache,
     setupPlace,
+    storeApiKeyFromUrl,
     withTimeout,
 } from '@placeos/common';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
@@ -123,9 +124,10 @@ export class AppComponent extends AsyncHandler implements OnInit {
         /** Add query parameters if removed due to hash routing */
         if (START_QUERY) {
             const query = convertPairStringToMap(START_QUERY.substring(1));
-            this._router.navigate([], {
+            await this._router.navigate([], {
                 relativeTo: this._route,
                 queryParams: query,
+                replaceUrl: true,
             });
         }
         /** Wait for authentication details to load */
@@ -138,6 +140,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             );
             return;
         }
+        this._storeApiKeyFromUrl();
         await this._org.waitUntilInitialised();
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
@@ -160,6 +163,24 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this.clearTimeout('wait_for_user');
         this._initLocale();
         markInitialisationComplete();
+    }
+
+    /**
+     * Store the `x-api-key` and remove it from the URL, so it does not stay in
+     * the browser history. Runs after `setupPlace`, as ts-client stores the
+     * key under the client ID that setup computes. The key can be in the page
+     * query and in the hash route, which gets a copy of the page query.
+     */
+    private _storeApiKeyFromUrl() {
+        const api_key = this._route.snapshot.queryParamMap.get('x-api-key');
+        storeApiKeyFromUrl();
+        if (!api_key) return;
+        setAPI_Key(api_key);
+        this._router.navigate([], {
+            queryParams: { 'x-api-key': null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 
     private _initLocale() {

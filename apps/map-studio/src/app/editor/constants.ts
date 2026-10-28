@@ -23,6 +23,9 @@ export const HANDLE_CURSORS: Record<Handle, string> = {
     w: 'ew-resize',
 };
 
+/** A `#rgb` or `#rrggbb` colour, the only form the editor stores */
+export const HEX_COLOR_RE = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
+
 export const TYPE_COLORS: Record<string, string> = {
     room: '#7c3aed',
     desk: '#2563eb',

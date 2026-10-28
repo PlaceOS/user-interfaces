@@ -1,6 +1,11 @@
 import * as ts_client from '@placeos/ts-client';
 
-import { PLACE_SETUP_TIMEOUT, PlaceSettings, setupPlace } from '../lib/placeos';
+import {
+    PLACE_SETUP_TIMEOUT,
+    PlaceSettings,
+    setupPlace,
+    storeApiKeyFromUrl,
+} from '../lib/placeos';
 import { VERSION } from '../lib/version';
 
 // Only the external ts-client API layer is stubbed; native detection is driven
@@ -125,5 +130,19 @@ describe('setupPlace', () => {
             'https://other.example.com/auth/oauth/token',
             { method: 'POST' },
         );
+    });
+});
+
+describe('storeApiKeyFromUrl', () => {
+    it('should store the key from the page query and remove it from the URL', () => {
+        const start = location.href;
+        const set_key = vi
+            .mocked(ts_client.setAPI_Key)
+            .mockImplementation(() => undefined);
+        history.replaceState(null, '', '/app?x-api-key=secret&lang=fr#/home');
+        storeApiKeyFromUrl();
+        expect(set_key).toHaveBeenCalledWith('secret');
+        expect(location.search).toBe('?lang=fr');
+        history.replaceState(null, '', start);
     });
 });

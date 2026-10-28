@@ -5,6 +5,7 @@ import {
     markInitialisationComplete,
     SettingsService,
     setupPlace,
+    storeApiKeyFromUrl,
     withTimeout,
 } from '@placeos/common';
 import { authority, queryApplications, setAPI_Key } from '@placeos/ts-client';
@@ -104,6 +105,7 @@ export class AppComponent implements OnInit {
                 !!this._settings.get('mock') ||
                 location.origin.includes('demo.place.tech');
             await setupPlace(settings);
+            storeApiKeyFromUrl();
             await withTimeout(
                 lastValueFrom(current_user.pipe(first((_) => !!_))),
                 30_000,
