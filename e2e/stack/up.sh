@@ -151,6 +151,30 @@ dc run --rm init start
 step "starting core"
 dc up -d core
 
+# Core fails at startup when its image is older than the migrations init ran
+# (e.g. "Conflicting CDC update policy"), and Docker restarts it forever. The
+# seed's driver wait would then time out after many minutes with no hint why.
+step "checking core stays up"
+core_id=$(dc ps -q core)
+for i in $(seq 1 15); do
+    sleep 2
+    restarts=$(docker inspect -f '{{.RestartCount}}' "$core_id")
+    running=$(docker inspect -f '{{.State.Running}}' "$core_id")
+    if [[ "$restarts" != "0" || "$running" != "true" ]]; then
+        echo "core is not staying up (restarts=${restarts}, running=${running}). Last log lines:"
+        docker logs --tail 40 "$core_id" 2>&1 | grep -v '^  from ???' | tail -15
+        echo
+        echo "PlaceOS image build dates:"
+        dc config --images 2>/dev/null | sort -u | grep '^placeos/' | while read -r image; do
+            printf '  %-40s %s\n' "$image" "$(docker image inspect -f '{{.Created}}' "$image" | cut -c1-10)"
+        done
+        echo
+        echo "If the dates differ by weeks, the images are from different releases: rerun with --pull --fresh."
+        exit 1
+    fi
+done
+echo "  core up for 30s with no restarts"
+
 # source subscribes to the module tables at startup, so it comes up after init
 # for the same reason core does. It publishes nothing until the seed below
 # gives it a Broker row.
