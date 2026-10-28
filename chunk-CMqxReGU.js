@@ -1,4 +1,0 @@
-import{gn as _t}from"./chunk-BF3rhqXc.js";import{Ft as Yf}from"./chunk-22Oihweo.js";var u=(()=>{class r{transform(t,e=!1){let i=Yf({hours:Math.floor(t/60),minutes:t%60});return e&&(i=i.replace(` hour`,`h`).replace(` minute`,`m`).replace(/s/gi,``)),i}static{this.ɵfac=function(e){return new(e||r)}}static{this.ɵpipe=_t({name:`duration`,type:r,pure:!0})}}return r})();export{u as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="7a500662-e8ac-5c1a-82ca-a837cb503578")}catch(e){}}();
-//# debugId=7a500662-e8ac-5c1a-82ca-a837cb503578
-//# sourceMappingURL=chunk-CMqxReGU.js.map
