@@ -85,8 +85,12 @@ Apps that use the shared organisation loader, and Enrolment, send errors and tra
 |---------|------|---------|-------------|
 | `sentry_dsn` | string | – | Sentry DSN. When set, the app loads Sentry and reports errors to it. |
 | `sentry_traces_sample_rate` | number | `0.1` | Share of page loads and navigations that Sentry traces, from `0` to `1`. Needs `sentry_dsn`. |
+| `sentry_replays_session_sample_rate` | number | `0` | Share of sessions that Sentry Replay records, from `0` to `1`. Needs `sentry_dsn`. |
+| `sentry_replays_on_error_sample_rate` | number | `0` | Share of sessions with an error that Sentry Replay records, from `0` to `1`. Replay keeps the last 60 seconds before the error. Needs `sentry_dsn`. |
 
-The app removes API keys and tokens from URLs before it sends an event.
+The app removes API keys and tokens from URLs before it sends an event or a replay.
+
+Replay starts only when one of the Replay rates is more than `0`. Replay masks all text and inputs, and blocks images and media. Replay sends recordings without compression, so that the app can remove credentials from them. Uncompressed recordings use more network bandwidth.
 
 ## Domain configuration
 

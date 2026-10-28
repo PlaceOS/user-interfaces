@@ -16,6 +16,18 @@
             "maximum": 1,
             "description": "Share of page loads and navigations that Sentry traces, from 0 to 1. Defaults to 0.1."
         },
+        "sentry_replays_session_sample_rate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Share of sessions that Sentry Replay records, from 0 to 1. Defaults to 0."
+        },
+        "sentry_replays_on_error_sample_rate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Share of sessions with an error that Sentry Replay records, from 0 to 1. Defaults to 0."
+        },
         "show_changelog": {
             "type": "boolean",
             "description": "Whether the version in user controls links to the changelog modal"
