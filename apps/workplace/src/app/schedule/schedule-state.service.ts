@@ -194,6 +194,7 @@ export class ScheduleStateService extends AsyncHandler {
     private _network_requested = false;
     private _network_started = false;
     private _booking_query_requests = new Map<string, Promise<Booking[]>>();
+    private _event_query_requests = new Map<string, Promise<CalendarEvent[]>>();
 
     private _space_bookings = signal<CalendarEvent[]>([]);
     private _user_bookings = signal<CalendarEvent[]>([]);
@@ -501,6 +502,7 @@ export class ScheduleStateService extends AsyncHandler {
     /** Reload bookings. Drops in-flight requests so a change made just now is not masked by a stale response. */
     public triggerPoll() {
         this._booking_query_requests.clear();
+        this._event_query_requests.clear();
         this._poll.set(Date.now());
     }
 
@@ -705,23 +707,16 @@ export class ScheduleStateService extends AsyncHandler {
                 }
                 const { date, end_date, period } = query_params;
                 const query = this._periodQuery(period, date, end_date);
-                // queryAllBookings returns an empty list on failure, so only
-                // the events request can report an error
                 let failed = false;
-                const list = this._settings.get('app.events.use_bookings')
-                    ? await this._track(
-                          queryAllBookings({ ...query, type: 'room' }),
-                      )
-                          .then((_) =>
-                              _.map((i) => newCalendarEventFromBooking(i)),
-                          )
-                          .catch(() => [])
-                    : await this._track(queryEventsOrThrow({ ...query })).catch(
-                          () => {
-                              failed = true;
-                              return [];
-                          },
-                      );
+                const list = await this._track(
+                    this._eventQuery(
+                        query,
+                        !!this._settings.get('app.events.use_bookings'),
+                    ),
+                ).catch(() => {
+                    failed = true;
+                    return [];
+                });
                 this._api_events.set(list);
                 this._setFailed('api', failed);
             },
@@ -904,6 +899,31 @@ export class ScheduleStateService extends AsyncHandler {
                         }),
             ),
         };
+    }
+
+    /**
+     * Events for the period, from the calendar API, or from room bookings
+     * when `use_bookings` is set. Identical requests in flight share one
+     * response. Rejects only when the calendar API request fails.
+     */
+    private _eventQuery(
+        query: ReturnType<ScheduleStateService['_periodQuery']>,
+        use_bookings: boolean,
+    ) {
+        const key = JSON.stringify({ ...query, use_bookings });
+        const existing = this._event_query_requests.get(key);
+        if (existing) return existing;
+        const request = (
+            use_bookings
+                ? queryAllBookings({ ...query, type: 'room' })
+                      .then((list) =>
+                          list.map((i) => newCalendarEventFromBooking(i)),
+                      )
+                      .catch(() => [] as CalendarEvent[])
+                : queryEventsOrThrow({ ...query })
+        ).finally(() => this._event_query_requests.delete(key));
+        this._event_query_requests.set(key, request);
+        return request;
     }
 
     private _bookingQuery(
