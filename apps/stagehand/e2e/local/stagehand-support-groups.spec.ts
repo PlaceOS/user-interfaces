@@ -97,10 +97,10 @@ test.beforeAll(
         });
         await sweepGroupData(api);
 
-        const building_a = await createZone(api, 'A', 'building', zones.org);
+        const building_a = await createZone(api, 'A', 'building', zones.region);
         const level_a1 = await createZone(api, 'A1', 'level', building_a.id);
         const level_a2 = await createZone(api, 'A2', 'level', building_a.id);
-        const building_b = await createZone(api, 'B', 'building', zones.org);
+        const building_b = await createZone(api, 'B', 'building', zones.region);
         const level_b1 = await createZone(api, 'B1', 'level', building_b.id);
         // levels first: a zone with children can't be deleted
         zone_ids.push(
@@ -119,7 +119,7 @@ test.beforeAll(
             const display_name = `${ROOM_PREFIX} ${label}`;
             const row = await createSystem(
                 api,
-                { org: zones.org, building, level },
+                { org: zones.org, region: zones.region, building, level },
                 `group ${label}`,
                 { display_name, support_url: 'http://localhost/support' },
             );

@@ -57,13 +57,13 @@ test('a started module publishes connected: true at its full topic', async ({
         );
 
         // Every segment, because stagehand parses topics by position. The
-        // system has no region or area zone, which source writes as `_`.
+        // system has no area zone, which source writes as `_`.
         expect(found.topic).toBe(
             [
                 'placeos',
                 zones.org,
                 'state',
-                '_',
+                zones.region,
                 zones.building,
                 zones.level,
                 '_',

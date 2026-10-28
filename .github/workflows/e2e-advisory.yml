@@ -100,7 +100,7 @@ jobs:
             # containers, the Angular dev server and the browsers. Seeding reads
             # this too (one staff user, desk and room set per worker), so it must
             # be the same here as in the test step.
-            E2E_WORKERS: '4'
+            E2E_WORKERS: '6'
             TZ: 'Etc/UTC'
         steps:
             # persist-credentials: false — checkout otherwise leaves the token in
