@@ -1199,7 +1199,6 @@
             "VISITORS_NOTES_SUCCESS": "訪問者メモの保存に成功しました。",
             "VISITORS_ACTION_APPROVE": "訪問者を承認",
             "VISITORS_ACTION_DECLINE": "訪問者を拒否",
-            "VISITORS_ACTION_ATTACHMENTS": "添付ファイルを表示",
             "VISITORS_ACTION_PARKING": "駐車スペースを予約",
             "VISITORS_ACTION_REMOTE": "訪問者をリモートに設定",
             "VISITORS_ACTION_ONSITE": "訪問者をオンサイトに設定",
