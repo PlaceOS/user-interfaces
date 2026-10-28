@@ -29,6 +29,7 @@ import {
 import { mintToken, clientId, redirectUriFor } from './auth';
 import { ENGINE_API, STAFF_API, alreadyExists, getJson as json } from './api';
 import { describeDrivers, ensureDrivers } from './drivers/drivers.seed';
+import { ensureOrgShape } from './org/org.seed';
 import { CALENDAR_ENABLED, CALENDAR_TENANT_NAME, O365 } from './calendar/calendar.env';
 
 /** The app `init` guarantees exists — our way in before anything else is registered. */
@@ -331,6 +332,11 @@ export async function seed(): Promise<void> {
                 `  calendar   ${calendar_user.created ? 'created' : 'present'}  admin ${calendar_user.email}`,
             );
         }
+        const shape = await ensureOrgShape(api);
+        console.log(
+            `  org shape  org_zone ${shape.org_zone_set ? 'set' : 'ok'}, region ${shape.region}, ` +
+                `${shape.buildings.length} building(s), ${shape.moved} moved, workplace_app on org + building`,
+        );
         const desks = await ensureDesks(api);
         console.log(`  desks      ${desks.count} on ${desks.zone}`);
         const users = await ensureStaffUsers(api);

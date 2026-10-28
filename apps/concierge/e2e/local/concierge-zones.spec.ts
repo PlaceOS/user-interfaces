@@ -7,11 +7,9 @@
  * redirects to `zone-management` (`app.routes.ts`), which renders three tabs:
  * **Regions · Buildings · Levels**.
  *
- * The default tab is Regions, and the stack seeds **no region zone at all**
- * (measured: `GET /zones?tags=region` returns 0, against 1 org, 1 building and
- * 2 levels). So the page a reader lands on says "no regions" and looks broken,
- * while the hierarchy that IS seeded sits one tab across. That cost a first
- * look, and it is why this file asserts per tab rather than on "the page".
+ * The default tab is Regions, so every test switches tab and then waits for
+ * a column only that tab has: the Regions grid stays in the page until the
+ * switch renders, and a read in between returns the wrong table.
  *
  * ## The `display_name` column shows the zone ID
  *
@@ -38,16 +36,23 @@ import {
     waitForAnyRow,
 } from '../../../../e2e/support/concierge/simple-table.page';
 import { zonesWithTag } from '../../../../e2e/support/api';
+import { REGION_NAME } from '../../../../e2e/support/org/org.seed';
 
 const ZONE_ROUTE = '/#/zone-management';
 
-/** Switch tab and wait for its grid to carry rows. */
-async function openTab(page: any, name: RegExp) {
+/** Switch tab and wait until the grid is the one with [column]. */
+async function openTab(page: any, name: RegExp, column: string) {
     const tab = page.getByRole('tab', { name }).first();
     await expect(tab, `no "${name}" tab on the zone management page`).toBeVisible({
         timeout: 30_000,
     });
     await tab.click();
+    await expect
+        .poll(async () => (await readTable(page)).column_ids, {
+            message: `the "${name}" tab never showed a grid with column-${column}`,
+            timeout: 30_000,
+        })
+        .toContain(`column-${column}`);
 }
 
 test.describe('concierge zone management', () => {
@@ -63,7 +68,7 @@ test.describe('concierge zone management', () => {
         ).toBeGreaterThan(0);
 
         await adminPage.goto(ZONE_ROUTE);
-        await openTab(adminPage, /Buildings/i);
+        await openTab(adminPage, /Buildings/i, 'level_count');
         const snapshot = await waitForAnyRow(adminPage);
 
         expect(
@@ -90,7 +95,7 @@ test.describe('concierge zone management', () => {
         const levels = await zonesWithTag(adminApi, 'level');
 
         await adminPage.goto(ZONE_ROUTE);
-        await openTab(adminPage, /Levels/i);
+        await openTab(adminPage, /Levels/i, 'building');
         const snapshot = await waitForAnyRow(adminPage);
 
         expect(
@@ -113,40 +118,39 @@ test.describe('concierge zone management', () => {
         }
     });
 
-    test('CON-ZONE-01c: the Regions tab is empty on this stack, and says so cleanly', async ({
+    test('CON-ZONE-01c: the Regions tab lists the seeded region and its building count', async ({
         adminPage,
         adminApi,
     }) => {
         const regions = await zonesWithTag(adminApi, 'region');
-        // Guard the premise. If somebody seeds a region later this test should
-        // start failing loudly rather than quietly asserting the wrong thing.
-        expect(
-            regions.length,
-            'this test documents the EMPTY case. A region now exists, so rewrite ' +
-                'it to assert the region is listed instead',
-        ).toBe(0);
+        const region = regions.find((z) => z.name === REGION_NAME);
+        expect(region, `the stack should seed the region "${REGION_NAME}"`).toBeTruthy();
+        const buildings = (await zonesWithTag(adminApi, 'building')).filter(
+            (b) => b.parent_id === region!.id,
+        );
 
         const crashes: string[] = [];
         adminPage.on('pageerror', (error) => crashes.push(error.message));
 
         await adminPage.goto(ZONE_ROUTE);
-        await openTab(adminPage, /Regions/i);
+        await openTab(adminPage, /Regions/i, 'building_count');
+        const snapshot = await waitForAnyRow(adminPage);
 
-        // The header renders even with no rows, so this asserts the table is
-        // there and the body is empty — an empty state, not a broken page.
-        const snapshot = await readTable(adminPage);
-        expect(
-            snapshot.column_ids.length,
-            'the Regions tab should still render its columns with no data',
-        ).toBeGreaterThan(0);
         expect(
             snapshot.rows.length,
-            'and no rows, because no region zone is seeded',
-        ).toBe(0);
+            `the Regions tab should list all ${regions.length} region(s)`,
+        ).toBe(regions.length);
+        const row = snapshot.rows.find((cells) =>
+            cells[columnIndex(snapshot, 'display_name')].includes(REGION_NAME),
+        );
+        expect(row, `the Regions tab should list "${REGION_NAME}"`).toBeTruthy();
+        expect(
+            row![columnIndex(snapshot, 'building_count')],
+            `"${REGION_NAME}" should report ${buildings.length} building(s)`,
+        ).toContain(String(buildings.length));
         expect(
             crashes,
-            'an empty Regions tab must not throw. This is the tab the page OPENS ' +
-                'on, so a crash here is the first thing a user would see',
+            'the Regions tab is the one the page opens on, so it must not throw',
         ).toEqual([]);
     });
 });
