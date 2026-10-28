@@ -1,4 +1,0 @@
-import{un as Zs}from"./chunk-CA3qWkS6.js";import{At as ae}from"./chunk-COagZhfc.js";var p=(()=>{class r{transform(t,s=!1){let a=Math.floor(t/60/60),n=Math.floor(t/60%60),f=Math.floor(t%60),c=Math.floor(t*1e3%1e3),i=`${ae(n)}:${ae(f)}`;return s&&(i+=`.${ae(c,3)}`),a>0&&(i=`${ae(a)}:${i}`),i}static{this.ɵfac=function(s){return new(s||r)}}static{this.ɵpipe=Zs({name:`mediaDuration`,type:r,pure:!0})}}return r})();export{p as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="28ba4517-e1c8-51f1-bfee-2a91e2cc30eb")}catch(e){}}();
-//# debugId=28ba4517-e1c8-51f1-bfee-2a91e2cc30eb
-//# sourceMappingURL=chunk-DKUxPZgK.js.map
