@@ -138,6 +138,7 @@ describe('UserControlsComponent', () => {
         expect(window_spy).toHaveBeenCalledWith(
             'https://support.example.com',
             '_blank',
+            'noopener,noreferrer',
         );
         window_spy.mockRestore();
     });

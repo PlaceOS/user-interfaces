@@ -16,6 +16,7 @@ import {
     notifySuccess,
     notifyWarn,
     OrganisationService,
+    parseWebUrl,
     SettingsService,
     UploadPermissions,
     UploadsService,
@@ -63,7 +64,6 @@ import {
 } from '../signage-media-upload.util';
 import { SignagePluginService } from '../signage-plugin.service';
 import { dialogClosed, PAGE_SIZE, searchParam } from '../signage-service.util';
-import { parseWebUrl } from '../signage-url.util';
 import {
     convertImageToWebp,
     dataURLtoFile,
