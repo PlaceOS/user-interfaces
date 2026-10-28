@@ -604,15 +604,30 @@ export function shiftColorTowards(
     return rgbToHex(resultRgb[0], resultRgb[1], resultRgb[2]);
 }
 
+/**
+ * Parse `url` and return it only when it uses http or https. Relative URLs
+ * resolve against `base`. Without `base`, only absolute URLs parse. Use it to
+ * refuse schemes such as `javascript:` and `data:` before a URL is stored or
+ * loaded in an iframe.
+ */
+export function parseWebUrl(url: string, base?: string): URL | null {
+    try {
+        const parsed = new URL(url, base);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+            ? parsed
+            : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Text content of an HTML string. Parsed into an inert document, so scripts
+ * and event handlers in the string do not run.
+ */
 export function extractTextFromHTML(html_string: string) {
-    // Create a temporary DOM element
-    const temp_element = document.createElement('div');
-
-    // Set the innerHTML to our HTML string
-    temp_element.innerHTML = html_string;
-
-    // Extract and return the text content
-    return temp_element.textContent || temp_element.innerText || '';
+    const doc = new DOMParser().parseFromString(html_string, 'text/html');
+    return doc.body.textContent || '';
 }
 
 /**

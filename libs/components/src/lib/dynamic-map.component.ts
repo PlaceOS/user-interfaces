@@ -695,11 +695,16 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         for (const label of labels) {
             if (!label.location || !label.content) continue;
 
-            const classes = ['map-label', ...(label.css_class || [])].join(' ');
+            // Label text can come from driver status, so it is set as text
+            const element = document.createElement('label');
+            element.className = ['map-label', ...(label.css_class || [])].join(
+                ' ',
+            );
+            element.textContent = label.content;
             overlays.push({
                 ref: label.location,
                 type: 'point',
-                contents: `<label class="${classes}">${label.content}</label>`,
+                contents: element,
                 scale_with_zoom: true,
                 min_zoom: label.zoom_level,
                 z_index: label.z_index,

@@ -3,6 +3,7 @@ import { getModule } from '@placeos/ts-client';
 
 import { AsyncHandler } from './async-handler.class';
 import { log, randomInt, randomString } from './general';
+import { scrubSecrets } from './sentry';
 
 export interface ClientEvent {
     id: string;
@@ -26,6 +27,19 @@ function hookMethod<T, K extends keyof T>(
         (previousFunction as any).call(rootObject, ...args);
     };
     return previousFunction;
+}
+
+/**
+ * Copy of a logged event with credentials removed, as console arguments can
+ * hold URLs with tokens or auth codes. The arguments are app objects, so the
+ * copy is scrubbed, not the event. Null when the event cannot be serialised.
+ */
+function scrubbedCopy(event: ClientEvent): ClientEvent | null {
+    try {
+        return scrubSecrets(JSON.parse(JSON.stringify(event)));
+    } catch {
+        return null;
+    }
 }
 
 let DEVICE_ID =
@@ -93,9 +107,11 @@ export class RemoteLoggingService extends AsyncHandler {
         );
         const system_id = this._logging_system();
         if (!system_id) return;
+        const sent = scrubbedCopy(event);
+        if (!sent) return;
         this._disable_handling = true;
         getModule(system_id, 'Logger')
-            .execute('post_event', [event])
+            .execute('post_event', [sent])
             .catch()
             .finally(() => (this._disable_handling = false));
     }

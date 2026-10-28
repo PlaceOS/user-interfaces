@@ -49,6 +49,15 @@ describe('PluginEmbedComponent', () => {
         return { post_message, reply, playing };
     }
 
+    it.each(['javascript:alert(document.cookie)', ''])(
+        'does not load the plugin URI %j',
+        (uri) => {
+            spectator.setInput('plugin', { id: 'plugin-1', uri });
+            expect(spectator.query('iframe')).toBeNull();
+            expect(spectator.component.plugin_origin()).toBe('');
+        },
+    );
+
     it('waits for paint confirmation of the current play request', () => {
         const { post_message, reply, playing } = preparePlugin(true);
         spectator.setInput({ config, play: 10 });

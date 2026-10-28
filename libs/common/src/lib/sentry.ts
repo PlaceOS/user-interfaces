@@ -56,9 +56,10 @@ const MAX_SCRUB_DEPTH = 20;
 const SDK_METADATA_KEY = 'sdkProcessingMetadata';
 
 /**
- * Removes credential values from every string in a Sentry event. Sentry
- * gives its hooks a normalised copy of the event, so values are changed in
- * place, and only where a credential was found.
+ * Removes credential values from every string in a Sentry event or a remote
+ * log event. Values are changed in place, and only where a credential was
+ * found, so pass a copy: Sentry gives its hooks a normalised copy of the
+ * event.
  */
 export function scrubSecrets<T>(value: T, depth = 0): T {
     if (typeof value === 'string') {

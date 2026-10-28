@@ -10,7 +10,7 @@ import {
     SimpleChanges,
     viewChild,
 } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, parseWebUrl } from '@placeos/common';
 import { SignagePlugin } from '@placeos/ts-client';
 import { SafePipe } from './safe.pipe';
 
@@ -103,12 +103,12 @@ export type PluginInteractionPayload = {
 @Component({
     selector: 'plugin-embed',
     template: `
-        @if (plugin()?.uri) {
+        @if (plugin_url(); as url) {
             <iframe
                 #plugin_el
                 sandbox="allow-scripts allow-same-origin"
                 referrerpolicy="no-referrer"
-                [src]="plugin().uri | safe: 'resource'"
+                [src]="url.href | safe: 'resource'"
                 (load)="loaded.emit()"
                 (error)="onIframeError()"
             >
@@ -158,15 +158,18 @@ export class PluginEmbedComponent
     private readonly _plugin_el =
         viewChild<ElementRef<HTMLIFrameElement>>('plugin_el');
 
-    public readonly plugin_origin = computed(() => {
-        try {
-            const uri = this.plugin()?.uri;
-            if (!uri) return '';
-            return new URL(uri, window.location.origin).origin;
-        } catch {
-            return '';
-        }
+    /**
+     * The plugin URI resolved against this page. Only `http:` and `https:`
+     * load, as the iframe source skips Angular's URL checks and a
+     * `javascript:` URI would run with this app's origin.
+     */
+    public readonly plugin_url = computed(() => {
+        const uri = this.plugin()?.uri;
+        return uri ? parseWebUrl(uri, document.baseURI) : null;
     });
+    public readonly plugin_origin = computed(
+        () => this.plugin_url()?.origin || '',
+    );
 
     private _handle_messages = (e) => this._handleMessage(e);
     private _play_count = 0;
@@ -271,7 +274,7 @@ export class PluginEmbedComponent
     }
 
     private _setupChannels() {
-        if (!this.plugin()?.uri) return;
+        if (!this.plugin_url()) return;
         this.subscription('channel', () =>
             window.removeEventListener('message', this._handle_messages),
         );

@@ -7,6 +7,7 @@ import {
     csvToJson,
     downloadFile,
     errorMessage,
+    extractTextFromHTML,
     getInvalidFields,
     getItemWithKeys,
     getNextBookableTime,
@@ -1522,6 +1523,19 @@ describe('General Methods', () => {
 
         it('should read other thrown values like errorMessage', async () => {
             expect(await responseErrorMessage('Desk taken')).toBe('Desk taken');
+        });
+    });
+
+    describe('extractTextFromHTML', () => {
+        it('should return the text without creating elements in the page', () => {
+            const create = vi.spyOn(document, 'createElement');
+            expect(
+                extractTextFromHTML(
+                    '<p>Hello <b>there</b></p><img src="x" onerror="alert(1)">',
+                ),
+            ).toBe('Hello there');
+            expect(create).not.toHaveBeenCalled();
+            create.mockRestore();
         });
     });
 
