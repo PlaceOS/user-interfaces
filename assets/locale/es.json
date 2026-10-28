@@ -1199,7 +1199,6 @@
             "VISITORS_NOTES_SUCCESS": "Notas del visitante guardadas con éxito.",
             "VISITORS_ACTION_APPROVE": "Aprobar Visitante",
             "VISITORS_ACTION_DECLINE": "Rechazar Visitante",
-            "VISITORS_ACTION_ATTACHMENTS": "Ver Archivos Adjuntos",
             "VISITORS_ACTION_PARKING": "Reservar Plaza de Aparcamiento",
             "VISITORS_ACTION_REMOTE": "Establecer visitante como Remoto",
             "VISITORS_ACTION_ONSITE": "Establecer visitante como Presencial",
