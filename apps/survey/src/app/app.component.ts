@@ -31,7 +31,11 @@ import {
 } from '@placeos/components';
 
 import { mocksInit } from '@placeos/mocks';
-import { convertPairStringToMap, setAPI_Key } from '@placeos/ts-client';
+import {
+    clientId,
+    convertPairStringToMap,
+    setAPI_Key,
+} from '@placeos/ts-client';
 
 const START_QUERY = location.search;
 
@@ -132,7 +136,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
         }
         /** Wait for authentication details to load */
         try {
-            await setupPlace(settings);
+            await setupPlace(settings).finally(() =>
+                this._storeApiKeyFromUrl(),
+            );
         } catch (error) {
             console.error(error);
             failInitialisation(
@@ -140,7 +146,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
             );
             return;
         }
-        this._storeApiKeyFromUrl();
         await this._org.waitUntilInitialised();
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
@@ -167,14 +172,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
 
     /**
      * Store the `x-api-key` and remove it from the URL, so it does not stay in
-     * the browser history. Runs after `setupPlace`, as ts-client stores the
-     * key under the client ID that setup computes. The key can be in the page
-     * query and in the hash route, which gets a copy of the page query.
+     * the browser history. Runs when `setupPlace` settles, as ts-client stores
+     * the key under the client ID that setup computes. The key can be in the
+     * page query and in the hash route, which gets a copy of the page query.
      */
     private _storeApiKeyFromUrl() {
-        const api_key = this._route.snapshot.queryParamMap.get('x-api-key');
         storeApiKeyFromUrl();
-        if (!api_key) return;
+        const api_key = this._route.snapshot.queryParamMap.get('x-api-key');
+        if (!api_key || !clientId()) return;
         setAPI_Key(api_key);
         this._router.navigate([], {
             queryParams: { 'x-api-key': null },

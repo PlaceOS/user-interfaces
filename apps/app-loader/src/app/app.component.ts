@@ -104,8 +104,7 @@ export class AppComponent implements OnInit {
             settings.mock =
                 !!this._settings.get('mock') ||
                 location.origin.includes('demo.place.tech');
-            await setupPlace(settings);
-            storeApiKeyFromUrl();
+            await setupPlace(settings).finally(storeApiKeyFromUrl);
             await withTimeout(
                 lastValueFrom(current_user.pipe(first((_) => !!_))),
                 30_000,

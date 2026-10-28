@@ -134,15 +134,27 @@ describe('setupPlace', () => {
 });
 
 describe('storeApiKeyFromUrl', () => {
-    it('should store the key from the page query and remove it from the URL', () => {
-        const start = location.href;
-        const set_key = vi
-            .mocked(ts_client.setAPI_Key)
-            .mockImplementation(() => undefined);
+    const start = location.href;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.mocked(ts_client.setAPI_Key).mockImplementation(() => undefined);
         history.replaceState(null, '', '/app?x-api-key=secret&lang=fr#/home');
+    });
+
+    afterEach(() => history.replaceState(null, '', start));
+
+    it('should store the key from the page query and remove it from the URL', () => {
+        vi.mocked(ts_client.clientId).mockReturnValue('client');
         storeApiKeyFromUrl();
-        expect(set_key).toHaveBeenCalledWith('secret');
+        expect(ts_client.setAPI_Key).toHaveBeenCalledWith('secret');
         expect(location.search).toBe('?lang=fr');
-        history.replaceState(null, '', start);
+    });
+
+    it('should keep the key in the URL before setup sets a client ID', () => {
+        vi.mocked(ts_client.clientId).mockReturnValue('');
+        storeApiKeyFromUrl();
+        expect(ts_client.setAPI_Key).not.toHaveBeenCalled();
+        expect(location.search).toBe('?x-api-key=secret&lang=fr');
     });
 });
