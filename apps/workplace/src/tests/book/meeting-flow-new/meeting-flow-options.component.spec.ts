@@ -5,11 +5,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CateringOrderStateService } from '@placeos/catering';
 import {
+    NO_RECURR,
     OrganisationService,
     setCurrentUser,
     setNotifyOutlet,
     settingSignal,
     SettingsService,
+    toEventRecurrence,
 } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
 import { UserListFieldComponent } from '@placeos/form-fields';
@@ -184,6 +186,17 @@ describe('MeetingFlowOptionsComponent', () => {
         await spectator.component.confirmBooking();
         expect(snackbar.open).toHaveBeenCalled();
         expect(post_form).not.toHaveBeenCalled();
+    });
+
+    it('should allow an all-day booking after recurrence changes back to none', async () => {
+        settingSignal('events.allow_daily_allday_recurrence', false).set(false);
+        model.update((m) => ({
+            ...m,
+            all_day: true,
+            recurrence: toEventRecurrence(NO_RECURR, m.date),
+        }));
+        await spectator.component.confirmBooking();
+        expect(post_form).toHaveBeenCalled();
     });
 
     it('should confirm before booking a meeting without a room', async () => {

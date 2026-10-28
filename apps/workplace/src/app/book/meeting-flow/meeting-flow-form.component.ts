@@ -669,7 +669,9 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         if (
             !this.allow_daily_allday_recurrence &&
             this.model().all_day &&
-            this.model().recurrence?.pattern === 'daily'
+            // "None" keeps pattern 'daily' with _pattern 'none'.
+            this.model().recurrence?.pattern === 'daily' &&
+            this.model().recurrence._pattern !== 'none'
         ) {
             return notifyError(i18n('CALENDAR_EVENT.DAILY_RECURR_ERROR'));
         }
