@@ -83,6 +83,7 @@ const EMPTY = [];
                         <settings-toggle
                             [label]="'EXPLORE.AREAS' | translate"
                             [ngModel]="!options()?.disable?.includes('zones')"
+                            [disabled]="locked_groups().includes('zones')"
                             (ngModelChange)="toggleFeature('zones', $event)"
                         />
                     }
@@ -90,6 +91,7 @@ const EMPTY = [];
                         <settings-toggle
                             label="Show Devices"
                             [ngModel]="!options()?.disable?.includes('devices')"
+                            [disabled]="locked_groups().includes('devices')"
                             (ngModelChange)="toggleFeature('devices', $event)"
                         />
                     }
@@ -97,6 +99,7 @@ const EMPTY = [];
                         <settings-toggle
                             label="Show Sensors"
                             [ngModel]="!options()?.disable?.includes('sensors')"
+                            [disabled]="locked_groups().includes('sensors')"
                             (ngModelChange)="toggleFeature('sensors', $event)"
                         />
                     }
@@ -213,6 +216,8 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     public readonly labels = this._state.map_labels;
     /** Signal for the active map */
     public readonly options = this._state.options;
+    /** Map layers that settings keep off. Their toggles are disabled. */
+    public readonly locked_groups = this._state.locked_groups;
     /** Signal for user messages */
     public readonly message = this._state.message;
 

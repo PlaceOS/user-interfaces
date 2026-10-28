@@ -23,7 +23,7 @@ import { ExploreMapViewComponent } from '../lib/explore-map-view.component';
 import { ExploreParkingService } from '../lib/explore-parking.service';
 import { ExplorePointOfInterestService } from '../lib/explore-poi.service';
 import { ExploreSpacesService } from '../lib/explore-spaces.service';
-import { ExploreStateService } from '../lib/explore-state.service';
+import { ExploreStateService, MapOptions } from '../lib/explore-state.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
 import { ExploreZoomControlComponent } from '../lib/explore-zoom-control.component';
 
@@ -43,6 +43,8 @@ const fake_snackbar = {
 
 describe('ExploreMapViewComponent', () => {
     let spectator: SpectatorRouting<ExploreMapViewComponent>;
+    const options = signal<MapOptions>({ is_public: true });
+    const locked_groups = signal<string[]>([]);
     const createComponent = createRoutingFactory({
         component: ExploreMapViewComponent,
         declarations: [
@@ -75,7 +77,8 @@ describe('ExploreMapViewComponent', () => {
             MockProvider(SpacesService, { initialised: signal(true) }),
             MockProvider(ExploreStateService, {
                 level: signal({ id: 'lvl-1' }),
-                options: signal({ is_public: true }),
+                options,
+                locked_groups,
                 map_url: signal(''),
                 map_styles: signal({}),
                 map_positions: signal({ zoom: 1, center: { x: 0.5, y: 0.5 } }),
@@ -115,6 +118,8 @@ describe('ExploreMapViewComponent', () => {
             spectator.component.hide_sensors.set(true);
             spectator.inject(ExploreStateService).setFeatures.mockReset();
         }
+        options.set({ is_public: true });
+        locked_groups.set([]);
     });
 
     it('should show map component', () => expect('interactive-map').toExist());
@@ -140,6 +145,34 @@ describe('ExploreMapViewComponent', () => {
         expect(state.setOptions).toHaveBeenNthCalledWith(3, {
             disable: ['sensors'],
         });
+    });
+
+    it('should keep toggles off for groups locked by settings', async () => {
+        const state = spectator.inject(ExploreStateService);
+        options.set({ is_public: true, disable: ['zones', 'devices'] });
+        locked_groups.set(['zones', 'devices']);
+        spectator.component.hide_devices.set(false);
+        spectator.component.hide_sensors.set(false);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+        vi.mocked(state.setOptions).mockClear();
+
+        const [zones, devices, sensors] = spectator.queryAll(
+            'settings-toggle button',
+        );
+        expect(zones).toBeDisabled();
+        expect(devices).toBeDisabled();
+        expect(sensors).not.toBeDisabled();
+        spectator.click(devices);
+        expect(devices).toHaveAttribute('aria-checked', 'false');
+        expect(state.setOptions).not.toHaveBeenCalled();
+
+        locked_groups.set([]);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+        expect(devices).not.toBeDisabled();
     });
 
     it('should collapse two or more map toggles', () => {

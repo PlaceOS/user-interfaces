@@ -14,12 +14,13 @@ import { IconComponent } from './icon.component';
         <button
             type="button"
             matRipple
-            class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2"
+            class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
             [class.border-base-300]="!value()"
             [class.border-info]="value()"
             [attr.role]="toggle() ? 'switch' : 'checkbox'"
             [attr.aria-checked]="!!value()"
             [attr.aria-description]="!inline() ? info() : null"
+            [disabled]="disabled()"
             (click)="setValue(!value())"
         >
             <div
@@ -105,6 +106,8 @@ export class SettingsToggleComponent implements ControlValueAccessor {
     public readonly inline = input(true);
 
     public value = signal<boolean>(undefined);
+    /** Set by the form control. A disabled toggle ignores clicks. */
+    public readonly disabled = signal(false);
 
     /** Form control on change handler */
     private _onChange: (_: boolean) => void;
@@ -119,6 +122,7 @@ export class SettingsToggleComponent implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: boolean): void {
+        if (this.disabled()) return;
         this.value.set(new_value);
         /* istanbul ignore else */
         if (this._onChange) this._onChange(new_value);
@@ -131,5 +135,10 @@ export class SettingsToggleComponent implements ControlValueAccessor {
      */
     public writeValue(value: boolean) {
         this.value.set(value);
+    }
+
+    /** Update the disabled state when the form control changes it */
+    public setDisabledState(disabled: boolean) {
+        this.disabled.set(disabled);
     }
 }

@@ -29,6 +29,17 @@ describe('SettingsToggleComponent', () => {
         expect(spectator.component.value()).toBe(false);
     });
 
+    it('should ignore clicks while the form control is disabled', () => {
+        const on_change = vi.fn();
+        spectator.component.registerOnChange(on_change);
+        spectator.component.setDisabledState(true);
+        spectator.detectChanges();
+        expect('button').toBeDisabled();
+        spectator.click('button');
+        expect(on_change).not.toHaveBeenCalled();
+        expect(spectator.component.value()).toBeFalsy();
+    });
+
     it('should update display when the form control writes a value', () => {
         expect(spectator.query('button')).not.toHaveClass('border-info');
         spectator.component.writeValue(true);

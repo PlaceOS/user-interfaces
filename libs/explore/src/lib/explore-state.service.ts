@@ -80,6 +80,11 @@ export class ExploreStateService {
 
     /** Currently active level */
     public readonly level = this._level.asReadonly();
+    /** Groups that `app.explore.disable` keeps off. Users can not enable them. */
+    public readonly locked_groups = computed(() => {
+        this._overrides();
+        return this._normaliseDisabledSetting('app.explore.disable');
+    });
     /** Message to display over the map */
     public readonly message = this._message.asReadonly();
     /** Spaces associated with the active level */
