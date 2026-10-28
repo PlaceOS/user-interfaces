@@ -16,8 +16,7 @@ import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, AUTH_DIR, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { type Settings, watchStaffId } from '../support/settings-harness';
 type DebugWindow = Window & {
     ng?: { getComponent(element: Element): unknown };
     setting?: (key: string) => unknown;
@@ -117,28 +116,6 @@ async function getOnly(
             await route.fulfill({ json: body(new URL(route.request().url())) });
         },
     );
-}
-
-/** The staff user id from the app's own identity GET, which is never mocked. */
-function watchStaffId(page: Page): Promise<string> {
-    return page
-        .waitForResponse(
-            (response) => {
-                const url = new URL(response.url());
-                return (
-                    ORIGINS.has(url.origin) &&
-                    url.pathname === '/api/engine/v2/users/current' &&
-                    response.request().method() === 'GET' &&
-                    response.ok()
-                );
-            },
-            { timeout: 15_000 },
-        )
-        .then(async (response) => {
-            const user = (await response.json()) as { id?: string };
-            return user?.id || '';
-        })
-        .catch(() => '');
 }
 
 const BOOKING_TITLE = 'Browser-only waitlist boundary';

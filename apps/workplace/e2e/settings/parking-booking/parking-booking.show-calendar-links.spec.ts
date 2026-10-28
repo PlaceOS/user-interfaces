@@ -18,8 +18,7 @@ import {
     READ_ONLY_SETTINGS,
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { type Settings } from '../support/settings-harness';
 type DebugWindow = Window & { setting?: (key: string) => unknown };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 

@@ -18,8 +18,7 @@ import {
     READ_ONLY_SETTINGS,
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { type Settings } from '../support/settings-harness';
 type DebugWindow = Window & { setting?: (key: string) => unknown };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 
@@ -78,33 +77,33 @@ async function getOnly(
     );
 }
 
-const REGION = 'codex-parking-region';
-const BUILDING_A = 'codex-parking-building-a';
-const BUILDING_B = 'codex-parking-building-b';
-const BUILDING_C = 'codex-parking-building-c';
-const LEVEL_A = 'codex-parking-level-a';
-const LEVEL_B = 'codex-parking-level-b';
-const LEVEL_C = 'codex-parking-level-c';
+const REGION = 'e2e-request-parking-region';
+const BUILDING_A = 'e2e-request-parking-building-a';
+const BUILDING_B = 'e2e-request-parking-building-b';
+const BUILDING_C = 'e2e-request-parking-building-c';
+const LEVEL_A = 'e2e-request-parking-level-a';
+const LEVEL_B = 'e2e-request-parking-level-b';
+const LEVEL_C = 'e2e-request-parking-level-c';
 const LEVELS = [
     {
         id: LEVEL_A,
         parent_id: BUILDING_A,
-        name: 'Codex Parking Level A',
-        display_name: 'Codex Parking Level A',
+        name: 'E2E Parking Level A',
+        display_name: 'E2E Parking Level A',
         tags: ['level', 'parking'],
     },
     {
         id: LEVEL_B,
         parent_id: BUILDING_B,
-        name: 'Codex Parking Level B',
-        display_name: 'Codex Parking Level B',
+        name: 'E2E Parking Level B',
+        display_name: 'E2E Parking Level B',
         tags: ['level', 'parking'],
     },
     {
         id: LEVEL_C,
         parent_id: BUILDING_C,
-        name: 'Codex Parking Level C',
-        display_name: 'Codex Parking Level C',
+        name: 'E2E Parking Level C',
+        display_name: 'E2E Parking Level C',
         tags: ['level', 'parking'],
     },
 ];
@@ -112,8 +111,8 @@ const BUILDINGS = [
     {
         id: BUILDING_A,
         parent_id: REGION,
-        name: 'Codex Parking Building A',
-        display_name: 'Codex Parking Building A',
+        name: 'E2E Parking Building A',
+        display_name: 'E2E Parking Building A',
         tags: ['building'],
         timezone: 'UTC',
         location: '0,0',
@@ -121,8 +120,8 @@ const BUILDINGS = [
     {
         id: BUILDING_B,
         parent_id: REGION,
-        name: 'Codex Parking Building B',
-        display_name: 'Codex Parking Building B',
+        name: 'E2E Parking Building B',
+        display_name: 'E2E Parking Building B',
         tags: ['building'],
         timezone: 'UTC',
         location: '40,40',
@@ -130,28 +129,28 @@ const BUILDINGS = [
     {
         id: BUILDING_C,
         parent_id: REGION,
-        name: 'Codex Parking Building C',
-        display_name: 'Codex Parking Building C',
+        name: 'E2E Parking Building C',
+        display_name: 'E2E Parking Building C',
         tags: ['building'],
         timezone: 'UTC',
         location: '80,80',
     },
 ];
 const CATEGORIES = [
-    { id: 'e2e-parking-desk-catering', name: '_CATERING_', hidden: true },
-    { id: 'e2e-parking-desk-desks', name: '_DESKS_', hidden: true },
-    { id: 'e2e-parking-desk-parking', name: '_PARKING_', hidden: true },
-    { id: 'e2e-parking-desk-lockers', name: '_LOCKERS_', hidden: true },
+    { id: 'e2e-request-parking-desk-catering', name: '_CATERING_', hidden: true },
+    { id: 'e2e-request-parking-desk-desks', name: '_DESKS_', hidden: true },
+    { id: 'e2e-request-parking-desk-parking', name: '_PARKING_', hidden: true },
+    { id: 'e2e-request-parking-desk-lockers', name: '_LOCKERS_', hidden: true },
 ];
 const TYPES: Record<string, string[]> = {
-    'e2e-parking-desk-catering': [],
-    'e2e-parking-desk-desks': ['_DESKS_'],
-    'e2e-parking-desk-parking': [
+    'e2e-request-parking-desk-catering': [],
+    'e2e-request-parking-desk-desks': ['_DESKS_'],
+    'e2e-request-parking-desk-parking': [
         '_PARKING_SPACES_',
         '_PARKING_USERS_',
         '_PARKING_FLEET_VEHICLES_',
     ],
-    'e2e-parking-desk-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
+    'e2e-request-parking-desk-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
 };
 const REQUEST: Settings = {
     ...READ_ONLY_SETTINGS,
@@ -232,7 +231,7 @@ async function organisationFixture(page: Page) {
         () => [
             {
                 id: REGION,
-                name: 'Codex Parking Region',
+                name: 'E2E Parking Region',
                 tags: ['region'],
                 timezone: 'UTC',
             },
@@ -263,7 +262,7 @@ async function organisationFixture(page: Page) {
             url.searchParams
                 .get('parent_ids')!
                 .split(',')
-                .every((id) => id.startsWith('codex-parking-')),
+                .every((id) => id.startsWith('e2e-request-parking-')),
         (url) =>
             Object.fromEntries(
                 url.searchParams
@@ -304,7 +303,7 @@ async function prepare(page: Page, enabled: boolean) {
             Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
         (url) =>
             TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'e2e-parking-desk-type-' + name,
+                id: 'e2e-request-parking-desk-type-' + name,
                 name,
                 category_id: url.searchParams.get('category_id'),
                 brand: 'PlaceOS',
@@ -315,7 +314,7 @@ async function prepare(page: Page, enabled: boolean) {
         (url) =>
             url.pathname === '/api/engine/v2/assets' &&
             (url.searchParams.get('type_id') ?? '').startsWith(
-                'e2e-parking-desk-type-',
+                'e2e-request-parking-desk-type-',
             ),
         () => [],
     );
@@ -344,12 +343,12 @@ async function prepare(page: Page, enabled: boolean) {
             const date = start + 10 * 3600 * 1000;
             return [
                 {
-                    id: 'e2e-parking-desk-booking',
+                    id: 'e2e-request-parking-desk-booking',
                     booking_type: 'desk',
                     user_email: email,
                     user_name: 'Prepared Parking Desk User',
                     booked_by_name: 'Prepared Parking Desk User',
-                    asset_id: 'e2e-parking-desk',
+                    asset_id: 'e2e-request-parking-desk',
                     asset_name: 'Prepared Parking Desk',
                     date,
                     date_end: date + 3600 * 1000,
@@ -423,14 +422,14 @@ const SCENARIOS = [
     {
         enabled: false,
         desk_badges: 0,
-        active: 'Codex Parking Building A',
-        inactive: 'Codex Parking Building B',
+        active: 'E2E Parking Building A',
+        inactive: 'E2E Parking Building B',
     },
     {
         enabled: true,
         desk_badges: 1,
-        active: 'Codex Parking Building B',
-        inactive: 'Codex Parking Building A',
+        active: 'E2E Parking Building B',
+        inactive: 'E2E Parking Building A',
     },
 ];
 
@@ -461,8 +460,8 @@ for (const scenario of SCENARIOS) {
             .getByRole('radiogroup', { name: 'Location Preference', exact: true })
             .getByRole('radio');
         await expect(rows).toHaveCount(3);
-        const row_a = rows.filter({ hasText: 'Codex Parking Building A' });
-        const row_b = rows.filter({ hasText: 'Codex Parking Building B' });
+        const row_a = rows.filter({ hasText: 'E2E Parking Building A' });
+        const row_b = rows.filter({ hasText: 'E2E Parking Building B' });
         await expect(row_a).toHaveCount(1);
         await expect(row_b).toHaveCount(1);
         await expect(

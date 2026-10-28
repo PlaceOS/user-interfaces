@@ -11,6 +11,7 @@ import { MeetingFlow } from '../../../../../e2e/support/room/meeting-flow.page';
 import { ROOM_BOOKINGS_MODE } from '../../../../../e2e/support/room/room.settings';
 import { useSettings } from '../../../../../e2e/support/room/room.settings';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { type Settings } from '../support/settings-harness';
 // Test-local audit only: no shared fixtures or existing specs are changed.
 type MigrationAudit = {
     websocket_attempts: { url: string; classification: string }[];
@@ -136,7 +137,6 @@ const migrationReadOnlyTest = migrationReadOnlyBase.extend<{ migrationAudit: Mig
 migrationReadOnlyTest.use({ storageState: undefined, readOnlyTimezone: 'Etc/UTC' });
 
 const readOnlyTest = migrationReadOnlyTest;
-type Settings = Record<string, unknown>;
 
 interface DebugWindow extends Window {
     ng?: { getComponent(element: Element): unknown };

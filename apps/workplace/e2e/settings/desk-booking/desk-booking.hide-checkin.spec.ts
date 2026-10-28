@@ -3,12 +3,13 @@
 // Read-only: the desk booking is a browser-only GET fixture; check-in is never clicked.
 // Its conditional local-midnight skip is preserved, so a run between 22:55 and 24:00
 // runner-local time reports both scenarios as skipped, not passed.
-import type { ConsoleMessage, Page, Route, WebSocketRoute } from '@playwright/test';
+import type { Page, Route, WebSocketRoute } from '@playwright/test';
 import { SchedulePage } from '../../../../../e2e/support/bookings/schedule.page';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { isAppError, isDevServerSocket, isLocalControlSocket, redact } from '../support/settings-harness';
 
 // Source: desk-flow-form.show_reserved_desk_overlay;
 // BookingFormService.settingForType / assignedResourceBooking;
@@ -17,13 +18,13 @@ import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-reado
 // every non-GET request still reaches the read-only guard.
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 const ID = 9100047;
-const PARKING_CATEGORY = 'e2e-draft-parking-category';
-const PARKING_TYPES = ['e2e-draft-parking-spaces-type', 'e2e-draft-parking-users-type'];
+const PARKING_CATEGORY = 'e2e-settings-parking-category';
+const PARKING_TYPES = ['e2e-settings-parking-spaces-type', 'e2e-settings-parking-users-type'];
 type Identity = { id: string; email: string; name: string };
 type DebugWindow = Window & { ng?: { getComponent(element: Element): unknown }; setting?: (key: string) => unknown };
 
 // ---------------------------------------------------------------- safety audit
-// Adapted from the passing Batch 1 drafts. The desk form (picker not opened),
+// The desk form (picker not opened),
 // your-bookings and group-events make no getModule/bind/execute calls with chat
 // off and no location_services module bound, so NO PlaceOS WebSocket is expected.
 type SafetyAudit = {
@@ -35,30 +36,6 @@ type SafetyAudit = {
     monitoring_errors: string[];
     fixtures: Record<string, number>;
 };
-
-function redact(url: URL) {
-    for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
-    return url.href;
-}
-
-/** Only the Angular dev server's Vite client socket (vite client.mjs:856-865, reload on close :993-998). */
-function isDevServerSocket(url: URL) {
-    const app = new URL(APP_URL);
-    return url.host === app.host && url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:') &&
-        url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token';
-}
-
-function isLocalControlSocket(url: URL) {
-    const app = new URL(APP_URL);
-    const protocol = app.protocol === 'https:' ? 'wss:' : 'ws:';
-    return url.protocol === protocol && url.host === app.host &&
-        url.pathname === '/api/engine/v2/systems/control';
-}
-
-/** ErrorHandler logs console.error('ERROR', e); Angular runtime errors log NG0xxx. */
-function isAppError(message: ConsoleMessage) {
-    return message.type() === 'error' && /^(ERROR\b|NG0\d+)/.test(message.text());
-}
 
 const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
     safetyAudit: [async ({ staffPage }, use, info) => {
@@ -191,7 +168,7 @@ for (const hidden of [false, true]) {
         // resolve the hidden _PARKING_ category and _PARKING_SPACES_/_PARKING_USERS_
         // types (parking-assets.fn.ts). Each create (POST) or move (PUT) runs only
         // when a GET finds nothing or a type has the wrong category; the local
-        // backend is known to lack _PARKING_SPACES_ (Batch 8 blocker). Answer
+        // backend is known to lack _PARKING_SPACES_. Answer
         // those GETs so nothing is created, and list no parking assets.
         await stubGet(staffPage, safetyAudit, 'parking hidden categories', (url) => url.pathname === '/api/engine/v2/asset_categories' &&
             url.searchParams.get('hidden') === 'true' && url.searchParams.get('limit') === '500',
@@ -216,8 +193,8 @@ for (const hidden of [false, true]) {
         const booking = async () => {
             const user = await fixture.user();
             return {
-                id: ID, booking_type: 'desk', type: 'desk', title: 'Draft check-in visibility',
-                asset_id: 'e2e-draft-readonly-desk', asset_name: 'Draft check-in desk',
+                id: ID, booking_type: 'desk', type: 'desk', title: 'Settings check-in visibility',
+                asset_id: 'e2e-settings-readonly-desk', asset_name: 'Settings check-in desk',
                 booking_start: now + 300, booking_end: now + 3900,
                 user_id: user.id, user_email: user.email, user_name: user.name,
                 booked_by_id: user.id, booked_by_email: user.email,
@@ -248,7 +225,7 @@ for (const hidden of [false, true]) {
         await expect.poll(() => safetyAudit.fixtures['parking types'] ?? 0,
             { message: 'ParkingService must resolve at least one type from the GET fixture' }).toBeGreaterThan(0);
         const modal = await schedule.openDetails(ID);
-        await expect(modal).toContainText('Draft check-in visibility');
+        await expect(modal).toContainText('Settings check-in visibility');
         const control = schedule.checkInButton(modal);
         if (hidden) await expect(control).toHaveCount(0);
         else await expect(control).toBeVisible();

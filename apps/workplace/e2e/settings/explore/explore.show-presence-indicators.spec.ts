@@ -18,7 +18,7 @@
 // (libs/explore/src/lib/explore-icon.component.ts). A `status` value
 // schedules the room fill style the same way. The room
 // hover card also subscribes to `hide_meeting_details` and
-// `hide_meeting_title` (explore-space-info.component.ts:270-284).
+// `hide_meeting_title` (explore-space-info.component.ts).
 //
 // Synthetic live values (pilot, approved for this spec only): the app's
 // control WebSocket (/api/engine/v2/systems/control) is answered entirely
@@ -26,12 +26,12 @@
 // never called, so no socket reaches the backend. The fixture follows the
 // client protocol in @placeos/ts-client src/realtime/functions.ts: the client
 // counts as connected on the first server message and sends `ping` at once
-// and every 15 s (:516-558, 667-672), so `ping` is answered `pong`; requests
-// are `{id, cmd, sys, mod, index, name}` (:224-319); a `bind` is answered
+// and every 15 s, so `ping` is answered `pong`; requests
+// are `{id, cmd, sys, mod, index, name}`; a `bind` is answered
 // `{id, type: 'success'}` and the value is delivered as
-// `{type: 'notify', value, meta}` (:385-496). Only bind/unbind of the five
+// `{type: 'notify', value, meta}`. Only bind/unbind of the five
 // variables above, on the synthetic room's `Bookings` module index 1
-// (module.ts:24-36, status-variable.ts:156-163), are answered. Every other
+// (module.ts, status-variable.ts), are answered. Every other
 // message, every `exec` (module command) and any other bind is refused with
 // a recorded refusal and socket close, failing the scenario. The `presence` value is
 // delivered before the `status` value, so the room fill appearing proves the
@@ -56,8 +56,7 @@ import { createHash } from 'node:crypto';
 import {
     test as base, expect, type Page, type WebSocketRoute,
 } from '@playwright/test';
-
-type Settings = Record<string, unknown>;
+import { BULK_METADATA, clearOrganisationCache, type GetFixture, LIST_METADATA, type Settings, validPeriod } from '../support/settings-harness';
 type DebugWindow = Window & {
     ng?: { getComponent(element: Element): unknown };
     setting?: (key: string) => unknown;
@@ -86,11 +85,6 @@ type NetworkAudit = {
     controls: SocketAudit[];
     gets: Record<string, number>;
     stopping: boolean;
-};
-type GetFixture = {
-    match: (url: URL) => boolean;
-    body: (url: URL) => unknown;
-    contentType?: string;
 };
 const APP_URL = process.env.E2E_APP_URL ?? 'http://localhost:4214';
 const APP = new URL(APP_URL);
@@ -209,12 +203,6 @@ const HIDDEN_TYPES: Record<string, string[]> = {
 const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
     .flat()
     .map((name) => PREFIX + 'type-' + name);
-const BULK_METADATA = [
-    'bindings',
-    'settings',
-    'workplace_app',
-    'booking_rules',
-];
 const ZONE_METADATA: Record<string, string[]> = {
     [BUILDING]: [
         'parking_booking_rules',
@@ -229,15 +217,6 @@ const ZONE_METADATA: Record<string, string[]> = {
         'points-of-interest',
     ],
 };
-const LIST_METADATA = [
-    'parking_booking_rules',
-    'desk_booking_rules',
-    'room_booking_rules',
-    'desks',
-    'map_regions',
-];
-/** Locale pinned for the app, so only the two locale names above are read. */
-const LOCALE = 'en-US';
 
 /** The one synthetic room on the level. */
 const ROOM = {
@@ -268,7 +247,7 @@ const LIVE_VALUES: Record<string, unknown> = {
     hide_meeting_title: true,
 };
 /**
- * The room fill DEFAULT_COLOURS uses for `busy` (explore-spaces.service.ts:49-57).
+ * The room fill DEFAULT_COLOURS uses for `busy` (explore-spaces.service.ts).
  * Not `free`: handleStatusChange falls back to 'free' for an unset status, so a
  * free fill appears before any live value arrives and proves nothing.
  */
@@ -325,17 +304,6 @@ function parkingQuery(url: URL) {
             ...base,
             email: USER.email,
         })
-    );
-}
-
-/** Numeric seconds, in increasing order; no malformed period is hidden. */
-function validPeriod(url: URL) {
-    const start = url.searchParams.get('period_start') ?? '';
-    const end = url.searchParams.get('period_end') ?? '';
-    return (
-        /^\d+$/.test(start) && /^\d+$/.test(end) &&
-        Number.isSafeInteger(Number(start)) && Number(start) > 0 &&
-        Number.isSafeInteger(Number(end)) && Number(end) > Number(start)
     );
 }
 
@@ -586,23 +554,6 @@ async function getOnly(page: Page, match: GetFixture['match'], body: GetFixture[
     fixtures.push({ match, body });
 }
 
-async function clearOrganisationCache(page: Page) {
-    await page.addInitScript((locale) => {
-        localStorage.setItem('APP.locale', locale);
-        localStorage.setItem('PLACEOS.locale', locale);
-        for (const store of [localStorage, sessionStorage]) {
-            for (const key of Object.keys(store)) {
-                if (
-                    key.startsWith('PLACEOS.org') ||
-                    ['PLACEOS.region', 'PLACEOS.building'].includes(key)
-                ) {
-                    store.removeItem(key);
-                }
-            }
-        }
-    }, LOCALE);
-}
-
 /** Exact synthetic GET fixtures for one level with one room on Explore. */
 async function syntheticGets(page: Page) {
     await getOnly(page, (url) =>
@@ -755,7 +706,7 @@ async function syntheticGets(page: Page) {
             hasParams(url, { zone_id: ORGANISATION, limit: '5000' }),
         () => [ROOM],
     );
-    // ExploreStateService rooms (explore-state.service.ts:86-100): the one
+    // ExploreStateService rooms (explore-state.service.ts): the one
     // room on the level; none for the organisation before the level is set.
     await getOnly(
         page,
@@ -909,7 +860,7 @@ function mapState(page: Page) {
         }, ROOM.map_id);
 }
 
-/** Presence icons rendered on the map (explore-icon.component.ts:8-16). */
+/** Presence icons rendered on the map (explore-icon.component.ts). */
 const presenceIcons = (page: Page) =>
     page.locator('explore-map-view explore-icon').filter({
         has: page.locator('icon', { hasText: /^\s*sensor_occupied\s*$/ }),

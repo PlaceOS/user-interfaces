@@ -4,20 +4,7 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { DeskFlow } from '../../../../../e2e/support/desk/desk-flow.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-// Setting: explore.colors (docs/settings/workplace.md).
-// Coverage: 1 unique setting, 2 scenarios.
-// Current routed desk flow with browser-local fixtures.
-// Covers space-free and fallback free, not desk-free.
-// The existing desk-free product defect remains unresolved.
-type Settings = Record<string, unknown>;
-type Debug = Window & {
-    setting?: (key: string) => unknown;
-    ng?: { getComponent(element: Element): unknown };
-    app?: { org?: { initialised(): boolean; building?: { id: string; name: string }; region?: { id: string } } };
-    codexGeoCalls?: number;
-};
-type Identity = { id: string; email: string; name: string; groups?: string[] };
+import { CATEGORIES, type Debug, type Identity, PIXEL, type Settings, TYPES } from '../support/settings-harness';
 type Audit = {
     websocket_attempts: string[];
     blocked_control_attempts: string[];
@@ -29,14 +16,13 @@ type Audit = {
     blocked_requests: string[];
 };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const PIXEL = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="24"/%3E';
 
 function safeURL(raw: string) {
     const url = new URL(raw);
     for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
     return url.href;
 }
-// Same policy as the corrected Batch 2/4/5 drafts. HTTP: the parent
+// HTTP: the parent
 // readOnlyTest guard (wpa-settings-readonly-legacy.fixture.ts) aborts every
 // non-GET or non-local /api request and fails the test in teardown; it does
 // not route non-API assets (the app shell loads Google Fonts). WebSockets:
@@ -80,8 +66,8 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
                     const app = new URL(APP_URL);
                     const local = url.host === app.host &&
                         url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                    // Vite client.mjs:856-865 opens this socket; closing it makes
-                    // the client poll and reload (:993-998). Held open, never connected.
+                    // Vite client.mjs opens this socket; closing it makes
+                    // the client poll and reload. Held open, never connected.
                     if (local && url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token') {
                         audit.tooling_websockets.push(socket_url);
                         return;
@@ -137,17 +123,6 @@ async function getOnly(page: Page, audit: Audit, name: string, match: (url: URL)
         }
     });
 }
-const CATEGORIES = [
-    { id: 'codex-next20-catering', name: '_CATERING_', hidden: true },
-    { id: 'codex-next20-desks', name: '_DESKS_', hidden: true },
-    { id: 'codex-next20-parking', name: '_PARKING_', hidden: true },
-    { id: 'codex-next20-lockers', name: '_LOCKERS_', hidden: true },
-];
-const TYPES: Record<string, string[]> = {
-    'codex-next20-catering': [], 'codex-next20-desks': ['_DESKS_'],
-    'codex-next20-parking': ['_PARKING_SPACES_', '_PARKING_USERS_', '_PARKING_FLEET_VEHICLES_'],
-    'codex-next20-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
 const BASE: Settings = {
     ...READ_ONLY_SETTINGS,
     'app.features': ['visitor-invite'], 'app.chat.enabled': false, 'app.global_search': false,
@@ -177,10 +152,10 @@ async function prepare(page: Page, audit: Audit, overrides: Settings) {
     await getOnly(page, audit, 'hidden types', (url) => url.pathname === '/api/engine/v2/asset_types' &&
         url.searchParams.get('limit') === '500' && Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
     (url) => TYPES[url.searchParams.get('category_id')!].map((name) => ({
-        id: 'codex-next20-type-' + name, name, category_id: url.searchParams.get('category_id'), brand: 'PlaceOS',
+        id: 'e2e-settings-type-' + name, name, category_id: url.searchParams.get('category_id'), brand: 'PlaceOS',
     })));
     await getOnly(page, audit, 'hidden assets', (url) => url.pathname === '/api/engine/v2/assets' &&
-        (url.searchParams.get('type_id') ?? '').startsWith('codex-next20-type-'), () => []);
+        (url.searchParams.get('type_id') ?? '').startsWith('e2e-settings-type-'), () => []);
     await getOnly(page, audit, 'calendar list', (url) => url.pathname === '/api/staff/v1/calendars', () => []);
     const settings = { ...BASE, ...overrides };
     await useSettings(page, settings);
@@ -203,19 +178,19 @@ async function prepare(page: Page, audit: Audit, overrides: Settings) {
     };
 }
 // DeskFlowSelectMapComponent.styles(): space-<status>, then <status>.
-const REGION = 'codex-next20-region';
-const BUILDING_A = 'codex-next20-building-a';
-const BUILDING_B = 'codex-next20-building-b';
-const LEVEL_A = 'codex-next20-level-a';
-const LEVEL_B = 'codex-next20-level-b';
-const MAP = new URL('/codex-next20-map.svg', APP_URL).href;
+const REGION = 'e2e-settings-region';
+const BUILDING_A = 'e2e-settings-building-a';
+const BUILDING_B = 'e2e-settings-building-b';
+const LEVEL_A = 'e2e-settings-level-a';
+const LEVEL_B = 'e2e-settings-level-b';
+const MAP = new URL('/e2e-settings-map.svg', APP_URL).href;
 const LEVELS = [
-    { id: LEVEL_A, parent_id: BUILDING_A, name: 'Codex Level A', display_name: 'Codex Level A',
+    { id: LEVEL_A, parent_id: BUILDING_A, name: 'E2E Level A', display_name: 'E2E Level A',
         tags: ['level'], map_id: MAP },
-    { id: LEVEL_B, parent_id: BUILDING_B, name: 'Codex Level B', display_name: 'Codex Level B',
+    { id: LEVEL_B, parent_id: BUILDING_B, name: 'E2E Level B', display_name: 'E2E Level B',
         tags: ['level'], map_id: MAP },
 ];
-const DESK = 'Codex browser-only desk';
+const DESK = 'E2E browser-only desk';
 
 async function organisationFixture(page: Page, audit: Audit) {
     // Preserve the real authority, organisation and authenticated identity.
@@ -231,14 +206,14 @@ async function organisationFixture(page: Page, audit: Audit) {
     });
     await getOnly(page, audit, 'synthetic regions', (url) => url.pathname === '/api/engine/v2/zones' &&
         url.searchParams.get('tags') === 'region' && url.searchParams.get('limit') === '200',
-    (url) => [{ id: REGION, parent_id: url.searchParams.get('parent_id'), name: 'Codex Region',
+    (url) => [{ id: REGION, parent_id: url.searchParams.get('parent_id'), name: 'E2E Region',
         tags: ['region'], timezone: 'UTC' }]);
     await getOnly(page, audit, 'synthetic buildings', (url) => url.pathname === '/api/engine/v2/zones' &&
         url.searchParams.get('tags') === 'building' && url.searchParams.get('parent_id') === REGION &&
         url.searchParams.get('limit') === '500', () => [
-        { id: BUILDING_A, parent_id: REGION, name: 'Codex Building A', display_name: 'Codex Building A',
+        { id: BUILDING_A, parent_id: REGION, name: 'E2E Building A', display_name: 'E2E Building A',
             tags: ['building'], timezone: 'UTC', location: '0,0' },
-        { id: BUILDING_B, parent_id: REGION, name: 'Codex Building B', display_name: 'Codex Building B',
+        { id: BUILDING_B, parent_id: REGION, name: 'E2E Building B', display_name: 'E2E Building B',
             tags: ['building'], timezone: 'UTC', location: '40,40' },
     ]);
     await getOnly(page, audit, 'synthetic levels', (url) => url.pathname === '/api/engine/v2/zones' &&
@@ -248,24 +223,24 @@ async function organisationFixture(page: Page, audit: Audit) {
     await getOnly(page, audit, 'synthetic bulk metadata', (url) =>
         /^\/api\/engine\/v2\/metadata\/[^/]+\/bulk$/.test(url.pathname) &&
         !!url.searchParams.get('parent_ids') &&
-        url.searchParams.get('parent_ids')!.split(',').every((id) => id.startsWith('codex-next20-')),
+        url.searchParams.get('parent_ids')!.split(',').every((id) => id.startsWith('e2e-settings-')),
     (url) => Object.fromEntries(url.searchParams.get('parent_ids')!.split(',').map((id) =>
         [id, { id, name: decodeURIComponent(url.pathname.split('/')[5]), details: {} }])));
     await getOnly(page, audit, 'synthetic metadata', (url) =>
-        /^\/api\/engine\/v2\/metadata\/codex-next20-[^/]+$/.test(url.pathname) &&
+        /^\/api\/engine\/v2\/metadata\/e2e-settings-[^/]+$/.test(url.pathname) &&
         !!url.searchParams.get('name'), (url) => {
         const name = url.searchParams.get('name')!;
         return { [name]: { id: url.pathname.split('/')[5], name,
             details: name.endsWith('_booking_rules') || name === 'map_regions' ? [] : {} } };
     });
     await getOnly(page, audit, 'synthetic desk metadata', (url) =>
-        /^\/api\/engine\/v2\/metadata\/codex-next20-building-[ab]\/children$/.test(url.pathname) &&
+        /^\/api\/engine\/v2\/metadata\/e2e-settings-building-[ab]\/children$/.test(url.pathname) &&
         url.searchParams.get('name') === 'desks', (url) =>
         LEVELS.filter((level) => level.parent_id === url.pathname.split('/')[5]).map((level) => ({
             zone: level,
             metadata: { desks: { name: 'desks', details: [{
-                id: 'codex-next20-desk-' + level.id, name: DESK + ' ' + level.id,
-                map_id: 'codex-next20-desk-shape', bookable: true, assigned_to: '',
+                id: 'e2e-settings-desk-' + level.id, name: DESK + ' ' + level.id,
+                map_id: 'e2e-settings-desk-shape', bookable: true, assigned_to: '',
                 groups: [], features: [], images: [],
             }] } },
         })));
@@ -277,7 +252,7 @@ async function organisationFixture(page: Page, audit: Audit) {
         audit.fixtures['synthetic SVG'] = (audit.fixtures['synthetic SVG'] ?? 0) + 1;
         await route.fulfill({ contentType: 'image/svg+xml',
             body: '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240">' +
-                '<rect id="codex-next20-desk-shape" x="80" y="60" width="80" height="60" fill="#aaaaaa"/></svg>' });
+                '<rect id="e2e-settings-desk-shape" x="80" y="60" width="80" height="60" fill="#aaaaaa"/></svg>' });
     });
 }
 // BookingFormService._computeAvailableResources -> bookedResourceList uses
@@ -372,7 +347,7 @@ for (const { key, colour } of [
                 const c = (window as Debug).ng?.getComponent(element) as {
                     styles(): Record<string, { fill?: string }>;
                 } | undefined;
-                return c?.styles()['#codex-next20-desk-shape']?.fill;
+                return c?.styles()['#e2e-settings-desk-shape']?.fill;
             });
             await expect.poll(fill, { message: 'the fixture desk must be styled on the map' }).toBeTruthy();
             await expect.poll(fill, { message: 'explore.colors ' + key + ' must reach the free desk style' }).toBe(colour);

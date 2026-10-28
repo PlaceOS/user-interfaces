@@ -11,12 +11,7 @@ import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
-
-// Test-local only: the shared fixture remains unchanged. Authentication is
-// established by that fixture; these guards cover browser activity afterwards.
-type SafetyAudit = { blocked_http: string[]; unexpected_ws: string[] };
+import { CATEGORIES, type SafetyAudit, type Settings, TYPES } from '../support/settings-harness';
 const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
     safetyAudit: [async ({ staffPage }, use, info) => {
         const context = staffPage.context();
@@ -63,27 +58,10 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
 });
 
 
-
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const CATEGORIES = [
-    { id: 'codex-next20-catering', name: '_CATERING_', hidden: true },
-    { id: 'codex-next20-desks', name: '_DESKS_', hidden: true },
-    { id: 'codex-next20-parking', name: '_PARKING_', hidden: true },
-    { id: 'codex-next20-lockers', name: '_LOCKERS_', hidden: true },
-];
-const TYPES: Record<string, string[]> = {
-    'codex-next20-catering': [],
-    'codex-next20-desks': ['_DESKS_'],
-    'codex-next20-parking': [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    'codex-next20-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
 const PRESETS = [
-    { id: 'codex-day', name: 'E2E Day Shift', start_time: 480, end_time: 1020 },
-    { id: 'codex-late', name: 'E2E Late Shift', start_time: 600, end_time: 1080 },
+    { id: 'e2e-day', name: 'E2E Day Shift', start_time: 480, end_time: 1020 },
+    { id: 'e2e-late', name: 'E2E Late Shift', start_time: 600, end_time: 1080 },
 ];
 const REQUEST: Settings = {
     ...READ_ONLY_SETTINGS,
@@ -165,7 +143,7 @@ async function openRequest(page: Page, overrides: Settings) {
             Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
         (url) =>
             TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'codex-next20-type-' + name,
+                id: 'e2e-settings-type-' + name,
                 name,
                 category_id: url.searchParams.get('category_id'),
                 brand: 'PlaceOS',
@@ -176,7 +154,7 @@ async function openRequest(page: Page, overrides: Settings) {
         (url) =>
             url.pathname === '/api/engine/v2/assets' &&
             (url.searchParams.get('type_id') ?? '').startsWith(
-                'codex-next20-type-',
+                'e2e-settings-type-',
             ),
         () => [],
     );

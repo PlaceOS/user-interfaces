@@ -1,9 +1,9 @@
-import type { ConsoleMessage, Page, Route, WebSocketRoute } from '@playwright/test';
-import { SchedulePage } from '../../../../../e2e/support/bookings/schedule.page';
+import type { Page, Route, WebSocketRoute } from '@playwright/test';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { isAppError, isDevServerSocket, isLocalControlSocket, redact } from '../support/settings-harness';
 
 // Setting: group_events_calendar (docs/settings/workplace.md).
 // Coverage: 1 unique setting, 2 scenarios.
@@ -11,14 +11,11 @@ import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-reado
 // All fixtures below are browser-only GET responses. No fixture is saved;
 // every non-GET request still reaches the read-only guard.
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const ID = 9100047;
-const PARKING_CATEGORY = 'e2e-draft-parking-category';
-const PARKING_TYPES = ['e2e-draft-parking-spaces-type', 'e2e-draft-parking-users-type'];
 type Identity = { id: string; email: string; name: string };
 type DebugWindow = Window & { ng?: { getComponent(element: Element): unknown }; setting?: (key: string) => unknown };
 
 // ---------------------------------------------------------------- safety audit
-// Adapted from the passing Batch 1 drafts. The desk form (picker not opened),
+// The desk form (picker not opened),
 // your-bookings and group-events make no getModule/bind/execute calls with chat
 // off and no location_services module bound, so NO PlaceOS WebSocket is expected.
 type SafetyAudit = {
@@ -30,30 +27,6 @@ type SafetyAudit = {
     monitoring_errors: string[];
     fixtures: Record<string, number>;
 };
-
-function redact(url: URL) {
-    for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
-    return url.href;
-}
-
-/** Only the Angular dev server's Vite client socket (vite client.mjs:856-865, reload on close :993-998). */
-function isDevServerSocket(url: URL) {
-    const app = new URL(APP_URL);
-    return url.host === app.host && url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:') &&
-        url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token';
-}
-
-function isLocalControlSocket(url: URL) {
-    const app = new URL(APP_URL);
-    const protocol = app.protocol === 'https:' ? 'wss:' : 'ws:';
-    return url.protocol === protocol && url.host === app.host &&
-        url.pathname === '/api/engine/v2/systems/control';
-}
-
-/** ErrorHandler logs console.error('ERROR', e); Angular runtime errors log NG0xxx. */
-function isAppError(message: ConsoleMessage) {
-    return message.type() === 'error' && /^(ERROR\b|NG0\d+)/.test(message.text());
-}
 
 const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
     safetyAudit: [async ({ staffPage }, use, info) => {
@@ -175,7 +148,7 @@ async function preparePage(page: Page, overrides: Record<string, unknown>, audit
     };
 }
 
-for (const calendar of ['draft-calendar-a@example.invalid', 'draft-calendar-b@example.invalid']) {
+for (const calendar of ['settings-calendar-a@example.invalid', 'settings-calendar-b@example.invalid']) {
     test(`group_events_calendar ${calendar} scopes the calendar lookup`, async ({ staffPage, safetyAudit }) => {
         const fixture = await preparePage(staffPage, {
             'app.features': ['group-events'], 'app.group_events_calendar': calendar,

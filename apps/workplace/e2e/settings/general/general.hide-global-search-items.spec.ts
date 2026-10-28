@@ -54,47 +54,9 @@ import {
     READ_ONLY_SETTINGS,
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { CONTROLS, type Settings, type WsAudit } from '../support/settings-harness';
 type DebugWindow = Window & { setting?: (key: string) => unknown };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-
-// Tenant settings the verified draft run held fixed for every scenario. They
-// are applied before the scenario's own settings, which always win. Controls,
-// not additional covered settings.
-const CONTROLS: Settings = {
-    'app.use_legacy_flows': false,
-    'app.schedule.event_sources': [],
-    'app.schedule.use_driver': false,
-    'app.schedule.use_websocket': false,
-    'app.explore.disable': [],
-    'app.explore.disable_actions': [],
-    'app.explore.disable_features': [],
-    'app.explore.disable_styles': [],
-    'app.explore.disable_labels': [],
-    'app.explore.cisco_maps.enabled': false,
-    'app.maps_people.keys': {},
-    'app.maps_people.use_zones': [],
-    'app.events.multiple_spaces': false,
-    'app.events.allow_multiple_spaces': false,
-    'app.parking.show_status_details': true,
-    'app.parking.show_users': false,
-    'app.parking.hide_user': null,
-    'app.parkings.hide_user': false,
-    'app.desk.auto_checkin': false,
-    'app.desks.hide_checkin': false,
-    'app.desk.hide_checkin': false,
-    'app.bookings.hide_checkin': false,
-    'app.visitor.all_day_period': null,
-    'app.visitors.all_day_period': null,
-};
-
-type WsAudit = {
-    unexpected: string[];
-    control: string[];
-    app_errors: string[];
-    external: string[];
-};
 const test = readOnlyTest.extend<{ wsAudit: WsAudit }>({
     wsAudit: [
         async ({ staffPage }, use) => {

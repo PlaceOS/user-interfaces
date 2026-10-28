@@ -64,7 +64,7 @@
 // token refresh would be a non-GET /auth request, which the network policy
 // blocks and reports. The readOnlyTest identity guard is unchanged.
 // Run with --no-deps: the local project's preflight dependency seeds shared
-// rows through backend writes (e2e/support/preflight.setup.ts:32-40).
+// rows through backend writes (e2e/support/preflight.setup.ts).
 //
 // Network policy: every /api request must match one exact synthetic GET
 // fixture below, except the shared staff identity GET (users/current), which
@@ -73,7 +73,6 @@
 // non-GET request to a local non-API path (including /auth/) and any external
 // request is recorded and aborted, and fails the scenario.
 import { request as pwRequest, type Page, type Route } from '@playwright/test';
-import * as fs from 'fs';
 import { clientId, redirectUriFor } from '../../../../../e2e/support/auth';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import {
@@ -88,41 +87,21 @@ import {
     READ_ONLY_SETTINGS,
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { BULK_METADATA, clearOrganisationCache, expectSafe, type NetworkAudit, protectNetwork, readJson, type Settings } from '../support/settings-harness';
 type DebugWindow = Window & {
     ng?: { getComponent(element: Element): unknown };
     setting?: (key: string) => unknown;
 };
-type NetworkAudit = {
-    api: string[];
-    local_writes: string[];
-    external: string[];
-    websocket: string[];
-    blockedControl: string[];
-    appErrors: string[];
-    closing: Promise<void>[];
-};
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const READ_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
 /** Minimum lifetime the stored browser token must still have. */
 const MIN_TOKEN_LIFETIME_MS = 15 * 60_000;
-
-/** Parse a JSON file, or null when it is missing or unreadable. */
-function readJson(file: string): Record<string, unknown> | null {
-    try {
-        return JSON.parse(fs.readFileSync(file, 'utf8'));
-    } catch {
-        return null;
-    }
-}
 
 /**
  * The staff bearer already stored for this worker, checked read-only. Never
  * mints, refreshes or writes: every failure throws, so the worker stops before
  * any browser opens. The inherited staffPage fixture loads the storageState
- * file checked here (e2e/support/fixtures.ts:64-75), so it must hold this same
+ * file checked here (e2e/support/fixtures.ts), so it must hold this same
  * token for the app origin with an expiry far enough ahead that the app never
  * attempts a refresh mid-test.
  */
@@ -210,7 +189,7 @@ const test = readOnlyTest.extend<{ batchAudit: NetworkAudit }>({
         },
         { scope: 'worker' },
     ],
-    // The inherited admin fixture mints (e2e/support/fixtures.ts:36-42).
+    // The inherited admin fixture mints (e2e/support/fixtures.ts).
     // readOnlyTest never requests it; fail closed if anything ever does.
     adminStorageState: [
         async () => {
@@ -252,12 +231,6 @@ const HIDDEN_TYPES: Record<string, string[]> = {
 const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
     .flat()
     .map((name) => PREFIX + 'type-' + name);
-const BULK_METADATA = [
-    'bindings',
-    'settings',
-    'workplace_app',
-    'booking_rules',
-];
 const ZONE_METADATA: Record<string, string[]> = {
     [BUILDING]: ['desk_booking_rules', 'parking_booking_rules'],
     [ORGANISATION]: [
@@ -267,8 +240,6 @@ const ZONE_METADATA: Record<string, string[]> = {
         'points-of-interest',
     ],
 };
-/** Locale pinned for the app, so only the two locale names above are read. */
-const LOCALE = 'en-US';
 
 const MINUTE = 60_000;
 /**
@@ -336,7 +307,7 @@ const C: SyntheticBooking = {
 };
 
 // Controls, not covered settings. desks and parking are on so both resource
-// types can load (schedule-state.service.ts:446-454); event_sources api with
+// types can load (schedule-state.service.ts); event_sources api with
 // use_bookings false keeps the room source on /staff/v1/events.
 const CONTROLS: Settings = {
     'app.has_assets': false,
@@ -368,8 +339,6 @@ function hasParams(url: URL, expected: Record<string, string>) {
     );
 }
 
-const PAGE_AUDITS = new WeakMap<Page, NetworkAudit>();
-
 /** Numeric seconds, in increasing order; no malformed period is hidden. */
 function validPeriod(url: URL) {
     const start = url.searchParams.get('period_start') ?? '';
@@ -392,7 +361,7 @@ function releaseQuery(url: URL) {
     );
 }
 
-/** The schedule's own listing query (schedule-state.service.ts:843-859). */
+/** The schedule's own listing query (schedule-state.service.ts). */
 function listingQuery(url: URL) {
     return ['desk', 'parking'].some((type) =>
         hasParams(url, {
@@ -432,98 +401,6 @@ function hiddenAssetQuery(url: URL) {
         ZONES.includes(zone_id) &&
         hasParams(url, { type_id, zone_id, limit: '500' })
     );
-}
-
-async function protectNetwork(page: Page): Promise<NetworkAudit> {
-    const existing = PAGE_AUDITS.get(page);
-    if (existing) return existing;
-    const audit: NetworkAudit = {
-        api: [],
-        local_writes: [],
-        external: [],
-        websocket: [],
-        blockedControl: [],
-        appErrors: [],
-        closing: [],
-    };
-    page.on('pageerror', (error) =>
-        audit.appErrors.push(error.name + ': ' + error.message),
-    );
-    page.on('console', (message) => {
-        if (
-            message.type() === 'error' &&
-            /^(ERROR\b|NG0\d+)/.test(message.text())
-        ) {
-            audit.appErrors.push(message.text().slice(0, 500));
-        }
-    });
-    await page.context().route('**/*', async (route) => {
-        const request = route.request();
-        const url = new URL(request.url());
-        if (ORIGINS.has(url.origin)) {
-            if (!url.pathname.startsWith('/api/')) {
-                if (READ_METHODS.includes(request.method())) {
-                    return route.fallback();
-                }
-                audit.local_writes.push(request.method() + ' ' + url.pathname);
-                return route.abort('blockedbyclient');
-            }
-            if (
-                request.method() === 'GET' &&
-                url.pathname === '/api/engine/v2/users/current'
-            ) {
-                return route.fallback();
-            }
-            audit.api.push(request.method() + ' ' + url.pathname + url.search);
-            return route.abort('blockedbyclient');
-        }
-        if (
-            request.method() === 'GET' &&
-            url.origin === 'https://fonts.googleapis.com' &&
-            url.pathname === '/css2'
-        ) {
-            return route.fulfill({
-                status: 200,
-                contentType: 'text/css',
-                body: '',
-            });
-        }
-        audit.external.push(request.method() + ' ' + url.origin + url.pathname);
-        return route.abort('blockedbyclient');
-    });
-    await page.context().routeWebSocket('**/*', (socket) => {
-        const url = new URL(socket.url());
-        const app = new URL(APP_URL);
-        const local =
-            url.host === app.host &&
-            url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-        if (
-            local &&
-            url.pathname === '/' &&
-            [...url.searchParams.keys()].join(',') === 'token'
-        )
-            return;
-        if (local && url.pathname === '/api/engine/v2/systems/control') {
-            audit.blockedControl.push(url.pathname);
-        } else {
-            audit.websocket.push(url.pathname);
-        }
-        audit.closing.push(socket.close());
-    });
-    PAGE_AUDITS.set(page, audit);
-    return audit;
-}
-
-async function expectSafe(audit: NetworkAudit) {
-    await Promise.all(audit.closing);
-    expect(
-        audit.api,
-        'only synthetic GET API responses, except staff identity',
-    ).toEqual([]);
-    expect(audit.local_writes, 'no local non-API writes').toEqual([]);
-    expect(audit.external, 'no external actions').toEqual([]);
-    expect(audit.websocket, 'no live WebSocket bindings').toEqual([]);
-    expect(audit.appErrors, 'no application errors').toEqual([]);
 }
 
 async function getOnly(
@@ -587,7 +464,7 @@ function watchIdentity(page: Page): Promise<Identity | null> {
 
 /**
  * The location the app derives for `user` at `time`, mirroring
- * StaffUser.work_preference/location_time (user.class.ts:187-222) in UTC,
+ * StaffUser.work_preference/location_time (user.class.ts) in UTC,
  * the browser's timezone here: an override for the date first, then the
  * weekly preference, otherwise `ooo`.
  */
@@ -645,23 +522,6 @@ async function awayIdentity(page: Page) {
             });
         },
     );
-}
-
-async function clearOrganisationCache(page: Page) {
-    await page.addInitScript((locale) => {
-        localStorage.setItem('APP.locale', locale);
-        localStorage.setItem('PLACEOS.locale', locale);
-        for (const store of [localStorage, sessionStorage]) {
-            for (const key of Object.keys(store)) {
-                if (
-                    key.startsWith('PLACEOS.org') ||
-                    ['PLACEOS.region', 'PLACEOS.building'].includes(key)
-                ) {
-                    store.removeItem(key);
-                }
-            }
-        }
-    }, LOCALE);
 }
 
 /** One release query as received: its type and covered minutes. */

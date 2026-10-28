@@ -1,34 +1,15 @@
-import type { ConsoleMessage, Page, Route, WebSocketRoute } from '@playwright/test';
+import type { Page, Route, WebSocketRoute } from '@playwright/test';
 import { ROOM_BOOKINGS_MODE, useSettings } from '../../../../../e2e/support/room/room.settings';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-// Setting: events.hide_nearby_desks (docs/settings/workplace.md).
-// Coverage: 1 unique setting, 3 scenarios (shown, hidden, and a no-desks control).
-// events.hide_nearby_desks gates the "book nearby desk"
-// button on the meeting success screen (meeting-flow-success.component.ts,
-// template `@if (space?.email && allow_desk_booking)`, where
-// allow_desk_booking = features includes 'desks' && hide_nearby_desks !== true).
-//
-// How the screen is reached without a booking: route book/meeting/:step
-// (book.routes.ts) -> meeting-flow.component.ts setView('success') renders
-// <meeting-flow-success>, whose last_success comes from
-// EventFormService.loadLastSuccess = new CalendarEvent(JSON.parse(
-// sessionStorage['PLACEOS.last_modified_event'])) (event-form.service.ts).
-// Why the seed cannot become a booking: sessionStorage belongs to this browser
-// context only and is only READ here; the success component's ngOnInit makes one
-// GET (SpacePipe lookup, answered below) and never calls postForm/saveEvent;
-// the nearby-desk button and the continue link are never clicked; every non-GET
-// request still reaches the read-only guard, which fails the test.
-type Settings = Record<string, unknown>;
+import { isAppError, isDevServerSocket, isLocalControlSocket, redact, type Settings } from '../support/settings-harness';
 type DebugWindow = Window & { setting?: (key: string) => unknown };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const CATEGORY = 'e2e-draft-empty-catering';
-const ROOM = { id: 'e2e-draft-success-room', email: 'draft-success-room@example.invalid', name: 'Draft success room', zones: [] };
+const CATEGORY = 'e2e-settings-empty-catering';
+const ROOM = { id: 'e2e-settings-success-room', email: 'settings-success-room@example.invalid', name: 'Settings success room', zones: [] };
 
 // ---------------------------------------------------------------- safety audit
-// Same policy as the corrected Batch 2/4/5 drafts.
 type SafetyAudit = {
     websocket_attempts: { url: string; classification: string }[];
     blocked_control_attempts: { url: string; classification: string }[];
@@ -38,30 +19,6 @@ type SafetyAudit = {
     monitoring_errors: string[];
     fixtures: Record<string, number>;
 };
-
-function redact(url: URL) {
-    for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
-    return url.href;
-}
-
-/** Only the Angular dev server's Vite client socket (vite client.mjs:856-865, reload on close :993-998). */
-function isDevServerSocket(url: URL) {
-    const app = new URL(APP_URL);
-    return url.host === app.host && url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:') &&
-        url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token';
-}
-
-function isLocalControlSocket(url: URL) {
-    const app = new URL(APP_URL);
-    const protocol = app.protocol === 'https:' ? 'wss:' : 'ws:';
-    return url.protocol === protocol && url.host === app.host &&
-        url.pathname === '/api/engine/v2/systems/control';
-}
-
-/** ErrorHandler logs console.error('ERROR', e); Angular runtime errors log NG0xxx. */
-function isAppError(message: ConsoleMessage) {
-    return message.type() === 'error' && /^(ERROR\b|NG0\d+)/.test(message.text());
-}
 
 const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
     safetyAudit: [async ({ staffPage }, use, info) => {
@@ -155,7 +112,7 @@ for (const [label, features, hidden, shown] of [
         const start = new Date(); start.setDate(start.getDate() + 1); start.setHours(10, 0, 0, 0);
         await staffPage.addInitScript((event) => {
             sessionStorage.setItem('PLACEOS.last_modified_event', JSON.stringify(event));
-        }, { id: 'e2e-draft-success-event', title: 'Draft success preview', date: start.valueOf(), duration: 60, resources: [ROOM] });
+        }, { id: 'e2e-settings-success-event', title: 'Settings success preview', date: start.valueOf(), duration: 60, resources: [ROOM] });
         // SpacePipe._loadSpace: an email id skips showSystem and uses
         // GET /api/engine/v2/systems/with_emails?in=<email>; no match keeps the seeded room.
         await stubGet(staffPage, safetyAudit, 'seeded room lookup', (url) => url.pathname === '/api/engine/v2/systems/with_emails' &&

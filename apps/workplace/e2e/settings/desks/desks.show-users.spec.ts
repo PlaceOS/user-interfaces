@@ -20,20 +20,13 @@ import {
     READ_ONLY_SETTINGS,
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
-type DebugWindow = Window & {
-    setting?: (key: string) => unknown;
-    ng?: { getComponent(element: Element): unknown };
-};
+import { type DebugWindow, PIXEL, type Settings } from '../support/settings-harness';
 type Audit = {
     fixtures: Record<string, number>;
     unexpected_ws: string[];
     control_ws: string[];
 };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const PIXEL =
-    'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="24"/%3E';
 
 const test = readOnlyTest.extend<{ audit: Audit }>({
     audit: [
@@ -132,18 +125,18 @@ const BASE: Settings = {
     'app.explore.cisco_maps.enabled': false,
 };
 
-const REGION = 'codex-next20-region';
-const BUILDING_A = 'codex-next20-building-a';
-const LEVEL_A = 'codex-next20-level-a';
-const MAP = new URL('/codex-next20-map.svg', APP_URL).href;
-const DESK = 'Codex browser-only desk';
-const DESK_ID = 'codex-next20-desk-' + LEVEL_A;
+const REGION = 'e2e-settings-region';
+const BUILDING_A = 'e2e-settings-building-a';
+const LEVEL_A = 'e2e-settings-level-a';
+const MAP = new URL('/e2e-settings-map.svg', APP_URL).href;
+const DESK = 'E2E browser-only desk';
+const DESK_ID = 'e2e-settings-desk-' + LEVEL_A;
 const LEVELS = [
     {
         id: LEVEL_A,
         parent_id: BUILDING_A,
-        name: 'Codex Level A',
-        display_name: 'Codex Level A',
+        name: 'E2E Level A',
+        display_name: 'E2E Level A',
         tags: ['level'],
         map_id: MAP,
     },
@@ -193,7 +186,7 @@ async function organisationFixture(
             {
                 id: REGION,
                 parent_id: url.searchParams.get('parent_id'),
-                name: 'Codex Region',
+                name: 'E2E Region',
                 tags: ['region'],
                 timezone: 'UTC',
             },
@@ -212,8 +205,8 @@ async function organisationFixture(
             {
                 id: BUILDING_A,
                 parent_id: REGION,
-                name: 'Codex Building A',
-                display_name: 'Codex Building A',
+                name: 'E2E Building A',
+                display_name: 'E2E Building A',
                 tags: ['building'],
                 timezone: 'UTC',
                 location: '0,0',
@@ -240,7 +233,7 @@ async function organisationFixture(
             url.searchParams
                 .get('parent_ids')!
                 .split(',')
-                .every((id) => id.startsWith('codex-next20-')),
+                .every((id) => id.startsWith('e2e-settings-')),
         (url) =>
             Object.fromEntries(
                 url.searchParams
@@ -263,7 +256,7 @@ async function organisationFixture(
         audit,
         'synthetic metadata',
         (url) =>
-            /^\/api\/engine\/v2\/metadata\/codex-next20-[^/]+$/.test(
+            /^\/api\/engine\/v2\/metadata\/e2e-settings-[^/]+$/.test(
                 url.pathname,
             ) && !!url.searchParams.get('name'),
         (url) => {
@@ -286,7 +279,7 @@ async function organisationFixture(
         audit,
         'synthetic desk metadata',
         (url) =>
-            /^\/api\/engine\/v2\/metadata\/codex-next20-building-[ab]\/children$/.test(
+            /^\/api\/engine\/v2\/metadata\/e2e-settings-building-[ab]\/children$/.test(
                 url.pathname,
             ) && url.searchParams.get('name') === 'desks',
         (url) =>
@@ -299,9 +292,9 @@ async function organisationFixture(
                         name: 'desks',
                         details: [
                             {
-                                id: 'codex-next20-desk-' + level.id,
+                                id: 'e2e-settings-desk-' + level.id,
                                 name: DESK + ' ' + level.id,
-                                map_id: 'codex-next20-desk-shape',
+                                map_id: 'e2e-settings-desk-shape',
                                 bookable: true,
                                 assigned_to: '',
                                 groups: [],
@@ -357,7 +350,7 @@ async function organisationFixture(
                 contentType: 'image/svg+xml',
                 body:
                     '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240">' +
-                    '<rect id="codex-next20-desk-shape" x="80" y="60" width="80" height="60" fill="#aaaaaa"/></svg>',
+                    '<rect id="e2e-settings-desk-shape" x="80" y="60" width="80" height="60" fill="#aaaaaa"/></svg>',
             });
         },
     );
@@ -493,7 +486,7 @@ async function deskMap(page: Page, audit: Audit) {
     // what gives the map's booking query its zone. Do not toggle the select:
     // opening it here is unnecessary and made the setup depend on overlay
     // timing rather than on the setting under test.
-    await expect(map.locator('mat-select')).toContainText('Codex Level A');
+    await expect(map.locator('mat-select')).toContainText('E2E Level A');
     await expect
         .poll(() => map.locator('div[track-id^="desk:hover:"]').count())
         .toBeGreaterThan(0);

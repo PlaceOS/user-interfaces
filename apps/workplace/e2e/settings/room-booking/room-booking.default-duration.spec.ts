@@ -3,17 +3,17 @@
 // Scope: the selected value in the rendered meeting duration control; no meeting is submitted.
 // Limitations: exercises the native booking flow, not external calendar providers.
 //
-// Source: event-form.service.ts:558-576 passes
+// Source: event-form.service.ts passes
 // `setting('app.events.default_duration') ?? 60` to the form time sync, and
-// libs/common/src/lib/general.ts:1619-1661 applies it when all-day is turned
+// libs/common/src/lib/general.ts applies it when all-day is turned
 // off and the saved timed window is on another day. The flow below therefore
 // turns all-day on, moves the date by a day, and turns all-day off.
 // An unset key reads as null, not undefined: SettingsService.get falls back to
-// getItemWithKeys (general.ts:140-148), which returns null for a missing key.
+// getItemWithKeys (general.ts), which returns null for a missing key.
 //
 // Authentication: the staff bearer comes from tokenFor('staff', worker), which
 // reuses the stored token while the backend accepts it and checks the user is
-// not admin/support (e2e/support/api.ts:130-147). It mints only when the stored
+// not admin/support (e2e/support/api.ts). It mints only when the stored
 // token is missing or rejected. The readOnlyTest identity guard is unchanged.
 //
 // Network policy: every /api request must match one exact synthetic GET
@@ -35,23 +35,12 @@ import {
     READ_ONLY_SETTINGS,
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { BULK_METADATA, clearOrganisationCache, expectSafe, type NetworkAudit, READ_METHODS, type Settings } from '../support/settings-harness';
 type DebugWindow = Window & {
     ng?: { getComponent(element: Element): unknown };
     setting?: (key: string) => unknown;
 };
-type NetworkAudit = {
-    api: string[];
-    local_writes: string[];
-    external: string[];
-    websocket: string[];
-    blockedControl: string[];
-    appErrors: string[];
-    closing: Promise<void>[];
-};
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const READ_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
 // Reuse the validated stored staff bearer instead of minting for every worker.
 const test = readOnlyTest.extend({
@@ -90,29 +79,19 @@ const HIDDEN_TYPES: Record<string, string[]> = {
 const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
     .flat()
     .map((name) => PREFIX + 'type-' + name);
-// Org/region/building metadata blocks read by OrganisationService
-// (organisation.service.ts:726-913).
-const BULK_METADATA = [
-    'bindings',
-    'settings',
-    'workplace_app',
-    'booking_rules',
-];
 // Exact single-zone metadata names: room_booking_rules for each building
-// (event-form.service.ts:262-292), room_alerts on the organisation (:351-366),
+// (event-form.service.ts), room_alerts on the organisation,
 // and the organisation's translation overrides. LocaleService requests
 // `locale_<locale>` on the organisation once it has loaded
-// (placeos.service.ts:471-474, locale.service.ts:181-224) for the current and
+// (placeos.service.ts, locale.service.ts) for the current and
 // the default locale, pinned below to en-US and en-AU.
 const ZONE_METADATA: Record<string, string[]> = {
     [BUILDING]: ['room_booking_rules'],
     [ORGANISATION]: ['room_alerts', 'locale_en-AU', 'locale_en-US'],
 };
-/** Locale pinned for the app, so only the two locale names above are read. */
-const LOCALE = 'en-US';
 // Controls, not covered settings. global_search and chat keep the topbar's
 // search/chat loaders off; has_assets=false is the AssetStateService network
-// gate (libs/assets/src/lib/asset-state.service.ts:82-92,179-181), so no asset,
+// gate (libs/assets/src/lib/asset-state.service.ts), so no asset,
 // asset-category or asset-settings GET is issued for this assets-free flow.
 const CONTROLS: Settings = {
     'app.global_search': false,
@@ -216,18 +195,6 @@ async function protectNetwork(page: Page): Promise<NetworkAudit> {
     return audit;
 }
 
-async function expectSafe(audit: NetworkAudit) {
-    await Promise.all(audit.closing);
-    expect(
-        audit.api,
-        'only synthetic GET API responses, except staff identity',
-    ).toEqual([]);
-    expect(audit.local_writes, 'no local non-API writes').toEqual([]);
-    expect(audit.external, 'no external actions').toEqual([]);
-    expect(audit.websocket, 'no live WebSocket bindings').toEqual([]);
-    expect(audit.appErrors, 'no application errors').toEqual([]);
-}
-
 async function getOnly(
     page: Page,
     match: (url: URL) => boolean,
@@ -272,38 +239,10 @@ function watchStaffId(page: Page): Promise<string> {
     return Promise.race([identity, timeout]);
 }
 
-/**
- * Remove cached organisation data before the app boots. OrganisationService
- * serves zone and metadata responses from `PLACEOS.org.*` localStorage without
- * a request (organisation.service.ts:1130-1189), so a cache written by an
- * earlier session would replace the synthetic organisation with real zone ids
- * and send real-id GETs past the fixtures. The saved region/building selection
- * is cleared for the same reason. The staff identity and token are untouched.
- * The locale is pinned (APP.locale for LocaleService.init, PLACEOS.locale for
- * PlaceOS_Service._initLocale) so the translation overrides read are always
- * the pinned locale and the default en-AU.
- */
-async function clearOrganisationCache(page: Page) {
-    await page.addInitScript((locale) => {
-        localStorage.setItem('APP.locale', locale);
-        localStorage.setItem('PLACEOS.locale', locale);
-        for (const store of [localStorage, sessionStorage]) {
-            for (const key of Object.keys(store)) {
-                if (
-                    key.startsWith('PLACEOS.org') ||
-                    ['PLACEOS.region', 'PLACEOS.building'].includes(key)
-                ) {
-                    store.removeItem(key);
-                }
-            }
-        }
-    }, LOCALE);
-}
-
 /** Exact synthetic GET fixtures for the requests the meeting form makes. */
 async function syntheticGets(page: Page) {
     const staff_id = watchStaffId(page);
-    // Organisation bootstrap (organisation.service.ts:726-891).
+    // Organisation bootstrap (organisation.service.ts).
     await getOnly(
         page,
         (url) =>
@@ -423,7 +362,7 @@ async function syntheticGets(page: Page) {
             };
         },
     );
-    // The signed-in user's personal settings (settings.service.ts:239-241),
+    // The signed-in user's personal settings (settings.service.ts),
     // answered only for the id the app's own identity GET returned. Empty
     // details: allow_dark_mode is false, so no theme save follows.
     await page.route(
@@ -449,7 +388,7 @@ async function syntheticGets(page: Page) {
             });
         },
     );
-    // Group permissions loaded after the user (user-state.ts:215-232). An empty
+    // Group permissions loaded after the user (user-state.ts). An empty
     // list is also what the app uses when the request fails.
     await getOnly(
         page,
@@ -459,8 +398,8 @@ async function syntheticGets(page: Page) {
         () => [],
     );
     // SpacesService.loadSpaces: every system in the organisation
-    // (spaces.service.ts:101-119), and the bookable list for the building
-    // (space.utilities.ts:145-160). This scenario selects no room.
+    // (spaces.service.ts), and the bookable list for the building
+    // (space.utilities.ts). This scenario selects no room.
     await getOnly(
         page,
         (url) =>

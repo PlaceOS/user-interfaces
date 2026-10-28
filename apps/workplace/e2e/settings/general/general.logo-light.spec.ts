@@ -5,8 +5,7 @@ import { APP_URL, BACKEND_URL, assertLocalOnly, staffEmail } from '../../../../.
 import { expect } from '../../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { BASE_SETTINGS, type Settings } from '../support/settings-harness';
 // The landing page starts the hidden asset bootstrap (parking, locker and desk
 // categories/types). It creates records when a GET finds none, so serve those
 // GETs from fixtures. Non-GET requests fall through to the read-only guard.
@@ -202,13 +201,6 @@ const test = readOnlyTest.extend<{
 const contextMonitors = new WeakMap<Audit, (context: BrowserContext) => Promise<void>>();
 test.use({ storageState: undefined, timezoneId: TIMEZONE, readOnlyTimezone: TIMEZONE, locale: 'en-AU' });
 test.describe.configure({ retries: 0, timeout: 120_000 });
-
-const BASE_SETTINGS: Settings = {
-    'app.features': ['parking'],
-    'app.show_quick_book': false,
-    'app.allow_dark_mode': false,
-    'app.chat.enabled': false,
-};
 
 // TopbarComponent.logo accepts logo?.src || logo. A data SVG exercises the
 // rendered image without external requests, uploads or backend fixture data.

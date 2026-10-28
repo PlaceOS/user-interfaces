@@ -40,23 +40,14 @@ import {
 } from '@playwright/test';
 
 import { VERSION } from '../../../../../libs/common/src/lib/version';
-type Settings = Record<string, unknown>;
+import { BULK_METADATA, type DebugWindow, type GetFixture, LIST_METADATA, type Settings, validPeriod } from '../support/settings-harness';
 type Json = Record<string, unknown>;
 type Submission = { expected: Json; armed: boolean; bodies: Json[]; completed: boolean };
-type DebugWindow = Window & {
-    setting?: (key: string) => unknown;
-    ng?: { getComponent(element: Element): unknown };
-};
 type Connection = { binds: string[]; delivered: string[]; unbinds: string[] };
 type Audit = {
     refused: string[]; errors: string[]; monitoring: string[];
     fixtures: Record<string, number>; connections: Connection[];
     submission?: Submission;
-};
-type GetFixture = {
-    match: (url: URL) => boolean;
-    body: (url: URL) => unknown;
-    contentType?: string;
 };
 const APP_URL = process.env.E2E_APP_URL ?? 'http://localhost:4214';
 const APP = new URL(APP_URL);
@@ -115,12 +106,6 @@ const HIDDEN_TYPES: Record<string, string[]> = {
 const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
     .flat()
     .map((name) => PREFIX + 'type-' + name);
-const BULK_METADATA = [
-    'bindings',
-    'settings',
-    'workplace_app',
-    'booking_rules',
-];
 const ZONE_METADATA: Record<string, string[]> = {
     [BUILDING]: [
         'parking_booking_rules',
@@ -137,13 +122,6 @@ const ZONE_METADATA: Record<string, string[]> = {
         'points-of-interest',
     ],
 };
-const LIST_METADATA = [
-    'parking_booking_rules',
-    'desk_booking_rules',
-    'room_booking_rules',
-    'desks',
-    'map_regions',
-];
 
 const BASE: Settings = {
     'app.name': 'Browser Meeting Simulation', 'app.features': ['spaces'],
@@ -197,16 +175,6 @@ function parkingQuery(url: URL) {
             ...base,
             email: USER.email,
         })
-    );
-}
-
-/** Numeric seconds, in increasing order; no malformed period is hidden. */
-function validPeriod(url: URL) {
-    const start = url.searchParams.get('period_start') ?? '';
-    const end = url.searchParams.get('period_end') ?? '';
-    return (
-        /^\d+$/.test(start) && /^\d+$/.test(end) && Number.isSafeInteger(Number(start)) && Number(start) > 0 &&
-        Number.isSafeInteger(Number(end)) && Number(end) > Number(start)
     );
 }
 
@@ -400,7 +368,7 @@ const test = base.extend<{ isolated: { page: Page; audit: Audit } }>({
     },
 });
 
-function matchBinding(url: URL, id: string) {
+function matchBinding(_url: URL, _id: string) {
     // No driver bindings: HTTP-only meeting form.
     return {};
 }
@@ -687,7 +655,7 @@ function expectedCalendarBody(raw: RawMeeting, room: Json): Json {
             attendance_type: 'ONSITE', catering: [], assets: [],
             images: [], view_access: 'OPEN',
             // CalendarEvent keeps extension_data.permission in step with
-            // permission (event.class.ts:532-534); observed on the wire.
+            // permission (event.class.ts); observed on the wire.
             permission: 'OPEN',
             app_name: 'Browser Meeting Simulation',
             app_version: VERSION.raw || VERSION.version || VERSION.hash,

@@ -13,6 +13,7 @@ import { assertLocalOnly } from '../../../../../e2e/support/env';
 import { staffEmail } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
+import { MIGRATION_ALLOW_CLASH_QUERY } from '../support/settings-harness';
 // The landing page starts the hidden asset bootstrap (parking, locker and desk
 // categories/types). It creates records when a GET finds none, so serve those
 // GETs from fixtures. Non-GET requests fall through to the read-only guards.
@@ -55,7 +56,7 @@ async function stubHiddenAssets(page: Page) {
     });
 }
 
-// LandingStateService -> requestSpacesForZone (space.utilities.ts:145-155).
+// LandingStateService -> requestSpacesForZone (space.utilities.ts).
 // An empty GET result prevents live room-status bindings while testing tabs;
 // it does not stand in for room capacity or availability coverage.
 async function stubLandingRooms(page: Page) {
@@ -70,8 +71,6 @@ async function stubLandingRooms(page: Page) {
         await route.fulfill({ json: [] });
     });
 }
-
-const MIGRATION_ALLOW_CLASH_QUERY = false;
 // Test-local audit only: no shared fixtures or existing specs are changed.
 type MigrationAudit = {
     fixtures: Record<string, number>;
@@ -147,7 +146,7 @@ const migrationAuditFixture: { migrationAudit: [
                 const read = ['GET', 'HEAD', 'OPTIONS'].includes(request.method());
                 // findBookingClashes is a source-supported availability query,
                 // not booking creation (libs/bookings/src/lib/bookings.fn.ts).
-                // Enabled only for the preserved Batch 21 recurrence scenario.
+                // Enabled only for the recurrence scenario.
                 const clash = MIGRATION_ALLOW_CLASH_QUERY && request.method() === 'POST' &&
                     url.pathname === '/api/staff/v1/bookings/clashing-assets';
                 if (origins.has(url.origin) && (read || clash)) {

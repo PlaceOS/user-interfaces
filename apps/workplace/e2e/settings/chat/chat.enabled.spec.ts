@@ -1,8 +1,9 @@
-import type { ConsoleMessage, Page, Route } from '@playwright/test';
+import type { Page, Route } from '@playwright/test';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { image, isAppError, isDevServerSocket, redact } from '../support/settings-harness';
 
 // Setting: chat.enabled (docs/settings/workplace.md).
 // Coverage: 1 unique setting, 2 scenarios.
@@ -10,12 +11,8 @@ import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-reado
 // light/dark branding. app.component's @defer and ChatComponent.can_show gate
 // the chat launcher. No theme control or chat control is clicked.
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const image = (colour: string) => `data:image/svg+xml,${encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="24"><rect width="80" height="24" fill="${colour}"/></svg>`,
-)}`;
 const LIGHT = image('white');
 const DARK_A = image('navy');
-const DARK_B = image('purple');
 
 type SafetyAudit = {
     websocket_attempts: { url: string; classification: string }[];
@@ -25,37 +22,6 @@ type SafetyAudit = {
     monitoring_errors: string[];
     initialization: { url: string; parent_ids: string[]; fixture: string }[];
 };
-
-/** Query values (tokens in ts-client's URL-authentication mode) never reach artifacts. */
-function redact(url: URL) {
-    for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
-    return url.href;
-}
-
-/**
- * The Angular dev server's Vite client socket, and nothing else.
- *
- * @angular/build:dev-server keeps liveReload on by default, so the injected
- * Vite client opens `ws(s)://<app host>/?token=<t>` (subprotocol vite-hmr) on
- * every load (vite/dist/client/client.mjs:856-865). Closing it makes the client
- * poll and then location.reload() (:993-998), so it is held open as a mock: it
- * is never connected to the dev server and never closed. PlaceOS sockets use
- * /api/engine/v2/... or /control/... paths and can never match.
- */
-function isDevServerSocket(url: URL) {
-    const app = new URL(APP_URL);
-    return url.host === app.host && url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:') &&
-        url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token';
-}
-
-/**
- * Exceptions Angular catches never reach `pageerror`: the app's
- * LazySentryErrorHandler falls back to ErrorHandler, which logs
- * console.error('ERROR', error). Angular runtime errors log as NG0xxx.
- */
-function isAppError(message: ConsoleMessage) {
-    return message.type() === 'error' && /^(ERROR\b|NG0\d+)/.test(message.text());
-}
 
 // No PlaceOS WebSocket URL is exempted. In particular, the shared
 // systems/control endpoint can carry BOTH the optional LLM hint bind and driver

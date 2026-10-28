@@ -1,8 +1,9 @@
-import type { ConsoleMessage, Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { isAppError, isDevServerSocket, redact } from '../support/settings-harness';
 
 // Setting: users.show_avatars (docs/settings/workplace.md).
 // Coverage: 1 unique setting, 2 scenarios.
@@ -11,7 +12,7 @@ import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-reado
 // search); show_avatars (show_image) gates a-user-avatar.
 // searchStaff (users/staff.fn.ts) GETs people?q=...&fields=... and maps a raw array.
 const QUERY = 'DraftDirectory';
-const PERSON = { id: 'e2e-draft-directory-person', name: 'Draft Directory Person', email: 'draft-directory@example.invalid' };
+const PERSON = { id: 'e2e-settings-directory-person', name: 'Settings Directory Person', email: 'settings-directory@example.invalid' };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 
 type SafetyAudit = {
@@ -21,37 +22,6 @@ type SafetyAudit = {
     app_errors: string[];
     monitoring_errors: string[];
 };
-
-/** Query values (tokens in ts-client's URL-authentication mode) never reach artifacts. */
-function redact(url: URL) {
-    for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
-    return url.href;
-}
-
-/**
- * The Angular dev server's Vite client socket, and nothing else.
- *
- * @angular/build:dev-server keeps liveReload on by default, so the injected
- * Vite client opens `ws(s)://<app host>/?token=<t>` (subprotocol vite-hmr) on
- * every load (vite/dist/client/client.mjs:856-865). Closing it makes the client
- * poll and then location.reload() (:993-998), so it is held open as a mock: it
- * is never connected to the dev server and never closed. PlaceOS sockets use
- * /api/engine/v2/... or /control/... paths and can never match.
- */
-function isDevServerSocket(url: URL) {
-    const app = new URL(APP_URL);
-    return url.host === app.host && url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:') &&
-        url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token';
-}
-
-/**
- * Exceptions Angular catches never reach `pageerror`: the app's
- * LazySentryErrorHandler falls back to ErrorHandler, which logs
- * console.error('ERROR', error). Angular runtime errors log as NG0xxx.
- */
-function isAppError(message: ConsoleMessage) {
-    return message.type() === 'error' && /^(ERROR\b|NG0\d+)/.test(message.text());
-}
 
 // DirectoryUserList, Topbar and FooterMenu require HTTP only. Chat is disabled
 // and user controls are never opened, so there are NO expected PlaceOS

@@ -7,38 +7,10 @@ import type { Locator, Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { CATEGORIES, COMMON, openCalendar, type Settings, TYPES } from '../support/settings-harness';
 
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const CATEGORIES = [
-    { id: 'codex-next20-catering', name: '_CATERING_', hidden: true },
-    { id: 'codex-next20-desks', name: '_DESKS_', hidden: true },
-    { id: 'codex-next20-parking', name: '_PARKING_', hidden: true },
-    { id: 'codex-next20-lockers', name: '_LOCKERS_', hidden: true },
-];
-const TYPES: Record<string, string[]> = {
-    'codex-next20-catering': [],
-    'codex-next20-desks': ['_DESKS_'],
-    'codex-next20-parking': [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    'codex-next20-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
-const COMMON: Settings = {
-    ...READ_ONLY_SETTINGS,
-    'app.chat.enabled': false,
-    'app.global_search': false,
-    'app.auto_release': { resources: [] },
-    'app.schedule.event_sources': ['api'],
-    'app.use_region': false,
-    'app.use_geolocation': false,
-    'app.allow_dark_mode': false,
-    'app.use_24_hour_time': true,
-};
 const LOCKER: Settings = {
     ...COMMON,
     'app.features': ['lockers'],
@@ -99,7 +71,7 @@ async function openLockerPicker(page: Page, available_period: number) {
             Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
         (url) =>
             TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'codex-next20-type-' + name,
+                id: 'e2e-settings-type-' + name,
                 name,
                 category_id: url.searchParams.get('category_id'),
                 brand: 'PlaceOS',
@@ -110,7 +82,7 @@ async function openLockerPicker(page: Page, available_period: number) {
         (url) =>
             url.pathname === '/api/engine/v2/assets' &&
             (url.searchParams.get('type_id') ?? '').startsWith(
-                'codex-next20-type-',
+                'e2e-settings-type-',
             ),
         () => [],
     );
@@ -155,20 +127,6 @@ async function openLockerPicker(page: Page, available_period: number) {
     }
     await expect(filters).toBeVisible();
     return filters;
-}
-
-async function openCalendar(page: Page, root: Locator) {
-    const picker = page.locator('.cdk-overlay-container date-calendar');
-    await expect(async () => {
-        if (!(await picker.isVisible().catch(() => false))) {
-            await root
-                .locator('a-date-field button')
-                .first()
-                .click({ timeout: 5_000 });
-        }
-        await expect(picker).toBeVisible({ timeout: 5_000 });
-    }).toPass({ timeout: 30_000 });
-    return picker;
 }
 
 /**

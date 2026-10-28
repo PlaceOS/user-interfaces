@@ -18,12 +18,7 @@ import {
     READ_ONLY_SETTINGS,
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
-type DebugWindow = Window & {
-    setting?: (key: string) => unknown;
-    ng?: { getComponent(element: Element): unknown };
-};
+import { type DebugWindow, type Settings } from '../support/settings-harness';
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 
 type WsAudit = { unexpected: string[]; control: string[] };
@@ -210,7 +205,7 @@ type ScheduleSourceState = { sources: string[]; query_ready: boolean };
 
 /**
  * Read-only probe of ScheduleStateService through the app-schedule
- * component's `_state` (schedule-state.service.ts:438-440,652-679,800-816).
+ * component's `_state` (schedule-state.service.ts).
  * GET /api/staff/v1/events is issued only by `_loadApiEvents`, an effect that
  * runs once `_query_params_debounced` has a value and returns early unless
  * `_event_sources` includes `api`. Seeing the debounced query ready with the

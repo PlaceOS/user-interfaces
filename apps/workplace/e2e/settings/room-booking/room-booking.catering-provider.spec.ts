@@ -8,17 +8,15 @@
 // Scope: the catering select modal opened from the meeting options step
 // (/#/book/meeting/form?view=2). Nothing is selected or added, and the meeting
 // is never submitted.
-// Status: NOT EXECUTED.
-//
 // Source: libs/catering/src/lib/catering-order-modal/catering-order-state.service.ts
-// :69-73 empties `caterers` whenever app.catering_provider is set, and
-// _loadMenu (:156-183) forces filters().caterer to the provider, or to the first
+// empties `caterers` whenever app.catering_provider is set, and
+// _loadMenu forces filters().caterer to the provider, or to the first
 // caterer when several exist and none is set. catering-item-filters.component.ts
-// :101-117 renders the caterer select only while caterers() has more than one
+// renders the caterer select only while caterers() has more than one
 // entry. Two caterers (CATERING:Alpha, CATERING:Beta; catering-assets.fn.ts
 // :82-87,195-217) exist in both scenarios, so the setting is the only
 // difference. The modal opens from catering-list-field's empty-state button
-// (icon add_notes, catering-list-field.component.ts:286-308).
+// (icon add_notes, catering-list-field.component.ts).
 //
 // Authentication (fail-closed, read-only): the staff bearer is the one already
 // stored for this worker under e2e/.auth. The storageState file the inherited
@@ -30,7 +28,7 @@
 // token refresh would be a non-GET /auth request, which the network policy
 // blocks and reports. The readOnlyTest identity guard is unchanged.
 // Run with --no-deps: the local project's preflight dependency seeds shared
-// rows through backend writes (e2e/support/preflight.setup.ts:32-40).
+// rows through backend writes (e2e/support/preflight.setup.ts).
 //
 // Network policy: every /api request must match one exact synthetic GET
 // fixture below, except the shared staff identity GET (users/current), which
@@ -43,7 +41,6 @@ import {
     type Page,
     type Route,
 } from '@playwright/test';
-import * as fs from 'fs';
 import { clientId, redirectUriFor } from '../../../../../e2e/support/auth';
 import {
     APP_URL,
@@ -57,41 +54,21 @@ import {
     READ_ONLY_SETTINGS,
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { BULK_METADATA, clearOrganisationCache, expectSafe, type NetworkAudit, protectNetwork, readJson, type Settings, watchStaffId } from '../support/settings-harness';
 type DebugWindow = Window & {
     ng?: { getComponent(element: Element): unknown };
     setting?: (key: string) => unknown;
 };
-type NetworkAudit = {
-    api: string[];
-    local_writes: string[];
-    external: string[];
-    websocket: string[];
-    blockedControl: string[];
-    appErrors: string[];
-    closing: Promise<void>[];
-};
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const READ_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
 /** Minimum lifetime the stored browser token must still have. */
 const MIN_TOKEN_LIFETIME_MS = 15 * 60_000;
-
-/** Parse a JSON file, or null when it is missing or unreadable. */
-function readJson(file: string): Record<string, unknown> | null {
-    try {
-        return JSON.parse(fs.readFileSync(file, 'utf8'));
-    } catch {
-        return null;
-    }
-}
 
 /**
  * The staff bearer already stored for this worker, checked read-only. Never
  * mints, refreshes or writes: every failure throws, so the worker stops before
  * any browser opens. The inherited staffPage fixture loads the storageState
- * file checked here (e2e/support/fixtures.ts:64-75), so it must hold this same
+ * file checked here (e2e/support/fixtures.ts), so it must hold this same
  * token for the app origin with an expiry far enough ahead that the app never
  * attempts a refresh mid-test.
  */
@@ -179,7 +156,7 @@ const test = readOnlyTest.extend<{ batchAudit: NetworkAudit }>({
         },
         { scope: 'worker' },
     ],
-    // The inherited admin fixture mints (e2e/support/fixtures.ts:36-42).
+    // The inherited admin fixture mints (e2e/support/fixtures.ts).
     // readOnlyTest never requests it; fail closed if anything ever does.
     adminStorageState: [
         async () => {
@@ -230,12 +207,6 @@ const HIDDEN_TYPES: Record<string, string[]> = {
 const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
     .flat()
     .map((name) => PREFIX + 'type-' + name);
-const BULK_METADATA = [
-    'bindings',
-    'settings',
-    'workplace_app',
-    'booking_rules',
-];
 const ZONE_METADATA: Record<string, string[]> = {
     [BUILDING]: ['room_booking_rules', 'catering-settings', 'catering_config'],
     [ORGANISATION]: [
@@ -246,8 +217,6 @@ const ZONE_METADATA: Record<string, string[]> = {
     ],
 };
 const LIST_METADATA = ['room_booking_rules', 'catering_config'];
-/** Locale pinned for the app, so only the two locale names above are read. */
-const LOCALE = 'en-US';
 
 const ROOM = {
     id: PREFIX + 'room',
@@ -287,8 +256,6 @@ function hasParams(url: URL, expected: Record<string, string>) {
     );
 }
 
-const PAGE_AUDITS = new WeakMap<Page, NetworkAudit>();
-
 /** Numeric seconds, in increasing order; no malformed period is hidden. */
 function validPeriod(url: URL) {
     const start = url.searchParams.get('period_start') ?? '';
@@ -309,98 +276,6 @@ function hiddenAssetQuery(url: URL) {
     );
 }
 
-async function protectNetwork(page: Page): Promise<NetworkAudit> {
-    const existing = PAGE_AUDITS.get(page);
-    if (existing) return existing;
-    const audit: NetworkAudit = {
-        api: [],
-        local_writes: [],
-        external: [],
-        websocket: [],
-        blockedControl: [],
-        appErrors: [],
-        closing: [],
-    };
-    page.on('pageerror', (error) =>
-        audit.appErrors.push(error.name + ': ' + error.message),
-    );
-    page.on('console', (message) => {
-        if (
-            message.type() === 'error' &&
-            /^(ERROR\b|NG0\d+)/.test(message.text())
-        ) {
-            audit.appErrors.push(message.text().slice(0, 500));
-        }
-    });
-    await page.context().route('**/*', async (route) => {
-        const request = route.request();
-        const url = new URL(request.url());
-        if (ORIGINS.has(url.origin)) {
-            if (!url.pathname.startsWith('/api/')) {
-                if (READ_METHODS.includes(request.method())) {
-                    return route.fallback();
-                }
-                audit.local_writes.push(request.method() + ' ' + url.pathname);
-                return route.abort('blockedbyclient');
-            }
-            if (
-                request.method() === 'GET' &&
-                url.pathname === '/api/engine/v2/users/current'
-            ) {
-                return route.fallback();
-            }
-            audit.api.push(request.method() + ' ' + url.pathname + url.search);
-            return route.abort('blockedbyclient');
-        }
-        if (
-            request.method() === 'GET' &&
-            url.origin === 'https://fonts.googleapis.com' &&
-            url.pathname === '/css2'
-        ) {
-            return route.fulfill({
-                status: 200,
-                contentType: 'text/css',
-                body: '',
-            });
-        }
-        audit.external.push(request.method() + ' ' + url.origin + url.pathname);
-        return route.abort('blockedbyclient');
-    });
-    await page.context().routeWebSocket('**/*', (socket) => {
-        const url = new URL(socket.url());
-        const app = new URL(APP_URL);
-        const local =
-            url.host === app.host &&
-            url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-        if (
-            local &&
-            url.pathname === '/' &&
-            [...url.searchParams.keys()].join(',') === 'token'
-        )
-            return;
-        if (local && url.pathname === '/api/engine/v2/systems/control') {
-            audit.blockedControl.push(url.pathname);
-        } else {
-            audit.websocket.push(url.pathname);
-        }
-        audit.closing.push(socket.close());
-    });
-    PAGE_AUDITS.set(page, audit);
-    return audit;
-}
-
-async function expectSafe(audit: NetworkAudit) {
-    await Promise.all(audit.closing);
-    expect(
-        audit.api,
-        'only synthetic GET API responses, except staff identity',
-    ).toEqual([]);
-    expect(audit.local_writes, 'no local non-API writes').toEqual([]);
-    expect(audit.external, 'no external actions').toEqual([]);
-    expect(audit.websocket, 'no live WebSocket bindings').toEqual([]);
-    expect(audit.appErrors, 'no application errors').toEqual([]);
-}
-
 async function getOnly(
     page: Page,
     match: (url: URL) => boolean,
@@ -413,44 +288,6 @@ async function getOnly(
             await route.fulfill({ json: body(new URL(route.request().url())) });
         },
     );
-}
-
-function watchStaffId(page: Page): Promise<string> {
-    return page
-        .waitForResponse(
-            (response) => {
-                const url = new URL(response.url());
-                return (
-                    ORIGINS.has(url.origin) &&
-                    url.pathname === '/api/engine/v2/users/current' &&
-                    response.request().method() === 'GET' &&
-                    response.ok()
-                );
-            },
-            { timeout: 15_000 },
-        )
-        .then(async (response) => {
-            const user = (await response.json()) as { id?: string };
-            return user?.id || '';
-        })
-        .catch(() => '');
-}
-
-async function clearOrganisationCache(page: Page) {
-    await page.addInitScript((locale) => {
-        localStorage.setItem('APP.locale', locale);
-        localStorage.setItem('PLACEOS.locale', locale);
-        for (const store of [localStorage, sessionStorage]) {
-            for (const key of Object.keys(store)) {
-                if (
-                    key.startsWith('PLACEOS.org') ||
-                    ['PLACEOS.region', 'PLACEOS.building'].includes(key)
-                ) {
-                    store.removeItem(key);
-                }
-            }
-        }
-    }, LOCALE);
 }
 
 /** Exact synthetic GET fixtures for the meeting options step with catering. */
@@ -781,7 +618,7 @@ function providerSetting(page: Page) {
 
 /**
  * Read-only probe of the caterer choice the filters panel offers and the
- * caterer the menu is filtered to (catering-item-filters.component.ts:101-117).
+ * caterer the menu is filtered to (catering-item-filters.component.ts).
  * Fails closed if the signals are unavailable.
  */
 function catererState(modal: Locator) {

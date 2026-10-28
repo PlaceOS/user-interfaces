@@ -14,8 +14,7 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { type Settings } from '../support/settings-harness';
 type DebugWindow = Window & { setting?: (key: string) => unknown };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 

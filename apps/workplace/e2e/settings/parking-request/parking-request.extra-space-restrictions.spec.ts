@@ -43,53 +43,10 @@ import {
 import { expect } from '../../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import {
-    READ_ONLY_SETTINGS,
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
-type DebugWindow = Window & {
-    setting?: (key: string) => unknown;
-    ng?: { getComponent(element: Element): unknown };
-};
+import { COMMON, CONTROLS, type DebugWindow, ROUTE, type Settings, type WsAudit } from '../support/settings-harness';
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-
-// Tenant settings the verified draft run held fixed for every scenario. They
-// are applied before the scenario's own settings, which always win. Controls,
-// not additional covered settings.
-const CONTROLS: Settings = {
-    'app.use_legacy_flows': false,
-    'app.schedule.event_sources': [],
-    'app.schedule.use_driver': false,
-    'app.schedule.use_websocket': false,
-    'app.explore.disable': [],
-    'app.explore.disable_actions': [],
-    'app.explore.disable_features': [],
-    'app.explore.disable_styles': [],
-    'app.explore.disable_labels': [],
-    'app.explore.cisco_maps.enabled': false,
-    'app.maps_people.keys': {},
-    'app.maps_people.use_zones': [],
-    'app.events.multiple_spaces': false,
-    'app.events.allow_multiple_spaces': false,
-    'app.parking.show_status_details': true,
-    'app.parking.show_users': false,
-    'app.parking.hide_user': null,
-    'app.parkings.hide_user': false,
-    'app.desk.auto_checkin': false,
-    'app.desks.hide_checkin': false,
-    'app.desk.hide_checkin': false,
-    'app.bookings.hide_checkin': false,
-    'app.visitor.all_day_period': null,
-    'app.visitors.all_day_period': null,
-};
-
-type WsAudit = {
-    unexpected: string[];
-    control: string[];
-    app_errors: string[];
-    external: string[];
-};
 const test = readOnlyTest.extend<{ wsAudit: WsAudit }>({
     wsAudit: [
         async ({ staffPage }, use) => {
@@ -209,17 +166,6 @@ const TYPES: Record<string, string[]> = {
     ],
     'e2e-extra-restriction-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
 };
-const COMMON: Settings = {
-    ...READ_ONLY_SETTINGS,
-    'app.chat.enabled': false,
-    'app.global_search': false,
-    'app.auto_release': { resources: [] },
-    'app.schedule.event_sources': ['api'],
-    'app.use_region': false,
-    'app.use_geolocation': false,
-    'app.allow_dark_mode': false,
-    'app.use_24_hour_time': true,
-};
 const REQUEST: Settings = {
     ...COMMON,
     'app.features': ['parking'],
@@ -335,8 +281,6 @@ async function prepare(page: Page, overrides: Settings) {
         },
     };
 }
-
-const ROUTE = '/#/book/parking-request/form';
 
 async function openRequest(page: Page, overrides: Settings) {
     const fixture = await prepare(page, overrides);

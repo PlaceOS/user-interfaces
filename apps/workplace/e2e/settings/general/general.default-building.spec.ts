@@ -9,12 +9,7 @@ import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
-
-// Test-local only: the shared fixture remains unchanged. Authentication is
-// established by that fixture; these guards cover browser activity afterwards.
-type SafetyAudit = { blocked_http: string[]; unexpected_ws: string[] };
+import { type SafetyAudit, type Settings, stubBootstrap } from '../support/settings-harness';
 const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
     safetyAudit: [async ({ staffPage }, use, info) => {
         const context = staffPage.context();
@@ -60,80 +55,45 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
     }, { auto: true, timeout: 30_000 }],
 });
 
-// Browser-only GET fixtures prevent unrelated module bootstrap from trying to
-// create hidden categories/types. No record is created in PlaceOS.
-async function stubBootstrap(page: Page) {
-    const origins = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-    const types: Record<string, string[]> = {
-        catering: [], desks: ['_DESKS_'],
-        parking: ['_PARKING_SPACES_', '_PARKING_USERS_', '_PARKING_FLEET_VEHICLES_'],
-        lockers: ['_LOCKER_BANKS_', '_LOCKERS_'],
-    };
-    const get = async (match: (url: URL) => boolean, body: unknown) => {
-        await page.route((url) => origins.has(url.origin) && match(url), async (route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body });
-        });
-    };
-    await get((url) => url.pathname === '/api/engine/v2/asset_categories' &&
-        url.searchParams.get('hidden') === 'true' && url.searchParams.get('limit') === '500',
-    Object.keys(types).map((name) => ({ id: 'landing-readonly-' + name,
-        name: '_' + name.toUpperCase() + '_', hidden: true })));
-    for (const [category, names] of Object.entries(types)) {
-        await get((url) => url.pathname === '/api/engine/v2/asset_types' &&
-            url.searchParams.get('category_id') === 'landing-readonly-' + category &&
-            url.searchParams.get('limit') === '500', names.map((name) => ({
-                id: 'landing-readonly-type-' + name, name,
-                category_id: 'landing-readonly-' + category, brand: 'PlaceOS',
-            })));
-    }
-    await get((url) => url.pathname === '/api/engine/v2/assets' &&
-        (url.searchParams.get('type_id') ?? '').startsWith('landing-readonly-type-'), []);
-    await get((url) => url.pathname === '/api/staff/v1/calendars' &&
-        [...url.searchParams.keys()].length === 0, []);
-}
-
-
-
 
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const REGION = 'codex-default-region';
-const BUILDING_A = 'codex-default-building-a';
-const BUILDING_B = 'codex-default-building-b';
+const REGION = 'e2e-default-region';
+const BUILDING_A = 'e2e-default-building-a';
+const BUILDING_B = 'e2e-default-building-b';
 /**
  * Listed first and in the same timezone, so the app's own fallbacks when
  * default_building is ignored (timezone match, then buildings[0];
  * OrganisationService._setDefaultBuilding) select it, never A or B.
  */
-const BUILDING_FALLBACK = 'codex-default-building-fallback';
-const LEVEL_A = 'codex-default-level-a';
-const LEVEL_B = 'codex-default-level-b';
-const LEVEL_FALLBACK = 'codex-default-level-fallback';
+const BUILDING_FALLBACK = 'e2e-default-building-fallback';
+const LEVEL_A = 'e2e-default-level-a';
+const LEVEL_B = 'e2e-default-level-b';
+const LEVEL_FALLBACK = 'e2e-default-level-fallback';
 const NAMES = {
-    [BUILDING_A]: 'Codex Default Building A',
-    [BUILDING_B]: 'Codex Default Building B',
-    [BUILDING_FALLBACK]: 'Codex Default Fallback Building',
+    [BUILDING_A]: 'E2E Default Building A',
+    [BUILDING_B]: 'E2E Default Building B',
+    [BUILDING_FALLBACK]: 'E2E Default Fallback Building',
 };
 const LEVELS = [
     {
         id: LEVEL_FALLBACK,
         parent_id: BUILDING_FALLBACK,
-        name: 'Codex Level Fallback',
-        display_name: 'Codex Level Fallback',
+        name: 'E2E Level Fallback',
+        display_name: 'E2E Level Fallback',
         tags: ['level'],
     },
     {
         id: LEVEL_A,
         parent_id: BUILDING_A,
-        name: 'Codex Level A',
-        display_name: 'Codex Level A',
+        name: 'E2E Level A',
+        display_name: 'E2E Level A',
         tags: ['level'],
     },
     {
         id: LEVEL_B,
         parent_id: BUILDING_B,
-        name: 'Codex Level B',
-        display_name: 'Codex Level B',
+        name: 'E2E Level B',
+        display_name: 'E2E Level B',
         tags: ['level'],
     },
 ];
@@ -195,7 +155,7 @@ async function organisationFixture(page: Page) {
         () => [
             {
                 id: REGION,
-                name: 'Codex Default Region',
+                name: 'E2E Default Region',
                 tags: ['region'],
                 timezone: 'UTC',
             },
@@ -221,8 +181,8 @@ async function organisationFixture(page: Page) {
             {
                 id: BUILDING_A,
                 parent_id: REGION,
-                name: 'Codex Default Building A',
-                display_name: 'Codex Default Building A',
+                name: 'E2E Default Building A',
+                display_name: 'E2E Default Building A',
                 tags: ['building'],
                 timezone: 'UTC',
                 location: '0,0',
@@ -230,8 +190,8 @@ async function organisationFixture(page: Page) {
             {
                 id: BUILDING_B,
                 parent_id: REGION,
-                name: 'Codex Default Building B',
-                display_name: 'Codex Default Building B',
+                name: 'E2E Default Building B',
+                display_name: 'E2E Default Building B',
                 tags: ['building'],
                 timezone: 'UTC',
                 location: '40,40',
@@ -254,7 +214,7 @@ async function organisationFixture(page: Page) {
             url
                 .searchParams.get('parent_ids')!
                 .split(',')
-                .every((id) => id.startsWith('codex-default-')),
+                .every((id) => id.startsWith('e2e-default-')),
         (url) =>
             Object.fromEntries(
                 url
@@ -273,7 +233,7 @@ async function organisationFixture(page: Page) {
     await getOnly(
         page,
         (url) =>
-            /^\/api\/engine\/v2\/metadata\/codex-default-[^/]+$/.test(
+            /^\/api\/engine\/v2\/metadata\/e2e-default-[^/]+$/.test(
                 url.pathname,
             ) &&
             !!url.searchParams.get('name'),

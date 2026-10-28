@@ -28,7 +28,7 @@
 //   - Read-only local stack (`readOnlyTest`, GET-only route stubs, no writes).
 //   - `/your-bookings?view=list` with one synthetic, owned, approved desk
 //     booking starting five minutes from now. `asset_id` uses the desk shape id
-//     convention (`codex-auto-checkin-desk-shape`) so the same booking would be
+//     convention (`e2e-auto-checkin-desk-shape`) so the same booking would be
 //     the in-use row if the map path were reachable.
 //   - `desks.hide_checkin`, `desk.hide_checkin` and `bookings.hide_checkin` are
 //     explicitly false so the only thing gating the control is auto_checkin.
@@ -43,8 +43,8 @@
 //   legacy `desk.auto_checkin`, and is true when the booking type's key is true.
 //
 // Source references:
-//   libs/bookings/src/lib/booking-details-modal.component.ts:110-160,637-678
-//   libs/explore/src/lib/explore-desks.service.ts:124-142,263-266
+//   libs/bookings/src/lib/booking-details-modal.component.ts
+//   libs/explore/src/lib/explore-desks.service.ts
 //   apps/workplace/e2e/settings/desk-booking/desk-booking.hide-checkin.spec.ts
 // ---------------------------------------------------------------------------
 import type { Page, Route } from '@playwright/test';
@@ -60,13 +60,8 @@ import {
     READ_ONLY_SETTINGS,
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { CONTROLS, type DebugWindow, type Settings } from '../support/settings-harness';
 type Identity = { id: string; email: string; name: string };
-type DebugWindow = Window & {
-    setting?: (key: string) => unknown;
-    ng?: { getComponent(element: Element): unknown };
-};
 type Audit = {
     fixtures: Record<string, number>;
     unexpected_ws: string[];
@@ -76,36 +71,6 @@ type Audit = {
 };
 
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-
-// Tenant settings the verified draft run held fixed for every scenario. They
-// are applied before the scenario's own settings, which always win. Controls,
-// not additional covered settings.
-const CONTROLS: Settings = {
-    'app.use_legacy_flows': false,
-    'app.schedule.event_sources': [],
-    'app.schedule.use_driver': false,
-    'app.schedule.use_websocket': false,
-    'app.explore.disable': [],
-    'app.explore.disable_actions': [],
-    'app.explore.disable_features': [],
-    'app.explore.disable_styles': [],
-    'app.explore.disable_labels': [],
-    'app.explore.cisco_maps.enabled': false,
-    'app.maps_people.keys': {},
-    'app.maps_people.use_zones': [],
-    'app.events.multiple_spaces': false,
-    'app.events.allow_multiple_spaces': false,
-    'app.parking.show_status_details': true,
-    'app.parking.show_users': false,
-    'app.parking.hide_user': null,
-    'app.parkings.hide_user': false,
-    'app.desk.auto_checkin': false,
-    'app.desks.hide_checkin': false,
-    'app.desk.hide_checkin': false,
-    'app.bookings.hide_checkin': false,
-    'app.visitor.all_day_period': null,
-    'app.visitors.all_day_period': null,
-};
 
 const test = readOnlyTest.extend<{ audit: Audit }>({
     audit: [
@@ -217,14 +182,14 @@ async function getOnly(
     );
 }
 
-const PARKING_CATEGORY = 'codex-auto-checkin-parking';
+const PARKING_CATEGORY = 'e2e-auto-checkin-parking';
 const PARKING_TYPES = [
-    'codex-auto-checkin-type-_PARKING_SPACES_',
-    'codex-auto-checkin-type-_PARKING_USERS_',
-    'codex-auto-checkin-type-_PARKING_FLEET_VEHICLES_',
+    'e2e-auto-checkin-type-_PARKING_SPACES_',
+    'e2e-auto-checkin-type-_PARKING_USERS_',
+    'e2e-auto-checkin-type-_PARKING_FLEET_VEHICLES_',
 ];
 const BOOKING_ID = 9400101;
-const DESK_ASSET = 'codex-auto-checkin-desk-shape';
+const DESK_ASSET = 'e2e-auto-checkin-desk-shape';
 
 const BASE: Settings = {
     ...READ_ONLY_SETTINGS,
@@ -371,9 +336,9 @@ async function deskBooking(
         id: BOOKING_ID,
         booking_type: 'desk',
         type: 'desk',
-        title: 'Draft auto check-in booking',
+        title: 'Settings auto check-in booking',
         asset_id: DESK_ASSET,
-        asset_name: 'Draft auto check-in desk',
+        asset_name: 'Settings auto check-in desk',
         booking_start: start,
         booking_end: end,
         user_id: user.id,
@@ -476,7 +441,7 @@ for (const scenario of SCENARIOS) {
         ).toBeGreaterThan(0);
 
         const modal = await schedule.openDetails(BOOKING_ID);
-        await expect(modal).toContainText('Draft auto check-in booking');
+        await expect(modal).toContainText('Settings auto check-in booking');
         await expect(modal.locator('status-pill')).toBeVisible();
         const control = schedule.checkInButton(modal);
         // Count, then visible count: for the offered control this is the

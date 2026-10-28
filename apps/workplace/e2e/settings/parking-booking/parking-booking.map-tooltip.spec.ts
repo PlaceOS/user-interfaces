@@ -42,7 +42,6 @@
 // request, any non-GET request to a local non-API path (including /auth/) and
 // any external request is recorded and aborted, and fails the scenario.
 import { request as pwRequest, type Page, type Route } from '@playwright/test';
-import * as fs from 'fs';
 import { clientId, redirectUriFor } from '../../../../../e2e/support/auth';
 import {
     APP_URL,
@@ -57,32 +56,12 @@ import {
     READ_ONLY_SETTINGS,
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { BULK_METADATA, clearOrganisationCache, expectSafe, LIST_METADATA, type NetworkAudit, protectNetwork, readJson, type Settings, watchStaffId } from '../support/settings-harness';
 type DebugWindow = Window & { setting?: (key: string) => unknown };
-type NetworkAudit = {
-    api: string[];
-    local_writes: string[];
-    external: string[];
-    websocket: string[];
-    blockedControl: string[];
-    appErrors: string[];
-    closing: Promise<void>[];
-};
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const READ_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
 /** Minimum lifetime the stored browser token must still have. */
 const MIN_TOKEN_LIFETIME_MS = 15 * 60_000;
-
-/** Parse a JSON file, or null when it is missing or unreadable. */
-function readJson(file: string): Record<string, unknown> | null {
-    try {
-        return JSON.parse(fs.readFileSync(file, 'utf8'));
-    } catch {
-        return null;
-    }
-}
 
 /**
  * The staff bearer already stored for this worker, checked read-only. Never
@@ -217,12 +196,6 @@ const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
     .flat()
     .map((name) => PREFIX + 'type-' + name);
 const SPACES_TYPE = PREFIX + 'type-_PARKING_SPACES_';
-const BULK_METADATA = [
-    'bindings',
-    'settings',
-    'workplace_app',
-    'booking_rules',
-];
 // Exact single-zone metadata names: booking rules per resource type on the
 // building (explore-booking-rules.ts), the level's desk list and map
 // regions, and organisation translation, room-alert and POI metadata.
@@ -240,15 +213,6 @@ const ZONE_METADATA: Record<string, string[]> = {
         'points-of-interest',
     ],
 };
-const LIST_METADATA = [
-    'parking_booking_rules',
-    'desk_booking_rules',
-    'room_booking_rules',
-    'desks',
-    'map_regions',
-];
-/** Locale pinned for the app, so only the two locale names above are read. */
-const LOCALE = 'en-US';
 
 const BAY_A = {
     id: PREFIX + 'bay-a',
@@ -324,8 +288,6 @@ function hasParams(url: URL, expected: Record<string, string>) {
     );
 }
 
-const PAGE_AUDITS = new WeakMap<Page, NetworkAudit>();
-
 /** Explore level availability, own-day list, or ParkingService's day list. */
 function parkingQuery(url: URL) {
     const period_start = url.searchParams.get('period_start')!;
@@ -361,98 +323,6 @@ function hiddenAssetQuery(url: URL) {
     );
 }
 
-async function protectNetwork(page: Page): Promise<NetworkAudit> {
-    const existing = PAGE_AUDITS.get(page);
-    if (existing) return existing;
-    const audit: NetworkAudit = {
-        api: [],
-        local_writes: [],
-        external: [],
-        websocket: [],
-        blockedControl: [],
-        appErrors: [],
-        closing: [],
-    };
-    page.on('pageerror', (error) =>
-        audit.appErrors.push(error.name + ': ' + error.message),
-    );
-    page.on('console', (message) => {
-        if (
-            message.type() === 'error' &&
-            /^(ERROR\b|NG0\d+)/.test(message.text())
-        ) {
-            audit.appErrors.push(message.text().slice(0, 500));
-        }
-    });
-    await page.context().route('**/*', async (route) => {
-        const request = route.request();
-        const url = new URL(request.url());
-        if (ORIGINS.has(url.origin)) {
-            if (!url.pathname.startsWith('/api/')) {
-                if (READ_METHODS.includes(request.method())) {
-                    return route.fallback();
-                }
-                audit.local_writes.push(request.method() + ' ' + url.pathname);
-                return route.abort('blockedbyclient');
-            }
-            if (
-                request.method() === 'GET' &&
-                url.pathname === '/api/engine/v2/users/current'
-            ) {
-                return route.fallback();
-            }
-            audit.api.push(request.method() + ' ' + url.pathname + url.search);
-            return route.abort('blockedbyclient');
-        }
-        if (
-            request.method() === 'GET' &&
-            url.origin === 'https://fonts.googleapis.com' &&
-            url.pathname === '/css2'
-        ) {
-            return route.fulfill({
-                status: 200,
-                contentType: 'text/css',
-                body: '',
-            });
-        }
-        audit.external.push(request.method() + ' ' + url.origin + url.pathname);
-        return route.abort('blockedbyclient');
-    });
-    await page.context().routeWebSocket('**/*', (socket) => {
-        const url = new URL(socket.url());
-        const app = new URL(APP_URL);
-        const local =
-            url.host === app.host &&
-            url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-        if (
-            local &&
-            url.pathname === '/' &&
-            [...url.searchParams.keys()].join(',') === 'token'
-        )
-            return;
-        if (local && url.pathname === '/api/engine/v2/systems/control') {
-            audit.blockedControl.push(url.pathname);
-        } else {
-            audit.websocket.push(url.pathname);
-        }
-        audit.closing.push(socket.close());
-    });
-    PAGE_AUDITS.set(page, audit);
-    return audit;
-}
-
-async function expectSafe(audit: NetworkAudit) {
-    await Promise.all(audit.closing);
-    expect(
-        audit.api,
-        'only synthetic GET API responses, except staff identity',
-    ).toEqual([]);
-    expect(audit.local_writes, 'no local non-API writes').toEqual([]);
-    expect(audit.external, 'no external actions').toEqual([]);
-    expect(audit.websocket, 'no live WebSocket bindings').toEqual([]);
-    expect(audit.appErrors, 'no application errors').toEqual([]);
-}
-
 async function getOnly(
     page: Page,
     match: (url: URL) => boolean,
@@ -465,44 +335,6 @@ async function getOnly(
             await route.fulfill({ json: body(new URL(route.request().url())) });
         },
     );
-}
-
-function watchStaffId(page: Page): Promise<string> {
-    return page
-        .waitForResponse(
-            (response) => {
-                const url = new URL(response.url());
-                return (
-                    ORIGINS.has(url.origin) &&
-                    url.pathname === '/api/engine/v2/users/current' &&
-                    response.request().method() === 'GET' &&
-                    response.ok()
-                );
-            },
-            { timeout: 15_000 },
-        )
-        .then(async (response) => {
-            const user = (await response.json()) as { id?: string };
-            return user?.id || '';
-        })
-        .catch(() => '');
-}
-
-async function clearOrganisationCache(page: Page) {
-    await page.addInitScript((locale) => {
-        localStorage.setItem('APP.locale', locale);
-        localStorage.setItem('PLACEOS.locale', locale);
-        for (const store of [localStorage, sessionStorage]) {
-            for (const key of Object.keys(store)) {
-                if (
-                    key.startsWith('PLACEOS.org') ||
-                    ['PLACEOS.region', 'PLACEOS.building'].includes(key)
-                ) {
-                    store.removeItem(key);
-                }
-            }
-        }
-    }, LOCALE);
 }
 
 /** Exact synthetic GET fixtures for the Explore parking level. */

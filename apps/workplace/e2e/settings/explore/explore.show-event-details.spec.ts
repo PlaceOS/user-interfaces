@@ -2,8 +2,6 @@
  * User-owned Setting: explore.show_event_details
  * Exact runtime key: app.explore.show_event_details
  * Coverage: 1 unique Setting / 2 scenarios
- * Status: NOT EXECUTED
- *
  * ExploreSpaceInfoComponent requires next() and explicit false privacy values
  * before details can appear. Bookings are a direct event array; date is epoch
  * milliseconds and duration is minutes (CalendarEvent constructor).
@@ -11,8 +9,8 @@
  * false in both scenarios; only this Setting changes. Hover only, never click.
  * True displays title/host; false preserves room/status/event timing without
  * title or host. The exact synthetic host GET is intercepted locally.
- * Sources: libs/explore/src/lib/explore-space-info.component.ts:145-180,237-285;
- * libs/common/src/lib/types/event.class.ts:346-405; libs/users/src/lib/staff.fn.ts:44.
+ * Sources: libs/explore/src/lib/explore-space-info.component.ts;
+ * libs/common/src/lib/types/event.class.ts; libs/users/src/lib/staff.fn.ts.
  *
  * Self-contained isolation adapted from explore.zone-polygons-and-labels.spec.ts.
  * Fresh empty storage; synthetic staff/auth only; no disk-auth fixture imports.
@@ -27,22 +25,12 @@ import { createHash } from 'node:crypto';
 import {
     test as base, expect, type Page, type WebSocketRoute,
 } from '@playwright/test';
-
-type Settings = Record<string, unknown>;
-type DebugWindow = Window & {
-    setting?: (key: string) => unknown;
-    ng?: { getComponent(element: Element): unknown };
-};
+import { BULK_METADATA, type DebugWindow, type GetFixture, LIST_METADATA, pixel, roomState, type Settings, USER, validPeriod } from '../support/settings-harness';
 type Connection = { binds: string[]; delivered: string[]; unbinds: string[] };
 type Audit = {
     refused: string[]; errors: string[]; monitoring: string[];
     fixtures: Record<string, number>; connections: Connection[];
     room_values: Record<string, unknown>;
-};
-type GetFixture = {
-    match: (url: URL) => boolean;
-    body: (url: URL) => unknown;
-    contentType?: string;
 };
 const APP_URL = process.env.E2E_APP_URL ?? 'http://localhost:4214';
 const APP = new URL(APP_URL);
@@ -51,8 +39,6 @@ if (!['localhost', '127.0.0.1', '[::1]'].includes(APP.hostname) ||
     APP.pathname !== '/' || APP.search || APP.hash) {
     throw new Error('This spec requires a root-path loopback frontend.');
 }
-const USER = { id: 'e2e-zone-settings-user', name: 'Synthetic Staff',
-    email: 'zone-settings@example.invalid', groups: [], sys_admin: false, support: false };
 const FAKE_BEARER = 'browser-only-zone-settings-not-a-valid-credential';
 const CONTROL_PATH = '/api/engine/v2/systems/control';
 const FIXTURES = new WeakMap<Page, GetFixture[]>();
@@ -83,12 +69,6 @@ const HIDDEN_TYPES: Record<string, string[]> = {
 const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
     .flat()
     .map((name) => PREFIX + 'type-' + name);
-const BULK_METADATA = [
-    'bindings',
-    'settings',
-    'workplace_app',
-    'booking_rules',
-];
 const ZONE_METADATA: Record<string, string[]> = {
     [BUILDING]: [
         'parking_booking_rules',
@@ -103,13 +83,6 @@ const ZONE_METADATA: Record<string, string[]> = {
         'points-of-interest',
     ],
 };
-const LIST_METADATA = [
-    'parking_booking_rules',
-    'desk_booking_rules',
-    'room_booking_rules',
-    'desks',
-    'map_regions',
-];
 
 const SYSTEM = PREFIX + 'area-system';
 const TARGET = PREFIX + 'target';
@@ -199,16 +172,6 @@ function parkingQuery(url: URL) {
             ...base,
             email: USER.email,
         })
-    );
-}
-
-/** Numeric seconds, in increasing order; no malformed period is hidden. */
-function validPeriod(url: URL) {
-    const start = url.searchParams.get('period_start') ?? '';
-    const end = url.searchParams.get('period_end') ?? '';
-    return (
-        /^\d+$/.test(start) && /^\d+$/.test(end) && Number.isSafeInteger(Number(start)) && Number(start) > 0 &&
-        Number.isSafeInteger(Number(end)) && Number(end) > Number(start)
     );
 }
 
@@ -707,36 +670,6 @@ async function openExplore(page: Page, audit: Audit, override: Settings) {
     // Areas and canvas painting have all completed. No fixed sleep proves absence.
     await expect.poll(() => pixel(page, 0.75, 0.75)).toEqual([18, 52, 86, 128]);
     return canvas;
-}
-
-function pixel(page: Page, x: number, y: number) {
-    return page.locator('explore-map-view [map-canvas] canvas').evaluate((node, point) => {
-        const canvas = node as HTMLCanvasElement;
-        if (!canvas.width || !canvas.height) throw new Error('Unready polygon canvas');
-        const ctx = canvas.getContext('2d');
-        if (!ctx) throw new Error('Canvas context unavailable');
-        return Array.from(ctx.getImageData(Math.floor(point.x * canvas.width),
-            Math.floor(point.y * canvas.height), 1, 1).data);
-    }, { x, y });
-}
-
-/** Read-only readiness probe. Never writes Angular state or invokes methods. */
-function roomState(page: Page) {
-    return page.locator('explore-map-view explore-space-info').evaluate((element) => {
-        const component = (window as DebugWindow).ng?.getComponent(element) as {
-            space(): { name: string };
-            status(): string;
-            events(): { title: string; host: string; date: number; date_end: number }[];
-            next(): { title: string; host: string } | undefined;
-            hide_meeting_title(): boolean;
-            hide_meeting_details(): boolean;
-        } | undefined;
-        if (!component) throw new Error('Read-only room component unavailable');
-        return { name: component.space().name, status: component.status(),
-            events: component.events(), next: component.next() ?? null,
-            hide_title: component.hide_meeting_title(),
-            hide_details: component.hide_meeting_details() };
-    });
 }
 async function roomReady(page: Page, audit: Audit) {
     const feature = page.locator('explore-map-view explore-space-info [customTooltip]');

@@ -10,29 +10,9 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { CATEGORIES, PIXEL, type Settings, TYPES } from '../support/settings-harness';
 
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const PIXEL =
-    'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="24"/%3E';
-
-const CATEGORIES = [
-    { id: 'codex-next20-catering', name: '_CATERING_', hidden: true },
-    { id: 'codex-next20-desks', name: '_DESKS_', hidden: true },
-    { id: 'codex-next20-parking', name: '_PARKING_', hidden: true },
-    { id: 'codex-next20-lockers', name: '_LOCKERS_', hidden: true },
-];
-const TYPES: Record<string, string[]> = {
-    'codex-next20-catering': [],
-    'codex-next20-desks': ['_DESKS_'],
-    'codex-next20-parking': [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    'codex-next20-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
 
 const BASE: Settings = {
     ...READ_ONLY_SETTINGS,
@@ -100,7 +80,7 @@ async function visitor(page: Page, overrides: Settings) {
             Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
         (url) =>
             TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'codex-next20-type-' + name,
+                id: 'e2e-settings-type-' + name,
                 name,
                 category_id: url.searchParams.get('category_id'),
                 brand: 'PlaceOS',
@@ -111,7 +91,7 @@ async function visitor(page: Page, overrides: Settings) {
         (url) =>
             url.pathname === '/api/engine/v2/assets' &&
             (url.searchParams.get('type_id') ?? '').startsWith(
-                'codex-next20-type-',
+                'e2e-settings-type-',
             ),
         () => [],
     );

@@ -9,12 +9,7 @@ import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
-
-// Test-local only: the shared fixture remains unchanged. Authentication is
-// established by that fixture; these guards cover browser activity afterwards.
-type SafetyAudit = { blocked_http: string[]; unexpected_ws: string[] };
+import { type SafetyAudit, type Settings, stubBootstrap } from '../support/settings-harness';
 const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
     safetyAudit: [async ({ staffPage }, use, info) => {
         const context = staffPage.context();
@@ -60,61 +55,26 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
     }, { auto: true, timeout: 30_000 }],
 });
 
-// Browser-only GET fixtures prevent unrelated module bootstrap from trying to
-// create hidden categories/types. No record is created in PlaceOS.
-async function stubBootstrap(page: Page) {
-    const origins = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-    const types: Record<string, string[]> = {
-        catering: [], desks: ['_DESKS_'],
-        parking: ['_PARKING_SPACES_', '_PARKING_USERS_', '_PARKING_FLEET_VEHICLES_'],
-        lockers: ['_LOCKER_BANKS_', '_LOCKERS_'],
-    };
-    const get = async (match: (url: URL) => boolean, body: unknown) => {
-        await page.route((url) => origins.has(url.origin) && match(url), async (route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body });
-        });
-    };
-    await get((url) => url.pathname === '/api/engine/v2/asset_categories' &&
-        url.searchParams.get('hidden') === 'true' && url.searchParams.get('limit') === '500',
-    Object.keys(types).map((name) => ({ id: 'landing-readonly-' + name,
-        name: '_' + name.toUpperCase() + '_', hidden: true })));
-    for (const [category, names] of Object.entries(types)) {
-        await get((url) => url.pathname === '/api/engine/v2/asset_types' &&
-            url.searchParams.get('category_id') === 'landing-readonly-' + category &&
-            url.searchParams.get('limit') === '500', names.map((name) => ({
-                id: 'landing-readonly-type-' + name, name,
-                category_id: 'landing-readonly-' + category, brand: 'PlaceOS',
-            })));
-    }
-    await get((url) => url.pathname === '/api/engine/v2/assets' &&
-        (url.searchParams.get('type_id') ?? '').startsWith('landing-readonly-type-'), []);
-    await get((url) => url.pathname === '/api/staff/v1/calendars' &&
-        [...url.searchParams.keys()].length === 0, []);
-}
-
-
-
 
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 const CATEGORIES = [
-    { id: 'codex-explore-lockers', name: '_LOCKERS_', hidden: true },
-    { id: 'codex-explore-parking', name: '_PARKING_', hidden: true },
-    { id: 'codex-explore-desks', name: '_DESKS_', hidden: true },
-    { id: 'codex-explore-catering', name: '_CATERING_', hidden: true },
+    { id: 'e2e-explore-lockers', name: '_LOCKERS_', hidden: true },
+    { id: 'e2e-explore-parking', name: '_PARKING_', hidden: true },
+    { id: 'e2e-explore-desks', name: '_DESKS_', hidden: true },
+    { id: 'e2e-explore-catering', name: '_CATERING_', hidden: true },
 ];
 const TYPES: Record<string, { id: string; name: string }[]> = {
-    'codex-explore-lockers': [
-        { id: 'codex-explore-locker-banks', name: '_LOCKER_BANKS_' },
-        { id: 'codex-explore-lockers', name: '_LOCKERS_' },
+    'e2e-explore-lockers': [
+        { id: 'e2e-explore-locker-banks', name: '_LOCKER_BANKS_' },
+        { id: 'e2e-explore-lockers', name: '_LOCKERS_' },
     ],
-    'codex-explore-parking': [
-        { id: 'codex-explore-parking-spaces', name: '_PARKING_SPACES_' },
-        { id: 'codex-explore-parking-users', name: '_PARKING_USERS_' },
-        { id: 'codex-explore-parking-fleet', name: '_PARKING_FLEET_VEHICLES_' },
+    'e2e-explore-parking': [
+        { id: 'e2e-explore-parking-spaces', name: '_PARKING_SPACES_' },
+        { id: 'e2e-explore-parking-users', name: '_PARKING_USERS_' },
+        { id: 'e2e-explore-parking-fleet', name: '_PARKING_FLEET_VEHICLES_' },
     ],
-    'codex-explore-desks': [{ id: 'codex-explore-desks-type', name: '_DESKS_' }],
-    'codex-explore-catering': [],
+    'e2e-explore-desks': [{ id: 'e2e-explore-desks-type', name: '_DESKS_' }],
+    'e2e-explore-catering': [],
 };
 const TYPE_IDS = Object.values(TYPES).flat().map((type) => type.id);
 const BASE: Settings = {

@@ -1,51 +1,30 @@
-import type { ConsoleMessage, Page, Route, WebSocketRoute } from '@playwright/test';
+import type { Page, Route, WebSocketRoute } from '@playwright/test';
 import { useSettings } from '../../../../../e2e/support/room/room.settings';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-// Setting: explore.show_legend (docs/settings/workplace.md).
-// Coverage: 1 unique setting, 2 scenarios.
-// explore.show_legend and explore.legend
-// (libs/explore/src/lib/explore-map-view.component.ts):
-// `@if (show_legend() && legend().length)` renders a [legend] panel; more than
-// three [label, colour] pairs give a collapsed toggle button, three or fewer an
-// <h3>. It depends on no map, level or WebSocket data. Nothing is clicked except
-// the legend's own collapse toggle (UI state only).
-//
-// Opening /#/explore otherwise has side effects that are answered in the browser:
-//  - ExploreSpacesService binds every room the level lists (systems?zone_id&limit=50)
-//    -> that list is served empty, so no room binding is attempted.
-//  - ExploreLockersService and ParkingService (via ExploreParkingService) resolve
-//    hidden asset categories/types and POST/PUT when a GET finds none or a type
-//    sits in another category (locker-assets.fn.ts, parking-assets.fn.ts).
-//    Every module shares GET asset_categories?hidden=true&limit=500, so one
-//    response carries all hidden categories, and each types GET returns
-//    matching types with the right category_id. Their asset lists are empty.
-//  - EventFormService.newForm reads the calendar provider -> served empty.
-//  - Topbar global search is switched off (app.global_search false).
-type Settings = Record<string, unknown>;
+import { isAppError, isDevServerSocket, isLocalControlSocket, redact, type Settings } from '../support/settings-harness';
 type DebugWindow = Window & { setting?: (key: string) => unknown };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 const CATEGORIES = [
-    { id: 'e2e-draft-cat-lockers', name: '_LOCKERS_', hidden: true },
-    { id: 'e2e-draft-cat-parking', name: '_PARKING_', hidden: true },
-    { id: 'e2e-draft-cat-desks', name: '_DESKS_', hidden: true },
-    { id: 'e2e-draft-cat-catering', name: '_CATERING_', hidden: true },
+    { id: 'e2e-settings-cat-lockers', name: '_LOCKERS_', hidden: true },
+    { id: 'e2e-settings-cat-parking', name: '_PARKING_', hidden: true },
+    { id: 'e2e-settings-cat-desks', name: '_DESKS_', hidden: true },
+    { id: 'e2e-settings-cat-catering', name: '_CATERING_', hidden: true },
 ];
 const TYPES: Record<string, { id: string; name: string }[]> = {
-    'e2e-draft-cat-lockers': [
-        { id: 'e2e-draft-type-locker-banks', name: '_LOCKER_BANKS_' },
-        { id: 'e2e-draft-type-lockers', name: '_LOCKERS_' },
+    'e2e-settings-cat-lockers': [
+        { id: 'e2e-settings-type-locker-banks', name: '_LOCKER_BANKS_' },
+        { id: 'e2e-settings-type-lockers', name: '_LOCKERS_' },
     ],
-    'e2e-draft-cat-parking': [
-        { id: 'e2e-draft-type-parking-spaces', name: '_PARKING_SPACES_' },
-        { id: 'e2e-draft-type-parking-users', name: '_PARKING_USERS_' },
-        { id: 'e2e-draft-type-parking-fleet', name: '_PARKING_FLEET_VEHICLES_' },
+    'e2e-settings-cat-parking': [
+        { id: 'e2e-settings-type-parking-spaces', name: '_PARKING_SPACES_' },
+        { id: 'e2e-settings-type-parking-users', name: '_PARKING_USERS_' },
+        { id: 'e2e-settings-type-parking-fleet', name: '_PARKING_FLEET_VEHICLES_' },
     ],
-    'e2e-draft-cat-desks': [{ id: 'e2e-draft-type-desks', name: '_DESKS_' }],
+    'e2e-settings-cat-desks': [{ id: 'e2e-settings-type-desks', name: '_DESKS_' }],
     // No CATERING: type, so no menu.
-    'e2e-draft-cat-catering': [],
+    'e2e-settings-cat-catering': [],
 };
 const TYPE_IDS = Object.values(TYPES).flat().map((type) => type.id);
 const BASE: Settings = {
@@ -56,7 +35,7 @@ const BASE: Settings = {
 };
 
 // ---------------------------------------------------------------- safety audit
-// Same policy as the corrected Batch 2/4/5 drafts. Any binding the page might
+// Any binding the page might
 // still attempt travels over the shell's control socket, which is intercepted
 // and closed before it connects; any other socket fails the test.
 type SafetyAudit = {
@@ -68,30 +47,6 @@ type SafetyAudit = {
     monitoring_errors: string[];
     fixtures: Record<string, number>;
 };
-
-function redact(url: URL) {
-    for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
-    return url.href;
-}
-
-/** Only the Angular dev server's Vite client socket (vite client.mjs:856-865, reload on close :993-998). */
-function isDevServerSocket(url: URL) {
-    const app = new URL(APP_URL);
-    return url.host === app.host && url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:') &&
-        url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token';
-}
-
-function isLocalControlSocket(url: URL) {
-    const app = new URL(APP_URL);
-    const protocol = app.protocol === 'https:' ? 'wss:' : 'ws:';
-    return url.protocol === protocol && url.host === app.host &&
-        url.pathname === '/api/engine/v2/systems/control';
-}
-
-/** ErrorHandler logs console.error('ERROR', e); Angular runtime errors log NG0xxx. */
-function isAppError(message: ConsoleMessage) {
-    return message.type() === 'error' && /^(ERROR\b|NG0\d+)/.test(message.text());
-}
 
 const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
     safetyAudit: [async ({ staffPage }, use, info) => {
@@ -206,7 +161,6 @@ async function openExplore(page: Page, overrides: Settings, audit: SafetyAudit) 
 }
 
 const TWO: [string, string][] = [['E2E Draft Free', '#123456'], ['E2E Draft Busy', '#654321']];
-const FOUR: [string, string][] = [...TWO, ['E2E Draft Pending', '#112233'], ['E2E Draft Closed', '#445566']];
 
 test('explore.show_legend false hides a configured legend', async ({ staffPage, safetyAudit }) => {
     const legend = await openExplore(staffPage, { 'app.explore.show_legend': false, 'app.explore.legend': TWO }, safetyAudit);

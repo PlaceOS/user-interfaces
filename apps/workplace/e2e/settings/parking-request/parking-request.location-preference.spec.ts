@@ -12,12 +12,7 @@ import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
-
-// Test-local only: the shared fixture remains unchanged. Authentication is
-// established by that fixture; these guards cover browser activity afterwards.
-type SafetyAudit = { blocked_http: string[]; unexpected_ws: string[] };
+import { CATEGORIES, type SafetyAudit, type Settings, TYPES } from '../support/settings-harness';
 const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
     safetyAudit: [async ({ staffPage }, use, info) => {
         const context = staffPage.context();
@@ -64,54 +59,37 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
 });
 
 
-
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const REGION = 'codex-parking-region';
-const BUILDING_A = 'codex-parking-building-a';
-const BUILDING_B = 'codex-parking-building-b';
-const BUILDING_C = 'codex-parking-building-c';
-const LEVEL_A = 'codex-parking-level-a';
-const LEVEL_B = 'codex-parking-level-b';
-const LEVEL_C = 'codex-parking-level-c';
+const REGION = 'e2e-request-parking-region';
+const BUILDING_A = 'e2e-request-parking-building-a';
+const BUILDING_B = 'e2e-request-parking-building-b';
+const BUILDING_C = 'e2e-request-parking-building-c';
+const LEVEL_A = 'e2e-request-parking-level-a';
+const LEVEL_B = 'e2e-request-parking-level-b';
+const LEVEL_C = 'e2e-request-parking-level-c';
 const LEVELS = [
     {
         id: LEVEL_A,
         parent_id: BUILDING_A,
-        name: 'Codex Parking Level A',
-        display_name: 'Codex Parking Level A',
+        name: 'E2E Parking Level A',
+        display_name: 'E2E Parking Level A',
         tags: ['level', 'parking'],
     },
     {
         id: LEVEL_B,
         parent_id: BUILDING_B,
-        name: 'Codex Parking Level B',
-        display_name: 'Codex Parking Level B',
+        name: 'E2E Parking Level B',
+        display_name: 'E2E Parking Level B',
         tags: ['level', 'parking'],
     },
     {
         id: LEVEL_C,
         parent_id: BUILDING_C,
-        name: 'Codex Parking Level C',
-        display_name: 'Codex Parking Level C',
+        name: 'E2E Parking Level C',
+        display_name: 'E2E Parking Level C',
         tags: ['level', 'parking'],
     },
 ];
-const CATEGORIES = [
-    { id: 'codex-next20-catering', name: '_CATERING_', hidden: true },
-    { id: 'codex-next20-desks', name: '_DESKS_', hidden: true },
-    { id: 'codex-next20-parking', name: '_PARKING_', hidden: true },
-    { id: 'codex-next20-lockers', name: '_LOCKERS_', hidden: true },
-];
-const TYPES: Record<string, string[]> = {
-    'codex-next20-catering': [],
-    'codex-next20-desks': ['_DESKS_'],
-    'codex-next20-parking': [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    'codex-next20-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
 const REQUEST: Settings = {
     ...READ_ONLY_SETTINGS,
     'app.features': ['parking'],
@@ -139,7 +117,7 @@ const REQUEST: Settings = {
     'app.parking.request_types': null,
     'app.parking.request_shift_options': [
         {
-            id: 'codex-day',
+            id: 'e2e-day',
             name: 'E2E Day Shift',
             start_time: 480,
             end_time: 1020,
@@ -202,7 +180,7 @@ async function organisationFixture(page: Page) {
         () => [
             {
                 id: REGION,
-                name: 'Codex Parking Region',
+                name: 'E2E Parking Region',
                 tags: ['region'],
                 timezone: 'UTC',
             },
@@ -219,8 +197,8 @@ async function organisationFixture(page: Page) {
             {
                 id: BUILDING_A,
                 parent_id: REGION,
-                name: 'Codex Parking Building A',
-                display_name: 'Codex Parking Building A',
+                name: 'E2E Parking Building A',
+                display_name: 'E2E Parking Building A',
                 tags: ['building'],
                 timezone: 'UTC',
                 location: '0,0',
@@ -228,8 +206,8 @@ async function organisationFixture(page: Page) {
             {
                 id: BUILDING_B,
                 parent_id: REGION,
-                name: 'Codex Parking Building B',
-                display_name: 'Codex Parking Building B',
+                name: 'E2E Parking Building B',
+                display_name: 'E2E Parking Building B',
                 tags: ['building'],
                 timezone: 'UTC',
                 location: '40,40',
@@ -237,8 +215,8 @@ async function organisationFixture(page: Page) {
             {
                 id: BUILDING_C,
                 parent_id: REGION,
-                name: 'Codex Parking Building C',
-                display_name: 'Codex Parking Building C',
+                name: 'E2E Parking Building C',
+                display_name: 'E2E Parking Building C',
                 tags: ['building'],
                 timezone: 'UTC',
                 location: '80,80',
@@ -261,7 +239,7 @@ async function organisationFixture(page: Page) {
             url
                 .searchParams.get('parent_ids')!
                 .split(',')
-                .every((id) => id.startsWith('codex-parking-')),
+                .every((id) => id.startsWith('e2e-request-parking-')),
         (url) =>
             Object.fromEntries(
                 url
@@ -299,7 +277,7 @@ async function prepare(page: Page, overrides: Settings) {
             Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
         (url) =>
             TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'codex-next20-type-' + name,
+                id: 'e2e-settings-type-' + name,
                 name,
                 category_id: url.searchParams.get('category_id'),
                 brand: 'PlaceOS',
@@ -310,7 +288,7 @@ async function prepare(page: Page, overrides: Settings) {
         (url) =>
             url.pathname === '/api/engine/v2/assets' &&
             (url.searchParams.get('type_id') ?? '').startsWith(
-                'codex-next20-type-',
+                'e2e-settings-type-',
             ),
         () => [],
     );
@@ -363,13 +341,13 @@ test(
             'app.parking.hide_prefer_toggle': true,
         });
         await expect(
-            root.getByText('Codex Parking Building A', { exact: true }),
+            root.getByText('E2E Parking Building A', { exact: true }),
         ).toBeVisible();
         await expect(
-            root.getByText('Codex Parking Building B', { exact: true }),
+            root.getByText('E2E Parking Building B', { exact: true }),
         ).toBeVisible();
         await expect(
-            root.getByText('Codex Parking Building C', { exact: true }),
+            root.getByText('E2E Parking Building C', { exact: true }),
         ).toBeVisible();
     },
 );
@@ -382,13 +360,13 @@ test(
             'app.parking.hide_prefer_toggle': true,
         });
         await expect(
-            root.getByText('Codex Parking Building A', { exact: true }),
+            root.getByText('E2E Parking Building A', { exact: true }),
         ).toHaveCount(0);
         await expect(
-            root.getByText('Codex Parking Building B', { exact: true }),
+            root.getByText('E2E Parking Building B', { exact: true }),
         ).toBeVisible();
         await expect(
-            root.getByText('Codex Parking Building C', { exact: true }),
+            root.getByText('E2E Parking Building C', { exact: true }),
         ).toBeVisible();
         // default_building is A, which is now hidden. The form's effect moves
         // the active building to the first listed building (B).
@@ -399,9 +377,9 @@ test(
             .getByRole('radiogroup', { name: 'Location Preference', exact: true })
             .getByRole('radio');
         await expect(locations).toHaveCount(2);
-        await expect(locations.filter({ hasText: 'Codex Parking Building B' }))
+        await expect(locations.filter({ hasText: 'E2E Parking Building B' }))
             .toHaveAttribute('aria-checked', 'true');
-        await expect(locations.filter({ hasText: 'Codex Parking Building C' }))
+        await expect(locations.filter({ hasText: 'E2E Parking Building C' }))
             .toHaveAttribute('aria-checked', 'false');
     },
 );
@@ -413,10 +391,10 @@ test(
             'app.parking.hide_prefer_toggle': false,
         });
         await expect(
-            root.getByText('Codex Parking Building A', { exact: true }),
+            root.getByText('E2E Parking Building A', { exact: true }),
         ).toBeVisible();
         await expect(
-            root.getByText('Codex Parking Building B', { exact: true }),
+            root.getByText('E2E Parking Building B', { exact: true }),
         ).toBeVisible();
         await expect(preferToggle(staffPage)).toHaveCount(1);
         await expect(preferToggle(staffPage)).toBeVisible();
@@ -433,10 +411,10 @@ test(
             'app.parking.hide_prefer_toggle': true,
         });
         await expect(
-            root.getByText('Codex Parking Building A', { exact: true }),
+            root.getByText('E2E Parking Building A', { exact: true }),
         ).toBeVisible();
         await expect(
-            root.getByText('Codex Parking Building B', { exact: true }),
+            root.getByText('E2E Parking Building B', { exact: true }),
         ).toBeVisible();
         await expect(preferToggle(staffPage)).toHaveCount(0);
         await expect(
