@@ -1,12 +1,9 @@
 /**
- * The Microsoft 365 tenant the stack's calendar and directory can be backed by.
+ * The Microsoft 365 tenant that backs the stack's calendar and directory.
  *
- * Off unless all three `E2E_O365_*` variables are set when `seed.ts` runs. Off,
- * the tenant row carries placeholder credentials and every calendar-backed route
- * (`/api/staff/v1/events`, `/api/staff/v1/people`) answers 500 at Microsoft; the
- * PlaceOS-native surfaces (desks, lockers, parking, visitors, native room
- * bookings) are unaffected. On, the row carries app-only credentials and those
- * routes answer from the tenant.
+ * `seed.ts` stops unless all three `E2E_O365_*` variables are set. The tenant
+ * row carries them as app-only credentials, and the calendar-backed routes
+ * (`/api/staff/v1/events`, `/api/staff/v1/people`) answer from the tenant.
  *
  * The variables are for the seed only. Specs ask the stack what it was seeded
  * with (`calendarBacked` in `calendar.api.ts`), so they need no secret and cannot
@@ -27,11 +24,22 @@ export const O365 = {
     client_secret: process.env.E2E_O365_CLIENT_SECRET ?? '',
 };
 
-export const CALENDAR_ENABLED = !!(
-    O365.tenant &&
-    O365.client_id &&
-    O365.client_secret
-);
+/** Throws, naming the missing variables, unless all three `E2E_O365_*` are set. */
+export function assertCalendarConfigured() {
+    const missing = Object.entries({
+        E2E_O365_TENANT: O365.tenant,
+        E2E_O365_CLIENT_ID: O365.client_id,
+        E2E_O365_CLIENT_SECRET: O365.client_secret,
+    })
+        .filter(([, value]) => !value)
+        .map(([name]) => name);
+    if (missing.length) {
+        throw new Error(
+            `e2e seed needs the Microsoft 365 sandbox credentials; missing ${missing.join(', ')}. ` +
+                'Set them in e2e/.env or the environment (see e2e/README.md).',
+        );
+    }
+}
 
 /** The tenant row's name when the seed backed it with the tenant above. */
 export const CALENDAR_TENANT_NAME = 'E2E Microsoft 365';

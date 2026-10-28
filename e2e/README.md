@@ -56,16 +56,15 @@ search-ingest, frontend-loader, auth, rest-api, staff-api, core, source,
 mosquitto, nginx, init. Dropped from PlaceOS/local: edge, triggers, dispatch,
 influx, chronograf, minio and the loki/grafana profile.
 
-The calendar and directory can be backed by the PlaceOS Microsoft 365 sandbox
+The calendar and directory are backed by the PlaceOS Microsoft 365 sandbox
 tenant. Set `E2E_O365_TENANT`, `E2E_O365_CLIENT_ID` and `E2E_O365_CLIENT_SECRET`
-before `up.sh` (CI takes them from the repository variables and secret of the
-same names) and the seed writes app-only credentials to the tenant row, creates
-a local admin whose address is a mailbox there (`roleFor('calendar')`), and
-`/api/staff/v1/events` and `/api/staff/v1/people` answer from the tenant.
-Without them the tenant row carries placeholders, those routes answer 500 at
-Microsoft, and the specs that need them skip. Only the seed reads the variables:
-specs ask the stack (`calendarBacked` in `e2e/support/calendar/calendar.api.ts`).
-See `e2e/support/calendar/calendar.env.ts`.
+in `e2e/.env` or the environment before `up.sh` (CI takes them from the
+repository variables and secret of the same names); the seed stops with an error
+naming whichever is missing. It writes app-only credentials to the tenant row,
+creates a local admin whose address is a mailbox there (`roleFor('calendar')`),
+and `/api/staff/v1/events` and `/api/staff/v1/people` answer from the tenant.
+Only the seed reads the variables: specs ask the stack (`calendarBacked` in
+`e2e/support/calendar/calendar.api.ts`). See `e2e/support/calendar/calendar.env.ts`.
 
 core runs real drivers from PlaceOS/drivers, pinned to a commit in
 `e2e/support/drivers/drivers.env.ts`. It compiles nothing itself: binaries come
@@ -287,27 +286,19 @@ breaks, and the error looks nothing like the cause.
 It bootstraps through the `backoffice` application, which `init` always creates —
 otherwise registering an OAuth app would require a token that requires an OAuth app.
 
-### The tenant credentials are placeholders on purpose
+### Which routes call Microsoft 365
 
 staff-api only dereferences tenant credentials when it instantiates a
-PlaceCalendar client, which happens on the calendar-backed routes and nowhere else.
-So a placeholder tenant unblocks the **entire PlaceOS-native booking surface** —
-desks, lockers, parking, visitors and **rooms** — with zero external calls. Verified:
+PlaceCalendar client, which happens on the calendar-backed routes and nowhere else:
 
 ```
-GET /bookings?type=desk|locker|parking|visitor|room   -> 200   (placeholder tenant)
-GET /calendars, GET /events                           -> 500   (need real credentials)
+GET /bookings?type=desk|locker|parking|visitor|room   -> PlaceOS only
+GET /calendars, GET /events, GET /people              -> the sandbox tenant
 ```
 
-**The room CALENDAR path is the only surface that needs a real Microsoft/Google
-tenant — the room itself is not.** With `app.events.use_bookings = true` the meeting
-form saves an ordinary `room` booking through `/bookings`, which is how
-`apps/workplace/e2e/local/room-*.spec.ts` runs locally (see
-[`ROOM_E2E_HANDOVER.md`](ROOM_E2E_HANDOVER.md)). Anything genuinely calendar-backed
-stays opt-in, must live under a separate project, and must never be part of the PR
-gate — wiring real credentials in would make the suite depend on an external service,
-which is the one thing it is designed not to do. A green room run says nothing about
-the calendar path.
+Room specs that set `app.events.use_bookings = true` save an ordinary `room`
+booking through `/bookings` (see [`ROOM_E2E_HANDOVER.md`](ROOM_E2E_HANDOVER.md)),
+so they exercise the PlaceOS side of rooms, not the calendar path.
 
 ## CI
 
@@ -375,10 +366,9 @@ failure that looked like something else entirely.
   demonstrably help. CI's `retries: 2` absorbs it and reports the test as `flaky`,
   which is the right outcome: the gate stays usable and the instability stays
   visible. Worth fixing in staff-api on its own merits.
-- **Calendar routes DO reach the internet.** With the placeholder tenant,
-  `/calendars` and `/events` call `login.microsoftonline.com` and fail with
-  `AADSTS900023`. So "zero external calls" is true of the routes these specs
-  exercise, not of the whole app — the boot spec logs those 500s as expected noise.
+- **Calendar routes reach the internet.** `/calendars`, `/events` and `/people`
+  call `login.microsoftonline.com` and Graph for the sandbox tenant, so a run
+  needs those hosts to be reachable.
 
 ## Conventions
 
