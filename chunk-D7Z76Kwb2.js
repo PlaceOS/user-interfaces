@@ -1,4 +1,0 @@
-import{Pi as y}from"./chunk-BF3rhqXc.js";import{b as Ft}from"./chunk-BP03T5Oe.js";import{d as ee}from"./chunk-MgYmwTr8.js";import{t as re}from"./chunk-yaQoZgj0.js";var s=async a=>{if(!a?.hasUnsavedChanges())return!0;let o=await re({title:Ft(`APP.CONCIERGE.UNSAVED_CHANGES_TITLE`),content:Ft(`APP.CONCIERGE.UNSAVED_CHANGES_MSG`),icon:{content:`warning`},confirm_text:Ft(`APP.CONCIERGE.UNSAVED_CHANGES_DISCARD`)},y(ee));return o.close(),o.reason===`done`};export{s as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="4b9adb10-f39b-5a52-8810-6f23a640e133")}catch(e){}}();
-//# debugId=4b9adb10-f39b-5a52-8810-6f23a640e133
-//# sourceMappingURL=chunk-D7Z76Kwb2.js.map
