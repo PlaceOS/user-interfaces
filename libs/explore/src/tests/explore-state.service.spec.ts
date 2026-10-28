@@ -207,4 +207,21 @@ describe('ExploreStateService', () => {
             text: { display: 'none' },
         });
     });
+
+    it('should list groups locked off by settings', () => {
+        let disable: string | undefined;
+        (spectator.inject(SettingsService) as any).get = vi.fn(
+            (name: string) =>
+                name === 'app.explore.disable' ? disable : undefined,
+        );
+        expect(spectator.service.locked_groups()).toEqual([]);
+
+        disable = 'devices, sensors';
+        settings_overrides.set([{ explore: { disable } }]);
+
+        expect(spectator.service.locked_groups()).toEqual([
+            'devices',
+            'sensors',
+        ]);
+    });
 });

@@ -15,6 +15,7 @@ import { SpacesService } from 'libs/events/src/lib/spaces.service';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreLockersService } from '../lib/explore-lockers.service';
@@ -43,6 +44,7 @@ const fake_snackbar = {
 
 describe('ExploreMapViewComponent', () => {
     let spectator: SpectatorRouting<ExploreMapViewComponent>;
+    const locked_groups = signal<string[]>([]);
     const createComponent = createRoutingFactory({
         component: ExploreMapViewComponent,
         declarations: [
@@ -83,6 +85,7 @@ describe('ExploreMapViewComponent', () => {
                 map_actions: signal([]),
                 map_labels: signal([]),
                 message: signal(''),
+                locked_groups,
                 reset: vi.fn(),
                 setLevel: vi.fn(),
                 setFeatures: vi.fn(),
@@ -113,6 +116,7 @@ describe('ExploreMapViewComponent', () => {
             spectator.component.hide_zones.set(false);
             spectator.component.hide_devices.set(true);
             spectator.component.hide_sensors.set(true);
+            locked_groups.set([]);
             spectator.inject(ExploreStateService).setFeatures.mockReset();
         }
     });
@@ -183,6 +187,20 @@ describe('ExploreMapViewComponent', () => {
         spectator.component.hide_zones.set(false);
         spectator.component.hide_devices.set(true);
         spectator.component.hide_sensors.set(true);
+    });
+
+    it('should hide toggles for groups locked off by settings', () => {
+        spectator.component.hide_devices.set(false);
+        spectator.component.hide_sensors.set(false);
+        locked_groups.set(['devices']);
+        spectator.detectChanges();
+
+        const labels = spectator
+            .queryAll(SettingsToggleComponent)
+            .map((toggle) => toggle.label());
+        expect(labels).not.toContain('Show Devices');
+        expect(labels).toContain('Show Sensors');
+        expect(spectator.component.toggle_count()).toBe(2);
     });
 
     it('should handle level changes', () => {

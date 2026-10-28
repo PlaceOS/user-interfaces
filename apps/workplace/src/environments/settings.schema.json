@@ -773,7 +773,7 @@
                 },
                 "disable": {
                     "type": "array",
-                    "description": "Map feature groups to disable for every map view. A comma-separated string is also accepted",
+                    "description": "Map feature groups to disable for every map view. The explore map also hides the Areas, Devices and Sensors toggles of these groups. A comma-separated string is also accepted",
                     "items": { "type": "string" }
                 },
                 "disable_actions": {
