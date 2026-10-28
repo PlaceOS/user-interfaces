@@ -9,6 +9,8 @@ import { VERSION } from './version';
 const DEFAULT_TRACES_SAMPLE_RATE = 0.1;
 /** Replay records no sessions unless the app sets a sample rate */
 const DEFAULT_REPLAYS_SAMPLE_RATE = 0;
+/** Parts of header and URL parameter names that Sentry 10 kept from Sentry */
+const PII_KEYS = ['forwarded', '-ip', 'remote-', 'via', '-user'];
 
 /** Set once `initSentry` has started, so Sentry starts only one time */
 let _started = false;
@@ -187,8 +189,18 @@ export async function initSentry(
             // Trace headers go only to the PlaceOS API on the same origin.
             // Sentry checks the path of same-origin requests against these.
             tracePropagationTargets: [/^\/api\//],
+            // Sentry 11 collects more by default. These are the Sentry 10
+            // defaults, which send no bodies, cookies or user details.
+            dataCollection: {
+                userInfo: false,
+                cookies: false,
+                httpHeaders: { deny: PII_KEYS },
+                httpBodies: [],
+                urlQueryParams: { deny: PII_KEYS },
+            },
             beforeSend: scrubEvent,
-            beforeSendTransaction: scrubEvent,
+            // Sentry streams spans, so spans do not go through `beforeSend`
+            beforeSendSpan: (span) => scrubSecrets(span),
         });
         _trace_service = new Sentry.TraceService(router);
         // `LazySentryErrorHandler` already logs to the console
