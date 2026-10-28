@@ -1,6 +1,6 @@
-// Coverage: 1 unique setting, 2 scenarios. Local execution: 2/2 PASS (2026-10-22 15:26 run).
-// Setting: css_variables_dark (docs/settings/workplace.md:12).
-// Consumer: libs/common/src/lib/settings.service.ts:42-50, 315-340.
+// Coverage: 1 unique setting, 2 scenarios.
+// Setting: css_variables_dark (docs/settings/workplace.md).
+// Consumer: libs/common/src/lib/settings.service.ts.
 // The dark overrides are emitted as a `body.theme-dark` rule in the shared
 // `<style id="css-var-overrides">`. The dark-mode toggle itself saves a user
 // preference (a write), so this test only applies the documented theme class
@@ -51,7 +51,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
         } finally {
             await context.close();
             await Promise.all(closing);
-            await info.attach('general-css-variables-dark-safety-audit', {
+            await info.attach('settings-safety-audit', {
                 body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
             });
             expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({
@@ -146,7 +146,9 @@ test(
     'css_variables_dark emits a dark-theme rule and the property resolves',
     async ({ staffPage }) => {
         await openLanding(staffPage, {
-            'app.css_variables_dark': { 'color-secondary': '#123456' },
+            // `secondary` is a real theme variable (shared/styles/application.css
+            // :root and .theme-dark), so the override must beat the dark default.
+            'app.css_variables_dark': { 'secondary': '#123456' },
         });
         const style = staffPage.locator('style#css-var-overrides');
         await expect(style).toHaveCount(1);
@@ -154,18 +156,25 @@ test(
         // content directly; retain the actual computed-property check below.
         const stylesheet = () => style.evaluate((element) => element.textContent ?? '');
         await expect.poll(stylesheet).toContain('body.theme-dark');
-        await expect.poll(stylesheet).toContain('--color-secondary: #123456');
+        await expect.poll(stylesheet).toContain('--secondary: #123456');
+        // Computed --secondary on body, with and without the theme class.
         const resolved = await staffPage.evaluate(() => {
             const was_dark = document.body.classList.contains('theme-dark');
-            document.body.classList.add('theme-dark');
+            const read = () => getComputedStyle(document.body).getPropertyValue('--secondary').trim();
             try {
-                return getComputedStyle(document.body)
-                    .getPropertyValue('--color-secondary').trim();
+                document.body.classList.add('theme-dark');
+                const dark = read();
+                document.body.classList.remove('theme-dark');
+                const light = read();
+                return { dark, light };
             } finally {
-                if (!was_dark) document.body.classList.remove('theme-dark');
+                document.body.classList.toggle('theme-dark', was_dark);
             }
         });
-        expect(resolved).toBe('#123456');
+        expect(resolved.dark, 'dark theme uses the override').toBe('#123456');
+        // The light theme keeps the stylesheet value (present, not the override).
+        expect(resolved.light, 'light theme --secondary is defined').not.toBe('');
+        expect(resolved.light, 'light theme does not get the dark override').not.toBe('#123456');
     },
 );
 
@@ -181,6 +190,6 @@ test(
         // Establish stylesheet readiness before checking absence, so an empty
         // or uninitialised element cannot make this scenario pass.
         await expect.poll(stylesheet).toContain('body.theme-dark');
-        await expect.poll(stylesheet).not.toContain('--color-secondary');
+        await expect.poll(stylesheet).not.toContain('--secondary');
     },
 );

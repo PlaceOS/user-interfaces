@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: events.use_bookings (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -255,7 +257,7 @@ async function openPreparedRoom(page:Page,audit:Audit,overrides:Settings,view:nu
 }
 // EventFormService availability loader branches between native bookings and calendar availability.
 for(const native of [false,true]){
- test('remaining draft: events.use_bookings '+native+' selects the read-only availability backend',async({staffPage,audit})=>{
+ test('events.use_bookings '+native+' selects the read-only availability backend',async({staffPage,audit})=>{
   const root=await openPreparedRoom(staffPage,audit,{'app.events.use_bookings':native},1);
   await expect(root.locator('meeting-flow-space-list')).toBeVisible();
   await expect.poll(()=>audit.fixtures[native?'empty native room bookings':'calendar availability']??0).toBeGreaterThan(0);

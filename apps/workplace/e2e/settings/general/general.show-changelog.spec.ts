@@ -1,6 +1,5 @@
-// Phase 2 Group 1: migrated accepted scenario from local/wpa-settings-batch35.spec.ts.
-// Source SHA-256: f2068e77c5a986bfd9c5c8dddf116355672b9cc00aad3fefadbf5cbbf7654f36
-// Original title and functional assertions retained; runtime revalidation pending.
+// Setting: show_changelog (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 1 scenario (button and plain text checked in one test).
 import type { BrowserContext, Page } from '@playwright/test';
 import { APP_URL, BACKEND_URL, assertLocalOnly, staffEmail } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
@@ -129,7 +128,7 @@ const test = readOnlyTest.extend<{
             await Promise.all(closing);
             contextMonitors.delete(audit);
             try {
-                await info.attach('legacy-settings-group1-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -221,7 +220,7 @@ async function controls(page: Page) {
 }
 
 // UserControls only opens the drawer; no version/changelog action is clicked.
-test('WPA Batch 35: show_changelog changes the version control between a button and plain text', async ({
+test('show_changelog changes the version control between a button and plain text', async ({
     isolated,
 }) => {
     for (const enabled of [true, false]) {

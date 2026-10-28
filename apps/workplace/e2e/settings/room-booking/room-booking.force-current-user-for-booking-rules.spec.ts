@@ -2,8 +2,7 @@
  * User-owned Setting: events.force_current_user_for_booking_rules
  * Exact runtime key: app.events.force_current_user_for_booking_rules
  * Coverage: 1 unique Setting / 2 scenarios
- * Status: PASS (2/2, 2026-10-27, browser-only synthetic fixtures; --no-deps,
- *   1 worker; --repeat-each=3 6/6). No booking reached any backend.
+ * Docs: docs/settings/workplace.md. No booking reaches any backend.
  *
  * Two independent submissions keep the SAME delegate as saved host and organiser.
  * True resolves rule checks using signed-in staff (no delegate UserPipe GET).
@@ -385,7 +384,7 @@ const test = base.extend<{ isolated: { page: Page; audit: Audit } }>({
             catch { audit.monitoring.push('context close failed'); }
             while (pending.size) await Promise.all([...pending]);
             try {
-                await info.attach('browser-meeting-submission-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {

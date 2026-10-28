@@ -388,7 +388,7 @@ const test = base.extend<{ isolated: { page: Page; audit: Audit } }>({
             catch { audit.monitoring.push('context close failed'); }
             while (pending.size) await Promise.all([...pending]);
             try {
-                await info.attach('browser-meeting-submission-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {

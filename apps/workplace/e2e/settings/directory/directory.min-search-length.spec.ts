@@ -4,6 +4,8 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
+// Setting: users.min_search_length (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // Consumers: directory/user-list.component.ts:
 // min_search_length gates its 400ms search (`query.length < min` -> no
 // search); show_avatars (show_image) gates a-user-avatar.
@@ -102,7 +104,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('batch-1-directory-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -150,7 +152,9 @@ async function openDirectory(page: Page, overrides: Record<string, unknown>, aud
     await expect(page.locator('global-loading')).toHaveCount(1);
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
     await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
-    const input = root.locator('input[placeholder="Search for a person..."]');
+    // The only input in the directory search field (user-list.component.ts).
+    // The placeholder is translated and its wording changed, so it is not used.
+    const input = root.locator('mat-form-field[overlay] input');
     await expect(input).toBeVisible();
     for (const [key, value] of Object.entries(settings)) {
         await expect.poll(() => page.evaluate((key) =>
@@ -160,7 +164,7 @@ async function openDirectory(page: Page, overrides: Record<string, unknown>, aud
 }
 
 for (const minimum of [QUERY.length, QUERY.length + 1]) {
-    test(`WPA draft: users.min_search_length ${minimum} gates directory lookup at its boundary`, async ({ staffPage, safetyAudit }) => {
+    test(`users.min_search_length ${minimum} gates directory lookup at its boundary`, async ({ staffPage, safetyAudit }) => {
         await staffPage.clock.install();
         const { root, input, requests } = await openDirectory(staffPage, { 'app.users.min_search_length': minimum }, safetyAudit);
         await staffPage.clock.pauseAt(new Date(await staffPage.evaluate(() => Date.now()) + 1000));
@@ -170,7 +174,10 @@ for (const minimum of [QUERY.length, QUERY.length + 1]) {
         // actually run; absence is then not a transient check.
         await staffPage.clock.runFor(500);
         await expect(root.locator('div[user]')).toHaveCount(0);
-        await expect(root).toContainText('Type above to search for users');
+        // Below-minimum empty state: the template shows arrow_upward only when
+        // the search is shorter than min_search_length (close otherwise).
+        await expect(root.locator('main icon', { hasText: /^\s*arrow_upward\s*$/ })).toHaveCount(1);
+        await expect(root.locator('main icon', { hasText: /^\s*close\s*$/ })).toHaveCount(0);
         expect(requests).toEqual([]);
         // Zoneless change detection is timer-scheduled, so a paused clock would
         // freeze rendering once the lookup resolves. Resume real time first.

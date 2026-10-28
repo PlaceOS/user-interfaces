@@ -1,7 +1,5 @@
-// Phase 2 migration: historically accepted; relocated runtime validation PENDING.
-// Covered active keys: menu_embeds
-// Scenario owners: S57, S58. Shared scenarios are registered once.
-// Historical evidence: reports/wpa-settings-reference/preparation/batch34-file-only-execution.json
+// Setting: menu_embeds (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 import type { Browser as MigrationBrowser, BrowserContext as MigrationContext, BrowserContextOptions as MigrationContextOptions, Page as MigrationPage, TestInfo as MigrationTestInfo } from '@playwright/test';
 import { expect as migrationExpect, test as migrationBase } from '../../../../../e2e/support/fixtures';
 import { APP_URL as MIGRATION_APP_URL, BACKEND_URL as MIGRATION_BACKEND_URL, assertLocalOnly as migrationAssertLocalOnly, staffEmail as migrationStaffEmail } from '../../../../../e2e/support/env';
@@ -171,7 +169,7 @@ const migrationAuditFixture: { migrationAudit: [
             }
             migrationActive = undefined;
             try {
-                await info.attach('legacy-settings-migration-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -191,8 +189,6 @@ const migrationReadOnlyTest = migrationReadOnlyBase.extend<{ migrationAudit: Mig
 migrationTest.use({ storageState: undefined });
 migrationReadOnlyTest.use({ storageState: undefined });
 
-// Source: apps/workplace/e2e/local/wpa-settings-batch34.spec.ts
-// SHA-256: ad0d524dae74119de0e7371d4c7fdb1ece1009c0e969729f6ed47cad09f7cdc9
 {
 const base = migrationTest;
 type Settings = Record<string, unknown>;
@@ -345,7 +341,7 @@ async function core(page: Page) {
     await expect(page.locator('topbar a[name="nav-logo"]')).toBeVisible();
 }
 
-test('WPA Batch 34: internal menu embeds point at the local embedded route and empty list removes them', async ({
+test('menu_embeds internal items point at the local embedded route and empty list removes them', async ({
     isolated,
 }) => {
     const item = {
@@ -368,7 +364,7 @@ test('WPA Batch 34: internal menu embeds point at the local embedded route and e
     await core(empty);
 });
 
-test('WPA Batch 34: external menu embeds expose a safe new-tab link without navigation', async ({
+test('menu_embeds external items expose a safe new-tab link without navigation', async ({
     isolated,
 }) => {
     const item = {

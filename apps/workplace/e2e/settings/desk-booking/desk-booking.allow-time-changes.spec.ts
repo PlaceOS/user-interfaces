@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: desks.allow_time_changes (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 1 scenario.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -270,20 +272,14 @@ async function durationMenu(page: Page, details: ReturnType<Page['locator']>) {
     await expect(options.first()).toBeVisible();return options;
 }
 // allow_all_day = allow_time_changes && (desks.allow_all_day || bookings.allow_all_day).
-for (const enabled of [false,true]) {
- test('desk settings: desks.allow_time_changes '+enabled+' gates the all-day checkbox',async ({staffPage,audit})=>{
-  const {details}=await openDesk(staffPage,audit,{'app.desks.allow_all_day':true,'app.desks.allow_time_changes':enabled});
-  const checkbox=details.locator('mat-checkbox input[type="checkbox"]');
-  await expect(checkbox).toHaveCount(enabled?1:0);
-  await expect(details.locator('time-field[name="time"] button[time-field]')).toBeEnabled();
-  await expect(details.locator('duration-field button[duration-field]')).toBeEnabled();
-  if(enabled){
-   await expect(checkbox).not.toBeChecked();await checkbox.check();await expect(checkbox).toBeChecked();
-   await expect(details.locator('time-field, duration-field')).toHaveCount(0);
-   await checkbox.uncheck();await expect(details.locator('time-field[name="time"] button[time-field]')).toBeEnabled();
-  }
-  // Current source retains timed controls when allow_time_changes is false;
-  // this setting gates the all-day option rather than disabling those controls.
-  await untouchedDesk(staffPage);
- });
-}
+// The true case (allow_all_day true, allow_time_changes true) is covered by
+// desk-booking.allow-all-day.spec.ts, so only false is tested here.
+test('desk settings: desks.allow_time_changes false gates the all-day checkbox',async ({staffPage,audit})=>{
+ const {details}=await openDesk(staffPage,audit,{'app.desks.allow_all_day':true,'app.desks.allow_time_changes':false});
+ await expect(details.locator('mat-checkbox input[type="checkbox"]')).toHaveCount(0);
+ await expect(details.locator('time-field[name="time"] button[time-field]')).toBeEnabled();
+ await expect(details.locator('duration-field button[duration-field]')).toBeEnabled();
+ // Current source retains timed controls when allow_time_changes is false;
+ // this setting gates the all-day option rather than disabling those controls.
+ await untouchedDesk(staffPage);
+});

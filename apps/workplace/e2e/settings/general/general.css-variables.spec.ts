@@ -1,7 +1,5 @@
-// Phase 2 migration: historically accepted; relocated runtime validation PENDING.
-// Covered active keys: css_variables
-// Scenario owners: S61, S62. Shared scenarios are registered once.
-// Historical evidence: reports/wpa-settings-reference/preparation/run35-observed-results.json; reports/wpa-settings-reference/preparation/run35-followup-verified/decoded.json
+// Setting: css_variables (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 import type { Browser as MigrationBrowser, BrowserContext as MigrationContext, BrowserContextOptions as MigrationContextOptions, Page as MigrationPage, TestInfo as MigrationTestInfo } from '@playwright/test';
 import { expect as migrationExpect, test as migrationBase } from '../../../../../e2e/support/fixtures';
 import { APP_URL as MIGRATION_APP_URL, BACKEND_URL as MIGRATION_BACKEND_URL, assertLocalOnly as migrationAssertLocalOnly, staffEmail as migrationStaffEmail } from '../../../../../e2e/support/env';
@@ -171,7 +169,7 @@ const migrationAuditFixture: { migrationAudit: [
             }
             migrationActive = undefined;
             try {
-                await info.attach('legacy-settings-migration-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -191,14 +189,13 @@ const migrationReadOnlyTest = migrationReadOnlyBase.extend<{ migrationAudit: Mig
 migrationTest.use({ storageState: undefined });
 migrationReadOnlyTest.use({ storageState: undefined });
 
-// Source: apps/workplace/e2e/local/wpa-settings-batch35.spec.ts
-// SHA-256: f2068e77c5a986bfd9c5c8dddf116355672b9cc00aad3fefadbf5cbbf7654f36
 {
 const base = migrationTest;
 type Settings = Record<string, unknown>;
 
 interface Isolated {
-    open(overrides: Settings, route?: string): Promise<Page>;
+    /** `prepare` runs on the new page before navigation (browser-only routes). */
+    open(overrides: Settings, route?: string, prepare?: (page: Page) => Promise<void>): Promise<Page>;
 }
 
 const TIMEZONE = 'Etc/UTC';
@@ -212,7 +209,7 @@ const test = base.extend<{ isolated: Isolated }>({
         const failures: unknown[] = [];
         try {
             await use({
-                open: async (overrides, route = ROUTE) => {
+                open: async (overrides, route = ROUTE, prepare) => {
                     const context = await migrationNewContext.bind(null, browser)({
                         storageState: auth,
                         baseURL: APP_URL,
@@ -261,6 +258,7 @@ const test = base.extend<{ isolated: Isolated }>({
                     await page.addInitScript(() =>
                         localStorage.setItem('APP.locale', 'en-AU'),
                     );
+                    if (prepare) await prepare(page);
                     await page.goto(route);
                     const result = await observed;
                     if ('error' in result) throw result.error;
@@ -347,7 +345,7 @@ async function core(page: Page) {
     ).toBeVisible();
 }
 
-test('WPA Batch 35: css_variables supplies multiple computed theme values in an isolated page', async ({
+test('css_variables supplies multiple computed theme values in an isolated page', async ({
     isolated,
 }) => {
     const page = await isolated.open({
@@ -367,27 +365,84 @@ test('WPA Batch 35: css_variables supplies multiple computed theme values in an 
     await core(page);
 });
 
-test('WPA Batch 35: empty css_variables replaces the configured override map without leaking contexts', async ({
+/** Brand value served as an org-level css_variables setting, in this browser only. */
+const ZONE_BRAND = '#0a1b2c';
+
+/**
+ * Serve the org's global `settings` metadata (OrganisationService.loadSettings ->
+ * bulk metadata 'settings' for the org zone, an override layer below the local
+ * PLACEOS.setting_overrides) with css_variables { brand-500: ZONE_BRAND } added
+ * to each zone's details, in this browser only. The real GET runs first and its
+ * other details are kept. The org metadata cache is cleared so the response is
+ * used. Non-GET requests fall through to the read-only guards.
+ */
+async function zoneCssVariables(page: Page) {
+    await page.addInitScript(() => {
+        for (const store of [localStorage, sessionStorage]) {
+            for (const key of Object.keys(store)) {
+                if (key.startsWith('PLACEOS.org')) store.removeItem(key);
+            }
+        }
+    });
+    const origins = [new URL(APP_URL).origin, new URL(BACKEND_URL).origin];
+    await page.route(
+        (url) =>
+            origins.includes(url.origin) &&
+            url.pathname === '/api/engine/v2/metadata/settings/bulk',
+        async (route) => {
+            if (route.request().method() !== 'GET') return route.fallback();
+            const url = new URL(route.request().url());
+            const ids = (url.searchParams.get('parent_ids') ?? '')
+                .split(',')
+                .filter(Boolean);
+            const response = await route.fetch({ maxRedirects: 0 });
+            const real: Record<string, { details?: Record<string, unknown> }> =
+                response.ok() ? await response.json() : {};
+            await route.fulfill({
+                status: 200,
+                json: Object.fromEntries(
+                    ids.map((id) => [
+                        id,
+                        {
+                            ...(real[id] ?? {}),
+                            details: {
+                                ...(real[id]?.details ?? {}),
+                                css_variables: { 'brand-500': ZONE_BRAND },
+                            },
+                        },
+                    ]),
+                ),
+            });
+        },
+    );
+}
+
+// The org settings supply css_variables; the control page (no local override)
+// shows it, and the empty local override must replace it. If the app ignored
+// the empty map, the org value would still apply and this test fails.
+test('css_variables empty map replaces the configured override map without leaking contexts', async ({
     isolated,
 }) => {
-    const configured = await isolated.open({
-        'app.css_variables': { 'brand-500': '#123456' },
-    });
     const brand = (page: Page) =>
         page
             .locator('body')
             .evaluate((body) =>
                 getComputedStyle(body).getPropertyValue('--brand-500').trim(),
             );
-    await expect.poll(() => brand(configured)).toBe('#123456');
-    const empty = await isolated.open({ 'app.css_variables': {} });
+    const configured = await isolated.open({}, ROUTE, zoneCssVariables);
+    await expect.poll(() => brand(configured)).toBe(ZONE_BRAND);
+    const empty = await isolated.open(
+        { 'app.css_variables': {} },
+        ROUTE,
+        zoneCssVariables,
+    );
     // Playwright text matching excludes STYLE elements; read the DOM text directly.
     await expect
         .poll(() => empty.locator('style#css-var-overrides').textContent())
         // develop now also writes an (empty) dark-theme rule for css_variables_dark.
         .toMatch(/^body\s*\{\s*\}(\s*body\.theme-dark\s*\{\s*\})?$/);
-    await expect.poll(() => brand(empty)).not.toBe('#123456');
-    await expect.poll(() => brand(configured)).toBe('#123456');
+    await expect.poll(() => brand(empty)).not.toBe(ZONE_BRAND);
+    await expect.poll(() => brand(configured)).toBe(ZONE_BRAND);
     await core(empty);
 });
 }

@@ -4,8 +4,10 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
+// Setting: explore.legend (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // explore.show_legend and explore.legend
-// (libs/explore/src/lib/explore-map-view.component.ts:106-144, 237, 249-252):
+// (libs/explore/src/lib/explore-map-view.component.ts):
 // `@if (show_legend() && legend().length)` renders a [legend] panel; more than
 // three [label, colour] pairs give a collapsed toggle button, three or fewer an
 // <h3>. It depends on no map, level or WebSocket data. Nothing is clicked except
@@ -146,7 +148,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('explore-legend-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -206,7 +208,7 @@ async function openExplore(page: Page, overrides: Settings, audit: SafetyAudit) 
 const TWO: [string, string][] = [['E2E Draft Free', '#123456'], ['E2E Draft Busy', '#654321']];
 const FOUR: [string, string][] = [...TWO, ['E2E Draft Pending', '#112233'], ['E2E Draft Closed', '#445566']];
 
-test('WPA draft: explore.legend of four pairs collapses behind a toggle', async ({ staffPage, safetyAudit }) => {
+test('explore.legend of four pairs collapses behind a toggle', async ({ staffPage, safetyAudit }) => {
     const legend = await openExplore(staffPage, { 'app.explore.show_legend': true, 'app.explore.legend': FOUR }, safetyAudit);
     const toggle = legend.locator('button[aria-controls="explore-map-legend-items"]');
     const items = legend.locator('#explore-map-legend-items');
@@ -218,7 +220,7 @@ test('WPA draft: explore.legend of four pairs collapses behind a toggle', async 
     await expect(items.locator(':scope > div div.text-sm')).toHaveText(FOUR.map(([label]) => label));
 });
 
-test('WPA draft: explore.legend empty renders no legend even when shown', async ({ staffPage, safetyAudit }) => {
+test('explore.legend empty renders no legend even when shown', async ({ staffPage, safetyAudit }) => {
     const legend = await openExplore(staffPage, { 'app.explore.show_legend': true, 'app.explore.legend': [] }, safetyAudit);
     await expect(legend).toHaveCount(0);
 });

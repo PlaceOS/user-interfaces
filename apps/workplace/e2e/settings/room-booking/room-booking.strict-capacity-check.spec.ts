@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: events.strict_capacity_check (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -255,10 +257,10 @@ async function openPreparedRoom(page:Page,audit:Audit,overrides:Settings,view:nu
 }
 // UI-only warning branch: this does NOT test submission-time capacity rejection.
 for(const strict of [false,true]){
- test('remaining draft: events.strict_capacity_check '+strict+' gates the nonblocking capacity warning',async({staffPage,audit})=>{
+ test('events.strict_capacity_check '+strict+' gates the nonblocking capacity warning',async({staffPage,audit})=>{
   const root=await openPreparedRoom(staffPage,audit,{'app.events.strict_capacity_check':strict},2,[ROOM_ONE],[{id:'prepared-attendee',name:'Prepared Attendee',email:'prepared-attendee@example.invalid'}]);
   await expect.poll(()=>root.evaluate(el=>{const c=(window as Debug).ng?.getComponent(el) as {total_capacity():number;form_value():{attendees:unknown[]}}|undefined;return c?{capacity:c.total_capacity(),attendees:c.form_value().attendees.length}:null;})).toEqual({capacity:1,attendees:1});
-  const warning=root.locator('div.bg-warning.text-warning-content');await expect(warning).toHaveCount(strict?0:1);if(!strict)await expect(warning).toBeVisible();
+  const warning=root.locator('[capacity-warning]');await expect(warning).toHaveCount(strict?0:1);if(!strict)await expect(warning).toBeVisible();
   await expect(root.locator('a-user-list-field')).toHaveCount(1);await expect(staffPage).toHaveURL(/view=2$/);
   // Never click the confirmation action (which can submit in this UI).
  });

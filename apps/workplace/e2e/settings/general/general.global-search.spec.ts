@@ -1,6 +1,5 @@
-// Phase 2 Group 1: migrated accepted scenario from local/wpa-settings-batch28.spec.ts.
-// Source SHA-256: d77779e766076d6b6379d6793c68f7325688469efcbd072f83f0435f2c4c983a
-// Original title and functional assertions retained; runtime revalidation pending.
+// Setting: global_search (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 1 scenario (shown and hidden checked in one test).
 import type { BrowserContext, Page } from '@playwright/test';
 import { APP_URL, BACKEND_URL, assertLocalOnly, staffEmail } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
@@ -129,7 +128,7 @@ const test = readOnlyTest.extend<{
             await Promise.all(closing);
             contextMonitors.delete(audit);
             try {
-                await info.attach('legacy-settings-group1-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -211,8 +210,8 @@ const BASE_SETTINGS: Settings = {
     'app.chat.enabled': false,
 };
 
-// docs/settings/workplace.md:42; TopbarComponent.search uses !== false.
-test('WPA Batch 28: global_search shows and hides the topbar search control', async ({ isolated }) => {
+// docs/settings/workplace.md; TopbarComponent.search uses !== false.
+test('global_search shows and hides the topbar search control', async ({ isolated }) => {
     for (const enabled of [true, false]) {
         const page = await isolated.open({ 'app.global_search': enabled });
         const search = page.locator('topbar global-search');

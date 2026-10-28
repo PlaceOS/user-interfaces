@@ -4,6 +4,8 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
+// Setting: chat.enabled (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // SettingsService._applyTheme and topbar.logo select
 // light/dark branding. app.component's @defer and ChatComponent.can_show gate
 // the chat launcher. No theme control or chat control is clicked.
@@ -100,13 +102,23 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
             // readOnlyTest still runs its unchanged mutation/identity
             // assertions after this auto fixture's teardown.
             try {
+                // A chat-hint bindings handler (isolateChatHint) can still be
+                // inside route.fetch when the test body ends; closing the
+                // context under it makes that fetch fail with "target closed".
+                // Let running page route handlers finish first. Errors they
+                // hit are still recorded in the audit.
+                await staffPage.unrouteAll({ behavior: 'wait' });
+            } catch (error) {
+                audit.monitoring_errors.push(`Route handler wait failed: ${String(error)}`);
+            }
+            try {
                 await context.close();
             } catch (error) {
                 audit.monitoring_errors.push(`Context close failed: ${String(error)}`);
             }
             await Promise.all(closing);
             try {
-                await info.attach('batch-1-branding-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -249,7 +261,7 @@ async function openBranding(page: Page, overrides: Record<string, unknown>, audi
 }
 
 for (const enabled of [false, true]) {
-    test(`WPA draft: chat.enabled ${enabled} gates the chat launcher`, async ({ staffPage, safetyAudit }) => {
+    test(`chat.enabled ${enabled} gates the chat launcher`, async ({ staffPage, safetyAudit }) => {
         await openBranding(staffPage, { 'app.chat.enabled': enabled }, safetyAudit);
         const launcher = staffPage.locator('global-chat button').filter({
             has: staffPage.locator('icon', { hasText: /^\s*chat\s*$/ }),

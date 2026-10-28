@@ -4,12 +4,12 @@
 // Scope: which schedule event source is selected and the request that source
 // makes. WebSocket-driven event rendering is not asserted: it needs real space
 // modules and bindings, and every live socket is refused here.
-// Status: PASS (2/2, 2026-10-27, isolated local E2E backend; --no-deps, 1 worker).
+// Docs: docs/settings/workplace.md.
 //
-// Source: schedule-state.service.ts:800-816 uses the legacy flags only while
+// Source: schedule-state.service.ts uses the legacy flags only while
 // app.schedule.event_sources is empty: use_driver -> 'driver', otherwise
-// use_websocket -> 'ws', otherwise 'api'. The `ws` loader (:563-619) requests
-// the building's bookable spaces; the `api` loader (:652-679) requests
+// use_websocket -> 'ws', otherwise 'api'. The `ws` loader requests
+// the building's bookable spaces; the `api` loader requests
 // /staff/v1/events because events.use_bookings is false. event_sources is set
 // to [] explicitly so the fallback is always the branch under test, and
 // use_driver is pinned false so it cannot win.

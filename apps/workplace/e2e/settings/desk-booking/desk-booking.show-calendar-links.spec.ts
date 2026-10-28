@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: desks.show_calendar_links (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -225,7 +227,7 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 // BookingFormService reads PLACEOS.last_booked_booking into Booking; success
 // uses that state to generate links. Browser-only data: never save or look up this ID.
 for(const enabled of [false,true]){
- test('remaining draft: desks.show_calendar_links '+enabled+' gates links for browser-only success state',async({staffPage,audit})=>{
+ test('desks.show_calendar_links '+enabled+' gates links for browser-only success state',async({staffPage,audit})=>{
   const fixture=await prepare(staffPage,audit,{'app.features':['desks'],'app.desks.show_calendar_links':enabled});
   await staffPage.addInitScript(()=>{
    const date=new Date();date.setUTCDate(date.getUTCDate()+1);date.setUTCHours(10,0,0,0);

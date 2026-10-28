@@ -5,9 +5,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { DeskFlow } from '../../../../../e2e/support/desk/desk-flow.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current routed desk flow with browser-local fixtures. Target: explore.colors.
-// Coverage: 1 setting, 2 scenarios.
-// Local execution: both scenarios passed (2/2), as reported by the user.
+// Setting: explore.colors (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current routed desk flow with browser-local fixtures.
 // Covers space-free and fallback free, not desk-free.
 // The existing desk-free product defect remains unresolved.
 type Settings = Record<string, unknown>;
@@ -105,7 +105,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -338,7 +338,8 @@ async function deskMap(page: Page) {
     const select = page.locator('desk-flow-select');
     await expect(select).toBeVisible();
     await expect(select.locator('desk-flow-select-map')).toHaveCount(0);
-    await select.locator('button', { has: page.locator('icon', { hasText: /^\s*Map\s*$/ }) }).click();
+    // The view toggle's icon ligature is lowercase `map` (desk-flow-select.component.ts).
+    await select.locator('button', { has: page.locator('icon', { hasText: /^\s*map\s*$/ }) }).click();
     // The map host has no box of its own (its content is absolutely positioned),
     // so presence rather than visibility proves the map view rendered.
     const map = select.locator('desk-flow-select-map');

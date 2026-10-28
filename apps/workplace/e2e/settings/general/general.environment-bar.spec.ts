@@ -1,6 +1,5 @@
-// Phase 2 Group 1: migrated accepted scenario from local/wpa-settings-batch28.spec.ts.
-// Source SHA-256: d77779e766076d6b6379d6793c68f7325688469efcbd072f83f0435f2c4c983a
-// Original title and functional assertions retained; runtime revalidation pending.
+// Setting: environment_bar (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 1 scenario.
 import type { BrowserContext, Page } from '@playwright/test';
 import { APP_URL, BACKEND_URL, assertLocalOnly, staffEmail } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
@@ -129,7 +128,7 @@ const test = readOnlyTest.extend<{
             await Promise.all(closing);
             contextMonitors.delete(audit);
             try {
-                await info.attach('legacy-settings-group1-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -212,7 +211,7 @@ const BASE_SETTINGS: Settings = {
 };
 
 // GlobalBannerComponent.environment_bar + its body padding effect.
-test('WPA Batch 28: environment_bar renders the configured colour and clears for an empty value', async ({ isolated }) => {
+test('environment_bar renders the configured colour and clears for an empty value', async ({ isolated }) => {
     const shown = await isolated.open({ 'app.environment_bar': '#123456' });
     const bars = shown.locator('global-banner .environment-bar');
     await expect(bars).toHaveCount(2);

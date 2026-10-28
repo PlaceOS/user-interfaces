@@ -1,10 +1,9 @@
-// Coverage: 3 unique settings, 6 scenarios.
-// Local execution: 6/6 PASS, as reported by the user.
+// Coverage: 3 unique settings, 6 scenarios (2 per setting).
 // Settings: parking.show_special_needs, parking.request_submission_notes_html,
-// parking.can_book_for_anyone (docs/settings/workplace.md:96, 98, 100).
+// parking.can_book_for_anyone (docs/settings/workplace.md).
 // Consumers: apps/workplace/src/app/book/parking-request-flow/
-//   parking-request-form.component.ts:194-212 and
-//   parking-request-form-details.component.ts:429-456, 475-500, 1463-1467.
+//   parking-request-form.component.ts and
+//   parking-request-form-details.component.ts.
 // Opening the request form and switching request type only changes local form
 // state. The submit button is never clicked.
 import type { Locator, Page, Route } from '@playwright/test';
@@ -53,7 +52,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
         } finally {
             await context.close();
             await Promise.all(closing);
-            await info.attach('landing-readonly-safety-audit', {
+            await info.attach('settings-safety-audit', {
                 body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
             });
             expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({
@@ -217,9 +216,11 @@ async function openRequest(page: Page, overrides: Settings) {
     return root;
 }
 
+// Request types are <button role="radio" aria-checked> rows in the Request
+// Type radiogroup (parking-request-form-details.component.ts).
 const typeCard = (root: Locator, name: string) =>
     root
-        .locator('div.cursor-pointer')
+        .getByRole('radio')
         .filter({ has: root.page().getByText(name, { exact: true }) });
 
 const sendButton = (page: Page) =>
@@ -241,7 +242,7 @@ test(
             'app.parking.show_special_needs': true,
         });
         await typeCard(root, 'P2 Special Needs Request').click();
-        await expect(typeCard(root, 'P2 Special Needs Request')).toHaveClass(/border-info/);
+        await expect(typeCard(root, 'P2 Special Needs Request')).toHaveAttribute('aria-checked', 'true');
         await expect(
             root.getByText('Special Needs Details', { exact: true }),
         ).toHaveCount(1);
@@ -256,7 +257,7 @@ test(
             'app.parking.show_special_needs': false,
         });
         await typeCard(root, 'P2 Special Needs Request').click();
-        await expect(typeCard(root, 'P2 Special Needs Request')).toHaveClass(/border-info/);
+        await expect(typeCard(root, 'P2 Special Needs Request')).toHaveAttribute('aria-checked', 'true');
         await expect(
             root.getByText('Special Needs Details', { exact: true }),
         ).toHaveCount(0);
@@ -298,7 +299,7 @@ test(
             'app.parking.can_book_for_anyone': true,
         });
         await typeCard(root, 'Standard Parking Request').click();
-        await expect(typeCard(root, 'Standard Parking Request')).toHaveClass(/border-info/);
+        await expect(typeCard(root, 'Standard Parking Request')).toHaveAttribute('aria-checked', 'true');
         await expect(root.locator('a-user-search-field')).toHaveCount(1);
         await expect(root.locator('a-user-search-field')).toBeVisible();
         await untouched(staffPage);
@@ -310,9 +311,12 @@ test(
     async ({ staffPage }) => {
         const root = await openRequest(staffPage, {
             'app.parking.can_book_for_anyone': false,
+            // Fallback on: the getter is parking ?? bookings, so the parking
+            // false must win over bookings true.
+            'app.bookings.can_book_for_anyone': true,
         });
         await typeCard(root, 'Standard Parking Request').click();
-        await expect(typeCard(root, 'Standard Parking Request')).toHaveClass(/border-info/);
+        await expect(typeCard(root, 'Standard Parking Request')).toHaveAttribute('aria-checked', 'true');
         await expect(root.locator('a-user-search-field')).toHaveCount(0);
         await untouched(staffPage);
     },

@@ -1,11 +1,8 @@
-// Phase 2 migration: historically accepted (Batch 4, 2 passed); relocated runtime validation PENDING.
-// Covered active keys: bookings.hide_checkin
+// Setting: bookings.hide_checkin (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // Read-only: the desk booking is a browser-only GET fixture; check-in is never clicked.
 // Its conditional local-midnight skip is preserved, so a run between 22:55 and 24:00
 // runner-local time reports both scenarios as skipped, not passed.
-// Historical evidence: apps/workplace/reports/wpa-controlled-execution-20261019-150825-batch4/results.json
-// Source: apps/workplace/e2e/local/settings-blocked/desk-booking/desk-booking.hide-checkin.spec.ts
-// (sha256 7000549a06df16039dcf1dd2344ae1f8045ed24db0de5fd2dbb6482af0d1736c); unchanged except import paths. The parked original is left in place.
 import type { ConsoleMessage, Page, Route, WebSocketRoute } from '@playwright/test';
 import { SchedulePage } from '../../../../../e2e/support/bookings/schedule.page';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
@@ -118,7 +115,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('readonly-data-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -184,11 +181,11 @@ async function preparePage(page: Page, overrides: Record<string, unknown>, audit
 }
 
 for (const hidden of [false, true]) {
-    test(`WPA draft: bookings.hide_checkin ${hidden} gates the control on a synthetic owned desk booking`, async ({ staffPage, safetyAudit }) => {
+    test(`bookings.hide_checkin ${hidden} gates the control on a synthetic owned desk booking`, async ({ staffPage, safetyAudit }) => {
         const fixture = await preparePage(staffPage, {
             'app.features': ['desks'], 'app.bookings.hide_checkin': hidden,
             'app.desks.hide_checkin': false, 'app.desk.hide_checkin': false,
-            'app.desk.auto_checkin': false,
+            'app.desk.auto_checkin': false, 'app.desks.auto_checkin': false,
         }, safetyAudit);
         // Every booking-card injects ParkingService, whose constructor effects
         // resolve the hidden _PARKING_ category and _PARKING_SPACES_/_PARKING_USERS_

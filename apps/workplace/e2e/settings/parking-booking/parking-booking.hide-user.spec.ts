@@ -1,20 +1,11 @@
-// WPA Settings Batch 1 + 2 (PR #595). Repository-ready copy of the reviewed
-// external draft reviewed-codex/parking/parking.hide-user.spec.ts.
-// Exact setting key(s): app.parking.hide_user (+ legacy alias app.parkings.hide_user)
-// Unique settings: 1. Scenarios: 3.
-// Evidence: external draft run 2026-10-26, 3/3 PASS. Repository run PENDING.
-// Repository adaptation: repository imports and readOnlyTest only; the external
-// draft adapter is not used. Its held setting controls are inlined as CONTROLS
-// (they keep app.parking.hide_user null for the legacy-key scenario) and its
-// app-error capture and non-local network block (Google Fonts answered
-// locally) are folded into the wsAudit fixture below.
-//
-// Setting: parking.hide_user (source:
-//   libs/bookings/src/lib/parking-select-modal/parking-map.component.ts:152-177
+// Setting: parking.hide_user. Exact keys: app.parking.hide_user (+ legacy alias
+// app.parkings.hide_user).
+// Coverage: 1 unique setting, 3 scenarios.
+// Source: libs/bookings/src/lib/parking-select-modal/parking-map.component.ts
 //   features(); legacy spelling fallback `app.parking.hide_user ??
-//   app.parkings.hide_user` at :155-158).
+//   app.parkings.hide_user`.
 //
-// Scenarios: 3
+// Scenarios:
 //   1. false renders one map feature for each loaded parking space.
 //   2. true renders no map features, while the list still shows the space.
 //   3. The legacy key app.parkings.hide_user alone also suppresses the features.
@@ -33,7 +24,7 @@
 //   fixture fails the test on any non-GET /api request.
 //
 // Notes:
-// - div[el-id] lives inside <div hidden> in dynamic-map.component.ts:175-220, so
+// - div[el-id] lives inside <div hidden> in dynamic-map.component.ts, so
 //   assert COUNT, never visibility.
 // - The picker opens on the list view; the map DOM only exists after clicking the
 //   map button (view defaults to 'list').
@@ -57,7 +48,7 @@ type Settings = Record<string, unknown>;
 type DebugWindow = Window & { setting?: (key: string) => unknown };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 
-// Tenant settings the verified draft run held fixed for every scenario. They
+// Tenant settings held fixed for every scenario. They
 // are applied before the scenario's own settings, which always win. Controls,
 // not additional covered settings.
 const CONTROLS: Settings = {
@@ -522,7 +513,7 @@ async function openPicker(page: Page, overrides: Settings) {
     return { modal, form };
 }
 
-test.describe('WPA settings: parking hide user', () => {
+test.describe('parking.hide_user', () => {
     test('parking.hide_user false renders a map feature for each parking space', async ({
         staffPage,
     }) => {

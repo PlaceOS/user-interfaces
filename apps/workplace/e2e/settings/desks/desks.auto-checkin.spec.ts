@@ -1,14 +1,8 @@
-// WPA Settings Batch 1 + 2 (PR #595). Repository-ready copy of the reviewed
-// external draft reviewed-codex/desks/desks.auto-checkin.spec.ts.
-// Exact setting key(s): app.desks.auto_checkin
-// Unique settings: 1. Scenarios: 2.
-// Evidence: external draft run 2026-10-26, 2/2 PASS. Repository run PENDING.
-// Repository adaptation: repository imports and readOnlyTest only; the external
-// draft adapter is not used. Its held setting controls are inlined as CONTROLS,
-// its app-error capture and non-local network block (Google Fonts answered
-// locally) are folded into the audit fixture below, and the browser clock is
-// frozen at the real time instead of 2030-01-15 (see the test body).
-// ---------------------------------------------------------------------------
+// Setting: desks.auto_checkin (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Held setting controls are listed in CONTROLS; non-local requests (Google
+// Fonts) are answered locally by the audit fixture; the browser clock is frozen
+// at the real time (see the test body).
 // Desk auto check-in.
 //
 // Exact setting key(s): app.desks.auto_checkin

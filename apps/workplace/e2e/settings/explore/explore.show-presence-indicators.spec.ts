@@ -4,19 +4,19 @@
 //      a `sensor_occupied` presence icon on the room, in the success colour.
 //   2. false: with the identical live values, no presence icon is shown.
 // Scope: the Explore map for one synthetic room. Nothing is clicked or booked.
-// Status: PASS (2/2, 2026-10-27, isolated local E2E; --no-deps, 1 worker).
+// Docs: docs/settings/workplace.md.
 // Readiness still uses a busy fill: a free fill is the unset-status fallback
 // and appeared before any live value arrived.
 //
-// Source: libs/explore/src/lib/explore-spaces.service.ts:105-146 subscribes to
+// Source: libs/explore/src/lib/explore-spaces.service.ts subscribes to
 // the `bookings`, `status` and `presence` variables of module `Bookings` on
-// every room of the level. A `presence` value (:241-248) schedules
-// _updateIcons (:290-313), which returns at once while
+// every room of the level. A `presence` value schedules
+// _updateIcons, which returns at once while
 // app.show_presence_indicators is off and otherwise publishes one
 // ExploreIconComponent (`sensor_occupied`, background var(--success) when
 // presence is true) per room in the `spaces-presence` feature group
-// (libs/explore/src/lib/explore-icon.component.ts:8-16). A `status` value
-// (:232-239) schedules the room fill style the same way (:250-265). The room
+// (libs/explore/src/lib/explore-icon.component.ts). A `status` value
+// schedules the room fill style the same way. The room
 // hover card also subscribes to `hide_meeting_details` and
 // `hide_meeting_title` (explore-space-info.component.ts:270-284).
 //
@@ -141,7 +141,7 @@ const test = base.extend<{ staffPage: Page; batchAudit: NetworkAudit }>({
             catch { audit.monitoring.push('context close failed'); }
             try {
                 while (audit.pending.size) await Promise.all([...audit.pending]);
-                await info.attach('presence-browser-local-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, (_key, value) =>
                         value instanceof Set ? [...value] : value, 2)),
                     contentType: 'application/json',

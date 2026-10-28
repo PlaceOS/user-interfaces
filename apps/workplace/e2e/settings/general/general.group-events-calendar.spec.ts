@@ -5,9 +5,9 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Source: desk-flow-form.show_reserved_desk_overlay;
-// BookingFormService.settingForType / assignedResourceBooking;
-// BookingDetailsModal.can_checkin; GroupEventsStateService.calendar.
+// Setting: group_events_calendar (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Consumer: GroupEventsStateService.calendar.
 // All fixtures below are browser-only GET responses. No fixture is saved;
 // every non-GET request still reaches the read-only guard.
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
@@ -110,7 +110,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('readonly-data-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -176,7 +176,7 @@ async function preparePage(page: Page, overrides: Record<string, unknown>, audit
 }
 
 for (const calendar of ['draft-calendar-a@example.invalid', 'draft-calendar-b@example.invalid']) {
-    test(`WPA draft: group_events_calendar ${calendar} scopes the calendar lookup`, async ({ staffPage, safetyAudit }) => {
+    test(`group_events_calendar ${calendar} scopes the calendar lookup`, async ({ staffPage, safetyAudit }) => {
         const fixture = await preparePage(staffPage, {
             'app.features': ['group-events'], 'app.group_events_calendar': calendar,
         }, safetyAudit);

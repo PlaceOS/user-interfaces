@@ -4,6 +4,8 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
+// Setting: users.show_avatars (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // Consumers: directory/user-list.component.ts:
 // min_search_length gates its 400ms search (`query.length < min` -> no
 // search); show_avatars (show_image) gates a-user-avatar.
@@ -102,7 +104,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('batch-1-directory-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -150,7 +152,9 @@ async function openDirectory(page: Page, overrides: Record<string, unknown>, aud
     await expect(page.locator('global-loading')).toHaveCount(1);
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
     await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
-    const input = root.locator('input[placeholder="Search for a person..."]');
+    // The only input in the directory search field (user-list.component.ts).
+    // The placeholder is translated and its wording changed, so it is not used.
+    const input = root.locator('mat-form-field[overlay] input');
     await expect(input).toBeVisible();
     for (const [key, value] of Object.entries(settings)) {
         await expect.poll(() => page.evaluate((key) =>
@@ -160,7 +164,7 @@ async function openDirectory(page: Page, overrides: Record<string, unknown>, aud
 }
 
 for (const enabled of [false, true]) {
-    test(`WPA draft: users.show_avatars ${enabled} changes directory results without losing identity`, async ({ staffPage, safetyAudit }) => {
+    test(`users.show_avatars ${enabled} changes directory results without losing identity`, async ({ staffPage, safetyAudit }) => {
         const { root, input } = await openDirectory(staffPage, { 'app.users.show_avatars': enabled }, safetyAudit);
         await input.fill(QUERY);
         const row = root.locator('div[user]');

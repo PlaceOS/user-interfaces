@@ -5,11 +5,8 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { SchedulePage } from '../../../../../e2e/support/bookings/schedule.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Migrated unchanged from apps/workplace/e2e/local/codex-wpa-next20-landing-schedule-draft.spec.ts (accepted: wpa-batch10c (+ visitor rerun)); only this setting's tests.
-
-// Baseline reconciliation: 45 ledger PASS keys + desks.use_assets + 28 recent
-// WPA keys = 74. All target keys below are active ledger entries outside that
-// union and outside Copilot's ten room/visitor expansion targets.
+// Setting: colleagues_require_auth (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // Helpers are deliberately test-local; do not modify shared fixtures.
 type Settings = Record<string, unknown>;
 type Debug = Window & {
@@ -92,7 +89,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -195,20 +192,17 @@ async function prepare(page: Page, audit: Audit, overrides: Settings) {
     };
 }
 
-// Targets (active ledger keys, outside the 74 and Copilot's ten):
-//   colleagues_require_auth: landing-state.service.ts:89-95 search_fn ->
-//     queryUsers (/api/engine/v2/users) when basic_user_search is true OR
-//     colleagues_require_auth !== false; otherwise searchStaff
-//     (/api/staff/v1/people, the provider-backed directory).
-//   visitors.allow_editing: booking-details-modal.component.ts:588-605 can_edit
-//     (visitor bookings need it) gates the overflow-menu Edit item (:426-436).
+// colleagues_require_auth: landing-state.service.ts search_fn ->
+//   queryUsers (/api/engine/v2/users) when basic_user_search is true OR
+//   colleagues_require_auth !== false; otherwise searchStaff
+//   (/api/staff/v1/people, the provider-backed directory).
 // Nothing is added, edited, cancelled or checked in.
 const DRAFT_SETTING_KEYS = ['colleagues_require_auth'] as const;
 const QUERY = 'CodexNext20Colleague';
 const VISITOR_BOOKING = 9100211;
 
 for (const required of [true, false]) {
-    test('WPA next20 DRAFT: colleagues_require_auth ' + required + ' selects the landing colleague search source',
+    test('colleagues_require_auth ' + required + ' selects the landing colleague search source',
         async ({ staffPage, audit }) => {
             const fixture = await prepare(staffPage, audit, {
                 'app.basic_user_search': false, 'app.colleagues_require_auth': required,

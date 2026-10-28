@@ -4,10 +4,8 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Migrated unchanged from apps/workplace/e2e/local/claude-wpa-next25-parking-booking-draft.spec.ts (accepted: wpa-next25-P1..P4/P7); only this setting's tests.
-
-
-// Target: 11 parking booking-form / display keys. Routes: /#/book/parking/form,
+// Setting: parking.bookable_hours.
+// Coverage: 1 unique setting, 3 scenarios. Routes: /#/book/parking/form,
 // /#/book/parking/success, /#/book/parking-request/success, /#/your-bookings.
 // Nothing is submitted. Synthetic data is served only by GET browser routes or
 // a sessionStorage seed; no backend record is created or changed.
@@ -29,11 +27,10 @@ function safeURL(raw: string) {
     for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
     return url.href;
 }
-// Same policy as the corrected Batch 2/4/5 drafts. HTTP: the parent
-// readOnlyTest guard aborts every non-GET or non-local /api request and fails
-// the test in teardown. WebSockets: the Vite dev-server socket is held open,
-// the shell's local control socket is closed before it connects and recorded,
-// and any other socket fails.
+// HTTP: the parent readOnlyTest guard aborts every non-GET or non-local /api
+// request and fails the test in teardown. WebSockets: the Vite dev-server
+// socket is held open, the shell's local control socket is closed before it
+// connects and recorded, and any other socket fails.
 const test = readOnlyTest.extend<{ audit: Audit }>({
     audit: [async ({ staffPage }, use, info) => {
         const context = staffPage.context();
@@ -59,7 +56,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
                     const app = new URL(APP_URL);
                     const local = url.host === app.host &&
                         url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                    // Vite client.mjs:856-865; closing it reloads the page (:993-998).
+                    // Vite client.mjs; closing it reloads the page.
                     if (local && url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token') {
                         audit.tooling_websockets.push(socket_url);
                         return;
@@ -83,7 +80,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('claude-next25-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -115,7 +112,7 @@ async function getOnly(page: Page, audit: Audit, name: string, match: (url: URL)
     });
 }
 // ensure_hidden_category / ensure_type POST when a GET finds nothing and
-// move_type_to_category PUTs on a category mismatch (parking-assets.fn.ts:71-157,
+// move_type_to_category PUTs on a category mismatch (parking-assets.fn.ts,
 // locker-assets.fn.ts). One shared response carries every hidden category.
 const CATEGORIES = [
     { id: 'claude-next25-catering', name: '_CATERING_', hidden: true },
@@ -200,30 +197,37 @@ async function openCalendar(page: Page, root: Locator) {
     return picker;
 }
 /**
- * The calendar cell `offset` days after today. Cells are consecutive days, so
- * the index is counted from the cell carrying today's ring. If the day is past
- * the grid, move one month on: the right chevron (named schedule-previous-month
- * in date-calendar.component.ts) is disabled once the grid's last cell is past
- * `to`, so a later day cannot be selectable and null is returned.
+ * The calendar cell `offset` days after today, found by date. The grid is built
+ * around the form's date, not today (date-calendar.component.ts generateDates),
+ * so today may be off-grid when the form date has moved to tomorrow. Each cell's
+ * date is displayed_dates()[i].id: local midnight, one cell per day. If the day
+ * is past the grid, move one month on: the right chevron (named
+ * schedule-previous-month) is disabled once the grid passes `to`, so a later
+ * day cannot be selectable and null is returned. Any other miss fails.
  */
 async function dayCell(page: Page, picker: Locator, offset: number): Promise<Locator | null> {
     const cells = picker.locator('button[name="schedule-set-date"]');
     await expect(cells.first()).toBeVisible();
-    const today = await cells.evaluateAll((elements) =>
-        elements.findIndex((element) => !!element.querySelector('div.border-secondary')));
-    expect(today, 'the calendar marks today').toBeGreaterThanOrEqual(0);
-    if (today + offset < await cells.count()) return cells.nth(today + offset);
-    const next = picker.locator('button[name="schedule-previous-month"]');
-    if (await next.isDisabled()) return null;
-    const day = await page.evaluate((days) => {
-        const date = new Date(); date.setDate(date.getDate() + days); return date.getDate();
+    const target = await page.evaluate((days) => {
+        const date = new Date(); date.setDate(date.getDate() + days); date.setHours(0, 0, 0, 0);
+        return date.valueOf();
     }, offset);
-    await next.click();
-    // Out-of-month cells carry text-base-300!; pick the in-month day.
-    const cell = picker.locator('button[name="schedule-set-date"]:not([class*="text-base-300"])')
-        .filter({ hasText: new RegExp('^\\s*' + day + '\\s*$') });
-    await expect(cell).toHaveCount(1);
-    return cell;
+    const position = () => picker.evaluate((element, id) => {
+        const calendar = (window as Window & { ng?: { getComponent(element: Element): unknown } })
+            .ng?.getComponent(element) as { displayed_dates(): { id: number }[] } | undefined;
+        if (!calendar) throw new Error('Calendar debug API required');
+        return calendar.displayed_dates().findIndex((day) => day.id === id);
+    }, target);
+    let index = await position();
+    if (index < 0) {
+        const next = picker.locator('button[name="schedule-previous-month"]');
+        if (await next.isDisabled()) return null;
+        await next.click();
+        await expect.poll(position, { message: offset + ' days ahead is on the next month grid' })
+            .toBeGreaterThanOrEqual(0);
+        index = await position();
+    }
+    return cells.nth(index);
 }
 /** Whether the day `offset` days ahead is selectable. Closes the picker unchanged. */
 async function dayEnabled(page: Page, root: Locator, offset: number) {
@@ -259,7 +263,7 @@ async function menuValues(page: Page, trigger: Locator, attribute: 'data-time' |
         return h * 60 + m;
     });
 }
-/** Real building rows with timezone rewritten (as in the accepted next20 draft). */
+/** Real building rows with timezone rewritten. */
 async function timezoneBuildings(page: Page, audit: Audit) {
     await page.addInitScript(() => {
         for (const key of Object.keys(localStorage)) if (key.startsWith('PLACEOS.org')) localStorage.removeItem(key);
@@ -285,7 +289,7 @@ const HH = (h: number, m = 0) => h * 60 + m;
 
 // ------------------------------------------------------------- parking booking form
 // Consumer: apps/workplace/src/app/book/parking-flow/parking-form-details.component.ts
-// getters :190-258 (`parking || bookings` fallbacks), template :66-136.
+// getters (`parking || bookings` fallbacks) and template.
 const BOOKING: Settings = {
     ...COMMON,
     'app.features': ['parking'], 'app.desks.use_assets': false,
@@ -322,9 +326,9 @@ const startTimes = (page: Page, root: Locator) =>
     menuValues(page, root.locator('a-time-field[name="start-time"] button[time-field]'), 'data-time');
 const durations = (page: Page, root: Locator) => menuValues(page, root.locator('button[duration-field]'), 'data-duration');
 // ------------------------------------------------------------- your bookings card
-// booking-card.component.ts:210-243 (show_waitlist -> status 'info'),
-// :214-217,311-324 (hide_selected_space -> "Parking" label). The schedule's
-// parking list GET (schedule-state.service.ts:692-720) returns one synthetic
+// booking-card.component.ts (show_waitlist -> status 'info',
+// hide_selected_space -> "Parking" label). The schedule's
+// parking list GET (schedule-state.service.ts) returns one synthetic
 // row; no card, modal or action is clicked.
 async function scheduleCard(page: Page, audit: Audit, overrides: Settings, row: Record<string, unknown>) {
     const user = watchIdentity(page);
@@ -350,7 +354,7 @@ async function scheduleCard(page: Page, audit: Audit, overrides: Settings, row: 
     return card;
 }
 
-test.describe('WPA next25 DRAFT: parking booking form', () => {
+test.describe('parking.bookable_hours', () => {
     for (const [hours, first, last] of [
         [{ start: 9, end: 17 }, HH(9), HH(16, 30)],
         [{ start: 6, end: 11 }, HH(6), HH(10, 30)],
@@ -360,7 +364,7 @@ test.describe('WPA next25 DRAFT: parking booking form', () => {
                 const root = await parkingForm(staffPage, audit, { 'app.parking.bookable_hours': hours });
                 await pickDay(staffPage, root, 1);
                 const times = await startTimes(staffPage, root);
-                // Last start leaves the 30-minute default minimum (time-field :504-510).
+                // Last start leaves the 30-minute default minimum (time-field).
                 expect(Math.min(...times)).toBe(first);
                 expect(Math.max(...times)).toBe(last);
                 await untouchedParking(staffPage);
@@ -370,7 +374,7 @@ test.describe('WPA next25 DRAFT: parking booking form', () => {
         const root = await parkingForm(staffPage, audit, { 'app.parking.bookable_hours': null });
         await pickDay(staffPage, root, 1);
         const times = await startTimes(staffPage, root);
-        // time-field.component.ts:351-375 also lists the field's current time when it
+        // time-field.component.ts also lists the field's current time when it
         // is off the 15-minute step; only the regular options define the window.
         const stepped = times.filter((time) => time % 15 === 0);
         expect(stepped.length).toBeGreaterThan(0);

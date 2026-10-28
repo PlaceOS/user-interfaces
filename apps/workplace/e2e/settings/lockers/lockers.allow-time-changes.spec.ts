@@ -4,10 +4,9 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Migrated unchanged from apps/workplace/e2e/local/claude-wpa-next25-lockers-draft.spec.ts (accepted: wpa-next25-L1..L4 (+ reruns)); only this setting's tests.
-
-
-// Target: 8 lockers.* keys. Routes: /#/book/locker/form, /#/book/locker/success.
+// Setting: lockers.allow_time_changes.
+// Coverage: 1 unique setting, 2 scenarios. Routes: /#/book/locker/form,
+// /#/book/locker/success.
 // Nothing is submitted; the success page reads a browser-only sessionStorage seed.
 type Settings = Record<string, unknown>;
 type Debug = Window & { setting?: (key: string) => unknown };
@@ -27,11 +26,10 @@ function safeURL(raw: string) {
     for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
     return url.href;
 }
-// Same policy as the corrected Batch 2/4/5 drafts. HTTP: the parent
-// readOnlyTest guard aborts every non-GET or non-local /api request and fails
-// the test in teardown. WebSockets: the Vite dev-server socket is held open,
-// the shell's local control socket is closed before it connects and recorded,
-// and any other socket fails.
+// HTTP: the parent readOnlyTest guard aborts every non-GET or non-local /api
+// request and fails the test in teardown. WebSockets: the Vite dev-server
+// socket is held open, the shell's local control socket is closed before it
+// connects and recorded, and any other socket fails.
 const test = readOnlyTest.extend<{ audit: Audit }>({
     audit: [async ({ staffPage }, use, info) => {
         const context = staffPage.context();
@@ -57,7 +55,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
                     const app = new URL(APP_URL);
                     const local = url.host === app.host &&
                         url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                    // Vite client.mjs:856-865; closing it reloads the page (:993-998).
+                    // Vite client.mjs; closing it reloads the page.
                     if (local && url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token') {
                         audit.tooling_websockets.push(socket_url);
                         return;
@@ -81,7 +79,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('claude-next25-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -113,7 +111,7 @@ async function getOnly(page: Page, audit: Audit, name: string, match: (url: URL)
     });
 }
 // ensure_hidden_category / ensure_type POST when a GET finds nothing and
-// move_type_to_category PUTs on a category mismatch (parking-assets.fn.ts:71-157,
+// move_type_to_category PUTs on a category mismatch (parking-assets.fn.ts,
 // locker-assets.fn.ts). One shared response carries every hidden category.
 const CATEGORIES = [
     { id: 'claude-next25-catering', name: '_CATERING_', hidden: true },
@@ -257,7 +255,7 @@ async function menuValues(page: Page, trigger: Locator, attribute: 'data-time' |
         return h * 60 + m;
     });
 }
-/** Real building rows with timezone rewritten (as in the accepted next20 draft). */
+/** Real building rows with timezone rewritten. */
 async function timezoneBuildings(page: Page, audit: Audit) {
     await page.addInitScript(() => {
         for (const key of Object.keys(localStorage)) if (key.startsWith('PLACEOS.org')) localStorage.removeItem(key);
@@ -284,9 +282,9 @@ const HH = (h: number, m = 0) => h * 60 + m;
 
 // ------------------------------------------------------------- locker form
 // Consumer: apps/workplace/src/app/book/locker-flow/locker-form-details.component.ts
-// getters :214-253, template :80-140. allow_all_day = allow_time_changes &&
+// getters and template. allow_all_day = allow_time_changes &&
 // (lockers ?? bookings ?? true); disabled_date_select hides only the all-day
-// checkbox (:86); disabled_start_time disables the start-time trigger (:116).
+// checkbox; disabled_start_time disables the start-time trigger.
 const LOCKER: Settings = {
     ...COMMON,
     'app.features': ['lockers'], 'app.desks.use_assets': false,
@@ -317,12 +315,27 @@ async function untouchedLocker(page: Page) {
 }
 const allDayBox = (root: Locator) => root.locator('mat-checkbox input[type="checkbox"]');
 const lockerStart = (root: Locator) => root.locator('a-time-field[name="start-time"] button[time-field]');
+/**
+ * Read-only probe of LockerFormDetailsComponent's booking form model. Its async
+ * ngOnInit sets all_day = !allow_time_changes || all_day after the org loads, so
+ * with all_day_default false, all_day true proves the setting has been applied.
+ * Fails closed if the component or model is unavailable.
+ */
+function lockerAllDay(page: Page) {
+    return page.locator('new-locker-form-details').evaluate((element) => {
+        const component = (
+            window as Window & { ng?: { getComponent(element: Element): unknown } }
+        ).ng?.getComponent(element) as { model?: () => { all_day?: boolean } } | undefined;
+        if (!component?.model) throw new Error('locker form model is unavailable');
+        return !!component.model().all_day;
+    });
+}
 
 
-// locker-flow-success.component.ts:62-114,158-160; data from sessionStorage
-// PLACEOS.last_booked_booking (booking-form.service.ts:119,227-231).
+// locker-flow-success.component.ts; data from sessionStorage
+// PLACEOS.last_booked_booking (booking-form.service.ts).
 
-test.describe('WPA next25 DRAFT: locker form', () => {
+test.describe('lockers.allow_time_changes', () => {
     for (const allowed of [true, false]) {
         test('lockers.allow_time_changes ' + allowed + ' gates the All day option', async ({ staffPage, audit }) => {
             const root = await lockerForm(staffPage, audit, {
@@ -330,7 +343,21 @@ test.describe('WPA next25 DRAFT: locker form', () => {
             });
             await expect(root.locator('mat-checkbox')).toHaveCount(allowed ? 1 : 0);
             await expect(root.locator('a-date-field')).toBeVisible();
+            // Main effect: ngOnInit forces all_day when time changes are not
+            // allowed, which removes the time row (start time + duration). Wait
+            // for that model state first, so a missing row is not just "not yet
+            // rendered" (the date field can render before ngOnInit applies it).
+            await expect
+                .poll(() => lockerAllDay(staffPage), {
+                    message: 'booking form all_day after ngOnInit applies allow_time_changes',
+                })
+                .toBe(!allowed);
+            await expect(root.locator('a-time-field[name="start-time"]')).toHaveCount(allowed ? 1 : 0);
+            await expect(root.locator('a-duration-field')).toHaveCount(allowed ? 1 : 0);
             await untouchedLocker(staffPage);
+            // Re-checked after the view settled: the time row state holds.
+            expect(await lockerAllDay(staffPage), 'all_day still matches the setting').toBe(!allowed);
+            await expect(root.locator('a-time-field[name="start-time"]')).toHaveCount(allowed ? 1 : 0);
         });
     }
 });

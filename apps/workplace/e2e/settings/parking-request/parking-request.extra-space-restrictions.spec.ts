@@ -1,18 +1,11 @@
-// WPA Settings Batch 1 + 2 (PR #595). Repository-ready copy of the reviewed
-// external draft reviewed-codex/parking-request/parking-request.extra-space-restrictions.spec.ts.
-// Exact setting key(s): app.parking.extra_space_restrictions
-// Unique settings: 1. Scenarios: 3.
-// Evidence: external draft run 2026-10-26, 3/3 PASS. Repository run PENDING.
-// Repository adaptation: repository imports and readOnlyTest only; the external
-// draft adapter is not used. Its held setting controls are inlined as CONTROLS
-// and its app-error capture and non-local network block (Google Fonts answered
-// locally) are folded into the wsAudit fixture below.
+// Setting: parking.extra_space_restrictions (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 3 scenarios.
+// Held setting controls are listed in CONTROLS; non-local requests (Google
+// Fonts) are answered locally by the wsAudit fixture.
 //
-// Setting: parking.extra_space_restrictions (source:
-//   apps/workplace/src/app/book/parking-request-flow/parking-request-form-details.component.ts:1493-1495
-//   setting signal, :1645-1647 normalise, :2155-2164 isExtraRestrictionSelected /
-//   setExtraRestriction, template :1208-1293 — the section gate at :1209-1212 and
-//   the settings-toggle list at :1268-1291).
+// Source: apps/workplace/src/app/book/parking-request-flow/parking-request-form-details.component.ts
+//   (setting signal, normalise, isExtraRestrictionSelected / setExtraRestriction,
+//   and the space-restrictions template: section gate and settings-toggle list).
 //
 // Scenarios: 3
 //   1. Two configured options render one settings-toggle each, in setting order,

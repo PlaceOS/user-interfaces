@@ -4,6 +4,8 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
+// Setting: allow_dark_mode (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // SettingsService._applyTheme and topbar.logo select
 // light/dark branding. app.component's @defer and ChatComponent.can_show gate
 // the chat launcher. No theme control or chat control is clicked.
@@ -106,7 +108,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('batch-1-branding-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -249,7 +251,7 @@ async function openBranding(page: Page, overrides: Record<string, unknown>, audi
 }
 
 for (const enabled of [false, true]) {
-    test(`WPA draft: allow_dark_mode ${enabled} gates a saved dark theme`, async ({ staffPage, safetyAudit }) => {
+    test(`allow_dark_mode ${enabled} gates a saved dark theme`, async ({ staffPage, safetyAudit }) => {
         const logo = await openBranding(staffPage, { 'app.allow_dark_mode': enabled }, safetyAudit);
         if (enabled) await expect(staffPage.locator('body')).toHaveClass(/\btheme-dark\b/);
         else await expect(staffPage.locator('body')).not.toHaveClass(/\btheme-dark\b/);

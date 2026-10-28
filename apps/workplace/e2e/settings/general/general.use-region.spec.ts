@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: use_region (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -359,7 +361,7 @@ async function bookedDeskResourcesFixture(page: Page, audit: Audit) {
 }
 // DeskFlowSelect.use_region selects region vs building controls and level scope.
 for(const enabled of [false,true]){
- test('remaining draft: use_region '+enabled+' scopes inline desk levels to region versus building',async({staffPage,audit})=>{
+ test('use_region '+enabled+' scopes inline desk levels to region versus building',async({staffPage,audit})=>{
   await organisationFixture(staffPage,audit);await bookedDeskResourcesFixture(staffPage,audit);
   await openDesk(staffPage,audit,{'app.desk.auto_allocation':null,'app.desks.auto_allocation':false,
     'app.desks.use_assets':false,'app.default_building':BUILDING_A,'app.use_region':enabled});

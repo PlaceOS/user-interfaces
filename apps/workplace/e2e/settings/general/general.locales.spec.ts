@@ -1,7 +1,5 @@
-// Phase 2 migration: historically accepted; relocated runtime validation PENDING.
-// Covered active keys: locales
-// Scenario owners: S64, S65. Shared scenarios are registered once.
-// Historical evidence: reports/wpa-settings-reference/preparation/run35-observed-results.json; reports/wpa-settings-reference/preparation/run35-followup-verified/decoded.json
+// Setting: locales (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 import type { Browser as MigrationBrowser, BrowserContext as MigrationContext, BrowserContextOptions as MigrationContextOptions, Page as MigrationPage, TestInfo as MigrationTestInfo } from '@playwright/test';
 import { expect as migrationExpect, test as migrationBase } from '../../../../../e2e/support/fixtures';
 import { APP_URL as MIGRATION_APP_URL, BACKEND_URL as MIGRATION_BACKEND_URL, assertLocalOnly as migrationAssertLocalOnly, staffEmail as migrationStaffEmail } from '../../../../../e2e/support/env';
@@ -171,7 +169,7 @@ const migrationAuditFixture: { migrationAudit: [
             }
             migrationActive = undefined;
             try {
-                await info.attach('legacy-settings-migration-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -191,8 +189,6 @@ const migrationReadOnlyTest = migrationReadOnlyBase.extend<{ migrationAudit: Mig
 migrationTest.use({ storageState: undefined });
 migrationReadOnlyTest.use({ storageState: undefined });
 
-// Source: apps/workplace/e2e/local/wpa-settings-batch35.spec.ts
-// SHA-256: f2068e77c5a986bfd9c5c8dddf116355672b9cc00aad3fefadbf5cbbf7654f36
 {
 const base = migrationTest;
 type Settings = Record<string, unknown>;
@@ -351,7 +347,7 @@ const LANGUAGES = [
     { id: 'fr', name: 'E2E French', local: 'E2E French', flag: '' },
 ];
 
-test('WPA Batch 35: locales replaces language choices without persisting a language selection', async ({
+test('locales replaces language choices without persisting a language selection', async ({
     isolated,
 }) => {
     const page = await isolated.open({ 'app.locales': LANGUAGES });
@@ -367,7 +363,7 @@ test('WPA Batch 35: locales replaces language choices without persisting a langu
     await expect(menu.getByText('Español', { exact: true })).toHaveCount(0);
 });
 
-test('WPA Batch 35: zero or one locale hides the language selector while user controls remain', async ({
+test('locales with zero or one entry hides the language selector while user controls remain', async ({
     isolated,
 }) => {
     for (const languages of [[], [LANGUAGES[0]]]) {

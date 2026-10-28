@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: desks.available_period (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -281,7 +283,8 @@ for(const days of [7,14]){
    return {last:c.displayed_dates().findIndex(d=>d.id===stamp),next:c.displayed_dates().findIndex(d=>d.id===stamp+86400000)};
   },target.valueOf());
   let grid=await indices();
-  if(grid.last<0||grid.next<0){await calendar.locator('button[name="schedule-next-month"]').click();
+  // Button names are reversed in date-calendar.component.ts: schedule-previous-month calls changeMonth(1) (forward).
+  if(grid.last<0||grid.next<0){await calendar.locator('button[name="schedule-previous-month"]').click();
    await expect.poll(async()=>{const g=await indices();return g.last>=0&&g.next>=0;}).toBe(true);grid=await indices();}
   expect(grid.last).toBeGreaterThanOrEqual(0);expect(grid.next).toBeGreaterThanOrEqual(0);
   const cells=calendar.locator('button[name="schedule-set-date"]');

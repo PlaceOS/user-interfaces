@@ -1,7 +1,5 @@
-// Phase 2 migration: historically accepted; relocated runtime validation PENDING.
-// Covered active keys: default_route
-// Scenario owners: S66. Shared scenarios are registered once.
-// Historical evidence: reports/wpa-settings-reference/preparation/run35-observed-results.json; reports/wpa-settings-reference/preparation/run35-followup-verified/decoded.json
+// Setting: default_route (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 1 scenario.
 import type { Browser as MigrationBrowser, BrowserContext as MigrationContext, BrowserContextOptions as MigrationContextOptions, Page as MigrationPage, TestInfo as MigrationTestInfo } from '@playwright/test';
 import { expect as migrationExpect, test as migrationBase } from '../../../../../e2e/support/fixtures';
 import { APP_URL as MIGRATION_APP_URL, BACKEND_URL as MIGRATION_BACKEND_URL, assertLocalOnly as migrationAssertLocalOnly, staffEmail as migrationStaffEmail } from '../../../../../e2e/support/env';
@@ -171,7 +169,7 @@ const migrationAuditFixture: { migrationAudit: [
             }
             migrationActive = undefined;
             try {
-                await info.attach('legacy-settings-migration-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -191,8 +189,6 @@ const migrationReadOnlyTest = migrationReadOnlyBase.extend<{ migrationAudit: Mig
 migrationTest.use({ storageState: undefined });
 migrationReadOnlyTest.use({ storageState: undefined });
 
-// Source: apps/workplace/e2e/local/wpa-settings-batch35.spec.ts
-// SHA-256: f2068e77c5a986bfd9c5c8dddf116355672b9cc00aad3fefadbf5cbbf7654f36
 {
 const base = migrationTest;
 type Settings = Record<string, unknown>;
@@ -338,23 +334,30 @@ const BASE_SETTINGS: Settings = {
     'app.use_region': false,
 };
 
-async function core(page: Page) {
-    // /landing is now the landing-new component; its host has no header.
-    await expect(page.locator('landing-new')).toHaveCount(1);
-    await expect(page.locator('landing-new > *').first()).toBeVisible();
+/**
+ * The directory page (DirectoryUserListComponent). With an empty search it
+ * sends no API request, so only the page itself is checked.
+ */
+async function directory(page: Page) {
+    await expect(page.locator('[a-directory-user-list]')).toHaveCount(1);
+    await expect(page.locator('[a-directory-user-list] input[matinput]')).toBeVisible();
+    await expect(page.locator('landing-new')).toHaveCount(0);
     await expect(
         page.locator('topbar button[name="user-controls"]'),
     ).toBeVisible();
 }
 
-test('WPA Batch 35: default_route redirects the application entry route to the configured landing page', async ({
+// /landing is the Workplace default_route (apps/workplace/src/environments/settings.ts),
+// so RedirectComponent would reach it even if the override were ignored. A
+// non-default route proves the setting is applied.
+test('default_route redirects the application entry route to the configured route', async ({
     isolated,
 }) => {
     const page = await isolated.open(
-        { 'app.default_route': '/landing' },
+        { 'app.default_route': '/directory' },
         '/#/-',
     );
-    await expect(page).toHaveURL(/#\/landing$/);
-    await core(page);
+    await expect(page).toHaveURL(/#\/directory$/);
+    await directory(page);
 });
 }

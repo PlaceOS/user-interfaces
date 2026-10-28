@@ -1,7 +1,6 @@
-// Phase 2 migration to the current MeetingFlow (meeting-flow-options confirmBooking).
-// Covered active keys: events.booking_unavailable, events.no_standalone
-// Scenario owners: S45, S46. Shared scenarios are registered once.
-// Historical evidence: reports/wpa-settings-reference/preparation/terminal-reconciliation-2026-10-19.json
+// Settings: events.booking_unavailable, events.no_standalone (docs/settings/workplace.md).
+// Coverage: 2 unique settings, 2 scenarios (shared by both keys).
+// Current MeetingFlow: meeting-flow-options confirmBooking.
 // Form state and incidental bootstrap fixtures exist only in this browser.
 import type { BrowserContext as MigrationContext, Page as MigrationPage, TestInfo as MigrationTestInfo } from '@playwright/test';
 import { expect as migrationExpect } from '../../../../../e2e/support/fixtures';
@@ -119,7 +118,7 @@ const migrationAuditFixture: { migrationAudit: [
                 if (!identified.has(context)) audit.monitoring_errors.push('A navigated context did not establish staff identity');
             }
             try {
-                await info.attach('no-standalone-readonly-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {

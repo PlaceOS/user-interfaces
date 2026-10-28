@@ -5,12 +5,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Safety infrastructure adapted from apps/workplace/e2e/local/codex-wpa-next20-visitor-controls-draft.spec.ts (accepted: wpa-batch10a); only this setting's tests.
-
-// Adapted for the current routed VisitorFlowNewComponent; read-only validation only.
-// Baseline reconciliation: 45 ledger PASS keys + desks.use_assets + 28 recent
-// WPA keys = 74. All target keys below are active ledger entries outside that
-// union and outside Copilot's ten room/visitor expansion targets.
+// Setting: bookings.custom_duration_options (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Read-only checks on the routed VisitorFlowNewComponent form.
 // Helpers are deliberately test-local; do not modify shared fixtures.
 type Settings = Record<string, unknown>;
 type Debug = Window & {
@@ -93,7 +90,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -225,7 +222,7 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 }
 
 
-// Runtime: visitor-flow-new/visitor-flow-details.component.ts:272-290
+// Runtime: visitor-flow-new/visitor-flow-details.component.ts
 // selects visitors.* || bookings.*. DurationFieldComponent merges custom/current
 // lengths with its stepped list. Only local date/time/duration controls change.
 async function futureDuration(page: Page, form: InviteVisitorForm) {

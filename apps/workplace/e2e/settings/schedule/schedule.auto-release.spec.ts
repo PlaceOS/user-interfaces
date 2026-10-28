@@ -17,22 +17,23 @@
 // Scope: the automatic-release prompt on the day schedule
 // (/#/your-bookings?view=day). Every prompt is closed with its cancel button;
 // Keep is never pressed and no booking is changed.
-// Status: PASS (8/8, 2026-10-27, isolated local E2E backend; --no-deps, 1 worker).
+// Docs: docs/settings/workplace.md.
 //
-// Source: apps/workplace/src/app/schedule/schedule-state.service.ts:412-428
+// Source: apps/workplace/src/app/schedule/schedule-state.service.ts
 // runs _checkCancel when the schedule network starts and every 60 s.
-// _checkCancel (:881-964) needs a user id, a user location other than `wfo`,
+// _checkCancel needs a user id, a user location in AWAY_LOCATIONS (`wfh`,
+// `aol` or `sick`; an unset work preference reads as `ooo` and disables it),
 // time_after or time_before, and `resources` naming a type whose feature is on
-// (:446-454). For each type it issues one GET bookings with exactly
+// For each type it issues one GET bookings with exactly
 // period_start=startOfMinute(now), period_end=now+(time_after||5)+min(60,
-// time_before) and type (libs/bookings/src/lib/bookings.fn.ts:156-173), which
-// is told apart from the schedule listing by the listing's extra flags
-// (:843-859). Each returned booking prompts only while
+// time_before) and type (libs/bookings/src/lib/bookings.fn.ts), which
+// is told apart from the schedule listing by the listing's extra flags.
+// Each returned booking prompts only while
 // 0 <= start + time_after - now <= time_after + min(60, time_before), where an
 // all-day booking starts at all_day_start; the loop awaits each prompt before
 // checking the next booking. Closing the prompt with its mat-dialog-close
-// button resolves without `done` (libs/components/src/lib/confirm-modal.component.ts
-// :42-63,94-101), so the booking is only added to _ignore_cancel; only Keep
+// button resolves without `done` (libs/components/src/lib/confirm-modal.component.ts),
+// so the booking is only added to _ignore_cancel; only Keep
 // calls setBookingCheckedIn. The bookings are returned in a fixed order with an
 // always-eligible control C last, so the expected prompt SEQUENCE proves both
 // what prompts and what is skipped, without a timed wait.
@@ -42,12 +43,16 @@
 // check interval is real. Being at or before the real time keeps the stored
 // token's expiry in the future for the app.
 //
-// Identity: the real users/current response is observed, never changed. The
-// app derives the user's location from its work_preferences and
-// work_overrides (libs/common/src/lib/types/user.class.ts:183-222), defaulting
-// to `ooo`. Each scenario computes that location for the fixed time from the
-// observed response and fails if it is `wfo`, because the check would then be
-// disabled for a reason outside the setting.
+// Identity: the real users/current response is fetched unchanged (one local
+// GET), and only in this browser gets one work_overrides entry for the fixed
+// day: a 0-24 block with location `wfh`. Its id, email, sys_admin and support
+// are untouched, so the readOnlyTest identity guard still checks the real staff
+// user. The app derives the user's location from work_overrides first, then
+// work_preferences (StaffUser.work_preference/location_time), defaulting to
+// `ooo`. Each scenario recomputes that location for the fixed time from the
+// observed response and fails unless it is in AWAY_LOCATIONS, because the
+// check would otherwise be disabled for a reason outside the setting. Nothing
+// is written to the backend.
 //
 // Authentication (fail-closed, read-only): the staff bearer is the one already
 // stored for this worker under e2e/.auth. The storageState file the inherited
@@ -558,8 +563,9 @@ type Identity = {
 };
 
 /**
- * The app's own identity GET, observed and never changed. Resolves to null
- * when no identity arrives in time, so callers fail closed.
+ * The app's own identity GET, as served to the app (with the away override
+ * from awayIdentity). Resolves to null when no identity arrives in time, so
+ * callers fail closed.
  */
 function watchIdentity(page: Page): Promise<Identity | null> {
     return page
@@ -599,6 +605,46 @@ function locationAt(user: Identity, time: number) {
         .flatMap((pref) => pref.blocks ?? [])
         .find(covers);
     return weekly?.location || 'ooo';
+}
+
+/** Locations that enable the release check (schedule-state.service.ts AWAY_LOCATIONS). */
+const AWAY_LOCATIONS = ['wfh', 'aol', 'sick'];
+
+/**
+ * Serve the real identity with one browser-only work override that marks the
+ * whole fixed day as `wfh`. The real response is fetched with one local GET
+ * (no redirects) and only extended; a failed fetch is passed through, so the
+ * precondition fails closed. Nothing is written to the backend.
+ */
+async function awayIdentity(page: Page) {
+    const day = new Date(NOW).toISOString().slice(0, 10);
+    await page.route(
+        (url) =>
+            ORIGINS.has(url.origin) &&
+            url.pathname === '/api/engine/v2/users/current',
+        async (route: Route) => {
+            if (route.request().method() !== 'GET') return route.fallback();
+            const response = await route.fetch({ maxRedirects: 0 });
+            if (!response.ok()) return route.fulfill({ response });
+            const user = (await response.json()) as Identity &
+                Record<string, unknown>;
+            // Status and JSON only: the original Content-Length would not match.
+            await route.fulfill({
+                status: response.status(),
+                json: {
+                    ...user,
+                    work_overrides: {
+                        ...(user.work_overrides ?? {}),
+                        [day]: {
+                            blocks: [
+                                { start_time: 0, end_time: 24, location: 'wfh' },
+                            ],
+                        },
+                    },
+                },
+            });
+        },
+    );
 }
 
 async function clearOrganisationCache(page: Page) {
@@ -918,6 +964,7 @@ async function openSchedule(
         ...CONTROLS,
         'app.auto_release': auto_release,
     });
+    await awayIdentity(page);
     const identity = watchIdentity(page);
     const releaseQueries = await syntheticGets(page, identity, desk_bookings);
     await page.goto('/#/your-bookings?view=day');
@@ -1038,17 +1085,17 @@ for (const scenario of SCENARIOS) {
                 features: CONTROLS['app.features'],
                 now: NOW,
             });
-        // Precondition from the real identity: the check is enabled only
-        // while the user is not in the office at the fixed time.
+        // Precondition from the served identity: the check is enabled only
+        // while the user is away (AWAY_LOCATIONS) at the fixed time.
         const user = await identity;
         expect(
             user,
             'the app must load the real staff identity',
         ).not.toBeNull();
         expect(
-            locationAt(user ?? {}, NOW),
-            'seeded staff work location at the fixed time must not be wfo',
-        ).not.toBe('wfo');
+            AWAY_LOCATIONS,
+            'staff work location at the fixed time must be wfh, aol or sick',
+        ).toContain(locationAt(user ?? {}, NOW));
         // The release check has run once its query arrives (allowing for one
         // 60 s interval if the user was not loaded at network start).
         await expect

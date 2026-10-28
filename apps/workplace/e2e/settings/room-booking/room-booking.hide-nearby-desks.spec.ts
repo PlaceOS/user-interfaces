@@ -4,16 +4,18 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
+// Setting: events.hide_nearby_desks (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 3 scenarios (shown, hidden, and a no-desks control).
 // events.hide_nearby_desks gates the "book nearby desk"
-// button on the meeting success screen (meeting-flow-success.component.ts:132-137,
-// template :78 `@if (space?.email && allow_desk_booking)`, where
+// button on the meeting success screen (meeting-flow-success.component.ts,
+// template `@if (space?.email && allow_desk_booking)`, where
 // allow_desk_booking = features includes 'desks' && hide_nearby_desks !== true).
 //
 // How the screen is reached without a booking: route book/meeting/:step
 // (book.routes.ts) -> meeting-flow.component.ts setView('success') renders
 // <meeting-flow-success>, whose last_success comes from
 // EventFormService.loadLastSuccess = new CalendarEvent(JSON.parse(
-// sessionStorage['PLACEOS.last_modified_event'])) (event-form.service.ts:413-421,514).
+// sessionStorage['PLACEOS.last_modified_event'])) (event-form.service.ts).
 // Why the seed cannot become a booking: sessionStorage belongs to this browser
 // context only and is only READ here; the success component's ngOnInit makes one
 // GET (SpacePipe lookup, answered below) and never calls postForm/saveEvent;
@@ -116,7 +118,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('room-success-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -146,7 +148,7 @@ for (const [label, features, hidden, shown] of [
     ['desks feature, hide_nearby_desks true', ['spaces', 'desks'], true, false],
     ['no desks feature, hide_nearby_desks false (control)', ['spaces'], false, false],
 ] as const) {
-    test(`WPA draft: events.hide_nearby_desks success screen with ${label}`, async ({ staffPage, safetyAudit }) => {
+    test(`events.hide_nearby_desks success screen with ${label}`, async ({ staffPage, safetyAudit }) => {
         assertLocalOnly(APP_URL, BACKEND_URL);
         await staffPage.setViewportSize({ width: 1440, height: 1100 });
         // Browser-local seed of a clearly synthetic, already-"created" meeting.

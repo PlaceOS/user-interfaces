@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: events.allowed_future_days (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -258,14 +260,22 @@ for (const days of [7, 8]) {
         await details.locator('date-field button').first().click();
         const calendar = staffPage.locator('.cdk-overlay-container date-calendar');
         await expect(calendar).toBeVisible();
-        const grid = await calendar.evaluate((element, days) => {
+        const indices = () => calendar.evaluate((element, days) => {
             const c=(window as Debug).ng?.getComponent(element) as {displayed_dates(): {id:number}[]} | undefined;
             if (!c) throw new Error('calendar debug API required');
             const target=new Date(); target.setUTCDate(target.getUTCDate()+days); target.setUTCHours(0,0,0,0);
             const beyond=target.valueOf()+86400000;
             return {last:c.displayed_dates().findIndex(d=>d.id===target.valueOf()), beyond:c.displayed_dates().findIndex(d=>d.id===beyond)};
         }, days);
-        // This run excludes month-end; still fail closed if the grid lacks either boundary.
+        let grid = await indices();
+        // Near month end the 42-day grid lacks a boundary day: move forward one month.
+        // Button names are reversed in date-calendar.component.ts: schedule-previous-month calls changeMonth(1) (forward).
+        if (grid.last < 0 || grid.beyond < 0) {
+            await calendar.locator('button[name="schedule-previous-month"]').click();
+            await expect.poll(async () => { const g = await indices(); return g.last >= 0 && g.beyond >= 0; }).toBe(true);
+            grid = await indices();
+        }
+        // Fail closed if the grid still lacks either boundary.
         expect(grid.last).toBeGreaterThanOrEqual(0); expect(grid.beyond).toBeGreaterThanOrEqual(0);
         const cells=calendar.locator('button[name="schedule-set-date"]');
         await expect(cells.nth(grid.last)).toBeEnabled(); await expect(cells.nth(grid.beyond)).toBeDisabled();

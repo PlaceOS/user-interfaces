@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: bookings.force_current_user_for_booking_rules (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -360,7 +362,7 @@ async function bookedDeskResourcesFixture(page: Page, audit: Audit) {
 // BookingFormService._bookingRulesHost picks current user or selected delegate
 // during availability/rules evaluation. Never submit or select a resource.
 for(const enabled of [false,true]){
- test('remaining draft: bookings.force_current_user_for_booking_rules '+enabled+' selects rules host groups',async({staffPage,audit})=>{
+ test('bookings.force_current_user_for_booking_rules '+enabled+' selects rules host groups',async({staffPage,audit})=>{
   await organisationFixture(staffPage,audit);await bookedDeskResourcesFixture(staffPage,audit);
   const prepared=await prepare(staffPage,audit,{'app.features':['desks'],'app.desks.use_assets':false,
     'app.desk.auto_allocation':null,'app.desks.auto_allocation':false,'app.default_building':BUILDING_A,

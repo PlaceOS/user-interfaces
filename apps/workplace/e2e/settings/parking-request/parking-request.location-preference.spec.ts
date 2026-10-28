@@ -1,9 +1,8 @@
-// Coverage: 2 unique settings, 4 scenarios.
-// Local execution: 4/4 PASS, as reported by the user.
-// Settings: parking.hide_prefer_toggle (docs/settings/workplace.md:101) and
-// parking.hidden_buildings (docs/settings/workplace.md:301).
+// Coverage: 2 unique settings, 4 scenarios (2 per setting).
+// Settings: parking.hide_prefer_toggle and parking.hidden_buildings
+// (docs/settings/workplace.md).
 // Consumer: apps/workplace/src/app/book/parking-request-flow/
-//   parking-request-form-details.component.ts:837-900, 980-992, 1415-1440.
+//   parking-request-form-details.component.ts.
 // The toggle is rendered inside the location-preference block, which only
 // exists when at least two buildings have parking levels. The organisation is
 // replaced with a browser-only three-building fixture; no backend record is
@@ -54,7 +53,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
         } finally {
             await context.close();
             await Promise.all(closing);
-            await info.attach('landing-readonly-safety-audit', {
+            await info.attach('settings-safety-audit', {
                 body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
             });
             expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({
@@ -391,6 +390,19 @@ test(
         await expect(
             root.getByText('Codex Parking Building C', { exact: true }),
         ).toBeVisible();
+        // default_building is A, which is now hidden. The form's effect moves
+        // the active building to the first listed building (B).
+        await expect.poll(() => staffPage.evaluate(() =>
+            (window as Window & { app?: { org?: { building?: { id: string } } } })
+                .app?.org?.building?.id), { message: 'active building' }).toBe(BUILDING_B);
+        const locations = root
+            .getByRole('radiogroup', { name: 'Location Preference', exact: true })
+            .getByRole('radio');
+        await expect(locations).toHaveCount(2);
+        await expect(locations.filter({ hasText: 'Codex Parking Building B' }))
+            .toHaveAttribute('aria-checked', 'true');
+        await expect(locations.filter({ hasText: 'Codex Parking Building C' }))
+            .toHaveAttribute('aria-checked', 'false');
     },
 );
 

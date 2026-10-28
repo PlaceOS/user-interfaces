@@ -1,6 +1,6 @@
-// Coverage: 1 unique setting, 2 scenarios. Local execution: 2/2 PASS (2026-10-22 15:26 run).
-// Setting: desks.height_enabled (docs/settings/workplace.md:70).
-// Consumer: libs/components/src/lib/user-controls.component.ts:244-268, 433-436.
+// Coverage: 1 unique setting, 2 scenarios.
+// Setting: desks.height_enabled (docs/settings/workplace.md).
+// Consumer: libs/components/src/lib/user-controls.component.ts.
 // These scenarios cover the user-menu desk-height control. The preset panel
 // is inspected only: sliders are never changed and Save is never clicked.
 import type { Locator, Page } from '@playwright/test';
@@ -49,7 +49,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
         } finally {
             await context.close();
             await Promise.all(closing);
-            await info.attach('desk-booking-height-enabled-safety-audit', {
+            await info.attach('settings-safety-audit', {
                 body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
             });
             expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({

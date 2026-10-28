@@ -1,7 +1,6 @@
 // Coverage: 1 unique setting, 2 scenarios.
-// Setting: schedule.event_sources (source:
-//   apps/workplace/src/app/schedule/schedule-state.service.ts:265-287,438-443,652-674,800-816).
-// Status: PASS (2/2, 2026-10-22, isolated local E2E backend).
+// Setting: schedule.event_sources (docs/settings/workplace.md; source:
+//   apps/workplace/src/app/schedule/schedule-state.service.ts).
 //
 // With app.features containing `spaces`, the schedule can load events. The
 // `api` source issues GET /api/staff/v1/events when events.use_bookings is
@@ -100,7 +99,10 @@ const TYPES: Record<string, string[]> = {
 };
 const BASE: Settings = {
     ...READ_ONLY_SETTINGS,
-    'app.features': ['spaces'],
+    // `desks` gives both scenarios an anchor: the desk bookings GET comes from
+    // the same debounced query as the events GET (ScheduleStateService
+    // _loadBookingType / _loadApiEvents).
+    'app.features': ['spaces', 'desks'],
     'app.feature_groups': {},
     'app.chat.enabled': false,
     'app.global_search': false,
@@ -117,7 +119,7 @@ async function prepare(page: Page, source: 'api' | 'driver') {
     assertLocalOnly(APP_URL, BACKEND_URL);
     await page.setViewportSize({ width: 1440, height: 1100 });
     let events_requests = 0;
-    let booking_requests = 0;
+    let desk_booking_requests = 0;
     await getOnly(
         page,
         (url) =>
@@ -166,8 +168,8 @@ async function prepare(page: Page, source: 'api' | 'driver') {
     await getOnly(
         page,
         (url) => url.pathname === '/api/staff/v1/bookings',
-        () => {
-            booking_requests += 1;
+        (url) => {
+            if (url.searchParams.get('type') === 'desk') desk_booking_requests += 1;
             return [];
         },
     );
@@ -201,7 +203,7 @@ async function prepare(page: Page, source: 'api' | 'driver') {
             )
             .toEqual(value);
     }
-    return { events: () => events_requests, bookings: () => booking_requests };
+    return { events: () => events_requests, deskBookings: () => desk_booking_requests };
 }
 
 type ScheduleSourceState = { sources: string[]; query_ready: boolean };
@@ -263,6 +265,14 @@ for (const scenario of SCENARIOS) {
                 message: 'schedule event sources and debounced query',
             })
             .toEqual({ sources: [scenario.source], query_ready: true });
+        // Anchor: the desk bookings GET for the same debounced query has been
+        // sent, so the events effect has already run for it. Only then is the
+        // events count meaningful, including its absence for `driver`.
+        await expect
+            .poll(() => counters.deskBookings(), {
+                message: 'desk bookings GET from the same debounced query',
+            })
+            .toBeGreaterThan(0);
         await expect
             .poll(() => counters.events() > 0, { message: scenario.message })
             .toBe(scenario.events_requested);

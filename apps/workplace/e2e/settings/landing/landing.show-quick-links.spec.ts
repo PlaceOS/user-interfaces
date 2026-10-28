@@ -1,7 +1,6 @@
-// Adapted to the current LandingNew UI; runtime validation PENDING.
-// Covered active keys: show_quick_links
-// Scenario owners: S51. Shared scenarios are registered once.
-// Historical evidence: reports/wpa-settings-reference/preparation/controlled-execution-31-34.json
+// Setting: show_quick_links (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 1 scenario (shown and hidden checked in one test).
+// Adapted to the current LandingNew UI.
 import type { Browser as MigrationBrowser, BrowserContext as MigrationContext, BrowserContextOptions as MigrationContextOptions, Page as MigrationPage, TestInfo as MigrationTestInfo } from '@playwright/test';
 import { expect as migrationExpect, test as migrationBase } from '../../../../../e2e/support/fixtures';
 import { APP_URL as MIGRATION_APP_URL, BACKEND_URL as MIGRATION_BACKEND_URL, assertLocalOnly as migrationAssertLocalOnly, staffEmail as migrationStaffEmail } from '../../../../../e2e/support/env';
@@ -178,7 +177,7 @@ const migrationAuditFixture: { migrationAudit: [
             }
             migrationActive = undefined;
             try {
-                await info.attach('legacy-settings-migration-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -198,8 +197,6 @@ const migrationReadOnlyTest = migrationReadOnlyBase.extend<{ migrationAudit: Mig
 migrationTest.use({ storageState: undefined });
 migrationReadOnlyTest.use({ storageState: undefined });
 
-// Source: apps/workplace/e2e/local/wpa-settings-batch31.spec.ts
-// SHA-256: a91920277ae842301f4249d780cfab8e195d7bc8c39699cf651489eda7fb59aa
 {
 const base = migrationTest;
 type Settings = Record<string, unknown>;
@@ -367,7 +364,7 @@ const BASE_SETTINGS: Settings = {
 
 // LandingNewComponent.hasQuickActions and LandingQuickActionsComponent.links:
 // with desks enabled and quick-book off, links alone gate the whole widget.
-test('WPA Batch 31: show_quick_links toggles landing links while retaining the main content', async ({ isolated }) => {
+test('show_quick_links toggles landing links while retaining the main content', async ({ isolated }) => {
     for (const enabled of [true, false]) {
         const page = await isolated.open({ 'app.show_quick_links': enabled });
         const actions = page.locator('landing-new landing-quick-actions');

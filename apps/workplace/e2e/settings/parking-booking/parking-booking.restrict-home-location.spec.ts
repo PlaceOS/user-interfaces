@@ -1,22 +1,11 @@
-// WPA Settings Batch 1 + 2 (PR #595). Repository-ready copy of the reviewed
-// external draft reviewed-codex/parking/parking.restrict-home-location.spec.ts.
-// Exact setting key(s): app.parking.restrict_home_location
-// Unique settings: 1. Scenarios: 3.
-// Evidence: external draft run 2026-10-26, 3/3 PASS (home-location corrections
-// verified). Repository run PENDING.
-// Repository adaptation: repository imports and readOnlyTest only; the external
-// draft adapter is not used. Its held setting controls are inlined as CONTROLS
-// and its app-error capture and non-local network block (Google Fonts answered
-// locally) are folded into the wsAudit fixture below.
+// Setting: parking.restrict_home_location. Exact key: app.parking.restrict_home_location.
+// Coverage: 1 unique setting, 3 scenarios.
+// Source: libs/bookings/src/lib/parking.service.ts is_home_location; the scan
+//   effect and assignedDeskBuilding in libs/bookings/src/lib/booking-resource.loaders.ts;
+//   apps/workplace/src/app/book/parking-flow.component.ts renders the
+//   restricted block.
 //
-// Setting: parking.restrict_home_location (source:
-//   libs/bookings/src/lib/parking.service.ts:102-108 is_home_location; the scan
-//   effect at :123-140 and assignedDeskBuilding at
-//   libs/bookings/src/lib/booking-resource.loaders.ts:108-153;
-//   apps/workplace/src/app/book/parking-flow.component.ts:15-32 renders the
-//   restricted block).
-//
-// Scenarios: 3
+// Scenarios:
 //   1. true with an assigned desk in the ACTIVE building shows the restriction.
 //   2. false with the same assigned desk shows the normal booking form.
 //   3. true with the assigned desk in building B while building A is active
@@ -72,7 +61,7 @@ type DebugWindow = Window & {
 };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 
-// Tenant settings the verified draft run held fixed for every scenario. They
+// Tenant settings held fixed for every scenario. They
 // are applied before the scenario's own settings, which always win. Controls,
 // not additional covered settings.
 const CONTROLS: Settings = {
@@ -488,6 +477,8 @@ async function prepare(page: Page, overrides: Settings, desk_building: string) {
     await page.setViewportSize({ width: 1440, height: 1100 });
     await organisationFixture(page);
     const hits: Record<string, number> = { [BUILDING_A]: 0, [BUILDING_B]: 0 };
+    /** _PARKING_USERS_ asset GETs per zone (ParkingService._loadUsers). */
+    const users: Record<string, number> = {};
     await deskFixture(page, desk_building, watchIdentity(page), hits);
     await getOnly(
         page,
@@ -520,7 +511,13 @@ async function prepare(page: Page, overrides: Settings, desk_building: string) {
             (url.searchParams.get('type_id') ?? '').startsWith(
                 'e2e-home-type-',
             ),
-        () => [],
+        (url) => {
+            if (url.searchParams.get('type_id') === 'e2e-home-type-_PARKING_USERS_') {
+                const zone = url.searchParams.get('zone_id') ?? '';
+                users[zone] = (users[zone] ?? 0) + 1;
+            }
+            return [];
+        },
     );
     await getOnly(
         page,
@@ -546,6 +543,7 @@ async function prepare(page: Page, overrides: Settings, desk_building: string) {
         settings,
         form,
         hits,
+        users,
         ready: async () => {
             await expect(page.locator('placeos-parking-flow')).toHaveCount(1);
             await expect(
@@ -583,6 +581,10 @@ function flowState(page: Page) {
                   _parking?: {
                       home_building_id?: () => string | null;
                   };
+                  /** BookingFormService of the flow (read-only signal getter). */
+                  _state?: {
+                      has_assigned_desk?: () => boolean;
+                  };
                   is_home_location?: () => boolean;
                   deny_parking_access?: () => boolean;
               }
@@ -605,6 +607,9 @@ function flowState(page: Page) {
             restricted: component.is_home_location?.() ?? null,
             home: parking.home_building_id(),
             denied: component.deny_parking_access?.() ?? null,
+            // null (not false) when the signal is unavailable, so a wait on
+            // true fails closed.
+            assigned_desk: component._state?.has_assigned_desk?.() ?? null,
         };
     });
 }
@@ -627,7 +632,7 @@ async function openRestricted(
     return fixture;
 }
 
-test.describe('WPA settings: parking restrict home location', () => {
+test.describe('parking.restrict_home_location', () => {
     test('parking.restrict_home_location true restricts parking at the assigned building', async ({
         staffPage,
     }) => {
@@ -674,7 +679,44 @@ test.describe('WPA settings: parking restrict home location', () => {
         await expect
             .poll(async () => (await flowState(staffPage)).restricted)
             .toBe(false);
+        // Anchor: ParkingService runs its users effect and its home-location scan
+        // effect on the same active_building change; _loadUsers awaits the type
+        // bootstrap before its _PARKING_USERS_ GET, so that GET for building A
+        // comes after the scan effect ran for A.
+        await expect
+            .poll(() => fixture.users[BUILDING_A] ?? 0, {
+                message: '_PARKING_USERS_ GET for the active building A',
+            })
+            .toBeGreaterThan(0);
+        // Desk-list requests cannot tell the home-location scan apart: the
+        // booking form's has_assigned_desk check calls the same
+        // assignedDeskBuilding (same shared in-flight key) and reads A and B on
+        // every load, and its resource list also reads A. Check the scan's own
+        // result instead, after a positive anchor from that shared lookup:
+        // has_assigned_desk() is true only once assignedDeskBuilding resolved to
+        // building A, the result a broken gate would apply as home_building_id
+        // (the scan effect ran for the final building list and active building
+        // before this lookup could start, or shares its in-flight request).
+        await expect
+            .poll(async () => (await flowState(staffPage)).assigned_desk, {
+                message: 'booking form resolved the assigned desk (building A)',
+            })
+            .toBe(true);
+        // Positive evidence only: the desk lists were read (by any caller).
+        expect(fixture.hits[BUILDING_A], 'desk list of building A read').toBeGreaterThan(0);
+        expect(fixture.hits[BUILDING_B], 'desk list of building B read').toBeGreaterThan(0);
+        const state = await flowState(staffPage);
+        expect(state.home, 'no home building').toBeNull();
+        expect(state.restricted, 'not restricted').toBe(false);
+        await expect(permissionImage(staffPage)).toHaveCount(0);
+        await expect(staffPage.locator('parking-flow-form')).toHaveCount(1);
         await expect(staffPage.locator('parking-flow-success')).toHaveCount(0);
+        // Re-checked after the view settled: still no home, still the form.
+        const settled = await flowState(staffPage);
+        expect(settled.home, 'no home building').toBeNull();
+        expect(settled.restricted, 'not restricted').toBe(false);
+        await expect(permissionImage(staffPage)).toHaveCount(0);
+        await expect(staffPage.locator('parking-flow-form')).toHaveCount(1);
     });
 
     test('parking.restrict_home_location true away from the assigned building keeps the form', async ({

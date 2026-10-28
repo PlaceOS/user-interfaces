@@ -1,8 +1,8 @@
-// Coverage: 4 unique settings, 8 scenarios. Local execution: 8/8 PASS (2026-10-22 15:26 run).
+// Coverage: 4 unique settings, 8 scenarios (2 per setting).
 // Settings: explore.hide_zones, explore.hide_devices, explore.hide_sensors,
-// explore.disable (docs/settings/workplace.md:77-81).
-// Consumer: libs/explore/src/lib/explore-map-view.component.ts:82-102,
-// 235-246 and ExploreStateService.setOptions. Visibility scenarios do not
+// explore.disable (docs/settings/workplace.md).
+// Consumer: libs/explore/src/lib/explore-map-view.component.ts
+// and ExploreStateService.setOptions. Visibility scenarios do not
 // click overlays; disable scenarios exercise their browser-local toggle state.
 import type { Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
@@ -50,7 +50,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
         } finally {
             await context.close();
             await Promise.all(closing);
-            await info.attach('explore-map-overlays-safety-audit', {
+            await info.attach('settings-safety-audit', {
                 body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
             });
             expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({

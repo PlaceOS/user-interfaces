@@ -5,12 +5,12 @@
 // /staff/v1/events is requested. The driver's LocationServices data is not
 // asserted: the synthetic organisation has no location_services binding, so
 // the driver loader resolves an empty list without any request.
-// Status: PASS (2/2, 2026-10-27, isolated local E2E backend; --no-deps, 1 worker).
+// Docs: docs/settings/workplace.md.
 //
-// Source: schedule-state.service.ts:800-816 uses the legacy flags only while
+// Source: schedule-state.service.ts uses the legacy flags only while
 // app.schedule.event_sources is empty: use_driver -> 'driver', otherwise
-// use_websocket -> 'ws', otherwise 'api'. The `driver` loader (:621-650) calls
-// the location_services module only; the `api` loader (:652-679) requests
+// use_websocket -> 'ws', otherwise 'api'. The `driver` loader calls
+// the location_services module only; the `api` loader requests
 // /staff/v1/events because events.use_bookings is false. event_sources is set
 // to [] explicitly so the fallback is always the branch under test, and
 // use_websocket is pinned false so the fallback is `api` when use_driver is

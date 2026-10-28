@@ -7,12 +7,12 @@
 //   4. parking.enable_maps true: the free bay publishes one click action.
 // Scope: the features/actions the Explore map view receives. No overlay is
 // clicked, no booking form is opened and nothing is booked.
-// Status: PASS (4/4, 2026-10-27, isolated local E2E backend; --no-deps, 1 worker).
+// Docs: docs/settings/workplace.md.
 //
-// Source: libs/explore/src/lib/explore-desks.service.ts:191-202,385-462 always
+// Source: libs/explore/src/lib/explore-desks.service.ts always
 // publishes `desk:hover:<map_id>` features and publishes four actions per
 // bookable desk (mousedown, touchstart, mouseup, touchend) only while
-// app.desks.enable_maps !== false. explore-parking.service.ts:249-253,279-333
+// app.desks.enable_maps !== false. explore-parking.service.ts
 // always publishes one hover feature per bay and one action per available bay
 // only while app.parking.enable_maps !== false. The desk scenarios use a level
 // without the `parking` tag and the parking scenarios a level with it and no

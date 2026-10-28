@@ -12,17 +12,16 @@
 //      status but not the user.
 // Scope: the Explore parking hover card (explore-parking-info) for two
 // synthetic bays. No bay is clicked and nothing is booked.
-// Status: PASS (4/4, 2026-10-27, isolated local E2E backend; --no-deps, 1 worker).
 //
-// Source: libs/explore/src/lib/explore-parking-info.component.ts:17-80 renders
+// Source: libs/explore/src/lib/explore-parking-info.component.ts renders
 // the status word and colour only while parking.show_status_details (default
 // true) is on, and the user line only inside that block while
-// parking.show_users (default false) is on. :100-104 shows "reserved" when the
-// bay's assigned_to equals its user. explore-parking.service.ts:279-333
+// parking.show_users (default false) is on. It shows "reserved" when the
+// bay's assigned_to equals its user. explore-parking.service.ts
 // publishes one hover feature per bay with user = booking user_email ||
 // assigned_to. Both keys are set in every scenario so neither relies on its
 // default. The user line resolves the name through UserPipe
-// (libs/users/src/lib/user.pipe.ts:24-48), which is answered by one exact
+// (libs/users/src/lib/user.pipe.ts), which is answered by one exact
 // synthetic staff record.
 //
 // Authentication (fail-closed, read-only): the staff bearer is the one already
@@ -35,7 +34,7 @@
 // token refresh would be a non-GET /auth request, which the network policy
 // blocks and reports. The readOnlyTest identity guard is unchanged.
 // Run with --no-deps: the local project's preflight dependency seeds shared
-// rows through backend writes (e2e/support/preflight.setup.ts:32-40).
+// rows through backend writes (e2e/support/preflight.setup.ts).
 //
 // Network policy: every /api request must match one exact synthetic GET
 // fixture below, except the shared staff identity GET (users/current), which
@@ -89,7 +88,7 @@ function readJson(file: string): Record<string, unknown> | null {
  * The staff bearer already stored for this worker, checked read-only. Never
  * mints, refreshes or writes: every failure throws, so the worker stops before
  * any browser opens. The inherited staffPage fixture loads the storageState
- * file checked here (e2e/support/fixtures.ts:64-75), so it must hold this same
+ * file checked here (e2e/support/fixtures.ts), so it must hold this same
  * token for the app origin with an expiry far enough ahead that the app never
  * attempts a refresh mid-test.
  */
@@ -177,7 +176,7 @@ const test = readOnlyTest.extend<{ batchAudit: NetworkAudit }>({
         },
         { scope: 'worker' },
     ],
-    // The inherited admin fixture mints (e2e/support/fixtures.ts:36-42).
+    // The inherited admin fixture mints (e2e/support/fixtures.ts).
     // readOnlyTest never requests it; fail closed if anything ever does.
     adminStorageState: [
         async () => {
@@ -225,7 +224,7 @@ const BULK_METADATA = [
     'booking_rules',
 ];
 // Exact single-zone metadata names: booking rules per resource type on the
-// building (explore-booking-rules.ts:10-19), the level's desk list and map
+// building (explore-booking-rules.ts), the level's desk list and map
 // regions, and organisation translation, room-alert and POI metadata.
 const ZONE_METADATA: Record<string, string[]> = {
     [BUILDING]: [
@@ -714,7 +713,7 @@ async function syntheticGets(page: Page) {
                 brand: 'PlaceOS',
             })),
     );
-    // queryParkingSpacesForZones (parking-assets.fn.ts:194-205): the two bays
+    // queryParkingSpacesForZones (parking-assets.fn.ts): the two bays
     // for the parking level only.
     await getOnly(
         page,
@@ -747,7 +746,7 @@ async function syntheticGets(page: Page) {
         () => [],
     );
     // Level bookings and the user's own parking bookings
-    // (explore-parking.service.ts:115-165): none, so both bays are available
+    // (explore-parking.service.ts): none, so both bays are available
     // and keep their configured assignment.
     await getOnly(
         page,

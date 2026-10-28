@@ -1,7 +1,7 @@
-// Coverage: 2 unique settings, 3 scenarios. Local execution: 3/3 PASS (2026-10-22 15:26 run).
-// Settings: support_issue_types and external_support_url.
-// Consumers: libs/form-fields/src/lib/support-ticket-modal.component.ts:87-109
-// and libs/components/src/lib/user-controls.component.ts:540-556.
+// Coverage: 2 unique settings, 3 scenarios (support_issue_types 2, external_support_url 1).
+// Settings: support_issue_types and external_support_url (docs/settings/workplace.md).
+// Consumers: libs/form-fields/src/lib/support-ticket-modal.component.ts
+// and libs/components/src/lib/user-controls.component.ts.
 // The support button is enabled by the `support-ticket` feature. Opening the
 // modal or the external URL is read-only; the Submit button is never clicked.
 import type { Locator, Page } from '@playwright/test';
@@ -50,7 +50,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
         } finally {
             await context.close();
             await Promise.all(closing);
-            await info.attach('general-support-ticket-safety-audit', {
+            await info.attach('settings-safety-audit', {
                 body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
             });
             expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({

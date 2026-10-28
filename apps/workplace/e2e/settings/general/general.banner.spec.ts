@@ -1,5 +1,6 @@
-// Setting: banner (banner.id, banner.type, banner.content). Helpers below are copied unchanged from
-// general.environment-bar.spec.ts (accepted); both settings live in GlobalBannerComponent.
+// Setting: banner (banner.id, banner.type, banner.content) (docs/settings/workplace.md).
+// Coverage: 5 scenarios shared by the banner keys (warn, error, empty content,
+// close remembers the id, a new id shows again). Consumer: GlobalBannerComponent.
 import type { BrowserContext, Page } from '@playwright/test';
 import { APP_URL, BACKEND_URL, assertLocalOnly, staffEmail } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
@@ -128,7 +129,7 @@ const test = readOnlyTest.extend<{
             await Promise.all(closing);
             contextMonitors.delete(audit);
             try {
-                await info.attach('legacy-settings-group1-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -220,7 +221,7 @@ const bannerState = (page: Page) => page.locator('global-banner').evaluate((el) 
 const bannerBox = (page: Page) => page.locator('global-banner > div:not(.environment-bar)');
 
 for (const [type, colour] of [['warn', /\bbg-warning\b/], ['error', /\bbg-error\b/]] as const) {
-    test('remaining draft: banner type ' + type + ' renders the configured content and colour', async ({ isolated }) => {
+    test('banner type ' + type + ' renders the configured content and colour', async ({ isolated }) => {
         const page = await isolated.open({ 'app.banner': { id: 'prepared-banner-' + type, type, content: 'Prepared banner ' + type } });
         const box = bannerBox(page);
         await expect(box).toHaveCount(1);await expect(box).toBeVisible();
@@ -229,14 +230,14 @@ for (const [type, colour] of [['warn', /\bbg-warning\b/], ['error', /\bbg-error\
     });
 }
 
-test('remaining draft: banner with empty content stays hidden after setup', async ({ isolated }) => {
+test('banner with empty content stays hidden after setup', async ({ isolated }) => {
     const page = await isolated.open({ 'app.banner': { id: 'prepared-banner-empty', type: 'info', content: '' } });
     // Wait for the source readiness signal so the absence is not vacuous.
     await expect.poll(() => bannerState(page)).toEqual({ setup: true, id: 'prepared-banner-empty' });
     await expect(bannerBox(page)).toHaveCount(0);
 });
 
-test('remaining draft: banner close remembers banner.id in browser storage only', async ({ isolated }) => {
+test('banner close remembers banner.id in browser storage only', async ({ isolated }) => {
     const id = 'prepared-banner-dismiss';
     const page = await isolated.open({ 'app.banner': { id, type: 'info', content: 'Prepared dismissible banner' } });
     const box = bannerBox(page);await expect(box).toBeVisible();await expect(box).toHaveClass(/\bbg-info\b/);
@@ -247,4 +248,22 @@ test('remaining draft: banner close remembers banner.id in browser storage only'
     // Same setting still applied after reload; the stored id keeps it dismissed.
     await expect.poll(() => bannerState(page)).toEqual({ setup: true, id });
     await expect(bannerBox(page)).toHaveCount(0);
+});
+
+// Review T23: a dismissal is remembered for one banner.id only. A different
+// stored id (an earlier banner the user closed) must not hide a new banner.
+// The stored value is written in the browser before load; nothing is saved.
+test('banner with a new id shows again after an earlier banner was dismissed', async ({ isolated, staffPage }) => {
+    const previous = 'prepared-banner-previous';
+    const id = 'prepared-banner-new';
+    // isolated.open uses staffPage for the first page of a test.
+    await staffPage.addInitScript((value) => localStorage.setItem('PLACE.last_banner', value), previous);
+    const page = await isolated.open({ 'app.banner': { id, type: 'info', content: 'Prepared new banner' } });
+    expect(page).toBe(staffPage);
+    // Wait for setup so visibility is decided by the stored id, not by timing.
+    await expect.poll(() => bannerState(page)).toEqual({ setup: true, id });
+    expect(await page.evaluate(() => localStorage.getItem('PLACE.last_banner'))).toBe(previous);
+    const box = bannerBox(page);
+    await expect(box).toHaveCount(1);await expect(box).toBeVisible();
+    await expect(box).toContainText('Prepared new banner');await expect(box).toHaveClass(/\bbg-info\b/);
 });

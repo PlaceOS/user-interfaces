@@ -1,5 +1,4 @@
 // Coverage: 5 unique settings, 9 scenarios.
-// Local execution: 9/9 PASS, as reported by the user.
 // Settings: virtual_concierge.url, virtual_concierge_url (legacy),
 // virtual_concierge.icon, virtual_concierge.display, virtual_concierge.side.
 // Consumer: apps/workplace/src/app/components/virtual-concierge-button.component.ts.
@@ -51,7 +50,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
         } finally {
             await context.close();
             await Promise.all(closing);
-            await info.attach('landing-readonly-safety-audit', {
+            await info.attach('settings-safety-audit', {
                 body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
             });
             expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({
@@ -159,6 +158,31 @@ async function openLanding(page: Page, overrides: Settings) {
 }
 
 const button = (page: Page) => page.locator('virtual-concierge-button button');
+
+/** Sub-pixel layout rounding allowed when comparing pane edges, in px */
+const EDGE_TOLERANCE = 2;
+
+/**
+ * Read-only: the sidebar pane touches the requested viewport edge and not the
+ * other one. VirtualConciergeButtonComponent opens it 28rem wide with
+ * position { left: '0' } or { right: '0' }. The width is the document's
+ * client width, the area that the fixed overlay container fills.
+ */
+async function expectPaneAt(page: Page, side: 'left' | 'right') {
+    const pane = page.locator(`.cdk-overlay-pane.sidebar-embed-dialog-${side}`);
+    const gaps = async () => {
+        const box = await pane.boundingBox();
+        if (!box) return null;
+        const width = await page.evaluate(() => document.documentElement.clientWidth);
+        const left = box.x;
+        const right = width - (box.x + box.width);
+        return side === 'left' ? { near: left, far: right } : { near: right, far: left };
+    };
+    await expect.poll(async () => Math.abs((await gaps())?.near ?? Infinity),
+        { message: 'pane gap to the ' + side + ' edge' }).toBeLessThanOrEqual(EDGE_TOLERANCE);
+    const settled = await gaps();
+    expect(settled?.far ?? 0, 'pane does not also reach the other edge').toBeGreaterThan(EDGE_TOLERANCE);
+}
 
 async function closeEmbed(page: Page, selector: string) {
     await page.locator(`${selector} button[mat-dialog-close]`).click();
@@ -285,6 +309,7 @@ test(
                 '.cdk-overlay-pane.sidebar-embed-dialog.sidebar-embed-dialog-right',
             ),
         ).toHaveCount(1);
+        await expectPaneAt(staffPage, 'right');
         await closeEmbed(staffPage, 'sidebar-embed');
     },
 );
@@ -304,6 +329,7 @@ test(
                 '.cdk-overlay-pane.sidebar-embed-dialog.sidebar-embed-dialog-left',
             ),
         ).toHaveCount(1);
+        await expectPaneAt(staffPage, 'left');
         await closeEmbed(staffPage, 'sidebar-embed');
     },
 );

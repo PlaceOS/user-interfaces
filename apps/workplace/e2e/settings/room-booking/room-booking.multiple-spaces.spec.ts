@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: events.multiple_spaces (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -255,7 +257,7 @@ async function openPreparedRoom(page:Page,audit:Audit,overrides:Settings,view:nu
 }
 // MeetingFlowSpaceSelect.toggleSpace uses multipleSpacesEnabled for array vs replacement semantics.
 for(const multiple of [false,true]){
- test('remaining draft: events.multiple_spaces '+multiple+' accumulates or replaces synthetic room choices',async({staffPage,audit})=>{
+ test('events.multiple_spaces '+multiple+' accumulates or replaces synthetic room choices',async({staffPage,audit})=>{
   const root=await openPreparedRoom(staffPage,audit,{'app.events.multiple_spaces':multiple,'app.events.allow_multiple_spaces':false},1);
   const list=root.locator('meeting-flow-space-list');await expect(list).toBeVisible();await expect(root.locator('meeting-flow-space-map')).toHaveCount(0);
   const choose=(name:string)=>list.locator('li[space]').filter({hasText:name}).locator('button[name="select-space"]');

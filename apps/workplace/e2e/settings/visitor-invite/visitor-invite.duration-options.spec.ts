@@ -1,9 +1,9 @@
 // Settings: visitors.min_duration, visitors.max_duration,
 // visitors.duration_step, visitors.custom_duration_options
-// (docs/settings/workplace.md:56-59, 62).
-// Coverage: 4 unique settings, 4 scenarios. Local execution: 4/4 PASS (2026-10-22).
-// Consumer: apps/workplace/src/app/book/visitor-flow-new/visitor-flow-details.component.ts:272-296
-// passed to libs/form-fields/src/lib/duration-field.component.ts:401-470.
+// (docs/settings/workplace.md).
+// Coverage: 4 unique settings, 4 scenarios (one per setting).
+// Consumer: apps/workplace/src/app/book/visitor-flow-new/visitor-flow-details.component.ts
+// passed to libs/form-fields/src/lib/duration-field.component.ts.
 // The visitor form's duration menu is read only. No field is submitted.
 import type { Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
@@ -59,6 +59,16 @@ const BASE: Settings = {
     'app.visitors.bookable_hours': null,
     'app.bookings.bookable_hours': null,
     'app.visitors.reason_required': false,
+    // The getters are visitors.x || bookings.x (visitor-flow-details.component.ts).
+    // Pin the bookings.* fallbacks to values no scenario expects, so the stack's
+    // zone settings cannot change the menu and an ignored visitors.* key fails.
+    // An override key wins even when null (SettingsService.get exact-key match);
+    // null custom options fall through to the pinned []. Scenario 4 sets its own.
+    'app.bookings.min_duration': 15,
+    'app.bookings.max_duration': 480,
+    'app.bookings.duration_step': 15,
+    'app.bookings.custom_duration_options': [],
+    'app.visitors.custom_duration_options': null,
 };
 
 readOnlyTest.use({ readOnlyTimezone: 'Etc/UTC' });

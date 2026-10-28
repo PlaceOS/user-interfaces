@@ -4,8 +4,10 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
+// Setting: explore.show_legend (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // explore.show_legend and explore.legend
-// (libs/explore/src/lib/explore-map-view.component.ts:106-144, 237, 249-252):
+// (libs/explore/src/lib/explore-map-view.component.ts):
 // `@if (show_legend() && legend().length)` renders a [legend] panel; more than
 // three [label, colour] pairs give a collapsed toggle button, three or fewer an
 // <h3>. It depends on no map, level or WebSocket data. Nothing is clicked except
@@ -146,7 +148,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('explore-legend-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -206,12 +208,12 @@ async function openExplore(page: Page, overrides: Settings, audit: SafetyAudit) 
 const TWO: [string, string][] = [['E2E Draft Free', '#123456'], ['E2E Draft Busy', '#654321']];
 const FOUR: [string, string][] = [...TWO, ['E2E Draft Pending', '#112233'], ['E2E Draft Closed', '#445566']];
 
-test('WPA draft: explore.show_legend false hides a configured legend', async ({ staffPage, safetyAudit }) => {
+test('explore.show_legend false hides a configured legend', async ({ staffPage, safetyAudit }) => {
     const legend = await openExplore(staffPage, { 'app.explore.show_legend': false, 'app.explore.legend': TWO }, safetyAudit);
     await expect(legend).toHaveCount(0);
 });
 
-test('WPA draft: explore.show_legend true with explore.legend of two pairs renders labels and colours', async ({ staffPage, safetyAudit }) => {
+test('explore.show_legend true with explore.legend of two pairs renders labels and colours', async ({ staffPage, safetyAudit }) => {
     const legend = await openExplore(staffPage, { 'app.explore.show_legend': true, 'app.explore.legend': TWO }, safetyAudit);
     await expect(legend).toBeVisible();
     await expect(legend.locator('h3')).toHaveText('Legend');

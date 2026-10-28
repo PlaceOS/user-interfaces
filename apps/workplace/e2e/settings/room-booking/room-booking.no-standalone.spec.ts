@@ -1,5 +1,5 @@
-// Target: events.no_standalone. Current MeetingFlow.
-// Coverage: 1 setting, 1 scenario. Local execution: 1/1 PASS; retained result and run log.
+// Setting: events.no_standalone (docs/settings/workplace.md). Current MeetingFlow.
+// Coverage: 1 unique setting, 1 scenario.
 // Form state and incidental bootstrap fixtures exist only in this browser.
 import type { BrowserContext as MigrationContext, Page as MigrationPage, TestInfo as MigrationTestInfo } from '@playwright/test';
 import { expect as migrationExpect } from '../../../../../e2e/support/fixtures';
@@ -117,7 +117,7 @@ const migrationAuditFixture: { migrationAudit: [
                 if (!identified.has(context)) audit.monitoring_errors.push('A navigated context did not establish staff identity');
             }
             try {
-                await info.attach('no-standalone-readonly-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {

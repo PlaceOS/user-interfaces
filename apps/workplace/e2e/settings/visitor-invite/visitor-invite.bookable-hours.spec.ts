@@ -1,7 +1,7 @@
-// Setting: visitors.bookable_hours (docs/settings/workplace.md:60).
-// Coverage: 1 unique setting, 1 scenario. Local execution: 1/1 PASS (2026-10-22).
-// Consumer: apps/workplace/src/app/book/visitor-flow-new/visitor-flow-details.component.ts:296-306
-// passed to libs/form-fields/src/lib/time-field.component.ts:178-230.
+// Setting: visitors.bookable_hours (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 1 scenario.
+// Consumer: apps/workplace/src/app/book/visitor-flow-new/visitor-flow-details.component.ts
+// passed to libs/form-fields/src/lib/time-field.component.ts.
 // The start-time menu must stay inside the configured working window. No field
 // is submitted and the menu is closed again.
 import type { Page, Route } from '@playwright/test';

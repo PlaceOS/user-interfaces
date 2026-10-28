@@ -11,16 +11,11 @@ import {
     readOnlyTest,
 } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Migrated unchanged from apps/workplace/e2e/local/codex-wpa-next20-visitor-controls-draft.spec.ts (accepted: wpa-batch10a); only this setting's tests.
-
-// Status: PASS (2/2 after correcting the false premise, 2026-10-22).
-// Coverage: 1 unique setting (bookings.multiple_visitors), 2 scenarios.
+// Setting: bookings.multiple_visitors (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // The new flow chooses single/multiple controls on the page, not from this
 // setting; the setting changes the success summary wording. Browser-only
 // sessionStorage success state; no invite is sent.
-// Baseline reconciliation: 45 ledger PASS keys + desks.use_assets + 28 recent
-// WPA keys = 74. All target keys below are active ledger entries outside that
-// union and outside Copilot's ten room/visitor expansion targets.
 // Helpers are deliberately test-local; do not modify shared fixtures.
 type Settings = Record<string, unknown>;
 type Debug = Window & {
@@ -147,7 +142,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
                 }
                 await Promise.all(closing);
                 try {
-                    await info.attach('codex-next20-safety-audit', {
+                    await info.attach('settings-safety-audit', {
                         body: Buffer.from(JSON.stringify(audit, null, 2)),
                         contentType: 'application/json',
                     });
@@ -370,7 +365,7 @@ async function seedSuccessState(page: Page) {
 // Target: bookings.multiple_visitors.
 // Runtime: the new visitor flow chooses its single/multiple controls from the
 // on-page toggle, not from this setting. The setting's observable effect is the
-// success summary: visitor-flow-success.component.ts:36-56 and :161-163. The
+// success summary: visitor-flow-success.component.ts. The
 // success state is a browser-only sessionStorage seed; no invite is sent.
 // The expected wording is kept as data so the test body has no branches.
 const SCENARIOS = [

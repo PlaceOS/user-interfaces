@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Settings: bookings.min_duration, bookings.max_duration (docs/settings/workplace.md).
+// Coverage: 2 unique settings, 4 scenarios (2 per setting).
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -222,7 +224,7 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 }
 
 
-// Runtime: visitor-flow-new/visitor-flow-details.component.ts:272-290
+// Runtime: visitor-flow-new/visitor-flow-details.component.ts
 // selects visitors.* || bookings.*. DurationFieldComponent merges custom/current
 // lengths with its stepped list. Only local date/time/duration controls change.
 async function futureDuration(page: Page, form: InviteVisitorForm) {
@@ -239,9 +241,11 @@ async function durationOptions(page: Page, form: InviteVisitorForm) {
 }
 // VisitorFlowDetailsComponent: visitors.min/max_duration || bookings.min/max_duration.
 // Test each global key independently; current/default duration is put on-grid first.
+// Tested values avoid the code defaults (bookings.min_duration 30, max_duration 180),
+// so an ignored key changes the list, and no two cases share the same overrides.
 for (const [key,value,expected] of [
-    ['min_duration',30,[30,60,90,120]], ['min_duration',90,[90,120]],
-    ['max_duration',120,[30,60,90,120]], ['max_duration',180,[30,60,90,120,150,180]],
+    ['min_duration',60,[60,90,120]], ['min_duration',90,[90,120]],
+    ['max_duration',120,[30,60,90,120]], ['max_duration',150,[30,60,90,120,150]],
 ] as const) {
     test('booking settings: bookings.'+key+' '+value+' bounds visitor fallback duration options', async ({staffPage,audit}) => {
         const form=await visitor(staffPage,audit,{

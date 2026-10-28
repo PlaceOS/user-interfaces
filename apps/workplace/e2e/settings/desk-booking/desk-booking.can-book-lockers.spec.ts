@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: desks.can_book_lockers (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -271,7 +273,7 @@ async function durationMenu(page: Page, details: ReturnType<Page['locator']>) {
 }
 // DeskFlowDetailsComponent can_book_lockers gates the secondary-resource checkbox.
 for(const enabled of [false,true]){
- test('prepared desk: desks.can_book_lockers '+enabled+' gates the local secondary locker option',async({staffPage,audit})=>{
+ test('desks.can_book_lockers '+enabled+' gates the local secondary locker option',async({staffPage,audit})=>{
   const {details}=await openDesk(staffPage,audit,{'app.desks.can_book_lockers':enabled,'app.desks.allow_all_day':false});
   const box=details.locator('mat-checkbox input[type="checkbox"]');await expect(box).toHaveCount(enabled?1:0);
   if(enabled){await expect(box).not.toBeChecked();await box.check();await expect(box).toBeChecked();

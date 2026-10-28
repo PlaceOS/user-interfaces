@@ -1,9 +1,11 @@
-// Setting: hide_landing_widgets (docs/settings/workplace.md:29).
-// Coverage: 1 setting, 2 scenarios. Local execution: 2/2 PASS, as reported by the user.
-// Consumer: apps/workplace/src/app/landing-new/landing-new.component.ts:374-395.
+// Setting: hide_landing_widgets (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Consumer: apps/workplace/src/app/landing-new/landing-new.component.ts.
 // Hidden ids are removed from `available()` before the layout is rendered, so
 // the card is absent and cannot be added. The default layout keeps the other
 // non-optional cards.
+// The ['favourites'] scenario turns hide_landing_customise off so it can open
+// the layout editor and check the add list, then cancels (nothing is saved).
 import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
@@ -50,7 +52,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
         } finally {
             await context.close();
             await Promise.all(closing);
-            await info.attach('landing-readonly-safety-audit', {
+            await info.attach('settings-safety-audit', {
                 body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
             });
             expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({
@@ -160,10 +162,12 @@ test(
 );
 
 test(
-    'hide_landing_widgets removes exactly the configured cards',
+    'hide_landing_widgets removes exactly the configured cards and cannot be added',
     async ({ staffPage }) => {
         await openLanding(staffPage, {
             'app.hide_landing_widgets': ['favourites'],
+            // The editor is needed to check the add list (available()).
+            'app.hide_landing_customise': false,
         });
         await expect(
             staffPage.locator('section[data-widget="favourites"]'),
@@ -175,5 +179,22 @@ test(
         await expect(
             staffPage.locator('section[data-widget="available_now"]'),
         ).toHaveCount(1);
+        // Local UI state only: open the editor, read the add list, then Cancel.
+        // Each add button shows its widget icon (landing-layout.ts):
+        // favourites 'star', colleagues 'groups'.
+        const edit = staffPage.locator('button[name="edit-home-layout"]');
+        await edit.click();
+        const add = staffPage.locator('button[name="add-home-widget"]');
+        const addWith = (icon: string) =>
+            add.filter({ has: staffPage.locator('icon', { hasText: new RegExp('^\\s*' + icon + '\\s*$') }) });
+        // Anchor: the add list is rendered, with a card that is not hidden.
+        await expect(addWith('groups')).toHaveCount(1);
+        await expect(addWith('star')).toHaveCount(0);
+        await staffPage.locator('button[name="cancel-home-layout"]').click();
+        await expect(edit).toBeVisible();
+        await expect(add).toHaveCount(0);
+        await expect(
+            staffPage.locator('section[data-widget="favourites"]'),
+        ).toHaveCount(0);
     },
 );

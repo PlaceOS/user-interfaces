@@ -4,12 +4,10 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Migrated unchanged from apps/workplace/e2e/local/claude-wpa-next25-parking-request-draft.spec.ts (accepted: wpa-next25-P1/P5/P6/P7); only this setting's tests.
-
-// Target: 13 parking REQUEST form keys (route /#/book/parking-request/form).
-// Consumer: apps/workplace/src/app/book/parking-request-flow/
-//   parking-request-form-details.component.ts:1343-1403, 1600-1617 (signals),
-//   template :160-1180; parking-request-form.component.ts:153-155 (notes HTML).
+// Setting: parking.hide_custom_shift (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 3 scenarios.
+// Route /#/book/parking-request/form. Consumers: apps/workplace/src/app/book/parking-request-flow/
+//   parking-request-form-details.component.ts and parking-request-form.component.ts.
 // Nothing is submitted: the submit button, plate-number remove buttons and
 // favourite icons are never clicked. Clicks only change local form state.
 type Settings = Record<string, unknown>;
@@ -84,7 +82,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('claude-next25-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -245,7 +243,7 @@ async function optionLabels(page: Page, select: Locator) {
     return labels;
 }
 
-test.describe('WPA next25 DRAFT: parking request form', () => {
+test.describe('parking request form: parking.hide_custom_shift', () => {
     for (const hidden of [false, true]) {
         test('parking.hide_custom_shift ' + hidden + ' controls the Custom Hours shift option',
             async ({ staffPage, audit }) => {
@@ -262,7 +260,7 @@ test.describe('WPA next25 DRAFT: parking request form', () => {
         const root = await openRequest(staffPage, audit, {
             'app.parking.hide_custom_shift': true, 'app.parking.request_shift_options': [],
         });
-        // is_all_day_forced (component :1478-1480) replaces the select with fixed text.
+        // is_all_day_forced (parking-request-form-details.component.ts) replaces the select with fixed text.
         await expect(labelledSelect(root, 'Shift Type')).toHaveCount(0);
         await expect(root.getByText(/^\s*All Day\s*$/)).toBeVisible();
         await untouched(staffPage);

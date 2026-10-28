@@ -5,12 +5,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Migrated unchanged from apps/workplace/e2e/local/codex-wpa-next20-visitor-controls-draft.spec.ts (accepted: wpa-batch10a); only this setting's tests.
-
-// Adapted for the current routed VisitorFlowNewComponent; read-only validation only.
-// Baseline reconciliation: 45 ledger PASS keys + desks.use_assets + 28 recent
-// WPA keys = 74. All target keys below are active ledger entries outside that
-// union and outside Copilot's ten room/visitor expansion targets.
+// Setting: visitors.can_book_for_anyone (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Read-only checks on the routed VisitorFlowNewComponent form.
 // Helpers are deliberately test-local; do not modify shared fixtures.
 type Settings = Record<string, unknown>;
 type Debug = Window & {
@@ -93,7 +90,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -225,15 +222,11 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 }
 
 
-// Targets: visitors.allow_all_day, visitors.can_book_for_anyone,
-// visitors.can_book_for_others, visitors.reason_required, bookings.multiple_visitors.
-// Runtime: apps/workplace/src/app/book/visitor-flow.component.ts:12 renders
-// libs/bookings/src/lib/invite-visitor-form.component.ts, NOT the older
-// visitor-invite-form component. Templates :126-204, :374-386; signals :610-749.
+// Runtime: the routed VisitorFlowNewComponent (apps/workplace/src/app/book/visitor-flow-new/).
 const DRAFT_SETTING_KEYS = ['visitors.can_book_for_anyone'] as const;
 
 for (const enabled of [false, true]) {
-    test('WPA next20 DRAFT: visitors.can_book_for_anyone ' + enabled + ' selects the visitor host-search branch',
+    test('visitors.can_book_for_anyone ' + enabled + ' selects the visitor host-search branch',
         async ({ staffPage, audit }) => {
             const form = await visitor(staffPage, audit, {
                 'app.visitors.can_book_for_anyone': enabled,

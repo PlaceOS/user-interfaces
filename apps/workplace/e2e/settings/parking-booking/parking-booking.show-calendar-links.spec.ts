@@ -1,7 +1,6 @@
 // Coverage: 1 unique setting, 2 scenarios.
 // Setting: parking.show_calendar_links (source:
-//   apps/workplace/src/app/book/parking-flow/parking-flow-success.component.ts:51-96,147-149).
-// Status: PASS (2/2, 2026-10-22, isolated local E2E backend).
+//   apps/workplace/src/app/book/parking-flow/parking-flow-success.component.ts).
 //
 // The parking success panel renders the Outlook/Google/iCal links only when
 // parking.show_calendar_links is true. The booked event is a browser-only

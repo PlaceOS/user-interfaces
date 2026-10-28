@@ -1,7 +1,6 @@
 // Coverage: 1 unique setting, 2 scenarios.
-// Setting: bookings.has_assets (source: apps/workplace/src/app/book/desk-flow-new/
-//   desk-flow-details.component.ts:370-374).
-// Status: PASS (2/2, 2026-10-22, isolated local E2E backend).
+// Setting: bookings.has_assets (docs/settings/workplace.md; source:
+//   apps/workplace/src/app/book/desk-flow-new/desk-flow-details.component.ts).
 //
 // The desk flow ORs the generic booking flag with the desk-specific flag:
 // `has_assets = bookings.has_assets || desks.has_assets`. The existing

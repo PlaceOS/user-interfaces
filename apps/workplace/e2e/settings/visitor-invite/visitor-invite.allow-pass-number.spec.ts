@@ -8,6 +8,8 @@ import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-for
 import { SchedulePage } from '../../../../../e2e/support/bookings/schedule.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
+// Setting: visitors.allow_pass_number (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // Helpers are deliberately test-local; do not modify shared fixtures.
 type Settings = Record<string, unknown>;
 type Debug = Window & {
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -219,7 +221,7 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 
 // VisitorFlowInvites renders the pass number field only when visitors.allow_pass_number is true.
 for(const enabled of [false,true]){
- test('remaining draft: visitors.allow_pass_number '+enabled+' shows the visitor pass number field',async({staffPage,audit})=>{
+ test('visitors.allow_pass_number '+enabled+' shows the visitor pass number field',async({staffPage,audit})=>{
   const form=await visitor(staffPage,audit,{'app.visitors.allow_pass_number':enabled});
   await expect(form.visitorName).toBeVisible();
   await expect(form.passNumber).toHaveCount(enabled?1:0);

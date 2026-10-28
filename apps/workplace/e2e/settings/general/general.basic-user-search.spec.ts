@@ -6,7 +6,12 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: basic_user_search. Coverage: 1 unique setting, 1 scenario (previously 2).
+// The basic=false case was removed: it duplicated the colleagues_require_auth=false
+// case in landing/landing.colleagues-require-auth.spec.ts (same overrides, routes
+// and assertions). basic=true is the case specific to this setting: it takes
+// priority over colleagues_require_auth=false (LandingStateService.search_fn).
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +95,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -225,7 +230,8 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 // LandingStateService.search_fn selects engine users or staff people; no contact is selected or saved.
 const QUERY = 'CodexNext20Colleague';
 
-for (const basic of [true, false]) {
+// Only basic=true: the false/directory path is covered by landing.colleagues-require-auth.spec.ts.
+for (const basic of [true]) {
     test('general settings: basic_user_search ' + basic + ' selects the landing colleague search source',
         async ({ staffPage, audit }) => {
             const fixture = await prepare(staffPage, audit, {

@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: currency (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -256,7 +258,7 @@ async function openPreparedRoom(page:Page,audit:Audit,overrides:Settings,view:nu
 // CurrencyPipe in native CateringItemListItem; inspect prices without selecting an item/order.
 const CATEGORY='codex-next20-catering';const TYPE='prepared-currency-type';const ITEM='Prepared currency tea';
 for(const [code,price] of [['EUR',/€\s*12\.50/],['GBP',/£\s*12\.50/]] as const){
- test('remaining draft: currency '+code+' formats browser-only native catering prices',async({staffPage,audit})=>{
+ test('currency '+code+' formats browser-only native catering prices',async({staffPage,audit})=>{
   const root=await openPreparedRoom(staffPage,audit,{'app.currency':code},2,[ROOM_ONE],[],async()=>{
    await getOnly(staffPage,audit,'prepared catering types',url=>url.pathname==='/api/engine/v2/asset_types'&&url.searchParams.get('category_id')===CATEGORY&&url.searchParams.get('limit')==='500',()=>[{id:TYPE,category_id:CATEGORY,name:'CATERING:Prepared',brand:'PlaceOS'}]);
    await getOnly(staffPage,audit,'prepared catering item',url=>url.pathname==='/api/engine/v2/assets'&&url.searchParams.get('type_id')===TYPE&&!!url.searchParams.get('zone_id')&&url.searchParams.get('limit')==='500',url=>[{id:'prepared-currency-tea',name:ITEM,identifier:ITEM,asset_type_id:TYPE,zone_id:url.searchParams.get('zone_id'),images:[],other_data:{unit_price:1250,category:'Prepared drinks',tags:[],options:[],hide_for_zones:[]}}]);

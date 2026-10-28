@@ -1,4 +1,5 @@
-// Setting: events.hide_features. Helpers below are copied unchanged from room-booking.use-bookings.spec.ts (accepted).
+// Setting: events.hide_features (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
 import type { Locator, Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
@@ -7,7 +8,7 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -91,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -257,7 +258,7 @@ async function openPreparedRoom(page:Page,audit:Audit,overrides:Settings,view:nu
 // MeetingFlowSpaceSelect lists a Facilities toggle per feature of the available spaces, skipping events.hide_features.
 // Browser-only room features are served by a later-registered GET fixture (Playwright runs the newest route first).
 for(const hidden of [[],['Prepared Projector']]){
- test('remaining draft: events.hide_features ['+hidden.join(',')+'] hides facility filters',async({staffPage,audit})=>{
+ test('events.hide_features ['+hidden.join(',')+'] hides facility filters',async({staffPage,audit})=>{
   const root=await openPreparedRoom(staffPage,audit,{'app.events.hide_features':hidden},1,[],[],async()=>{
    await getOnly(staffPage,audit,'featured room list',url=>url.pathname==='/api/engine/v2/systems'&&!!url.searchParams.get('zone_id')&&url.searchParams.get('limit')==='500'&&url.searchParams.get('signage')==='false'&&[...url.searchParams.keys()].every(k=>['zone_id','limit','signage'].includes(k)),
     url=>[{...ROOM_ONE,features:['Prepared Projector']},{...ROOM_TWO,features:['Prepared Whiteboard']}].map(r=>({...r,zones:[url.searchParams.get('zone_id')]})));

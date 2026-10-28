@@ -1,6 +1,6 @@
-// Setting: lockers.available_period (docs/settings/workplace.md:155).
-// Coverage: 1 unique setting, 2 scenarios. Local execution: 2/2 PASS (2026-10-22).
-// Consumer: libs/bookings/src/lib/locker-select-modal/locker-filters.component.ts:359-380.
+// Setting: lockers.available_period (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Consumer: libs/bookings/src/lib/locker-select-modal/locker-filters.component.ts.
 // The locker filters date field uses `available_period` as its `to` bound. The
 // locker picker is opened, the date menu is inspected, then closed unchanged.
 import type { Locator, Page, Route } from '@playwright/test';
@@ -171,32 +171,50 @@ async function openCalendar(page: Page, root: Locator) {
     return picker;
 }
 
+/**
+ * The calendar cell `offset` days after today, found by date. The grid is built
+ * around the form's date, not today (date-calendar.component.ts generateDates).
+ * Each cell's date is displayed_dates()[i].id: local midnight, one cell per day.
+ * If the day is past the grid, move one month on: the right chevron (named
+ * schedule-previous-month) is disabled once the grid passes `to`, so a later
+ * day cannot be selectable and null is returned. Any other miss fails.
+ */
 async function dayCell(page: Page, picker: Locator, offset: number) {
     const cells = picker.locator('button[name="schedule-set-date"]');
     await expect(cells.first()).toBeVisible();
-    const today = await cells.evaluateAll((elements) =>
-        elements.findIndex(
-            (element) => !!element.querySelector('div.border-secondary'),
-        ),
-    );
-    expect(today, 'the calendar marks today').toBeGreaterThanOrEqual(0);
-    if (today + offset < (await cells.count()))
-        return cells.nth(today + offset);
-    const next = picker.locator('button[name="schedule-previous-month"]');
-    if (await next.isDisabled()) return null;
-    const day = await page.evaluate((days) => {
+    const target = await page.evaluate((days) => {
         const date = new Date();
         date.setDate(date.getDate() + days);
-        return date.getDate();
+        date.setHours(0, 0, 0, 0);
+        return date.valueOf();
     }, offset);
-    await next.click();
-    const cell = picker
-        .locator(
-            'button[name="schedule-set-date"]:not([class*="text-base-300"])',
-        )
-        .filter({ hasText: new RegExp('^\\s*' + day + '\\s*$') });
-    await expect(cell).toHaveCount(1);
-    return cell;
+    const position = () =>
+        picker.evaluate((element, id) => {
+            const calendar = (
+                window as Window & {
+                    ng?: { getComponent(element: Element): unknown };
+                }
+            ).ng?.getComponent(element) as
+                | { displayed_dates(): { id: number }[] }
+                | undefined;
+            if (!calendar) throw new Error('Calendar debug API required');
+            return calendar
+                .displayed_dates()
+                .findIndex((day) => day.id === id);
+        }, target);
+    let index = await position();
+    if (index < 0) {
+        const next = picker.locator('button[name="schedule-previous-month"]');
+        if (await next.isDisabled()) return null;
+        await next.click();
+        await expect
+            .poll(position, {
+                message: offset + ' days ahead is on the next month grid',
+            })
+            .toBeGreaterThanOrEqual(0);
+        index = await position();
+    }
+    return cells.nth(index);
 }
 
 async function dayEnabled(page: Page, root: Locator, offset: number) {
@@ -217,10 +235,14 @@ readOnlyTest(
     },
 );
 
+// end_date = endOfDay(today + available_period), default 90 when unset
+// (locker-filters.component.ts), so a day inside 10 proves nothing on its own:
+// assert the boundary day and the first disallowed day.
 readOnlyTest(
-    'lockers.available_period 10 leaves the third day selectable',
+    'lockers.available_period 10 allows the tenth day and disables the eleventh',
     async ({ staffPage }) => {
         const filters = await openLockerPicker(staffPage, 10);
-        expect(await dayEnabled(staffPage, filters, 3)).toBe(true);
+        expect(await dayEnabled(staffPage, filters, 10)).toBe(true);
+        expect(await dayEnabled(staffPage, filters, 11)).toBe(false);
     },
 );

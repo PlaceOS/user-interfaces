@@ -1,7 +1,6 @@
-// Adapted to the current LandingNew UI; runtime validation PENDING.
-// Covered active keys: hide_landing_rooms
-// Scenario owners: S54. Shared scenarios are registered once.
-// Historical evidence: reports/wpa-settings-reference/preparation/batch34-file-only-execution.json
+// Setting: hide_landing_rooms (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 1 scenario (shown and hidden checked in one test).
+// Adapted to the current LandingNew UI.
 import type { Browser as MigrationBrowser, BrowserContext as MigrationContext, BrowserContextOptions as MigrationContextOptions, Page as MigrationPage, TestInfo as MigrationTestInfo } from '@playwright/test';
 import { expect as migrationExpect, test as migrationBase } from '../../../../../e2e/support/fixtures';
 import { APP_URL as MIGRATION_APP_URL, BACKEND_URL as MIGRATION_BACKEND_URL, assertLocalOnly as migrationAssertLocalOnly, staffEmail as migrationStaffEmail } from '../../../../../e2e/support/env';
@@ -195,7 +194,7 @@ const migrationAuditFixture: { migrationAudit: [
             }
             migrationActive = undefined;
             try {
-                await info.attach('legacy-settings-migration-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -215,8 +214,6 @@ const migrationReadOnlyTest = migrationReadOnlyBase.extend<{ migrationAudit: Mig
 migrationTest.use({ storageState: undefined });
 migrationReadOnlyTest.use({ storageState: undefined });
 
-// Source: apps/workplace/e2e/local/wpa-settings-batch31.spec.ts
-// SHA-256: a91920277ae842301f4249d780cfab8e195d7bc8c39699cf651489eda7fb59aa
 {
 const base = migrationTest;
 type Settings = Record<string, unknown>;
@@ -386,7 +383,7 @@ const BASE_SETTINGS: Settings = {
 
 // LandingNewComponent and availableNowTabs gate the room tab, not the old
 // room heading. Keep the desk tab as a positive, independent control.
-test('WPA Batch 34: hide landing rooms hides the room heading while levels remain', async ({ isolated }) => {
+test('hide_landing_rooms hides the room heading while levels remain', async ({ isolated }) => {
     for (const hidden of [false, true]) {
         const page = await isolated.open({ 'app.hide_landing_rooms': hidden, 'app.hide_landing_spaces': false });
         const available = page.locator('landing-new landing-available-now');

@@ -8,6 +8,8 @@ import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-for
 import { SchedulePage } from '../../../../../e2e/support/bookings/schedule.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
+// Setting: visitors.allow_visitor_internal_or_external (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // Helpers are deliberately test-local; do not modify shared fixtures.
 type Settings = Record<string, unknown>;
 type Debug = Window & {
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -219,7 +221,7 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 
 // VisitorFlowInvites shows an internal/external radio group per named visitor when the setting is true.
 for(const enabled of [false,true]){
- test('remaining draft: visitors.allow_visitor_internal_or_external '+enabled+' offers the visitor type choice',async({staffPage,audit})=>{
+ test('visitors.allow_visitor_internal_or_external '+enabled+' offers the visitor type choice',async({staffPage,audit})=>{
   const form=await visitor(staffPage,audit,{'app.bookings.multiple_visitors':false,'app.visitors.allow_visitor_internal_or_external':enabled});
   // Single-visitor name is local form state; invited_visitors() needs a non-empty name. No address typed, never send.
   await expect(form.visitorName).toBeVisible();await form.visitorName.fill('Prepared Visitor');await staffPage.keyboard.press('Escape');

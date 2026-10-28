@@ -1,18 +1,12 @@
-// WPA Settings Batch 1 + 2 (PR #595). Repository-ready copy of the reviewed
-// external draft reviewed-codex/parking-request/parking-request.auto-approved-groups.spec.ts.
-// Exact setting key(s): app.parking.auto_approved_groups
-// Unique settings: 1. Scenarios: 3.
-// Evidence: external draft run 2026-10-26, 3/3 PASS. Repository run PENDING.
-// Repository adaptation: repository imports and readOnlyTest only; the external
-// draft adapter is not used. Its held setting controls are inlined as CONTROLS
-// and its app-error capture and non-local network block (Google Fonts answered
-// locally) are folded into the wsAudit fixture below.
+// Setting: parking.auto_approved_groups (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 3 scenarios.
+// Held setting controls are listed in CONTROLS; non-local requests (Google
+// Fonts) are answered locally by the wsAudit fixture.
 //
-// Setting: parking.auto_approved_groups (source:
-//   apps/workplace/src/app/book/parking-request-flow/parking-request-form-details.component.ts:1527-1533
-//   is_auto_approved, consumed by the approver block gate at :1170-1174 and the
-//   approver reset at :1932-1949; user_group_names from
-//   libs/common/src/lib/user-state.ts:64-66, fed by GET /api/engine/v2/users/current).
+// Source: apps/workplace/src/app/book/parking-request-flow/parking-request-form-details.component.ts
+//   (is_auto_approved, consumed by the approver block gate and the approver
+//   reset); user_group_names from libs/common/src/lib/user-state.ts, fed by
+//   GET /api/engine/v2/users/current.
 //
 // Scenarios: 3
 //   1. A configured group that the signed-in user holds hides the approver section.

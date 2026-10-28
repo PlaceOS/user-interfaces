@@ -1,9 +1,9 @@
-// Coverage: 1 unique setting, 2 scenarios. Local execution: 2/2 PASS (2026-10-22 15:26 run).
-// Setting: default_building (docs/settings/workplace.md:34).
-// Consumer: libs/common/src/lib/org/organisation.service.ts:977-1000.
+// Coverage: 1 unique setting, 2 scenarios.
+// Setting: default_building (docs/settings/workplace.md).
+// Consumer: libs/common/src/lib/org/organisation.service.ts.
 // When the user has no saved building, the app selects `default_building`.
-// The organisation is a browser-only two-building fixture; no user or
-// organisation record is changed.
+// The organisation is a browser-only three-building fixture (a decoy listed
+// first, then A and B); no user or organisation record is changed.
 import type { Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
@@ -50,7 +50,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
         } finally {
             await context.close();
             await Promise.all(closing);
-            await info.attach('general-default-building-safety-audit', {
+            await info.attach('settings-safety-audit', {
                 body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
             });
             expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({
@@ -100,9 +100,28 @@ const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 const REGION = 'codex-default-region';
 const BUILDING_A = 'codex-default-building-a';
 const BUILDING_B = 'codex-default-building-b';
+/**
+ * Listed first and in the same timezone, so the app's own fallbacks when
+ * default_building is ignored (timezone match, then buildings[0];
+ * OrganisationService._setDefaultBuilding) select it, never A or B.
+ */
+const BUILDING_FALLBACK = 'codex-default-building-fallback';
 const LEVEL_A = 'codex-default-level-a';
 const LEVEL_B = 'codex-default-level-b';
+const LEVEL_FALLBACK = 'codex-default-level-fallback';
+const NAMES = {
+    [BUILDING_A]: 'Codex Default Building A',
+    [BUILDING_B]: 'Codex Default Building B',
+    [BUILDING_FALLBACK]: 'Codex Default Fallback Building',
+};
 const LEVELS = [
+    {
+        id: LEVEL_FALLBACK,
+        parent_id: BUILDING_FALLBACK,
+        name: 'Codex Level Fallback',
+        display_name: 'Codex Level Fallback',
+        tags: ['level'],
+    },
     {
         id: LEVEL_A,
         parent_id: BUILDING_A,
@@ -190,6 +209,15 @@ async function organisationFixture(page: Page) {
             url.searchParams.get('parent_id') === REGION &&
             url.searchParams.get('limit') === '500',
         () => [
+            {
+                id: BUILDING_FALLBACK,
+                parent_id: REGION,
+                name: NAMES[BUILDING_FALLBACK],
+                display_name: NAMES[BUILDING_FALLBACK],
+                tags: ['building'],
+                timezone: 'UTC',
+                location: '0,0',
+            },
             {
                 id: BUILDING_A,
                 parent_id: REGION,
@@ -292,13 +320,20 @@ async function openUserControls(page: Page, default_building: string) {
     return controls;
 }
 
+/** Only the expected building is shown; the other two names are absent. */
+async function expectBuilding(controls: ReturnType<Page['locator']>, expected: string) {
+    for (const [id, name] of Object.entries(NAMES)) {
+        await expect(controls.getByText(name, { exact: true })).toHaveCount(
+            id === expected ? 1 : 0,
+        );
+    }
+}
+
 test(
     'default_building selects building B when the user has no saved building',
     async ({ staffPage }) => {
         const controls = await openUserControls(staffPage, BUILDING_B);
-        await expect(
-            controls.getByText('Codex Default Building B', { exact: true }),
-        ).toHaveCount(1);
+        await expectBuilding(controls, BUILDING_B);
     },
 );
 
@@ -306,8 +341,6 @@ test(
     'default_building selects building A when the user has no saved building',
     async ({ staffPage }) => {
         const controls = await openUserControls(staffPage, BUILDING_A);
-        await expect(
-            controls.getByText('Codex Default Building A', { exact: true }),
-        ).toHaveCount(1);
+        await expectBuilding(controls, BUILDING_A);
     },
 );

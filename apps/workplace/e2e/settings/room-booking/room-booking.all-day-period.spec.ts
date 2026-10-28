@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: events.all_day_period (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -255,7 +257,7 @@ async function openPreparedRoom(page:Page,audit:Audit,overrides:Settings,view:nu
 }
 // EventFormService._applyDurationSettings -> all-day time-sync; current controls stay disabled, not removed.
 for(const period of [{start:9,end:17},{start:10,end:16}]){
- test('remaining draft: events.all_day_period '+period.start+'-'+period.end+' sets the unsaved all-day interval',async({staffPage,audit})=>{
+ test('events.all_day_period '+period.start+'-'+period.end+' sets the unsaved all-day interval',async({staffPage,audit})=>{
   const root=await openPreparedRoom(staffPage,audit,{'app.events.all_day_period':period},0);
   const box=root.locator('mat-checkbox input[type="checkbox"]');await expect(box).not.toBeChecked();await box.check();
   await expect.poll(()=>root.evaluate(el=>{const c=(window as Debug).ng?.getComponent(el) as {form_value():{all_day:boolean,date:number,duration:number}}|undefined;

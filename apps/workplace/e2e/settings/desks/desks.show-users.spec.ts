@@ -1,8 +1,7 @@
-// Coverage: 1 unique setting, 2 scenarios.
-// Setting: desks.show_users (source:
-//   apps/workplace/src/app/book/desk-flow-new/desk-flow-select-map.component.ts:159-162,226-271;
-//   libs/explore/src/lib/explore-desk-info.component.ts:259-264).
-// Status: PASS (2/2 after setup correction, 2026-10-22, isolated local E2E backend).
+// Coverage: 1 unique setting, 3 scenarios.
+// Setting: desks.show_users (docs/settings/workplace.md; source:
+//   apps/workplace/src/app/book/desk-flow-new/desk-flow-select-map.component.ts;
+//   libs/explore/src/lib/explore-desk-info.component.ts).
 //
 // The desk map only requests desk bookings and builds the per-desk user map
 // when desks.show_users is true. The organisation, map asset, desk metadata and
@@ -364,7 +363,7 @@ async function organisationFixture(
     );
 }
 
-async function prepare(page: Page, audit: Audit, show_users: boolean) {
+async function prepare(page: Page, audit: Audit, show_users: boolean | null) {
     assertLocalOnly(APP_URL, BACKEND_URL);
     await page.setViewportSize({ width: 1440, height: 1100 });
     await getOnly(
@@ -430,7 +429,7 @@ async function prepare(page: Page, audit: Audit, show_users: boolean) {
     };
     await useSettings(page, settings);
     await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-US'));
-    await organisationFixture(page, audit, show_users);
+    await organisationFixture(page, audit, show_users !== false);
     await page.goto('/#/book/desk/form');
     await expect(page.locator('global-loading')).toHaveCount(1);
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
@@ -477,9 +476,11 @@ async function deskMap(page: Page, audit: Audit) {
     const select = page.locator('desk-flow-select');
     await expect(select).toBeVisible();
     await expect(select.locator('desk-flow-select-map')).toHaveCount(0);
+    // The view toggle's icon ligature is lowercase `map`
+    // (desk-flow-select.component.ts); the visible "Map" label is a separate div.
     await select
         .locator('button', {
-            has: page.locator('icon', { hasText: /^\s*Map\s*$/ }),
+            has: page.locator('icon', { hasText: /^\s*map\s*$/ }),
         })
         .click();
     const map = select.locator('desk-flow-select-map');
@@ -508,7 +509,7 @@ type MapQueryState = {
 
 /**
  * Read-only probe of the map's own desk-booking query
- * (desk-flow-select-map.component.ts:226-256). Desk bookings are requested
+ * (desk-flow-select-map.component.ts). Desk bookings are requested
  * only by the `_level_bookings` resource, whose params are
  * `_booking_query_debounced`. `_booking_query` is undefined unless
  * desks.show_users is on AND a level and a form date exist. Seeing the level
@@ -558,17 +559,28 @@ function deskUserLabel(map: Locator) {
 
 // With show_users on, the map builds a booking query, requests desk bookings
 // and labels the desk with the booker; with it off, none of that happens.
+// Unset (null) falls back to on: the map reads
+// settings.signal('desks.show_users', true), and a null override resolves to
+// that default while keeping any stack zone value out.
 // Kept as data so the test body has no branches.
 const SCENARIOS = [
     {
         show_users: false,
+        shown: false,
         user_label: '',
         message: 'show_users false must not request desk bookings',
     },
     {
         show_users: true,
+        shown: true,
         user_label: 'Prepared Show Users',
         message: 'show_users must request desk bookings',
+    },
+    {
+        show_users: null,
+        shown: true,
+        user_label: 'Prepared Show Users',
+        message: 'unset show_users must fall back to requesting desk bookings',
     },
 ];
 
@@ -588,14 +600,14 @@ for (const scenario of SCENARIOS) {
             .toEqual({
                 zone: LEVEL_A,
                 has_date: true,
-                query: scenario.show_users,
-                debounced: scenario.show_users,
+                query: scenario.shown,
+                debounced: scenario.shown,
             });
         await expect
             .poll(() => fixtureHits(audit, 'desk bookings') > 0, {
                 message: scenario.message,
             })
-            .toBe(scenario.show_users);
+            .toBe(scenario.shown);
         await expect
             .poll(() => deskUserLabel(map), {
                 message: 'the desk feature user label',
@@ -603,7 +615,7 @@ for (const scenario of SCENARIOS) {
             .toBe(scenario.user_label);
         // Re-checked after the label settled: still no request when off.
         expect(fixtureHits(audit, 'desk bookings') > 0, scenario.message).toBe(
-            scenario.show_users,
+            scenario.shown,
         );
         await expect(staffPage).toHaveURL(/#\/book\/desk\/form$/);
         await expect(staffPage.locator('desk-flow-success')).toHaveCount(0);

@@ -5,12 +5,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Migrated unchanged from apps/workplace/e2e/local/codex-wpa-next20-booking-fallbacks-draft.spec.ts (accepted: wpa-batch10b); only this setting's tests.
-
-// Adapted for the current routed VisitorFlowNewComponent; read-only validation only.
-// Baseline reconciliation: 45 ledger PASS keys + desks.use_assets + 28 recent
-// WPA keys = 74. All target keys below are active ledger entries outside that
-// union and outside Copilot's ten room/visitor expansion targets.
+// Setting: bookings.all_day_default (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Read-only checks on the routed VisitorFlowNewComponent form.
 // Helpers are deliberately test-local; do not modify shared fixtures.
 type Settings = Record<string, unknown>;
 type Debug = Window & {
@@ -93,7 +90,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -228,8 +225,8 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 // Targets: the generic bookings.* keys below are independent active ledger
 // entries. Specific visitor/desk values are explicitly null so fallback behavior,
 // rather than a previously covered type-specific setting, is asserted.
-// Consumers: invite-visitor-form.component.ts:641-765;
-// booking-form.service.ts:849,1523-1528 (all-day initial state).
+// Consumers: invite-visitor-form.component.ts;
+// booking-form.service.ts (all-day initial state).
 const DRAFT_SETTING_KEYS = ['bookings.all_day_default'] as const;
 
 async function timezoneBuildings(page: Page, audit: Audit) {
@@ -256,7 +253,7 @@ async function timezoneBuildings(page: Page, audit: Audit) {
 }
 
 for (const enabled of [false, true]) {
-    test('WPA next20 DRAFT: bookings.all_day_default ' + enabled + ' initializes the visitor timed or all-day form',
+    test('bookings.all_day_default ' + enabled + ' initializes the visitor timed or all-day form',
         async ({ staffPage, audit }) => {
             const form = await visitor(staffPage, audit, {
                 'app.visitor.all_day_default': null, 'app.visitors.all_day_default': null,

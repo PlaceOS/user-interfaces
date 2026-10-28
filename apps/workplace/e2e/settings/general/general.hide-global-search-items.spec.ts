@@ -1,16 +1,10 @@
-// WPA Settings Batch 1 + 2 (PR #595). Repository-ready copy of the reviewed
-// external draft reviewed-codex/general/hide-global-search-items.spec.ts.
-// Exact setting key(s): app.hide_global_search_items
-// Unique settings: 1. Scenarios: 3.
-// Evidence: external draft run 2026-10-26, 3/3 PASS. Repository run PENDING.
-// Repository adaptation: repository imports and readOnlyTest only; the external
-// draft adapter is not used. Its held setting controls are inlined as CONTROLS
-// and its app-error capture and non-local network block (Google Fonts answered
-// locally) are folded into the wsAudit fixture below.
+// Setting: hide_global_search_items (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 3 scenarios.
+// Held setting controls are listed in CONTROLS; non-local requests (Google
+// Fonts) are answered locally by the wsAudit fixture.
 //
-// Setting: general.hide_global_search_items (source:
-//   libs/explore/src/lib/explore-search.service.ts:426 spaces, :499 users and
-//   :610-614 hideItem, which reads `app.hide_global_search_items`;
+// Source: libs/explore/src/lib/explore-search.service.ts (space and user
+//   searches, and hideItem, which reads `app.hide_global_search_items`);
 //   apps/workplace/src/app/components/global-search.component.ts renders one
 //   row per result with the raw option type as the badge).
 //
@@ -34,8 +28,8 @@
 // Expected behaviour: results need a query longer than two characters and a
 //   400 ms debounce. Each result group is included only while hideItem(type) is
 //   false; hiding `users` does not touch `spaces` and vice versa. Rows are `a`
-//   elements inside the results panel and their badge text is the raw lowercase
-//   option type (`user` / `space`, capitalised by CSS only). Nothing is opened
+//   elements inside the results panel and their badge shows the translated
+//   result type ("Person" for users, "Room" for spaces). Nothing is opened
 //   or submitted, and the read-only fixture fails the test on any non-GET /api
 //   request.
 //
@@ -385,7 +379,10 @@ function resultsPanel(page: Page) {
 function resultRows(page: Page) {
     return resultsPanel(page).locator('a');
 }
-/** The badge shows the raw lowercase option type. */
+/**
+ * The badge shows the translated result type (global-search.component.ts
+ * TYPE_NAMES): user -> COMMON.PERSON ("Person"), space -> RESOURCE.ROOM ("Room").
+ */
 function badge(row: Locator) {
     return row.locator('div.bg-secondary');
 }
@@ -402,7 +399,7 @@ async function search(page: Page) {
     return input;
 }
 
-test.describe('WPA settings: hide global search items', () => {
+test.describe('hide_global_search_items', () => {
     test('hide_global_search_items [] shows the matching user and space', async ({
         staffPage,
     }) => {
@@ -418,8 +415,8 @@ test.describe('WPA settings: hide global search items', () => {
         await expect(user).toHaveCount(1);
         await expect(space).toHaveCount(1);
         await expect(rows).toHaveCount(2);
-        await expect(badge(user)).toHaveText('user');
-        await expect(badge(space)).toHaveText('space');
+        await expect(badge(user)).toHaveText('Person');
+        await expect(badge(space)).toHaveText('Room');
         await expect(user).toContainText('e2e.user@example.com');
         await expect(space).toContainText('Capacity: 8');
         await expect(resultsPanel(staffPage).locator('div[empty]')).toHaveCount(
@@ -441,7 +438,7 @@ test.describe('WPA settings: hide global search items', () => {
         await expect(space).toHaveCount(1);
         await expect(rows.filter({ hasText: 'E2E User' })).toHaveCount(0);
         await expect(rows).toHaveCount(1);
-        await expect(badge(space)).toHaveText('space');
+        await expect(badge(space)).toHaveText('Room');
         await expect(space).toContainText('Capacity: 8');
         await expect(resultsPanel(staffPage).locator('div[empty]')).toHaveCount(
             0,
@@ -461,7 +458,7 @@ test.describe('WPA settings: hide global search items', () => {
         await expect(user).toHaveCount(1);
         await expect(rows.filter({ hasText: 'E2E Space' })).toHaveCount(0);
         await expect(rows).toHaveCount(1);
-        await expect(badge(user)).toHaveText('user');
+        await expect(badge(user)).toHaveText('Person');
         await expect(user).toContainText('e2e.user@example.com');
         await expect(resultsPanel(staffPage).locator('div[empty]')).toHaveCount(
             0,

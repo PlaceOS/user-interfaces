@@ -1,4 +1,5 @@
-// Setting: events.duration_step. Helpers below are copied unchanged from room-booking.use-bookings.spec.ts (accepted).
+// Setting: events.duration_step (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
 import type { Locator, Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
@@ -7,7 +8,7 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -91,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -266,7 +267,7 @@ const DURATION_BASE={'app.events.bookable_hours':null,'app.events.min_duration':
 const range=(from:number,to:number,step:number)=>{const out:number[]=[];for(let t=from;t<=to;t+=step)out.push(t);return out;};
 // MeetingFlowDetails passes events.duration_step to DurationField [step].
 for(const step of [15,60]){
- test('remaining draft: events.duration_step '+step+' spaces the generated meeting durations',async({staffPage,audit})=>{
+ test('events.duration_step '+step+' spaces the generated meeting durations',async({staffPage,audit})=>{
   const root=await openPreparedRoom(staffPage,audit,{...DURATION_BASE,'app.events.duration_step':step},0);
   const ids=await meetingDurations(staffPage,root);
   expect(ids.filter(id=>id!==60)).toEqual(range(30,180,step).filter(id=>id!==60));

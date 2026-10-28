@@ -4,12 +4,10 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Migrated unchanged from apps/workplace/e2e/local/claude-wpa-next25-parking-request-draft.spec.ts (accepted: wpa-next25-P1/P5/P6/P7); only this setting's tests.
-
-// Target: 13 parking REQUEST form keys (route /#/book/parking-request/form).
-// Consumer: apps/workplace/src/app/book/parking-request-flow/
-//   parking-request-form-details.component.ts:1343-1403, 1600-1617 (signals),
-//   template :160-1180; parking-request-form.component.ts:153-155 (notes HTML).
+// Setting: parking.request_types (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Route /#/book/parking-request/form. Consumers: apps/workplace/src/app/book/parking-request-flow/
+//   parking-request-form-details.component.ts and parking-request-form.component.ts.
 // Nothing is submitted: the submit button, plate-number remove buttons and
 // favourite icons are never clicked. Clicks only change local form state.
 type Settings = Record<string, unknown>;
@@ -84,7 +82,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('claude-next25-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -230,8 +228,11 @@ function labelledSelect(root: Locator, label: string) {
 function approverSelect(root: Locator) {
     return root.locator('h3').filter({ hasText: 'Approver Group' }).locator('xpath=..').locator('mat-select');
 }
+// Request types are <button role="radio"> rows in the Request Type radiogroup
+// (parking-request-form-details.component.ts); name, badge and description sit
+// inside the button, which still carries the border-info selection class.
 function typeCard(root: Locator, name: string) {
-    return root.locator('div.cursor-pointer').filter({ has: root.page().getByText(name, { exact: true }) });
+    return root.getByRole('radio').filter({ has: root.page().getByText(name, { exact: true }) });
 }
 /** Opens a mat-select, returns option labels, closes it without choosing. */
 async function optionLabels(page: Page, select: Locator) {
@@ -245,7 +246,7 @@ async function optionLabels(page: Page, select: Locator) {
     return labels;
 }
 
-test.describe('WPA next25 DRAFT: parking request form', () => {
+test.describe('parking request form: parking.request_types', () => {
 
     test('parking.request_types replaces the default request types', async ({ staffPage, audit }) => {
         const root = await openRequest(staffPage, audit, {
@@ -258,7 +259,7 @@ test.describe('WPA next25 DRAFT: parking request form', () => {
         await expect(typeCard(root, 'E2E Commuter Request')).toContainText('E2E commuter description');
         await expect(typeCard(root, 'E2E Commuter Request')).toContainText('E2E Badge');
         await expect(typeCard(root, 'E2E Night Request')).toHaveCount(1);
-        // groups the user lacks filter the type out (component :1608-1612).
+        // groups the user lacks filter the type out (request_types in parking-request-form-details.component.ts).
         await expect(typeCard(root, 'E2E Group-only Request')).toHaveCount(0);
         for (const name of DEFAULT_TYPES) await expect(root.getByText(name, { exact: true })).toHaveCount(0);
         await typeCard(root, 'E2E Night Request').click();

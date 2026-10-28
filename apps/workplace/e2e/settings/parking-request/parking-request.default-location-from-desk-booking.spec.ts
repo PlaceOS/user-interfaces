@@ -1,7 +1,6 @@
 // Coverage: 1 unique setting, 2 scenarios.
-// Setting: parking.default_location_from_desk_booking (source:
-//   apps/workplace/src/app/book/parking-request-flow/parking-request-form-details.component.ts:885-894,1510-1512,1887-1922).
-// Status: PASS (2/2, 2026-10-22, isolated local E2E backend).
+// Setting: parking.default_location_from_desk_booking (docs/settings/workplace.md; source:
+//   apps/workplace/src/app/book/parking-request-flow/parking-request-form-details.component.ts).
 //
 // A browser-only three-building organisation and one synthetic desk booking
 // are served by GET routes. When the setting is true the form marks the desk
@@ -287,6 +286,7 @@ async function organisationFixture(page: Page) {
 async function prepare(page: Page, enabled: boolean) {
     assertLocalOnly(APP_URL, BACKEND_URL);
     await page.setViewportSize({ width: 1440, height: 1100 });
+    let desk_requests = 0;
     await organisationFixture(page);
     await getOnly(
         page,
@@ -337,6 +337,7 @@ async function prepare(page: Page, enabled: boolean) {
             url.pathname === '/api/staff/v1/bookings' &&
             url.searchParams.get('type') === 'desk',
         (url) => {
+            desk_requests += 1;
             const email = url.searchParams.get('email') ?? '';
             const start =
                 Number(url.searchParams.get('period_start') ?? 0) * 1000;
@@ -388,7 +389,31 @@ async function prepare(page: Page, enabled: boolean) {
     }
     const root = page.locator('parking-request-form-details');
     await expect(root).toBeVisible();
-    return root;
+    return { root, deskRequests: () => desk_requests };
+}
+
+/**
+ * Read-only probe of ParkingRequestFormDetailsComponent. ngOnInit creates the
+ * desk-lookup effect (building list, form date, user) and only then applies the
+ * preset shift, which sets shift_type and the final form date. Seeing the preset
+ * shift with all buildings loaded therefore means the effect exists with its
+ * final inputs; a broken gate would send the type=desk GET as soon as it runs.
+ */
+function formState(page: Page) {
+    return page.locator('parking-request-form-details').evaluate((element) => {
+        const component = (
+            window as Window & { ng?: { getComponent(element: Element): unknown } }
+        ).ng?.getComponent(element) as
+            | { shift_type?: () => string; building_list?: () => unknown[] }
+            | undefined;
+        if (!component?.shift_type || !component.building_list) {
+            throw new Error('parking request form signals are unavailable');
+        }
+        return {
+            shift: component.shift_type(),
+            buildings: component.building_list().length,
+        };
+    });
 }
 
 // With the setting on, building B (the desk booking's building) carries the
@@ -413,8 +438,28 @@ for (const scenario of SCENARIOS) {
     test(`parking.default_location_from_desk_booking ${scenario.enabled} selects the desk-booking building`, async ({
         staffPage,
     }) => {
-        const root = await prepare(staffPage, scenario.enabled);
-        const rows = root.locator('div.min-h-15');
+        const { root, deskRequests } = await prepare(staffPage, scenario.enabled);
+        // Anchor: the form has applied its preset shift with all buildings, so
+        // the desk-lookup effect has its final inputs. Only then is the type=desk
+        // GET count meaningful: sent for true, never for false.
+        await expect
+            .poll(() => formState(staffPage), {
+                message: 'parking request form initialised (preset shift, 3 buildings)',
+            })
+            .toEqual({ shift: 'e2e-day', buildings: 3 });
+        await expect
+            .poll(() => deskRequests() > 0, {
+                message: 'desk booking lookup (type=desk GET) sent only when enabled',
+            })
+            .toBe(scenario.enabled);
+        // Location preference rows: one radio per building inside the radiogroup
+        // labelled BOOKINGS.PARKING_LOCATION_PREFERENCE ("Location Preference").
+        // The form also has a "Request Type" radiogroup, so scope by its name.
+        // aria-checked marks the active building (same condition as the old
+        // border-info class, building()?.id === bld.id).
+        const rows = root
+            .getByRole('radiogroup', { name: 'Location Preference', exact: true })
+            .getByRole('radio');
         await expect(rows).toHaveCount(3);
         const row_a = rows.filter({ hasText: 'Codex Parking Building A' });
         const row_b = rows.filter({ hasText: 'Codex Parking Building B' });
@@ -423,15 +468,20 @@ for (const scenario of SCENARIOS) {
         await expect(
             row_b.locator('icon', { hasText: /^\s*desk\s*$/ }),
         ).toHaveCount(scenario.desk_badges);
-        await expect(rows.filter({ hasText: scenario.active })).toHaveClass(
-            /border-info/,
+        await expect(rows.filter({ hasText: scenario.active })).toHaveAttribute(
+            'aria-checked',
+            'true',
         );
         await expect(
             rows.filter({ hasText: scenario.inactive }),
-        ).not.toHaveClass(/border-info/);
+        ).toHaveAttribute('aria-checked', 'false');
         await expect(staffPage.locator('parking-request-success')).toHaveCount(
             0,
         );
         await expect(staffPage).toHaveURL(/#\/book\/parking-request\/form$/);
+        // Re-checked after the view settled: still no desk lookup for false.
+        expect(deskRequests() > 0, 'desk booking lookup sent only when enabled').toBe(
+            scenario.enabled,
+        );
     });
 }

@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: desks.duration_step (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -242,8 +244,10 @@ async function openDesk(page: Page, audit: Audit, overrides: Settings) {
         'app.desk.duration_step': null, 'app.desk.custom_duration_options': null,
         'app.desks.min_duration': 30, 'app.desks.max_duration': 180,
         'app.desks.duration_step': 30, 'app.desks.custom_duration_options': [],
-        'app.bookings.min_duration': 30, 'app.bookings.max_duration': 180,
-        'app.bookings.duration_step': 30, 'app.bookings.custom_duration_options': [],
+        // desks.x || bookings.x (desk-flow-details.component.ts): fallbacks no
+        // case expects, so an ignored desks.* key changes the menu and fails.
+        'app.bookings.min_duration': 15, 'app.bookings.max_duration': 480,
+        'app.bookings.duration_step': 15, 'app.bookings.custom_duration_options': [75],
         ...overrides,
     });
     await page.goto('/#/book/desk/form'); await fixture.ready();

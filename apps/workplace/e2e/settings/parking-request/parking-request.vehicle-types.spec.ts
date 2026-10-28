@@ -4,12 +4,10 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Migrated unchanged from apps/workplace/e2e/local/claude-wpa-next25-parking-request-draft.spec.ts (accepted: wpa-next25-P1/P5/P6/P7); only this setting's tests.
-
-// Target: 13 parking REQUEST form keys (route /#/book/parking-request/form).
-// Consumer: apps/workplace/src/app/book/parking-request-flow/
-//   parking-request-form-details.component.ts:1343-1403, 1600-1617 (signals),
-//   template :160-1180; parking-request-form.component.ts:153-155 (notes HTML).
+// Setting: parking.vehicle_types (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Route /#/book/parking-request/form. Consumers: apps/workplace/src/app/book/parking-request-flow/
+//   parking-request-form-details.component.ts and parking-request-form.component.ts.
 // Nothing is submitted: the submit button, plate-number remove buttons and
 // favourite icons are never clicked. Clicks only change local form state.
 type Settings = Record<string, unknown>;
@@ -84,7 +82,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('claude-next25-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -245,7 +243,7 @@ async function optionLabels(page: Page, select: Locator) {
     return labels;
 }
 
-test.describe('WPA next25 DRAFT: parking request form', () => {
+test.describe('parking request form: parking.vehicle_types', () => {
 
     test('parking.vehicle_types replaces the vehicle choices', async ({ staffPage, audit }) => {
         const root = await openRequest(staffPage, audit, {
@@ -255,7 +253,7 @@ test.describe('WPA next25 DRAFT: parking request form', () => {
                 { id: 'claude-moto', name: 'E2E Motorbike' },
             ],
         });
-        // _normaliseOptions drops entries without an id (component :2358-2367).
+        // _normaliseOptions drops entries without an id (parking-request-form-details.component.ts).
         expect(await optionLabels(staffPage, labelledSelect(root, 'Vehicle Type'))).toEqual(['E2E Electric', 'E2E Motorbike']);
         await untouched(staffPage);
     });

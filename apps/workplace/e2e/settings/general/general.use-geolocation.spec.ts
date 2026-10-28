@@ -6,7 +6,13 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: use_geolocation. Coverage: 1 unique setting, 3 scenarios (previously 2).
+//   1. false: no geolocation call; the fallback (decoy building C, listed first) is chosen.
+//   2. true at (40,40): the nearest building B is chosen.
+//   3. true at (10,10): the nearest building A is chosen.
+// C has location '0,0', which OrganisationService._closestBuilding skips, so only
+// a real distance comparison between A ('10,10') and B ('40,40') picks A or B.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +96,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -225,9 +231,18 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 const REGION = 'codex-next20-region';
 const BUILDING_A = 'codex-next20-building-a';
 const BUILDING_B = 'codex-next20-building-b';
+/**
+ * Decoy fallback: listed first, same timezone, location '0,0' (skipped by
+ * _closestBuilding). _setDefaultBuilding's timezone match and buildings[0]
+ * fallback both select it, never A or B.
+ */
+const BUILDING_C = 'codex-next20-building-c';
 const LEVEL_A = 'codex-next20-level-a';
 const LEVEL_B = 'codex-next20-level-b';
+const LEVEL_C = 'codex-next20-level-c';
 const LEVELS = [
+    { id: LEVEL_C, parent_id: BUILDING_C, name: 'Codex Level C', display_name: 'Codex Level C',
+        tags: ['level'] },
     { id: LEVEL_A, parent_id: BUILDING_A, name: 'Codex Level A', display_name: 'Codex Level A',
         tags: ['level'] },
     { id: LEVEL_B, parent_id: BUILDING_B, name: 'Codex Level B', display_name: 'Codex Level B',
@@ -252,8 +267,10 @@ async function organisationFixture(page: Page, audit: Audit) {
     await getOnly(page, audit, 'synthetic buildings', (url) => url.pathname === '/api/engine/v2/zones' &&
         url.searchParams.get('tags') === 'building' && url.searchParams.get('parent_id') === REGION &&
         url.searchParams.get('limit') === '500', () => [
-        { id: BUILDING_A, parent_id: REGION, name: 'Codex Building A', display_name: 'Codex Building A',
+        { id: BUILDING_C, parent_id: REGION, name: 'Codex Building C', display_name: 'Codex Building C',
             tags: ['building'], timezone: 'UTC', location: '0,0' },
+        { id: BUILDING_A, parent_id: REGION, name: 'Codex Building A', display_name: 'Codex Building A',
+            tags: ['building'], timezone: 'UTC', location: '10,10' },
         { id: BUILDING_B, parent_id: REGION, name: 'Codex Building B', display_name: 'Codex Building B',
             tags: ['building'], timezone: 'UTC', location: '40,40' },
     ]);
@@ -276,23 +293,37 @@ async function organisationFixture(page: Page, audit: Audit) {
     });
 }
 // OrganisationService._setDefaultBuilding -> geolocation only after saved/default restoration fails.
-for(const enabled of [false,true]){
- test('prepared general: use_geolocation '+enabled+' chooses the nearest synthetic building or first fallback',async({staffPage,audit})=>{
-  const fixture=await prepare(staffPage,audit,{'app.features':['visitor-invite'],'app.default_building':null,'app.use_geolocation':enabled});
+// Kept as data so the test body has no branches. The selected building is a
+// positive check (it only settles once _setDefaultBuilding has run, after the
+// geolocation step), so the geolocation call count is read after it.
+const SCENARIOS = [
+    { label: 'false falls back without geolocation', enabled: false, position: { latitude: 40, longitude: 40 },
+        building: BUILDING_C, name: 'Codex Building C', calls: 0 },
+    { label: 'true at (40,40) chooses the nearest building B', enabled: true, position: { latitude: 40, longitude: 40 },
+        building: BUILDING_B, name: 'Codex Building B', calls: 1 },
+    { label: 'true at (10,10) chooses the nearest building A', enabled: true, position: { latitude: 10, longitude: 10 },
+        building: BUILDING_A, name: 'Codex Building A', calls: 1 },
+];
+for(const scenario of SCENARIOS){
+ test('use_geolocation '+scenario.label,async({staffPage,audit})=>{
+  const fixture=await prepare(staffPage,audit,{'app.features':['visitor-invite'],'app.default_building':null,'app.use_geolocation':scenario.enabled});
   await organisationFixture(staffPage,audit);
-  await staffPage.addInitScript(()=>{
+  await staffPage.addInitScript((position)=>{
    (window as Debug).codexGeoCalls=0;
    Object.defineProperty(navigator,'geolocation',{configurable:true,value:{getCurrentPosition:(success:PositionCallback)=>{
     (window as Debug).codexGeoCalls!++;
-    success({coords:{latitude:40,longitude:40,accuracy:1,altitude:null,altitudeAccuracy:null,heading:null,speed:null},timestamp:Date.now()} as GeolocationPosition);
+    success({coords:{latitude:position.latitude,longitude:position.longitude,accuracy:1,altitude:null,altitudeAccuracy:null,heading:null,speed:null},timestamp:Date.now()} as GeolocationPosition);
    }}});
-  });
+  },scenario.position);
   await staffPage.goto('/#/book/visitor/form');await fixture.ready();
-  await expect.poll(()=>staffPage.evaluate(()=>(window as Debug).app?.org?.building?.id)).toBe(enabled?BUILDING_B:BUILDING_A);
-  await expect.poll(()=>staffPage.evaluate(()=>(window as Debug).codexGeoCalls)).toBe(enabled?1:0);
+  await expect.poll(()=>staffPage.evaluate(()=>(window as Debug).app?.org?.building?.id)).toBe(scenario.building);
+  await expect.poll(()=>staffPage.evaluate(()=>(window as Debug).codexGeoCalls)).toBe(scenario.calls);
   expect(audit.fixtures['synthetic buildings']??0).toBeGreaterThan(0);
-  await expect(staffPage.locator('visitor-flow-details mat-select[name="building"]')).toHaveText(enabled?'Codex Building B':'Codex Building A');
+  await expect(staffPage.locator('visitor-flow-details mat-select[name="building"]')).toHaveText(scenario.name);
   await expect(staffPage.locator('visitor-flow-details input[name$=".title"]')).toBeVisible();
   await expect(staffPage.locator('visitor-flow-success')).toHaveCount(0);
+  // Re-checked after the view settled: the selection and call count hold.
+  expect(await staffPage.evaluate(()=>(window as Debug).app?.org?.building?.id)).toBe(scenario.building);
+  expect(await staffPage.evaluate(()=>(window as Debug).codexGeoCalls)).toBe(scenario.calls);
  });
 }

@@ -4,10 +4,8 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Migrated unchanged from apps/workplace/e2e/local/claude-wpa-next25-parking-booking-draft.spec.ts (accepted: wpa-next25-P1..P4/P7); only this setting's tests.
-
-
-// Target: 11 parking booking-form / display keys. Routes: /#/book/parking/form,
+// Setting: parking.min_duration.
+// Coverage: 1 unique setting, 2 scenarios. Routes: /#/book/parking/form,
 // /#/book/parking/success, /#/book/parking-request/success, /#/your-bookings.
 // Nothing is submitted. Synthetic data is served only by GET browser routes or
 // a sessionStorage seed; no backend record is created or changed.
@@ -29,11 +27,10 @@ function safeURL(raw: string) {
     for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
     return url.href;
 }
-// Same policy as the corrected Batch 2/4/5 drafts. HTTP: the parent
-// readOnlyTest guard aborts every non-GET or non-local /api request and fails
-// the test in teardown. WebSockets: the Vite dev-server socket is held open,
-// the shell's local control socket is closed before it connects and recorded,
-// and any other socket fails.
+// HTTP: the parent readOnlyTest guard aborts every non-GET or non-local /api
+// request and fails the test in teardown. WebSockets: the Vite dev-server
+// socket is held open, the shell's local control socket is closed before it
+// connects and recorded, and any other socket fails.
 const test = readOnlyTest.extend<{ audit: Audit }>({
     audit: [async ({ staffPage }, use, info) => {
         const context = staffPage.context();
@@ -59,7 +56,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
                     const app = new URL(APP_URL);
                     const local = url.host === app.host &&
                         url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                    // Vite client.mjs:856-865; closing it reloads the page (:993-998).
+                    // Vite client.mjs; closing it reloads the page.
                     if (local && url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token') {
                         audit.tooling_websockets.push(socket_url);
                         return;
@@ -83,7 +80,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('claude-next25-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -115,7 +112,7 @@ async function getOnly(page: Page, audit: Audit, name: string, match: (url: URL)
     });
 }
 // ensure_hidden_category / ensure_type POST when a GET finds nothing and
-// move_type_to_category PUTs on a category mismatch (parking-assets.fn.ts:71-157,
+// move_type_to_category PUTs on a category mismatch (parking-assets.fn.ts,
 // locker-assets.fn.ts). One shared response carries every hidden category.
 const CATEGORIES = [
     { id: 'claude-next25-catering', name: '_CATERING_', hidden: true },
@@ -259,7 +256,7 @@ async function menuValues(page: Page, trigger: Locator, attribute: 'data-time' |
         return h * 60 + m;
     });
 }
-/** Real building rows with timezone rewritten (as in the accepted next20 draft). */
+/** Real building rows with timezone rewritten. */
 async function timezoneBuildings(page: Page, audit: Audit) {
     await page.addInitScript(() => {
         for (const key of Object.keys(localStorage)) if (key.startsWith('PLACEOS.org')) localStorage.removeItem(key);
@@ -285,7 +282,7 @@ const HH = (h: number, m = 0) => h * 60 + m;
 
 // ------------------------------------------------------------- parking booking form
 // Consumer: apps/workplace/src/app/book/parking-flow/parking-form-details.component.ts
-// getters :190-258 (`parking || bookings` fallbacks), template :66-136.
+// getters (`parking || bookings` fallbacks) and template.
 const BOOKING: Settings = {
     ...COMMON,
     'app.features': ['parking'], 'app.desks.use_assets': false,
@@ -322,9 +319,9 @@ const startTimes = (page: Page, root: Locator) =>
     menuValues(page, root.locator('a-time-field[name="start-time"] button[time-field]'), 'data-time');
 const durations = (page: Page, root: Locator) => menuValues(page, root.locator('button[duration-field]'), 'data-duration');
 // ------------------------------------------------------------- your bookings card
-// booking-card.component.ts:210-243 (show_waitlist -> status 'info'),
-// :214-217,311-324 (hide_selected_space -> "Parking" label). The schedule's
-// parking list GET (schedule-state.service.ts:692-720) returns one synthetic
+// booking-card.component.ts (show_waitlist -> status 'info',
+// hide_selected_space -> "Parking" label). The schedule's
+// parking list GET (schedule-state.service.ts) returns one synthetic
 // row; no card, modal or action is clicked.
 async function scheduleCard(page: Page, audit: Audit, overrides: Settings, row: Record<string, unknown>) {
     const user = watchIdentity(page);
@@ -350,7 +347,7 @@ async function scheduleCard(page: Page, audit: Audit, overrides: Settings, row: 
     return card;
 }
 
-test.describe('WPA next25 DRAFT: parking booking form', () => {
+test.describe('parking.min_duration', () => {
     for (const [min, last] of [[30, HH(16, 30)], [120, HH(15)]] as const) {
         test('parking.min_duration ' + min + ' moves the latest start within 9-17 hours', async ({ staffPage, audit }) => {
             const root = await parkingForm(staffPage, audit, {

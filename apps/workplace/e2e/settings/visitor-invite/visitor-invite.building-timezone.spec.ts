@@ -1,8 +1,8 @@
-// Setting: visitors.use_building_timezone (docs/settings/workplace.md:63).
-// Coverage: 1 unique setting, 2 scenarios. Local execution: 2/2 PASS (2026-10-22),
-// with a browser-only building timezone; the isolated building has none.
-// Consumer: apps/workplace/src/app/book/visitor-flow-new/visitor-flow-details.component.ts:351-356
-// and libs/form-fields/src/lib/time-field.component.ts:73-79, 237-242.
+// Setting: visitors.use_building_timezone (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios, with a browser-only building
+// timezone applied to every building.
+// Consumer: apps/workplace/src/app/book/visitor-flow-new/visitor-flow-details.component.ts
+// and libs/form-fields/src/lib/time-field.component.ts.
 // When enabled the time field is labelled with the building's timezone offset;
 // when the browser is in the same zone the secondary line is suppressed.
 import type { Page, Route } from '@playwright/test';
@@ -61,8 +61,8 @@ const BASE: Settings = {
     'app.visitors.reason_required': false,
 };
 
-// The isolated E2E building has an empty timezone (the backend-data gap shared
-// with Batch 17), so the building list gets one in this browser only.
+// The building list gets this timezone in this browser only, for every building
+// (the isolated E2E building has none; any other stack value is replaced too).
 const BUILDING_TIMEZONE = 'Australia/Sydney';
 
 // Deliberately far from the building timezone so the secondary line is
@@ -125,8 +125,10 @@ async function visitor(page: Page, overrides: Settings) {
         () => [],
     );
     // OrganisationService.loadBuildings: GET /zones?tags=building. The real GET
-    // still runs; only buildings without a timezone get one, in this browser.
-    // Non-GET requests fall through to the read-only guard.
+    // still runs; every returned building gets BUILDING_TIMEZONE in this browser,
+    // whatever the stack stores, so the expected label never depends on stack
+    // data. Ids and all other fields are kept. Non-GET requests fall through to
+    // the read-only guard.
     await page.addInitScript(() => {
         for (const key of Object.keys(localStorage)) {
             if (key.startsWith('PLACEOS.org.zones')) localStorage.removeItem(key);
@@ -142,9 +144,10 @@ async function visitor(page: Page, overrides: Settings) {
             const response = await route.fetch();
             const body = await response.json();
             const json = Array.isArray(body)
-                ? body.map((zone: { timezone?: string }) =>
-                      zone.timezone ? zone : { ...zone, timezone: BUILDING_TIMEZONE },
-                  )
+                ? body.map((zone: { timezone?: string }) => ({
+                      ...zone,
+                      timezone: BUILDING_TIMEZONE,
+                  }))
                 : body;
             await route.fulfill({ response, json });
         },

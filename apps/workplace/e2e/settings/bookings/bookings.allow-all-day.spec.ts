@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: bookings.allow_all_day (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -271,7 +273,7 @@ async function durationMenu(page: Page, details: ReturnType<Page['locator']>) {
 }
 // DeskFlowDetails.allow_all_day uses desks.allow_all_day || bookings.allow_all_day.
 for(const enabled of [false,true]){
- test('remaining draft: bookings.allow_all_day '+enabled+' supplies the generic desk all-day option',async({staffPage,audit})=>{
+ test('bookings.allow_all_day '+enabled+' supplies the generic desk all-day option',async({staffPage,audit})=>{
   const {details}=await openDesk(staffPage,audit,{'app.desks.allow_all_day':false,'app.bookings.allow_all_day':enabled});
   const box=details.locator('mat-checkbox input[type="checkbox"]');await expect(box).toHaveCount(enabled?1:0);
   await expect(details.locator('time-field[name="time"] button[time-field]')).toBeEnabled();

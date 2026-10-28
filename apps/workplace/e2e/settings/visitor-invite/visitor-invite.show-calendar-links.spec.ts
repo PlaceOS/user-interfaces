@@ -8,6 +8,8 @@ import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-for
 import { SchedulePage } from '../../../../../e2e/support/bookings/schedule.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
+// Setting: visitors.show_calendar_links (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 // Helpers are deliberately test-local; do not modify shared fixtures.
 type Settings = Record<string, unknown>;
 type Debug = Window & {
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -220,7 +222,7 @@ async function visitorTimes(page: Page, form: InviteVisitorForm) {
 // VisitorFlowSuccess reads BookingFormService.last_success (sessionStorage PLACEOS.last_booked_booking).
 // Browser-only data: never saved, looked up, or clicked.
 for(const enabled of [false,true]){
- test('remaining draft: visitors.show_calendar_links '+enabled+' gates links for browser-only success state',async({staffPage,audit})=>{
+ test('visitors.show_calendar_links '+enabled+' gates links for browser-only success state',async({staffPage,audit})=>{
   const fixture=await prepare(staffPage,audit,{'app.visitors.show_calendar_links':enabled});
   await staffPage.addInitScript(()=>{
    const date=new Date();date.setUTCDate(date.getUTCDate()+1);date.setUTCHours(10,0,0,0);

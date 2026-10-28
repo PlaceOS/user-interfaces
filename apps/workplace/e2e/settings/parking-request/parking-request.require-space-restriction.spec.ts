@@ -4,12 +4,10 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Migrated unchanged from apps/workplace/e2e/local/claude-wpa-next25-parking-request-draft.spec.ts (accepted: wpa-next25-P1/P5/P6/P7); only this setting's tests.
-
-// Target: 13 parking REQUEST form keys (route /#/book/parking-request/form).
-// Consumer: apps/workplace/src/app/book/parking-request-flow/
-//   parking-request-form-details.component.ts:1343-1403, 1600-1617 (signals),
-//   template :160-1180; parking-request-form.component.ts:153-155 (notes HTML).
+// Setting: parking.require_space_restriction (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Route /#/book/parking-request/form. Consumers: apps/workplace/src/app/book/parking-request-flow/
+//   parking-request-form-details.component.ts and parking-request-form.component.ts.
 // Nothing is submitted: the submit button, plate-number remove buttons and
 // favourite icons are never clicked. Clicks only change local form state.
 type Settings = Record<string, unknown>;
@@ -84,7 +82,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('claude-next25-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -245,7 +243,7 @@ async function optionLabels(page: Page, select: Locator) {
     return labels;
 }
 
-test.describe('WPA next25 DRAFT: parking request form', () => {
+test.describe('parking request form: parking.require_space_restriction', () => {
     for (const required of [true, false]) {
         test('parking.require_space_restriction ' + required + ' marks the restriction group ' +
             (required ? 'required and invalid until a bay is chosen' : 'optional and valid without a choice'),
@@ -258,7 +256,7 @@ test.describe('WPA next25 DRAFT: parking request form', () => {
                 await expect(root.locator('#parking-space-restrictions-label span[aria-hidden="true"]'))
                     .toHaveCount(required ? 1 : 0);
                 await expect(group).toHaveAttribute('aria-required', String(required));
-                // booking-form.model.ts:291-296 validates only when required.
+                // booking-form.model.ts validates only when required.
                 await expect(group).toHaveAttribute('aria-invalid', String(required));
                 await group.getByRole('radio', { name: 'E2E Standard Bay' }).check();
                 await expect(group).toHaveAttribute('aria-invalid', 'false');

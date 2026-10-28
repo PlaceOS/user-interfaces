@@ -1,4 +1,5 @@
-// NOT RUN — awaiting manual validation. Preparation only: no checks or runtime execution.
+// Setting: features (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
 import type { Locator, Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
@@ -7,7 +8,7 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -91,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -233,7 +234,7 @@ async function featureLanding(page:Page,audit:Audit,features:string[]){
  await expect(page.locator('landing-new > div')).toBeVisible();
  return fixture;
 }
-test('prepared general: features replacement exposes only each configured booking destination', async ({ staffPage, audit }, info) => {
+test('features replacement exposes only each configured booking destination', async ({ staffPage, audit }, info) => {
  const variants = [['desks', 'desk'], ['spaces', 'meeting']] as const;
  for (const [index, [feature, route]] of variants.entries()) {
   // useSettings installs a document-init script. Reusing the same URL keeps
@@ -260,7 +261,7 @@ test('prepared general: features replacement exposes only each configured bookin
   }
  }
 });
-test('prepared general: empty features removes the quick-actions booking widget',async({staffPage,audit})=>{
+test('features empty list removes the quick-actions booking widget',async({staffPage,audit})=>{
  await featureLanding(staffPage,audit,[]);
  await expect(staffPage.locator('landing-quick-actions')).toHaveCount(0);
  await expect(staffPage.locator('landing-favourites-new')).toHaveCount(1);

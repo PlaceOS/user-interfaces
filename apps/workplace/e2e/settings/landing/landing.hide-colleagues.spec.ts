@@ -1,7 +1,6 @@
-// Adapted to the current LandingNew UI; runtime validation PENDING.
-// Covered active keys: hide_colleagues
-// Scenario owners: S50. Shared scenarios are registered once.
-// Historical evidence: reports/wpa-settings-reference/preparation/controlled-execution-31-34.json
+// Setting: hide_colleagues (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 1 scenario (shown and hidden checked in one test).
+// Adapted to the current LandingNew UI.
 import type { Browser as MigrationBrowser, BrowserContext as MigrationContext, BrowserContextOptions as MigrationContextOptions, Page as MigrationPage, TestInfo as MigrationTestInfo } from '@playwright/test';
 import { expect as migrationExpect, test as migrationBase } from '../../../../../e2e/support/fixtures';
 import { APP_URL as MIGRATION_APP_URL, BACKEND_URL as MIGRATION_BACKEND_URL, assertLocalOnly as migrationAssertLocalOnly, staffEmail as migrationStaffEmail } from '../../../../../e2e/support/env';
@@ -178,7 +177,7 @@ const migrationAuditFixture: { migrationAudit: [
             }
             migrationActive = undefined;
             try {
-                await info.attach('legacy-settings-migration-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -198,8 +197,6 @@ const migrationReadOnlyTest = migrationReadOnlyBase.extend<{ migrationAudit: Mig
 migrationTest.use({ storageState: undefined });
 migrationReadOnlyTest.use({ storageState: undefined });
 
-// Source: apps/workplace/e2e/local/wpa-settings-batch31.spec.ts
-// SHA-256: a91920277ae842301f4249d780cfab8e195d7bc8c39699cf651489eda7fb59aa
 {
 const base = migrationTest;
 type Settings = Record<string, unknown>;
@@ -367,7 +364,7 @@ const BASE_SETTINGS: Settings = {
 
 // app.routes.ts loads LandingNewComponent. Its available() filters colleagues
 // independently of favourites and Available Now; no contact action is clicked.
-test('WPA Batch 31: hide_colleagues removes the colleagues panel and retains favourites', async ({ isolated }) => {
+test('hide_colleagues removes the colleagues panel and retains favourites', async ({ isolated }) => {
     const shown = await isolated.open({ 'app.hide_colleagues': false });
     await expect(shown.locator('landing-new [data-widget="colleagues"]')).toHaveCount(1);
     await expect(shown.locator('landing-new landing-colleagues-new')).toBeVisible();

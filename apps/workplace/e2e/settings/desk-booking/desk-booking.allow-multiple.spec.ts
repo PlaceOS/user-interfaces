@@ -1,4 +1,5 @@
-// Setting: desks.allow_multiple. Helpers below are copied unchanged from general/general.use-region.spec.ts.
+// Setting: desks.allow_multiple (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
 import type { Locator, Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
@@ -7,7 +8,7 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -91,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -363,7 +364,7 @@ async function bookedDeskResourcesFixture(page: Page, audit: Audit) {
 // Selection is local form state only. Never Continue, Confirm or save.
 const MULTI=[{id:'codex-next20-multi-desk-1',name:'Codex multi desk one'},{id:'codex-next20-multi-desk-2',name:'Codex multi desk two'}];
 for(const multiple of [false,true]){
- test('remaining draft: desks.allow_multiple '+multiple+' accumulates or replaces local desk picks',async({staffPage,audit})=>{
+ test('desks.allow_multiple '+multiple+' accumulates or replaces local desk picks',async({staffPage,audit})=>{
   await organisationFixture(staffPage,audit);await bookedDeskResourcesFixture(staffPage,audit);
   // Registered after organisationFixture, so it answers building A's desk metadata with two desks on level A.
   await getOnly(staffPage,audit,'two desk metadata',url=>url.pathname==='/api/engine/v2/metadata/'+BUILDING_A+'/children'&&url.searchParams.get('name')==='desks',()=>[{

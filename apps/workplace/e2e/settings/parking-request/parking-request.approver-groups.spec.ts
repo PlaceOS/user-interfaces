@@ -1,17 +1,11 @@
-// WPA Settings Batch 1 + 2 (PR #595). Repository-ready copy of the reviewed
-// external draft reviewed-codex/parking-request/parking-request.approver-groups.spec.ts.
-// Exact setting key(s): app.parking.approver_groups
-// Unique settings: 1. Scenarios: 3.
-// Evidence: external draft run 2026-10-26, 3/3 PASS. Repository run PENDING.
-// Repository adaptation: repository imports and readOnlyTest only; the external
-// draft adapter is not used. Its held setting controls are inlined as CONTROLS
-// and its app-error capture and non-local network block (Google Fonts answered
-// locally) are folded into the wsAudit fixture below.
+// Setting: parking.approver_groups (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 3 scenarios.
+// Held setting controls are listed in CONTROLS; non-local requests (Google
+// Fonts) are answered locally by the wsAudit fixture.
 //
-// Setting: parking.approver_groups (source:
-//   apps/workplace/src/app/book/parking-request-flow/parking-request-form-details.component.ts:1496-1498
-//   setting signal, :1675-1685 normalise + request-type filter, template :1170-1206,
-//   :1931-1949 auto-select of the first option).
+// Source: apps/workplace/src/app/book/parking-request-flow/parking-request-form-details.component.ts
+//   (setting signal, normalise + request-type filter, approver template block,
+//   auto-select of the first option).
 //
 // Scenarios: 3
 //   1. Two configured options render one mat-option each, in setting order.

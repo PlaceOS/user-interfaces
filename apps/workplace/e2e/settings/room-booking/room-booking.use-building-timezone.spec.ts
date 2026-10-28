@@ -6,7 +6,9 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
 
-// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit. Unrelated specs are unchanged.
+// Setting: events.use_building_timezone (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 2 scenarios.
+// Current UI adaptation. Staff-only readOnlyTest and test-local safety audit.
 
 // Test-local safety infrastructure reused from the validated Visitor controls.
 type Settings = Record<string, unknown>;
@@ -90,7 +92,7 @@ const test = readOnlyTest.extend<{ audit: Audit }>({
             }
             await Promise.all(closing);
             try {
-                await info.attach('codex-next20-safety-audit', {
+                await info.attach('settings-safety-audit', {
                     body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
                 });
             } finally {
@@ -278,7 +280,7 @@ async function timezoneBuildings(page: Page, audit: Audit) {
 // MeetingFlowDetailsComponent binds events.use_building_timezone to DurationField.
 // Its start TimeField currently has no timezone binding; do not claim otherwise.
 for(const enabled of [false,true]){
- test('prepared room: events.use_building_timezone '+enabled+' gates the duration secondary timezone',async({staffPage,audit})=>{
+ test('events.use_building_timezone '+enabled+' gates the duration secondary timezone',async({staffPage,audit})=>{
   await timezoneBuildings(staffPage,audit);
   const {root}=await roomView(staffPage,audit,{'app.events.use_building_timezone':enabled},0);
   expect(audit.fixtures['timezone buildings']??0).toBeGreaterThan(0);
