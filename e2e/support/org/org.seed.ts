@@ -1,7 +1,8 @@
 /**
  * Gives the stack the zone tree and building settings a production deployment
- * has: the authority's `org_zone`, org -> region -> building -> level, and
- * `workplace_app` on the org and the building.
+ * has: the authority's `org_zone`, org -> region -> building -> level, a
+ * timezone and display name on each of those zones, and `workplace_app` on the
+ * org and the building.
  *
  * `init` creates org -> building -> level with no region and no settings. The
  * native app lists buildings under `region` zones, so on that tree it selects
@@ -18,8 +19,14 @@ export const REGION_NAME = 'E2E Region';
 interface Zone {
     id: string;
     name: string;
+    display_name?: string;
+    timezone?: string;
     parent_id?: string;
 }
+
+/** As on mqt.placeos.run. The apps list no desk availability for a building without a timezone. */
+const ZONE_TIMEZONE = 'Australia/Melbourne';
+const REGION_TIMEZONE = 'Australia/Sydney';
 
 /**
  * The authority's `config.org_zone`, set to init's org zone when missing. The
@@ -64,6 +71,7 @@ async function ensureRegion(api: APIRequestContext, org: string): Promise<Zone> 
         data: {
             name: REGION_NAME,
             display_name: REGION_NAME,
+            timezone: REGION_TIMEZONE,
             description: 'Region owned by the e2e suite.',
             tags: ['region'],
             parent_id: org,
@@ -77,6 +85,27 @@ async function ensureRegion(api: APIRequestContext, org: string): Promise<Zone> 
         await new Promise((r) => setTimeout(r, 500));
     }
     throw new Error(`create region failed: HTTP ${res.status()} ${body}`);
+}
+
+/**
+ * Sets [fields] on [zone] where it has no value yet. A display name is only
+ * given to init's placeholders (`Zone-<tag>-<id>`), so zones that specs create
+ * keep theirs. Returns whether the zone changed.
+ */
+async function fillZone(
+    api: APIRequestContext,
+    zone: Zone,
+    fields: { timezone: string; display_name: string },
+): Promise<boolean> {
+    const data: Record<string, string> = {};
+    if (!zone.timezone) data.timezone = fields.timezone;
+    if (!zone.display_name && zone.name.startsWith('Zone-')) data.display_name = fields.display_name;
+    if (!Object.keys(data).length) return false;
+    const res = await api.patch(`${ENGINE_API}/zones/${zone.id}`, { data });
+    if (!res.ok()) {
+        throw new Error(`patch zone ${zone.id} failed: HTTP ${res.status()} ${await res.text()}`);
+    }
+    return true;
 }
 
 async function putMetadata(api: APIRequestContext, zone: string, name: string, details: unknown) {
@@ -114,5 +143,24 @@ export async function ensureOrgShape(api: APIRequestContext) {
     }
     await putMetadata(api, org, 'workplace_app', orgWorkplaceApp());
 
-    return { org, org_zone_set, region: region.id, buildings: buildings.map((b) => b.id), moved };
+    let filled = 0;
+    const fill = async (zone: Zone | undefined, timezone: string, display_name: string) => {
+        if (zone && (await fillZone(api, zone, { timezone, display_name }))) filled++;
+    };
+    await fill(
+        (await zones(api, { tags: 'org' })).find((z) => z.id === org),
+        ZONE_TIMEZONE,
+        'E2E Org',
+    );
+    await fill(region, REGION_TIMEZONE, REGION_NAME);
+    const levels = await zones(api, { tags: 'level' });
+    for (const [b, building] of buildings.entries()) {
+        const name = buildings.length > 1 ? `E2E Building ${b + 1}` : 'E2E Building';
+        await fill(building, ZONE_TIMEZONE, name);
+        for (const level of levels.filter((l) => l.parent_id === building.id)) {
+            await fill(level, ZONE_TIMEZONE, `${name} Level 1`);
+        }
+    }
+
+    return { org, org_zone_set, region: region.id, buildings: buildings.map((b) => b.id), moved, filled };
 }
