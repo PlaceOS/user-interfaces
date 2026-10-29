@@ -153,28 +153,27 @@ export class EventsStateService extends AsyncHandler {
     /** Pending room booking approval requests */
     public readonly pending = this._pending.asReadonly();
 
-    /** List of levels with bookable room resources */
+    /**
+     * List of levels with bookable room resources.
+     * Uses one space query for the building, not one query for each level.
+     */
     private readonly _levels = resource({
-        params: () => this._org.active_levels(),
+        params: () => ({
+            building_id: this._org.active_building()?.id,
+            levels: this._org.active_levels(),
+        }),
         defaultValue: [] as BuildingLevel[],
-        loader: async ({ params: levels }) => {
-            if (!levels.length) return [];
-            const results = await Promise.all(
-                levels.map(async (level) => {
-                    const spaces = await nextValueFrom(
-                        requestSpacesForZone(level.id),
-                    ).catch(() => [] as Space[]);
-                    return {
-                        level,
-                        has_bookable: (spaces || []).some(
-                            (space) => space.bookable,
-                        ),
-                    };
-                }),
+        loader: async ({ params: { building_id, levels } }) => {
+            if (!building_id || !levels.length) return [];
+            const spaces = await nextValueFrom(
+                requestSpacesForZone(building_id),
+            ).catch(() => [] as Space[]);
+            const level_ids = new Set(
+                (spaces || [])
+                    .filter((space) => space.bookable)
+                    .flatMap((space) => space.zones || []),
             );
-            return results
-                .filter((item) => item.has_bookable)
-                .map((item) => item.level);
+            return levels.filter((level) => level_ids.has(level.id));
         },
     });
     public readonly levels: Signal<BuildingLevel[]> = this._levels.value;

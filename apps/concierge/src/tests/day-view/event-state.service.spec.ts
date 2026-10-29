@@ -24,6 +24,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 import {
     Building,
+    BuildingLevel,
     CalendarEvent,
     OrganisationService,
     Region,
@@ -314,4 +315,65 @@ describe('EventsStateService', () => {
     it.todo('should allow adding new events');
     it.todo('should allow updating existing events');
     it.todo('should allow removing existing events');
+});
+
+describe('EventsStateService levels', () => {
+    let spectator: SpectatorService<EventsStateService>;
+    const levels = [
+        new BuildingLevel({ id: 'lvl-rooms', parent_id: 'bld-levels' }),
+        new BuildingLevel({ id: 'lvl-desks', parent_id: 'bld-levels' }),
+        new BuildingLevel({ id: 'lvl-empty', parent_id: 'bld-levels' }),
+    ];
+    const createService = createServiceFactory({
+        service: EventsStateService,
+        providers: [
+            MockProvider(OrganisationService, {
+                building: new Building({ id: 'bld-levels' }),
+                active_region: signal(undefined),
+                active_building: signal({ id: 'bld-levels' }),
+                active_levels: signal(levels),
+            } as any),
+            MockProvider(SettingsService, { get: (() => false) as any }),
+            MockProvider(SpacesService, { find: vi.fn() }),
+            MockProvider(MatDialog, { open: vi.fn() }),
+        ],
+    });
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+        vi.mocked(ts_client.querySystems).mockResolvedValue({
+            data: [
+                {
+                    id: 'room',
+                    email: 'room@place.os',
+                    bookable: true,
+                    zones: ['bld-levels', 'lvl-rooms'],
+                },
+                {
+                    id: 'desk-area',
+                    email: 'desks@place.os',
+                    bookable: false,
+                    zones: ['bld-levels', 'lvl-desks'],
+                },
+            ],
+        } as any);
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        spectator = createService();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.clearAllMocks();
+    });
+
+    it('should list levels with bookable rooms from one building query', async () => {
+        await settle();
+        expect(spectator.service.levels().map(({ id }) => id)).toEqual([
+            'lvl-rooms',
+        ]);
+        const zone_ids = vi
+            .mocked(ts_client.querySystems)
+            .mock.calls.map(([query]) => query?.zone_id);
+        expect(zone_ids).toEqual(['bld-levels']);
+    });
 });
