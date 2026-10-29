@@ -1,6 +1,6 @@
-// Coverage: 1 unique setting, 2 scenarios. Local execution: 2/2 PASS (2026-10-22 15:26 run).
-// Setting: feature_groups (docs/settings/workplace.md:33).
-// Consumer: apps/workplace/src/app/landing-new/landing-features.ts:9-27.
+// Coverage: 1 unique setting, 3 scenarios.
+// Setting: feature_groups (docs/settings/workplace.md).
+// Consumer: apps/workplace/src/app/landing-new/landing-features.ts.
 // `app.features` is filtered by the current user's groups before the landing
 // widgets decide what to show. A feature limited to a group the user is not in
 // is treated as disabled.
@@ -9,12 +9,10 @@ import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-
-type Settings = Record<string, unknown>;
+import { type SafetyAudit, type Settings, stubBootstrap } from '../support/settings-harness';
 
 // Test-local only: the shared fixture remains unchanged. Authentication is
 // established by that fixture; these guards cover browser activity afterwards.
-type SafetyAudit = { blocked_http: string[]; unexpected_ws: string[] };
 const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
     safetyAudit: [async ({ staffPage }, use, info) => {
         const context = staffPage.context();
@@ -50,7 +48,7 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
         } finally {
             await context.close();
             await Promise.all(closing);
-            await info.attach('landing-feature-groups-safety-audit', {
+            await info.attach('settings-safety-audit', {
                 body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
             });
             expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({
@@ -59,41 +57,6 @@ const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
         }
     }, { auto: true, timeout: 30_000 }],
 });
-
-// Browser-only GET fixtures prevent unrelated module bootstrap from trying to
-// create hidden categories/types. No record is created in PlaceOS.
-async function stubBootstrap(page: Page) {
-    const origins = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-    const types: Record<string, string[]> = {
-        catering: [], desks: ['_DESKS_'],
-        parking: ['_PARKING_SPACES_', '_PARKING_USERS_', '_PARKING_FLEET_VEHICLES_'],
-        lockers: ['_LOCKER_BANKS_', '_LOCKERS_'],
-    };
-    const get = async (match: (url: URL) => boolean, body: unknown) => {
-        await page.route((url) => origins.has(url.origin) && match(url), async (route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body });
-        });
-    };
-    await get((url) => url.pathname === '/api/engine/v2/asset_categories' &&
-        url.searchParams.get('hidden') === 'true' && url.searchParams.get('limit') === '500',
-    Object.keys(types).map((name) => ({ id: 'landing-readonly-' + name,
-        name: '_' + name.toUpperCase() + '_', hidden: true })));
-    for (const [category, names] of Object.entries(types)) {
-        await get((url) => url.pathname === '/api/engine/v2/asset_types' &&
-            url.searchParams.get('category_id') === 'landing-readonly-' + category &&
-            url.searchParams.get('limit') === '500', names.map((name) => ({
-                id: 'landing-readonly-type-' + name, name,
-                category_id: 'landing-readonly-' + category, brand: 'PlaceOS',
-            })));
-    }
-    await get((url) => url.pathname === '/api/engine/v2/assets' &&
-        (url.searchParams.get('type_id') ?? '').startsWith('landing-readonly-type-'), []);
-    await get((url) => url.pathname === '/api/staff/v1/calendars' &&
-        [...url.searchParams.keys()].length === 0, []);
-}
-
-
 
 
 const E2E_GROUP = 'e2e-feature-group-that-no-staff-user-has';
@@ -186,5 +149,49 @@ test(
         await expect(
             staffPage.locator('button[name="auto-assign-desk"]'),
         ).toHaveCount(0);
+    },
+);
+
+// Review T30: a member of the restricting group keeps the feature.
+// landingFeatures reads the groups only from the signed-in user that the app
+// loads from GET users/current. The seeded staff user has no groups, so this
+// scenario rewrites that one response in the browser: the real staff identity
+// is fetched unchanged and only MEMBER_GROUP is appended to its `groups`
+// (email, id, admin/support flags, permissions and every other field are kept).
+// Nothing is written to the backend and no user is created.
+const MEMBER_GROUP = 'e2e-feature-group-member';
+type Identity = Record<string, unknown> & { groups?: string[] };
+test(
+    'feature_groups limiting desks to a group the user is in keeps the Quick Actions card',
+    async ({ staffPage }) => {
+        const origins = [new URL(APP_URL).origin, new URL(BACKEND_URL).origin];
+        const served: { original: Identity; rewritten: Identity }[] = [];
+        await staffPage.route((url) => origins.includes(url.origin) &&
+            url.pathname === '/api/engine/v2/users/current', async (route) => {
+            if (route.request().method() !== 'GET') return route.fallback();
+            const response = await route.fetch({ maxRedirects: 0, maxRetries: 0 });
+            if (!response.ok()) return route.fulfill({ response });
+            const original = await response.json() as Identity;
+            const rewritten = { ...original, groups: [...(original.groups ?? []), MEMBER_GROUP] };
+            served.push({ original, rewritten });
+            await route.fulfill({ response, json: rewritten });
+        });
+        await openLanding(staffPage, { 'app.feature_groups': { desks: [MEMBER_GROUP] } });
+        // The app loaded the rewritten identity, and only `groups` differs.
+        expect(served.length, 'users/current served through the group rewrite').toBeGreaterThan(0);
+        const withoutGroups = (identity: Identity) => {
+            const copy = { ...identity };
+            delete copy.groups;
+            return copy;
+        };
+        for (const { original, rewritten } of served) {
+            expect(original.groups ?? [], 'the real staff user is not already in the group').not.toContain(MEMBER_GROUP);
+            expect(withoutGroups(rewritten), 'identity fields other than groups are unchanged')
+                .toEqual(withoutGroups(original));
+            expect(rewritten.groups).toEqual([...(original.groups ?? []), MEMBER_GROUP]);
+        }
+        const card = staffPage.locator('section[data-widget="quick_actions"]');
+        await expect(card).toHaveCount(1);
+        await expect(card.locator('button[name="auto-assign-desk"]')).toBeVisible();
     },
 );

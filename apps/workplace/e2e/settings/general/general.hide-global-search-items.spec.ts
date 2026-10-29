@@ -37,9 +37,11 @@
 // - The query must be `e2e` (3 characters). `_user_search` / `_space_search`
 //   resolve to [] at 2 characters or fewer, so a shorter string would make the
 //   baseline scenario fail with no signal.
-// - The results panel exists only while the filter is non-empty; select it with
-//   `div[search].bottom-0` because `global-search` also renders the input panel
-//   as `div[search]`.
+// - No Tailwind class is used to find anything. Result rows are the links the
+//   component renders, found by their destination (routerLink '/explore' with
+//   `space=<id>` for spaces and `user=<email>` for users), which also proves
+//   the result type. The empty state is `div[empty]`. The badge is the row's
+//   only direct child div with no nested div (the name block has nested divs).
 // - Hiding a type must be anchored on the other type, so scenario 2 and 3 each
 //   prove the visible row is the one that was NOT hidden.
 import type { Locator, Page, Route } from '@playwright/test';
@@ -334,19 +336,35 @@ async function prepare(page: Page, overrides: Settings) {
     };
 }
 
-/** The results panel (the second `div[search]`; the first holds the input). */
-function resultsPanel(page: Page) {
-    return page.locator('global-search div[search].bottom-0');
-}
+/**
+ * Every search result row: the component's links to /explore (hash routing).
+ * The search button and input are not links, so nothing else matches.
+ */
 function resultRows(page: Page) {
-    return resultsPanel(page).locator('a');
+    return page.locator('global-search a[href*="/explore?"]');
+}
+/**
+ * The user result: its link opens Explore with `user=<email>`. Matched on the
+ * part before the @, so URL encoding of the @ cannot matter.
+ */
+function userRow(page: Page) {
+    return page.locator('global-search a[href*="/explore?"][href*="user=' + USER.email.split('@')[0] + '"]');
+}
+/** The space result: its link opens Explore with `space=<id>`. */
+function spaceRow(page: Page) {
+    return page.locator('global-search a[href*="/explore?"][href*="space=' + SPACE.id + '"]');
+}
+/** The empty-state message (`div[empty]`). */
+function emptyState(page: Page) {
+    return page.locator('global-search div[empty]');
 }
 /**
  * The badge shows the translated result type (global-search.component.ts
  * TYPE_NAMES): user -> COMMON.PERSON ("Person"), space -> RESOURCE.ROOM ("Room").
+ * It is the row's only direct child div without a nested div.
  */
 function badge(row: Locator) {
-    return row.locator('div.bg-secondary');
+    return row.locator(':scope > div:not(:has(div))');
 }
 
 async function search(page: Page) {
@@ -372,18 +390,20 @@ test.describe('hide_global_search_items', () => {
         await expect(root).toBeVisible();
         await search(staffPage);
         const rows = resultRows(staffPage);
-        const user = rows.filter({ hasText: 'E2E User' });
-        const space = rows.filter({ hasText: 'E2E Space' });
+        const user = userRow(staffPage);
+        const space = spaceRow(staffPage);
         await expect(user).toHaveCount(1);
         await expect(space).toHaveCount(1);
         await expect(rows).toHaveCount(2);
+        await expect(user).toContainText('E2E User');
+        await expect(space).toContainText('E2E Space');
+        await expect(badge(user)).toHaveCount(1);
+        await expect(badge(space)).toHaveCount(1);
         await expect(badge(user)).toHaveText('Person');
         await expect(badge(space)).toHaveText('Room');
         await expect(user).toContainText('e2e.user@example.com');
         await expect(space).toContainText('Capacity: 8');
-        await expect(resultsPanel(staffPage).locator('div[empty]')).toHaveCount(
-            0,
-        );
+        await expect(emptyState(staffPage)).toHaveCount(0);
     });
 
     test('hide_global_search_items [users] hides the user but not the space', async ({
@@ -395,16 +415,17 @@ test.describe('hide_global_search_items', () => {
         await fixture.open();
         await search(staffPage);
         const rows = resultRows(staffPage);
-        const space = rows.filter({ hasText: 'E2E Space' });
+        const space = spaceRow(staffPage);
         // Anchor on the surviving space so a zero user count is meaningful.
         await expect(space).toHaveCount(1);
+        await expect(space).toContainText('E2E Space');
+        await expect(userRow(staffPage)).toHaveCount(0);
         await expect(rows.filter({ hasText: 'E2E User' })).toHaveCount(0);
         await expect(rows).toHaveCount(1);
+        await expect(badge(space)).toHaveCount(1);
         await expect(badge(space)).toHaveText('Room');
         await expect(space).toContainText('Capacity: 8');
-        await expect(resultsPanel(staffPage).locator('div[empty]')).toHaveCount(
-            0,
-        );
+        await expect(emptyState(staffPage)).toHaveCount(0);
     });
 
     test('hide_global_search_items [spaces] hides the space but not the user', async ({
@@ -416,14 +437,15 @@ test.describe('hide_global_search_items', () => {
         await fixture.open();
         await search(staffPage);
         const rows = resultRows(staffPage);
-        const user = rows.filter({ hasText: 'E2E User' });
+        const user = userRow(staffPage);
         await expect(user).toHaveCount(1);
+        await expect(user).toContainText('E2E User');
+        await expect(spaceRow(staffPage)).toHaveCount(0);
         await expect(rows.filter({ hasText: 'E2E Space' })).toHaveCount(0);
         await expect(rows).toHaveCount(1);
+        await expect(badge(user)).toHaveCount(1);
         await expect(badge(user)).toHaveText('Person');
         await expect(user).toContainText('e2e.user@example.com');
-        await expect(resultsPanel(staffPage).locator('div[empty]')).toHaveCount(
-            0,
-        );
+        await expect(emptyState(staffPage)).toHaveCount(0);
     });
 });

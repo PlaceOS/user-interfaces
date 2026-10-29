@@ -21,8 +21,8 @@
 // `zones` until the Areas toggle (explore-map-view.component.ts)
 // turns it on, so every scenario turns Areas on and the zones-canvas result is
 // part of every expectation. Each scenario first waits until the raw, unfiltered
-// groups hold the desk feature, actions and style, so an absence is never read
-// before the data exists.
+// groups hold the desk feature, actions and style, and (after Areas is on) the
+// zones-canvas feature, so an absence is never read before the data exists.
 //
 // Authentication (fail-closed, read-only): the staff bearer is the one already
 // stored for this worker under e2e/.auth. The storageState file the inherited
@@ -616,6 +616,8 @@ type MapState = {
         zones_canvas: boolean;
     };
     zones_disabled: boolean;
+    /** zones-canvas is registered in the unfiltered groups (any group). */
+    zones_registered: boolean;
 };
 
 /**
@@ -677,6 +679,9 @@ function mapState(page: Page): Promise<MapState> {
                     zones_canvas: tracks.includes('zones-canvas'),
                 },
                 zones_disabled: !!view.options().disable?.includes('zones'),
+                zones_registered: Object.values(state._features())
+                    .flat()
+                    .some((item) => (item as { track_id?: string })?.track_id === 'zones-canvas'),
             };
         },
         { track: DESK_TRACK, shape: DESK_SHAPE },
@@ -771,6 +776,12 @@ for (const scenario of SCENARIOS) {
                 message: 'Areas toggle removed zones from the map options',
             })
             .toBe(false);
+        // The zones layer must exist before its presence or absence is read.
+        await expect
+            .poll(async () => (await mapState(staffPage)).zones_registered, {
+                message: 'zones-canvas registered in the unfiltered groups',
+            })
+            .toBe(true);
         await expect
             .poll(async () => (await mapState(staffPage)).shown, {
                 message: 'groups the map view receives',

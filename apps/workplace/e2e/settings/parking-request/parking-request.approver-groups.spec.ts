@@ -1,5 +1,5 @@
 // Setting: parking.approver_groups (docs/settings/workplace.md).
-// Coverage: 1 unique setting, 3 scenarios.
+// Coverage: 1 unique setting, 2 scenarios.
 // Held setting controls are listed in CONTROLS; non-local requests (Google
 // Fonts) are answered locally by the wsAudit fixture.
 //
@@ -7,10 +7,10 @@
 //   (setting signal, normalise + request-type filter, approver template block,
 //   auto-select of the first option).
 //
-// Scenarios: 3
-//   1. Two configured options render one mat-option each, in setting order.
+// Scenarios: 2
+//   1. Two configured options: the first is preselected on load, and the list
+//      renders one mat-option each, in setting order.
 //   2. An empty list hides the whole approver section.
-//   3. The first configured option is preselected on load.
 // Preconditions/fixtures: readOnlyTest (local read-only legacy fixture) with the
 //   seeded non-admin staff identity read from GET /api/engine/v2/users/current
 //   (no extra call), GET-only stubs for the hidden asset categories/types/assets,
@@ -318,7 +318,7 @@ function approverSelect(root: Locator) {
 }
 
 test.describe('WPA settings: parking request approver groups', () => {
-    test('parking.approver_groups renders every configured option in order', async ({
+    test('parking.approver_groups preselects the first option and renders every configured option in order', async ({
         staffPage,
     }) => {
         const root = await openRequest(staffPage, {
@@ -328,6 +328,9 @@ test.describe('WPA settings: parking request approver groups', () => {
         await expect(approverHeading(root)).toHaveCount(1);
         const select = approverSelect(root);
         await expect(select).toHaveCount(1);
+        // The collapsed select renders the selected option's name.
+        await expect(select).toContainText('E2E Approver A');
+        await expect(select).not.toContainText('E2E Approver B');
         const labels = await optionLabels(staffPage, select);
         expect(labels, 'the mat-option list follows the setting order').toEqual(
             ['E2E Approver A', 'E2E Approver B'],
@@ -346,21 +349,6 @@ test.describe('WPA settings: parking request approver groups', () => {
         await expect(approverSelect(root)).toHaveCount(0);
         // The rest of the request form is unaffected by the empty list.
         await expect(root.locator('mat-select').first()).toBeVisible();
-        await untouched(staffPage);
-    });
-
-    test('parking.approver_groups preselects the first option', async ({
-        staffPage,
-    }) => {
-        const root = await openRequest(staffPage, {
-            'app.parking.approver_groups': OPTIONS,
-            'app.parking.auto_approved_groups': [],
-        });
-        const select = approverSelect(root);
-        await expect(select).toHaveCount(1);
-        // The collapsed select renders the selected option's name.
-        await expect(select).toContainText('E2E Approver A');
-        await expect(select).not.toContainText('E2E Approver B');
         await untouched(staffPage);
     });
 });

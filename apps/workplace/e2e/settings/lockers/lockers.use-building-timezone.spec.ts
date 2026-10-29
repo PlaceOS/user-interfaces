@@ -73,11 +73,17 @@ const lockerStart = (root: Locator) => root.locator('a-time-field[name="start-ti
 // locker-flow-success.component.ts; data from sessionStorage
 // PLACEOS.last_booked_booking (booking-form.service.ts).
 
-test.describe('lockers.use_building_timezone', () => {
+// Setting: bookings.use_building_timezone on the locker form (developer
+// decision: only the bookings version is tested with lockers). The locker key is
+// left unset (null), so the generic bookings key alone decides the label.
+test.describe('bookings.use_building_timezone on the locker form', () => {
     for (const enabled of [true, false]) {
-        test('lockers.use_building_timezone ' + enabled + ' gates the building-time label', async ({ staffPage, audit }) => {
+        test('bookings.use_building_timezone ' + enabled + ' gates the locker building-time label', async ({ staffPage, audit }) => {
             await timezoneBuildings(staffPage, audit);
-            const root = await lockerForm(staffPage, audit, { 'app.lockers.use_building_timezone': enabled });
+            const root = await lockerForm(staffPage, audit, {
+                'app.bookings.use_building_timezone': enabled,
+                'app.lockers.use_building_timezone': null,
+            });
             expect(audit.fixtures['timezone buildings'] ?? 0).toBeGreaterThan(0);
             await expect(lockerStart(root)).toBeVisible();
             await expect(lockerStart(root).locator('div.truncate.text-xs')).toHaveCount(enabled ? 1 : 0);

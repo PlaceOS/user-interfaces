@@ -4,13 +4,18 @@
  * Coverage: 1 unique Setting / 2 scenarios
  * Docs: docs/settings/workplace.md. No booking reaches any backend.
  *
- * Two independent submissions keep the SAME delegate as saved host and organiser.
- * True resolves rule checks using signed-in staff (no delegate UserPipe GET).
- * False resolves the delegate through its exact synthetic staff GET.
+ * Both scenarios book Synthetic Room A for the SAME delegate as host and organiser.
+ * The fixture rule hides every room from the delegate's group, and only the
+ * delegate is in that group, so the outcome shows whose rules were applied:
+ * - true: rules use the signed-in staff user (no delegate UserPipe GET); the
+ *   booking is permitted and the exact event JSON is submitted.
+ * - false: rules use the delegate (resolved through its exact synthetic GET);
+ *   Confirm is refused with CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN for
+ *   Synthetic Room A and nothing is submitted.
  * The draft is seeded before navigation, so no unrelated host-picker lookup occurs.
- * Both group identities are permitted by the fixture rules; this covers rule-host
- * resolution and unchanged submission ownership, NOT hidden-rule denial.
- * This avoids exempting expected product errors from strict error capture.
+ * The meeting form re-throws the refusal, which reaches the page as one
+ * uncaught error. Only the false scenario allows exactly that one message; any
+ * other or additional application error still fails the strict teardown audit.
  * The default calendar/event backend is covered, with no native booking POST.
  *
  * SUBMISSION SAFETY: one BrowserContext.route with a catch-all URL pattern is installed before any
@@ -36,6 +41,8 @@
  * Run with --no-deps --workers=1.
  */
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import {
     test as base, expect, type Page, type WebSocketRoute,
@@ -50,6 +57,8 @@ type Audit = {
     refused: string[]; errors: string[]; monitoring: string[];
     fixtures: Record<string, number>; connections: Connection[];
     submission?: Submission;
+    /** One uncaught page error a scenario expects (the refusal); counted, not ignored. */
+    expected_error?: { text: string; seen: number };
 };
 const APP_URL = process.env.E2E_APP_URL ?? 'http://localhost:4214';
 const APP = new URL(APP_URL);
@@ -84,10 +93,33 @@ const ROOMS = ['a', 'b'].map((suffix) => ({
     level: { id: LEVEL, parent_id: BUILDING, name: 'Synthetic Level' },
     response_status: 'accepted', created_at: 1,
 }));
-// Both hosts are permitted. These scenarios cover rule-host resolution,
-// not hidden-rule rejection; every application error remains a test failure.
+// Hides every room from the delegate's group only. The signed-in staff user is
+// not in the group, so whose rules are applied decides the outcome.
 const RULES: Json[] = [{ zone: '*', conditions: { groups: [GROUP] },
-    rules: { hidden: false } }];
+    rules: { hidden: true } }];
+
+/**
+ * The text the app shows for CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN with one
+ * hidden room, using LocaleService.get's lookup: `<key>_1`, then `<key>_N`, then
+ * `<key>`, each in en-US (the spec's locale) before en-AU (the app default).
+ */
+function hiddenByRulesMessage(spaces: string) {
+    const load = (locale: string) => JSON.parse(readFileSync(
+        join(__dirname, '../../../../../shared/assets/locale/' + locale + '.json'), 'utf8',
+    )) as { CALENDAR_EVENT?: Record<string, unknown> };
+    const maps = [load('en-US'), load('en-AU')];
+    const key = 'SPACE_BOOKING_RULES_HIDDEN';
+    let template: unknown;
+    for (const name of [key + '_1', key + '_N', key]) {
+        template = maps.map((map) => map.CALENDAR_EVENT?.[name]).find((value) => typeof value === 'string');
+        if (template) break;
+    }
+    if (typeof template !== 'string' || !template.includes('{{ spaces }}')) {
+        throw new Error('CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN has an unexpected format');
+    }
+    // LocaleService replaces the first two occurrences of the placeholder.
+    return template.replace('{{ spaces }}', spaces).replace('{{ spaces }}', spaces);
+}
 const MAP_PATH = '/' + PREFIX + 'map.svg';
 const HIDDEN_CATEGORIES = [
     { id: PREFIX + 'catering', name: '_CATERING_', hidden: true },
@@ -329,7 +361,17 @@ const test = base.extend<{ isolated: { page: Page; audit: Audit } }>({
                 catch { audit.monitoring.push('WebSocket handler failed'); }
             });
             context.on('page', (opened) => {
-                opened.on('pageerror', () => audit.errors.push('uncaught page error'));
+                opened.on('pageerror', (error) => {
+                    // Only the first uncaught error containing the scenario's
+                    // exact expected text is counted instead of failing; any
+                    // other or repeated error still fails the audit.
+                    const expected = audit.expected_error;
+                    if (expected && expected.seen === 0 && error.message.includes(expected.text)) {
+                        expected.seen++;
+                        return;
+                    }
+                    audit.errors.push('uncaught page error');
+                });
                 opened.on('console', (message) => {
                     if (message.type() === 'error') audit.errors.push('console error');
                 });
@@ -360,6 +402,10 @@ const test = base.extend<{ isolated: { page: Page; audit: Audit } }>({
                     'strict teardown audit, including setup/assertion failures').toEqual({
                     refused: [], errors: [], monitoring: [],
                 });
+                if (audit.expected_error) {
+                    expect(audit.expected_error.seen,
+                        'the expected refusal error is logged exactly once').toBe(1);
+                }
                 if (audit.submission) {
                     expect(audit.submission.armed).toBe(false);
                     expect(audit.submission.completed).toBe(true);
@@ -771,26 +817,51 @@ async function expectSimulatedSuccess(page: Page, audit: Audit) {
     expect(audit.refused, 'no extra mutation or socket attempt').toEqual([]);
 }
 
-for (const enabled of [true, false]) {
-    test('events.force_current_user_for_booking_rules=' + enabled + ' resolves the rule host while saving for the delegate',
-        async ({ isolated: { page, audit } }) => {
-            expect(USER.groups).not.toContain(GROUP);
-            expect(DELEGATE.groups).toEqual([GROUP]);
-            const confirm = await openMeeting(page, audit, {
-                'app.events.force_current_user_for_booking_rules': enabled,
-                'app.events.no_space_resource': '',
-            }, DELEGATE, true);
-            const before = await formSnapshot(page);
-            expect(before.raw.resources.map((room) => room.id)).toEqual([ROOMS[0].id]);
-            await armSubmission(page, audit, ROOMS[0].id);
-            await confirm.click();
-            await expectSimulatedSuccess(page, audit);
-            // Snapshot was zero before clicking; completion proves rules and
-            // availability checks have finished, making this negative reliable.
-            expect(audit.fixtures[HOST_PATH] ?? 0).toBe(enabled ? 0 : 1);
-            expect(audit.submission?.bodies[0].host).toBe(DELEGATE.email);
-            expect((audit.submission?.bodies[0].organiser as Json).email).toBe(DELEGATE.email);
-            expect(audit.submission?.bodies).toEqual([audit.submission?.expected]);
-        });
-}
+test('events.force_current_user_for_booking_rules=true applies the signed-in user\'s rules and permits the delegate booking',
+    async ({ isolated: { page, audit } }) => {
+        expect(USER.groups).not.toContain(GROUP);
+        expect(DELEGATE.groups).toEqual([GROUP]);
+        const confirm = await openMeeting(page, audit, {
+            'app.events.force_current_user_for_booking_rules': true,
+            'app.events.no_space_resource': '',
+        }, DELEGATE, true);
+        const before = await formSnapshot(page);
+        expect(before.raw.resources.map((room) => room.id)).toEqual([ROOMS[0].id]);
+        await armSubmission(page, audit, ROOMS[0].id);
+        await confirm.click();
+        await expectSimulatedSuccess(page, audit);
+        // Completion proves the rule and availability checks ran; the delegate
+        // was never resolved, so the signed-in user's (unrestricted) rules applied.
+        expect(audit.fixtures[HOST_PATH] ?? 0).toBe(0);
+        expect(audit.submission?.bodies[0].host).toBe(DELEGATE.email);
+        expect((audit.submission?.bodies[0].organiser as Json).email).toBe(DELEGATE.email);
+        expect(audit.submission?.bodies).toEqual([audit.submission?.expected]);
+    });
+
+test('events.force_current_user_for_booking_rules=false applies the delegate\'s rules and refuses the hidden room',
+    async ({ isolated: { page, audit } }) => {
+        expect(USER.groups).not.toContain(GROUP);
+        expect(DELEGATE.groups).toEqual([GROUP]);
+        const confirm = await openMeeting(page, audit, {
+            'app.events.force_current_user_for_booking_rules': false,
+            'app.events.no_space_resource': '',
+        }, DELEGATE, true);
+        const before = await formSnapshot(page);
+        expect(before.raw.resources.map((room) => room.id)).toEqual([ROOMS[0].id]);
+        const refusal = hiddenByRulesMessage(ROOMS[0].display_name);
+        expect(refusal).toContain(ROOMS[0].display_name);
+        // Not armed: any POST is refused by the network guard and fails the audit.
+        audit.expected_error = { text: refusal, seen: 0 };
+        await confirm.click();
+        // The refusal is shown to the user, for the selected room.
+        await expect(page.locator('mat-snack-bar-container')).toContainText(refusal);
+        // Rules were evaluated against the delegate (resolved exactly once),
+        // whose group hides the room.
+        await expect.poll(() => audit.fixtures[HOST_PATH] ?? 0).toBe(1);
+        await expect.poll(() => audit.expected_error?.seen).toBe(1);
+        expect(audit.submission, 'no event submission is armed or sent').toBeUndefined();
+        await expect(page).toHaveURL(/#\/book\/meeting\/form\?view=2$/);
+        await expect(page.locator('meeting-flow-success')).toHaveCount(0);
+        expect((await formSnapshot(page)).raw.resources.map((room) => room.id)).toEqual([ROOMS[0].id]);
+    });
 

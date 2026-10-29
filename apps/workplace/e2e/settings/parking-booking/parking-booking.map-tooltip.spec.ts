@@ -1,15 +1,15 @@
 // Coverage: 2 unique Settings. Exact keys: app.parking.show_status_details,
 // app.parking.show_users.
-// Scenarios: 4.
-//   1. show_status_details true (show_users false): the free bay shows "free"
+// Scenarios: 3.
+//   1. show_status_details true, show_users false: the free bay shows "free"
 //      with the success colour, the assigned bay shows "reserved" with the
-//      warning colour.
+//      warning colour, and no user name.
 //   2. show_status_details false (show_users true): no status word, no status
 //      colour and no user line on either bay; both bay names remain.
 //   3. show_users true (show_status_details true): the assigned bay shows the
 //      assigned user's name.
-//   4. show_users false (show_status_details true): the assigned bay shows its
-//      status but not the user.
+// (A separate "show_users false" case had the same settings and expectations
+// as scenario 1, so it was removed.)
 // Scope: the Explore parking hover card (explore-parking-info) for two
 // synthetic bays. No bay is clicked and nothing is booked.
 //
@@ -682,7 +682,7 @@ function statusColours(card: ReturnType<typeof panel>) {
 
 const SCENARIOS: Scenario[] = [
     {
-        label: 'show_status_details true',
+        label: 'show_status_details true with show_users false',
         show_status_details: true,
         show_users: false,
         status: { a: 'free', b: 'reserved' },
@@ -704,14 +704,6 @@ const SCENARIOS: Scenario[] = [
         status: { a: 'free', b: 'reserved' },
         colour: { a: ['bg-success!'], b: ['bg-warning!'] },
         driver_shown: true,
-    },
-    {
-        label: 'show_users false',
-        show_status_details: true,
-        show_users: false,
-        status: { a: 'free', b: 'reserved' },
-        colour: { a: ['bg-success!'], b: ['bg-warning!'] },
-        driver_shown: false,
     },
 ];
 

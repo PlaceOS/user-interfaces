@@ -2,7 +2,7 @@ import type { Locator, Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
-import { type Audit, BOOKING, menuValues, openCalendar, ORIGINS, type Settings, test, untouchedParking } from '../support/settings-harness';
+import { type Audit, BOOKING, menuValues, ORIGINS, pickDay, type Settings, test, untouchedParking } from '../support/settings-harness';
 type Debug = Window & { setting?: (key: string) => unknown };
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
@@ -72,41 +72,6 @@ async function prepare(page: Page, audit: Audit, settings: Settings,
                 { message: 'hidden-category bootstrap served by the fixture' }).toBeGreaterThan(0);
         },
     };
-}
-/**
- * The calendar cell `offset` days after today. Cells are consecutive days, so
- * the index is counted from the cell carrying today's ring. If the day is past
- * the grid, move one month on: the right chevron (named schedule-previous-month
- * in date-calendar.component.ts) is disabled once the grid's last cell is past
- * `to`, so a later day cannot be selectable and null is returned.
- */
-async function dayCell(page: Page, picker: Locator, offset: number): Promise<Locator | null> {
-    const cells = picker.locator('button[name="schedule-set-date"]');
-    await expect(cells.first()).toBeVisible();
-    const today = await cells.evaluateAll((elements) =>
-        elements.findIndex((element) => !!element.querySelector('div.border-secondary')));
-    expect(today, 'the calendar marks today').toBeGreaterThanOrEqual(0);
-    if (today + offset < await cells.count()) return cells.nth(today + offset);
-    const next = picker.locator('button[name="schedule-previous-month"]');
-    if (await next.isDisabled()) return null;
-    const day = await page.evaluate((days) => {
-        const date = new Date(); date.setDate(date.getDate() + days); return date.getDate();
-    }, offset);
-    await next.click();
-    // Out-of-month cells carry text-base-300!; pick the in-month day.
-    const cell = picker.locator('button[name="schedule-set-date"]:not([class*="text-base-300"])')
-        .filter({ hasText: new RegExp('^\\s*' + day + '\\s*$') });
-    await expect(cell).toHaveCount(1);
-    return cell;
-}
-/** Chooses a day in the local form model only. */
-async function pickDay(page: Page, root: Locator, offset: number) {
-    const picker = await openCalendar(page, root);
-    const cell = await dayCell(page, picker, offset);
-    expect(cell, offset + ' days ahead must be reachable').not.toBeNull();
-    await expect(cell!).toBeEnabled();
-    await cell!.click();
-    await expect(picker).toHaveCount(0);
 }
 const HH = (h: number, m = 0) => h * 60 + m;
 async function parkingForm(page: Page, audit: Audit, overrides: Settings) {

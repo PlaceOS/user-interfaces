@@ -1,5 +1,8 @@
 // Coverage: 1 unique Setting. Exact key: app.events.allow_multiple_spaces.
-// Scenarios: 2. The legacy alias is enabled/disabled while the modern key stays false.
+// Scenarios: 1. The legacy alias is enabled while the modern key stays false,
+// so only the alias can keep both rooms selected. The alias-off result (both
+// keys false: the second click replaces the first) is the same input as the
+// events.multiple_spaces false case in room-booking.multiple-spaces.spec.ts.
 // Scope: native, browser-only room selection; neither scenario confirms a meeting.
 // Limitations: does not exercise calendar-provider room booking.
 //
@@ -613,10 +616,8 @@ async function openRoomSelection(page: Page, legacyAlias: boolean) {
     return { root, first, second, audit };
 }
 
-// With the legacy alias on, both rooms stay selected; with it off, the second
-// click replaces the first. Kept as data so the test body has no branches.
+// With the legacy alias on (modern key off), both rooms stay selected.
 const SCENARIOS = [
-    { legacyAlias: false, verb: 'does not enable', expected: [ROOM_TWO.id] },
     {
         legacyAlias: true,
         verb: 'enables',

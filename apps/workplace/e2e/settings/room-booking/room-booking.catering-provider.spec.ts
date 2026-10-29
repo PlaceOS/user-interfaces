@@ -1,10 +1,12 @@
 // Coverage: 1 unique Setting. Exact key: app.catering_provider.
 // Scenarios: 2.
-//   1. 'Alpha': the catering menu offers no caterer choice (caterers() is
-//      empty), the menu filter is fixed to Alpha, and only the Alpha item is
-//      listed.
+//   1. 'Beta' (not the default caterer): the catering menu offers no caterer
+//      choice (caterers() is empty), the menu filter is fixed to Beta, and only
+//      the Beta item is listed.
 //   2. unset (''): both synthetic caterers are offered; the menu pre-selects
 //      the first caterer, so only the Alpha item is listed.
+// Beta is used because the app already pre-selects Alpha when the setting is
+// unset, so only a non-default provider proves the setting picks the caterer.
 // Scope: the catering select modal opened from the meeting options step
 // (/#/book/meeting/form?view=2). Nothing is selected or added, and the meeting
 // is never submitted.
@@ -639,12 +641,14 @@ function catererState(modal: Locator) {
     });
 }
 
-// The provider removes the caterer choice and fixes the filter; unset offers
-// both caterers. In both, only the Alpha item is listed (pre-selected first
-// caterer when unset). Kept as data so the test body has no branches.
+// The provider removes the caterer choice and fixes the filter to itself; unset
+// offers both caterers and pre-selects the first (Alpha). Kept as data so the
+// test body has no branches.
 const SCENARIOS = [
-    { label: "'Alpha'", provider: 'Alpha', caterers: [] as string[] },
-    { label: 'unset', provider: '', caterers: ['Alpha', 'Beta'] },
+    { label: "'Beta'", provider: 'Beta', caterers: [] as string[], filter: 'Beta',
+        listed: 'Beta prepared item', absent: 'Alpha prepared item' },
+    { label: 'unset', provider: '', caterers: ['Alpha', 'Beta'], filter: 'Alpha',
+        listed: 'Alpha prepared item', absent: 'Beta prepared item' },
 ];
 
 for (const scenario of SCENARIOS) {
@@ -664,10 +668,10 @@ for (const scenario of SCENARIOS) {
             .poll(() => catererState(modal), {
                 message: 'offered caterers and menu filter',
             })
-            .toStrictEqual({ caterers: scenario.caterers, filter: 'Alpha' });
+            .toStrictEqual({ caterers: scenario.caterers, filter: scenario.filter });
         const list = modal.locator('catering-item-list');
-        await expect(list.getByText('Alpha prepared item')).toHaveCount(1);
-        await expect(list.getByText('Beta prepared item')).toHaveCount(0);
+        await expect(list.getByText(scenario.listed)).toHaveCount(1);
+        await expect(list.getByText(scenario.absent)).toHaveCount(0);
         // Close without selecting anything; no order is added.
         await modal.locator('header button[mat-dialog-close]').click();
         await expect(modal).toHaveCount(0);

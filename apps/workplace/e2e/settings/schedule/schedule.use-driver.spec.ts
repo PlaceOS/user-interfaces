@@ -1,6 +1,8 @@
 // Coverage: 1 unique Setting. Exact key: app.schedule.use_driver.
-// Scenarios: 2. use_driver true selects the `driver` source; false falls back
-// to the `api` source.
+// Scenarios: 2. use_driver true selects the `driver` source, both on its own and
+// with use_websocket also true (use_driver takes priority over use_websocket).
+// use_driver false is covered by schedule.use-websocket.spec.ts, whose two
+// scenarios pin use_driver false (falling back to `ws` and `api`).
 // Scope: which schedule event source is selected and whether
 // /staff/v1/events is requested. The driver's LocationServices data is not
 // asserted: the synthetic organisation has no location_services binding, so
@@ -12,9 +14,8 @@
 // use_websocket -> 'ws', otherwise 'api'. The `driver` loader calls
 // the location_services module only; the `api` loader requests
 // /staff/v1/events because events.use_bookings is false. event_sources is set
-// to [] explicitly so the fallback is always the branch under test, and
-// use_websocket is pinned false so the fallback is `api` when use_driver is
-// false.
+// to [] explicitly so the fallback is always the branch under test; each
+// scenario pins use_websocket.
 //
 // Authentication (fail-closed, read-only): the staff bearer is the one already
 // stored for this worker under e2e/.auth. The storageState file the inherited
@@ -473,7 +474,7 @@ async function syntheticGets(page: Page): Promise<() => number> {
     return () => event_requests;
 }
 
-function scheduleSettings(use_driver: boolean): Settings {
+function scheduleSettings(use_driver: boolean, use_websocket: boolean): Settings {
     return {
         ...READ_ONLY_SETTINGS,
         ...CONTROLS,
@@ -486,17 +487,17 @@ function scheduleSettings(use_driver: boolean): Settings {
         'app.default_building': BUILDING,
         // Empty, so the legacy fallback is the branch under test.
         'app.schedule.event_sources': [],
-        'app.schedule.use_websocket': false,
+        'app.schedule.use_websocket': use_websocket,
         'app.schedule.use_driver': use_driver,
     };
 }
 
-async function openSchedule(page: Page, use_driver: boolean) {
+async function openSchedule(page: Page, use_driver: boolean, use_websocket: boolean) {
     assertLocalOnly(APP_URL, BACKEND_URL);
     const audit = await protectNetwork(page);
     await page.setViewportSize({ width: 1440, height: 1100 });
     await clearOrganisationCache(page);
-    await useSettings(page, scheduleSettings(use_driver));
+    await useSettings(page, scheduleSettings(use_driver, use_websocket));
     const events = await syntheticGets(page);
     await page.goto('/#/your-bookings?view=day');
     await expect(page.locator('app-schedule')).toBeVisible({
@@ -552,31 +553,37 @@ function scheduleSourceState(page: Page): Promise<ScheduleSourceState> {
     });
 }
 
-// The `api` scenario is the positive control for the `driver` scenario: the
-// same probe, and the events request does arrive. Kept as data so the test
-// body has no branches.
+// use_driver true with and without use_websocket: the source is `driver` either
+// way, so use_driver wins over use_websocket. A `ws` result would also request
+// the building's spaces, which this spec does not serve, so the network guard
+// fails it. Kept as data so the test body has no branches.
 const SCENARIOS = [
     {
+        label: 'true',
         use_driver: true,
+        use_websocket: false,
         source: 'driver',
         events: false,
         message: 'the driver source must not request /staff/v1/events',
     },
     {
-        use_driver: false,
-        source: 'api',
-        events: true,
-        message: 'the api fallback must request /staff/v1/events',
+        label: 'true with use_websocket true',
+        use_driver: true,
+        use_websocket: true,
+        source: 'driver',
+        events: false,
+        message: 'use_driver must take priority over use_websocket',
     },
 ];
 
 for (const scenario of SCENARIOS) {
-    test(`schedule.use_driver ${scenario.use_driver} selects the ${scenario.source} event source`, async ({
+    test(`schedule.use_driver ${scenario.label} selects the ${scenario.source} event source`, async ({
         staffPage,
     }) => {
         const { audit, events } = await openSchedule(
             staffPage,
             scenario.use_driver,
+            scenario.use_websocket,
         );
         await expect
             .poll(() => sourceSettings(staffPage), {
@@ -585,7 +592,7 @@ for (const scenario of SCENARIOS) {
             .toStrictEqual({
                 event_sources: [],
                 use_driver: scenario.use_driver,
-                use_websocket: false,
+                use_websocket: scenario.use_websocket,
             });
         await expect
             .poll(() => scheduleSourceState(staffPage), {

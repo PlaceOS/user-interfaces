@@ -3,12 +3,12 @@
 // Consumer: libs/bookings/src/lib/locker-select-modal/locker-filters.component.ts.
 // The locker filters date field uses `available_period` as its `to` bound. The
 // locker picker is opened, the date menu is inspected, then closed unchanged.
-import type { Locator, Page, Route } from '@playwright/test';
+import type { Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { CATEGORIES, COMMON, openCalendar, type Settings, TYPES } from '../support/settings-harness';
+import { CATEGORIES, COMMON, dayEnabled, type Settings, TYPES } from '../support/settings-harness';
 
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 const LOCKER: Settings = {
@@ -129,60 +129,6 @@ async function openLockerPicker(page: Page, available_period: number) {
     return filters;
 }
 
-/**
- * The calendar cell `offset` days after today, found by date. The grid is built
- * around the form's date, not today (date-calendar.component.ts generateDates).
- * Each cell's date is displayed_dates()[i].id: local midnight, one cell per day.
- * If the day is past the grid, move one month on: the right chevron (named
- * schedule-previous-month) is disabled once the grid passes `to`, so a later
- * day cannot be selectable and null is returned. Any other miss fails.
- */
-async function dayCell(page: Page, picker: Locator, offset: number) {
-    const cells = picker.locator('button[name="schedule-set-date"]');
-    await expect(cells.first()).toBeVisible();
-    const target = await page.evaluate((days) => {
-        const date = new Date();
-        date.setDate(date.getDate() + days);
-        date.setHours(0, 0, 0, 0);
-        return date.valueOf();
-    }, offset);
-    const position = () =>
-        picker.evaluate((element, id) => {
-            const calendar = (
-                window as Window & {
-                    ng?: { getComponent(element: Element): unknown };
-                }
-            ).ng?.getComponent(element) as
-                | { displayed_dates(): { id: number }[] }
-                | undefined;
-            if (!calendar) throw new Error('Calendar debug API required');
-            return calendar
-                .displayed_dates()
-                .findIndex((day) => day.id === id);
-        }, target);
-    let index = await position();
-    if (index < 0) {
-        const next = picker.locator('button[name="schedule-previous-month"]');
-        if (await next.isDisabled()) return null;
-        await next.click();
-        await expect
-            .poll(position, {
-                message: offset + ' days ahead is on the next month grid',
-            })
-            .toBeGreaterThanOrEqual(0);
-        index = await position();
-    }
-    return cells.nth(index);
-}
-
-async function dayEnabled(page: Page, root: Locator, offset: number) {
-    const picker = await openCalendar(page, root);
-    const cell = await dayCell(page, picker, offset);
-    const enabled = cell ? await cell.isEnabled() : false;
-    await page.keyboard.press('Escape');
-    await expect(picker).toHaveCount(0);
-    return enabled;
-}
 
 readOnlyTest(
     'lockers.available_period 2 disables days past the configured window',

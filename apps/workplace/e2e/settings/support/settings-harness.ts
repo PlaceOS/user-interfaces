@@ -587,6 +587,71 @@ export async function openCalendar(page: Page, root: Locator) {
     return picker;
 }
 
+/**
+ * The calendar cell `offset` days after today, found by date. The grid is built
+ * around the form's date, not today (date-calendar.component.ts generateDates),
+ * so today may be off-grid when the form date has moved to tomorrow. Each cell's
+ * date is displayed_dates()[i].id: local midnight, one cell per day. If the day
+ * is past the grid, move one month on: the right chevron (named
+ * schedule-previous-month) is disabled once the grid passes `to`, so a later
+ * day cannot be selectable and null is returned. Any other miss fails.
+ */
+export async function dayCell(
+    page: Page,
+    picker: Locator,
+    offset: number,
+): Promise<Locator | null> {
+    const cells = picker.locator('button[name="schedule-set-date"]');
+    await expect(cells.first()).toBeVisible();
+    const target = await page.evaluate((days) => {
+        const date = new Date();
+        date.setDate(date.getDate() + days);
+        date.setHours(0, 0, 0, 0);
+        return date.valueOf();
+    }, offset);
+    const position = () =>
+        picker.evaluate((element, id) => {
+            const calendar = (window as DebugWindow).ng?.getComponent(
+                element,
+            ) as { displayed_dates(): { id: number }[] } | undefined;
+            if (!calendar) throw new Error('Calendar debug API required');
+            return calendar.displayed_dates().findIndex((day) => day.id === id);
+        }, target);
+    let index = await position();
+    if (index < 0) {
+        const next = picker.locator('button[name="schedule-previous-month"]');
+        if (await next.isDisabled()) return null;
+        await next.click();
+        await expect
+            .poll(position, {
+                message: offset + ' days ahead is on the next month grid',
+            })
+            .toBeGreaterThanOrEqual(0);
+        index = await position();
+    }
+    return cells.nth(index);
+}
+
+/** Whether the day `offset` days ahead is selectable. Closes the picker unchanged. */
+export async function dayEnabled(page: Page, root: Locator, offset: number) {
+    const picker = await openCalendar(page, root);
+    const cell = await dayCell(page, picker, offset);
+    const enabled = cell ? await cell.isEnabled() : false;
+    await page.keyboard.press('Escape');
+    await expect(picker).toHaveCount(0);
+    return enabled;
+}
+
+/** Chooses a day in the local form model only. */
+export async function pickDay(page: Page, root: Locator, offset: number) {
+    const picker = await openCalendar(page, root);
+    const cell = await dayCell(page, picker, offset);
+    expect(cell, offset + ' days ahead must be reachable').not.toBeNull();
+    await expect(cell!).toBeEnabled();
+    await cell!.click();
+    await expect(picker).toHaveCount(0);
+}
+
 export async function prepare(page: Page, audit: Audit, overrides: Settings) {
     assertLocalOnly(APP_URL, BACKEND_URL);
     await page.setViewportSize({ width: 1440, height: 1100 });

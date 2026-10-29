@@ -39,7 +39,10 @@ async function openDesk(page: Page, audit: Audit, overrides: Settings) {
     return { details, fixture };
 }
 // DeskFlowDetailsComponent reads desks.min_duration before the generic bookings fallback.
-for(const c of [{"value": 30, "min": 30, "max": 120, "step": 30, "custom": [], "expected": [30, 60, 90, 120]}, {"value": 90, "min": 90, "max": 120, "step": 30, "custom": [], "expected": [90, 120]}]){
+// min 30 starts the list at 30 (the bookings fallback would start at 15). The
+// min 90 input is the custom_duration_options false case in
+// desk-booking.custom-duration-options.spec.ts, so it is not repeated here.
+for(const c of [{"value": 30, "min": 30, "max": 120, "step": 30, "custom": [], "expected": [30, 60, 90, 120]}]){
  test('desk settings: desks.min_duration '+c.value+' changes exact duration choices',async({staffPage,audit})=>{
   const {details}=await openDesk(staffPage,audit,{'app.desks.min_duration':c.min,'app.desks.max_duration':c.max,
    'app.desks.duration_step':c.step,'app.desks.custom_duration_options':c.custom});
