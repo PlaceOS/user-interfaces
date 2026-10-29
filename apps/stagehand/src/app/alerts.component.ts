@@ -457,16 +457,17 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     private _initialized = signal(false);
     private _waiting_for_first_alert = signal(true);
     private _location_names = signal<Record<string, string>>({});
+    /** Locations whose name was asked for, so each is asked for once */
+    private _requested_locations = new Set<string>();
     private _first_alert_watch = effect(() => {
         if (this.alert_list().length > 0) {
             this._waiting_for_first_alert.set(false);
         }
     });
     private _location_name_sync = effect(() => {
-        const locations = this.alert_list()
-            .map((alert) => alert.location)
-            .filter((location) => location && !this._location_names()[location]);
-        for (const location of new Set(locations)) {
+        for (const { location } of this.alert_list()) {
+            if (!location || this._requested_locations.has(location)) continue;
+            this._requested_locations.add(location);
             this._loadLocationName(location);
         }
     });

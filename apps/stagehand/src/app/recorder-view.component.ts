@@ -94,11 +94,9 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
             if (images.length <= 0) return images;
             let index = this.refresh_index;
             if (index >= images.length || index < 0) index = 0;
-            const time = Date.now();
-            images[index].id = `${images[index].id.split('|')[0]}|${time}`;
-            images[index].url = `${images[index].raw_url}&t=${time}`;
+            // the id stays the same, so only the image's source changes
+            images[index].url = `${images[index].raw_url}&t=${Date.now()}`;
             this.refresh_index = index + 1;
-            console.log('Refresh');
             return [...images];
         });
         this.timeout(
@@ -116,9 +114,8 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
             const request_path = this.api_path
                 .replace('{IP_ADDRESS}', ip_address)
                 .replace('{DEVICE_ID}', id);
-            const time = Date.now();
             image_list.push({
-                id: `${ip_address}+${id}|${time}`,
+                id: `${ip_address}+${id}`,
                 name,
                 raw_url: `https://${this.domain}${request_path}`,
                 url: `https://${this.domain}${request_path}`,
