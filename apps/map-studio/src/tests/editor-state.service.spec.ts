@@ -427,6 +427,9 @@ describe('EditorStateService', () => {
         ]);
         expect(copies).toHaveLength(2);
         expect(editor.objects()).toHaveLength(4);
+        // Each copy takes the next free id for its type
+        expect(copies.map((c) => c.svg_id)).toEqual(['room-003', 'room-004']);
+        expect(await store.listObjects(floorplan_id)).toHaveLength(4);
         expect(editor.multi_select()).toEqual(copies.map((c) => c.id));
 
         editor.undo();

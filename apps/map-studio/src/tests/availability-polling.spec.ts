@@ -77,6 +77,19 @@ describe('AvailabilityPollingService', () => {
         expect(service.last_updated()).not.toBeNull();
     });
 
+    it('keeps the same states when a poll changes nothing', async () => {
+        getSystems.mockResolvedValue([{ map_id: 'room-1', bookable: true }]);
+        service.start([object('room-1')], 'zone-1');
+        await vi.advanceTimersByTimeAsync(2_000);
+        const states = service.states();
+        const updated = service.last_updated();
+
+        await vi.advanceTimersByTimeAsync(30_000);
+        expect(getSystems).toHaveBeenCalledTimes(2);
+        expect(service.states()).toBe(states);
+        expect(service.last_updated()).not.toBe(updated);
+    });
+
     it('keeps the last good states when a poll fails', async () => {
         getSystems.mockResolvedValueOnce([
             { map_id: 'room-1', bookable: true },

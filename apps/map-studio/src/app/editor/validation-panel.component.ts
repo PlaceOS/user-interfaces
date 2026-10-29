@@ -159,20 +159,22 @@ export class ValidationPanelComponent {
         }
     }
 
+    /** Objects by id, so each issue finds its object without a scan */
+    private readonly _objects_by_id = computed(
+        () =>
+            new Map(this.state.objects().map((object) => [object.id, object])),
+    );
+
     /** The issue text, with the raw object id swapped for a readable name */
     public messageOf(issue: ValidationIssue) {
         if (!issue.objectId) return issue.message;
-        const object = this.state
-            .objects()
-            .find((item) => item.id === issue.objectId);
+        const object = this._objects_by_id().get(issue.objectId);
         const name = object?.label || object?.svg_id || 'unnamed';
         return issue.message.replaceAll(issue.objectId, name);
     }
 
     public select(issue: ValidationIssue) {
-        const object = this.state
-            .objects()
-            .find((item) => item.id === issue.objectId);
+        const object = this._objects_by_id().get(issue.objectId ?? '');
         if (object) this.reveal.emit(object);
     }
 }
