@@ -44,10 +44,12 @@ metadata details and reload Concierge:
 }
 ```
 
-This applies to staff directory searches, including host and attendee pickers.
-It does not change local PlaceOS searches (`basic_user_search: true`), direct user
-lookups, or the separate PlaceOS visitor search used when external attendees are
-allowed. Other applications retain their current default. Entra member status
+This applies to staff directory searches, including host pickers. Multi-person
+attendee pickers keep the same behavior as Workplace: directory guest matches
+remain eligible, and enabling external attendees adds PlaceOS guest records and
+saved attendee suggestions. The attendee list keeps its existing alphabetical
+ordering. Local PlaceOS searches (`basic_user_search: true`) and direct user
+lookups are unaffected. Other applications retain their current default. Entra member status
 is not an employment or UK-location check.
 
 ## Localisation

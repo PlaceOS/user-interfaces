@@ -396,11 +396,13 @@ export class UserListFieldComponent
         q: string,
         signal?: AbortSignal,
     ): Promise<User[]> {
+        // Preserve the shared attendee search, including directory guests,
+        // independently of staff/host directory restrictions.
         return this._use_basic_user_search()
             ? queryUsers({ q, authority_id: authority()?.id }).then((_) =>
                   _.data.map((u) => new User(u)),
               )
-            : searchStaff(q, { signal });
+            : searchStaff(q, { signal, exclude_guests: false });
     }
 
     private readonly _debounced_search = debounced(this.search, 300);
