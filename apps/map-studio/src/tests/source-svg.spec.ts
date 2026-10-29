@@ -57,6 +57,16 @@ const parse = (value: string) =>
     new DOMParser().parseFromString(value, 'image/svg+xml');
 
 describe('imported SVG preservation', () => {
+    it('strips external references from edited colours', () => {
+        const fixture = imported();
+        const [room, ...rest] = fixture.objects;
+        const output = fixture.export([
+            { ...room, fill_color: 'url(https://example.com/track)' },
+            ...rest,
+        ]);
+        expect(output).not.toContain('example.com');
+    });
+
     it('round-trips detailed artwork without reconstructing it', () => {
         const fixture = imported();
         expect(fixture.objects).toHaveLength(6);

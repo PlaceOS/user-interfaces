@@ -135,10 +135,21 @@ function parseCsvLine(line: string): string[] {
     return fields;
 }
 
-function toCsvField(value: unknown): string {
+/**
+ * Text a spreadsheet runs as a formula, such as `=HYPERLINK(...)`. A leading
+ * `'` is in the set too, so the guard below reverses exactly on import.
+ */
+const CSV_FORMULA_RE = /^[=+\-@\t\r']/;
+
+/**
+ * One CSV cell. Labels can come from shared PlaceOS data, so text that a
+ * spreadsheet would run gets a leading `'`, which `importObjectsCsv` removes.
+ */
+export function toCsvField(value: unknown): string {
     if (value === null || value === undefined) return '';
-    const str = typeof value === 'object' ? JSON.stringify(value) : `${value}`;
-    return /[,"\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+    let str = typeof value === 'object' ? JSON.stringify(value) : `${value}`;
+    if (typeof value === 'string' && CSV_FORMULA_RE.test(str)) str = `'${str}`;
+    return /[,"\n\r]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
 }
 
 /**
@@ -996,7 +1007,11 @@ export class StoreService {
             const values = parseCsvLine(line);
             const row: Record<string, unknown> = {};
             headers.forEach((header, index) => {
-                const value = values[index] ?? '';
+                const raw = values[index] ?? '';
+                const value =
+                    raw[0] === "'" && CSV_FORMULA_RE.test(raw.slice(1))
+                        ? raw.slice(1)
+                        : raw;
                 if (value !== '') row[header] = value;
             });
             if (row['geometry'])

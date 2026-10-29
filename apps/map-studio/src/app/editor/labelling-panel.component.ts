@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
+import { toCsvField } from '../data/store.service';
 import { MapObjectType } from '../data/types';
 import { OBJECT_TYPES } from './constants';
 import { EditorStateService } from './editor-state.service';
@@ -529,7 +530,9 @@ export class LabellingPanelComponent {
                     g.y ?? '',
                     g.width ?? '',
                     g.height ?? '',
-                ].join(','),
+                ]
+                    .map(toCsvField)
+                    .join(','),
             );
         }
         const url = URL.createObjectURL(

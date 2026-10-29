@@ -142,7 +142,6 @@ export function composeSourceSvg(
     const root = doc.documentElement;
     if (root.localName !== 'svg' || doc.querySelector('parsererror'))
         throw new Error('Invalid imported SVG');
-    sanitiseTree(root);
     const by_source = new Map<string, MapObject[]>();
     for (const object of objects.filter(importedObject)) {
         const attributes = object.metadata?.['originalAttributes'] as
@@ -214,5 +213,7 @@ export function composeSourceSvg(
             }
         }
     }
+    // After patching, as edited colours are untrusted values too
+    sanitiseTree(root);
     return new XMLSerializer().serializeToString(root);
 }
