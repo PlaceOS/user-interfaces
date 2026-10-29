@@ -1,11 +1,16 @@
 import { Injector, runInInjectionContext, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgModel } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { Booking, OrganisationService, SettingsService } from '@placeos/common';
+import {
+    Booking,
+    OrganisationService,
+    SettingsService,
+    settingSignal,
+} from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { addDays, endOfDay } from 'date-fns';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
@@ -154,6 +159,34 @@ describe('LockerFiltersComponent', () => {
             return undefined;
         });
         expect(spectator.component.allow_all_day()).toBe(false);
+    });
+
+    it('should lock the time controls and hide all-day when lockers.disabled_date_select is set', () => {
+        const settings = spectator.inject(SettingsService);
+        const lock = settingSignal('lockers.disabled_date_select');
+        const time_disabled = () =>
+            spectator.query('a-time-field', { read: NgModel }).isDisabled;
+        const duration_disabled = () =>
+            spectator.query('a-duration-field', { read: NgModel }).isDisabled;
+        spectator.component.model.update((m) => ({
+            ...m,
+            booking_type: 'locker',
+        }));
+        (settings.get as Mock).mockImplementation((key: string) =>
+            key === 'app.lockers.disabled_date_select' ? true : undefined,
+        );
+        lock.set(true);
+        spectator.detectChanges();
+        expect(time_disabled()).toBe(true);
+        expect(duration_disabled()).toBe(true);
+        expect(spectator.query('mat-checkbox')).not.toExist();
+
+        (settings.get as Mock).mockImplementation(() => undefined);
+        lock.set(false);
+        spectator.detectChanges();
+        expect(time_disabled()).toBe(false);
+        expect(duration_disabled()).toBe(false);
+        expect(spectator.query('mat-checkbox')).toExist();
     });
 
     it('should compute the end date from the available period', () => {

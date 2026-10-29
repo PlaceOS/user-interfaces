@@ -1,4 +1,5 @@
 import {
+    computed,
     Injector,
     signal,
     untracked,
@@ -277,6 +278,14 @@ export function generateBookingForm(
         'visitors.reason_required',
         false,
     );
+    const lock_locker_times = settingSignal<boolean>(
+        'lockers.disabled_date_select',
+        false,
+    );
+    // A computed keeps the date rule from rerunning on every model change.
+    const times_locked = computed(
+        () => model().booking_type === 'locker' && !!lock_locker_times(),
+    );
     const booking_form = form<BookingFormValue>(
         model,
         (p) => {
@@ -335,9 +344,12 @@ export function generateBookingForm(
             // `model()` made this recompute on every model change — extra reactive
             // surface that could feed loops on the explore page.
             disabled(p.date, ({ value }) => {
-                if (started) return true;
+                if (started || times_locked()) return true;
                 return value() < Date.now() && !!untracked(model).id;
             });
+            // `lockers.disabled_date_select` locks the date and every time
+            // control. Start time controls follow the date disabled state.
+            disabled(p.duration, () => times_locked());
         },
         { injector },
     ) as BookingForm;

@@ -361,7 +361,7 @@ Request types (`forced_time` locks the form to a fixed window and hides the shif
 | `lockers.allow_time_changes` | boolean | – | Allow users to change the time of locker bookings. On when not set; set to `false` to turn it off. |
 | `lockers.available_period` | number | – | Number of days ahead available in the date selector of the locker selection modal. Falls back to `bookings.available_period`, then `90`. |
 | `lockers.hide_user` | boolean | – | Hide the users of lockers on the locker selection map. |
-| `lockers.disabled_date_select` | boolean | – | Disable date selection on the locker form. |
+| `lockers.disabled_date_select` | boolean | – | Disable the date, start time and end time fields, and hide the all day option, on the locker form and in the locker selection modal. |
 | `lockers.disabled_start_time` | boolean | – | Disable start time selection on the locker form. |
 | `lockers.hide_end_time` | boolean | – | Hide the end time field on the locker form. |
 | `lockers.max_duration` | number | – | Maximum locker booking duration, in minutes. Falls back to `bookings.max_duration`, then `480`. |

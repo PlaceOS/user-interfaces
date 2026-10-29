@@ -151,7 +151,7 @@ import { BookingFormService } from '../booking-form.service';
                     </a-date-field>
                 </div>
                 <!-- All Day -->
-                @if (allow_all_day()) {
+                @if (allow_all_day() && !disable_date()) {
                     <div class="-mt-2 mb-2 flex justify-end">
                         <mat-checkbox [formField]="form.all_day">
                             {{ 'COMMON.ALL_DAY' | translate }}
@@ -174,7 +174,9 @@ import { BookingFormService } from '../booking-form.service';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
-                                [disabled]="disable_start()"
+                                [disabled]="
+                                    form.date().disabled() || disable_start()
+                                "
                                 [range]="bookable_hours()"
                             ></a-time-field>
                         </div>
@@ -190,6 +192,7 @@ import { BookingFormService } from '../booking-form.service';
                                         }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
+                                    [disabled]="form.duration().disabled()"
                                     [time]="model().date"
                                     [max]="10 * 60"
                                     [min]="60"

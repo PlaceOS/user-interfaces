@@ -532,7 +532,7 @@
             "properties": {
                 "disabled_date_select": {
                     "type": "boolean",
-                    "description": "Whether the date field is disabled in the locker booking form"
+                    "description": "Whether the date and time fields are disabled in the locker booking form"
                 },
                 "disabled_start_time": {
                     "type": "boolean",

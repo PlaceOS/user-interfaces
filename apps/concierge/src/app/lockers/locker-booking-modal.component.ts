@@ -105,10 +105,7 @@ import { addDays, endOfDay } from 'date-fns';
                         </mat-form-field>
                     </div>
                 </div>
-                <div
-                    class="relative"
-                    [class.pointer-events-none]="disable_date"
-                >
+                <div class="relative">
                     <label for="locker-booking-modal-date" id="locker-booking-modal-date-label">{{ 'FORM.DATE' | translate }}</label>
                     <a-date-field role="group" aria-labelledby="locker-booking-modal-date-label" [formField]="form.date"></a-date-field>
                     @if (allow_all_day && !disable_date) {

@@ -1044,7 +1044,7 @@
                 },
                 "disabled_date_select": {
                     "type": "boolean",
-                    "description": "Whether date selection is disabled on the locker form"
+                    "description": "Whether date and time selection is disabled on the locker form"
                 },
                 "disabled_start_time": {
                     "type": "boolean",

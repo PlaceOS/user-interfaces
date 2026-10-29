@@ -8,6 +8,7 @@ import {
     fromBookingRecurrence,
     getAllDayTimeRange,
     OrganisationService,
+    settingSignal,
     Space,
     User,
     WeekOfMonth,
@@ -258,6 +259,27 @@ describe('Booking Utilities', () => {
 
             expect(recurrence.end_type).toBe('date');
             expect(recurrence.end_date).toBe(end_date);
+        });
+
+        it('should lock locker date and time fields when lockers.disabled_date_select is set', () => {
+            const lock = settingSignal('lockers.disabled_date_select');
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({ booking_type: 'locker' }),
+                    injector,
+                ),
+            );
+            expect(form.date().disabled()).toBe(false);
+            expect(form.duration().disabled()).toBe(false);
+
+            lock.set(true);
+            expect(form.date().disabled()).toBe(true);
+            expect(form.duration().disabled()).toBe(true);
+
+            model.update((m) => ({ ...m, booking_type: 'desk' }));
+            expect(form.date().disabled()).toBe(false);
+            expect(form.duration().disabled()).toBe(false);
+            lock.set(false);
         });
 
         it('should keep the date field disabled state stable (no oscillation)', () => {
