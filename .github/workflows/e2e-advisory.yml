@@ -144,19 +144,6 @@ jobs:
             - name: Setup version
               run: bun run postinstall
 
-            # The runner Mac also runs place-technology/placeos-native-wpa's Patrol
-            # job, through a second runner. Its stack (compose project
-            # placeos-e2e-native) and Android emulator leave no room in colima's
-            # VM and the machine's 16 GB for this stack, so wait while it is up.
-            # That job waits for this one's stack in the same way.
-            - name: Wait for the native e2e job to finish
-              timeout-minutes: 120
-              run: |
-                  while [ -n "$(docker ps -q --filter label=com.docker.compose.project=placeos-e2e-native)" ]; do
-                      echo "native e2e stack is up; waiting"
-                      sleep 30
-                  done
-
             # A self-hosted machine is NOT a fresh VM. A previous aborted run can
             # leave the stack up or the dev-server port held, and the failure that
             # causes ("port already in use", or specs hitting a half-torn-down
@@ -191,6 +178,31 @@ jobs:
               timeout-minutes: 20
               continue-on-error: true
               run: e2e/stack/up.sh --pull-only
+
+            # The runner Mac also runs place-technology/placeos-native-wpa's Patrol
+            # job, through a second runner. Its stack (compose project
+            # placeos-e2e-native) and Android emulator leave no room in colima's
+            # VM and the machine's 16 GB for this stack, so wait while it is up.
+            # That job waits for this one's stack in the same way.
+            #
+            # This step is directly before the bring-up on purpose. Until up.sh
+            # starts, no placeos-e2e container exists, so the native job's check
+            # cannot see this job. Checking here keeps that window to seconds. The
+            # steps above only use network and disk, so they are safe while the
+            # native stack is up.
+            #
+            # 240 checks at 30 s is 120 minutes. A native run that dies before its
+            # teardown leaves its stack up, so the error tells you how to clear it.
+            - name: Wait for the native e2e job to finish
+              timeout-minutes: 125
+              run: |
+                  for i in $(seq 1 240); do
+                      [ -z "$(docker ps -q --filter label=com.docker.compose.project=placeos-e2e-native)" ] && exit 0
+                      echo "native e2e stack is up; waiting ($i/240)"
+                      sleep 30
+                  done
+                  echo "::error::placeos-e2e-native is still up after 120 min. If no native e2e job is running, the stack is stale. Remove it with: docker compose -p placeos-e2e-native down"
+                  exit 1
 
             # Brings up an isolated PlaceOS stack (its own compose project, own
             # volumes, ports 9443/9080) and seeds it. Needs network access to
