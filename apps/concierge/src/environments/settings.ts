@@ -7,6 +7,7 @@ const app = {
     logo_dark: 'assets/logo-dark.svg',
     default_route: '/book/rooms',
     currency: 'USD',
+    staff_search_exclude_guests: true,
     use_24_hour_time: false,
     analytics: {
         enabled: true,

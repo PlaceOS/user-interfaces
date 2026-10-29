@@ -239,28 +239,28 @@ export class UserSearchFieldComponent
     /** Function for filtering the results of the user list */
     public readonly filter = input<(_: any, s?: string) => boolean>(undefined);
     /** Function for querying the user list */
-    public readonly query_fn = input<(_: string) => Promise<User[]>>(
-        async (q) => {
-            const guest_query = () => searchGuests(q).catch(() => [] as User[]);
-            if (this.guests_only()) return guest_query();
-            const staff = this.use_basic_search()
-                ? await queryUsers({
-                      q,
-                      authority_id: authority()?.id,
-                      fields: ['id', 'name', 'email'].join(','),
-                  })
-                      .then((_) => _.data.map((u) => new User(u)))
-                      .catch(() => [] as User[])
-                : await searchStaff(q).catch(() => [] as User[]);
-            if (!this.guests()) return staff;
-            return [...staff, ...(await guest_query())];
-        },
-    );
+    public readonly query_fn = input<
+        (_: string, signal?: AbortSignal) => Promise<User[]>
+    >(async (q, signal) => {
+        const guest_query = () => searchGuests(q).catch(() => [] as User[]);
+        if (this.guests_only()) return guest_query();
+        const staff = this.use_basic_search()
+            ? await queryUsers({
+                  q,
+                  authority_id: authority()?.id,
+                  fields: ['id', 'name', 'email'].join(','),
+              })
+                  .then((_) => _.data.map((u) => new User(u)))
+                  .catch(() => [] as User[])
+            : await searchStaff(q, { signal }).catch(() => [] as User[]);
+        if (!this.guests()) return staff;
+        return [...staff, ...(await guest_query())];
+    });
 
     private readonly _debounced_term = debounced(this.search_term, 300);
     private readonly _search = resource({
         params: () => ({ term: this._debounced_term.value() }),
-        loader: async ({ params: { term } }): Promise<User[]> => {
+        loader: async ({ params: { term }, abortSignal }): Promise<User[]> => {
             if (term && typeof term !== 'string') {
                 const user = term as User;
                 return user.email === EMPTY_USER.email ? [] : [user];
@@ -278,7 +278,9 @@ export class UserSearchFieldComponent
                 );
             }
             if (s.length <= 2) return [];
-            const list = await this.query_fn()(s).catch(() => [] as User[]);
+            const list = await this.query_fn()(s, abortSignal).catch(
+                () => [] as User[],
+            );
             return list
                 .filter((_) => !!_ && _.email !== EMPTY_USER.email)
                 .sort((a, b) =>
