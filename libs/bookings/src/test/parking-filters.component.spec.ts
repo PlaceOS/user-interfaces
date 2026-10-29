@@ -179,6 +179,18 @@ describe('ParkingFiltersComponent', () => {
         ).toExist();
     });
 
+    it('should let an explicit parking all-day value override the bookings value', () => {
+        const settings = spectator.inject(SettingsService);
+        const values: Record<string, boolean> = {
+            'app.bookings.allow_all_day': true,
+        };
+        (settings.get as Mock).mockImplementation((key: string) => values[key]);
+        expect(spectator.component.allow_all_day()).toBe(true);
+        values['app.parking.allow_all_day'] = false;
+        (settings.get as Mock).mockImplementation((key: string) => values[key]);
+        expect(spectator.component.allow_all_day()).toBe(false);
+    });
+
     it('should forward option changes to the booking form service', () => {
         spectator.component.setOptions({ zone_id: 'lvl-b' });
         expect(setOptions).toHaveBeenCalledWith({ zone_id: 'lvl-b' });
