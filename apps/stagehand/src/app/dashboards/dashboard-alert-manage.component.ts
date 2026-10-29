@@ -50,7 +50,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                 >
                     <h2 class="text-xl font-medium capitalize">
                         {{
-                            (alert()?.id
+                            (model().id
                                 ? 'APP.STAGEHAND.DASHBOARD_ALERTS_EDIT'
                                 : 'APP.STAGEHAND.DASHBOARD_ALERTS_NEW'
                             ) | translate
@@ -312,6 +312,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                         type="button"
                         matRipple
                         class="min-w-32"
+                        [disabled]="!!loading()"
                         (click)="save()"
                     >
                         {{ 'COMMON.SAVE' | translate }}
@@ -429,23 +430,12 @@ export class DashboardAlertManageComponent
             });
         });
         if (!result) return;
-        const old_conditions = this.model().conditions;
-        const new_conditions: TriggerConditions = {
-            comparisons: [
-                ...old_conditions.comparisons.filter((_) => _ !== condition),
-                ...result.comparisons,
-            ],
-            time_dependents: [
-                ...old_conditions.time_dependents.filter(
-                    (_) => _ !== condition,
-                ),
-                ...result.time_dependents,
-            ],
-        };
-        this.model.update((m) => ({ ...m, conditions: new_conditions }));
+        // The modal returns the full condition list, with the edit applied
+        this.model.update((m) => ({ ...m, conditions: result }));
     }
 
     public async save() {
+        if (this.loading()) return;
         this.form().markAsTouched();
         if (!this.form().valid()) {
             return notifyError(
@@ -460,11 +450,10 @@ export class DashboardAlertManageComponent
         const dashboard = this._service.dashboard();
         if (!dashboard) return;
         this.loading.set(i18n('STAGEHAND.DASHBOARD_ALERTS_LOADING'));
-        const alert = this._service.alert() || {};
-        const value = this.model();
+        // The model holds the loaded alert, so a new alert takes nothing
+        // from one opened before it
         const new_alert = {
-            ...alert,
-            ...value,
+            ...this.model(),
             alert_dashboard_id: dashboard.id,
         };
         const method = new_alert.id
@@ -472,9 +461,10 @@ export class DashboardAlertManageComponent
             : addAlert(new_alert);
         const result = await method.catch((_) => null);
         this.loading.set('');
-        if (result?.id) {
-            this._service.setDashboard(dashboard.id);
-            this._router.navigate(['/dashboards', result.id, 'alerts']);
+        if (!result?.id) {
+            return notifyError('Failed to save the alert. Try again.');
         }
+        this._service.setDashboard(dashboard.id);
+        this._router.navigate(['/dashboards', dashboard.id, 'alerts']);
     }
 }

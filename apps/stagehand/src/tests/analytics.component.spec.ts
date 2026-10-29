@@ -47,6 +47,15 @@ describe('AnalyticsComponent', () => {
         expect(spectator.query('main icon')).toBeTruthy();
     });
 
+    it('should open on the first analytics page', () => {
+        const pages = [
+            { name: 'Systems', url: '/a' },
+            { name: 'Usage', url: '/b' },
+        ];
+        settingSignal('analytics_pages', []).set(pages);
+        expect(spectator.component.page()).toEqual(pages[0]);
+    });
+
     it('should render the selected dashboard in an iframe', () => {
         spectator.component.page.set({ name: 'Systems', url: '/analytics/x' });
         spectator.detectChanges();

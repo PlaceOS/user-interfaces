@@ -152,6 +152,24 @@ describe('SidebarComponent', () => {
         expect(dash.listenForDashboardAlerts).toHaveBeenCalledWith(true);
     });
 
+    it('should apply a region picked with the keyboard', async () => {
+        spectator.detectChanges();
+        // let ngModel select "All regions" first
+        await spectator.fixture.whenStable();
+        const select = spectator.query('#sidebar-region') as HTMLElement;
+
+        // Arrow keys on a closed select pick the next option, with no click
+        select.dispatchEvent(
+            new KeyboardEvent('keydown', {
+                key: 'ArrowDown',
+                keyCode: 40,
+            } as KeyboardEventInit),
+        );
+
+        expect(org.region).toEqual({ id: 'reg-1', name: 'Region 1' });
+        expect(dash.listenForDashboardAlerts).toHaveBeenCalledWith(true);
+    });
+
     it('should apply the building and re-listen', () => {
         const building = { id: 'bld-2' };
 

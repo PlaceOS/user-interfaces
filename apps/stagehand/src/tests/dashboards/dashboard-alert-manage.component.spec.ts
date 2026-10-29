@@ -118,9 +118,20 @@ describe('DashboardAlertManageComponent', () => {
         expect(service.setDashboard).toHaveBeenCalledWith('dash-1');
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/dashboards',
-            'alert-1',
+            'dash-1',
             'alerts',
         ]);
+    });
+
+    it('should tell the user when the alert fails to save', async () => {
+        vi.mocked(addAlert).mockRejectedValue(new Error('offline'));
+        build();
+        spectator.component.model.update((m) => ({ ...m, name: 'Overheat' }));
+
+        await spectator.component.save();
+
+        expect(notify_open).toHaveBeenCalled();
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
     });
 
     it('should update an existing alert on save', async () => {
@@ -166,28 +177,34 @@ describe('DashboardAlertManageComponent', () => {
         expect(dialog.open).not.toHaveBeenCalled();
     });
 
-    it('should merge dialog results into the model conditions', async () => {
-        const new_comparison = {
-            left: 'temp',
-            operator: '>',
-            right: 50,
-        };
+    it('should take the condition list the dialog returns', async () => {
+        const old_comparison = { left: 'power', operator: '==', right: true };
+        const new_comparison = { left: 'temp', operator: '>', right: 50 };
+        // The dialog returns every condition, the new one included
         dialog.open.mockReturnValue({
             afterClosed: () =>
                 of({
-                    comparisons: [new_comparison],
+                    comparisons: [old_comparison, new_comparison],
                     time_dependents: [],
                 }).pipe(delay(1)),
         });
         build();
+        spectator.component.model.update((m) => ({
+            ...m,
+            conditions: {
+                comparisons: [old_comparison as any],
+                time_dependents: [],
+            },
+        }));
         spectator.component.template_system.set({ id: 'sys-1' });
 
         await spectator.component.editCondition();
 
         expect(dialog.open).toHaveBeenCalled();
-        expect(spectator.component.model().conditions.comparisons).toContain(
+        expect(spectator.component.model().conditions.comparisons).toEqual([
+            old_comparison,
             new_comparison,
-        );
+        ]);
     });
 
     it('should ignore a cancelled condition dialog', async () => {

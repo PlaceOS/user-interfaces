@@ -257,6 +257,23 @@ describe('DashboardsService', () => {
             expect(notify_open).toHaveBeenCalled();
             expect(ts_client.queryAlertDashboards).toHaveBeenCalled();
         });
+
+        it('should close the confirmation and report a failed removal', async () => {
+            confirm_reason = 'done';
+            vi.mocked(ts_client.removeAlertDashboard).mockRejectedValue(
+                new Error('offline'),
+            );
+
+            await spectator.service.removeDashboard({
+                id: 'dash-1',
+                name: 'Dash',
+            } as any);
+            await flush();
+
+            expect(dialog_close).toHaveBeenCalled();
+            expect(notify_open).toHaveBeenCalled();
+            expect(ts_client.queryAlertDashboards).not.toHaveBeenCalled();
+        });
     });
 
     describe('removeDashboardAlert', () => {
@@ -287,6 +304,27 @@ describe('DashboardsService', () => {
             expect(notify_open).toHaveBeenCalled();
             expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith(
                 'dash-1',
+            );
+        });
+
+        it("should refresh the alert's dashboard row in the dashboard list", async () => {
+            confirm_reason = 'done';
+            spectator.service.dashboard_alert_map.set({
+                'dash-2': [{ id: 'alert-1' }] as any,
+            });
+
+            await spectator.service.removeDashboardAlert({
+                id: 'alert-1',
+                name: 'Alert',
+                alert_dashboard_id: 'dash-2',
+            } as any);
+            await flush();
+
+            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith(
+                'dash-2',
+            );
+            expect(spectator.service.dashboard_alert_map()['dash-2']).toEqual(
+                [],
             );
         });
     });

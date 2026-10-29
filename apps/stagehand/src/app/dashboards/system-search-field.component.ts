@@ -82,10 +82,8 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                         @for (option of item_list(); track option) {
                             <button
                                 matRipple
-                                (click)="
-                                    search_str.set(option.name);
-                                    setValue(option)
-                                "
+                                type="button"
+                                (click)="setValue(option)"
                                 class="hover:bg-base-200 w-full rounded-sm px-4 py-2 text-left"
                             >
                                 <div class="leading-tight">
@@ -119,9 +117,12 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
             }
             <mat-autocomplete #auto="matAutocomplete">
                 @for (option of item_list(); track option.id) {
+                    <!-- onSelectionChange also fires for keyboard selection -->
                     <mat-option
                         [value]="option.name || option.id"
-                        (click)="search_str.set(option.name); setValue(option)"
+                        (onSelectionChange)="
+                            $event.isUserInput && setValue(option)
+                        "
                         class="leading-tight"
                     >
                         <ng-container

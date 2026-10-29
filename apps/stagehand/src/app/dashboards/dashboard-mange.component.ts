@@ -33,7 +33,7 @@ import { DashboardsService } from './dashboards.service';
                 >
                     <h2 class="text-xl font-medium capitalize">
                         {{
-                            (dashboard()?.id
+                            (model().id
                                 ? 'APP.STAGEHAND.DASHBOARD_EDIT'
                                 : 'APP.STAGEHAND.DASHBOARD_NEW'
                             ) | translate
@@ -91,6 +91,7 @@ import { DashboardsService } from './dashboards.service';
                         type="button"
                         matRipple
                         class="min-w-32"
+                        [disabled]="!!loading()"
                         (click)="save()"
                     >
                         {{ 'COMMON.SAVE' | translate }}
@@ -140,6 +141,7 @@ export class DashboardManageComponent extends AsyncHandler implements OnInit {
     }
 
     public async save() {
+        if (this.loading()) return;
         this.form().markAsTouched();
         if (!this.form().valid()) {
             return notifyError(
@@ -152,17 +154,18 @@ export class DashboardManageComponent extends AsyncHandler implements OnInit {
             );
         }
         this.loading.set(i18n('STAGEHAND.DASHBOARD_LOADING'));
-        const dash = this._service.dashboard() || {};
-        const value = this.model();
-        const new_dash = { ...dash, ...value };
+        // The model holds the loaded dashboard, so a new dashboard takes
+        // nothing from one opened before it
+        const new_dash = this.model();
         const method = new_dash.id
             ? updateAlertDashboard(new_dash.id, new_dash)
             : addAlertDashboard(new_dash);
         const result = await method.catch((_) => null);
         this.loading.set('');
-        if (result) {
-            this._service.loadDashboards();
-            this._router.navigate(['/dashboards', result.id]);
+        if (!result) {
+            return notifyError('Failed to save the dashboard. Try again.');
         }
+        this._service.loadDashboards();
+        this._router.navigate(['/dashboards', result.id]);
     }
 }

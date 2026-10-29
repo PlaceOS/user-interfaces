@@ -180,12 +180,14 @@ describe('AlertsComponent', () => {
         expect(injected_org.building).toBe(building);
     });
 
-    it('should navigate to the selected dashboard route', () => {
+    it('should navigate to the selected dashboard route, keeping the filters', () => {
         vi.useFakeTimers();
         spectator = build();
         spectator.component.setDashboard('dash-9');
         vi.advanceTimersByTime(100);
-        expect(router.navigate).toHaveBeenCalledWith(['/alerts', 'dash-9']);
+        expect(router.navigate).toHaveBeenCalledWith(['/alerts', 'dash-9'], {
+            queryParamsHandling: 'preserve',
+        });
         vi.clearAllTimers();
         vi.useRealTimers();
     });
