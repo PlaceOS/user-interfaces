@@ -1,4 +1,0 @@
-import{Bt as Zr,O as Ie}from"./chunk-KLrnJ2eq.js";function l(n,t,o){let[s,e]=Ie(o?.in,n,t),c=r(s,e),g=Math.abs(Zr(s,e));s.setDate(s.getDate()-c*g);let u=c*(g-+(r(s,e)===-c));return u===0?0:u}function r(n,t){let o=n.getFullYear()-t.getFullYear()||n.getMonth()-t.getMonth()||n.getDate()-t.getDate()||n.getHours()-t.getHours()||n.getMinutes()-t.getMinutes()||n.getSeconds()-t.getSeconds()||n.getMilliseconds()-t.getMilliseconds();return o<0?-1:o>0?1:o}export{l as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="b01c2261-dea8-5540-b3e8-e714001f87a7")}catch(e){}}();
-//# debugId=b01c2261-dea8-5540-b3e8-e714001f87a7
-//# sourceMappingURL=chunk-C6K4RGnA.js.map
