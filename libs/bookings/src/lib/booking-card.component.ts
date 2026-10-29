@@ -352,14 +352,13 @@ export class BookingCardComponent {
     });
 
     /** Location row text. Shows only the level when the parking space is hidden. */
-    public readonly location = computed(() => {
-        const booking = this.booking();
-        if (this.hide_selected_parking_space()) {
-            const level = this._org.levelWithID(booking.zones);
-            return level?.display_name || level?.name || '';
-        }
-        return bookingLocationString(booking, this._org);
-    });
+    public readonly location = computed(() =>
+        bookingLocationString(
+            this.booking(),
+            this._org,
+            this._hide_selected_parking_space(),
+        ),
+    );
 
     public readonly period = computed(() => {
         const booking = this.booking();

@@ -701,6 +701,9 @@ export class BookingDetailsModalComponent {
     public readonly display_title = computed(() => {
         const booking = this.booking();
         if (!booking) return '';
+        if (this.hide_selected_parking_space()) {
+            return booking.title || i18n('RESOURCE.PARKING');
+        }
         return booking.title || booking.asset_name || booking.asset_id;
     });
     public readonly resource_details_label = computed(() => {

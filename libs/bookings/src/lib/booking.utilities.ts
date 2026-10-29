@@ -136,12 +136,14 @@ export const visitorDisplayNameFor = (booking: Booking) => {
 
 /**
  * Location text shown for a booking/event: `<resource> - <level>`, falling back
- * to whichever part is available. Shared by the booking card, booking details
- * modal, and workplace schedule week/day views so they all read the same.
+ * to whichever part is available. Shared by the booking card and workplace
+ * schedule week/day views so they all read the same. Set `hide_parking_space`
+ * from `parking.hide_selected_space` to show only the level of parking bookings.
  */
 export function bookingLocationString(
     booking: Booking | CalendarEvent,
     org: OrganisationService,
+    hide_parking_space = false,
 ): string {
     let location = '';
     let level_name = '';
@@ -154,6 +156,9 @@ export function bookingLocationString(
         // Unallocated parking has no space yet; hide the raw `unallocated-*`
         // asset id that the location/asset name can fall back to.
         if (location.startsWith('unallocated')) location = '';
+        if (hide_parking_space && booking.booking_type === 'parking') {
+            location = '';
+        }
         const level = org.levelWithID(booking.zones);
         level_name = level?.display_name || level?.name || '';
     } else {

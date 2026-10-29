@@ -532,6 +532,7 @@ describe('BookingDetailsModalComponent', () => {
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
+                title: '',
                 asset_id: 'parking-1',
                 asset_name: 'Parking 1',
             }),
@@ -540,6 +541,7 @@ describe('BookingDetailsModalComponent', () => {
         expect(spectator.component.resource_details_label()).toBe(
             'RESOURCE.PARKING',
         );
+        expect(spectator.component.display_title()).toBe('RESOURCE.PARKING');
     });
 
     it('should show group details from the linked group parent booking', () => {

@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import {
     BookingDetailsModalComponent,
+    bookingLocationString,
     canEditBooking,
     setBookingCheckedIn,
 } from '@placeos/bookings';
@@ -380,6 +381,10 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         'use_24_hour_time',
         false,
     );
+    private readonly _hide_parking_space = settingSignal(
+        'parking.hide_selected_space',
+        false,
+    );
     /** Set when the schedule has finished its first load */
     private readonly _schedule_loaded = signal(false);
     /** Show a placeholder, not the empty card, until the schedule loads */
@@ -399,6 +404,15 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     public readonly nextEvent = computed(() => {
         const events = this.upcomingEvents();
         return events?.[0];
+    });
+    /** Whether `parking.hide_selected_space` hides the space of the next event */
+    private readonly _space_hidden = computed(() => {
+        const event = this.nextEvent();
+        return (
+            event instanceof Booking &&
+            event.booking_type === 'parking' &&
+            this._hide_parking_space()
+        );
     });
 
     public readonly showCheckin = computed(() => {
@@ -456,6 +470,9 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         const event = this.nextEvent();
         if (!event) return '';
         if (event instanceof Booking) {
+            if (this._space_hidden()) {
+                return event.title || i18n('RESOURCE.PARKING');
+            }
             return (
                 event.title ||
                 event.description ||
@@ -470,7 +487,9 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         const event = this.nextEvent();
         if (!event) return '';
         if (event instanceof Booking) {
-            return event.asset_name || '';
+            return this._space_hidden()
+                ? bookingLocationString(event, this._org, true)
+                : event.asset_name || '';
         }
         return event.resources?.[0]?.display_name || event.location || '';
     });

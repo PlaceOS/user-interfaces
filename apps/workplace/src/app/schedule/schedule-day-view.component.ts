@@ -27,6 +27,7 @@ import {
     BOOKING_TYPE_COLORS,
     CalendarEvent,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
@@ -361,6 +362,12 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
+    /** Shows only the level of parking bookings in location text */
+    private readonly _hide_parking_space = settingSignal(
+        'parking.hide_selected_space',
+        false,
+    );
+
     public readonly date = input(Date.now());
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
     public readonly loading = input(false);
@@ -625,7 +632,11 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
     }
 
     public location(booking: Booking | CalendarEvent): string {
-        return bookingLocationString(booking, this._org);
+        return bookingLocationString(
+            booking,
+            this._org,
+            this._hide_parking_space(),
+        );
     }
 
     public backgroundColor(booking: Booking | CalendarEvent) {

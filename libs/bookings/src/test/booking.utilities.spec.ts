@@ -2,6 +2,7 @@ import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
     Booking,
+    BookingType,
     BuildingLevel,
     CalendarEvent,
     fromBookingRecurrence,
@@ -59,6 +60,25 @@ describe('Booking Utilities', () => {
                 system,
             });
             expect(bookingLocationString(event, org)).toBe('Room 1 - L2');
+        });
+
+        it('should show only the level of a hidden parking space', () => {
+            const booking = (booking_type: BookingType) =>
+                new Booking({
+                    booking_type,
+                    asset_id: 'space-1',
+                    asset_name: 'Bay 1',
+                    zones: ['lvl-2'],
+                });
+            expect(bookingLocationString(booking('parking'), org)).toBe(
+                'Bay 1 - L2',
+            );
+            expect(bookingLocationString(booking('parking'), org, true)).toBe(
+                'L2',
+            );
+            expect(bookingLocationString(booking('desk'), org, true)).toBe(
+                'Bay 1 - L2',
+            );
         });
     });
 
