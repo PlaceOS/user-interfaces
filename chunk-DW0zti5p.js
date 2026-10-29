@@ -1,0 +1,4 @@
+import{Bt as Zr,O as Ie}from"./chunk-BVkmUlvO.js";function l(n,t,o){let[s,e]=Ie(o?.in,n,t),c=r(s,e),g=Math.abs(Zr(s,e));s.setDate(s.getDate()-c*g);let u=c*(g-+(r(s,e)===-c));return u===0?0:u}function r(n,t){let o=n.getFullYear()-t.getFullYear()||n.getMonth()-t.getMonth()||n.getDate()-t.getDate()||n.getHours()-t.getHours()||n.getMinutes()-t.getMinutes()||n.getSeconds()-t.getSeconds()||n.getMilliseconds()-t.getMilliseconds();return o<0?-1:o>0?1:o}export{l as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="f4c80575-78df-59a2-899f-64b3ae166dd5")}catch(e){}}();
+//# debugId=f4c80575-78df-59a2-899f-64b3ae166dd5
+//# sourceMappingURL=chunk-DW0zti5p.js.map
