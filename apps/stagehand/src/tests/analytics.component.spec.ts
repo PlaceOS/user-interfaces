@@ -66,6 +66,15 @@ describe('AnalyticsComponent', () => {
         expect(iframe?.getAttribute('title')).toBe('Systems');
     });
 
+    it('should not let the dashboard navigate the app tab', () => {
+        spectator.component.page.set({ name: 'Systems', url: '/analytics/x' });
+        spectator.detectChanges();
+
+        const sandbox = spectator.query('iframe')?.getAttribute('sandbox');
+        expect(sandbox).toContain('allow-scripts');
+        expect(sandbox).not.toContain('allow-top-navigation');
+    });
+
     it('should expose the analytics pages from settings', () => {
         const pages = [{ name: 'Systems', url: '/a' }];
         settingSignal('analytics_pages', []).set(pages);

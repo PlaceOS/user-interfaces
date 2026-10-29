@@ -115,7 +115,6 @@ export class DashboardsComponent extends AsyncHandler implements OnInit {
         this.timeout(
             'page',
             () => {
-                console.log('Route:', this._router.url);
                 this.page.set(
                     this._router.url.includes('/alerts')
                         ? 'alerts'

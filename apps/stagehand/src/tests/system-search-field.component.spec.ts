@@ -85,6 +85,20 @@ describe('SystemSearchFieldComponent', () => {
         expect(names).toEqual(['Meeting Room']);
     });
 
+    it('should show system names as text, not markup', () => {
+        component.item_list.set([
+            makeSystem({ id: 'sys-1', name: '<img src="https://x.test/a">' }),
+        ]);
+        (component as any)._updateNameMap();
+        spectator.detectChanges();
+        spectator.click('input');
+        spectator.detectChanges();
+
+        const name = document.querySelector('mat-option [name]');
+        expect(name?.textContent).toBe('<img src="https://x.test/a">');
+        expect(name?.querySelector('img')).toBeNull();
+    });
+
     it('should skip the server query when below the minimum length', async () => {
         const query_fn = vi.fn().mockResolvedValue([]);
         spectator.setInput('query_fn', query_fn);

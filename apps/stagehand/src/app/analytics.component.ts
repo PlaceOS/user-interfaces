@@ -51,8 +51,10 @@ interface AnalyticsPage {
                     class="w-full flex-1 overflow-auto"
                 >
                     @if (page()?.url; as url) {
+                        <!-- No allow-top-navigation: a cross-origin dashboard can't send this tab to another page -->
                         <iframe
                             class="h-full w-full"
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-downloads"
                             [title]="page()?.name || 'Analytics dashboard'"
                             [src]="url | safe: 'resource'"
                         ></iframe>

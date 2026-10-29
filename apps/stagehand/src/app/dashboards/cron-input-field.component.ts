@@ -179,7 +179,6 @@ export class CronInputFieldComponent implements ControlValueAccessor {
     }
 
     public preventInvalidCharacters(event: KeyboardEvent): void {
-        console.log('Key:', event.key);
         if (!VALID_INPUT.includes(event.key)) event.preventDefault();
     }
 }

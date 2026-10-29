@@ -68,7 +68,7 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
 
     public readonly time = signal(Date.now());
     public readonly images = signal([]);
-    public domain = 'placeos-nonprod.avit.it.ucla.edu';
+    public domain = '';
     public api_path = '';
     public image_data = [];
     public refresh_index = 0;
@@ -82,7 +82,8 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
         );
         const { domain, api_path, images } =
             block.details as RecorderStreamMetadata;
-        console.log(domain, api_path, images);
+        // Streams load only from a recorder host set in the metadata
+        if (!domain) return;
         this.domain = domain;
         this.api_path = api_path;
         this.image_data = images;
@@ -112,8 +113,8 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
         for (const image of this.image_data) {
             const { name, ip_address, id } = image;
             const request_path = this.api_path
-                .replace('{IP_ADDRESS}', ip_address)
-                .replace('{DEVICE_ID}', id);
+                .replace('{IP_ADDRESS}', encodeURIComponent(ip_address))
+                .replace('{DEVICE_ID}', encodeURIComponent(id));
             image_list.push({
                 id: `${ip_address}+${id}`,
                 name,
@@ -121,7 +122,6 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
                 url: `https://${this.domain}${request_path}`,
             });
         }
-        console.log('Images:', image_list);
         this.images.set(image_list);
         this.refresh_image();
     }
