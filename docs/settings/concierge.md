@@ -27,6 +27,29 @@ Set settings in Backoffice zone metadata under `concierge_app` for the standard 
 }
 ```
 
+## Staff directory search
+
+`staff_search_exclude_guests` defaults to `true` in Concierge. Directory searches
+omit Microsoft Entra Guest accounts, requesting `userType` and continuing through
+Staff API pagination links until up to 100 eligible matches are found. This prevents
+a page of guest accounts from hiding member matches. Older API responses use the
+`#EXT#` username marker as a fallback. Google directory users remain eligible.
+
+To include directory guests, set this in the relevant zone's `concierge_app`
+metadata details and reload Concierge:
+
+```json
+{
+    "staff_search_exclude_guests": false
+}
+```
+
+This applies to staff directory searches, including host and attendee pickers.
+It does not change local PlaceOS searches (`basic_user_search: true`), direct user
+lookups, or the separate PlaceOS visitor search used when external attendees are
+allowed. Other applications retain their current default. Entra member status
+is not an employment or UK-location check.
+
 ## Localisation
 
 | Setting | Type | Default | Description |
