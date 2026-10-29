@@ -428,10 +428,11 @@ export class NewDeskFormDetailsComponent
         return this._settings.get('app.desks.allow_groups');
     }
 
+    /** `desks.has_assets` overrides `bookings.has_assets` when set */
     public get has_assets() {
-        return (
-            !!this._settings.get('app.bookings.has_assets') ||
-            !!this._settings.get('app.desks.has_assets')
+        return !!(
+            this._settings.get('app.desks.has_assets') ??
+            this._settings.get('app.bookings.has_assets')
         );
     }
 

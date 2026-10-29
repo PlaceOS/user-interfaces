@@ -183,10 +183,7 @@ export type DeskFormType = 'single' | 'group' | 'other';
                 >
                     <div class="relative flex-1">
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                        <date-field
-                            [formField]="form.date"
-                            [to]="end_date()"
-                        />
+                        <date-field [formField]="form.date" [to]="end_date()" />
                         @if (allow_all_day()) {
                             <mat-checkbox
                                 [formField]="form.all_day"
@@ -384,10 +381,17 @@ export class DeskFlowDetailsComponent {
     public readonly has_form_types = computed(
         () => this.allow_groups() || this.can_book_for_others(),
     );
+    /**
+     * `desks.has_assets` overrides `bookings.has_assets` when set.
+     * Reads through `get()` because setting signals keep their old value
+     * when a building switch unsets a key.
+     */
     public readonly has_assets = computed<boolean>(
         () =>
-            !!settingSignal('bookings.has_assets')() ||
-            !!settingSignal('desks.has_assets')(),
+            !!(
+                this._settings.get('app.desks.has_assets') ??
+                this._settings.get('app.bookings.has_assets')
+            ),
     );
     public readonly bookable_hours = computed<
         { start: number; end: number } | undefined
