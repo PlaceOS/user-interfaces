@@ -4,6 +4,7 @@ import {
     AsyncHandler,
     i18n,
     log,
+    notifyError,
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
@@ -214,8 +215,14 @@ export class DashboardsService extends AsyncHandler {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing dashboard...');
-        await removeAlertDashboard(dashboard.id);
+        const removed = await removeAlertDashboard(dashboard.id).then(
+            () => true,
+            () => false,
+        );
         result.close();
+        if (!removed) {
+            return notifyError('Failed to remove the dashboard. Try again.');
+        }
         notifySuccess(i18n('APP.STAGEHAND.DASHBOARD_REMOVE_SUCCESS'));
         this.loadDashboards();
     }
@@ -233,10 +240,20 @@ export class DashboardsService extends AsyncHandler {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing dashboard alert...');
-        await removeAlert(alert.id);
+        const removed = await removeAlert(alert.id).then(
+            () => true,
+            () => false,
+        );
         result.close();
+        if (!removed) {
+            return notifyError('Failed to remove the alert. Try again.');
+        }
         notifySuccess(i18n('APP.STAGEHAND.DASHBOARD_ALERTS_REMOVE_SUCCESS'));
         this.loadDashboardAlerts();
+        // Also refresh the dashboard's row in the dashboard list
+        if (alert.alert_dashboard_id) {
+            this.loadDashboardAlerts(alert.alert_dashboard_id);
+        }
     }
 
     async loadDashboardAlerts(id = '') {
@@ -246,10 +263,10 @@ export class DashboardsService extends AsyncHandler {
         const alerts = await listDashboardAlerts(id || dashboard.id);
         if (!id) this.alerts_list.set(alerts.data);
         else {
-            this.dashboard_alert_map.update((m) => {
-                m[id] = alerts.data;
-                return m;
-            });
+            this.dashboard_alert_map.update((m) => ({
+                ...m,
+                [id]: alerts.data,
+            }));
         }
         this.loading.update((l) => l.filter((i) => i !== 'ALERT_LIST'));
     }

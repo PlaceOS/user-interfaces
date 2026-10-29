@@ -1,8 +1,4 @@
-import {
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, linkedSignal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, settingSignal } from '@placeos/common';
 
@@ -98,5 +94,8 @@ export class AnalyticsComponent extends AsyncHandler {
         'analytics_pages',
         [],
     );
-    public readonly page = signal<AnalyticsPage | null>(null);
+    /** Opens on the first page, so the user does not land on an empty view */
+    public readonly page = linkedSignal<AnalyticsPage | null>(
+        () => this.analytics_pages()[0] || null,
+    );
 }

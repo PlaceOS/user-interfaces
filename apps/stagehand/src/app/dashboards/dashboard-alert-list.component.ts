@@ -59,7 +59,7 @@ import { DashboardsService } from './dashboards.service';
                     },
                 ]"
                 [sortable]="true"
-                empty_message="No dashboards have been created"
+                empty_message="No alerts have been created"
             />
             <ng-template #status_template let-enabled="data">
                 @if (enabled) {
@@ -77,7 +77,7 @@ import { DashboardsService } from './dashboards.service';
                 <div class="flex w-full space-x-2 p-2">
                     <div
                         class="border-base-200 flex flex-1 space-x-1 rounded-sm border p-2"
-                        matTooltip="Comparision Conditions"
+                        matTooltip="Comparison Conditions"
                     >
                         <div class="flex-1">
                             {{ list?.comparisons?.length }}
@@ -86,7 +86,7 @@ import { DashboardsService } from './dashboards.service';
                     </div>
                     <div
                         class="border-base-200 flex flex-1 space-x-1 rounded-sm border p-2"
-                        matTooltip="Time Dependant Conditions"
+                        matTooltip="Time Dependent Conditions"
                     >
                         <div class="flex-1">
                             {{ list?.time_dependents?.length }}

@@ -155,14 +155,22 @@ describe('SupportService', () => {
             (ts_client.querySystems as any).mockResolvedValue({ data: [] });
             await create();
             expect(ts_client.querySystems).not.toHaveBeenCalled();
+            expect(spectator.service.loading()).toBe(true);
 
             scope_ready.set(true);
             TestBed.tick();
             await flush();
             expect(ts_client.querySystems).toHaveBeenCalledTimes(1);
+            expect(spectator.service.loading()).toBe(false);
+
+            // the next group's zones are loading
+            scope_ready.set(false);
+            TestBed.tick();
+            expect(spectator.service.loading()).toBe(true);
 
             group_id.set('group-2');
             scope.set(groupScope([level], [level]));
+            scope_ready.set(true);
             TestBed.tick();
             await flush();
             expect(ts_client.querySystems).toHaveBeenLastCalledWith({
@@ -171,12 +179,30 @@ describe('SupportService', () => {
             });
         });
 
+        it("drops the previous group's systems that arrive after a switch", async () => {
+            let resolve_old: (_: unknown) => void;
+            (ts_client.querySystems as any).mockReturnValue(
+                new Promise((resolve) => (resolve_old = resolve)),
+            );
+            await create();
+
+            // switch group before the first request finishes
+            scope_ready.set(false);
+            TestBed.tick();
+            resolve_old({ data: [{ id: 'old', support_url: 'x' }] });
+            await flush();
+
+            expect(spectator.service.space_list()).toEqual([]);
+            expect(spectator.service.loading()).toBe(true);
+        });
+
         it('queries nothing for a user in no group', async () => {
             group_id.set('');
             scope.set(groupScope([], []));
             await create();
             expect(ts_client.querySystems).not.toHaveBeenCalled();
             expect(spectator.service.space_list()).toEqual([]);
+            expect(spectator.service.loading()).toBe(false);
         });
     });
 });

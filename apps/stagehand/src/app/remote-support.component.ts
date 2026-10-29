@@ -204,7 +204,13 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 },
                             ]"
                             [sortable]="true"
-                            empty_message="No rooms able to be remotely supported"
+                            [empty_message]="
+                                loading()
+                                    ? 'Loading rooms...'
+                                    : room_list().length
+                                      ? 'No rooms match the current filters'
+                                      : 'No rooms able to be remotely supported'
+                            "
                         ></simple-table>
                         <ng-template #status_template let-space="row">
                             <i
@@ -498,6 +504,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     private _initialized = signal(false);
 
     public readonly is_eduction = settingSignal('educational_environment');
+    public readonly loading = this._support.loading;
 
     public readonly alerts = this._dashboard.dashboard_alerts;
     public readonly alert_sort = (a: unknown[], b: unknown[]) =>
@@ -606,8 +613,8 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
             // Filter by search term
             if (term) {
                 if (
-                    !room.name.toLowerCase().includes(term) &&
-                    !room.display_name.toLowerCase().includes(term)
+                    !(room.name || '').toLowerCase().includes(term) &&
+                    !(room.display_name || '').toLowerCase().includes(term)
                 ) {
                     return false;
                 }
@@ -711,8 +718,9 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public setCurrentBooking(space: Space, event: CalendarEvent) {
         const current = this.current();
         if (!event && current[space.id]) {
-            delete current[space.id];
-            this.current.set(current);
+            // a new object, so the signal sees the booking end
+            const { [space.id]: _, ...rest } = current;
+            this.current.set(rest);
             return;
         }
         // Only update if the event actually changed
@@ -724,8 +732,9 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public setNextBooking(space: Space, event: CalendarEvent) {
         const current = this.next();
         if (!event && current[space.id]) {
-            delete current[space.id];
-            this.next.set(current);
+            // a new object, so the signal sees the booking end
+            const { [space.id]: _, ...rest } = current;
+            this.next.set(rest);
             return;
         }
         // Only update if the event actually changed

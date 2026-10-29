@@ -23,7 +23,11 @@ import { SupportGroupsService } from '../support-groups.service';
 import { PushNotificationSettingsComponent } from '../push-notification-settings.component';
 import { AlertNotificationService } from '../push-notification.service';
 
-const COMPACT_SIGNAL = signal(false);
+/** Start collapsed on narrow screens, so the sidebar does not cover the page */
+const COMPACT_SIGNAL = signal(
+    typeof matchMedia === 'function' &&
+        matchMedia('(max-width: 767px)').matches,
+);
 
 @Component({
     selector: 'sidebar',
@@ -117,23 +121,20 @@ const COMPACT_SIGNAL = signal(false);
                                 appearance="outline"
                                 class="no-subscript white-faded w-full"
                             >
+                                <!-- selectionChange also fires for keyboard selection -->
                                 <mat-select
                                     id="sidebar-region"
                                     [(ngModel)]="region"
+                                    (selectionChange)="
+                                        setRegion(regionById($event.value))
+                                    "
                                     aria-label="Region"
                                 >
-                                    <mat-option
-                                        value=""
-                                        (click)="setRegion(null)"
-                                        >{{
-                                            'COMMON.REGION_ALL' | translate
-                                        }}</mat-option
-                                    >
+                                    <mat-option value="">{{
+                                        'COMMON.REGION_ALL' | translate
+                                    }}</mat-option>
                                     @for (region of r_list; track region.id) {
-                                        <mat-option
-                                            [value]="region.id"
-                                            (click)="setRegion(region)"
-                                            >{{
+                                        <mat-option [value]="region.id">{{
                                                 region.display_name ||
                                                     region.name
                                             }}</mat-option
@@ -156,20 +157,16 @@ const COMPACT_SIGNAL = signal(false);
                                 <mat-select
                                     id="sidebar-building"
                                     [(ngModel)]="building"
+                                    (selectionChange)="
+                                        setBuilding(buildingById($event.value))
+                                    "
                                     aria-label="Building"
                                 >
-                                    <mat-option
-                                        value=""
-                                        (click)="setBuilding(null)"
-                                        >{{
-                                            'COMMON.BUILDING_ALL' | translate
-                                        }}</mat-option
-                                    >
+                                    <mat-option value="">{{
+                                        'COMMON.BUILDING_ALL' | translate
+                                    }}</mat-option>
                                     @for (bld of bld_list; track bld.id) {
-                                        <mat-option
-                                            [value]="bld.id"
-                                            (click)="setBuilding(bld)"
-                                            >{{
+                                        <mat-option [value]="bld.id">{{
                                                 bld.display_name || bld.name
                                             }}</mat-option
                                         >
@@ -246,18 +243,15 @@ const COMPACT_SIGNAL = signal(false);
                 @if (show_recorder_view()) {
                     <a
                         matRipple
-                        class="relative flex w-full items-center space-x-4 p-2"
-                        routerLinkActive="bg-secondary-focus"
+                        class="hover:bg-base-100/10 relative flex w-full items-center space-x-4 p-2"
+                        routerLinkActive="bg-secondary-focus!"
                         ariaCurrentWhenActive="page"
                         aria-label="Recorder streams"
                         [routerLink]="['/recorder-grid']"
                         [matTooltip]="is_compact() ? 'Recorder Streams' : ''"
                         matTooltipPosition="right"
                     >
-                        <div
-                            class="bg-base-100 absolute inset-0 opacity-0 hover:opacity-10"
-                        ></div>
-                        <icon class="ml-0! text-2xl">stream</icon>
+                        <icon class="ml-0! text-3xl">stream</icon>
                         @if (!is_compact()) {
                             <span class="truncate">Recorder Streams</span>
                         }
@@ -444,6 +438,14 @@ export class SidebarComponent {
             ? buildings.filter((b) => scope.zones.has(b.id))
             : buildings;
     });
+
+    public regionById(id: string) {
+        return this.region_list().find((r) => r.id === id) || null;
+    }
+
+    public buildingById(id: string) {
+        return this.building_list().find((b) => b.id === id) || null;
+    }
 
     public readonly setRegion = (r) => {
         this._org.region = r;

@@ -115,7 +115,7 @@ describe('DashboardManageComponent', () => {
         expect(addAlertDashboard).not.toHaveBeenCalled();
     });
 
-    it('should not navigate when the save request fails', async () => {
+    it('should tell the user and stay put when the save request fails', async () => {
         vi.mocked(addAlertDashboard).mockRejectedValue(
             new Error('nope'),
         );
@@ -129,6 +129,7 @@ describe('DashboardManageComponent', () => {
 
         await spectator.component.save();
 
+        expect(notify_open).toHaveBeenCalled();
         expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
         expect(spectator.component.loading()).toBe('');
     });
