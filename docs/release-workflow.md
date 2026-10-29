@@ -22,6 +22,12 @@ Nx dependencies, or files under `shared/`. Builds include `CHANGELOG.md` when
 generation and artifact transfer succeed. Changelog generation, upload, download,
 or copy failures do not block tests, builds, or deployment.
 
+`cliff.toml` disables remote metadata lookups for both application and release
+changelogs. Their template uses only local commits and tags, so generation does
+not need GitHub API access. Run the generation regression tests with
+`bun test tools/changelog-generation.test.js`; they require `git-cliff` and `jq`
+on `PATH` (or `GIT_CLIFF_BIN` pointing to the generator binary).
+
 ## Sentry source maps
 
 Production builds of the apps that use Sentry make hidden source maps: the scripts do not link to them. Staging builds keep their linked source maps. The build writes a debug ID into each script and its source map.
