@@ -1,5 +1,6 @@
 import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
@@ -138,6 +139,19 @@ describe('AlertsComponent', () => {
     it('should return an empty location name when none is cached', () => {
         spectator = build();
         expect(spectator.component.locationName('sys-1')).toBe('');
+    });
+
+    it('should ask for each location name once', async () => {
+        spectator = build();
+        vi.mocked(showSystem).mockClear();
+        dashboard_alerts.set([make_alert()]);
+        TestBed.tick();
+        dashboard_alerts.set([make_alert(), make_alert({ id: 'a-2' })]);
+        TestBed.tick();
+        await Promise.resolve();
+        dashboard_alerts.set([make_alert()]);
+        TestBed.tick();
+        expect(showSystem).toHaveBeenCalledTimes(1);
     });
 
     it('should load filter values from query parameters on init', () => {

@@ -86,4 +86,18 @@ describe('RecorderGridViewComponent', () => {
         expect(spectator.component.refresh_index).toBe(2);
         expect(second.url).toMatch(/&t=\d+$/);
     });
+
+    // a new id would rebuild the image's element on each refresh
+    it('should keep each image id across refreshes', async () => {
+        spectator = createComponent();
+        await spectator.component.ngOnInit();
+        await flush();
+        const ids = (spectator.component.images() as any[]).map((i) => i.id);
+        vi.setSystemTime(Date.now() + 1000);
+        spectator.component.refresh_image();
+        spectator.component.refresh_image();
+        expect(
+            (spectator.component.images() as any[]).map((i) => i.id),
+        ).toEqual(ids);
+    });
 });

@@ -189,6 +189,13 @@ describe('RemoteSupportComponent', () => {
         ]);
     });
 
+    it('should keep the room list when a status comes in and no state is picked', () => {
+        spectator.component.room_list.set([room({ id: 'a' })] as any);
+        const rooms = spectator.component.filtered_rooms();
+        spectator.component.setStatus(room({ id: 'a' }) as any, 'busy');
+        expect(spectator.component.filtered_rooms()).toBe(rooms);
+    });
+
     it('should filter rooms by search term over name and display name', () => {
         spectator.component.room_list.set([
             room({ id: 'a', name: 'boardroom', display_name: 'Boardroom' }),

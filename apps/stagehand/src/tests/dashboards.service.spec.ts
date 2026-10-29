@@ -536,6 +536,33 @@ describe('DashboardsService', () => {
             expect(ts_client.systemModuleState).not.toHaveBeenCalled();
         });
 
+        it('updates the alerts while messages keep arriving', () => {
+            spectator.service.alerts_list.set([
+                {
+                    id: 'alert-1',
+                    name: 'Disconnected',
+                    conditions: {
+                        comparisons: [
+                            {
+                                left: 'connected',
+                                operator: ts_client.TriggerConditionOperator.EQ,
+                                right: false,
+                            },
+                        ],
+                    },
+                } as any,
+            ]);
+            send(topic('sys-1', 'Display'), false);
+            // a message every 20ms, faster than the update waits for
+            for (let i = 0; i < 5; i++) {
+                vi.advanceTimersByTime(20);
+                send(topic('sys-2', 'Display'), true);
+            }
+            expect(
+                spectator.service.dashboard_alerts().map((a) => a.location),
+            ).toEqual(['sys-1']);
+        });
+
         it('drops the alert of a topic the broker removes', () => {
             spectator.service.alerts_list.set([
                 {

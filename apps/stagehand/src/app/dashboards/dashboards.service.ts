@@ -454,8 +454,10 @@ export class DashboardsService extends AsyncHandler {
     }
 
     private _updateDashboardAlertList() {
-        // a subscription is handed every retained topic at once, so wait for
-        // the burst to finish before working the alerts out
+        // a subscription is handed every retained topic at once, so gather
+        // messages for a moment before working the alerts out. A pending
+        // update is not pushed back, so steady traffic can't hold it off.
+        if (this._timers['update_alerts']) return;
         this.timeout(
             'update_alerts',
             () => {
