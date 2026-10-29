@@ -4,8 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
-    BookingFormValue,
     BookingFormService,
+    BookingFormValue,
     generateBookingForm,
 } from '@placeos/bookings';
 import {
@@ -201,6 +201,34 @@ describe('DeskFlowDetailsComponent', () => {
         settingSignal('bookings.can_book_for_others').set(false);
         spectator.detectChanges();
         expect(typeButtons()).toEqual([]);
+    });
+
+    it('should let desks.has_assets override bookings.has_assets when set', () => {
+        const values = signal<Record<string, boolean | null>>({});
+        (spectator.inject(SettingsService).get as any).mockImplementation(
+            (key: string) => values()[key],
+        );
+        const cases: [
+            boolean | null | undefined,
+            boolean | undefined,
+            boolean,
+        ][] = [
+            [undefined, undefined, false],
+            [undefined, true, true],
+            [undefined, false, false],
+            [true, false, true],
+            [false, true, false],
+            [null, true, true],
+            // A building switch that unsets the desk value falls back again
+            [undefined, true, true],
+        ];
+        for (const [desks, bookings, expected] of cases) {
+            values.set({
+                'app.desks.has_assets': desks,
+                'app.bookings.has_assets': bookings,
+            });
+            expect(spectator.component.has_assets()).toBe(expected);
+        }
     });
 
     it('should limit the selectable end date to the configured available period', () => {
