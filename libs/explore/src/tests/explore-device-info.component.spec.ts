@@ -32,4 +32,14 @@ describe('ExploreDeviceInfoComponent', () => {
         spectator.detectChanges();
         expect('[name="radius"]').toExist();
     });
+
+    it('should open the device tooltip from the visible indicator', () => {
+        vi.useFakeTimers();
+        spectator
+            .query('[shadow]')
+            .dispatchEvent(new MouseEvent('pointerenter'));
+        vi.advanceTimersByTime(100);
+        expect(document.querySelector('[name="device-info"]')).not.toBeNull();
+        vi.useRealTimers();
+    });
 });
