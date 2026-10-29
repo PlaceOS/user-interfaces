@@ -264,7 +264,7 @@ Each custom column requires a `field` (the booking extension data field to displ
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `lockers.disabled_date_select` | boolean | – | Disable the date field in the locker booking form. |
+| `lockers.disabled_date_select` | boolean | – | Disable the date, start time and end time fields, and hide the all day option, in the locker booking form. |
 | `lockers.disabled_start_time` | boolean | – | Disable the start time field in the locker booking form. |
 | `lockers.hide_end_time` | boolean | – | Hide the end time field in the locker booking form. |
 | `lockers.allow_all_day` | boolean | – | Allow all day locker bookings in the locker booking form and the locker select modal. Falls back to `bookings.allow_all_day`. Defaults to `true`. |
