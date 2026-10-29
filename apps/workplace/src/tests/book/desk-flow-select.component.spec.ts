@@ -7,7 +7,11 @@ import {
     BookingFormValue,
     generateBookingForm,
 } from '@placeos/bookings';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    OrganisationService,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { DateFieldComponent } from '@placeos/form-fields';
 import { addDays, endOfDay } from 'date-fns';
@@ -121,6 +125,21 @@ describe('DeskFlowSelectComponent', () => {
         ]);
         expect(model().asset_id).toBe('desk-2');
         expect(spectator.component.selected()).toEqual(['desk-2']);
+    });
+
+    it('should hide the time and duration filters when desks.allow_time_changes is false', () => {
+        const allow_time_changes = settingSignal('desks.allow_time_changes');
+        const timeControls = () =>
+            spectator.queryAll('time-field, duration-field').length;
+
+        allow_time_changes.set(undefined);
+        spectator.detectChanges();
+        expect(timeControls()).toBe(4);
+
+        allow_time_changes.set(false);
+        spectator.detectChanges();
+        expect(timeControls()).toBe(0);
+        allow_time_changes.set(undefined);
     });
 
     it('should limit date selection to the configured available period', () => {

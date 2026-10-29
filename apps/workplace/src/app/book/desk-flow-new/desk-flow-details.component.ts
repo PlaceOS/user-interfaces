@@ -193,7 +193,7 @@ export type DeskFormType = 'single' | 'group' | 'other';
                             </mat-checkbox>
                         }
                     </div>
-                    @if (!form_value().all_day) {
+                    @if (!form_value().all_day && allow_time_changes()) {
                         <div class="flex-1">
                             <label for="time">{{
                                 'FORM.TIME' | translate
@@ -275,23 +275,27 @@ export type DeskFormType = 'single' | 'group' | 'other';
                             [ngModelOptions]="{ standalone: true }"
                             [time]="model().date"
                         >
-                            <button
-                                btn
-                                matRipple
-                                type="button"
-                                class="inverse min-w-1/4 flex-1 sm:flex-none"
-                                (click)="findAvailableTime()"
-                            >
-                                <div class="hidden sm:flex">
-                                    {{
-                                        'CALENDAR_EVENT.FIND_AVAILABILITY'
-                                            | translate
-                                    }}
-                                </div>
-                                <div class="flex sm:hidden">
-                                    {{ 'COMMON.AVAILABILITY' | translate }}
-                                </div>
-                            </button>
+                            <!-- The availability modal changes the booking time -->
+                            @if (allow_time_changes()) {
+                                <button
+                                    btn
+                                    matRipple
+                                    type="button"
+                                    name="find-availability"
+                                    class="inverse min-w-1/4 flex-1 sm:flex-none"
+                                    (click)="findAvailableTime()"
+                                >
+                                    <div class="hidden sm:flex">
+                                        {{
+                                            'CALENDAR_EVENT.FIND_AVAILABILITY'
+                                                | translate
+                                        }}
+                                    </div>
+                                    <div class="flex sm:hidden">
+                                        {{ 'COMMON.AVAILABILITY' | translate }}
+                                    </div>
+                                </button>
+                            }
                         </a-user-list-field>
                         <p
                             class="bg-info text-info-content mt-1 flex items-center space-x-1 rounded p-1 text-sm shadow"

@@ -231,6 +231,33 @@ describe('DeskFlowDetailsComponent', () => {
         }
     });
 
+    it('should only let users change the time when desks.allow_time_changes is not false', () => {
+        const allow_time_changes = settingSignal('desks.allow_time_changes');
+        const timeControls = () =>
+            spectator.queryAll('time-field, duration-field').length;
+        const availabilityButton = () =>
+            spectator.query('button[name="find-availability"]');
+        spectator.component.setActiveForm('group');
+
+        allow_time_changes.set(undefined);
+        spectator.detectChanges();
+        expect(timeControls()).toBe(2);
+        expect(spectator.component.allow_time_changes()).toBe(true);
+
+        allow_time_changes.set(false);
+        spectator.detectChanges();
+        expect(timeControls()).toBe(0);
+        expect(spectator.component.allow_time_changes()).toBe(false);
+        // The availability modal also changes the booking time
+        expect(availabilityButton()).not.toExist();
+
+        allow_time_changes.set(true);
+        spectator.detectChanges();
+        expect(timeControls()).toBe(2);
+        expect(availabilityButton()).toExist();
+        allow_time_changes.set(undefined);
+    });
+
     it('should limit the selectable end date to the configured available period', () => {
         spectator.component.available_days.set(14);
 
