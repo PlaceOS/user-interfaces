@@ -221,7 +221,6 @@ export class AlertConditionModalComponent
 
     public async save() {
         if (this.loading()) return;
-        console.log('Save Conditions');
         this.form().markAsTouched();
         if (
             this.model().condition_type === 'compare' &&
@@ -235,7 +234,6 @@ export class AlertConditionModalComponent
         this.model().condition_type === 'compare'
             ? this.updateComparisons()
             : this.updateTimeDependents();
-        console.log('Saving Conditions:', this.conditions);
         this._dialog.close(this.conditions);
     }
 
