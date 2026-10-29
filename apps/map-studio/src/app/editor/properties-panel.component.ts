@@ -151,42 +151,48 @@ function generateSvgId(type: MapObjectType, label: string | null): string {
                         <p class="text-base-content/60 col-span-2 text-xs">
                             Drag the object on the canvas to move it.
                         </p>
-                        <div>
-                            <label for="pp-w">Width</label>
-                            <input
-                                id="pp-w"
-                                type="number"
-                                min="1"
-                                class="border-base-300 w-full rounded border px-2 py-1 text-xs"
-                                [value]="fieldText(object, 'width')"
-                                (change)="edit(object, 'width', $event)"
-                            />
-                        </div>
-                        <div>
-                            <label for="pp-h">Height</label>
-                            <input
-                                id="pp-h"
-                                type="number"
-                                min="1"
-                                class="border-base-300 w-full rounded border px-2 py-1 text-xs"
-                                [value]="fieldText(object, 'height')"
-                                (change)="edit(object, 'height', $event)"
-                            />
-                        </div>
                     </div>
 
-                    <div>
-                        <label for="pp-rotation">Rotation (deg)</label>
-                        <input
-                            id="pp-rotation"
-                            type="number"
-                            min="0"
-                            max="359"
-                            class="border-base-300 w-full rounded border px-2 py-1 text-xs"
-                            [value]="fieldText(object, 'rotation')"
-                            (change)="edit(object, 'rotation', $event)"
-                        />
-                    </div>
+                    <!-- Only rectangles render width, height and rotation -->
+                    @if (object.geometry.type === 'rect') {
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label for="pp-w">Width</label>
+                                <input
+                                    id="pp-w"
+                                    type="number"
+                                    min="1"
+                                    class="border-base-300 w-full rounded border px-2 py-1 text-xs"
+                                    [value]="fieldText(object, 'width')"
+                                    (change)="edit(object, 'width', $event)"
+                                />
+                            </div>
+                            <div>
+                                <label for="pp-h">Height</label>
+                                <input
+                                    id="pp-h"
+                                    type="number"
+                                    min="1"
+                                    class="border-base-300 w-full rounded border px-2 py-1 text-xs"
+                                    [value]="fieldText(object, 'height')"
+                                    (change)="edit(object, 'height', $event)"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="pp-rotation">Rotation (deg)</label>
+                            <input
+                                id="pp-rotation"
+                                type="number"
+                                min="0"
+                                max="359"
+                                class="border-base-300 w-full rounded border px-2 py-1 text-xs"
+                                [value]="fieldText(object, 'rotation')"
+                                (change)="edit(object, 'rotation', $event)"
+                            />
+                        </div>
+                    }
 
                     @if (object.object_type === 'room') {
                         <div>
@@ -387,8 +393,12 @@ export class PropertiesPanelComponent {
     public readonly suggestedId = (object: MapObject) =>
         generateSvgId(object.object_type, object.label);
 
-    /** Colour inputs only accept `#rrggbb`, so expand `#rgb` and fall back for rgba() values */
+    /**
+     * Colour inputs only accept `#rrggbb`, so expand `#rgb`, drop the alpha
+     * of `#rrggbbaa` and fall back for rgba() values
+     */
     public readonly hexOf = (color: string | null, fallback: string) => {
+        if (color && /^#[0-9a-f]{8}$/i.test(color)) return color.slice(0, 7);
         if (!color || !HEX_COLOR_RE.test(color)) return fallback;
         return color.length === 4
             ? `#${[...color.slice(1)].map((c) => c + c).join('')}`

@@ -27,7 +27,8 @@ const TYPE_COLORS: Record<string, string> = {
     locker: '#ec4899',
 };
 
-const MINIMAP_WIDTH = 180;
+/** Length of the minimap's longer side, so tall plans do not cover the canvas */
+const MINIMAP_SIZE = 180;
 
 const clamp = (value: number, min: number, max: number) =>
     Math.max(min, Math.min(max, value));
@@ -50,7 +51,7 @@ const clamp = (value: number, min: number, max: number) =>
                 <div
                     #frame
                     class="border-base-300 bg-base-200 cursor-crosshair overflow-hidden rounded-lg border shadow-md"
-                    [style.width.px]="minimapWidth"
+                    [style.width.px]="minimapWidth()"
                     [style.height.px]="minimapHeight()"
                     role="button"
                     tabindex="0"
@@ -60,7 +61,7 @@ const clamp = (value: number, min: number, max: number) =>
                     (keydown.space)="$event.preventDefault(); navigate($event)"
                 >
                     <svg
-                        [attr.width]="minimapWidth"
+                        [attr.width]="minimapWidth()"
                         [attr.height]="minimapHeight()"
                         [attr.viewBox]="
                             '0 0 ' +
@@ -164,7 +165,6 @@ export class MinimapComponent {
     private readonly _frame = viewChild<ElementRef<HTMLDivElement>>('frame');
 
     public readonly collapsed = signal(false);
-    public readonly minimapWidth = MINIMAP_WIDTH;
 
     /** Bumped on scroll/resize so the viewport box recomputes */
     private readonly _tick = signal(0);
@@ -177,15 +177,28 @@ export class MinimapComponent {
             !!this.source_image(),
     );
 
+    public readonly minimapWidth = computed(() =>
+        Math.round(
+            MINIMAP_SIZE *
+                Math.min(
+                    1,
+                    this.state.canvas_width() / this.state.canvas_height(),
+                ),
+        ),
+    );
+
     public readonly minimapHeight = computed(() =>
         Math.round(
-            MINIMAP_WIDTH *
-                (this.state.canvas_height() / this.state.canvas_width()),
+            MINIMAP_SIZE *
+                Math.min(
+                    1,
+                    this.state.canvas_height() / this.state.canvas_width(),
+                ),
         ),
     );
 
     public readonly viewportStroke = computed(() =>
-        Math.max((this.state.canvas_width() / MINIMAP_WIDTH) * 1.5, 3),
+        Math.max((this.state.canvas_width() / this.minimapWidth()) * 1.5, 3),
     );
 
     /** The canvas SVG, which is centred and padded inside the container */
@@ -269,7 +282,7 @@ export class MinimapComponent {
         const bounds = map.getBoundingClientRect();
         const fraction_x =
             event instanceof MouseEvent
-                ? (event.clientX - rect.left) / MINIMAP_WIDTH
+                ? (event.clientX - rect.left) / this.minimapWidth()
                 : 0.5;
         const fraction_y =
             event instanceof MouseEvent

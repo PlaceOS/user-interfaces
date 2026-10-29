@@ -23,11 +23,9 @@ export function parseIdList(text: string): ImportedId[] {
         .map((line) => line.trim())
         .filter(Boolean);
     if (!lines.length) return [];
-    const first = lines[0].toLowerCase();
-    const has_header =
-        first.includes('id') ||
-        first.includes('name') ||
-        first.includes('label');
+    // Only an exact header name, so an id such as `grid-01` is kept
+    const first = parseCsvLine(lines[0])[0].toLowerCase();
+    const has_header = /^(svg[_ ]?)?id$|^name$|^label$/.test(first);
     return lines
         .slice(has_header ? 1 : 0)
         .map((line) => {
@@ -215,9 +213,10 @@ function loadStored(): ImportedId[] {
                                             </span>
                                             <button
                                                 class="text-error"
+                                                title="Put this ID back in the list. The object keeps it."
                                                 (click)="unassign(item)"
                                             >
-                                                undo
+                                                reuse
                                             </button>
                                         </div>
                                     }

@@ -52,9 +52,17 @@ interface ObjectMapping {
     selector: 'map-studio-import',
     template: `
         <div class="mx-auto max-w-[56.25rem]">
-            <nav class="mb-8 flex justify-center gap-2">
+            <nav
+                class="mb-8 flex flex-wrap justify-center gap-2"
+                aria-label="Import steps"
+            >
                 @for (entry of steps; track entry.key; let i = $index) {
-                    <div class="flex items-center gap-1.5">
+                    <div
+                        class="flex items-center gap-1.5"
+                        [attr.aria-current]="
+                            entry.key === step() ? 'step' : null
+                        "
+                    >
                         <span
                             class="inline-flex h-7 w-7 items-center justify-center rounded-full border-2 text-sm font-semibold"
                             [class]="dotClass(i)"
@@ -114,46 +122,51 @@ interface ObjectMapping {
                         </div>
                     }
 
-                    <label
-                        class="bg-base-100 focus-within:ring-primary flex cursor-pointer flex-col items-center rounded-xl border-2 border-dashed px-8 py-16 text-center transition-colors focus-within:ring-2"
-                        [class]="
-                            drag_over() ? 'border-primary' : 'border-base-300'
-                        "
-                        (dragover)="onDragOver($event)"
-                        (dragleave)="drag_over.set(false)"
-                        (drop)="onDrop($event)"
-                    >
-                        @if (analyzing()) {
-                            <div
-                                class="border-base-300 border-t-primary mb-3 h-8 w-8 animate-spin rounded-full border-4"
-                            ></div>
-                            <p class="font-semibold">Analysing SVG...</p>
-                            <p class="text-base-content/60 text-sm">
-                                {{ file_name() }}
-                            </p>
-                        } @else {
-                            <p class="mb-1 font-semibold">
-                                Drop your SVG file here
-                            </p>
-                            <p class="text-base-content/60 text-sm">
-                                or click to browse
-                            </p>
-                        }
-                        <!-- sr-only, not hidden, so the input stays keyboard reachable -->
-                        <input
-                            type="file"
-                            accept=".svg"
-                            class="sr-only"
-                            (change)="onFileInput($event)"
-                        />
-                    </label>
-                    <p class="text-base-content/60 mt-3 text-xs">
-                        Have a PNG or JPG plan? Create a floor, open it in the
-                        editor, and upload the image there to trace it.
-                    </p>
+                    <!-- Without the target project there is nothing to import into -->
+                    @if (!project_missing()) {
+                        <label
+                            class="bg-base-100 focus-within:ring-primary flex cursor-pointer flex-col items-center rounded-xl border-2 border-dashed px-8 py-16 text-center transition-colors focus-within:ring-2"
+                            [class]="
+                                drag_over()
+                                    ? 'border-primary'
+                                    : 'border-base-300'
+                            "
+                            (dragover)="onDragOver($event)"
+                            (dragleave)="drag_over.set(false)"
+                            (drop)="onDrop($event)"
+                        >
+                            @if (analyzing()) {
+                                <div
+                                    class="border-base-300 border-t-primary mb-3 h-8 w-8 animate-spin rounded-full border-4"
+                                ></div>
+                                <p class="font-semibold">Analysing SVG...</p>
+                                <p class="text-base-content/60 text-sm">
+                                    {{ file_name() }}
+                                </p>
+                            } @else {
+                                <p class="mb-1 font-semibold">
+                                    Drop your SVG file here
+                                </p>
+                                <p class="text-base-content/60 text-sm">
+                                    or click to browse
+                                </p>
+                            }
+                            <!-- sr-only, not hidden, so the input stays keyboard reachable -->
+                            <input
+                                type="file"
+                                accept=".svg"
+                                class="sr-only"
+                                (change)="onFileInput($event)"
+                            />
+                        </label>
+                        <p class="text-base-content/60 mt-3 text-xs">
+                            Have a PNG or JPG plan? Create a floor, open it in
+                            the editor, and upload the image there to trace it.
+                        </p>
+                    }
 
                     <div class="mt-6 flex justify-between">
-                        <a btn class="inverse" [routerLink]="cancel_link">
+                        <a btn class="inverse" [routerLink]="cancel_link()">
                             Cancel
                         </a>
                         @if (analysis()) {
@@ -407,7 +420,16 @@ interface ObjectMapping {
                         >
                             Back
                         </button>
-                        <button btn (click)="step.set('confirm')">
+                        <button
+                            btn
+                            [disabled]="!includedCount()"
+                            [title]="
+                                includedCount()
+                                    ? ''
+                                    : 'Include at least one object to continue'
+                            "
+                            (click)="step.set('confirm')"
+                        >
                             Next: Confirm
                         </button>
                     </div>
@@ -467,92 +489,103 @@ interface ObjectMapping {
                         }
                     </div>
 
-                    <div
-                        class="bg-base-100 border-base-300 mb-5 rounded-lg border p-5 shadow-sm"
-                    >
-                        <h3 class="mb-4 text-sm font-semibold">
-                            {{
-                                target_project()
-                                    ? 'Floor Details'
-                                    : 'Project Details'
-                            }}
-                        </h3>
-                        @if (target_project(); as project) {
-                            <p class="text-base-content/60 mb-4 text-sm">
-                                The floor is added to
-                                <span class="font-semibold">{{
-                                    project.name
-                                }}</span
-                                >.
-                            </p>
-                        }
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            @if (!target_project()) {
+                    <!-- A form, so Enter in a name field starts the import -->
+                    <form (submit)="$event.preventDefault(); runImport()">
+                        <div
+                            class="bg-base-100 border-base-300 mb-5 rounded-lg border p-5 shadow-sm"
+                        >
+                            <h3 class="mb-4 text-sm font-semibold">
+                                {{
+                                    target_project()
+                                        ? 'Floor Details'
+                                        : 'Project Details'
+                                }}
+                            </h3>
+                            @if (target_project(); as project) {
+                                <p class="text-base-content/60 mb-4 text-sm">
+                                    The floor is added to
+                                    <span class="font-semibold">{{
+                                        project.name
+                                    }}</span
+                                    >.
+                                </p>
+                            }
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                @if (!target_project()) {
+                                    <div>
+                                        <label for="import-project"
+                                            >Project Name</label
+                                        >
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="no-subscript w-full"
+                                        >
+                                            <input
+                                                matInput
+                                                id="import-project"
+                                                required
+                                                placeholder="e.g. Sydney HQ"
+                                                [(ngModel)]="project_name"
+                                                [ngModelOptions]="{
+                                                    standalone: true,
+                                                }"
+                                            />
+                                        </mat-form-field>
+                                    </div>
+                                }
                                 <div>
-                                    <label for="import-project"
-                                        >Project Name</label
-                                    >
+                                    <label for="import-floor">Floor Name</label>
                                     <mat-form-field
                                         appearance="outline"
                                         class="no-subscript w-full"
                                     >
                                         <input
                                             matInput
-                                            id="import-project"
+                                            id="import-floor"
                                             required
-                                            placeholder="e.g. Sydney HQ"
-                                            [(ngModel)]="project_name"
+                                            placeholder="e.g. Level 1"
+                                            [(ngModel)]="floor_name"
                                             [ngModelOptions]="{
                                                 standalone: true,
                                             }"
                                         />
                                     </mat-form-field>
                                 </div>
-                            }
-                            <div>
-                                <label for="import-floor">Floor Name</label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="no-subscript w-full"
-                                >
-                                    <input
-                                        matInput
-                                        id="import-floor"
-                                        required
-                                        placeholder="e.g. Level 1"
-                                        [(ngModel)]="floor_name"
-                                        [ngModelOptions]="{ standalone: true }"
-                                    />
-                                </mat-form-field>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="flex justify-between">
-                        <button btn class="inverse" (click)="step.set('map')">
-                            Back
-                        </button>
-                        <button
-                            btn
-                            [disabled]="
-                                importing() ||
-                                !includedCount() ||
-                                (!target_project() && !project_name().trim()) ||
-                                !floor_name().trim()
-                            "
-                            (click)="runImport()"
-                        >
-                            {{
-                                importing()
-                                    ? 'Importing...'
-                                    : 'Import ' +
-                                      includedCount() +
-                                      (includedCount() === 1
-                                          ? ' Space'
-                                          : ' Spaces')
-                            }}
-                        </button>
-                    </div>
+                        <div class="flex justify-between">
+                            <button
+                                btn
+                                type="button"
+                                class="inverse"
+                                (click)="step.set('map')"
+                            >
+                                Back
+                            </button>
+                            <button
+                                btn
+                                type="submit"
+                                [disabled]="
+                                    importing() ||
+                                    !includedCount() ||
+                                    (!target_project() &&
+                                        !project_name().trim()) ||
+                                    !floor_name().trim()
+                                "
+                            >
+                                {{
+                                    importing()
+                                        ? 'Importing...'
+                                        : 'Import ' +
+                                          includedCount() +
+                                          (includedCount() === 1
+                                              ? ' Space'
+                                              : ' Spaces')
+                                }}
+                            </button>
+                        </div>
+                    </form>
                 }
             }
         </div>
@@ -581,9 +614,13 @@ export class ImportComponent {
     public readonly project_name = signal('');
     public readonly floor_name = signal('');
     public readonly target_project = signal<Project | null>(null);
-    public readonly cancel_link = this._project_id
-        ? ['/project', this._project_id]
-        : ['/'];
+    /** `?project=` names a project that does not exist */
+    public readonly project_missing = signal(false);
+    public readonly cancel_link = computed(() =>
+        this._project_id && !this.project_missing()
+            ? ['/project', this._project_id]
+            : ['/'],
+    );
 
     private _svg_content = '';
     /** Layers whose state was last carried through to `mappings` */
@@ -793,6 +830,7 @@ export class ImportComponent {
         try {
             this.target_project.set(await this._store.getProject(id));
         } catch (error) {
+            this.project_missing.set(true);
             this.error.set(this._message(error, 'Project not found'));
         }
     }

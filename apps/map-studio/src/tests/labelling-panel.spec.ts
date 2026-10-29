@@ -15,4 +15,17 @@ describe('parseIdList', () => {
             assigned: false,
         });
     });
+
+    it('skips a header row', () => {
+        const ids = parseIdList('svg_id,label\nroom-01,Board Room');
+        expect(ids.map((entry) => entry.id)).toEqual(['room-01']);
+    });
+
+    it('keeps a first row whose id contains "id" or "name"', () => {
+        const ids = parseIdList('grid-01,Middle Room\nnamecheap-2');
+        expect(ids.map((entry) => entry.id)).toEqual([
+            'grid-01',
+            'namecheap-2',
+        ]);
+    });
 });

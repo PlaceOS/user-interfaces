@@ -128,6 +128,27 @@ describe('StoreService', () => {
         });
     });
 
+    it('lists the project with the latest floor edit first', async () => {
+        vi.useFakeTimers({ toFake: ['Date'] });
+        try {
+            vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+            const older = await store.createProject('Older');
+            const floor = await store.addFloorplan(older.id, 'Level 1');
+            vi.setSystemTime(new Date('2026-01-02T00:00:00Z'));
+            await store.createProject('Newer');
+            vi.setSystemTime(new Date('2026-01-03T00:00:00Z'));
+            await store.updateFloorplan(floor.id, { floor_name: 'Ground' });
+
+            const listed = await store.listProjects();
+            expect(listed.map((project) => project.name)).toEqual([
+                'Older',
+                'Newer',
+            ]);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
     it('keeps the canvas out of project listings', async () => {
         const project = await store.createProject('Sydney HQ');
         const floorplan = await store.addFloorplan(project.id, 'Level 1');
