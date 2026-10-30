@@ -2155,58 +2155,1312 @@ export const migrationTest = baseTest.extend<{
 }>(migrationAuditFixture);
 
 // ---------------------------------------------------------------------------
-// Fully synthetic meeting submission (new meeting form, events backend)
+// Browser-only harness (no backend)
 // ---------------------------------------------------------------------------
 //
-// For settings whose only effect is the meeting the app sends. One context
-// route is installed before navigation: origin/redirect checks first, exact
-// local GET fixtures for a synthetic organisation, user, rooms and sign-in;
-// every WebSocket and every mutation is refused except ONE armed
-// POST /api/staff/v1/events (no query, JSON) that a test arms, which gets a
-// local 201. Nothing reaches a backend. Fresh storage, blocked service workers
-// and a strict teardown audit (refused requests, page/console errors, failed
-// requests and responses >= 300 all fail the test). Same policy as the
-// room-booking strict meeting specs; run with --project=local --no-deps.
+// For specs that need no backend at all. The page signs in with a fake bearer
+// and one context route, installed before navigation, answers every request in
+// the browser: redirect, credential and origin checks first, then the page's
+// exact GET fixtures. An API, auth or control GET without a fixture, a non-GET
+// that the spec's `mutation` handler does not answer, an external request and
+// a WebSocket that the spec's handler does not accept are refused. Fresh
+// storage, blocked service workers and a strict teardown audit: refused
+// requests, page/console errors, failed requests and responses >= 300 all fail
+// the test. These specs run in the settings-browser project, which has no
+// preflight dependency.
+
+/** The local frontend the browser-only specs load. */
+export const BROWSER_APP = new URL(
+    process.env.E2E_APP_URL ?? 'http://localhost:4214',
+);
+/** The ts-client control WebSocket path. */
+export const CONTROL_PATH = '/api/engine/v2/systems/control';
+
+/** Throws unless the frontend is a loopback origin served from the root path. */
+export function assertLoopbackFrontend() {
+    if (
+        !['localhost', '127.0.0.1', '[::1]'].includes(BROWSER_APP.hostname) ||
+        !['http:', 'https:'].includes(BROWSER_APP.protocol) ||
+        BROWSER_APP.username ||
+        BROWSER_APP.password ||
+        BROWSER_APP.pathname !== '/' ||
+        BROWSER_APP.search ||
+        BROWSER_APP.hash
+    ) {
+        throw new Error('This spec requires a root-path loopback frontend.');
+    }
+}
+
+/** What every browser-only test records; any refusal or error fails teardown. */
+export type BrowserAudit = {
+    refused: string[];
+    errors: string[];
+    monitoring: string[];
+    /** Answered fixture requests, by path. */
+    fixtures: Record<string, number>;
+};
+
+/** What one control socket connection bound, delivered and unbound. */
+export type BrowserConnection = {
+    binds: string[];
+    delivered: string[];
+    unbinds: string[];
+};
+
+/** A browser-only audit for specs whose page opens a control socket. */
+export type ControlAudit = BrowserAudit & { connections: BrowserConnection[] };
+
+/** An empty ControlAudit. */
+export function controlAudit(): ControlAudit {
+    return { refused: [], errors: [], monitoring: [], fixtures: {}, connections: [] };
+}
+
+const BROWSER_FIXTURES = new WeakMap<Page, GetFixture[]>();
+
+/** Starts an empty GET fixture registry for a page whose route the spec installs. */
+export function startBrowserFixtures(page: Page) {
+    BROWSER_FIXTURES.set(page, []);
+}
+
+/** The first GET fixture registered for `page` that matches `url`. */
+export function findBrowserFixture(page: Page, url: URL) {
+    return BROWSER_FIXTURES.get(page)?.find((fixture) => fixture.match(url));
+}
+
+/** Register one GET fixture for a browser-only page. The first match answers. */
+export function browserFixture(page: Page, fixture: GetFixture) {
+    const list = BROWSER_FIXTURES.get(page);
+    if (!list) throw new Error('Fixture registry is unavailable.');
+    list.push(fixture);
+}
+
+/** Register one JSON GET fixture for a browser-only page. */
+export async function browserGet(
+    page: Page,
+    match: GetFixture['match'],
+    body: GetFixture['body'],
+) {
+    browserFixture(page, { match, body });
+}
+
+/** Options for `browserOnlyTest`. */
+export type BrowserOnlyOptions<A extends BrowserAudit> = {
+    /** A fresh audit for one test. */
+    audit: () => A;
+    /** Handles every WebSocket the page opens. */
+    socket: (
+        socket: WebSocketRoute,
+        audit: A,
+        pending: Set<Promise<void>>,
+    ) => void;
+    /**
+     * Answers a non-GET request. It must fulfill the route or call `refuse`.
+     * Without it every non-GET request is refused.
+     */
+    mutation?: (
+        route: Route,
+        url: URL,
+        audit: A,
+        refuse: (reason: string) => Promise<void>,
+    ) => Promise<void>;
+    /**
+     * Frontend assets are fetched with redirects refused when true, and passed
+     * to the dev server otherwise.
+     */
+    fetchAssets?: boolean;
+    /** True when an uncaught page error is one the test expects. */
+    expectedError?: (error: Error, audit: A) => boolean;
+    /** Extra teardown assertions, run after the strict audit. */
+    teardown?: (audit: A) => void;
+};
+
+/**
+ * A test whose `isolated` fixture is a fresh page in its own context with the
+ * browser-only route, socket handler and strict teardown audit.
+ */
+export function browserOnlyTest<A extends BrowserAudit>(
+    options: BrowserOnlyOptions<A>,
+) {
+    return playwrightTest.extend<{ isolated: { page: Page; audit: A } }>({
+        isolated: async ({ browser }, use, info) => {
+            assertLoopbackFrontend();
+            const audit = options.audit();
+            // Explicitly fresh: no configured storageState, cookies or disk auth.
+            const context = await browser.newContext({
+                baseURL: BROWSER_APP.origin,
+                storageState: { cookies: [], origins: [] },
+                serviceWorkers: 'block',
+                viewport: { width: 1440, height: 1000 },
+                timezoneId: 'Etc/UTC',
+                ignoreHTTPSErrors: true,
+            });
+            let page: Page | undefined;
+            let stopping = false;
+            const pending = new Set<Promise<void>>();
+            try {
+                await context.route('**/*', (route) => {
+                    const task = (async () => {
+                        const req = route.request();
+                        const url = new URL(req.url());
+                        const refuse = async (reason: string) => {
+                            audit.refused.push(reason);
+                            await route.abort('blockedbyclient');
+                        };
+                        if (req.redirectedFrom()) {
+                            await refuse('HTTP redirect');
+                            return;
+                        }
+                        if (url.username || url.password || url.hash) {
+                            await refuse('credential-bearing or fragmented HTTP URL');
+                            return;
+                        }
+                        // index.html links Google Fonts; answer locally with empty CSS.
+                        if (
+                            req.method() === 'GET' &&
+                            url.origin === 'https://fonts.googleapis.com' &&
+                            url.pathname === '/css2'
+                        ) {
+                            await route.fulfill({ contentType: 'text/css', body: '' });
+                            return;
+                        }
+                        if (url.origin !== BROWSER_APP.origin)
+                            return refuse('external HTTP request');
+                        if (req.method() !== 'GET') {
+                            if (!options.mutation) return refuse('non-GET HTTP request');
+                            // Every mutation terminates in fulfill or abort.
+                            await options.mutation(route, url, audit, refuse);
+                            return;
+                        }
+                        const fixture = page ? findBrowserFixture(page, url) : undefined;
+                        if (fixture) {
+                            audit.fixtures[url.pathname] =
+                                (audit.fixtures[url.pathname] ?? 0) + 1;
+                            if (fixture.contentType)
+                                await route.fulfill({
+                                    contentType: fixture.contentType,
+                                    body: String(fixture.body(url)),
+                                });
+                            else await route.fulfill({ json: fixture.body(url) });
+                            return;
+                        }
+                        // Fetch/XHR, auth, control, API and arbitrary navigations never
+                        // reach the dev proxy, even when their method is GET.
+                        if (/^\/(api|auth|control)(\/|$)/.test(url.pathname))
+                            return refuse('unmatched API/auth/control GET');
+                        const document =
+                            req.resourceType() === 'document' &&
+                            url.pathname === '/' &&
+                            !url.search;
+                        const asset =
+                            ['script', 'stylesheet', 'image', 'font'].includes(
+                                req.resourceType(),
+                            ) &&
+                            /\.(?:[cm]?js|ts|css|svg|png|ico|jpe?g|webp|woff2?|ttf)$/.test(
+                                url.pathname,
+                            );
+                        // Dev-server component modules (no file extension) are static GETs.
+                        const vite =
+                            req.resourceType() === 'script' &&
+                            ['/@vite/client', '/@angular/build', '/@ng/component'].includes(
+                                url.pathname,
+                            );
+                        // LocaleService fetches assets/locale/<locale>.json and the app
+                        // fetches its logo SVG.
+                        const fetched =
+                            req.resourceType() === 'fetch' &&
+                            /^\/assets\/[\w./-]+\.(?:json|svg)$/.test(url.pathname) &&
+                            !url.pathname.includes('..');
+                        // The build does not copy the Material Symbols fonts to /assets
+                        // (dev server 404s), so serve the package's own file.
+                        const symbols =
+                            /^\/assets\/(material-symbols-(?:outlined|rounded|sharp)\.woff2)$/.exec(
+                                url.pathname,
+                            );
+                        if (symbols) {
+                            await route.fulfill({
+                                path: require.resolve('material-symbols/' + symbols[1]),
+                                contentType: 'font/woff2',
+                            });
+                            return;
+                        }
+                        if (!(document || asset || vite || fetched))
+                            return refuse('unmatched frontend GET');
+                        if (!options.fetchAssets) return route.continue();
+                        const response = await route.fetch({ maxRedirects: 0 });
+                        if (response.status() >= 300 && response.status() < 400) {
+                            await refuse('frontend redirect');
+                            return;
+                        }
+                        await route.fulfill({ response });
+                    })().catch(async () => {
+                        audit.monitoring.push('HTTP handler failed');
+                        await route.abort('blockedbyclient').catch(() => {
+                            audit.monitoring.push('HTTP abort failed');
+                        });
+                    });
+                    pending.add(task);
+                    void task.finally(() => pending.delete(task));
+                    return task;
+                });
+                await context.routeWebSocket('**/*', (socket) => {
+                    try {
+                        options.socket(socket, audit, pending);
+                    } catch {
+                        audit.monitoring.push('WebSocket handler failed');
+                    }
+                });
+                context.on('page', (opened) => {
+                    opened.on('pageerror', (error) => {
+                        if (options.expectedError?.(error, audit)) return;
+                        audit.errors.push('uncaught page error');
+                    });
+                    opened.on('console', (message) => {
+                        if (message.type() === 'error') audit.errors.push('console error');
+                    });
+                    opened.on('requestfailed', () => {
+                        if (!stopping) audit.errors.push('request failed');
+                    });
+                    opened.on('response', (response) => {
+                        if (response.status() >= 300)
+                            audit.errors.push('HTTP failure or redirect');
+                    });
+                    opened.on('crash', () => audit.errors.push('page crash'));
+                    if (page && opened !== page) audit.refused.push('unexpected extra page');
+                });
+                page = await context.newPage();
+                startBrowserFixtures(page);
+                await use({ page, audit });
+            } finally {
+                stopping = true;
+                // Guards remain installed until every browser producer is stopped.
+                try {
+                    await context.close();
+                } catch {
+                    audit.monitoring.push('context close failed');
+                }
+                while (pending.size) await Promise.all([...pending]);
+                try {
+                    await info.attach('settings-safety-audit', {
+                        body: Buffer.from(JSON.stringify(audit, null, 2)),
+                        contentType: 'application/json',
+                    });
+                } finally {
+                    expect(
+                        {
+                            refused: audit.refused,
+                            errors: audit.errors,
+                            monitoring: audit.monitoring,
+                        },
+                        'strict teardown audit, including setup/assertion failures',
+                    ).toEqual({ refused: [], errors: [], monitoring: [] });
+                    options.teardown?.(audit);
+                }
+            }
+        },
+    });
+}
+
+/** True for a WebSocket URL on the local frontend with no credentials or fragment. */
+function localSocket(url: URL) {
+    return (
+        url.host === BROWSER_APP.host &&
+        url.protocol === (BROWSER_APP.protocol === 'https:' ? 'wss:' : 'ws:') &&
+        !url.username &&
+        !url.password &&
+        !url.hash
+    );
+}
+
+/** True for the Vite dev-server socket (one `token` query parameter). */
+function viteSocket(url: URL) {
+    return (
+        localSocket(url) &&
+        url.pathname === '/' &&
+        url.searchParams.getAll('token').length === 1 &&
+        [...url.searchParams.keys()].length === 1
+    );
+}
+
+/**
+ * True for a Vite `vite:forward-console` frame: the Vite client forwards
+ * console errors and unhandled rejections to the dev server over its socket.
+ * The page's own error listeners record the same errors.
+ */
+function viteForwardedConsole(message: string | Buffer) {
+    try {
+        const frame = JSON.parse(String(message)) as { type?: unknown; event?: unknown };
+        return frame?.type === 'custom' && frame.event === 'vite:forward-console';
+    } catch {
+        return false;
+    }
+}
+
+/** Holds the Vite dev-server socket open and refuses every other WebSocket. */
+export function viteOnlySocket(
+    socket: WebSocketRoute,
+    audit: BrowserAudit,
+    pending: Set<Promise<void>>,
+) {
+    if (viteSocket(new URL(socket.url()))) {
+        socket.onMessage((message) => {
+            if (!viteForwardedConsole(message))
+                audit.refused.push('unexpected tooling socket frame');
+        });
+        return;
+    }
+    audit.refused.push('unexpected WebSocket/control attempt');
+    const task = socket.close().catch(() => {
+        audit.monitoring.push('socket close failed');
+    });
+    pending.add(task);
+    void task.finally(() => pending.delete(task));
+}
+
+/** One validated control-socket bind or unbind request. */
+export type ControlRequest = {
+    id: number;
+    cmd: 'bind' | 'unbind';
+    sys: string;
+    mod: string;
+    index: number;
+    name: string;
+};
+
+/** Options for `controlSocket`. */
+export type ControlSocketOptions<A extends ControlAudit> = {
+    /** The only `bearer_token` the control socket accepts. */
+    bearer: string;
+    /** The bindable variables of one module, or undefined when it may not be bound. */
+    values: (
+        request: Record<string, unknown>,
+        audit: A,
+    ) => Record<string, unknown> | undefined;
+    /** The name a bind, delivery and unbind is recorded under. Default sys:mod:index:name. */
+    key?: (request: ControlRequest) => string;
+    /** Sends the value for a new bind. Default: one notify with the variable's value. */
+    deliver?: (
+        request: ControlRequest,
+        value: unknown,
+        notify: (value: unknown) => void,
+        audit: A,
+    ) => void;
+};
+
+/**
+ * A browser-local control socket for the ts-client protocol
+ * (@placeos/ts-client src/realtime/functions.ts). `ping` is answered `pong`;
+ * a bind or unbind of a variable `values` returns is answered `success`, and
+ * a bind also gets the variable's value as a `notify`. Any other socket, frame
+ * or command (including `exec`) is refused and closes the socket. The Vite
+ * dev-server socket is held open.
+ */
+export function controlSocket<A extends ControlAudit>(
+    options: ControlSocketOptions<A>,
+) {
+    const key =
+        options.key ??
+        ((r: ControlRequest) => [r.sys, r.mod, r.index, r.name].join(':'));
+    return (socket: WebSocketRoute, audit: A, pending: Set<Promise<void>>) => {
+        const url = new URL(socket.url());
+        const close = () => {
+            const task = socket.close().catch(() => {
+                audit.monitoring.push('socket close failed');
+            });
+            pending.add(task);
+            void task.finally(() => pending.delete(task));
+            return task;
+        };
+        // Never record the Vite socket's token or query.
+        if (viteSocket(url)) {
+            socket.onMessage((message) => {
+                if (viteForwardedConsole(message)) return;
+                audit.refused.push('unexpected tooling socket message');
+                void close();
+            });
+            return;
+        }
+        const params = [...url.searchParams.keys()];
+        const valid_query =
+            params.length === 0 ||
+            (params.length === 1 &&
+                params[0] === 'bearer_token' &&
+                url.searchParams.get('bearer_token') === options.bearer);
+        if (!localSocket(url) || url.pathname !== CONTROL_PATH || !valid_query) {
+            audit.refused.push('unexpected WebSocket endpoint');
+            void close();
+            return;
+        }
+        // State is connection-local. A reconnect replays each newly bound value.
+        const connection: BrowserConnection = { binds: [], delivered: [], unbinds: [] };
+        audit.connections.push(connection);
+        const bound = new Set<string>();
+        const ids = new Set<number>();
+        socket.onMessage((message) => {
+            try {
+                if (message === 'ping') {
+                    socket.send('pong');
+                    return;
+                }
+                const request: unknown = JSON.parse(String(message));
+                if (!request || typeof request !== 'object' || Array.isArray(request))
+                    throw new Error();
+                const r = request as Record<string, unknown>;
+                const keys = ['id', 'cmd', 'sys', 'mod', 'index', 'name'];
+                const values = options.values(r, audit);
+                if (
+                    Object.keys(r).length !== keys.length ||
+                    !keys.every((key) => Object.hasOwn(r, key)) ||
+                    typeof r.id !== 'number' ||
+                    !Number.isSafeInteger(r.id) ||
+                    ids.has(r.id) ||
+                    !values ||
+                    typeof r.name !== 'string' ||
+                    !Object.hasOwn(values, r.name) ||
+                    !['bind', 'unbind'].includes(String(r.cmd))
+                )
+                    throw new Error();
+                const valid = r as ControlRequest;
+                ids.add(valid.id);
+                const binding_key = key(valid);
+                if (valid.cmd === 'unbind') {
+                    if (!bound.delete(binding_key)) throw new Error();
+                    connection.unbinds.push(binding_key);
+                    socket.send(JSON.stringify({ id: valid.id, type: 'success', value: null }));
+                    return;
+                }
+                // Known-tuple rebinds are idempotent: ts-client can queue its initial
+                // bind and reconnect restoration together. Always replay the value.
+                bound.add(binding_key);
+                connection.binds.push(binding_key);
+                socket.send(JSON.stringify({ id: valid.id, type: 'success', value: null }));
+                const notify = (value: unknown) =>
+                    socket.send(
+                        JSON.stringify({
+                            type: 'notify',
+                            value,
+                            meta: {
+                                sys: valid.sys,
+                                mod: valid.mod,
+                                index: valid.index,
+                                name: valid.name,
+                            },
+                        }),
+                    );
+                if (options.deliver)
+                    options.deliver(valid, values[valid.name], notify, audit);
+                else notify(values[valid.name]);
+                connection.delivered.push(binding_key);
+            } catch {
+                // Never retain raw frames, arguments, URLs, cookies or credentials.
+                audit.refused.push('unexpected control frame/binding/command');
+                void close();
+            }
+        });
+        // The client marks connected only after a first server message; waiting for
+        // the client's first ping here would deadlock its queued bind requests.
+        socket.send('pong');
+    };
+}
+
+/**
+ * Ids, hidden asset data and exact-query matchers for one synthetic
+ * organisation, region, building and level. Every id starts with `prefix`.
+ */
+export function syntheticOrg(prefix: string) {
+    const ORGANISATION = prefix + 'org';
+    const REGION = prefix + 'region';
+    const BUILDING = prefix + 'building';
+    const LEVEL = prefix + 'level';
+    const ZONES = [ORGANISATION, REGION, BUILDING, LEVEL];
+    const HIDDEN_CATEGORIES = [
+        { id: prefix + 'catering', name: '_CATERING_', hidden: true },
+        { id: prefix + 'desks', name: '_DESKS_', hidden: true },
+        { id: prefix + 'parking', name: '_PARKING_', hidden: true },
+        { id: prefix + 'lockers', name: '_LOCKERS_', hidden: true },
+    ];
+    const HIDDEN_TYPES: Record<string, string[]> = {
+        [prefix + 'catering']: [],
+        [prefix + 'desks']: ['_DESKS_'],
+        [prefix + 'parking']: [
+            '_PARKING_SPACES_',
+            '_PARKING_USERS_',
+            '_PARKING_FLEET_VEHICLES_',
+        ],
+        [prefix + 'lockers']: ['_LOCKER_BANKS_', '_LOCKERS_'],
+    };
+    const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
+        .flat()
+        .map((name) => prefix + 'type-' + name);
+    /** Exact query multiset: duplicates, unknown keys and foreign authority fail. */
+    const hasParams = (url: URL, expected: Record<string, string>) => {
+        const entries = [...url.searchParams.entries()];
+        if (
+            url.pathname === '/api/engine/v2/zones' &&
+            url.searchParams.has('authority_id')
+        ) {
+            if (
+                url.searchParams.getAll('authority_id').length !== 1 ||
+                url.searchParams.get('authority_id') !== prefix + 'authority'
+            )
+                return false;
+        }
+        const keys = entries.filter(
+            ([key]) =>
+                !(url.pathname === '/api/engine/v2/zones' && key === 'authority_id'),
+        );
+        return (
+            keys.length === Object.keys(expected).length &&
+            Object.entries(expected).every(
+                ([key, value]) =>
+                    url.searchParams.getAll(key).length === 1 &&
+                    url.searchParams.get(key) === value,
+            )
+        );
+    };
+    /** The parking booking queries the shell makes for the level and `email`. */
+    const parkingQuery = (url: URL, email: string) => {
+        const period_start = url.searchParams.get('period_start')!;
+        const period_end = url.searchParams.get('period_end')!;
+        const base = { type: 'parking', period_start, period_end };
+        return (
+            hasParams(url, base) ||
+            hasParams(url, { ...base, zones: LEVEL, rejected: 'false' }) ||
+            hasParams(url, { ...base, email })
+        );
+    };
+    /** Hidden assets may only be read in this synthetic organisation. */
+    const hiddenAssetQuery = (url: URL) => {
+        const type_id = url.searchParams.get('type_id') ?? '';
+        const zone_id = url.searchParams.get('zone_id') ?? '';
+        return (
+            HIDDEN_TYPE_IDS.includes(type_id) &&
+            ZONES.includes(zone_id) &&
+            hasParams(url, { type_id, zone_id, limit: '500' })
+        );
+    };
+    return {
+        PREFIX: prefix,
+        ORGANISATION,
+        REGION,
+        BUILDING,
+        LEVEL,
+        ZONES,
+        MAP_PATH: '/' + prefix + 'map.svg',
+        HIDDEN_CATEGORIES,
+        HIDDEN_TYPES,
+        HIDDEN_TYPE_IDS,
+        hasParams,
+        parkingQuery,
+        hiddenAssetQuery,
+    };
+}
+
+export type SyntheticOrg = ReturnType<typeof syntheticOrg>;
+
+/** Options for `syntheticOrgGets`. */
+export type SyntheticOrgGets = {
+    /** The signed-in user, for its metadata and parking queries. */
+    user: { id: string; email: string };
+    /** The single-zone metadata names each zone may be asked for. */
+    zone_metadata: Record<string, string[]>;
+    /** Zone metadata details by name. Others are [] for LIST_METADATA, else {}. */
+    details?: Record<string, unknown>;
+    /** The building's `bindings` details. Every other bulk entry is {}. */
+    bindings?: Record<string, unknown>;
+    /** The systems listed for the organisation, level and building. Default none. */
+    rooms?: unknown[];
+    /** The level map, served at MAP_PATH. */
+    svg?: string;
+    /** First word of the zone names. Default 'Synthetic Zone'. */
+    label?: string;
+    /** Extra fields on the user's metadata entries. */
+    user_metadata?: Record<string, unknown>;
+};
+
+/**
+ * Exact GET fixtures for the shell's bootstrap in one synthetic organisation:
+ * zones, bulk and zone metadata, user metadata, groups, systems, hidden asset
+ * categories, types and assets, calendars and parking bookings.
+ */
+export async function syntheticOrgGets(
+    page: Page,
+    org: SyntheticOrg,
+    options: SyntheticOrgGets,
+) {
+    const { hasParams } = org;
+    const label = options.label ?? 'Synthetic Zone';
+    const rooms = options.rooms ?? [];
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/zones' &&
+            hasParams(url, { tags: 'org', include_children_count: 'true' }),
+        () => [
+            {
+                id: org.ORGANISATION,
+                name: label + ' Organisation',
+                display_name: label + ' Organisation',
+                tags: ['org'],
+            },
+        ],
+    );
+    await browserGet(
+        page,
+        (url) => {
+            const match = /^\/api\/engine\/v2\/metadata\/([^/]+)\/bulk$/.exec(
+                url.pathname,
+            );
+            const ids = (url.searchParams.get('parent_ids') ?? '').split(',');
+            return (
+                !!match &&
+                BULK_METADATA.includes(match[1]) &&
+                url.searchParams.has('parent_ids') &&
+                hasParams(url, {
+                    parent_ids: url.searchParams.get('parent_ids')!,
+                }) &&
+                ids.every((id) => org.ZONES.includes(id))
+            );
+        },
+        (url) =>
+            Object.fromEntries(
+                url.searchParams
+                    .get('parent_ids')!
+                    .split(',')
+                    .map((id) => [
+                        id,
+                        {
+                            details:
+                                options.bindings &&
+                                url.pathname === '/api/engine/v2/metadata/bindings/bulk' &&
+                                id === org.BUILDING
+                                    ? options.bindings
+                                    : {},
+                        },
+                    ]),
+            ),
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/zones' &&
+            hasParams(url, {
+                tags: 'region',
+                parent_id: org.ORGANISATION,
+                limit: '200',
+            }),
+        () => [
+            {
+                id: org.REGION,
+                name: label + ' Region',
+                tags: ['region'],
+                timezone: 'UTC',
+            },
+        ],
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/zones' &&
+            hasParams(url, {
+                tags: 'building',
+                parent_id: org.REGION,
+                limit: '500',
+            }),
+        () => [
+            {
+                id: org.BUILDING,
+                parent_id: org.REGION,
+                name: label + ' Building',
+                display_name: label + ' Building',
+                tags: ['building'],
+                timezone: 'UTC',
+                location: '0,0',
+            },
+        ],
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/zones' &&
+            hasParams(url, { tags: 'level', limit: '2500' }),
+        () => [
+            {
+                id: org.LEVEL,
+                parent_id: org.BUILDING,
+                name: label + ' Level',
+                display_name: label + ' Level',
+                tags: ['level'],
+                map_id: new URL(org.MAP_PATH, BROWSER_APP.origin).href,
+            },
+        ],
+    );
+    await browserGet(
+        page,
+        (url) => {
+            const id = url.pathname.split('/')[5] ?? '';
+            const name = url.searchParams.get('name') ?? '';
+            return (
+                url.pathname === '/api/engine/v2/metadata/' + id &&
+                Object.hasOwn(options.zone_metadata, id) &&
+                options.zone_metadata[id].includes(name) &&
+                hasParams(url, { name })
+            );
+        },
+        (url) => {
+            const id = url.pathname.split('/')[5];
+            const name = url.searchParams.get('name')!;
+            return {
+                [name]: {
+                    id,
+                    name,
+                    details:
+                        options.details && Object.hasOwn(options.details, name)
+                            ? options.details[name]
+                            : LIST_METADATA.includes(name)
+                              ? []
+                              : {},
+                },
+            };
+        },
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/metadata/' + options.user.id &&
+            ['settings', 'contacts'].some((name) => hasParams(url, { name })),
+        (url) => {
+            const name = url.searchParams.get('name')!;
+            return {
+                [name]: {
+                    name,
+                    ...options.user_metadata,
+                    details: name === 'contacts' ? [] : {},
+                },
+            };
+        },
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/groups/current' &&
+            hasParams(url, {}),
+        () => [],
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/systems' &&
+            hasParams(url, { zone_id: org.ORGANISATION, limit: '5000' }),
+        () => rooms,
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/systems' &&
+            hasParams(url, { zone_id: org.LEVEL, limit: '50' }),
+        () => rooms,
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/systems' &&
+            hasParams(url, { zone_id: org.ORGANISATION, limit: '50' }),
+        () => [],
+    );
+    // LandingStateService loads the active building's rooms on every route.
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/systems' &&
+            hasParams(url, {
+                zone_id: org.BUILDING,
+                limit: '500',
+                signage: 'false',
+            }),
+        () => rooms,
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/asset_categories' &&
+            hasParams(url, { hidden: 'true', limit: '500' }),
+        () => org.HIDDEN_CATEGORIES,
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/asset_types' &&
+            Object.hasOwn(
+                org.HIDDEN_TYPES,
+                url.searchParams.get('category_id') ?? '',
+            ) &&
+            hasParams(url, {
+                category_id: url.searchParams.get('category_id')!,
+                limit: '500',
+            }),
+        (url) =>
+            org.HIDDEN_TYPES[url.searchParams.get('category_id')!].map((name) => ({
+                id: org.PREFIX + 'type-' + name,
+                name,
+                category_id: url.searchParams.get('category_id'),
+                brand: 'PlaceOS',
+            })),
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/assets' && org.hiddenAssetQuery(url),
+        () => [],
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/staff/v1/calendars' && hasParams(url, {}),
+        () => [],
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/staff/v1/bookings' &&
+            validPeriod(url) &&
+            org.parkingQuery(url, options.user.email),
+        () => [],
+    );
+    if (options.svg !== undefined) {
+        const svg = options.svg;
+        browserFixture(page, {
+            match: (url) => url.pathname === org.MAP_PATH && hasParams(url, {}),
+            contentType: 'image/svg+xml',
+            body: () => svg,
+        });
+    }
+}
+
+/** Options for `browserSignIn`. */
+export type BrowserSignIn = {
+    /** The fake bearer stored as the access token. */
+    bearer: string;
+    /** Every effective setting, stored as PLACEOS.setting_overrides. */
+    settings: Settings;
+    /** The signed-in user the current-user GET returns. */
+    user: unknown;
+    /** Extra sessionStorage entries, as JSON values. */
+    session?: Record<string, unknown>;
+    /** The authority's display name. Default 'Browser-only authority'. */
+    authority?: string;
+};
+
+/**
+ * Before the app loads: clear storage, store the fake bearer with an expiry
+ * an hour ahead, the settings overrides and the en-US locale, and register
+ * the authority and current-user GET fixtures for `org`.
+ */
+export async function browserSignIn(
+    page: Page,
+    org: SyntheticOrg,
+    options: BrowserSignIn,
+) {
+    const cid = createHash('md5')
+        .update(BROWSER_APP.origin + '/oauth-resp.html')
+        .digest('hex');
+    const session = Object.fromEntries(
+        Object.entries(options.session ?? {}).map(([key, value]) => [
+            key,
+            JSON.stringify(value),
+        ]),
+    );
+    await page.addInitScript(
+        ({ origin, cid, bearer, settings, session }) => {
+            if (location.origin !== origin) return;
+            localStorage.clear();
+            sessionStorage.clear();
+            localStorage.setItem(cid + '_access_token', bearer);
+            localStorage.setItem(cid + '_expires_at', String(Date.now() + 60 * 60_000));
+            localStorage.setItem('PLACEOS.setting_overrides', JSON.stringify(settings));
+            localStorage.setItem('APP.locale', 'en-US');
+            localStorage.setItem('PLACEOS.locale', 'en-US');
+            localStorage.setItem('mock', 'false');
+            for (const [key, value] of Object.entries(session))
+                sessionStorage.setItem(key, value);
+        },
+        {
+            origin: BROWSER_APP.origin,
+            cid,
+            bearer: options.bearer,
+            settings: options.settings,
+            session,
+        },
+    );
+    await browserGet(
+        page,
+        (url) => url.pathname === '/auth/authority' && org.hasParams(url, {}),
+        () => ({
+            id: org.PREFIX + 'authority',
+            name: options.authority ?? 'Browser-only authority',
+            domain: BROWSER_APP.host,
+            version: '3.0.0',
+            session: false,
+            production: false,
+            config: { org_zone: org.ORGANISATION },
+        }),
+    );
+    await browserGet(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/users/current' &&
+            org.hasParams(url, {}),
+        () => options.user,
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Browser-only Explore: one level map with an AreaManagement binding
+// ---------------------------------------------------------------------------
+
+/**
+ * A synthetic organisation for Explore. The level map has two areas: TARGET,
+ * which is also ROOM's map shape, and CONTROL, an always-drawn polygon at
+ * (0.6-0.9, 0.6-0.9) in zone-free COLOUR. The building binds SYSTEM's
+ * AreaManagement module, and LIVE is its default variables: a count and a
+ * temperature for TARGET and a count for CONTROL. BASE holds the settings
+ * every Explore spec pins.
+ */
+export function syntheticExplore(prefix: string) {
+    const org = syntheticOrg(prefix);
+    const SYSTEM = prefix + 'area-system';
+    const TARGET = prefix + 'target';
+    const CONTROL = prefix + 'control';
+    const COLOUR = '#123456';
+    const ROOM = {
+        id: prefix + 'room',
+        name: 'Synthetic Settings Room',
+        display_name: 'Synthetic Settings Room',
+        email: 'settings-room@example.invalid',
+        map_id: TARGET,
+        bookable: true,
+        capacity: 4,
+        features: [],
+        images: [],
+        zones: org.ZONES,
+    };
+    const MAP_REGIONS = {
+        areas: [
+            {
+                id: TARGET,
+                map_id: TARGET,
+                properties: {
+                    capacity: 10,
+                    hide_label: false,
+                    draw_polygon: false,
+                    label_location: { x: 0.25, y: 0.25 },
+                },
+                geometry: {
+                    coordinates: [[0.1, 0.1], [0.4, 0.1], [0.4, 0.4], [0.1, 0.4]],
+                },
+            },
+            {
+                id: CONTROL,
+                map_id: CONTROL,
+                properties: { capacity: 10, hide_label: true, draw_polygon: true },
+                geometry: {
+                    coordinates: [[0.6, 0.6], [0.9, 0.6], [0.9, 0.9], [0.6, 0.9]],
+                },
+            },
+        ],
+    };
+    const ZONE_METADATA: Record<string, string[]> = {
+        [org.BUILDING]: [
+            'parking_booking_rules',
+            'desk_booking_rules',
+            'room_booking_rules',
+        ],
+        [org.LEVEL]: ['desks', 'map_regions'],
+        [org.ORGANISATION]: [
+            'locale_en-AU',
+            'locale_en-US',
+            'room_alerts',
+            'points-of-interest',
+        ],
+    };
+    // Payloads are the values passed to StatusVariable callbacks, not GeoJSON.
+    const LIVE: Record<string, unknown> = {
+        [org.LEVEL + ':areas']: {
+            value: [
+                { area_id: TARGET, map_id: TARGET, count: 2, temperature: 23 },
+                { area_id: CONTROL, map_id: CONTROL, count: 1 },
+            ],
+        },
+        [org.LEVEL]: { value: [] },
+        [org.LEVEL + ':desk_bookings']: {},
+        // LandingStateService.init binds AreaManagement overview (level occupancy).
+        overview: {},
+    };
+    const SVG =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">' +
+        '<rect width="400" height="400" fill="#ffffff"/>' +
+        '<rect id="' + TARGET + '" x="40" y="40" width="120" height="120" fill="#aaaaaa"/>' +
+        '<rect id="' + CONTROL + '" x="240" y="240" width="120" height="120" fill="#aaaaaa"/></svg>';
+    const BASE: Settings = {
+        'app.features': ['explore'],
+        'app.default_building': org.BUILDING,
+        'app.default_route': '/explore',
+        'app.use_region': false,
+        'app.use_geolocation': false,
+        'app.allow_dark_mode': false,
+        'app.global_search': false,
+        'app.chat.enabled': false,
+        'app.has_assets': false,
+        'app.desks.has_assets': false,
+        'app.bookings.has_assets': false,
+        'app.desks.can_book_lockers': false,
+        'app.desks.use_assets': false,
+        'app.auto_release': { resources: [] },
+        'app.schedule.event_sources': ['api'],
+        'app.schedule.use_websocket': false,
+        'app.analytics.enabled': false,
+        'app.show_presence_indicators': false,
+        'app.explore.hide_zones': false,
+        'app.explore.hide_devices': true,
+        'app.explore.hide_sensors': true,
+        'app.explore.show_legend': false,
+        'app.explore.disable': [],
+        'app.explore.disable_features': [],
+        'app.explore.disable_styles': [],
+        'app.explore.disable_actions': [],
+        'app.explore.disable_labels': [],
+        'app.explore.use_zone_polygons': true,
+        'app.explore.show_zone_labels': true,
+        'app.explore.cisco_maps.enabled': false,
+        'app.maps_people.keys': {},
+        'app.maps_people.use_zones': [],
+    };
+    return {
+        ...org,
+        SYSTEM,
+        TARGET,
+        CONTROL,
+        COLOUR,
+        ROOM,
+        /** The room's fill for both space-free and space-busy. */
+        ROOM_FILL: '#2468ac',
+        MAP_REGIONS,
+        ZONE_METADATA,
+        LIVE,
+        SVG,
+        BASE,
+    };
+}
+
+export type SyntheticExplore = ReturnType<typeof syntheticExplore>;
+
+/**
+ * `controlSocket` values: `live` on SYSTEM's AreaManagement module and, when
+ * the audit carries `room_values`, those on ROOM's Bookings module.
+ */
+export function exploreValues(
+    explore: SyntheticExplore,
+    live: Record<string, unknown>,
+) {
+    return (
+        r: Record<string, unknown>,
+        audit: ControlAudit & { room_values?: Record<string, unknown> },
+    ) =>
+        r.sys === explore.SYSTEM && r.mod === 'AreaManagement' && r.index === 1
+            ? live
+            : audit.room_values &&
+                r.sys === explore.ROOM.id &&
+                r.mod === 'Bookings' &&
+                r.index === 1
+              ? audit.room_values
+              : undefined;
+}
+
+/** The sys:mod:index:name bindings `exploreValues` delivers. */
+export function exploreBindings(
+    explore: SyntheticExplore,
+    live: Record<string, unknown>,
+    room_values: Record<string, unknown> = {},
+) {
+    return [
+        ...Object.keys(live).map((name) =>
+            [explore.SYSTEM, 'AreaManagement', 1, name].join(':'),
+        ),
+        ...Object.keys(room_values).map((name) =>
+            [explore.ROOM.id, 'Bookings', 1, name].join(':'),
+        ),
+    ];
+}
+
+/** The Bookings variables of ROOM a control socket answers. */
+export function exploreRoomValues(): Record<string, unknown> {
+    return {
+        bookings: [],
+        status: 'free',
+        presence: false,
+        hide_meeting_details: true,
+        hide_meeting_title: true,
+    };
+}
+
+/** Options for `openSyntheticExplore`. */
+export type OpenSyntheticExplore = {
+    /** Every effective setting. */
+    settings: Settings;
+    bearer: string;
+    /** Systems listed for the organisation, level and building. Default none. */
+    rooms?: unknown[];
+    /** Spec GET fixtures, registered before the shared ones. */
+    gets?: () => Promise<void>;
+    /** Every distinct binding the latest control socket must have delivered. */
+    delivered: string[];
+    /** Open the map controls panel before the Areas toggle. */
+    controls?: boolean;
+    /** Runs once the map has loaded, before the control polygon is checked. */
+    ready?: () => Promise<void>;
+};
+
+/**
+ * Sign in, register the Explore GET fixtures, open Explore, wait for every
+ * setting and live delivery, turn on Areas in the UI and wait until the
+ * CONTROL polygon is painted. Returns the map canvas.
+ */
+export async function openSyntheticExplore(
+    page: Page,
+    audit: ControlAudit,
+    explore: SyntheticExplore,
+    options: OpenSyntheticExplore,
+) {
+    const { settings } = options;
+    await browserSignIn(page, explore, {
+        bearer: options.bearer,
+        settings,
+        user: USER,
+    });
+    await options.gets?.();
+    await syntheticOrgGets(page, explore, {
+        user: USER,
+        zone_metadata: explore.ZONE_METADATA,
+        details: { map_regions: explore.MAP_REGIONS },
+        bindings: {
+            area_management: { id: explore.SYSTEM, mod: 'AreaManagement' },
+        },
+        rooms: options.rooms,
+        svg: explore.SVG,
+    });
+    await page.goto('/#/explore');
+    await expect(page.locator('global-loading')).toHaveCount(1);
+    await expect(page.locator('global-loading [loader]')).toHaveCount(0);
+    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
+    await expect(page.locator('explore-map-view')).toBeVisible();
+    for (const [key, value] of Object.entries(settings)) {
+        await expect
+            .poll(
+                () =>
+                    page.evaluate(
+                        (name) => (window as DebugWindow).setting?.(name),
+                        key,
+                    ),
+                { message: 'effective ' + key },
+            )
+            .toEqual(value);
+    }
+    await expect.poll(() => audit.fixtures['/auth/authority'] ?? 0).toBeGreaterThan(0);
+    await expect
+        .poll(() => audit.fixtures['/api/engine/v2/users/current'] ?? 0)
+        .toBeGreaterThan(0);
+    // Idempotent rebinds may repeat a delivery; every value must arrive.
+    await expect
+        .poll(() => [...new Set(audit.connections.at(-1)?.delivered)].sort())
+        .toEqual([...options.delivered].sort());
+    // Areas begins disabled in ExploreMapView.ngOnInit; turn it on in the UI.
+    if (options.controls)
+        await page.locator('explore-map-view button[toggle-controls]').click();
+    const areas = options.controls
+        ? page.locator('explore-map-view settings-toggle').filter({ hasText: /Areas/ })
+        : page.locator('explore-map-view settings-toggle');
+    await expect(areas).toHaveCount(1);
+    await expect(areas.locator('input[type="checkbox"]')).not.toBeChecked();
+    await areas.locator('button').click();
+    await expect(areas.locator('input[type="checkbox"]')).toBeChecked();
+    const canvas = page.locator('explore-map-view [map-canvas] canvas');
+    await expect(canvas).toHaveCount(1);
+    await expect(canvas).toBeVisible();
+    await expect(page.locator('explore-map-view dynamic-map mat-spinner')).toHaveCount(0);
+    await expect.poll(() => audit.fixtures[explore.MAP_PATH] ?? 0).toBeGreaterThan(0);
+    await options.ready?.();
+    // The always-drawn control (COLOUR at alpha 128) proves metadata, bindings,
+    // status parsing, enabled Areas and canvas painting have all completed.
+    await expect.poll(() => pixel(page, 0.75, 0.75)).toEqual([18, 52, 86, 128]);
+    return canvas;
+}
+
+/** ROOM's Explore feature, once its synthetic Bookings state and fill apply. */
+export async function exploreRoomReady(
+    page: Page,
+    room_values: Record<string, unknown>,
+    explore: SyntheticExplore,
+) {
+    const feature = page.locator('explore-map-view explore-space-info [customTooltip]');
+    await expect(feature).toHaveCount(1);
+    await expect(feature).toBeVisible();
+    await expect
+        .poll(() => roomState(page))
+        .toMatchObject({
+            name: explore.ROOM.name,
+            status: room_values.status,
+            hide_title: room_values.hide_meeting_title,
+            hide_details: room_values.hide_meeting_details,
+        });
+    await expect
+        .poll(() =>
+            page.locator('explore-map-view').evaluate((element, shape) => {
+                const view = (window as DebugWindow).ng?.getComponent(element) as
+                    | { styles(): Record<string, { fill?: string }> }
+                    | undefined;
+                if (!view) throw new Error('Read-only map component unavailable');
+                return view.styles()['#' + shape]?.fill;
+            }, explore.ROOM.map_id),
+        )
+        .toBe(explore.ROOM_FILL);
+    return feature;
+}
+
+// ---------------------------------------------------------------------------
+// Browser-only meeting form (new meeting form, events backend)
+// ---------------------------------------------------------------------------
+//
+// For settings whose effect is the meeting form or the meeting the app sends.
+// Every WebSocket and every mutation is refused except ONE armed POST that a
+// test arms with `audit.submission`; it gets a local 201. Frontend assets are
+// fetched with redirects refused.
+
+export type Json = Record<string, unknown>;
 
 /**
  * One armed POST to `path` is accepted only when `query` holds for its URL
  * (no query at all when `query` is absent) and `accepts` holds for its body.
+ * With `expected`, teardown also checks that the one body equals it.
  */
 export type MeetingSubmission = {
     path: string;
     query?: (url: URL) => boolean;
-    accepts: (body: Record<string, unknown>) => boolean;
+    accepts: (body: Json) => boolean;
+    expected?: Json;
     armed: boolean;
-    bodies: Record<string, unknown>[];
+    bodies: Json[];
     completed: boolean;
 };
 
-export type MeetingAudit = {
-    refused: string[];
-    errors: string[];
-    monitoring: string[];
-    fixtures: Record<string, number>;
+export type MeetingAudit = BrowserAudit & {
     submission?: MeetingSubmission;
+    /** One uncaught page error a scenario expects; counted, not ignored. */
+    expected_error?: { text: string; seen: number };
 };
 
-const MEETING_APP = new URL(process.env.E2E_APP_URL ?? 'http://localhost:4214');
-const MEETING_PREFIX = 'e2e-meeting-submission-';
-const MEETING_ORGANISATION = MEETING_PREFIX + 'org';
-const MEETING_REGION = MEETING_PREFIX + 'region';
-const MEETING_BUILDING = MEETING_PREFIX + 'building';
-const MEETING_LEVEL = MEETING_PREFIX + 'level';
-const MEETING_ZONES = [
-    MEETING_ORGANISATION,
-    MEETING_REGION,
-    MEETING_BUILDING,
-    MEETING_LEVEL,
-];
-const MEETING_MAP_PATH = '/' + MEETING_PREFIX + 'map.svg';
-const MEETING_POST_PATH = '/api/staff/v1/events';
+/** The events endpoint the meeting form posts to. */
+export const MEETING_POST_PATH = '/api/staff/v1/events';
 /** Native room bookings (events.use_bookings true) are created here. */
 export const MEETING_BOOKINGS_PATH = '/api/staff/v1/bookings';
-const MEETING_BEARER = 'browser-only-meeting-submission-not-a-valid-credential';
-const MEETING_FIXTURES = new WeakMap<Page, GetFixture[]>();
 
 /** The synthetic signed-in staff user (not admin or support). */
 export const MEETING_USER = {
@@ -2218,449 +3472,226 @@ export const MEETING_USER = {
     sys_admin: false,
     support: false,
 };
-/** Internal-domain attendee (app.internal_user_domain), so no externals rule applies. */
-export const MEETING_GUEST = {
-    id: MEETING_PREFIX + 'guest',
-    name: 'Synthetic Guest',
-    email: 'guest@dev.place.tech',
-    groups: [] as string[],
-    department: '',
-    is_external: false,
-};
 export const MEETING_TITLE = 'Browser-only meeting simulation';
-export const MEETING_ROOMS = ['a', 'b'].map((suffix) => ({
-    id: MEETING_PREFIX + 'room-' + suffix,
-    name: 'Synthetic Room ' + suffix.toUpperCase(),
-    display_name: 'Synthetic Room ' + suffix.toUpperCase(),
-    email: 'room-' + suffix + '@dev.place.tech',
-    capacity: 4,
-    bookable: true,
-    zones: MEETING_ZONES,
-    features: [],
-    images: [],
-    map_id: '',
-    level: {
-        id: MEETING_LEVEL,
-        parent_id: MEETING_BUILDING,
-        name: 'Synthetic Level',
-    },
-    response_status: 'accepted',
-    created_at: 1,
-}));
-const MEETING_HIDDEN_CATEGORIES = [
-    { id: MEETING_PREFIX + 'catering', name: '_CATERING_', hidden: true },
-    { id: MEETING_PREFIX + 'desks', name: '_DESKS_', hidden: true },
-    { id: MEETING_PREFIX + 'parking', name: '_PARKING_', hidden: true },
-    { id: MEETING_PREFIX + 'lockers', name: '_LOCKERS_', hidden: true },
-];
-const MEETING_HIDDEN_TYPES: Record<string, string[]> = {
-    [MEETING_PREFIX + 'catering']: [],
-    [MEETING_PREFIX + 'desks']: ['_DESKS_'],
-    [MEETING_PREFIX + 'parking']: [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    [MEETING_PREFIX + 'lockers']: ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
-const MEETING_HIDDEN_TYPE_IDS = Object.values(MEETING_HIDDEN_TYPES)
-    .flat()
-    .map((name) => MEETING_PREFIX + 'type-' + name);
-const MEETING_ZONE_METADATA: Record<string, string[]> = {
-    [MEETING_BUILDING]: [
-        'parking_booking_rules',
-        'desk_booking_rules',
-        'room_booking_rules',
-        // CateringStateService._loadSettings reads the building's catering settings.
-        'catering-settings',
-    ],
-    [MEETING_LEVEL]: ['desks', 'map_regions'],
-    [MEETING_ORGANISATION]: [
-        'locale_en-AU',
-        'locale_en-US',
-        'room_alerts',
-        'points-of-interest',
-    ],
-};
 
-/** Settings shared by the meeting-submission specs; each spec overrides its own key. */
-export const MEETING_BASE: Settings = {
-    'app.name': 'Browser Meeting Simulation',
-    'app.features': ['spaces'],
-    'app.feature_groups': {},
-    'app.default_building': MEETING_BUILDING,
-    'app.default_route': '/book/meeting/form',
-    'app.use_region': false,
-    'app.use_geolocation': false,
-    'app.allow_dark_mode': false,
-    'app.internal_user_domain': '@dev.place.tech',
-    'app.global_search': false,
-    'app.chat.enabled': false,
-    'app.analytics.enabled': false,
-    'app.sentry_dsn': '',
-    'app.has_assets': false,
-    'app.desks.has_assets': false,
-    'app.desks.can_book_lockers': false,
-    'app.desks.use_assets': false,
-    'app.bookings.has_assets': false,
-    'app.auto_release': { resources: [] },
-    'app.schedule.event_sources': ['api'],
-    'app.schedule.use_websocket': false,
-    'app.events.use_bookings': false,
-    'app.events.has_assets': false,
-    'app.events.allow_externals': false,
-    'app.events.allow_recurrence': false,
-    'app.events.allow_multiday': false,
-    'app.events.allow_all_day': false,
-    'app.events.allow_online_meetings': false,
-    'app.events.allow_visibility': false,
-    'app.events.can_book_for_anyone': false,
-    'app.events.can_book_for_others': false,
-    'app.events.force_current_user_for_booking_rules': false,
-    'app.events.use_building_timezone': false,
-    'app.events.room_as_host': false,
-    'app.events.force_host': '',
-    'app.events.no_standalone': false,
-    'app.events.booking_unavailable': false,
-    'app.events.strict_capacity_check': false,
-    'app.events.multiple_spaces': false,
-    'app.events.hide_attendees': false,
-    'app.events.hide_notes': true,
-    'app.events.bookable_hours': null,
-    'app.events.default_duration': 60,
-    'app.events.min_duration': 30,
-    'app.events.max_duration': 180,
-    'app.events.duration_step': 30,
-    'app.events.custom_duration_options': [],
-    'app.events.setup': 0,
-    'app.events.breakdown': 0,
-    'app.events.overflow': {},
-    'app.catering.backend': 'native',
-    'app.catering_provider': '',
-    'app.events.allow_international': false,
-    'app.events.allow_attendee_internal_or_external': false,
-};
-
-/** Exact query multiset: duplicates, unknown keys and foreign authority fail. */
-function meetingParams(url: URL, expected: Record<string, string>) {
-    const entries = [...url.searchParams.entries()];
-    if (
-        url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.has('authority_id')
-    ) {
-        if (
-            url.searchParams.getAll('authority_id').length !== 1 ||
-            url.searchParams.get('authority_id') !==
-                MEETING_PREFIX + 'authority'
-        )
-            return false;
-    }
-    const keys = entries.filter(
-        ([key]) =>
-            !(url.pathname === '/api/engine/v2/zones' && key === 'authority_id'),
-    );
-    return (
-        keys.length === Object.keys(expected).length &&
-        Object.entries(expected).every(
-            ([key, value]) =>
-                url.searchParams.getAll(key).length === 1 &&
-                url.searchParams.get(key) === value,
-        )
-    );
-}
-
-/** Register one exact synthetic GET fixture for a meeting-submission page. */
-export function meetingGet(
-    page: Page,
-    match: GetFixture['match'],
-    body: GetFixture['body'],
+async function meetingMutation(
+    route: Route,
+    url: URL,
+    audit: MeetingAudit,
+    refuse: (reason: string) => Promise<void>,
 ) {
-    const list = MEETING_FIXTURES.get(page);
-    if (!list) throw new Error('Fixture registry is unavailable.');
-    list.push({ match, body });
+    const req = route.request();
+    const capture = audit.submission;
+    if (
+        req.method() !== 'POST' ||
+        !capture ||
+        url.pathname !== capture.path ||
+        (capture.query ? !capture.query(url) : !!url.search) ||
+        !capture.armed ||
+        capture.bodies.length !== 0 ||
+        !/^application\/json(?:;|$)/i.test(req.headers()['content-type'] ?? '')
+    ) {
+        await refuse('unexpected or unarmed mutation');
+        return;
+    }
+    capture.armed = false;
+    const body = req.postDataJSON() as Json;
+    // Recorded first so a mismatch reaches the test as a diff.
+    capture.bodies.push(body);
+    if (!capture.accepts(body)) {
+        await refuse('outgoing event JSON mismatch');
+        return;
+    }
+    await route.fulfill({
+        status: 201,
+        json: { ...body, id: 'e2e-meeting-synthetic-created-event' },
+    });
+    capture.completed = true;
 }
+
+/** Browser-only test for the meeting form; the fixture is `isolated`. */
+export const meetingFormTest = browserOnlyTest<MeetingAudit>({
+    audit: () => ({ refused: [], errors: [], monitoring: [], fixtures: {} }),
+    socket: viteOnlySocket,
+    mutation: meetingMutation,
+    fetchAssets: true,
+    expectedError: (error, audit) => {
+        // Only the first uncaught error containing the expected text is counted;
+        // any other or repeated error still fails the audit.
+        const expected = audit.expected_error;
+        if (expected && expected.seen === 0 && error.message.includes(expected.text)) {
+            expected.seen++;
+            return true;
+        }
+        return false;
+    },
+    teardown: (audit) => {
+        if (audit.expected_error) {
+            expect(
+                audit.expected_error.seen,
+                'the expected refusal error is logged exactly once',
+            ).toBe(1);
+        }
+        if (audit.submission) {
+            expect(audit.submission.armed).toBe(false);
+            expect(audit.submission.completed).toBe(true);
+            if (audit.submission.expected)
+                expect(audit.submission.bodies).toEqual([audit.submission.expected]);
+            else expect(audit.submission.bodies).toHaveLength(1);
+        }
+    },
+});
 
 /** The path the app uses to look up one person (UserPipe). */
 export function meetingPersonPath(email: string) {
     return '/api/staff/v1/people/' + encodeURIComponent(email);
 }
 
-function meetingSocket(
-    socket: WebSocketRoute,
-    audit: MeetingAudit,
-    pending: Set<Promise<void>>,
-) {
-    const url = new URL(socket.url());
-    const local =
-        url.host === MEETING_APP.host &&
-        url.protocol === (MEETING_APP.protocol === 'https:' ? 'wss:' : 'ws:') &&
-        !url.username &&
-        !url.password &&
-        !url.hash;
-    // No driver bindings exist in this fixture. Only Vite is held locally.
-    if (
-        local &&
-        url.pathname === '/' &&
-        url.searchParams.getAll('token').length === 1 &&
-        [...url.searchParams.keys()].length === 1
-    ) {
-        socket.onMessage(() =>
-            audit.refused.push('unexpected tooling socket frame'),
-        );
-        return;
-    }
-    audit.refused.push('unexpected WebSocket/control attempt');
-    const task = socket.close().catch(() => {
-        audit.monitoring.push('socket close failed');
-    });
-    pending.add(task);
-    void task.finally(() => pending.delete(task));
+/**
+ * A synthetic organisation for the meeting form: two bookable rooms on the
+ * level, an internal guest, and a delegate in GROUP. BASE holds the settings
+ * every meeting spec pins.
+ */
+export function syntheticMeetingOrg(prefix: string) {
+    const org = syntheticOrg(prefix);
+    const GROUP = prefix + 'delegate-group';
+    const DELEGATE = {
+        id: prefix + 'delegate',
+        name: 'Synthetic Delegate',
+        email: 'delegate@dev.place.tech',
+        groups: [GROUP],
+        department: '',
+    };
+    const ROOMS = ['a', 'b'].map((suffix) => ({
+        id: prefix + 'room-' + suffix,
+        name: 'Synthetic Room ' + suffix.toUpperCase(),
+        display_name: 'Synthetic Room ' + suffix.toUpperCase(),
+        email: 'room-' + suffix + '@dev.place.tech',
+        capacity: 4,
+        bookable: true,
+        zones: org.ZONES,
+        features: [],
+        images: [],
+        map_id: '',
+        level: { id: org.LEVEL, parent_id: org.BUILDING, name: 'Synthetic Level' },
+        response_status: 'accepted',
+        created_at: 1,
+    }));
+    const ZONE_METADATA: Record<string, string[]> = {
+        [org.BUILDING]: [
+            'parking_booking_rules',
+            'desk_booking_rules',
+            'room_booking_rules',
+            // CateringStateService._loadSettings reads the building's catering settings.
+            'catering-settings',
+        ],
+        [org.LEVEL]: ['desks', 'map_regions'],
+        [org.ORGANISATION]: [
+            'locale_en-AU',
+            'locale_en-US',
+            'room_alerts',
+            'points-of-interest',
+        ],
+    };
+    const BASE: Settings = {
+        'app.name': 'Browser Meeting Simulation',
+        'app.features': ['spaces'],
+        'app.feature_groups': {},
+        'app.default_building': org.BUILDING,
+        'app.default_route': '/book/meeting/form',
+        'app.use_region': false,
+        'app.use_geolocation': false,
+        'app.allow_dark_mode': false,
+        'app.internal_user_domain': '@dev.place.tech',
+        'app.global_search': false,
+        'app.chat.enabled': false,
+        'app.analytics.enabled': false,
+        'app.sentry_dsn': '',
+        'app.has_assets': false,
+        'app.desks.has_assets': false,
+        'app.desks.can_book_lockers': false,
+        'app.desks.use_assets': false,
+        'app.bookings.has_assets': false,
+        'app.auto_release': { resources: [] },
+        'app.schedule.event_sources': ['api'],
+        'app.schedule.use_websocket': false,
+        'app.events.use_bookings': false,
+        'app.events.has_assets': false,
+        'app.events.allow_externals': false,
+        'app.events.allow_recurrence': false,
+        'app.events.allow_multiday': false,
+        'app.events.allow_all_day': false,
+        'app.events.allow_online_meetings': false,
+        'app.events.allow_visibility': false,
+        'app.events.can_book_for_anyone': false,
+        'app.events.use_building_timezone': false,
+        'app.events.room_as_host': false,
+        'app.events.force_host': '',
+        'app.events.no_standalone': false,
+        'app.events.booking_unavailable': false,
+        'app.events.strict_capacity_check': false,
+        'app.events.multiple_spaces': false,
+        'app.events.hide_notes': true,
+        'app.events.bookable_hours': null,
+        'app.events.default_duration': 60,
+        'app.events.min_duration': 30,
+        'app.events.max_duration': 180,
+        'app.events.duration_step': 30,
+        'app.events.custom_duration_options': [],
+        'app.events.setup': 0,
+        'app.events.breakdown': 0,
+        'app.events.overflow': {},
+        'app.catering.backend': 'native',
+        'app.catering_provider': '',
+    };
+    return {
+        ...org,
+        GROUP,
+        DELEGATE,
+        /** UserPipe's lookup path for DELEGATE. */
+        HOST_PATH: meetingPersonPath(DELEGATE.email),
+        /** Internal-domain attendee (app.internal_user_domain), so no externals rule applies. */
+        GUEST: {
+            id: prefix + 'guest',
+            name: 'Synthetic Guest',
+            email: 'guest@dev.place.tech',
+            groups: [] as string[],
+            department: '',
+            is_external: false,
+        },
+        ROOMS,
+        ZONE_METADATA,
+        BASE,
+    };
 }
 
-export const meetingTest = playwrightTest.extend<{
-    meeting: { page: Page; audit: MeetingAudit };
-}>({
-    meeting: async ({ browser }, use, info) => {
-        if (
-            !['localhost', '127.0.0.1', '[::1]'].includes(MEETING_APP.hostname) ||
-            !['http:', 'https:'].includes(MEETING_APP.protocol) ||
-            MEETING_APP.username ||
-            MEETING_APP.password ||
-            MEETING_APP.pathname !== '/' ||
-            MEETING_APP.search ||
-            MEETING_APP.hash
-        ) {
-            throw new Error('Meeting submission specs require a root-path loopback frontend.');
-        }
-        const audit: MeetingAudit = {
-            refused: [],
-            errors: [],
-            monitoring: [],
-            fixtures: {},
-        };
-        // Explicitly fresh: no configured storageState, cookies or disk auth.
-        const context = await browser.newContext({
-            baseURL: MEETING_APP.origin,
-            storageState: { cookies: [], origins: [] },
-            serviceWorkers: 'block',
-            viewport: { width: 1440, height: 1000 },
-            timezoneId: 'Etc/UTC',
-            ignoreHTTPSErrors: true,
-        });
-        let page: Page | undefined;
-        let stopping = false;
-        const pending = new Set<Promise<void>>();
-        try {
-            await context.route('**/*', (route) => {
-                const task = (async () => {
-                    const req = route.request();
-                    const url = new URL(req.url());
-                    const refuse = async (reason: string) => {
-                        audit.refused.push(reason);
-                        await route.abort('blockedbyclient');
-                    };
-                    if (
-                        req.redirectedFrom() ||
-                        url.username ||
-                        url.password ||
-                        url.hash
-                    ) {
-                        await refuse('redirect/credential-bearing request');
-                        return;
-                    }
-                    // index.html links Google Fonts; answer locally with empty CSS.
-                    if (
-                        req.method() === 'GET' &&
-                        url.origin === 'https://fonts.googleapis.com' &&
-                        url.pathname === '/css2'
-                    ) {
-                        await route.fulfill({ contentType: 'text/css', body: '' });
-                        return;
-                    }
-                    if (url.origin !== MEETING_APP.origin)
-                        return refuse('external HTTP request');
-                    if (req.method() !== 'GET') {
-                        // Every mutation terminates in fulfill/abort. Only the one
-                        // armed POST is answered, with the checked body and an id.
-                        const capture = audit.submission;
-                        if (
-                            req.method() !== 'POST' ||
-                            !capture ||
-                            url.pathname !== capture.path ||
-                            (capture.query ? !capture.query(url) : !!url.search) ||
-                            !capture.armed ||
-                            capture.bodies.length !== 0 ||
-                            !/^application\/json(?:;|$)/i.test(
-                                req.headers()['content-type'] ?? '',
-                            )
-                        ) {
-                            await refuse('unexpected or unarmed mutation');
-                            return;
-                        }
-                        capture.armed = false;
-                        const body = req.postDataJSON() as Record<string, unknown>;
-                        // Recorded first so a mismatch reaches the test as a diff.
-                        capture.bodies.push(body);
-                        if (!capture.accepts(body)) {
-                            await refuse('outgoing event JSON mismatch');
-                            return;
-                        }
-                        await route.fulfill({
-                            status: 201,
-                            json: {
-                                ...body,
-                                id: MEETING_PREFIX + 'synthetic-created-event',
-                            },
-                        });
-                        capture.completed = true;
-                        return;
-                    }
-                    const fixtures = page ? (MEETING_FIXTURES.get(page) ?? []) : [];
-                    const fixture = fixtures.find((f) => f.match(url));
-                    if (fixture) {
-                        audit.fixtures[url.pathname] =
-                            (audit.fixtures[url.pathname] ?? 0) + 1;
-                        if (fixture.contentType)
-                            await route.fulfill({
-                                contentType: fixture.contentType,
-                                body: String(fixture.body(url)),
-                            });
-                        else await route.fulfill({ json: fixture.body(url) });
-                        return;
-                    }
-                    // API, auth and control requests never reach the dev proxy.
-                    if (/^\/(api|auth|control)(\/|$)/.test(url.pathname))
-                        return refuse('unmatched API/auth/control GET');
-                    const document =
-                        req.resourceType() === 'document' &&
-                        url.pathname === '/' &&
-                        !url.search;
-                    const asset =
-                        ['script', 'stylesheet', 'image', 'font'].includes(
-                            req.resourceType(),
-                        ) &&
-                        /\.(?:[cm]?js|ts|css|svg|png|ico|jpe?g|webp|woff2?|ttf)$/.test(
-                            url.pathname,
-                        );
-                    // Dev-server component modules (no file extension) are static GETs.
-                    const vite =
-                        req.resourceType() === 'script' &&
-                        ['/@vite/client', '/@angular/build', '/@ng/component'].includes(
-                            url.pathname,
-                        );
-                    // LocaleService fetches assets/locale/<locale>.json and the app
-                    // fetches its logo SVG.
-                    const fetched =
-                        req.resourceType() === 'fetch' &&
-                        /^\/assets\/[\w./-]+\.(?:json|svg)$/.test(url.pathname) &&
-                        !url.pathname.includes('..');
-                    // The build does not copy the Material Symbols fonts to /assets
-                    // (dev server 404s), so serve the package's own file.
-                    const symbols =
-                        /^\/assets\/(material-symbols-(?:outlined|rounded|sharp)\.woff2)$/.exec(
-                            url.pathname,
-                        );
-                    if (symbols) {
-                        await route.fulfill({
-                            path: require.resolve('material-symbols/' + symbols[1]),
-                            contentType: 'font/woff2',
-                        });
-                        return;
-                    }
-                    if (document || asset || vite || fetched) {
-                        // GET frontend assets only; do not follow redirects.
-                        const response = await route.fetch({ maxRedirects: 0 });
-                        if (response.status() >= 300 && response.status() < 400) {
-                            await refuse('frontend redirect');
-                            return;
-                        }
-                        await route.fulfill({ response });
-                        return;
-                    }
-                    return refuse('unmatched frontend GET');
-                })().catch(async () => {
-                    audit.monitoring.push('HTTP handler failed');
-                    await route.abort('blockedbyclient').catch(() => {
-                        audit.monitoring.push('HTTP abort failed');
-                    });
-                });
-                pending.add(task);
-                void task.finally(() => pending.delete(task));
-                return task;
-            });
-            await context.routeWebSocket('**/*', (socket) => {
-                try {
-                    meetingSocket(socket, audit, pending);
-                } catch {
-                    audit.monitoring.push('WebSocket handler failed');
-                }
-            });
-            context.on('page', (opened) => {
-                opened.on('pageerror', () =>
-                    audit.errors.push('uncaught page error'),
-                );
-                opened.on('console', (message) => {
-                    if (message.type() === 'error')
-                        audit.errors.push('console error');
-                });
-                opened.on('requestfailed', () => {
-                    if (!stopping) audit.errors.push('request failed');
-                });
-                opened.on('response', (response) => {
-                    if (response.status() >= 300)
-                        audit.errors.push('HTTP failure or redirect');
-                });
-                opened.on('crash', () => audit.errors.push('page crash'));
-                if (page && opened !== page)
-                    audit.refused.push('unexpected extra page');
-            });
-            page = await context.newPage();
-            MEETING_FIXTURES.set(page, []);
-            await use({ page, audit });
-        } finally {
-            stopping = true;
-            // Guards remain installed until every browser producer is stopped.
-            try {
-                await context.close();
-            } catch {
-                audit.monitoring.push('context close failed');
-            }
-            while (pending.size) await Promise.all([...pending]);
-            try {
-                await info.attach('settings-safety-audit', {
-                    body: Buffer.from(JSON.stringify(audit, null, 2)),
-                    contentType: 'application/json',
-                });
-            } finally {
-                expect(
-                    {
-                        refused: audit.refused,
-                        errors: audit.errors,
-                        monitoring: audit.monitoring,
-                    },
-                    'strict teardown audit, including setup/assertion failures',
-                ).toEqual({ refused: [], errors: [], monitoring: [] });
-                if (audit.submission) {
-                    expect(audit.submission.armed).toBe(false);
-                    expect(audit.submission.completed).toBe(true);
-                    expect(audit.submission.bodies).toHaveLength(1);
-                }
-            }
-        }
-    },
-});
+export type SyntheticMeetingOrg = ReturnType<typeof syntheticMeetingOrg>;
 
-/** Exact synthetic GETs for the organisation, rooms and app bootstrap. */
-function meetingGets(page: Page) {
-    meetingGet(
+/**
+ * Exact GET fixtures for the meeting form: each room, room availability (all
+ * free), the shell bootstrap with the rooms listed, and `rules` as the
+ * building's room_booking_rules. With `delegate`, DELEGATE's person lookup.
+ */
+export async function meetingFormGets(
+    page: Page,
+    org: SyntheticMeetingOrg,
+    options: { rules?: Json[]; delegate?: boolean } = {},
+) {
+    const { hasParams, ROOMS } = org;
+    await browserGet(
         page,
         (url) =>
-            MEETING_ROOMS.some(
-                (room) => url.pathname === '/api/engine/v2/systems/' + room.id,
-            ) && meetingParams(url, {}),
-        (url) => MEETING_ROOMS.find((room) => url.pathname.endsWith('/' + room.id))!,
+            ROOMS.some((room) => url.pathname === '/api/engine/v2/systems/' + room.id) &&
+            hasParams(url, {}),
+        (url) => ROOMS.find((room) => url.pathname.endsWith('/' + room.id))!,
     );
-    meetingGet(
+    if (options.delegate)
+        await browserGet(
+            page,
+            (url) => url.pathname === org.HOST_PATH && hasParams(url, {}),
+            () => org.DELEGATE,
+        );
+    await browserGet(
         page,
         (url) => {
             const system_ids = url.searchParams.get('system_ids') ?? '';
@@ -2671,8 +3702,8 @@ function meetingGets(page: Page) {
                 url.pathname === '/api/staff/v1/calendars/availability' &&
                 validPeriod(url) &&
                 new Set(ids).size === ids.length &&
-                ids.every((id) => MEETING_ROOMS.some((room) => room.id === id)) &&
-                meetingParams(url, { system_ids, period_start, period_end })
+                ids.every((id) => ROOMS.some((room) => room.id === id)) &&
+                hasParams(url, { system_ids, period_start, period_end })
             );
         },
         (url) =>
@@ -2680,7 +3711,7 @@ function meetingGets(page: Page) {
                 .get('system_ids')!
                 .split(',')
                 .map((id) => {
-                    const room = MEETING_ROOMS.find((room) => room.id === id)!;
+                    const room = ROOMS.find((room) => room.id === id)!;
                     return {
                         id,
                         name: room.name,
@@ -2690,250 +3721,108 @@ function meetingGets(page: Page) {
                     };
                 }),
     );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            meetingParams(url, { tags: 'org', include_children_count: 'true' }),
-        () => [
-            {
-                id: MEETING_ORGANISATION,
-                name: 'Synthetic Zone Organisation',
-                display_name: 'Synthetic Zone Organisation',
-                tags: ['org'],
-            },
-        ],
-    );
-    // Bulk metadata is local and contains no live driver binding.
-    meetingGet(
-        page,
-        (url) => {
-            const match = /^\/api\/engine\/v2\/metadata\/([^/]+)\/bulk$/.exec(
-                url.pathname,
-            );
-            const ids = (url.searchParams.get('parent_ids') ?? '').split(',');
-            return (
-                !!match &&
-                BULK_METADATA.includes(match[1]) &&
-                url.searchParams.has('parent_ids') &&
-                meetingParams(url, {
-                    parent_ids: url.searchParams.get('parent_ids')!,
-                }) &&
-                ids.every((id) => MEETING_ZONES.includes(id))
-            );
+    await syntheticOrgGets(page, org, {
+        user: MEETING_USER,
+        zone_metadata: org.ZONE_METADATA,
+        details: {
+            room_booking_rules: options.rules ?? [],
+            map_regions: { areas: [] },
         },
-        (url) =>
-            Object.fromEntries(
-                url.searchParams
-                    .get('parent_ids')!
-                    .split(',')
-                    .map((id) => [id, { details: {} }]),
-            ),
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            meetingParams(url, {
-                tags: 'region',
-                parent_id: MEETING_ORGANISATION,
-                limit: '200',
+        rooms: ROOMS,
+    });
+}
+
+/** The meeting form value, as RawMeeting from form_value(). */
+export type RawMeeting = Json & {
+    id: string;
+    title: string;
+    host: string;
+    creator: string;
+    date: number;
+    date_end: number;
+    duration: number;
+    timezone: string;
+    organiser: Json;
+    resources: Json[];
+    attendees: Json[];
+    assets: Json[];
+    catering: Json[];
+};
+
+/** A read-only snapshot of the review step's form and loaded rooms. */
+export type MeetingSnapshot = {
+    valid: boolean;
+    loading: boolean;
+    raw: RawMeeting;
+    rooms: Json[];
+};
+
+/** Reads the meeting-flow-options form state through Angular's debug API. */
+export function meetingFormSnapshot(page: Page): Promise<MeetingSnapshot> {
+    return page.locator('meeting-flow-options').evaluate((element) => {
+        const c = (window as DebugWindow).ng?.getComponent(element) as
+            | {
+                  form_value(): RawMeeting;
+                  form(): { valid(): boolean };
+                  loading(): boolean;
+                  _event_form: { spaces(): Json[] };
+              }
+            | undefined;
+        if (!c) throw new Error('Read-only meeting options unavailable');
+        return JSON.parse(
+            JSON.stringify({
+                valid: c.form().valid(),
+                loading: c.loading(),
+                raw: c.form_value(),
+                rooms: c._event_form.spaces(),
             }),
-        () => [
-            {
-                id: MEETING_REGION,
-                name: 'Synthetic Zone Region',
-                tags: ['region'],
-                timezone: 'UTC',
-            },
-        ],
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            meetingParams(url, {
-                tags: 'building',
-                parent_id: MEETING_REGION,
-                limit: '500',
-            }),
-        () => [
-            {
-                id: MEETING_BUILDING,
-                parent_id: MEETING_REGION,
-                name: 'Synthetic Zone Building',
-                display_name: 'Synthetic Zone Building',
-                tags: ['building'],
-                timezone: 'UTC',
-                location: '0,0',
-            },
-        ],
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            meetingParams(url, { tags: 'level', limit: '2500' }),
-        () => [
-            {
-                id: MEETING_LEVEL,
-                parent_id: MEETING_BUILDING,
-                name: 'Synthetic Zone Level',
-                display_name: 'Synthetic Zone Level',
-                tags: ['level'],
-                map_id: new URL(MEETING_MAP_PATH, MEETING_APP.origin).href,
-            },
-        ],
-    );
-    // Room booking rules are empty, so every room is bookable for every host.
-    meetingGet(
-        page,
-        (url) => {
-            const id = url.pathname.split('/')[5] ?? '';
-            const name = url.searchParams.get('name') ?? '';
-            return (
-                url.pathname === '/api/engine/v2/metadata/' + id &&
-                Object.hasOwn(MEETING_ZONE_METADATA, id) &&
-                MEETING_ZONE_METADATA[id].includes(name) &&
-                meetingParams(url, { name })
-            );
-        },
-        (url) => {
-            const id = url.pathname.split('/')[5];
-            const name = url.searchParams.get('name')!;
-            return {
-                [name]: {
-                    id,
-                    name,
-                    details:
-                        name === 'map_regions'
-                            ? { areas: [] }
-                            : LIST_METADATA.includes(name)
-                              ? []
-                              : {},
-                },
-            };
-        },
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/metadata/' + MEETING_USER.id &&
-            ['settings', 'contacts'].some((name) => meetingParams(url, { name })),
-        (url) => {
-            const name = url.searchParams.get('name')!;
-            return { [name]: { name, details: name === 'contacts' ? [] : {} } };
-        },
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/groups/current' &&
-            meetingParams(url, {}),
-        () => [],
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            meetingParams(url, { zone_id: MEETING_ORGANISATION, limit: '5000' }),
-        () => MEETING_ROOMS,
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            meetingParams(url, { zone_id: MEETING_LEVEL, limit: '50' }),
-        () => MEETING_ROOMS,
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            meetingParams(url, { zone_id: MEETING_ORGANISATION, limit: '50' }),
-        () => [],
-    );
-    // LandingStateService loads the active building's rooms.
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            meetingParams(url, {
-                zone_id: MEETING_BUILDING,
-                limit: '500',
-                signage: 'false',
-            }),
-        () => MEETING_ROOMS,
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            meetingParams(url, { hidden: 'true', limit: '500' }),
-        () => MEETING_HIDDEN_CATEGORIES,
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            Object.hasOwn(
-                MEETING_HIDDEN_TYPES,
-                url.searchParams.get('category_id') ?? '',
-            ) &&
-            meetingParams(url, {
-                category_id: url.searchParams.get('category_id')!,
-                limit: '500',
-            }),
-        (url) =>
-            MEETING_HIDDEN_TYPES[url.searchParams.get('category_id')!].map(
-                (name) => ({
-                    id: MEETING_PREFIX + 'type-' + name,
-                    name,
-                    category_id: url.searchParams.get('category_id'),
-                    brand: 'PlaceOS',
-                }),
-            ),
-    );
-    meetingGet(
-        page,
-        (url) => {
-            const type_id = url.searchParams.get('type_id') ?? '';
-            const zone_id = url.searchParams.get('zone_id') ?? '';
-            return (
-                url.pathname === '/api/engine/v2/assets' &&
-                MEETING_HIDDEN_TYPE_IDS.includes(type_id) &&
-                MEETING_ZONES.includes(zone_id) &&
-                meetingParams(url, { type_id, zone_id, limit: '500' })
-            );
-        },
-        () => [],
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/staff/v1/calendars' && meetingParams(url, {}),
-        () => [],
-    );
-    meetingGet(
-        page,
-        (url) => {
-            const period_start = url.searchParams.get('period_start') ?? '';
-            const period_end = url.searchParams.get('period_end') ?? '';
-            const base = { type: 'parking', period_start, period_end };
-            return (
-                url.pathname === MEETING_BOOKINGS_PATH &&
-                validPeriod(url) &&
-                (meetingParams(url, base) ||
-                    meetingParams(url, {
-                        ...base,
-                        zones: MEETING_LEVEL,
-                        rejected: 'false',
-                    }) ||
-                    meetingParams(url, { ...base, email: MEETING_USER.email }))
-            );
-        },
-        () => [],
-    );
+        ) as MeetingSnapshot;
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Fully synthetic meeting submission (new meeting form, events backend)
+// ---------------------------------------------------------------------------
+//
+// For settings whose only effect is the meeting the app sends: the browser-only
+// meeting form (meetingFormTest) with a prepared draft for one room and one
+// internal guest, hosted by the signed-in user.
+
+const MEETING = syntheticMeetingOrg('e2e-meeting-submission-');
+const MEETING_BEARER = 'browser-only-meeting-submission-not-a-valid-credential';
+
+/** Internal-domain attendee (app.internal_user_domain), so no externals rule applies. */
+export const MEETING_GUEST = MEETING.GUEST;
+export const MEETING_ROOMS = MEETING.ROOMS;
+
+/** Settings shared by the meeting-submission specs; each spec overrides its own key. */
+export const MEETING_BASE: Settings = {
+    ...MEETING.BASE,
+    'app.events.can_book_for_others': false,
+    'app.events.force_current_user_for_booking_rules': false,
+    'app.events.hide_attendees': false,
+    'app.events.allow_international': false,
+    'app.events.allow_attendee_internal_or_external': false,
+};
+
+/** Register one exact synthetic GET fixture for a meeting-submission page. */
+export function meetingGet(
+    page: Page,
+    match: GetFixture['match'],
+    body: GetFixture['body'],
+) {
+    browserFixture(page, { match, body });
+}
+
+export const meetingTest = meetingFormTest.extend<{
+    meeting: { page: Page; audit: MeetingAudit };
+}>({
+    meeting: async ({ isolated }, use) => use(isolated),
+});
+
+/** Exact synthetic GETs for the organisation, rooms and app bootstrap. */
+async function meetingGets(page: Page) {
+    await meetingFormGets(page, MEETING);
     // Native room bookings (events.use_bookings true): the availability checks
     // read existing room bookings for a period (queryResourceAvailability uses
     // exactly type, period_start and period_end). None exist, so every room is
@@ -3010,51 +3899,13 @@ export async function openSubmissionMeeting(
         breakdown_time: 0,
         body: '',
     };
-    const cid = createHash('md5')
-        .update(MEETING_APP.origin + '/oauth-resp.html')
-        .digest('hex');
-    await page.addInitScript(
-        ({ origin, cid, bearer, settings, draft }) => {
-            if (location.origin !== origin) return;
-            localStorage.clear();
-            sessionStorage.clear();
-            localStorage.setItem(cid + '_access_token', bearer);
-            localStorage.setItem(
-                cid + '_expires_at',
-                String(Date.now() + 60 * 60_000),
-            );
-            localStorage.setItem(
-                'PLACEOS.setting_overrides',
-                JSON.stringify(settings),
-            );
-            localStorage.setItem('APP.locale', 'en-US');
-            localStorage.setItem('PLACEOS.locale', 'en-US');
-            localStorage.setItem('mock', 'false');
-            sessionStorage.setItem('PLACEOS.event_form', JSON.stringify(draft));
-        },
-        { origin: MEETING_APP.origin, cid, bearer: MEETING_BEARER, settings, draft },
-    );
-    meetingGet(
-        page,
-        (url) => url.pathname === '/auth/authority' && meetingParams(url, {}),
-        () => ({
-            id: MEETING_PREFIX + 'authority',
-            name: 'Browser-only authority',
-            domain: MEETING_APP.host,
-            version: '3.0.0',
-            session: false,
-            production: false,
-            config: { org_zone: MEETING_ORGANISATION },
-        }),
-    );
-    meetingGet(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/users/current' &&
-            meetingParams(url, {}),
-        () => ({ ...MEETING_USER, groups: [...(options.groups ?? [])] }),
-    );
-    meetingGets(page);
+    await browserSignIn(page, MEETING, {
+        bearer: MEETING_BEARER,
+        settings,
+        user: { ...MEETING_USER, groups: [...(options.groups ?? [])] },
+        session: { 'PLACEOS.event_form': draft },
+    });
+    await meetingGets(page);
     await page.goto('/#/book/meeting/form?view=2');
     await expect(page.locator('global-loading')).toHaveCount(1);
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
@@ -3208,778 +4059,88 @@ export async function submitMeeting(
 // Fully synthetic Explore zone sensors (AreaManagement binding)
 // ---------------------------------------------------------------------------
 //
-// For settings that change how Explore shows live zone readings. Same policy
-// as explore.show-zone-sensor-info.spec.ts (which keeps its own copy): one
-// context route installed before navigation, exact local GET fixtures for a
-// synthetic organisation, user, room, map and sign-in; no write is allowed;
-// the only WebSocket is a browser-local control socket that accepts exact
-// AreaManagement/Bookings bind/unbind tuples and replies with synthetic
-// values. The room's area reports 23 degrees and 45% humidity; a separate
-// control area (not a room) is drawn as a polygon once the readings arrive.
-// Strict teardown: refused requests, page/console errors, failed requests and
-// responses >= 300 all fail the test. Run with --project=local --no-deps.
+// For settings that change how Explore shows live zone readings: the
+// browser-only Explore map (syntheticExplore) with ROOM on the level. The
+// control socket accepts exact AreaManagement/Bookings bind/unbind tuples and
+// replies with synthetic values. The room's area reports 23 degrees and 45%
+// humidity; the control area (not a room) is drawn as a polygon once the
+// readings arrive.
 
-type ZoneSensorConnection = { binds: string[]; delivered: string[]; unbinds: string[] };
-
-export type ZoneSensorAudit = {
-    refused: string[];
-    errors: string[];
-    monitoring: string[];
-    fixtures: Record<string, number>;
-    connections: ZoneSensorConnection[];
-    room_values: Record<string, unknown>;
-    areas_released: boolean;
-    publish_areas?: () => void;
-};
-
-const ZS_APP = new URL(process.env.E2E_APP_URL ?? 'http://localhost:4214');
+const ZS = syntheticExplore('e2e-zone-sensor-shared-');
 const ZS_BEARER = 'browser-only-zone-sensor-not-a-valid-credential';
-const ZS_CONTROL_PATH = '/api/engine/v2/systems/control';
-const ZS_FIXTURES = new WeakMap<Page, GetFixture[]>();
-const ZS_PREFIX = 'e2e-zone-sensor-shared-';
-const ZS_ORGANISATION = ZS_PREFIX + 'org';
-const ZS_REGION = ZS_PREFIX + 'region';
-const ZS_BUILDING = ZS_PREFIX + 'building';
-const ZS_LEVEL = ZS_PREFIX + 'level';
-const ZS_ZONES = [ZS_ORGANISATION, ZS_REGION, ZS_BUILDING, ZS_LEVEL];
-const ZS_MAP_PATH = '/' + ZS_PREFIX + 'map.svg';
-const ZS_HIDDEN_TYPES: Record<string, string[]> = {
-    [ZS_PREFIX + 'catering']: [],
-    [ZS_PREFIX + 'desks']: ['_DESKS_'],
-    [ZS_PREFIX + 'parking']: [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    [ZS_PREFIX + 'lockers']: ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
-const ZS_HIDDEN_CATEGORIES = Object.keys(ZS_HIDDEN_TYPES).map((id) => ({
-    id,
-    name: '_' + id.slice(ZS_PREFIX.length).toUpperCase() + '_',
-    hidden: true,
-}));
-const ZS_HIDDEN_TYPE_IDS = Object.values(ZS_HIDDEN_TYPES)
-    .flat()
-    .map((name) => ZS_PREFIX + 'type-' + name);
-const ZS_ZONE_METADATA: Record<string, string[]> = {
-    [ZS_BUILDING]: [
-        'parking_booking_rules',
-        'desk_booking_rules',
-        'room_booking_rules',
-    ],
-    [ZS_LEVEL]: ['desks', 'map_regions'],
-    [ZS_ORGANISATION]: [
-        'locale_en-AU',
-        'locale_en-US',
-        'room_alerts',
-        'points-of-interest',
-    ],
-};
-const ZS_SYSTEM = ZS_PREFIX + 'area-system';
+
 /** The room's map shape and area id; the sensor feature is `sensors:<this>`. */
-export const ZONE_SENSOR_TARGET = ZS_PREFIX + 'target';
-const ZS_CONTROL = ZS_PREFIX + 'control';
-const ZS_ROOM = {
-    id: ZS_PREFIX + 'room',
-    name: 'Synthetic Settings Room',
-    display_name: 'Synthetic Settings Room',
-    email: 'settings-room@example.invalid',
-    map_id: ZONE_SENSOR_TARGET,
-    bookable: true,
-    capacity: 4,
-    features: [],
-    images: [],
-    zones: ZS_ZONES,
-};
-const ZS_ROOM_FILL = '#2468ac';
-const ZS_COLOUR = '#123456';
+export const ZONE_SENSOR_TARGET = ZS.TARGET;
 /** The synthetic readings of the room's area. */
 export const ZONE_SENSOR_READING = { temperature: 23, humidity: 45 };
-const ZS_MAP_REGIONS = {
-    areas: [
-        {
-            id: ZONE_SENSOR_TARGET,
-            map_id: ZONE_SENSOR_TARGET,
-            properties: {
-                capacity: 10,
-                hide_label: false,
-                draw_polygon: false,
-                label_location: { x: 0.25, y: 0.25 },
-            },
-            geometry: {
-                coordinates: [[0.1, 0.1], [0.4, 0.1], [0.4, 0.4], [0.1, 0.4]],
-            },
-        },
-        {
-            id: ZS_CONTROL,
-            map_id: ZS_CONTROL,
-            properties: { capacity: 10, hide_label: true, draw_polygon: true },
-            geometry: {
-                coordinates: [[0.6, 0.6], [0.9, 0.6], [0.9, 0.9], [0.6, 0.9]],
-            },
-        },
-    ],
-};
 // Payloads are the values passed to StatusVariable callbacks, not GeoJSON.
 const ZS_LIVE: Record<string, unknown> = {
-    [ZS_LEVEL + ':areas']: {
+    [ZS.LEVEL + ':areas']: {
         value: [
-            { area_id: ZS_ROOM.id, map_id: ZONE_SENSOR_TARGET, ...ZONE_SENSOR_READING },
-            { area_id: ZS_CONTROL, map_id: ZS_CONTROL, count: 1 },
+            { area_id: ZS.ROOM.id, map_id: ZS.TARGET, ...ZONE_SENSOR_READING },
+            { area_id: ZS.CONTROL, map_id: ZS.CONTROL, count: 1 },
         ],
     },
-    [ZS_LEVEL]: { value: [] },
-    [ZS_LEVEL + ':desk_bookings']: {},
+    [ZS.LEVEL]: { value: [] },
+    [ZS.LEVEL + ':desk_bookings']: {},
     // LandingStateService.init binds AreaManagement overview (level occupancy).
     overview: {},
 };
 /** Settings shared by the zone-sensor specs; each spec overrides its own keys. */
 export const ZONE_SENSOR_BASE: Settings = {
-    'app.features': ['explore'],
-    'app.default_building': ZS_BUILDING,
-    'app.default_route': '/explore',
-    'app.use_region': false,
-    'app.use_geolocation': false,
-    'app.allow_dark_mode': false,
-    'app.global_search': false,
-    'app.chat.enabled': false,
+    ...ZS.BASE,
     'app.events.has_assets': false,
     'app.events.can_book_for_others': false,
     'app.events.bookable_hours': null,
     'app.events.booking_unavailable': false,
-    'app.has_assets': false,
-    'app.desks.has_assets': false,
-    'app.bookings.has_assets': false,
-    'app.desks.can_book_lockers': false,
-    'app.desks.use_assets': false,
-    'app.auto_release': { resources: [] },
-    'app.schedule.event_sources': ['api'],
-    'app.schedule.use_websocket': false,
-    'app.analytics.enabled': false,
-    'app.show_presence_indicators': false,
-    'app.explore.hide_zones': false,
-    'app.explore.hide_devices': true,
     'app.explore.hide_sensors': false,
-    'app.explore.show_legend': false,
     'app.use_imperial_units': false,
     'app.explore.show_zone_sensor_info': true,
-    'app.explore.disable': [],
-    'app.explore.disable_features': [],
-    'app.explore.disable_styles': [],
-    'app.explore.disable_actions': [],
-    'app.explore.disable_labels': [],
-    'app.explore.use_zone_polygons': true,
-    'app.explore.show_zone_labels': true,
     'app.explore.colors': {
-        'zone-free': ZS_COLOUR,
-        'space-free': ZS_ROOM_FILL,
-        'space-busy': ZS_ROOM_FILL,
+        'zone-free': ZS.COLOUR,
+        'space-free': ZS.ROOM_FILL,
+        'space-busy': ZS.ROOM_FILL,
     },
-    'app.explore.cisco_maps.enabled': false,
-    'app.maps_people.keys': {},
-    'app.maps_people.use_zones': [],
 };
 
-function zsRoomValues(): Record<string, unknown> {
-    return {
-        bookings: [],
-        status: 'free',
-        presence: false,
-        hide_meeting_details: true,
-        hide_meeting_title: true,
-    };
-}
+export type ZoneSensorAudit = ControlAudit & {
+    room_values: Record<string, unknown>;
+    areas_released: boolean;
+    /** Sends the held area readings; set once the areas variable is bound. */
+    publish_areas?: () => void;
+};
 
-/** Exact query multiset: duplicates, unknown keys and foreign authority fail. */
-function zsParams(url: URL, expected: Record<string, string>) {
-    const entries = [...url.searchParams.entries()];
-    if (
-        url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.has('authority_id')
-    ) {
-        if (
-            url.searchParams.getAll('authority_id').length !== 1 ||
-            url.searchParams.get('authority_id') !== ZS_PREFIX + 'authority'
-        )
-            return false;
-    }
-    const keys = entries.filter(
-        ([key]) =>
-            !(url.pathname === '/api/engine/v2/zones' && key === 'authority_id'),
-    );
-    return (
-        keys.length === Object.keys(expected).length &&
-        Object.entries(expected).every(
-            ([key, value]) =>
-                url.searchParams.getAll(key).length === 1 &&
-                url.searchParams.get(key) === value,
-        )
-    );
-}
-
-function zsGet(page: Page, fixture: GetFixture) {
-    const list = ZS_FIXTURES.get(page);
-    if (!list) throw new Error('Fixture registry is unavailable.');
-    list.push(fixture);
-}
-
-function zsSocket(
-    socket: WebSocketRoute,
-    audit: ZoneSensorAudit,
-    pending: Set<Promise<void>>,
-) {
-    const url = new URL(socket.url());
-    const local =
-        url.host === ZS_APP.host &&
-        url.protocol === (ZS_APP.protocol === 'https:' ? 'wss:' : 'ws:') &&
-        !url.username &&
-        !url.password &&
-        !url.hash;
-    const close = () => {
-        const task = socket.close().catch(() => {
-            audit.monitoring.push('socket close failed');
-        });
-        pending.add(task);
-        void task.finally(() => pending.delete(task));
-        return task;
-    };
-    // Vite socket stays browser-local too. Never record its token/query.
-    if (
-        local &&
-        url.pathname === '/' &&
-        url.searchParams.getAll('token').length === 1 &&
-        [...url.searchParams.keys()].length === 1
-    ) {
-        socket.onMessage(() => {
-            audit.refused.push('unexpected tooling socket message');
-            void close();
-        });
-        return;
-    }
-    const params = [...url.searchParams.keys()];
-    const valid_query =
-        params.length === 0 ||
-        (params.length === 1 &&
-            params[0] === 'bearer_token' &&
-            url.searchParams.get('bearer_token') === ZS_BEARER);
-    if (!local || url.pathname !== ZS_CONTROL_PATH || !valid_query) {
-        audit.refused.push('unexpected WebSocket endpoint');
-        void close();
-        return;
-    }
-    // State is connection-local. A reconnect replays each newly bound value.
-    const connection: ZoneSensorConnection = {
-        binds: [],
-        delivered: [],
-        unbinds: [],
-    };
-    audit.connections.push(connection);
-    const bound = new Set<string>();
-    const ids = new Set<number>();
-    socket.onMessage((message) => {
-        try {
-            if (message === 'ping') {
-                socket.send('pong');
+export const zoneSensorTest = browserOnlyTest<ZoneSensorAudit>({
+    audit: () => ({
+        ...controlAudit(),
+        room_values: exploreRoomValues(),
+        areas_released: false,
+    }),
+    socket: controlSocket<ZoneSensorAudit>({
+        bearer: ZS_BEARER,
+        values: exploreValues(ZS, ZS_LIVE),
+        deliver: (r, value, notify, audit) => {
+            if (r.sys !== ZS.SYSTEM || r.name !== ZS.LEVEL + ':areas') {
+                notify(value);
                 return;
             }
-            const request: unknown = JSON.parse(String(message));
-            if (!request || typeof request !== 'object' || Array.isArray(request))
-                throw new Error();
-            const r = request as Record<string, unknown>;
-            const keys = ['id', 'cmd', 'sys', 'mod', 'index', 'name'];
-            const values =
-                r.sys === ZS_SYSTEM && r.mod === 'AreaManagement' && r.index === 1
-                    ? ZS_LIVE
-                    : r.sys === ZS_ROOM.id && r.mod === 'Bookings' && r.index === 1
-                      ? audit.room_values
-                      : undefined;
-            if (
-                Object.keys(r).length !== keys.length ||
-                !keys.every((key) => Object.hasOwn(r, key)) ||
-                typeof r.id !== 'number' ||
-                !Number.isSafeInteger(r.id) ||
-                ids.has(r.id) ||
-                !values ||
-                typeof r.name !== 'string' ||
-                !Object.hasOwn(values, r.name) ||
-                !['bind', 'unbind'].includes(String(r.cmd))
-            )
-                throw new Error();
-            ids.add(r.id);
-            const binding_key = [r.sys, r.mod, r.index, r.name].join(':');
-            if (r.cmd === 'unbind') {
-                if (!bound.delete(binding_key)) throw new Error();
-                connection.unbinds.push(binding_key);
-                socket.send(JSON.stringify({ id: r.id, type: 'success', value: null }));
-                return;
-            }
-            // Known-tuple rebinds are idempotent; always replay the value.
-            bound.add(binding_key);
-            connection.binds.push(binding_key);
-            socket.send(JSON.stringify({ id: r.id, type: 'success', value: null }));
-            const notify = (value: unknown) =>
-                socket.send(
-                    JSON.stringify({
-                        type: 'notify',
-                        value,
-                        meta: { sys: r.sys, mod: r.mod, index: r.index, name: r.name },
-                    }),
-                );
-            if (r.sys === ZS_SYSTEM && r.name === ZS_LEVEL + ':areas') {
-                // Hold the readings until the room list and Bookings feature are
-                // ready; the later control polygon proves this frame was parsed.
-                const area_value = values[r.name];
-                audit.publish_areas = () => {
-                    try {
-                        audit.areas_released = true;
-                        notify(area_value);
-                    } catch {
-                        audit.monitoring.push('synthetic area delivery failed');
-                        throw new Error('Synthetic area delivery failed');
-                    }
-                };
-                notify(audit.areas_released ? area_value : { value: [] });
-            } else {
-                notify(values[r.name]);
-            }
-            connection.delivered.push(binding_key);
-        } catch {
-            // Never retain raw frames, arguments, URLs, cookies or credentials.
-            audit.refused.push('unexpected control frame/binding/command');
-            void close();
-        }
-    });
-    // The client marks connected only after a first server message.
-    socket.send('pong');
-}
-
-export const zoneSensorTest = playwrightTest.extend<{
-    zones: { page: Page; audit: ZoneSensorAudit };
-}>({
-    zones: async ({ browser }, use, info) => {
-        if (
-            !['localhost', '127.0.0.1', '[::1]'].includes(ZS_APP.hostname) ||
-            !['http:', 'https:'].includes(ZS_APP.protocol) ||
-            ZS_APP.username ||
-            ZS_APP.password ||
-            ZS_APP.pathname !== '/' ||
-            ZS_APP.search ||
-            ZS_APP.hash
-        ) {
-            throw new Error('Zone sensor specs require a root-path loopback frontend.');
-        }
-        const audit: ZoneSensorAudit = {
-            refused: [],
-            errors: [],
-            monitoring: [],
-            fixtures: {},
-            connections: [],
-            room_values: zsRoomValues(),
-            areas_released: false,
-        };
-        // Explicitly fresh: no configured storageState, cookies or disk auth.
-        const context = await browser.newContext({
-            baseURL: ZS_APP.origin,
-            storageState: { cookies: [], origins: [] },
-            serviceWorkers: 'block',
-            viewport: { width: 1440, height: 1000 },
-            timezoneId: 'Etc/UTC',
-            ignoreHTTPSErrors: true,
-        });
-        let page: Page | undefined;
-        let stopping = false;
-        const pending = new Set<Promise<void>>();
-        try {
-            await context.route('**/*', (route) => {
-                const task = (async () => {
-                    const req = route.request();
-                    const url = new URL(req.url());
-                    const refuse = async (reason: string) => {
-                        audit.refused.push(reason);
-                        await route.abort('blockedbyclient');
-                    };
-                    if (req.redirectedFrom()) {
-                        await refuse('HTTP redirect');
-                        return;
-                    }
-                    if (url.username || url.password || url.hash) {
-                        await refuse('credential-bearing or fragmented HTTP URL');
-                        return;
-                    }
-                    // index.html links Google Fonts; answer locally with empty CSS.
-                    if (
-                        req.method() === 'GET' &&
-                        url.origin === 'https://fonts.googleapis.com' &&
-                        url.pathname === '/css2'
-                    ) {
-                        await route.fulfill({ contentType: 'text/css', body: '' });
-                        return;
-                    }
-                    if (url.origin !== ZS_APP.origin)
-                        return refuse('external HTTP request');
-                    if (req.method() !== 'GET') return refuse('non-GET HTTP request');
-                    const fixtures = page ? (ZS_FIXTURES.get(page) ?? []) : [];
-                    const fixture = fixtures.find((f) => f.match(url));
-                    if (fixture) {
-                        audit.fixtures[url.pathname] =
-                            (audit.fixtures[url.pathname] ?? 0) + 1;
-                        if (fixture.contentType)
-                            await route.fulfill({
-                                contentType: fixture.contentType,
-                                body: String(fixture.body(url)),
-                            });
-                        else await route.fulfill({ json: fixture.body(url) });
-                        return;
-                    }
-                    // API, auth and control GETs never reach the dev proxy.
-                    if (/^\/(api|auth|control)(\/|$)/.test(url.pathname))
-                        return refuse('unmatched API/auth/control GET');
-                    const document =
-                        req.resourceType() === 'document' &&
-                        url.pathname === '/' &&
-                        !url.search;
-                    const asset =
-                        ['script', 'stylesheet', 'image', 'font'].includes(
-                            req.resourceType(),
-                        ) &&
-                        /\.(?:[cm]?js|ts|css|svg|png|ico|jpe?g|webp|woff2?|ttf)$/.test(
-                            url.pathname,
-                        );
-                    const vite =
-                        req.resourceType() === 'script' &&
-                        ['/@vite/client', '/@angular/build', '/@ng/component'].includes(
-                            url.pathname,
-                        );
-                    const fetched =
-                        req.resourceType() === 'fetch' &&
-                        /^\/assets\/[\w./-]+\.(?:json|svg)$/.test(url.pathname) &&
-                        !url.pathname.includes('..');
-                    // The build does not copy this font into /assets (dev server
-                    // 404s); serve the package's own file.
-                    if (url.pathname === '/assets/material-symbols-rounded.woff2') {
-                        await route.fulfill({
-                            path: require.resolve(
-                                'material-symbols/material-symbols-rounded.woff2',
-                            ),
-                            contentType: 'font/woff2',
-                        });
-                        return;
-                    }
-                    if (document || asset || vite || fetched) return route.continue();
-                    return refuse('unmatched frontend GET');
-                })().catch(async () => {
-                    audit.monitoring.push('HTTP handler failed');
-                    await route.abort('blockedbyclient').catch(() => {
-                        audit.monitoring.push('HTTP abort failed');
-                    });
-                });
-                pending.add(task);
-                void task.finally(() => pending.delete(task));
-                return task;
-            });
-            await context.routeWebSocket('**/*', (socket) => {
+            // Hold the readings until the room list and Bookings feature are
+            // ready; the later control polygon proves this frame was parsed.
+            audit.publish_areas = () => {
                 try {
-                    zsSocket(socket, audit, pending);
+                    audit.areas_released = true;
+                    notify(value);
                 } catch {
-                    audit.monitoring.push('WebSocket handler failed');
+                    audit.monitoring.push('synthetic area delivery failed');
+                    throw new Error('Synthetic area delivery failed');
                 }
-            });
-            context.on('page', (opened) => {
-                opened.on('pageerror', () => audit.errors.push('uncaught page error'));
-                opened.on('console', (message) => {
-                    if (message.type() === 'error') audit.errors.push('console error');
-                });
-                opened.on('requestfailed', () => {
-                    if (!stopping) audit.errors.push('request failed');
-                });
-                opened.on('response', (response) => {
-                    if (response.status() >= 300)
-                        audit.errors.push('HTTP failure or redirect');
-                });
-                opened.on('crash', () => audit.errors.push('page crash'));
-                if (page && opened !== page) audit.refused.push('unexpected extra page');
-            });
-            page = await context.newPage();
-            ZS_FIXTURES.set(page, []);
-            await use({ page, audit });
-        } finally {
-            stopping = true;
-            // Guards remain installed until every browser producer is stopped.
-            try {
-                await context.close();
-            } catch {
-                audit.monitoring.push('context close failed');
-            }
-            while (pending.size) await Promise.all([...pending]);
-            try {
-                await info.attach('settings-safety-audit', {
-                    body: Buffer.from(JSON.stringify(audit, null, 2)),
-                    contentType: 'application/json',
-                });
-            } finally {
-                expect(
-                    {
-                        refused: audit.refused,
-                        errors: audit.errors,
-                        monitoring: audit.monitoring,
-                    },
-                    'strict teardown audit, including setup/assertion failures',
-                ).toEqual({ refused: [], errors: [], monitoring: [] });
-            }
-        }
-    },
-});
-
-function zsGets(page: Page) {
-    const json = (match: GetFixture['match'], body: GetFixture['body']) =>
-        zsGet(page, { match, body });
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            zsParams(url, { tags: 'org', include_children_count: 'true' }),
-        () => [
-            {
-                id: ZS_ORGANISATION,
-                name: 'Synthetic Zone Organisation',
-                display_name: 'Synthetic Zone Organisation',
-                tags: ['org'],
-            },
-        ],
-    );
-    // Bulk bindings identify only the synthetic AreaManagement system.
-    json(
-        (url) => {
-            const match = /^\/api\/engine\/v2\/metadata\/([^/]+)\/bulk$/.exec(
-                url.pathname,
-            );
-            const ids = (url.searchParams.get('parent_ids') ?? '').split(',');
-            return (
-                !!match &&
-                BULK_METADATA.includes(match[1]) &&
-                url.searchParams.has('parent_ids') &&
-                zsParams(url, { parent_ids: url.searchParams.get('parent_ids')! }) &&
-                ids.every((id) => ZS_ZONES.includes(id))
-            );
-        },
-        (url) =>
-            Object.fromEntries(
-                url.searchParams
-                    .get('parent_ids')!
-                    .split(',')
-                    .map((id) => [
-                        id,
-                        {
-                            details:
-                                url.pathname ===
-                                    '/api/engine/v2/metadata/bindings/bulk' &&
-                                id === ZS_BUILDING
-                                    ? {
-                                          area_management: {
-                                              id: ZS_SYSTEM,
-                                              mod: 'AreaManagement',
-                                          },
-                                      }
-                                    : {},
-                        },
-                    ]),
-            ),
-    );
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            zsParams(url, { tags: 'region', parent_id: ZS_ORGANISATION, limit: '200' }),
-        () => [
-            { id: ZS_REGION, name: 'Synthetic Zone Region', tags: ['region'], timezone: 'UTC' },
-        ],
-    );
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            zsParams(url, { tags: 'building', parent_id: ZS_REGION, limit: '500' }),
-        () => [
-            {
-                id: ZS_BUILDING,
-                parent_id: ZS_REGION,
-                name: 'Synthetic Zone Building',
-                display_name: 'Synthetic Zone Building',
-                tags: ['building'],
-                timezone: 'UTC',
-                location: '0,0',
-            },
-        ],
-    );
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            zsParams(url, { tags: 'level', limit: '2500' }),
-        () => [
-            {
-                id: ZS_LEVEL,
-                parent_id: ZS_BUILDING,
-                name: 'Synthetic Zone Level',
-                display_name: 'Synthetic Zone Level',
-                tags: ['level'],
-                map_id: new URL(ZS_MAP_PATH, ZS_APP.origin).href,
-            },
-        ],
-    );
-    json(
-        (url) => {
-            const id = url.pathname.split('/')[5] ?? '';
-            const name = url.searchParams.get('name') ?? '';
-            return (
-                url.pathname === '/api/engine/v2/metadata/' + id &&
-                Object.hasOwn(ZS_ZONE_METADATA, id) &&
-                ZS_ZONE_METADATA[id].includes(name) &&
-                zsParams(url, { name })
-            );
-        },
-        (url) => {
-            const id = url.pathname.split('/')[5];
-            const name = url.searchParams.get('name')!;
-            return {
-                [name]: {
-                    id,
-                    name,
-                    details:
-                        name === 'map_regions'
-                            ? ZS_MAP_REGIONS
-                            : LIST_METADATA.includes(name)
-                              ? []
-                              : {},
-                },
             };
+            notify(audit.areas_released ? value : { value: [] });
         },
-    );
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/metadata/' + USER.id &&
-            ['settings', 'contacts'].some((name) => zsParams(url, { name })),
-        (url) => {
-            const name = url.searchParams.get('name')!;
-            return { [name]: { name, details: name === 'contacts' ? [] : {} } };
-        },
-    );
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/groups/current' && zsParams(url, {}),
-        () => [],
-    );
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            zsParams(url, { zone_id: ZS_ORGANISATION, limit: '5000' }),
-        () => [ZS_ROOM],
-    );
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            zsParams(url, { zone_id: ZS_LEVEL, limit: '50' }),
-        () => [ZS_ROOM],
-    );
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            zsParams(url, { zone_id: ZS_ORGANISATION, limit: '50' }),
-        () => [],
-    );
-    // LandingStateService loads the active building's rooms even on Explore.
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            zsParams(url, { zone_id: ZS_BUILDING, limit: '500', signage: 'false' }),
-        () => [ZS_ROOM],
-    );
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            zsParams(url, { hidden: 'true', limit: '500' }),
-        () => ZS_HIDDEN_CATEGORIES,
-    );
-    json(
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            Object.hasOwn(ZS_HIDDEN_TYPES, url.searchParams.get('category_id') ?? '') &&
-            zsParams(url, {
-                category_id: url.searchParams.get('category_id')!,
-                limit: '500',
-            }),
-        (url) =>
-            ZS_HIDDEN_TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: ZS_PREFIX + 'type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
-    );
-    json(
-        (url) => {
-            const type_id = url.searchParams.get('type_id') ?? '';
-            const zone_id = url.searchParams.get('zone_id') ?? '';
-            return (
-                url.pathname === '/api/engine/v2/assets' &&
-                ZS_HIDDEN_TYPE_IDS.includes(type_id) &&
-                ZS_ZONES.includes(zone_id) &&
-                zsParams(url, { type_id, zone_id, limit: '500' })
-            );
-        },
-        () => [],
-    );
-    json(
-        (url) => url.pathname === '/api/staff/v1/calendars' && zsParams(url, {}),
-        () => [],
-    );
-    json(
-        (url) => {
-            const period_start = url.searchParams.get('period_start')!;
-            const period_end = url.searchParams.get('period_end')!;
-            const base = { type: 'parking', period_start, period_end };
-            return (
-                url.pathname === '/api/staff/v1/bookings' &&
-                validPeriod(url) &&
-                (zsParams(url, base) ||
-                    zsParams(url, { ...base, zones: ZS_LEVEL, rejected: 'false' }) ||
-                    zsParams(url, { ...base, email: USER.email }))
-            );
-        },
-        () => [],
-    );
-    zsGet(page, {
-        match: (url) => url.pathname === ZS_MAP_PATH && zsParams(url, {}),
-        contentType: 'image/svg+xml',
-        body: () =>
-            '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">' +
-            '<rect width="400" height="400" fill="#ffffff"/>' +
-            '<rect id="' + ZONE_SENSOR_TARGET + '" x="40" y="40" width="120" height="120" fill="#aaaaaa"/>' +
-            '<rect id="' + ZS_CONTROL + '" x="240" y="240" width="120" height="120" fill="#aaaaaa"/></svg>',
-    });
-}
-
-/** The room's Explore feature, once its synthetic Bookings state and fill apply. */
-async function zsRoomReady(page: Page, audit: ZoneSensorAudit) {
-    const feature = page.locator('explore-map-view explore-space-info [customTooltip]');
-    await expect(feature).toHaveCount(1);
-    await expect(feature).toBeVisible();
-    await expect
-        .poll(() => roomState(page))
-        .toMatchObject({
-            name: ZS_ROOM.name,
-            status: audit.room_values.status,
-            hide_title: audit.room_values.hide_meeting_title,
-            hide_details: audit.room_values.hide_meeting_details,
-        });
-    await expect
-        .poll(() =>
-            page.locator('explore-map-view').evaluate((element, shape) => {
-                const view = (window as DebugWindow).ng?.getComponent(element) as
-                    | { styles(): Record<string, { fill?: string }> }
-                    | undefined;
-                if (!view) throw new Error('Read-only map component unavailable');
-                return view.styles()['#' + shape]?.fill;
-            }, ZS_ROOM.map_id),
-        )
-        .toBe(ZS_ROOM_FILL);
-}
+    }),
+}).extend<{ zones: { page: Page; audit: ZoneSensorAudit } }>({
+    zones: async ({ isolated }, use) => use(isolated),
+});
 
 /**
  * Open Explore on the synthetic level, turn on the Areas overlay, wait for the
@@ -3991,94 +4152,20 @@ export async function openZoneSensorExplore(
     audit: ZoneSensorAudit,
     overrides: Settings,
 ) {
-    const settings = { ...ZONE_SENSOR_BASE, ...overrides };
-    const cid = createHash('md5')
-        .update(ZS_APP.origin + '/oauth-resp.html')
-        .digest('hex');
-    await page.addInitScript(
-        ({ origin, cid, bearer, settings }) => {
-            if (location.origin !== origin) return;
-            localStorage.clear();
-            sessionStorage.clear();
-            localStorage.setItem(cid + '_access_token', bearer);
-            localStorage.setItem(cid + '_expires_at', String(Date.now() + 60 * 60_000));
-            localStorage.setItem('PLACEOS.setting_overrides', JSON.stringify(settings));
-            localStorage.setItem('APP.locale', 'en-US');
-            localStorage.setItem('PLACEOS.locale', 'en-US');
-            localStorage.setItem('mock', 'false');
+    await openSyntheticExplore(page, audit, ZS, {
+        settings: { ...ZONE_SENSOR_BASE, ...overrides },
+        bearer: ZS_BEARER,
+        rooms: [ZS.ROOM],
+        delivered: exploreBindings(ZS, ZS_LIVE, audit.room_values),
+        controls: true,
+        ready: async () => {
+            // Release live readings only after the matching room has been loaded.
+            await exploreRoomReady(page, audit.room_values, ZS);
+            if (!audit.publish_areas) throw new Error('Synthetic area binding unavailable');
+            audit.publish_areas();
         },
-        { origin: ZS_APP.origin, cid, bearer: ZS_BEARER, settings },
-    );
-    zsGet(page, {
-        match: (url) => url.pathname === '/auth/authority' && zsParams(url, {}),
-        body: () => ({
-            id: ZS_PREFIX + 'authority',
-            name: 'Browser-only authority',
-            domain: ZS_APP.host,
-            version: '3.0.0',
-            session: false,
-            production: false,
-            config: { org_zone: ZS_ORGANISATION },
-        }),
     });
-    zsGet(page, {
-        match: (url) =>
-            url.pathname === '/api/engine/v2/users/current' && zsParams(url, {}),
-        body: () => USER,
-    });
-    zsGets(page);
-    await page.goto('/#/explore');
-    await expect(page.locator('global-loading')).toHaveCount(1);
-    await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
-    await expect(page.locator('explore-map-view')).toBeVisible();
-    for (const [key, value] of Object.entries(settings)) {
-        await expect
-            .poll(
-                () =>
-                    page.evaluate(
-                        (name) => (window as DebugWindow).setting?.(name),
-                        key,
-                    ),
-                { message: 'effective ' + key },
-            )
-            .toEqual(value);
-    }
-    await expect.poll(() => audit.fixtures['/auth/authority'] ?? 0).toBeGreaterThan(0);
-    await expect
-        .poll(() => audit.fixtures['/api/engine/v2/users/current'] ?? 0)
-        .toBeGreaterThan(0);
-    // Idempotent rebinds may repeat a delivery; every value must arrive.
-    const expected_bindings = [
-        ...Object.keys(ZS_LIVE).map((name) =>
-            [ZS_SYSTEM, 'AreaManagement', 1, name].join(':'),
-        ),
-        ...Object.keys(audit.room_values).map((name) =>
-            [ZS_ROOM.id, 'Bookings', 1, name].join(':'),
-        ),
-    ].sort();
-    await expect
-        .poll(() => [...new Set(audit.connections.at(-1)?.delivered)].sort())
-        .toEqual(expected_bindings);
-    // Areas begins disabled in ExploreMapView.ngOnInit; turn it on in the UI.
-    await page.locator('explore-map-view button[toggle-controls]').click();
-    const areas = page.locator('explore-map-view settings-toggle').filter({ hasText: /Areas/ });
-    await expect(areas).toHaveCount(1);
-    await expect(areas.locator('input[type="checkbox"]')).not.toBeChecked();
-    await areas.locator('button').click();
-    await expect(areas.locator('input[type="checkbox"]')).toBeChecked();
-    const canvas = page.locator('explore-map-view [map-canvas] canvas');
-    await expect(canvas).toHaveCount(1);
-    await expect(canvas).toBeVisible();
-    await expect(page.locator('explore-map-view dynamic-map mat-spinner')).toHaveCount(0);
-    await expect.poll(() => audit.fixtures[ZS_MAP_PATH] ?? 0).toBeGreaterThan(0);
-    // Release live readings only after the matching room has been loaded.
-    await zsRoomReady(page, audit);
-    if (!audit.publish_areas) throw new Error('Synthetic area binding unavailable');
-    audit.publish_areas();
-    // The control polygon proves the readings frame was processed.
-    await expect.poll(() => pixel(page, 0.75, 0.75)).toEqual([18, 52, 86, 128]);
-    await zsRoomReady(page, audit);
+    await exploreRoomReady(page, audit.room_values, ZS);
     const sensors = page.locator('explore-map-view settings-toggle').filter({
         hasText: 'Show Sensors',
     });
