@@ -1,4 +1,4 @@
-import { padString, predictableRandomInt } from '@placeos/common';
+import { padLength, predictableRandomInt } from '@placeos/common';
 import { getUnixTime, subDays, subMonths } from 'date-fns';
 import { MOCK_STAFF } from './users.data';
 import { MOCK_BUILDINGS, MOCK_LEVELS, MOCK_REGIONS } from './zone.data';
@@ -628,7 +628,7 @@ export function generateMockParkingAssets(zone_id: string) {
         MOCK_PARKING_ASSETS_CACHE[zone_id] = new Array(18 * 6)
             .fill(0)
             .map((_, idx) => {
-                const position = padString(
+                const position = padLength(
                     (idx % 18) + Math.floor(idx / 18) * 100,
                     3,
                 );
