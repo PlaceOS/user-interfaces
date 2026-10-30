@@ -59,7 +59,6 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/zones',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             let zones = all_zones();
@@ -82,7 +81,6 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/zones/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const zone = all_zones().find(
@@ -100,21 +98,18 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/settings',
-        metadata: {},
         method: 'GET',
         callback: (_request) => [],
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/settings/:id',
-        metadata: {},
         method: 'GET',
         callback: (_request) => ({}),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             if (request.query_params.name === 'bindings') {
@@ -239,7 +234,6 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id',
-        metadata: {},
         method: 'PATCH',
         callback: (request) => {
             if (!MOCK_METADATA[request.route_params.id])
@@ -252,7 +246,6 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id',
-        metadata: {},
         method: 'PUT',
         callback: (request) => {
             if (!MOCK_METADATA[request.route_params.id])
@@ -322,7 +315,6 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id/children',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const zone = MOCK_BUILDINGS.find(

@@ -8,7 +8,6 @@ export function registerMockSystems() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/systems',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const systems = request.query_params?.zone_id
@@ -31,7 +30,6 @@ export function registerMockSystems() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/systems/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const space = MOCK_SPACES.find(

@@ -11,7 +11,6 @@ import { MOCK_EVENTS } from './events.data';
 export function registerMockUsers() {
     registerMockEndpoint({
         path: '/api/engine/v2/users',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const search = (request.query_params.q || '').toLowerCase();
@@ -28,7 +27,6 @@ export function registerMockUsers() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/users/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             if (request.route_params.id === 'current') {
@@ -53,7 +51,6 @@ export function registerMockUsers() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/people',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             if (request.query_params.q) {
@@ -71,7 +68,6 @@ export function registerMockUsers() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/people/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const id = decodeURIComponent(request.route_params.id);
@@ -88,7 +84,6 @@ export function registerMockUsers() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/guests',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             if (request.query_params.q) {
@@ -105,7 +100,6 @@ export function registerMockUsers() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/guests/:email',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const email = decodeURIComponent(request.route_params.email);
@@ -117,7 +111,6 @@ export function registerMockUsers() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/guests/:email/meetings',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             if (request.route_params.email) {
