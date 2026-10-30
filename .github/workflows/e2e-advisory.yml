@@ -82,6 +82,11 @@ concurrency:
 permissions:
     contents: read
 
+# Which Playwright projects run on which trigger:
+#   push, schedule, workflow_dispatch   `local` and `mock` (job `workplace`)
+#   schedule, workflow_dispatch         also `settings` (job `workplace`, own step)
+#   push, schedule, workflow_dispatch   `settings-browser` (job `settings-browser`,
+#                                       GitHub-hosted, no stack)
 jobs:
     workplace:
         # The job name is what appears in the commit's Checks list, next to the
@@ -94,7 +99,9 @@ jobs:
         # the `Raise vm.max_map_count` step (see below).
         runs-on: [self-hosted, placeos-e2e]
         # Includes up to 120 minutes waiting for the native e2e job (see "Wait for
-        # the native e2e job to finish").
+        # the native e2e job to finish"). The remaining 75 minutes cover setup, the
+        # stack and the tests, including the `settings` step on scheduled and
+        # manual runs.
         timeout-minutes: 195
         env:
             E2E_BACKEND_URL: https://localhost:9443
@@ -151,6 +158,8 @@ jobs:
             - name: Reclaim the machine from any previous run
               run: |
                   e2e/stack/down.sh --volumes || true
+                  # The `settings` step's reports, which a push run does not rewrite.
+                  rm -rf reports/e2e/workplace-settings reports/e2e/workplace-settings-results.json
                   # Playwright refuses to start its webServer if 4214 is held.
                   lsof -nP -iTCP:4214 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 || true
                   # Images the previous run's pull replaced. A running stack's images
@@ -260,11 +269,37 @@ jobs:
                   } >> "$GITHUB_STEP_SUMMARY"
 
             - name: Run workplace e2e
-              run: bunx playwright test --config apps/workplace/playwright.config.ts
+              id: local
+              run: bunx playwright test --config apps/workplace/playwright.config.ts --project=local --project=mock
+
+            # The Workplace settings suite: about 400 tests, roughly 40 minutes on
+            # this machine. Scheduled and manual runs only. It also runs after a
+            # failed `local` step, but not when that step was skipped (the stack
+            # never came up).
+            #
+            # The PLAYWRIGHT_* variables and --output move this run's reports and
+            # test artifacts away from the `local` run's, which Playwright would
+            # otherwise overwrite.
+            - name: Run workplace settings e2e
+              id: settings
+              if: ${{ !cancelled() && steps.local.outcome != 'skipped' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+              timeout-minutes: 60
+              env:
+                  PLAYWRIGHT_HTML_OUTPUT_DIR: reports/e2e/workplace-settings
+                  PLAYWRIGHT_JSON_OUTPUT_FILE: reports/e2e/workplace-settings-results.json
+              run: >-
+                  bunx playwright test --config apps/workplace/playwright.config.ts
+                  --project=settings --output=dist/.playwright/workplace-settings
 
             - name: Summarise results
               if: ${{ always() }}
-              run: node e2e/stack/ci-summary.mjs >> "$GITHUB_STEP_SUMMARY"
+              env:
+                  SETTINGS_OUTCOME: ${{ steps.settings.outcome }}
+              run: |
+                  node e2e/stack/ci-summary.mjs >> "$GITHUB_STEP_SUMMARY"
+                  if [ "$SETTINGS_OUTCOME" != skipped ]; then
+                      node e2e/stack/ci-summary.mjs reports/e2e/workplace-settings-results.json 'workplace settings e2e' >> "$GITHUB_STEP_SUMMARY"
+                  fi
 
             # Collect EVERY service, not a hand-picked list. The first run failed
             # in Elasticsearch — which was not on the list — so the log that
@@ -289,6 +324,8 @@ jobs:
                   path: |
                       reports/e2e/workplace
                       reports/e2e/workplace-results.json
+                      reports/e2e/workplace-settings
+                      reports/e2e/workplace-settings-results.json
                   retention-days: 14
                   if-no-files-found: warn
 
@@ -350,6 +387,94 @@ jobs:
                           branch: process.env.BRANCH,
                           url: `https://github.com/${process.env.REPO}/actions/runs/${process.env.RUN_ID}`,
                           pipeline_name: "e2e (advisory) — FAILED",
+                          status: "failure",
+                      }));
+                  ' \
+                    | curl --silent --show-error --fail \
+                           --max-time 30 \
+                           --header 'Content-Type: application/json' \
+                           --data @- \
+                           "$STATUS_URL"
+
+    # The settings specs that answer every request in the browser. They need the
+    # Workplace dev server but no PlaceOS stack, so this job runs on a
+    # GitHub-hosted runner beside the self-hosted one.
+    settings-browser:
+        name: 'workplace settings e2e, browser only (advisory, does not block builds)'
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        env:
+            TZ: 'Etc/UTC'
+        steps:
+            - uses: actions/checkout@v6
+              with:
+                  persist-credentials: false
+
+            # Same bun version as the `workplace` job, build.yml and pull-request.yml.
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: '1.4.3'
+
+            - name: Install dependencies
+              run: bun install --frozen-lockfile
+
+            - name: Setup version
+              run: bun run postinstall
+
+            - name: Install Playwright browser
+              run: bunx playwright install --with-deps chromium
+
+            # Playwright starts the Workplace dev server itself (the config's
+            # webServer). Its API proxy points at a backend that does not exist
+            # here; the specs answer those requests in the browser.
+            - name: Run workplace settings e2e (browser only)
+              run: bunx playwright test --config apps/workplace/playwright.config.ts --project=settings-browser
+
+            - name: Summarise results
+              if: ${{ always() }}
+              run: node e2e/stack/ci-summary.mjs reports/e2e/workplace-results.json 'workplace settings e2e, browser only' >> "$GITHUB_STEP_SUMMARY"
+
+            - name: Upload Playwright report
+              if: ${{ always() }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report-workplace-settings-browser
+                  path: |
+                      reports/e2e/workplace
+                      reports/e2e/workplace-results.json
+                  retention-days: 14
+                  if-no-files-found: warn
+
+            - name: Upload failure artifacts
+              if: ${{ failure() }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-failures-workplace-settings-browser
+                  path: dist/.playwright
+                  retention-days: 14
+                  if-no-files-found: warn
+
+            # The same notification as the `workplace` job's "Notify on failure".
+            - name: Notify on failure
+              if: ${{ failure() }}
+              continue-on-error: true
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  CHAT_URL: ${{ secrets.CHAT_URL }}
+                  REPO: ${{ github.repository }}
+                  COMMIT: ${{ github.sha }}
+                  BRANCH: ${{ github.ref_name }}
+                  RUN_ID: ${{ github.run_id }}
+              run: |
+                  node -e '
+                      process.stdout.write(JSON.stringify({
+                          chat_url: process.env.CHAT_URL,
+                          name: process.env.REPO,
+                          commit: process.env.COMMIT,
+                          branch: process.env.BRANCH,
+                          url: `https://github.com/${process.env.REPO}/actions/runs/${process.env.RUN_ID}`,
+                          pipeline_name: "e2e settings-browser (advisory): FAILED",
                           status: "failure",
                       }));
                   ' \

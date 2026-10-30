@@ -22,9 +22,20 @@ export E2E_BACKEND_URL=https://localhost:9443
 bunx playwright test --config apps/workplace/playwright.config.ts                    # everything
 bunx playwright test --config apps/workplace/playwright.config.ts --project=local    # real backend
 bunx playwright test --config apps/workplace/playwright.config.ts --project=mock     # no backend
-bunx playwright test --config apps/workplace/playwright.config.ts --project=settings-browser  # browser-only settings specs, no backend
+bunx playwright test --config apps/workplace/playwright.config.ts --project=settings          # Workplace settings, real backend
+bunx playwright test --config apps/workplace/playwright.config.ts --project=settings-browser  # Workplace settings, no backend
 bunx playwright test --config apps/workplace/playwright.config.ts --ui               # watch it
 ```
+
+| Project | Specs | Needs the stack | CI (`e2e-advisory.yml`) |
+|---|---|---|---|
+| `local` | `apps/workplace/e2e/local/` | yes | every run |
+| `mock` | `apps/workplace/e2e/*.spec.ts` | no | every run |
+| `settings` | `apps/workplace/e2e/settings/`, except the browser-only ones | yes | nightly and "Run workflow" only |
+| `settings-browser` | the browser-only settings specs listed in `BROWSER_ONLY_SETTINGS` in the config | no | every run, on a GitHub-hosted runner |
+
+`local` and `settings` depend on `preflight`, which checks the stack is up. Add
+`--no-deps` to skip it.
 
 Playwright starts the Angular dev server itself (`nx serve workplace --port=4214`)
 and points its API proxy at the stack. Nothing reaches the network.
@@ -183,13 +194,14 @@ e2e/                          shared engine, all apps
       fixtures.ts                 admin session, bearer, harness driver, zones
     repro/                      standalone reproducers for confirmed backend bugs
     preflight.ts                "is the stack up?" — fails in 1s, not 90
-    preflight.setup.ts          setup project — `local` depends on it, `mock` does not
+    preflight.setup.ts          setup project: `local` and `settings` depend on it
     seed.ts                     idempotent API-driven seeding
   .env.example                  copy to .env to override anything
 apps/workplace/
-  playwright.config.ts        projects: preflight, local, mock
+  playwright.config.ts        projects: preflight, local, settings, settings-browser, mock
   e2e/
     local/*.spec.ts             real-backend specs
+    settings/                   Workplace settings specs (`settings`, `settings-browser`)
     *.spec.ts                   mock-mode specs (no backend)
 ```
 

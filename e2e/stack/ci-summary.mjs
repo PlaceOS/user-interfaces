@@ -8,10 +8,14 @@
  *
  * Never exits non-zero: the test step already decided pass/fail, and a broken
  * summary must not turn a green run red.
+ *
+ * Usage: node e2e/stack/ci-summary.mjs [report.json] [heading]
+ * Defaults to the workplace report and the heading "workplace e2e".
  */
 import { readFileSync } from 'fs';
 
-const REPORT = 'reports/e2e/workplace-results.json';
+const REPORT = process.argv[2] ?? 'reports/e2e/workplace-results.json';
+const HEADING = process.argv[3] ?? 'workplace e2e';
 
 const line = (s = '') => process.stdout.write(`${s}\n`);
 
@@ -19,7 +23,7 @@ let report;
 try {
     report = JSON.parse(readFileSync(REPORT, 'utf8'));
 } catch (e) {
-    line('## workplace e2e');
+    line(`## ${HEADING}`);
     line();
     line(`No JSON report at \`${REPORT}\` — the run probably failed before Playwright started.`);
     line();
@@ -58,7 +62,7 @@ const count = (s) => rows.filter((r) => r.state === s).length;
 const failed = count('failed');
 const flaky = count('flaky');
 
-line('## workplace e2e — advisory');
+line(`## ${HEADING} (advisory)`);
 line();
 line('| result | count |');
 line('|---|---|');

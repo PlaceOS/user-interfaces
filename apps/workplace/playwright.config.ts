@@ -71,7 +71,7 @@ export default defineConfig({
         navigationTimeout: 45_000,
     },
     projects: [
-        // --- preflight: prove the stack is up, for `local` only -------------
+        // --- preflight: prove the stack is up, for `local` and `settings` ---
         // A setup project rather than `globalSetup`, which would also run for
         // `mock` and make a backend-free project need a backend.
         {
@@ -86,21 +86,25 @@ export default defineConfig({
         // so the only thing to wait on is the stack itself.
         {
             name: 'local',
-            testDir: './e2e',
-            testMatch: [
-                '**/local/**/*.@(spec|test).?(c|m)[jt]s?(x)',
-                '**/settings/**/*.@(spec|test).?(c|m)[jt]s?(x)',
-            ],
+            testDir: './e2e/local',
+            dependencies: ['preflight'],
+            use: { ...devices['Desktop Chrome'] },
+        },
+
+        // --- Workplace settings specs against the local backend ------------
+        {
+            name: 'settings',
+            testDir: './e2e/settings',
             testIgnore: BROWSER_ONLY_SETTINGS,
             dependencies: ['preflight'],
             use: { ...devices['Desktop Chrome'] },
         },
 
-        // --- settings specs that need no backend ---------------------------
+        // --- Workplace settings specs that need no backend -----------------
         // No preflight dependency, so these run without the local stack.
         {
             name: 'settings-browser',
-            testDir: './e2e',
+            testDir: './e2e/settings',
             testMatch: BROWSER_ONLY_SETTINGS,
             use: { ...devices['Desktop Chrome'] },
         },

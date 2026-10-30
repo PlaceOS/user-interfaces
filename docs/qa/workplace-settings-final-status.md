@@ -28,6 +28,21 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, with develop
 | PPT-2859, PPT-2861, PPT-2862, PPT-2863, PPT-2858, PPT-2864, PPT-2865, PPT-2866, PPT-2854 | Verified fixed |
 | PPT-2860, PPT-2868, PPT-2869, PPT-2870 | Fix merged on develop (#636, #651, #650, #652); not yet verified |
 
+## How to run
+
+The settings specs live in `apps/workplace/e2e/settings/` and run in two Playwright projects. See `e2e/README.md` for the stack and the `.env` settings.
+
+```bash
+e2e/stack/up.sh                       # the seeded local stack, for `settings`
+bunx playwright test -c apps/workplace/playwright.config.ts --project=settings           # needs the stack
+bunx playwright test -c apps/workplace/playwright.config.ts --project=settings-browser   # no stack needed
+```
+
+- `settings`: every settings spec except the browser-only ones. Depends on `preflight`, so it fails fast when the stack is down.
+- `settings-browser`: the 16 specs that answer every request in the browser (`BROWSER_ONLY_SETTINGS` in `apps/workplace/playwright.config.ts`).
+- `--project=local` runs only the original local-backend suite, not the settings specs.
+- In CI (`.github/workflows/e2e-advisory.yml`), `settings` runs on the nightly schedule and on "Run workflow"; `settings-browser` runs on every run (push, nightly and "Run workflow"), on a GitHub-hosted runner.
+
 ## Settings in PR #595
 
 ### bookings (10 specs, 11 Settings, 25 scenarios)
