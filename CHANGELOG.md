@@ -139,6 +139,7 @@ All notable changes to this project will be documented in this file.
 - Let imported kiosk rooms and desks take taps
 - Stop leaking credentials and injecting markup through map data
 - Read quoted cells in the labelling ID list import
+- Resolve editor, project page and kiosk UX issues
 
 #### Org
 
@@ -195,6 +196,12 @@ All notable changes to this project will be documented in this file.
 - Update e2e specs for the UX audit changes
 - Let explicit desk and parking allow_all_day override bookings
 - Hide the parking space name in all booking cards (PPT-2863)
+
+### Documentation
+
+#### Map-studio
+
+- Keep StoreService doc comment on the class
 
 ### Features
 
