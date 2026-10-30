@@ -19,9 +19,9 @@ const BASE: Settings = {
 };
 const HOUR = 3600_000;
 /**
- * The fixed browser time: the latest 10:00 UTC at or before the real time, so
- * the synthetic booking (one to two hours later) stays on the same UTC day and
- * the browser clock is never ahead of the stored token's issue time.
+ * The fixed browser time: the latest 10:00 UTC at or before the real time, up
+ * to 24 h back. The browser clock is never ahead of the real time, and the
+ * synthetic booking (one to two hours later) stays on the same UTC day.
  */
 const NOW_MS = (() => {
     const real = Date.now();
