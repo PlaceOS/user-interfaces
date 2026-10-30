@@ -14,7 +14,6 @@ import {
 import {
     AsyncHandler,
     CateringItem,
-    CateringOrder,
     OrganisationService,
     SettingsService,
     flatten,
@@ -33,10 +32,6 @@ import {
     CateringItemOptionModalComponent,
     CateringItemOptionModalData,
 } from './catering-option-modal.component';
-import {
-    CateringOrderOptionsModalComponent,
-    CateringOrderOptionsModalData,
-} from './catering-order-options-modal.component';
 import { CateringOption } from './catering.interfaces';
 
 import {
@@ -59,7 +54,6 @@ export class CateringStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
-    private _updated = signal(0);
     /** Active menu */
     private _menu = signal<CateringItem[]>([]);
     /** Whether the menu for the active building is loading */
@@ -285,25 +279,6 @@ export class CateringStateService extends AsyncHandler {
         );
     }
 
-    public async selectOptions(options: CateringOption[]) {
-        const ref = this._dialog.open<
-            CateringOrderOptionsModalComponent,
-            CateringOrderOptionsModalData
-        >(CateringOrderOptionsModalComponent, {
-            data: {
-                code: this._currency(),
-                options,
-            },
-        });
-        const details = await Promise.race([
-            this._doneEvent(ref.componentInstance.event),
-            this._closedEvent(ref.afterClosed()),
-        ]);
-        if (details?.reason !== 'done') return [];
-        ref.close();
-        return details.metadata.options;
-    }
-
     public async deleteItem(item: CateringItem) {
         const details = await openConfirmModal(
             {
@@ -464,34 +439,6 @@ export class CateringStateService extends AsyncHandler {
             details: config,
             description: `Catering menu config for ${zone_id}`,
         });
-    }
-
-    public addItemToOrder(order: CateringOrder, new_item: CateringItem) {
-        let items = order.items;
-        const match = items.find(
-            (item) =>
-                item.id === new_item.id &&
-                new_item.options?.length ===
-                    item.options?.reduce(
-                        (c, o) =>
-                            c +
-                            (new_item.options.find((opt) => o.id === opt.id)
-                                ? 1
-                                : 0),
-                        0,
-                    ),
-        );
-        match
-            ? ((match as any).quantity += 1)
-            : (items = items.concat([
-                  new CateringItem({ ...new_item, quantity: 1 }),
-              ]));
-        const new_order = new CateringOrder({
-            ...order,
-            items,
-            event: null,
-        });
-        return new_order;
     }
 
     private async _loadBuilding(building_id: string, currency: string) {

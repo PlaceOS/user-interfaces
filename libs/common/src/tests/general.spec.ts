@@ -18,11 +18,21 @@ import {
     responseErrorMessage,
     setupFormTimeSync,
     timePeriodsIntersect,
+    toggleListItem,
     withTimeout,
 } from '../lib/general';
 import * as notifications from '../lib/notifications';
 
 describe('General Methods', () => {
+    describe('toggleListItem', () => {
+        it('should add a missing item and remove a present one', () => {
+            const list = ['a', 'b'];
+            expect(toggleListItem(list, 'c')).toEqual(['a', 'b', 'c']);
+            expect(toggleListItem(list, 'a')).toEqual(['b']);
+            expect(list).toEqual(['a', 'b']);
+        });
+    });
+
     describe('withTimeout', () => {
         it('should reject work that does not settle before its deadline', async () => {
             vi.useFakeTimers();

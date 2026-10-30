@@ -13,7 +13,6 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from 'libs/events/src/lib/spaces.service';
 
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
-import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
@@ -51,7 +50,6 @@ describe('ExploreMapViewComponent', () => {
             MockComponent(InteractiveMapComponent),
             MockComponent(ExploreMapControlComponent),
             MockComponent(ExploreZoomControlComponent),
-            MockComponent(IndoorMapsComponent),
         ],
         componentProviders: [
             MockProvider(ExploreSpacesService),

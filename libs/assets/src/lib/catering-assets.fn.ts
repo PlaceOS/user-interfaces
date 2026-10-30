@@ -1,16 +1,15 @@
 import { CateringItem, flatten } from '@placeos/common';
 import {
     PlaceAsset,
-    queryAssetCategories,
     queryAssets,
     queryAssetTypes,
     removeAsset,
 } from '@placeos/ts-client';
 import {
+    ensureAssetType,
+    ensureHiddenCategory,
     findOldestByName,
     saveAsset,
-    saveAssetCategory,
-    saveAssetType,
 } from './assets.fn';
 
 const CATERING_CATEGORY_NAME = '_CATERING_';
@@ -18,54 +17,15 @@ const CATERING_TYPE_PREFIX = 'CATERING:';
 const STANDALONE_CATERER_NAME = '_STANDALONE_';
 const STANDALONE_CATERER_LABEL = 'standalone';
 
-let _catering_category_id: string | null = null;
 let _catering_category_id_promise: Promise<string> | null = null;
-let _hidden_categories_promise: Promise<unknown[]> | null = null;
 let _catering_types_promise: Promise<unknown[]> | null = null;
 
 function normalise_name(name: string = '') {
     return name.trim().toLowerCase();
 }
 
-function reset_hidden_categories_cache() {
-    _hidden_categories_promise = null;
-}
-
 function reset_catering_types_cache() {
     _catering_types_promise = null;
-}
-
-async function query_hidden_categories() {
-    if (!_hidden_categories_promise) {
-        _hidden_categories_promise = queryAssetCategories({
-            hidden: true,
-            limit: 500,
-        })
-            .then((_) => _.data)
-            .catch(() => []);
-    }
-    return _hidden_categories_promise;
-}
-
-async function ensure_hidden_category(name: string) {
-    let category = findOldestByName(await query_hidden_categories(), name);
-    if (category) return category;
-    reset_hidden_categories_cache();
-    category = findOldestByName(await query_hidden_categories(), name);
-    if (category) return category;
-    try {
-        category = await saveAssetCategory({
-            name,
-            hidden: true,
-        });
-        reset_hidden_categories_cache();
-        return category;
-    } catch (error) {
-        reset_hidden_categories_cache();
-        category = findOldestByName(await query_hidden_categories(), name);
-        if (category) return category;
-        throw error;
-    }
 }
 
 export function toCateringTypeName(caterer: string = '') {
@@ -90,25 +50,35 @@ export function isCateringTypeName(type_name: string = '') {
     return type_name.startsWith(CATERING_TYPE_PREFIX);
 }
 
+/** Resolve the hidden catering category. A failed lookup is not cached. */
 export function resolveCateringCategoryId(): Promise<string> {
-    if (_catering_category_id) return Promise.resolve(_catering_category_id);
     if (!_catering_category_id_promise) {
-        _catering_category_id_promise = ensure_hidden_category(
-            CATERING_CATEGORY_NAME,
-        ).then((category) => {
-            _catering_category_id = category.id;
-            return category.id;
+        const request = ensureHiddenCategory(CATERING_CATEGORY_NAME).then(
+            (category) => category.id as string,
+        );
+        request.catch(() => {
+            if (_catering_category_id_promise === request) {
+                _catering_category_id_promise = null;
+            }
         });
+        _catering_category_id_promise = request;
     }
     return _catering_category_id_promise;
 }
 
+/** Prefixed catering types. A failed load resolves empty and is not cached. */
 function query_catering_types(): Promise<any[]> {
     if (!_catering_types_promise) {
-        _catering_types_promise = resolveCateringCategoryId()
+        const request = resolveCateringCategoryId()
             .then((category_id) => queryAssetTypes({ category_id, limit: 500 }))
             .then((_) => _.data.filter((type) => isCateringTypeName(type.name)))
-            .catch(() => []);
+            .catch(() => {
+                if (_catering_types_promise === request) {
+                    _catering_types_promise = null;
+                }
+                return [];
+            });
+        _catering_types_promise = request;
     }
     return _catering_types_promise;
 }
@@ -117,25 +87,14 @@ export async function resolveCateringTypeId(
     caterer: string = '',
 ): Promise<string> {
     const type_name = toCateringTypeName(caterer);
-    const types = await query_catering_types();
-    const type = findOldestByName(types, type_name);
+    const type = findOldestByName(await query_catering_types(), type_name);
     if (type) return type.id;
-    try {
-        const category_id = await resolveCateringCategoryId();
-        const type = await saveAssetType({
-            name: type_name,
-            brand: 'PlaceOS',
-            category_id,
-        });
-        reset_catering_types_cache();
-        return type.id;
-    } catch (error) {
-        reset_catering_types_cache();
-        const types = await query_catering_types();
-        const type = findOldestByName(types, type_name);
-        if (type) return type.id;
-        throw error;
-    }
+    const created = await ensureAssetType(
+        await resolveCateringCategoryId(),
+        type_name,
+    );
+    reset_catering_types_cache();
+    return created.id;
 }
 
 export function toCateringItem(asset: PlaceAsset, caterer: string) {
@@ -214,16 +173,6 @@ export async function queryCateringItems(
     return flatten<CateringItem>(results).sort((a, b) =>
         a.name.localeCompare(b.name),
     );
-}
-
-export async function queryCateringItemsForZones(
-    zone_ids: string[],
-): Promise<CateringItem[]> {
-    if (!zone_ids?.length) return [];
-    const results = await Promise.all(
-        zone_ids.map((zone_id) => queryCateringItems(zone_id)),
-    );
-    return flatten<CateringItem>(results);
 }
 
 export async function saveCateringItem(

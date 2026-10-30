@@ -2,6 +2,7 @@ import type { MatDialog } from '@angular/material/dialog';
 import {
     currentUser,
     DEFAULT_SETTINGS,
+    errorMessage,
     getItemWithKeys,
     getTimeInTimezone,
     i18n,
@@ -305,18 +306,6 @@ interface ErrorDetails {
 
 /** Shape of an error from the API client, possibly nested in `error`. */
 type ApiError = ErrorDetails & { error?: string | ErrorDetails };
-
-/** Readable message of a thrown error, or an empty string. */
-export function errorMessage(error: unknown): string {
-    if (typeof error === 'string') return error;
-    if (error instanceof Error && error.message) return error.message;
-    const api_error = error as ApiError | null | undefined;
-    const nested = api_error?.error;
-    if (typeof nested === 'string') return nested;
-    if (typeof api_error?.message === 'string') return api_error.message;
-    if (typeof nested?.message === 'string') return nested.message;
-    return '';
-}
 
 /** Whether a thrown error means that the user may not save the event. */
 export function isPermissionError(error: unknown): boolean {

@@ -1,11 +1,9 @@
 export * from './lib/booking-rules';
 export * from './lib/common';
 export * from './lib/currency-options';
-export * from './lib/feature-available.guard';
 export * from './lib/external-catering.service';
 export * from './lib/fixed-device-helpers';
 export * from './lib/google-analytics.service';
-export * from './lib/keep-alive.service';
 export * from './lib/lazy-route-reload';
 export * from './lib/locale-data';
 export * from './lib/locale.service';
@@ -13,7 +11,6 @@ export * from './lib/map.interfaces';
 export * from './lib/mapspeople.service';
 export * from './lib/org/building.utilities';
 export * from './lib/org/organisation.service';
-export * from './lib/org/organisation.utilities';
 export * from './lib/placeos.service';
 export * from './lib/public-mode';
 export * from './lib/recurrence';
@@ -28,6 +25,7 @@ export * from './lib/token-handoff';
 export * from './lib/uploads.service';
 export * from './lib/user-group-sync';
 export * from './lib/user-idle-time.service';
+export * from './lib/value-accessor';
 export { userSignal } from './lib/user-state';
 
 export * from './lib/types/asset-request.class';

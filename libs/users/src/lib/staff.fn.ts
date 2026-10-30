@@ -99,11 +99,3 @@ export async function showStaff(id: string): Promise<StaffUser> {
         await get(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`),
     );
 }
-
-/**
- * Get user with their location details
- * @param email User email
- */
-export async function locateStaff(email: string): Promise<StaffUser> {
-    return new StaffUser(await get(`${STAFF_ENDPOINT}/${email}`));
-}

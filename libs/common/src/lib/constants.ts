@@ -35,10 +35,3 @@ export const SETTING_KEYS = {
 
 export const SECONDS = 1000;
 export const MINUTES = 60 * SECONDS;
-export const HOURS = 60 * MINUTES;
-export const DAYS = 24 * HOURS;
-
-export const SECOND = 1000;
-export const MINUTE = 60 * SECONDS;
-export const HOUR = 60 * MINUTES;
-export const DAY = 24 * HOURS;

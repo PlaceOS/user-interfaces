@@ -16,7 +16,6 @@ import { AssetStateService } from '../lib/asset-state.service';
 //   assets_mod.queryAssets        -> ts_client.queryAssets
 //   assets_mod.queryAssetCategories -> ts_client.queryAssetCategories
 //   assets_mod.queryGroupAvailability -> ts_client.queryAssetTypes
-//   bookings_mod.queryBookings    -> ts_client.get
 vi.mock('@placeos/ts-client', { spy: true });
 
 function response(data: any[]) {
@@ -91,26 +90,22 @@ describe('AssetStateService', () => {
         expect(ts_client.showMetadata).not.toHaveBeenCalled();
     });
 
-    it('should share identical in-flight asset booking requests', async () => {
-        const options = {
-            date: new Date(2026, 5, 22, 9).valueOf(),
-            zone: 'zone-1',
-        };
+    it('should show loading while availability is pending', async () => {
+        let resolve: (value: unknown) => void;
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            new Promise((r) => (resolve = r)) as any,
+        );
+        const request = (spectator.service as any)._loadAvailableGroups(
+            { date: new Date(2026, 5, 22, 9).valueOf(), zone: 'zone-1' },
+            'bld-1',
+        );
+        await Promise.resolve();
 
-        await Promise.all([
-            (spectator.service as any)._loadAssetBookings(options),
-            (spectator.service as any)._loadAssetBookings(options),
-        ]);
+        expect(spectator.service.loading()).toContain('[Availability]');
 
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
-    });
+        resolve({ data: [], total: 0, next: () => null });
+        await request;
 
-    it('should share identical in-flight asset list requests', async () => {
-        await Promise.all([
-            (spectator.service as any)._loadAssetList(),
-            (spectator.service as any)._loadAssetList(),
-        ]);
-
-        expect(ts_client.queryAssets).toHaveBeenCalledTimes(1);
+        expect(spectator.service.loading()).not.toContain('[Availability]');
     });
 });

@@ -1,14 +1,7 @@
-import {
-    Component,
-    effect,
-    forwardRef,
-    signal,
-} from '@angular/core';
-import {
-    ControlValueAccessor,
-    NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { Component, effect, signal } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
 import { form, FormField, pattern } from '@angular/forms/signals';
+import { provideValueAccessor } from '@placeos/common';
 
 const VALID_INPUT = [
     '0',
@@ -83,11 +76,7 @@ function listPattern(fieldPattern) {
     `,
     styles: [``],
     providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => CronInputFieldComponent),
-            multi: true,
-        },
+        provideValueAccessor(() => CronInputFieldComponent),
     ],
     imports: [FormField],
 })

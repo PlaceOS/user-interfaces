@@ -1,6 +1,6 @@
 import { FormControl, FormGroup } from '@angular/forms';
 import { addDays, subDays } from 'date-fns';
-import { endInFuture, isFuture } from '../lib/validators';
+import { endInFuture } from '../lib/validators';
 
 describe('Event Validators', () => {
     describe('endInFuture', () => {
@@ -20,17 +20,6 @@ describe('Event Validators', () => {
             expect(endInFuture(form.get('duration'))).toEqual({
                 duration: true,
             });
-        });
-    });
-    describe('isFuture', () => {
-        it('should handle times in the future', () => {
-            const field = new FormControl(addDays(new Date(), 2).valueOf());
-            expect(isFuture(field)).toBeNull();
-        });
-
-        it('should handle times in the past', () => {
-            const field = new FormControl(subDays(new Date(), 2).valueOf());
-            expect(isFuture(field)).toEqual({ is_future: true });
         });
     });
 });

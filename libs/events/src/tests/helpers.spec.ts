@@ -1,39 +1,7 @@
 import { addMinutes } from 'date-fns';
-import {
-    eventStatus,
-    getFreeTimeSlots,
-    getNextFreeTimeSlot,
-} from '../lib/helpers';
+import { getFreeTimeSlots, getNextFreeTimeSlot } from '../lib/helpers';
 
 describe('CalendarEvent[Methods]', () => {
-    describe('eventStatus', () => {
-        it('should get correct event status', () => {
-            expect(eventStatus({ resources: [] })).toBe('approved');
-            expect(
-                eventStatus({ resources: [{ response_status: 'accepted' }] }),
-            ).toBe('approved');
-            expect(
-                eventStatus({ resources: [{ response_status: 'tentative' }] }),
-            ).toBe('tentative');
-            expect(
-                eventStatus({
-                    resources: [{ response_status: 'needsAction' }],
-                }),
-            ).toBe('tentative');
-            expect(
-                eventStatus({ resources: [{ response_status: 'blah' }] }),
-            ).toBe('declined');
-            expect(
-                eventStatus({
-                    resources: [
-                        { response_status: 'blah' },
-                        { response_status: 'tentative' },
-                    ],
-                }),
-            ).toBe('tentative');
-        });
-    });
-
     describe('getFreeTimeSlots', () => {
         it('should return at least one block', () => {
             expect(getFreeTimeSlots([])).toHaveLength(1);

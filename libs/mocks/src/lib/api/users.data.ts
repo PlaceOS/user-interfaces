@@ -824,18 +824,3 @@ export const MOCK_GUESTS = VISITOR_PROFILES.map((profile, i) => {
         },
     };
 });
-
-// Helper function to get random staff member by department
-export const getStaffByDepartment = (department: string) =>
-    MOCK_STAFF.filter(
-        (staff) => staff.department?.toLowerCase() === department.toLowerCase(),
-    );
-
-// Helper function to get managers
-export const getManagers = () =>
-    MOCK_STAFF.filter(
-        (staff) =>
-            staff.groups?.includes('manager') ||
-            staff.title?.toLowerCase().includes('manager') ||
-            staff.title?.toLowerCase().includes('lead'),
-    );

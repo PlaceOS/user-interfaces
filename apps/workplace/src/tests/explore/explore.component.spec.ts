@@ -1,6 +1,5 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { DesksService } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { ExploreMapViewComponent, ExploreStateService } from '@placeos/explore';
@@ -20,7 +19,6 @@ describe('ExploreComponent', () => {
     const createComponent = createComponentFactory({
         component: ExploreComponent,
         providers: [
-            { provide: DesksService, useValue: {} },
             MockProvider(LandingStateService, {
                 upcoming_events,
             }),

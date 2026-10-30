@@ -29,7 +29,6 @@ import {
 } from '@placeos/ts-client';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
-    bookedResourceList,
     BookingsQueryParams,
     createBooking,
     parentBookingId,
@@ -51,6 +50,118 @@ export function findOldestByName(list: any[], name: string = '') {
     return list
         .filter((_) => (_.name || '').trim().toLowerCase() === match_name)
         .sort((a, b) => (a.created_at || 0) - (b.created_at || 0))[0];
+}
+
+// Hidden categories and types store app resources (desks, lockers, parking,
+// catering) as assets. The lookups below are shared so each list is only
+// requested once. A failed list request rejects and is not cached, so a
+// network error never causes a duplicate category or type to be created.
+let _hidden_categories: Promise<any[]> | null = null;
+const _category_types = new Map<string, Promise<any[]>>();
+const _hidden_type_ids = new Map<string, Promise<string>>();
+
+function queryHiddenCategories() {
+    if (!_hidden_categories) {
+        const request = queryAssetCategoriesAPI({
+            hidden: true,
+            limit: 500,
+        }).then((_) => _.data);
+        request.catch(() => {
+            if (_hidden_categories === request) _hidden_categories = null;
+        });
+        _hidden_categories = request;
+    }
+    return _hidden_categories;
+}
+
+function queryCategoryTypes(category_id: string) {
+    if (!_category_types.has(category_id)) {
+        const request = queryAssetTypesAPI({ category_id, limit: 500 }).then(
+            (_) => _.data,
+        );
+        request.catch(() => {
+            if (_category_types.get(category_id) === request) {
+                _category_types.delete(category_id);
+            }
+        });
+        _category_types.set(category_id, request);
+    }
+    return _category_types.get(category_id);
+}
+
+/**
+ * Find the hidden asset category with the given name, or create it.
+ * When the create collides with another client, the list is read again.
+ */
+export async function ensureHiddenCategory(name: string) {
+    let category = findOldestByName(await queryHiddenCategories(), name);
+    if (category) return category;
+    _hidden_categories = null;
+    category = findOldestByName(await queryHiddenCategories(), name);
+    if (category) return category;
+    try {
+        category = await saveAssetCategory({ name, hidden: true });
+        _hidden_categories = null;
+        return category;
+    } catch (error) {
+        _hidden_categories = null;
+        category = findOldestByName(await queryHiddenCategories(), name);
+        if (category) return category;
+        throw error;
+    }
+}
+
+/**
+ * Find the asset type with the given name in the category, or create it.
+ * When the create collides with another client, the list is read again.
+ */
+export async function ensureAssetType(category_id: string, name: string) {
+    let type = findOldestByName(await queryCategoryTypes(category_id), name);
+    if (type) return type;
+    try {
+        type = await saveAssetType({ name, brand: 'PlaceOS', category_id });
+        _category_types.delete(category_id);
+        return type;
+    } catch (error) {
+        _category_types.delete(category_id);
+        type = findOldestByName(await queryCategoryTypes(category_id), name);
+        if (type) return type;
+        throw error;
+    }
+}
+
+/**
+ * Resolve the ID of a hidden asset type, creating the category and type when
+ * missing. The ID is cached per type. A failed lookup is not cached.
+ */
+export function resolveHiddenAssetTypeId(
+    category_name: string,
+    type_name: string,
+): Promise<string> {
+    const key = `${category_name}/${type_name}`;
+    if (!_hidden_type_ids.has(key)) {
+        const request = ensureHiddenCategory(category_name)
+            .then((category) => ensureAssetType(category.id, type_name))
+            .then((type) => type.id as string);
+        request.catch(() => _hidden_type_ids.delete(key));
+        _hidden_type_ids.set(key, request);
+    }
+    return _hidden_type_ids.get(key);
+}
+
+/** Query the assets of one type across the zones, flattening the results */
+export async function queryTypeAssetsForZones(
+    type_id: string,
+    zone_ids: string[],
+): Promise<PlaceAsset[]> {
+    const results = await Promise.all(
+        zone_ids.map((zone_id) =>
+            queryAssetsAPI({ zone_id, type_id, limit: 500 }).then(
+                (_) => _.data,
+            ),
+        ),
+    );
+    return flatten<PlaceAsset>(results);
 }
 
 function filter_hidden_items<T extends { data: any[] }>(response: T): T {
@@ -279,22 +390,6 @@ export async function showGroupFull(id: string, query: any = {}) {
     );
     _GROUP_FULL_CACHE.set(id, product);
     return product;
-}
-
-export async function queryAvailableAssets(
-    query: BookingsQueryParams,
-    ignore?: string[],
-) {
-    query.type = 'asset-request';
-    const [assets, booked_assets] = await Promise.all([
-        queryAssets(query),
-        bookedResourceList(query),
-    ]);
-    return assets.data.filter(
-        (asset) =>
-            ignore?.includes(asset.id) ||
-            !booked_assets.find((id) => id === asset.id),
-    );
 }
 
 export async function queryGroupAvailability(

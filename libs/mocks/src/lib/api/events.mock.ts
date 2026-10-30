@@ -5,7 +5,6 @@ import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 export function registerMockEvents() {
     registerMockEndpoint({
         path: '/api/staff/v1/events',
-        metadata: {},
         method: 'GET',
         callback: (_) => {
             let events = MOCK_EVENTS;
@@ -41,7 +40,6 @@ export function registerMockEvents() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/events',
-        metadata: {},
         method: 'POST',
         callback: (request) => {
             const new_event = {
@@ -72,7 +70,6 @@ export function registerMockEvents() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/events/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const item = MOCK_EVENTS.find(
@@ -87,7 +84,6 @@ export function registerMockEvents() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/events/:id',
-        metadata: {},
         method: 'DELETE',
         callback: (request) => {
             const index = MOCK_EVENTS.findIndex(
@@ -110,7 +106,6 @@ export function registerMockEvents() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/events/:id',
-        metadata: {},
         method: 'PATCH',
         callback: (request) => {
             const index = MOCK_EVENTS.findIndex(
@@ -131,7 +126,6 @@ export function registerMockEvents() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/events/:id/guests/:email/checkin',
-        metadata: {},
         method: 'POST',
         callback: (request) => {
             const event = MOCK_EVENTS.find(

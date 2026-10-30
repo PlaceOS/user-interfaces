@@ -13,7 +13,6 @@ import {
     MAT_DIALOG_DATA,
     MatDialog,
     MatDialogModule,
-    MatDialogRef,
 } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import {
@@ -486,10 +485,6 @@ export class GroupEventDetailsModalComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _clipboard = inject(Clipboard);
-    private _dialog_ref = inject<MatDialogRef<GroupEventDetailsModalComponent>>(
-        MatDialogRef,
-        { optional: true },
-    );
 
     public readonly edit = this._data?.edit_fn;
     public readonly space = signal<Space>(new Space());

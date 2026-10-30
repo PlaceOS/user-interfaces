@@ -9,13 +9,12 @@ import {
     createAreaManagementModule,
     MockLocationServicesModule,
 } from './realtime/desks';
-import { createDisplayModule } from './realtime/display';
 import { createBookingsModule } from './realtime/events';
 import { createLockerLocationsModule } from './realtime/locker-locations';
 import { createMeetingPushModule } from './realtime/meeting';
-import { createMicrophoneModule } from './realtime/microphone';
 import { createPaymentsModule } from './realtime/payments';
 import { createVideoConferenceModule } from './realtime/video-conference';
+import { VolumeModule } from './realtime/volume';
 
 export function createSystem(space: HashMap) {
     registerSystem(space.id, {
@@ -25,10 +24,8 @@ export function createSystem(space: HashMap) {
         AreaManagement: [createAreaManagementModule(space)],
         LocationServices: [new MockLocationServicesModule()],
         Camera: new Array(10).fill(0).map((_) => createCameraModule(space)),
-        Display: new Array(10).fill(0).map((_) => createDisplayModule(space)),
-        Microphone: new Array(10)
-            .fill(0)
-            .map((_) => createMicrophoneModule(space)),
+        Display: new Array(10).fill(0).map(() => new VolumeModule()),
+        Microphone: new Array(10).fill(0).map(() => new VolumeModule()),
         Capture: [createCaptureModule(space)],
         MeetingPush: [createMeetingPushModule()],
         VidConf: [createVideoConferenceModule()],

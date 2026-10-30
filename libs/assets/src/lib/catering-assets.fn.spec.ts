@@ -155,6 +155,25 @@ describe('[Catering Assets]', () => {
         expect(items[0].unit_price).toBe(400);
     });
 
+    it('should retry the catering category after a failed load', async () => {
+        const { catering_assets } = await load_modules();
+        vi.mocked(ts_client.queryAssetCategories)
+            .mockRejectedValueOnce(new Error('offline'))
+            .mockReturnValue(response([{ id: 'cat-1', name: '_CATERING_' }]));
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            response([{ id: 'type-1', name: 'CATERING:Acme Catering' }]),
+        );
+        vi.mocked(ts_client.queryAssets).mockReturnValue(
+            response([{ id: 'asset-1', name: 'Coffee' }]),
+        );
+
+        expect(await catering_assets.queryCateringItems('bld-1')).toEqual([]);
+        const items = await catering_assets.queryCateringItems('bld-1');
+
+        expect(items.map((_) => _.id)).toEqual(['asset-1']);
+        expect(ts_client.addAssetCategory).not.toHaveBeenCalled();
+    });
+
     it('should create an asset when a supplied item id does not exist', async () => {
         const { catering_assets } = await load_modules();
         vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
@@ -179,7 +198,9 @@ describe('[Catering Assets]', () => {
 
         expect(ts_client.updateAsset).toHaveBeenCalledTimes(1);
         expect(ts_client.addAsset).toHaveBeenCalledTimes(1);
-        expect(vi.mocked(ts_client.addAsset).mock.calls[0][0].id).toBeUndefined();
+        expect(
+            vi.mocked(ts_client.addAsset).mock.calls[0][0].id,
+        ).toBeUndefined();
         expect(item.id).toBe('asset-1');
         expect(item.caterer).toBe('standalone');
     });

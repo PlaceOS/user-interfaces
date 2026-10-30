@@ -244,20 +244,6 @@ describe('UserSearchFieldComponent', () => {
         expect(blur_spy).toHaveBeenCalled();
     });
 
-    it('should blur the input after selecting an external attendee by name', async () => {
-        spectator.detectChanges();
-        const input = spectator.query('input') as HTMLInputElement;
-        const blur_spy = vi.spyOn(input, 'blur');
-
-        spectator.component.setExternalValue('External Person');
-        await new Promise((r) => setTimeout(r, 10));
-
-        expect(blur_spy).toHaveBeenCalled();
-        expect(spectator.component.selected_user()?.name).toBe(
-            'External Person',
-        );
-    });
-
     it('should select all text when the input is focused', async () => {
         spectator.detectChanges();
         const input = spectator.query('input') as HTMLInputElement;

@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
-    forwardRef,
     inject,
     input,
     OnChanges,
@@ -10,7 +9,7 @@ import {
     signal,
     SimpleChanges,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -20,9 +19,12 @@ import {
     CateringOrder,
     i18n,
     OrganisationService,
+    provideValueAccessor,
     randomString,
+    SETTING_KEYS,
     SettingsService,
     Space,
+    toggleListItem,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 
@@ -317,14 +319,7 @@ const EMPTY_FAVS = [];
         </mat-menu>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            /* istanbul ignore next */
-            useExisting: forwardRef(() => CateringListFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => CateringListFieldComponent)],
     imports: [
         CommonModule,
         IconComponent,
@@ -383,7 +378,7 @@ export class CateringListFieldComponent
     public readonly favorites = computed(() => {
         return (
             this._settings.signal<string[]>(
-                'favourite_menu_items',
+                SETTING_KEYS.FAVORITE_CATERING,
                 EMPTY_FAVS,
                 true,
             )() || EMPTY_FAVS
@@ -607,19 +602,10 @@ export class CateringListFieldComponent
     }
 
     public toggleFavourite(cateringitem: CateringItem) {
-        const fav_list = this.favorites();
-        const new_state = !fav_list.includes(cateringitem.id);
-        if (new_state) {
-            this._settings.saveUserSetting('favourite_menu_items', [
-                ...fav_list,
-                cateringitem.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                'favourite_menu_items',
-                fav_list.filter((_) => _ !== cateringitem.id),
-            );
-        }
+        this._settings.saveUserSetting(
+            SETTING_KEYS.FAVORITE_CATERING,
+            toggleListItem(this.favorites(), cateringitem.id),
+        );
     }
 
     private syncExpandedOrders(orders: CateringOrder[]) {

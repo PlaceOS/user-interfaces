@@ -2,26 +2,23 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import {
     Component,
     ElementRef,
-    forwardRef,
     inject,
     signal,
     viewChild,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     notifyError,
     notifyInfo,
-    UPLOAD_PERMISSIONS_MODAL,
-    UploadCancelledError,
+    provideValueAccessor,
     UploadsService,
 } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
 @Component({
     selector: 'image-field',
@@ -120,17 +117,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
         </div>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ImageFieldComponent),
-            multi: true,
-        },
-        {
-            provide: UPLOAD_PERMISSIONS_MODAL,
-            useValue: UploadPermissionsModalComponent,
-        },
-    ],
+    providers: [provideValueAccessor(() => ImageFieldComponent)],
     imports: [
         MatRippleModule,
         MatTooltipModule,
@@ -196,16 +183,14 @@ export class ImageFieldComponent
         const files: FileList = element.files;
         if (!files.length) return;
         try {
-            const id = await this._uploads.uploadFileWithPermissions(files[0]);
+            const id = await this._uploads.uploadFile(files[0]);
             this.interval('update_status', () => this._updateUploadHistory(id));
         } catch (error) {
             this.clearInterval('update_status');
             this.progress.set(0);
-            if (!(error instanceof UploadCancelledError)) {
-                notifyError(
-                    `Failed to upload ${files[0].name}: ${error?.message || 'Unknown error'}`,
-                );
-            }
+            notifyError(
+                `Failed to upload ${files[0].name}: ${error?.message || 'Unknown error'}`,
+            );
         } finally {
             this._file_input().nativeElement.value = '';
         }

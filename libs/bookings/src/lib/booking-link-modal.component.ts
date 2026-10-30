@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { Booking, SettingsService } from '@placeos/common';
+import { Booking } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SafePipe } from 'libs/components/src/lib/safe.pipe';
@@ -76,7 +76,6 @@ import {
 })
 export class BookingLinkModalComponent {
     private _event = inject<Booking>(MAT_DIALOG_DATA);
-    private _settings = inject(SettingsService);
 
     public readonly outlook_link = generateMicrosoftCalendarLink(
         this._event as any,

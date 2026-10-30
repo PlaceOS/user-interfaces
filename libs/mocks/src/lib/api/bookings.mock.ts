@@ -11,7 +11,6 @@ const ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 export function registerMockBookings() {
     registerMockEndpoint({
         path: '/api/staff/v1/bookings',
-        metadata: {},
         method: 'GET',
         callback: (_) => {
             let events = ALL_BOOKINGS;
@@ -88,7 +87,6 @@ export function registerMockBookings() {
     // Debug endpoint to show booking distribution by user
     registerMockEndpoint({
         path: '/api/debug/bookings/distribution',
-        metadata: {},
         method: 'GET',
         callback: (_) => {
             const distribution = {};
@@ -124,7 +122,6 @@ export function registerMockBookings() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id',
-        metadata: {},
         method: 'GET',
         callback: (_) => {
             const event = ALL_BOOKINGS.find(
@@ -141,7 +138,6 @@ export function registerMockBookings() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id/guests/:email',
-        metadata: {},
         method: 'POST',
         callback: (_) => {
             const event = ALL_BOOKINGS.find(
@@ -165,7 +161,6 @@ export function registerMockBookings() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id/guests/:email',
-        metadata: {},
         method: 'DELETE',
         callback: (_) => {
             const { id, email } = _.route_params;
@@ -191,7 +186,6 @@ export function registerMockBookings() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id/guests/:email/checkin',
-        metadata: {},
         method: 'POST',
         callback: (_) => {
             const { id, email } = _.route_params;
@@ -211,7 +205,6 @@ export function registerMockBookings() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings',
-        metadata: {},
         method: 'POST',
         callback: (request) => {
             const new_event = {
@@ -237,14 +230,12 @@ export function registerMockBookings() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id',
-        metadata: {},
         method: 'PATCH',
         callback: (req) => updateBooking(req.route_params.id, req.body),
     });
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id/approve',
-        metadata: {},
         method: 'POST',
         callback: (req) => {
             const booking = ALL_BOOKINGS.find(
@@ -263,7 +254,6 @@ export function registerMockBookings() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id/reject',
-        metadata: {},
         method: 'POST',
         callback: (req) => {
             const booking = ALL_BOOKINGS.find(
@@ -282,7 +272,6 @@ export function registerMockBookings() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id/check_in',
-        metadata: {},
         method: 'POST',
         callback: (req) => {
             const booking = ALL_BOOKINGS.find(
@@ -308,7 +297,6 @@ export function registerMockBookings() {
     // Update induction status endpoint for visitor-kiosk
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id/update_induction',
-        metadata: {},
         method: 'POST',
         callback: (req) => {
             const booking = ALL_BOOKINGS.find(
@@ -327,14 +315,12 @@ export function registerMockBookings() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id',
-        metadata: {},
         method: 'PUT',
         callback: (req) => updateBooking(req.route_params.id, req.body),
     });
 
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id',
-        metadata: {},
         method: 'DELETE',
         callback: (req) => {
             const booking = ALL_BOOKINGS.find(

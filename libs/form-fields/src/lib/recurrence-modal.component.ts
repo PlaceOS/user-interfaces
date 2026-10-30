@@ -17,7 +17,7 @@ import {
 } from '@placeos/common';
 import { addDays, endOfDay, startOfWeek } from 'date-fns';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { CompactCounterComponent } from './compact-counter.component';
+import { CounterComponent } from './counter.component';
 import { DateFieldComponent } from './date-field.component';
 
 @Component({
@@ -35,12 +35,13 @@ import { DateFieldComponent } from './date-field.component';
                 'FORM.RECURRENCE_REPEAT_EVERY' | translate
             }}</label>
             <div class="mt-2 flex items-center space-x-4 pb-4">
-                <compact-counter
+                <a-counter
+                    [compact]="true"
                     [formField]="form.interval"
                     [min]="1"
                     [max]="model().type === 'daily' ? 7 : 12"
                     [step]="1"
-                ></compact-counter>
+                ></a-counter>
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript flex-1"
@@ -126,13 +127,14 @@ import { DateFieldComponent } from './date-field.component';
                         <mat-radio-button value="instances">{{
                             'FORM.RECURRENCE_ENDS_AFTER' | translate
                         }}</mat-radio-button>
-                        <compact-counter
+                        <a-counter
+                            [compact]="true"
                             class="flex-1"
                             [formField]="form.end_instances"
                             [render_fn]="instance_fn"
                             [min]="1"
                             [max]="maxInstances()"
-                        ></compact-counter>
+                        ></a-counter>
                     </div>
                 </mat-radio-group>
             </div>
@@ -172,7 +174,7 @@ import { DateFieldComponent } from './date-field.component';
         MatRadioModule,
         MatSelectModule,
         MatDialogModule,
-        CompactCounterComponent,
+        CounterComponent,
         DateFieldComponent,
         TranslatePipe,
     ],

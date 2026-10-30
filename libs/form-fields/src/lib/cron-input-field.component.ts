@@ -1,19 +1,13 @@
-import {
-    Component,
-    DestroyRef,
-    forwardRef,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
     ControlValueAccessor,
     FormControl,
     FormGroup,
-    NG_VALUE_ACCESSOR,
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
+import { provideValueAccessor } from '@placeos/common';
 
 const DEFAULT_CRON = '* * * * *';
 const ALLOWED_KEYS = new Set([
@@ -160,13 +154,7 @@ function control(pattern: string) {
         </div>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => CronInputFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => CronInputFieldComponent)],
     imports: [ReactiveFormsModule],
 })
 export class CronInputFieldComponent implements ControlValueAccessor {

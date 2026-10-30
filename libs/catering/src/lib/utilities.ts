@@ -1,23 +1,12 @@
 import { CalendarEvent, CateringItem, stringToMinutes } from '@placeos/common';
-import { AttachedResourceRuleset } from '@placeos/components';
-import { showMetadata } from '@placeos/ts-client';
+import {
+    AttachedResourceRuleset,
+    zoneRulesetLoader,
+} from '@placeos/components';
 import { isAfter, isBefore, setHours, subMinutes } from 'date-fns';
 
-const RULE_REQUESTS: Record<string, Promise<AttachedResourceRuleset[]>> = {};
-
-export function getCateringRulesForZone(zone_id: string, fresh = false) {
-    if (!zone_id) return Promise.resolve([] as AttachedResourceRuleset[]);
-    if (!RULE_REQUESTS[zone_id] || fresh)
-        RULE_REQUESTS[zone_id] = showMetadata(zone_id, 'catering_config')
-            .then(
-                (_) =>
-                    (_.details instanceof Array
-                        ? _.details
-                        : []) as AttachedResourceRuleset[],
-            )
-            .catch(() => [] as AttachedResourceRuleset[]);
-    return RULE_REQUESTS[zone_id];
-}
+/** Catering rulesets for the zone, cached per zone */
+export const getCateringRulesForZone = zoneRulesetLoader('catering_config');
 
 export function cateringItemAvailable(
     item: CateringItem,

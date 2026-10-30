@@ -1,8 +1,4 @@
-import {
-    locateStaff,
-    searchStaff as searchDirectory,
-    showStaff,
-} from '../lib/staff.fn';
+import { searchStaff as searchDirectory, showStaff } from '../lib/staff.fn';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -168,16 +164,6 @@ describe('[Staff API]', () => {
             const spy = vi.spyOn(ts_client, 'get');
             spy.mockResolvedValue({ name: 'Jim' } as any);
             const item = await showStaff('jim');
-            expect(item).toBeInstanceOf(StaffUser);
-            expect(spy).toHaveBeenCalledWith('/api/staff/v1/people/jim');
-        });
-    });
-
-    describe('locateStaff', () => {
-        it('should GET staff location', async () => {
-            const spy = vi.spyOn(ts_client, 'get');
-            spy.mockResolvedValue({ name: 'Jim' } as any);
-            const item = await locateStaff('jim');
             expect(item).toBeInstanceOf(StaffUser);
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/people/jim');
         });

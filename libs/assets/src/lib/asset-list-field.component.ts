@@ -3,14 +3,13 @@ import {
     Component,
     computed,
     effect,
-    forwardRef,
     inject,
     input,
     Signal,
     signal,
     untracked,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -19,10 +18,12 @@ import {
     AssetRequest,
     i18n,
     notifyError,
+    provideValueAccessor,
     randomInt,
     randomString,
     SettingsService,
     Space,
+    toggleListItem,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 
@@ -240,14 +241,7 @@ const EMPTY_FAVS: string[] = [];
         }
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            /* istanbul ignore next */
-            useExisting: forwardRef(() => AssetListFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => AssetListFieldComponent)],
     imports: [
         CommonModule,
         IconComponent,
@@ -492,18 +486,9 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     }
 
     public toggleFavourite(asset: AssetItem) {
-        const fav_list = this.favorites();
-        const new_state = !fav_list.includes(asset.id);
-        if (new_state) {
-            this._settings.saveUserSetting('favourite_assets', [
-                ...fav_list,
-                asset.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                'favourite_assets',
-                fav_list.filter((_) => _ !== asset.id),
-            );
-        }
+        this._settings.saveUserSetting(
+            'favourite_assets',
+            toggleListItem(this.favorites(), asset.id),
+        );
     }
 }

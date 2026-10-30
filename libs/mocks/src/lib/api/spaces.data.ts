@@ -446,35 +446,3 @@ export const MOCK_SPACES = rawSpaces.map((space) =>
         ],
     }),
 );
-
-// Helper functions for space management
-export const getSpacesByType = (type: string) =>
-    MOCK_SPACES.filter((space) => space.type === type);
-
-export const getSpacesByBuilding = (buildingId: string) =>
-    MOCK_SPACES.filter((space) => space.building_id === buildingId);
-
-export const getSpacesByCapacity = (
-    minCapacity: number,
-    maxCapacity?: number,
-) =>
-    MOCK_SPACES.filter((space) => {
-        const capacity = space.capacity || 0;
-        return (
-            capacity >= minCapacity && (!maxCapacity || capacity <= maxCapacity)
-        );
-    });
-
-export const getBookableSpaces = () =>
-    MOCK_SPACES.filter((space) => space.bookable !== false);
-
-export const getSpacesByFeature = (feature: string) =>
-    MOCK_SPACES.filter(
-        (space) => space.features && space.features.includes(feature),
-    );
-
-export const getAccessibleSpaces = () =>
-    MOCK_SPACES.filter((space) => space.accessibility?.wheelchair_accessible);
-
-export const getSpacesRequiringApproval = () =>
-    MOCK_SPACES.filter((space) => space.booking_rules?.approval_required);

@@ -273,15 +273,18 @@ export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
 
     public readonly x_pos = signal<'left' | 'right'>('left');
 
-    public ngOnInit(tries = 0) {
-        if (tries > 10) return;
+    public ngOnInit() {
         setTimeout(() => this.updatePosition(), 200);
         this.interval('time', () => this.now.set(Date.now()), 5000);
     }
 
     public updatePosition(tries = 0) {
         const parent = this._element.nativeElement.parentElement?.parentElement;
-        if (!parent) return setTimeout(() => this.updatePosition(++tries), 200);
+        if (!parent) {
+            if (tries < 10)
+                setTimeout(() => this.updatePosition(tries + 1), 200);
+            return;
+        }
         const box = parent?.getBoundingClientRect();
         const wbox = document.body?.getBoundingClientRect();
         this.y_pos.set(box.y >= wbox.height / 2 ? 'bottom' : 'top');
