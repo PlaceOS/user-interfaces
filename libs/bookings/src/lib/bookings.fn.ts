@@ -9,6 +9,7 @@ import {
 } from '@placeos/ts-client';
 
 import {
+    appDetails,
     BookableResource,
     Booking,
     BookingClash,
@@ -120,18 +121,8 @@ export interface BookingsQueryParams {
 
 const BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
 
-const APP_VERSION = VERSION.raw || VERSION.version || VERSION.hash;
-
-function appName() {
-    return (
-        setting<string>('app.name') ||
-        setting<string>('app.short_name') ||
-        'PlaceOS'
-    );
-}
-
 function bookingUtmSource() {
-    return `${appName()}_${VERSION.hash}_${currentUser().email || ''}`;
+    return `${appDetails().app_name}_${VERSION.hash}_${currentUser().email || ''}`;
 }
 
 function withAppVersion(data: NewBookingData): NewBookingData {
@@ -143,8 +134,7 @@ function withAppVersion(data: NewBookingData): NewBookingData {
         ...booking_data,
         extension_data: {
             ...(booking_data.extension_data || {}),
-            app_name: appName(),
-            app_version: APP_VERSION,
+            ...appDetails(),
         },
     };
 }

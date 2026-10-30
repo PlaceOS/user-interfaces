@@ -119,9 +119,7 @@ export function padLength(
     length = 2,
     character = '0',
 ): string {
-    let str = `${value}`;
-    while (str.length < length) str = `${character}${str}`;
-    return str;
+    return `${value}`.padStart(length, character);
 }
 
 /**
@@ -171,17 +169,6 @@ export function unique<T = any>(array: T[] = [], key = ''): T[] {
  */
 export function randomInt(ceil: number, floor = 0) {
     return Math.floor(Math.random() * (ceil - floor)) + floor;
-}
-
-/**
- * Pad string to the given length
- * @param str Base string
- * @param length Length to pad the string
- */
-export function padString(str: string | number, length = 5) {
-    str = `${str}`;
-    while (str.length < length) str = `0${str}`;
-    return str;
 }
 
 /**
@@ -362,20 +349,7 @@ export function parseJWT(token: string) {
  * @param an_array Array to flatten
  */
 export function flatten<T = any>(an_array: any[]): T[] {
-    const stack = [...an_array];
-    const res = [];
-    while (stack.length) {
-        // pop value from stack
-        const next = stack.pop();
-        if (Array.isArray(next)) {
-            // push back array items, won't modify the original input
-            stack.push(...next);
-        } else {
-            res.push(next);
-        }
-    }
-    // reverse to restore input order
-    return res.reverse();
+    return an_array.flat(Infinity) as T[];
 }
 
 /**

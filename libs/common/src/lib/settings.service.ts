@@ -74,6 +74,17 @@ export function setting<T = any>(key: string): T | undefined {
     return _service ? _service.get(key) : undefined;
 }
 
+/** Name and version of the running app, as stored on saved bookings and events */
+export function appDetails() {
+    return {
+        app_name:
+            setting<string>('app.name') ||
+            setting<string>('app.short_name') ||
+            'PlaceOS',
+        app_version: VERSION.raw || VERSION.version || VERSION.hash,
+    };
+}
+
 export function settingSignal<T = any>(
     key: string,
     default_value: T = undefined,

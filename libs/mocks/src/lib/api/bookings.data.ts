@@ -1,6 +1,6 @@
 import {
     capitalizeFirstLetter,
-    padString,
+    padLength,
     predictableRandomInt,
     randomString,
 } from '@placeos/common';
@@ -35,7 +35,7 @@ const generateBookingForDay = (
     const approver = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
     const guest = MOCK_GUESTS[predictableRandomInt(MOCK_GUESTS.length)];
     const asset_count = predictableRandomInt(3, 1);
-    const position = padString(predictableRandomInt(999) + 1, 3);
+    const position = padLength(predictableRandomInt(999) + 1, 3);
     const base_time = setHours(
         addDays(startOfDay(Date.now()), day - 15),
         predictableRandomInt(10, 7),

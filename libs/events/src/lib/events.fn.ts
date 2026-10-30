@@ -1,11 +1,10 @@
 import {
+    appDetails,
     BookingClash,
     CalendarEvent,
     EventExtensionData,
     GuestUser,
-    setting,
     toQueryString,
-    VERSION,
 } from '@placeos/common';
 import {
     del,
@@ -79,16 +78,6 @@ export interface CalendarEventShowParams {
 
 const EVENTS_ENDPOINT = `/api/staff/v1/events`;
 
-const APP_VERSION = VERSION.raw || VERSION.version || VERSION.hash;
-
-function appName() {
-    return (
-        setting<string>('app.name') ||
-        setting<string>('app.short_name') ||
-        'PlaceOS'
-    );
-}
-
 function withAppVersion<T extends { extension_data?: Record<string, unknown> }>(
     data: T,
 ): T {
@@ -96,8 +85,7 @@ function withAppVersion<T extends { extension_data?: Record<string, unknown> }>(
         ...data,
         extension_data: {
             ...(data.extension_data || {}),
-            app_name: appName(),
-            app_version: APP_VERSION,
+            ...appDetails(),
         },
     };
 }
