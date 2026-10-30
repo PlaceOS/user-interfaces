@@ -7,46 +7,15 @@ import { assertLocalOnly } from '../../../../../e2e/support/env';
 import { staffEmail } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
-import { migrationNewContext, migrationReadOnlyTest, migrationTest } from '../support/settings-harness';
+import {
+    hiddenAssetRoutes,
+    hiddenAssets,
+    migrationNewContext,
+    migrationTest,
+} from '../support/settings-harness';
 
-// The landing page starts the hidden asset bootstrap (parking, locker and desk
-// categories/types). It creates records when a GET finds none, so serve those
-// GETs from fixtures. Non-GET requests fall through to the read-only guards.
-const HIDDEN_CATEGORIES = [
-    { id: 'pr2-hidden-catering', name: '_CATERING_', hidden: true },
-    { id: 'pr2-hidden-desks', name: '_DESKS_', hidden: true },
-    { id: 'pr2-hidden-parking', name: '_PARKING_', hidden: true },
-    { id: 'pr2-hidden-lockers', name: '_LOCKERS_', hidden: true },
-];
-const HIDDEN_TYPES: Record<string, string[]> = {
-    'pr2-hidden-catering': [], 'pr2-hidden-desks': ['_DESKS_'],
-    'pr2-hidden-parking': ['_PARKING_SPACES_', '_PARKING_USERS_', '_PARKING_FLEET_VEHICLES_'],
-    'pr2-hidden-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
-async function stubHiddenAssets(page: Page) {
-    const origins = [new URL(APP_URL).origin, new URL(BACKEND_URL).origin];
-    const paths = ['/api/engine/v2/asset_categories', '/api/engine/v2/asset_types', '/api/engine/v2/assets'];
-    await page.route((url) => origins.includes(url.origin) && paths.includes(url.pathname), async (route) => {
-        const request = route.request();
-        const url = new URL(request.url());
-        if (request.method() !== 'GET') return route.fallback();
-        if (url.pathname === paths[0] && url.searchParams.get('hidden') === 'true') {
-            return route.fulfill({ json: HIDDEN_CATEGORIES });
-        }
-        const category = url.searchParams.get('category_id') ?? '';
-        if (url.pathname === paths[1] && Object.hasOwn(HIDDEN_TYPES, category)) {
-            return route.fulfill({ json: HIDDEN_TYPES[category].map((name) => ({
-                id: 'pr2-type-' + name, name, category_id: category, brand: 'PlaceOS' })) });
-        }
-        if (url.pathname === paths[2] && (url.searchParams.get('type_id') ?? '').startsWith('pr2-type-')) {
-            return route.fulfill({ json: [] });
-        }
-        return route.fallback();
-    });
-}
-// Drop the shared default admin state even for legacy staff-auth-only contexts.
-migrationTest.use({ storageState: undefined });
-migrationReadOnlyTest.use({ storageState: undefined });
+const LANDING_HIDDEN = hiddenAssets('e2e-settings-landing');
+
 
 {
 const base = migrationTest;
@@ -111,7 +80,7 @@ const test = base.extend<{ isolated: Isolated }>({
                         (error: unknown) => ({ error }),
                     );
                     const settings = { ...BASE_SETTINGS, ...overrides };
-                    await stubHiddenAssets(page);
+                    await hiddenAssetRoutes(page, LANDING_HIDDEN, { limit: false });
                     await useSettings(page, settings);
                     await page.addInitScript(() =>
                         localStorage.setItem('APP.locale', 'en-AU'),
@@ -178,8 +147,6 @@ const test = base.extend<{ isolated: Isolated }>({
 
 test.use({ storageState: undefined, timezoneId: TIMEZONE });
 
-test.describe.configure({ retries: 0, timeout: 120_000 });
-
 const ROUTE = '/#/landing';
 
 const READY = 'topbar';
@@ -194,7 +161,7 @@ const BASE_SETTINGS: Settings = {
 };
 
 async function core(page: Page) {
-    // /landing is now the landing-new component; its host has no header.
+    // /landing renders landing-new, whose host has no header.
     await expect(page.locator('landing-new')).toHaveCount(1);
     await expect(page.locator('landing-new > *').first()).toBeVisible();
     await expect(
