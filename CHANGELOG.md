@@ -41,6 +41,7 @@ All notable changes to this project will be documented in this file.
 - Keep the visitor type in legacy group mode
 - Hide the parking space in the booking card location (PPT-2858)
 - Lock locker date and time when disabled_date_select is set
+- Locker picker no longer errors while lockers load
 
 #### Catering
 
