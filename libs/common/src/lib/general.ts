@@ -6,7 +6,6 @@ import {
     type WritableSignal,
 } from '@angular/core';
 import type { AbstractControl, FormGroup } from '@angular/forms';
-import { Signal as TSSignal } from '@placeos/ts-client';
 import {
     addDays,
     addHours,
@@ -19,14 +18,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
-import {
-    first,
-    lastValueFrom,
-    map,
-    Observable,
-    Subscription,
-    take,
-} from 'rxjs';
+import { first, lastValueFrom, Observable, Subscription, take } from 'rxjs';
 import { i18n, i18nAvailable } from './locale.service';
 import { notifyWarn } from './notifications';
 import { endOfDayInTimezone, startOfDayInTimezone } from './timezone-helpers';
@@ -434,23 +426,6 @@ function sfc32(a, b, c, d) {
     };
 }
 
-/** Get time format string for locale */
-export function timeFormatString(): string {
-    return is24HourTime() ? 'HH:mm' : 'h:mm a';
-}
-
-/** Whether locale string is displayed in 24 hour time */
-export function is24HourTime(): boolean {
-    const date = new Date();
-    const localeString = date
-        .toLocaleTimeString(
-            document.querySelector('html').getAttribute('lang') ||
-                navigator.language,
-        )
-        .toLowerCase();
-    return localeString.indexOf('am') < 0 && localeString.indexOf('pm') < 0;
-}
-
 /**
  * Structural `instanceof FormGroup` check, so this file does not load
  * `@angular/forms` into every app's initial bundle. A `FormArray` has an
@@ -498,25 +473,6 @@ export function capitalizeFirstLetter(word: string): string {
     return `${word[0].toUpperCase()}${word.substring(1)}`;
 }
 
-export function cleanArray(
-    array: any[],
-    removal_items: unknown[] = [undefined, null, ''],
-) {
-    return array.filter((_) => !removal_items.includes(_));
-}
-
-export function addStringKey(value: string, key: string) {
-    return removeStringKey(value, key) + `[${key}]`;
-}
-
-export function removeStringKey(value: string, key: string) {
-    const key_value = `[${key}]`;
-    while (value.includes(key_value)) {
-        value = value.replace(`[${key}]`, '');
-    }
-    return value;
-}
-
 export function isMobileSafari() {
     return (
         [
@@ -530,10 +486,6 @@ export function isMobileSafari() {
         // iPad on iOS 13 detection
         (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
     );
-}
-
-export function isNestedFrame() {
-    return window.location !== window.parent.location;
 }
 
 // Calculate the distance between geographical cooridinates
@@ -750,21 +702,6 @@ export function withTimeout<T>(
     });
 }
 
-/**
- * Convert a ts-client signal into an rxjs observable.
- * Emits the signal's current value on subscription, like a BehaviorSubject.
- * @param signal Signal to convert
- */
-export function observableFromSignal<T>(signal: TSSignal<T>): Observable<T> {
-    if (typeof signal !== 'function' && (signal as any)?.subscribe) {
-        return signal as unknown as Observable<T>;
-    }
-    return new Observable<T>((observer) => {
-        observer.next(signal());
-        return signal.subscribe((value) => observer.next(value));
-    });
-}
-
 export interface BookableHoursRange {
     /** Earliest allowed booking hour (0–24). For example, `8` means 8:00 AM. */
     start: number;
@@ -935,17 +872,6 @@ export function isWithinBookableHours(
     const time = timezone ? toZonedTime(date, timezone) : new Date(date);
     const minutes = time.getHours() * 60 + time.getMinutes();
     return minutes >= start * 60 && minutes < end * 60;
-}
-
-export function mapLastValueFrom<T = any>(
-    obs: Observable<T>,
-    map_fn: (value: any) => T,
-): Promise<T> {
-    return obs
-        ? map
-            ? lastValueFrom(obs.pipe(map(map_fn)))
-            : lastValueFrom(obs)
-        : Promise.resolve(null);
 }
 
 // ---------------------------------------------------------------------------

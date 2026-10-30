@@ -1,7 +1,7 @@
 import { Injector, signal } from '@angular/core';
 import { email, form, required, validate } from '@angular/forms/signals';
 
-import { GuestUser, predictableRandomInt, unique, User } from '@placeos/common';
+import { predictableRandomInt, unique, User } from '@placeos/common';
 
 const PHONE_PATTERN = /^\+?(\d[\d\s\-\(\)]{5,13}\d)$/;
 
@@ -113,44 +113,6 @@ export function generateUserForm(user?: User, injector?: Injector) {
                     ? { kind: 'pattern' }
                     : undefined,
             );
-        },
-        injector ? { injector } : undefined,
-    );
-}
-
-export interface GuestFormValue {
-    name: string;
-    email: string;
-    organisation: string;
-    phone: string;
-    pass_number: string;
-    host: string;
-}
-
-/** Signal-forms field tree for a guest form */
-export type GuestForm = ReturnType<typeof generateGuestForm>;
-
-export function generateGuestForm(
-    user: GuestUser = new GuestUser(),
-    host: string = '',
-    injector?: Injector,
-) {
-    const model = signal<GuestFormValue>({
-        name: user.name || '',
-        email: user.email || '',
-        organisation: user.organisation || '',
-        phone: user.phone || '',
-        pass_number: user.extension_data.pass_number || '',
-        host: host || '',
-    });
-
-    return form(
-        model,
-        (p) => {
-            required(p.email);
-            email(p.email);
-            required(p.organisation);
-            required(p.host);
         },
         injector ? { injector } : undefined,
     );

@@ -269,9 +269,7 @@ export class WFHSettingsModalComponent implements OnInit {
     public readonly option = signal('');
     public readonly settings = signal<WorktimePreference[]>([]);
     public readonly weekdays_enabled = signal<Record<number, boolean>>({});
-    public readonly changed = signal(false);
     public readonly loading = signal(false);
-    public readonly available_weekdays = signal([]);
     public readonly days = new Array(7)
         .fill(0)
         .map((_, idx) => addDays(startOfWeek(addDays(Date.now(), 30)), idx));
@@ -282,10 +280,6 @@ export class WFHSettingsModalComponent implements OnInit {
             (day) => weekdays_enabled[day],
         );
     });
-
-    public readonly option_name = computed(
-        () => this.options().find((_) => _.id === this.option())?.name || '',
-    );
 
     public readonly now = computed(() => startOfMinute(Date.now()).getTime());
 

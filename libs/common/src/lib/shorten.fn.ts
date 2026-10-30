@@ -1,13 +1,4 @@
-import {
-    apiKey,
-    del,
-    get,
-    patch,
-    post,
-    put,
-    query,
-    token,
-} from '@placeos/ts-client';
+import { apiKey, del, post, put, token } from '@placeos/ts-client';
 
 const ENDPOINT = '/api/engine/v2/short_url';
 
@@ -29,22 +20,6 @@ export interface ShortURL {
 
     created_at: number;
     updated_at: number;
-}
-
-export async function queryShortURLs(
-    q: Record<string, any> = {},
-): Promise<ShortURL[]> {
-    const { data } = await query<ShortURL>({
-        query_params: q,
-        fn: (item) => item as ShortURL,
-        endpoint: ENDPOINT,
-        path: '',
-    });
-    return data;
-}
-
-export async function showShortURL(id: string): Promise<ShortURL> {
-    return (await get(`${ENDPOINT}/${id}`)) as ShortURL;
 }
 
 const QR_STORE = new Map<string, string>();
@@ -83,13 +58,6 @@ export async function updateShortURL(
 
 export function saveShortURL(data: ShortURL): Promise<ShortURL> {
     return data.id ? updateShortURL(data.id, data) : createShortURL(data);
-}
-
-export async function patchShortURL(
-    id: string,
-    data: Partial<ShortURL>,
-): Promise<ShortURL> {
-    return (await patch(`${ENDPOINT}/${id}`, data)) as ShortURL;
 }
 
 export async function deleteShortURL(id: string): Promise<void> {

@@ -15,12 +15,6 @@ export function addUser(user: User): void {
     USER_LIST.push(user);
 }
 
-export function replaceUser(user: User): void {
-    const index = USER_LIST.findIndex(({ id }) => id === user.id);
-    if (index !== -1) USER_LIST[index] = user;
-    else USER_LIST.push(user);
-}
-
 async function fetchUser(
     user_id: string,
     lookup_mode: UserLookupMode,

@@ -1,11 +1,4 @@
-import {
-    Component,
-    computed,
-    inject,
-    output,
-    Signal,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, Signal, signal } from '@angular/core';
 
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -144,7 +137,6 @@ export class PaymentModalComponent {
     private _data = inject<PaymentData>(MAT_DIALOG_DATA);
     private _org = inject(OrganisationService);
 
-    public readonly event = output<PaymentCardDetails>();
     public readonly details = this._data;
     public readonly loading = this._data.loading;
     public readonly card_details = signal<PaymentCardDetails | undefined>(
@@ -158,7 +150,6 @@ export class PaymentModalComponent {
         const details = this.card_details();
         if (!this.details.has_payment_method && !this._validCardDetails())
             return;
-        if (details) this.event.emit(details);
         await this._data.makePayment(details);
         this.success.set(true);
     }

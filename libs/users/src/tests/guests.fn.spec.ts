@@ -1,15 +1,8 @@
-import {
-    listGuestMeetings,
-    queryGuests,
-    removeGuest,
-    searchGuests,
-    showGuest,
-    updateGuest,
-} from '../lib/guests.fn';
+import { searchGuests, showGuest, updateGuest } from '../lib/guests.fn';
 
 vi.mock('@placeos/ts-client');
 
-import { CalendarEvent, GuestUser } from '@placeos/common';
+import { GuestUser } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
 describe('[Guest API]', () => {
@@ -38,46 +31,6 @@ describe('[Guest API]', () => {
         });
     });
 
-    describe('queryGuests', () => {
-        it('should perform GET on guests endpoint', async () => {
-            const spy = vi.spyOn(ts_client, 'get');
-            spy.mockResolvedValue([{ name: 'Jim' }] as any);
-            const list = await queryGuests({
-                period_start: 0,
-                period_end: 2,
-            });
-            expect(list).toBeInstanceOf(Array);
-            expect(spy).toHaveBeenCalledWith(
-                '/api/staff/v1/guests?period_start=0&period_end=2',
-            );
-        });
-
-        it('should return Guest objects', async () => {
-            const spy = vi.spyOn(ts_client, 'get');
-            spy.mockResolvedValue([{ name: 'Jim' }] as any);
-            const list = await queryGuests({
-                period_start: 0,
-                period_end: 2,
-            });
-            expect(list).toBeInstanceOf(Array);
-            expect(list[0]).toBeInstanceOf(GuestUser);
-        });
-
-        it('should allow querying Guests', async () => {
-            const spy = vi.spyOn(ts_client, 'get');
-            spy.mockResolvedValue([{ name: 'Jim' }] as any);
-            await queryGuests({
-                period_start: 0,
-                period_end: 2,
-                zone_ids: 'zone-123',
-                system_ids: 'sys-123',
-            });
-            expect(spy).toHaveBeenCalledWith(
-                '/api/staff/v1/guests?period_start=0&period_end=2&zone_ids=zone-123&system_ids=sys-123',
-            );
-        });
-    });
-
     describe('showGuest', () => {
         it('should GET guest', async () => {
             const spy = vi.spyOn(ts_client, 'get');
@@ -99,30 +52,6 @@ describe('[Guest API]', () => {
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/guests/jim', {
                 name: 'James',
             });
-        });
-    });
-
-    describe('removeGuest', () => {
-        it('should DELETE guest', async () => {
-            const spy = vi.spyOn(ts_client, 'del');
-            spy.mockResolvedValue(undefined);
-            const item = await removeGuest('jim');
-            expect(item).toBeUndefined();
-            expect(spy).toHaveBeenCalledWith('/api/staff/v1/guests/jim', {
-                response_type: 'void',
-            });
-        });
-    });
-
-    describe('listGuestMeetings', () => {
-        it('should GET calendar events for guest', async () => {
-            const spy = vi.spyOn(ts_client, 'get');
-            spy.mockResolvedValue([{ name: 'Jim' }] as any);
-            const list = await listGuestMeetings('jim');
-            expect(list[0]).toBeInstanceOf(CalendarEvent);
-            expect(spy).toHaveBeenCalledWith(
-                '/api/staff/v1/guests/jim/meetings',
-            );
         });
     });
 });
