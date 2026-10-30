@@ -81,36 +81,6 @@ function toHourOfDay(value: unknown): number | null {
             <icon class="text-2xl">arrow_drop_down</icon>
         </button>
         <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
-            @if (force_time()) {
-                <button
-                    type="button"
-                    mat-menu-item
-                    [value]="force_time()"
-                    class="text-left"
-                    (click)="setValue(force_time().toString())"
-                >
-                    <div class="flex items-center justify-between">
-                        <div class="flex flex-col leading-tight">
-                            <div class="">
-                                {{ force_time() | date: time_format() }}
-                            </div>
-                            @if (timezone() && tz()) {
-                                <div class="text-xs opacity-30">
-                                    {{
-                                        force_time()
-                                            | date
-                                                : time_format() + ' (z)'
-                                                : tz()
-                                    }}
-                                </div>
-                            }
-                        </div>
-                        @if (active_time() === force_time()) {
-                            <icon class="ml-2 text-2xl"> done </icon>
-                        }
-                    </div>
-                </button>
-            }
             @for (option of time_options(); track option.id) {
                 <button
                     type="button"
@@ -177,7 +147,6 @@ export class TimeFieldComponent
     /** Whether past times are allowed */
     public readonly no_past_times = input(true);
     public readonly use_24hr = input(false);
-    public readonly force_time = input<number>(undefined);
     public readonly no_error = input<boolean>(undefined);
     public readonly extra_info_fn = input<(t?: number) => string>(
         (_t?: number) => '',
@@ -393,10 +362,8 @@ export class TimeFieldComponent
             this._onChange(date_value);
         }
 
-        const time = this.force_time() || this.time();
-        const time_parts = (
-            typeof time === 'string' ? time : formatTimeInTimezone(time, tz)
-        ).split(':');
+        const time = this.time() || '00:00';
+        const time_parts = time.split(':');
         const date_value = setTimeInTimezone(
             this.date(),
             +time_parts[0],
@@ -404,13 +371,7 @@ export class TimeFieldComponent
             tz,
         );
         this.active_time.set(
-            this._time_options().find(
-                (_) =>
-                    _.id ===
-                    (typeof time === 'string'
-                        ? time
-                        : formatTimeInTimezone(time, tz)),
-            )?.date || date_value,
+            this._time_options().find((_) => _.id === time)?.date || date_value,
         );
     }
 
@@ -432,10 +393,8 @@ export class TimeFieldComponent
             ),
         );
         this._updateNoOptions();
-        const force = this.force_time();
-        const time_id = force ? formatTimeInTimezone(force, tz) : this.time();
         this.active_time.set(
-            this._time_options().find((_) => _.id === time_id)?.date ||
+            this._time_options().find((_) => _.id === this.time())?.date ||
                 date.valueOf(),
         );
     }
@@ -472,8 +431,7 @@ export class TimeFieldComponent
     private _updateNoOptions(): void {
         this.no_options.set(
             !this.disabled() &&
-                (!this._time_options() || this._time_options().length === 0) &&
-                !this.force_time(),
+                (!this._time_options() || this._time_options().length === 0),
         );
     }
 

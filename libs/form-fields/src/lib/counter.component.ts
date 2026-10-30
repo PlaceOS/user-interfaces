@@ -53,7 +53,6 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     (ngModelChange)="value.set($event)"
                     (focus)="focused.set(true)"
                     (blur)="setValue(+value()); focused.set(false)"
-                    limitInput
                 />
             </div>
             <button

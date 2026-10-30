@@ -92,31 +92,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
                             </div>
                         </mat-option>
                     }
-                    @if (term && validate() && validate()(term)) {
-                        <mat-option class="pointer-events-none relative">
-                            <div
-                                class="pointer-events-auto absolute inset-0 px-4"
-                                (mousedown)="stopEvent($event)"
-                                (touchstart)="stopEvent($event)"
-                                (click)="
-                                    setExternalValue(term); stopEvent($event)
-                                "
-                            >
-                                <div class="pointer-events-none">
-                                    {{
-                                        'FORM.USER_ADD_EXTERNAL'
-                                            | translate: { name: term }
-                                    }}
-                                </div>
-                            </div>
-                        </mat-option>
-                    }
-                    @if (
-                        term &&
-                        allow_externals() &&
-                        isValidEmail(term) &&
-                        !(validate() && validate()(term))
-                    ) {
+                    @if (term && allow_externals() && isValidEmail(term)) {
                         <mat-option class="pointer-events-none relative">
                             <div
                                 class="pointer-events-auto absolute inset-0 flex items-center px-4"
@@ -138,10 +114,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
                         (search_term() || error()) &&
                         !disable_search()
                     ) {
-                        <mat-option
-                            [disabled]="!empty_fn()"
-                            (click)="empty_fn()()"
-                        >
+                        <mat-option disabled>
                             {{ (term ? 'FORM.USER_EMPTY' : '') | translate }}
                             {{ error() }}
                         </mat-option>
@@ -230,10 +203,6 @@ export class UserSearchFieldComponent
     public readonly clear = input<boolean>(false);
     /** Message to display when no user matches have been found */
     public readonly error = input('');
-    /** Function to validate the search string */
-    public readonly validate = input<(s: string) => boolean>(undefined);
-    /** Function to call when empty list option is clicked */
-    public readonly empty_fn = input<() => void>(undefined);
     /** Whether to allow selecting an external user from a typed email address */
     public readonly allow_externals = input<boolean>(false);
     /** Function for filtering the results of the user list */
@@ -332,11 +301,6 @@ export class UserSearchFieldComponent
                 })
                 .catch(() => value);
         }
-    }
-
-    public setExternalValue(name: string): void {
-        this.setValue(name);
-        this.dismissAutocomplete();
     }
 
     /**

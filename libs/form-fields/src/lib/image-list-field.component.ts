@@ -25,15 +25,12 @@ import {
     notifyError,
     notifyInfo,
     unique,
-    UPLOAD_PERMISSIONS_MODAL,
-    UploadCancelledError,
     UploadsService,
 } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageViewerComponent } from 'libs/components/src/lib/image-viewer.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
 export interface UploadDetails {
     /** Unique ID for the upload */
@@ -237,10 +234,6 @@ export interface UploadDetails {
             useExisting: forwardRef(() => ImageListFieldComponent),
             multi: true,
         },
-        {
-            provide: UPLOAD_PERMISSIONS_MODAL,
-            useValue: UploadPermissionsModalComponent,
-        },
     ],
     imports: [
         MatFormFieldModule,
@@ -375,13 +368,9 @@ export class ImageListFieldComponent
                 // Keep going after a failure so one bad file doesn't drop the rest
                 for (let i = 0; i < files.length; i++) {
                     try {
-                        const id =
-                            await this._uploads.uploadFileWithPermissions(
-                                files[i],
-                            );
+                        const id = await this._uploads.uploadFile(files[i]);
                         this.upload_ids.set([...this.upload_ids(), id]);
                     } catch (error) {
-                        if (error instanceof UploadCancelledError) continue;
                         notifyError(
                             `Failed to upload ${files[i].name}: ${error?.message || 'Unknown error'}`,
                         );

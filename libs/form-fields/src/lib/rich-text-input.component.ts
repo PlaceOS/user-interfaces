@@ -14,12 +14,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
-import {
-    AsyncHandler,
-    notifyError,
-    UploadCancelledError,
-    UploadsService,
-} from '@placeos/common';
+import { AsyncHandler, notifyError, UploadsService } from '@placeos/common';
 import { apiKey, token } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -406,7 +401,6 @@ export class RichTextInputComponent
                     this._syncValue();
                 })
                 .catch((error) => {
-                    if (error instanceof UploadCancelledError) return;
                     notifyError(
                         `Failed to upload ${file.name}: ${error?.message || 'Unknown error'}`,
                     );

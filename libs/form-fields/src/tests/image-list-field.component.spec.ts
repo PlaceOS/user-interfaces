@@ -6,7 +6,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { UploadCancelledError, UploadsService } from '@placeos/common';
+import { UploadsService } from '@placeos/common';
 import { mockDirective } from '@placeos/common/tests';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -32,9 +32,7 @@ describe('ImageListFieldComponent', () => {
         ],
         providers: [
             MockProvider(UploadsService, {
-                uploadFileWithPermissions: vi.fn(() =>
-                    Promise.resolve('upload-1'),
-                ),
+                uploadFile: vi.fn(() => Promise.resolve('upload-1')),
                 upload_list: (() => []) as any,
             }),
             MockProvider(Clipboard, { copy: vi.fn(() => true) }),
@@ -126,7 +124,7 @@ describe('ImageListFieldComponent', () => {
 
         it('should upload the remaining files after one fails', async () => {
             const uploads = spectator.inject(UploadsService);
-            vi.mocked(uploads.uploadFileWithPermissions)
+            vi.mocked(uploads.uploadFile)
                 .mockRejectedValueOnce(
                     new Error('Upload failed with status 500'),
                 )
@@ -134,21 +132,9 @@ describe('ImageListFieldComponent', () => {
             await spectator.component.uploadImages(
                 fileEvent(new File([], 'a.png'), new File([], 'b.png')),
             );
-            expect(uploads.uploadFileWithPermissions).toHaveBeenCalledTimes(2);
+            expect(uploads.uploadFile).toHaveBeenCalledTimes(2);
             expect(spectator.component.upload_ids()).toEqual(['upload-2']);
             expect(notify_open).toHaveBeenCalledTimes(1);
-        });
-
-        it('should stay silent when the user cancels an upload', async () => {
-            const uploads = spectator.inject(UploadsService);
-            vi.mocked(uploads.uploadFileWithPermissions).mockRejectedValueOnce(
-                new UploadCancelledError(),
-            );
-            await spectator.component.uploadImages(
-                fileEvent(new File([], 'a.png')),
-            );
-            expect(spectator.component.upload_ids()).toEqual([]);
-            expect(notify_open).not.toHaveBeenCalled();
         });
     });
 });
