@@ -7,109 +7,25 @@
 // when desks.show_users is true. The organisation, map asset, desk metadata and
 // booking row are browser-only GET fixtures; no desk is selected, no booking is
 // created and no backend record is changed.
-import type { Locator, Page, Route } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { DeskFlow } from '../../../../../e2e/support/desk/desk-flow.page';
-import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import {
-    APP_URL,
-    BACKEND_URL,
-    assertLocalOnly,
-} from '../../../../../e2e/support/env';
+import { APP_URL } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
-    READ_ONLY_SETTINGS,
-    readOnlyTest,
-} from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type DebugWindow, PIXEL, type Settings } from '../support/settings-harness';
-type Audit = {
-    fixtures: Record<string, number>;
-    unexpected_ws: string[];
-    control_ws: string[];
-};
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
+    type Audit,
+    type DebugWindow,
+    fixtureHits,
+    getOnly,
+    organisationRoutes,
+    PIXEL,
+    prepareSettings,
+    type Settings,
+    test,
+} from '../support/settings-harness';
 
-const test = readOnlyTest.extend<{ audit: Audit }>({
-    audit: [
-        async ({ staffPage }, use) => {
-            const audit: Audit = {
-                fixtures: {},
-                unexpected_ws: [],
-                control_ws: [],
-            };
-            const closing: Promise<void>[] = [];
-            await staffPage.context().routeWebSocket('**/*', (socket) => {
-                const url = new URL(socket.url());
-                const app = new URL(APP_URL);
-                const local =
-                    url.host === app.host &&
-                    url.protocol ===
-                        (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                if (
-                    local &&
-                    url.pathname === '/' &&
-                    [...url.searchParams.keys()].join(',') === 'token'
-                )
-                    return;
-                if (
-                    local &&
-                    url.pathname === '/api/engine/v2/systems/control'
-                ) {
-                    audit.control_ws.push(url.pathname);
-                } else {
-                    audit.unexpected_ws.push(url.href);
-                }
-                closing.push(socket.close().catch(() => undefined));
-            });
-            await use(audit);
-            await Promise.all(closing);
-            expect(
-                audit.unexpected_ws,
-                'no unexpected WebSocket connections',
-            ).toEqual([]);
-        },
-        { auto: true, timeout: 15_000 },
-    ],
-});
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
-async function getOnly(
-    page: Page,
-    audit: Audit,
-    name: string,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            audit.fixtures[name] = (audit.fixtures[name] ?? 0) + 1;
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
-}
-
-/** How many times a named GET fixture has answered. */
-function fixtureHits(audit: Audit, name: string) {
-    return audit.fixtures[name] ?? 0;
-}
-
-const CATEGORIES = [
-    { id: 'e2e-show-users-catering', name: '_CATERING_', hidden: true },
-    { id: 'e2e-show-users-desks', name: '_DESKS_', hidden: true },
-    { id: 'e2e-show-users-parking', name: '_PARKING_', hidden: true },
-    { id: 'e2e-show-users-lockers', name: '_LOCKERS_', hidden: true },
-];
-const TYPES: Record<string, string[]> = {
-    'e2e-show-users-catering': [],
-    'e2e-show-users-desks': ['_DESKS_'],
-    'e2e-show-users-parking': [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    'e2e-show-users-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
 const BASE: Settings = {
     ...READ_ONLY_SETTINGS,
     'app.features': ['desks'],
@@ -158,50 +74,13 @@ const BOOKING = {
     extension_data: {},
 };
 
-async function organisationFixture(
-    page: Page,
-    audit: Audit,
-    show_users: boolean,
-) {
-    await page.addInitScript(() => {
-        for (const key of Object.keys(localStorage)) {
-            if (
-                key.startsWith('PLACEOS.org') ||
-                ['PLACEOS.region', 'PLACEOS.building'].includes(key)
-            ) {
-                localStorage.removeItem(key);
-            }
-        }
-        sessionStorage.removeItem('PLACEOS.building');
-    });
-    await getOnly(
-        page,
+async function organisationFixture(page: Page, audit: Audit) {
+    await organisationRoutes(page, {
         audit,
-        'synthetic regions',
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'region' &&
-            url.searchParams.get('limit') === '200',
-        (url) => [
-            {
-                id: REGION,
-                parent_id: url.searchParams.get('parent_id'),
-                name: 'E2E Region',
-                tags: ['region'],
-                timezone: 'UTC',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        audit,
-        'synthetic buildings',
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'building' &&
-            url.searchParams.get('parent_id') === REGION &&
-            url.searchParams.get('limit') === '500',
-        () => [
+        prefix: 'e2e-settings-',
+        region: { id: REGION, name: 'E2E Region' },
+        regionParent: true,
+        buildings: [
             {
                 id: BUILDING_A,
                 parent_id: REGION,
@@ -212,100 +91,24 @@ async function organisationFixture(
                 location: '0,0',
             },
         ],
-    );
-    await getOnly(
-        page,
-        audit,
-        'synthetic levels',
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'level' &&
-            url.searchParams.get('limit') === '2500',
-        () => LEVELS,
-    );
-    await getOnly(
-        page,
-        audit,
-        'synthetic bulk metadata',
-        (url) =>
-            /^\/api\/engine\/v2\/metadata\/[^/]+\/bulk$/.test(url.pathname) &&
-            !!url.searchParams.get('parent_ids') &&
-            url.searchParams
-                .get('parent_ids')!
-                .split(',')
-                .every((id) => id.startsWith('e2e-settings-')),
-        (url) =>
-            Object.fromEntries(
-                url.searchParams
-                    .get('parent_ids')!
-                    .split(',')
-                    .map((id) => [
-                        id,
-                        {
-                            id,
-                            name: decodeURIComponent(
-                                url.pathname.split('/')[5],
-                            ),
-                            details: {},
-                        },
-                    ]),
-            ),
-    );
-    await getOnly(
-        page,
-        audit,
-        'synthetic metadata',
-        (url) =>
-            /^\/api\/engine\/v2\/metadata\/e2e-settings-[^/]+$/.test(
-                url.pathname,
-            ) && !!url.searchParams.get('name'),
-        (url) => {
-            const name = url.searchParams.get('name')!;
-            return {
-                [name]: {
-                    id: url.pathname.split('/')[5],
-                    name,
-                    details:
-                        name.endsWith('_booking_rules') ||
-                        name === 'map_regions'
-                            ? []
-                            : {},
-                },
-            };
-        },
-    );
-    await getOnly(
-        page,
-        audit,
-        'synthetic desk metadata',
-        (url) =>
-            /^\/api\/engine\/v2\/metadata\/e2e-settings-building-[ab]\/children$/.test(
-                url.pathname,
-            ) && url.searchParams.get('name') === 'desks',
-        (url) =>
-            LEVELS.filter(
-                (level) => level.parent_id === url.pathname.split('/')[5],
-            ).map((level) => ({
-                zone: level,
-                metadata: {
-                    desks: {
-                        name: 'desks',
-                        details: [
-                            {
-                                id: 'e2e-settings-desk-' + level.id,
-                                name: DESK + ' ' + level.id,
-                                map_id: 'e2e-settings-desk-shape',
-                                bookable: true,
-                                assigned_to: '',
-                                groups: [],
-                                features: [],
-                                images: [],
-                            },
-                        ],
-                    },
-                },
-            })),
-    );
+        levels: LEVELS,
+        metadata: (name) =>
+            name.endsWith('_booking_rules') || name === 'map_regions' ? [] : {},
+        desks: (level) => [
+            {
+                id: 'e2e-settings-desk-' + level.id,
+                name: DESK + ' ' + level.id,
+                map_id: 'e2e-settings-desk-shape',
+                bookable: true,
+                assigned_to: '',
+                groups: [],
+                features: [],
+                images: [],
+            },
+        ],
+    });
+    // The same booking row in every scenario, so only the setting decides
+    // whether the map requests and labels it.
     await getOnly(
         page,
         audit,
@@ -316,7 +119,6 @@ async function organisationFixture(
             url.searchParams.has('period_start') &&
             url.searchParams.has('period_end'),
         (url) => {
-            if (!show_users) return [];
             const start = Number(url.searchParams.get('period_start')) * 1000;
             return [
                 {
@@ -326,6 +128,7 @@ async function organisationFixture(
                 },
             ];
         },
+        { onError: 'throw' },
     );
     await getOnly(
         page,
@@ -339,6 +142,7 @@ async function organisationFixture(
             url.searchParams.has('period_start') &&
             url.searchParams.has('period_end'),
         () => [],
+        { onError: 'throw' },
     );
     await page.route(
         (url) => url.href === MAP,
@@ -357,95 +161,38 @@ async function organisationFixture(
 }
 
 async function prepare(page: Page, audit: Audit, show_users: boolean | null) {
-    assertLocalOnly(APP_URL, BACKEND_URL);
-    await page.setViewportSize({ width: 1440, height: 1100 });
-    await getOnly(
+    const fixture = await prepareSettings(
         page,
-        audit,
-        'hidden categories',
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            url.searchParams.get('hidden') === 'true' &&
-            url.searchParams.get('limit') === '500',
-        () => CATEGORIES,
+        {
+            'app.default_building': BUILDING_A,
+            'app.desk.auto_allocation': null,
+            'app.desks.auto_allocation': false,
+            'app.desks.can_book_for_others': false,
+            'app.bookings.can_book_for_others': false,
+            'app.desks.allow_groups': false,
+            'app.desks.has_assets': false,
+            'app.bookings.has_assets': false,
+            'app.desks.can_book_lockers': false,
+            'app.desks.use_assets': false,
+            'app.desks.bookable_hours': null,
+            'app.desks.allow_recurrence': false,
+            'app.desks.allow_multiple': false,
+            'app.desks.show_users': show_users,
+        },
+        {
+            audit,
+            base: BASE,
+            hidden: 'e2e-show-users',
+            locale: 'en-US',
+            landingRooms: false,
+            routes: () => organisationFixture(page, audit),
+        },
     );
-    await getOnly(
-        page,
-        audit,
-        'hidden types',
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            url.searchParams.get('limit') === '500' &&
-            Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
-        (url) =>
-            TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'e2e-show-users-type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
-    );
-    await getOnly(
-        page,
-        audit,
-        'hidden assets',
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' &&
-            (url.searchParams.get('type_id') ?? '').startsWith(
-                'e2e-show-users-type-',
-            ),
-        () => [],
-    );
-    await getOnly(
-        page,
-        audit,
-        'calendar list',
-        (url) => url.pathname === '/api/staff/v1/calendars',
-        () => [],
-    );
-    const settings = {
-        ...BASE,
-        'app.default_building': BUILDING_A,
-        'app.desk.auto_allocation': null,
-        'app.desks.auto_allocation': false,
-        'app.desks.can_book_for_others': false,
-        'app.bookings.can_book_for_others': false,
-        'app.desks.allow_groups': false,
-        'app.desks.has_assets': false,
-        'app.bookings.has_assets': false,
-        'app.desks.can_book_lockers': false,
-        'app.desks.use_assets': false,
-        'app.desks.bookable_hours': null,
-        'app.desks.allow_recurrence': false,
-        'app.desks.allow_multiple': false,
-        'app.desks.show_users': show_users,
-    };
-    await useSettings(page, settings);
-    await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-US'));
-    await organisationFixture(page, audit, show_users !== false);
     await page.goto('/#/book/desk/form');
-    await expect(page.locator('global-loading')).toHaveCount(1);
-    await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(
-        page.locator('global-loading [initialisation-error]'),
-    ).toHaveCount(0);
-    for (const [key, value] of [
-        ['app.features', settings['app.features']],
-        ['app.desks.show_users', show_users],
-        ['app.default_building', BUILDING_A],
-    ] as const) {
-        await expect
-            .poll(
-                () =>
-                    page.evaluate(
-                        (name) => (window as DebugWindow).setting?.(name),
-                        key,
-                    ),
-                { message: 'effective setting ' + key },
-            )
-            .toEqual(value);
-    }
-    return settings;
+    await fixture.ready({
+        keys: ['app.features', 'app.desks.show_users', 'app.default_building'],
+    });
+    return fixture.settings;
 }
 
 async function deskMap(page: Page, audit: Audit) {
@@ -482,10 +229,8 @@ async function deskMap(page: Page, audit: Audit) {
     await expect
         .poll(() => fixtureHits(audit, 'synthetic SVG'))
         .toBeGreaterThan(0);
-    // The only fixture level is selected by the form model on init, which is
-    // what gives the map's booking query its zone. Do not toggle the select:
-    // opening it here is unnecessary and made the setup depend on overlay
-    // timing rather than on the setting under test.
+    // The form model selects the only fixture level on init, which gives the
+    // map's booking query its zone; the level select is never opened.
     await expect(map.locator('mat-select')).toContainText('E2E Level A');
     await expect
         .poll(() => map.locator('div[track-id^="desk:hover:"]').count())
@@ -555,7 +300,6 @@ function deskUserLabel(map: Locator) {
 // Unset (null) falls back to on: the map reads
 // settings.signal('desks.show_users', true), and a null override resolves to
 // that default while keeping any stack zone value out.
-// Kept as data so the test body has no branches.
 const SCENARIOS = [
     {
         show_users: false,
