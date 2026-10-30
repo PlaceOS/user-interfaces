@@ -37,45 +37,32 @@ import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/suppor
 import { expect } from '../../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../../e2e/support/room/room.settings';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { BULK_METADATA, clearOrganisationCache, expectSafe, protectNetwork, type Settings, watchStaffId, guardedStaffTest as test } from '../support/settings-harness';
-type DebugWindow = Window & {
-    ng?: { getComponent(element: Element): unknown };
-    setting?: (key: string) => unknown;
-};
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
+import {
+    type DebugWindow,
+    ORIGINS,
+    type Settings,
+    clearOrganisationCache,
+    expectSafe,
+    getOnly,
+    guardedStaffTest as test,
+    protectNetwork,
+    syntheticOrg,
+    syntheticOrgRoutes,
+    validPeriod as strictPeriod,
+} from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
 /** Every synthetic zone and asset id starts with this prefix. */
 const PREFIX = 'e2e-catering-notes-';
-const ORGANISATION = PREFIX + 'org';
-const REGION = PREFIX + 'region';
-const BUILDING = PREFIX + 'building';
-const LEVEL = PREFIX + 'level';
-const ZONES = [ORGANISATION, REGION, BUILDING, LEVEL];
+const ORG = syntheticOrg(PREFIX, { params: 'zones' });
+const { ORGANISATION, REGION, BUILDING, LEVEL, ZONES, hasParams } = ORG;
 const CATERING_CATEGORY = PREFIX + 'catering';
 const CATERING_TYPE_NAME = 'CATERING:Prepared';
 const CATERING_TYPE_ID = PREFIX + 'type-' + CATERING_TYPE_NAME;
 const CATERING_ITEM = 'Prepared notes sandwich';
-const HIDDEN_CATEGORIES = [
-    { id: CATERING_CATEGORY, name: '_CATERING_', hidden: true },
-    { id: PREFIX + 'desks', name: '_DESKS_', hidden: true },
-    { id: PREFIX + 'parking', name: '_PARKING_', hidden: true },
-    { id: PREFIX + 'lockers', name: '_LOCKERS_', hidden: true },
-];
-const HIDDEN_TYPES: Record<string, string[]> = {
-    [CATERING_CATEGORY]: [CATERING_TYPE_NAME],
-    [PREFIX + 'desks']: ['_DESKS_'],
-    [PREFIX + 'parking']: [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    [PREFIX + 'lockers']: ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
-const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
-    .flat()
-    .map((name) => PREFIX + 'type-' + name);
+const CATERING_TYPES = [CATERING_TYPE_NAME];
+const CATERING_TYPE_IDS = [CATERING_TYPE_ID];
 // Exact single-zone metadata names: room rules and the catering settings and
 // rules for the building, and the organisation's alerts and translations.
 const ZONE_METADATA: Record<string, string[]> = {
@@ -113,215 +100,30 @@ const CONTROLS: Settings = {
     'app.schedule.event_sources': ['api'],
 };
 
-function hasParams(url: URL, expected: Record<string, string>) {
-    const keys = [...url.searchParams.keys()].filter(
-        (key) =>
-            !(
-                url.pathname === '/api/engine/v2/zones' &&
-                key === 'authority_id'
-            ),
-    );
-    return (
-        keys.length === Object.keys(expected).length &&
-        Object.entries(expected).every(
-            ([key, value]) => url.searchParams.get(key) === value,
-        )
-    );
-}
-
 /** Numeric seconds, in increasing order; no malformed period is hidden. */
-function validPeriod(url: URL) {
-    const start = url.searchParams.get('period_start') ?? '';
-    const end = url.searchParams.get('period_end') ?? '';
-    return (
-        /^\d+$/.test(start) && /^\d+$/.test(end) && Number(end) > Number(start)
-    );
-}
+const validPeriod = (url: URL) => strictPeriod(url, { strict: false });
 
-/** Hidden assets may only be read in this synthetic organisation. */
-function hiddenAssetQuery(url: URL) {
+/** The catering types may only be read in this synthetic organisation. */
+function cateringAssetQuery(url: URL) {
     const type_id = url.searchParams.get('type_id') ?? '';
     const zone_id = url.searchParams.get('zone_id') ?? '';
     return (
-        HIDDEN_TYPE_IDS.includes(type_id) &&
+        CATERING_TYPE_IDS.includes(type_id) &&
         ZONES.includes(zone_id) &&
         hasParams(url, { type_id, zone_id, limit: '500' })
     );
 }
 
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
-}
-
 /** Exact synthetic GET fixtures for the meeting options step with catering. */
 async function syntheticGets(page: Page) {
-    const staff_id = watchStaffId(page);
     let catering_item_requests = 0;
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, { tags: 'org', include_children_count: 'true' }),
-        () => [
-            {
-                id: ORGANISATION,
-                name: 'Catering Notes Organisation',
-                display_name: 'Catering Notes Organisation',
-                tags: ['org'],
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) => {
-            const match = /^\/api\/engine\/v2\/metadata\/([^/]+)\/bulk$/.exec(
-                url.pathname,
-            );
-            const ids = (url.searchParams.get('parent_ids') ?? '').split(',');
-            return (
-                !!match &&
-                BULK_METADATA.includes(match[1]) &&
-                url.searchParams.has('parent_ids') &&
-                hasParams(url, {
-                    parent_ids: url.searchParams.get('parent_ids')!,
-                }) &&
-                ids.every((id) => ZONES.includes(id))
-            );
-        },
-        (url) =>
-            Object.fromEntries(
-                url.searchParams
-                    .get('parent_ids')!
-                    .split(',')
-                    .map((id) => [id, { details: {} }]),
-            ),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, {
-                tags: 'region',
-                parent_id: ORGANISATION,
-                limit: '200',
-            }),
-        () => [
-            {
-                id: REGION,
-                name: 'Catering Notes Region',
-                tags: ['region'],
-                timezone: 'UTC',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, {
-                tags: 'building',
-                parent_id: REGION,
-                limit: '500',
-            }),
-        () => [
-            {
-                id: BUILDING,
-                parent_id: REGION,
-                name: 'Catering Notes Building',
-                display_name: 'Catering Notes Building',
-                tags: ['building'],
-                timezone: 'UTC',
-                location: '0,0',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, { tags: 'level', limit: '2500' }),
-        () => [
-            {
-                id: LEVEL,
-                parent_id: BUILDING,
-                name: 'Catering Notes Level',
-                display_name: 'Catering Notes Level',
-                tags: ['level'],
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) => {
-            const id = url.pathname.split('/')[5] ?? '';
-            const name = url.searchParams.get('name') ?? '';
-            return (
-                url.pathname === '/api/engine/v2/metadata/' + id &&
-                Object.hasOwn(ZONE_METADATA, id) &&
-                ZONE_METADATA[id].includes(name) &&
-                hasParams(url, { name })
-            );
-        },
-        (url) => {
-            const id = url.pathname.split('/')[5];
-            const name = url.searchParams.get('name')!;
-            return {
-                [name]: {
-                    id,
-                    name,
-                    details: LIST_METADATA.includes(name) ? [] : {},
-                },
-            };
-        },
-    );
-    await page.route(
-        (url) =>
-            ORIGINS.has(url.origin) &&
-            /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
-            ['settings', 'contacts'].some((name) => hasParams(url, { name })),
-        async (route: Route) => {
-            const request = route.request();
-            if (request.method() !== 'GET') return route.fallback();
-            const id = decodeURIComponent(
-                new URL(request.url()).pathname.split('/')[5],
-            );
-            if (!id || id !== (await staff_id)) return route.fallback();
-            const name = new URL(request.url()).searchParams.get('name')!;
-            await route.fulfill({
-                json: {
-                    [name]: {
-                        name,
-                        description: '',
-                        details: name === 'contacts' ? [] : {},
-                    },
-                },
-            });
-        },
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/groups/current' &&
-            hasParams(url, {}),
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            hasParams(url, { zone_id: ORGANISATION, limit: '5000' }),
-        () => [ROOM],
-    );
+    await syntheticOrgRoutes(page, ORG, {
+        label: 'Catering Notes',
+        zone_metadata: ZONE_METADATA,
+        zone_details: (_id, name) => (LIST_METADATA.includes(name) ? [] : {}),
+        user_metadata: ['settings', 'contacts'],
+        rooms: [ROOM],
+    });
     await getOnly(
         page,
         (url) =>
@@ -333,40 +135,27 @@ async function syntheticGets(page: Page) {
             }),
         () => [ROOM],
     );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            hasParams(url, { hidden: 'true', limit: '500' }),
-        () => HIDDEN_CATEGORIES,
-    );
+    // The caterer types in the hidden catering category.
     await getOnly(
         page,
         (url) =>
             url.pathname === '/api/engine/v2/asset_types' &&
-            Object.hasOwn(
-                HIDDEN_TYPES,
-                url.searchParams.get('category_id') ?? '',
-            ) &&
-            hasParams(url, {
-                category_id: url.searchParams.get('category_id')!,
-                limit: '500',
-            }),
-        (url) =>
-            HIDDEN_TYPES[url.searchParams.get('category_id')!].map((name) => ({
+            hasParams(url, { category_id: CATERING_CATEGORY, limit: '500' }),
+        () =>
+            CATERING_TYPES.map((name) => ({
                 id: PREFIX + 'type-' + name,
                 name,
-                category_id: url.searchParams.get('category_id'),
+                category_id: CATERING_CATEGORY,
                 brand: 'PlaceOS',
             })),
     );
     // queryCateringItems (catering-assets.fn.ts): one item for the
-    // building's one caterer; every other hidden list is empty.
+    // building's one caterer.
     await page.route(
         (url) =>
             ORIGINS.has(url.origin) &&
             url.pathname === '/api/engine/v2/assets' &&
-            hiddenAssetQuery(url),
+            cateringAssetQuery(url),
         async (route: Route) => {
             if (route.request().method() !== 'GET') return route.fallback();
             const url = new URL(route.request().url());
@@ -397,13 +186,7 @@ async function syntheticGets(page: Page) {
             });
         },
     );
-    // Calendars, events and native room bookings: all empty.
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/staff/v1/calendars' && hasParams(url, {}),
-        () => [],
-    );
+    // Events and native room bookings: all empty.
     await getOnly(
         page,
         (url) => url.pathname === '/api/staff/v1/events' && validPeriod(url),
@@ -535,7 +318,7 @@ const NOTE_REQUIRED: NotesState = { valid: false, errors: ['required'] };
 
 // The true scenario must reject empty notes with a `required` error
 // (event-form.ts); the false scenario is its control. Both fill and
-// clear the notes. Kept as data so neither the title nor the body branches.
+// clear the notes.
 const SCENARIOS = [
     { required: true, verb: 'rejects', empty: NOTE_REQUIRED },
     { required: false, verb: 'accepts', empty: NOTE_OK },

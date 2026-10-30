@@ -22,47 +22,30 @@
 // the readOnlyTest identity guard observes and is never mocked. Any other /api
 // request, any non-GET request to a local non-API path (including /auth/) and
 // any external request is recorded and aborted, and fails the scenario.
-import type { Page, Route } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../../e2e/support/room/room.settings';
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { BULK_METADATA, clearOrganisationCache, expectSafe, type NetworkAudit, READ_METHODS, type Settings, staffTokenTest as test } from '../support/settings-harness';
-type DebugWindow = Window & {
-    ng?: { getComponent(element: Element): unknown };
-    setting?: (key: string) => unknown;
-};
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
+import {
+    type DebugWindow,
+    type Settings,
+    clearOrganisationCache,
+    expectSafe,
+    getOnly,
+    protectNetwork,
+    staffTokenTest as test,
+    syntheticOrg,
+    syntheticOrgRoutes,
+} from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
 /** Every synthetic zone id starts with this prefix. */
 const PREFIX = 'e2e-default-duration-';
-const ORGANISATION = PREFIX + 'org';
-const REGION = PREFIX + 'region';
-const BUILDING = PREFIX + 'building';
-const LEVEL = PREFIX + 'level';
-const ZONES = [ORGANISATION, REGION, BUILDING, LEVEL];
-const HIDDEN_CATEGORIES = [
-    { id: PREFIX + 'catering', name: '_CATERING_', hidden: true },
-    { id: PREFIX + 'desks', name: '_DESKS_', hidden: true },
-    { id: PREFIX + 'parking', name: '_PARKING_', hidden: true },
-    { id: PREFIX + 'lockers', name: '_LOCKERS_', hidden: true },
-];
-const HIDDEN_TYPES: Record<string, string[]> = {
-    [PREFIX + 'catering']: [],
-    [PREFIX + 'desks']: ['_DESKS_'],
-    [PREFIX + 'parking']: [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    [PREFIX + 'lockers']: ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
-const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
-    .flat()
-    .map((name) => PREFIX + 'type-' + name);
+const ORG = syntheticOrg(PREFIX, { params: 'any' });
+const { ORGANISATION, BUILDING, hasParams } = ORG;
 // Exact single-zone metadata names: room_booking_rules for each building
 // (event-form.service.ts), room_alerts on the organisation,
 // and the organisation's translation overrides. LocaleService requests
@@ -83,314 +66,17 @@ const CONTROLS: Settings = {
     'app.has_assets': false,
 };
 
-/**
- * True when the URL carries exactly the expected query parameters. The API
- * client may add `authority_id` to zone queries, which is the only extra key
- * accepted.
- */
-function hasParams(url: URL, expected: Record<string, string>) {
-    const keys = [...url.searchParams.keys()].filter(
-        (key) => key !== 'authority_id',
-    );
-    return (
-        keys.length === Object.keys(expected).length &&
-        Object.entries(expected).every(
-            ([key, value]) => url.searchParams.get(key) === value,
-        )
-    );
-}
-
-async function protectNetwork(page: Page): Promise<NetworkAudit> {
-    const audit: NetworkAudit = {
-        api: [],
-        local_writes: [],
-        external: [],
-        websocket: [],
-        blockedControl: [],
-        appErrors: [],
-        closing: [],
-    };
-    page.on('pageerror', (error) =>
-        audit.appErrors.push(error.name + ': ' + error.message),
-    );
-    page.on('console', (message) => {
-        if (
-            message.type() === 'error' &&
-            /^(ERROR\b|NG0\d+)/.test(message.text())
-        ) {
-            audit.appErrors.push(message.text().slice(0, 500));
-        }
-    });
-    await page.context().route('**/*', async (route) => {
-        const request = route.request();
-        const url = new URL(request.url());
-        if (ORIGINS.has(url.origin)) {
-            if (!url.pathname.startsWith('/api/')) {
-                // Page assets and the auth bootstrap are reads; any local
-                // non-API write (for example a POST to /auth/) is refused.
-                if (READ_METHODS.includes(request.method())) {
-                    return route.fallback();
-                }
-                audit.local_writes.push(request.method() + ' ' + url.pathname);
-                return route.abort('blockedbyclient');
-            }
-            if (
-                request.method() === 'GET' &&
-                url.pathname === '/api/engine/v2/users/current'
-            ) {
-                return route.fallback();
-            }
-            audit.api.push(request.method() + ' ' + url.pathname + url.search);
-            return route.abort('blockedbyclient');
-        }
-        if (
-            request.method() === 'GET' &&
-            url.origin === 'https://fonts.googleapis.com' &&
-            url.pathname === '/css2'
-        ) {
-            return route.fulfill({
-                status: 200,
-                contentType: 'text/css',
-                body: '',
-            });
-        }
-        audit.external.push(request.method() + ' ' + url.origin + url.pathname);
-        return route.abort('blockedbyclient');
-    });
-    await page.context().routeWebSocket('**/*', (socket) => {
-        const url = new URL(socket.url());
-        const app = new URL(APP_URL);
-        const local =
-            url.host === app.host &&
-            url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-        if (
-            local &&
-            url.pathname === '/' &&
-            [...url.searchParams.keys()].join(',') === 'token'
-        )
-            return;
-        if (local && url.pathname === '/api/engine/v2/systems/control') {
-            audit.blockedControl.push(url.pathname);
-        } else {
-            audit.websocket.push(url.pathname);
-        }
-        audit.closing.push(socket.close());
-    });
-    return audit;
-}
-
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
-}
-
-/**
- * The staff user id from the app's own identity GET, which is never mocked.
- * Resolves to '' when no identity arrives in time, so a fixture waiting on it
- * falls through to the network guard instead of hanging.
- */
-function watchStaffId(page: Page): Promise<string> {
-    const identity = new Promise<string>((resolve) => {
-        page.on('response', (response) => {
-            const url = new URL(response.url());
-            if (
-                ORIGINS.has(url.origin) &&
-                url.pathname === '/api/engine/v2/users/current' &&
-                response.request().method() === 'GET' &&
-                response.ok()
-            ) {
-                response
-                    .json()
-                    .then((user: { id?: string }) => {
-                        if (user?.id) resolve(user.id);
-                    })
-                    .catch(() => undefined);
-            }
-        });
-    });
-    const timeout = new Promise<string>((resolve) =>
-        setTimeout(() => resolve(''), 15_000),
-    );
-    return Promise.race([identity, timeout]);
-}
-
 /** Exact synthetic GET fixtures for the requests the meeting form makes. */
 async function syntheticGets(page: Page) {
-    const staff_id = watchStaffId(page);
-    // Organisation bootstrap (organisation.service.ts).
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, { tags: 'org', include_children_count: 'true' }),
-        () => [
-            {
-                id: ORGANISATION,
-                name: 'Duration Organisation',
-                display_name: 'Duration Organisation',
-                tags: ['org'],
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) => {
-            const match = /^\/api\/engine\/v2\/metadata\/([^/]+)\/bulk$/.exec(
-                url.pathname,
-            );
-            const ids = (url.searchParams.get('parent_ids') ?? '').split(',');
-            return (
-                !!match &&
-                BULK_METADATA.includes(match[1]) &&
-                url.searchParams.has('parent_ids') &&
-                hasParams(url, {
-                    parent_ids: url.searchParams.get('parent_ids')!,
-                }) &&
-                ids.every((id) => ZONES.includes(id))
-            );
-        },
-        (url) =>
-            Object.fromEntries(
-                url.searchParams
-                    .get('parent_ids')!
-                    .split(',')
-                    .map((id) => [id, { details: {} }]),
-            ),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, {
-                tags: 'region',
-                parent_id: ORGANISATION,
-                limit: '200',
-            }),
-        () => [
-            {
-                id: REGION,
-                name: 'Duration Region',
-                tags: ['region'],
-                timezone: 'UTC',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, {
-                tags: 'building',
-                parent_id: REGION,
-                limit: '500',
-            }),
-        () => [
-            {
-                id: BUILDING,
-                parent_id: REGION,
-                name: 'Duration Building',
-                display_name: 'Duration Building',
-                tags: ['building'],
-                timezone: 'UTC',
-                location: '0,0',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, { tags: 'level', limit: '2500' }),
-        () => [
-            {
-                id: LEVEL,
-                parent_id: BUILDING,
-                name: 'Duration Level',
-                display_name: 'Duration Level',
-                tags: ['level'],
-            },
-        ],
-    );
-    // Only the named blocks expected for each synthetic zone are answered.
-    // Translation overrides are empty, so the bundled locale files apply.
-    await getOnly(
-        page,
-        (url) => {
-            const id = url.pathname.split('/')[5] ?? '';
-            const name = url.searchParams.get('name') ?? '';
-            return (
-                url.pathname === '/api/engine/v2/metadata/' + id &&
-                Object.hasOwn(ZONE_METADATA, id) &&
-                ZONE_METADATA[id].includes(name) &&
-                hasParams(url, { name })
-            );
-        },
-        (url) => {
-            const id = url.pathname.split('/')[5];
-            const name = url.searchParams.get('name')!;
-            return {
-                [name]: {
-                    id,
-                    name,
-                    details: name === 'room_booking_rules' ? [] : {},
-                },
-            };
-        },
-    );
-    // The signed-in user's personal settings (settings.service.ts),
-    // answered only for the id the app's own identity GET returned. Empty
-    // details: allow_dark_mode is false, so no theme save follows.
-    await page.route(
-        (url) =>
-            ORIGINS.has(url.origin) &&
-            /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
-            hasParams(url, { name: 'settings' }),
-        async (route: Route) => {
-            const request = route.request();
-            if (request.method() !== 'GET') return route.fallback();
-            const id = decodeURIComponent(
-                new URL(request.url()).pathname.split('/')[5],
-            );
-            if (!id || id !== (await staff_id)) return route.fallback();
-            await route.fulfill({
-                json: {
-                    settings: {
-                        name: 'settings',
-                        description: '',
-                        details: {},
-                    },
-                },
-            });
-        },
-    );
-    // Group permissions loaded after the user (user-state.ts). An empty
-    // list is also what the app uses when the request fails.
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/groups/current' &&
-            hasParams(url, {}),
-        () => [],
-    );
-    // SpacesService.loadSpaces: every system in the organisation
-    // (spaces.service.ts), and the bookable list for the building
-    // (space.utilities.ts). This scenario selects no room.
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            hasParams(url, { zone_id: ORGANISATION, limit: '5000' }),
-        () => [],
-    );
+    // Organisation bootstrap (organisation.service.ts), the organisation's
+    // empty translation overrides and the signed-in user's empty settings.
+    await syntheticOrgRoutes(page, ORG, {
+        label: 'Duration',
+        zone_metadata: ZONE_METADATA,
+        zone_details: (_id, name) => (name === 'room_booking_rules' ? [] : {}),
+    });
+    // The bookable list for the building (space.utilities.ts); the
+    // organisation list is in syntheticOrgRoutes. This scenario selects no room.
     await getOnly(
         page,
         (url) =>
@@ -402,48 +88,7 @@ async function syntheticGets(page: Page) {
             }),
         () => [],
     );
-    // Hidden asset bootstrap: matching categories/types so nothing is created.
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            hasParams(url, { hidden: 'true', limit: '500' }),
-        () => HIDDEN_CATEGORIES,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            Object.hasOwn(
-                HIDDEN_TYPES,
-                url.searchParams.get('category_id') ?? '',
-            ) &&
-            hasParams(url, {
-                category_id: url.searchParams.get('category_id')!,
-                limit: '500',
-            }),
-        (url) =>
-            HIDDEN_TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: PREFIX + 'type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' &&
-            HIDDEN_TYPE_IDS.includes(url.searchParams.get('type_id') ?? ''),
-        () => [],
-    );
-    // Calendars, events and room bookings.
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/staff/v1/calendars' && hasParams(url, {}),
-        () => [],
-    );
+    // Events and room bookings.
     await getOnly(
         page,
         (url) =>
@@ -546,8 +191,7 @@ function durationSettingState(page: Page) {
 
 // The configured scenario sets 45 and expects 45 minutes. The fallback
 // scenario leaves the key unset (no override, effective value null) and
-// expects the source-supported 60 minutes. Kept as data so the test body has
-// no branches.
+// expects the source-supported 60 minutes.
 const SCENARIOS = [
     {
         label: '45',
