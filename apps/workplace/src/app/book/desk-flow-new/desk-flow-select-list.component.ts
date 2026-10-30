@@ -17,6 +17,7 @@ import {
     settingSignal,
     SettingsService,
     Space,
+    toggleListItem,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -365,10 +366,7 @@ export class DeskFlowSelectListComponent {
     );
 
     public toggleFavourite(item: Space) {
-        const existing = this.favourites();
-        const updated = existing.find((id) => item.id === id)
-            ? existing.filter((id) => id !== item.id)
-            : [...existing, item.id];
+        const updated = toggleListItem(this.favourites(), item.id);
 
         // Optimistically update UI
         this.favourites.set(updated);

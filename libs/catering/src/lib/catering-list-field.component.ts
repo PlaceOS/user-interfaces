@@ -24,6 +24,7 @@ import {
     SETTING_KEYS,
     SettingsService,
     Space,
+    toggleListItem,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 
@@ -608,19 +609,10 @@ export class CateringListFieldComponent
     }
 
     public toggleFavourite(cateringitem: CateringItem) {
-        const fav_list = this.favorites();
-        const new_state = !fav_list.includes(cateringitem.id);
-        if (new_state) {
-            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_CATERING, [
-                ...fav_list,
-                cateringitem.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                SETTING_KEYS.FAVORITE_CATERING,
-                fav_list.filter((_) => _ !== cateringitem.id),
-            );
-        }
+        this._settings.saveUserSetting(
+            SETTING_KEYS.FAVORITE_CATERING,
+            toggleListItem(this.favorites(), cateringitem.id),
+        );
     }
 
     private syncExpandedOrders(orders: CateringOrder[]) {

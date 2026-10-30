@@ -23,6 +23,7 @@ import {
     randomString,
     SettingsService,
     Space,
+    toggleListItem,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 
@@ -492,18 +493,9 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     }
 
     public toggleFavourite(asset: AssetItem) {
-        const fav_list = this.favorites();
-        const new_state = !fav_list.includes(asset.id);
-        if (new_state) {
-            this._settings.saveUserSetting('favourite_assets', [
-                ...fav_list,
-                asset.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                'favourite_assets',
-                fav_list.filter((_) => _ !== asset.id),
-            );
-        }
+        this._settings.saveUserSetting(
+            'favourite_assets',
+            toggleListItem(this.favorites(), asset.id),
+        );
     }
 }

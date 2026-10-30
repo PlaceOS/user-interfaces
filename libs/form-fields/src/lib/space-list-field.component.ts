@@ -23,6 +23,7 @@ import {
     SETTING_KEYS,
     SettingsService,
     Space,
+    toggleListItem,
 } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -300,11 +301,7 @@ export class SpaceListFieldComponent
 
     public toggleFavourite(space: Space) {
         if (!space?.id) return;
-        const fav_list = this.favorites;
-        const new_state = !fav_list.includes(space.id);
-        const updated = new_state
-            ? [...fav_list, space.id]
-            : fav_list.filter((_) => _ !== space.id);
+        const updated = toggleListItem(this.favorites, space.id);
 
         // Optimistically update cache for instant UI update
         this._favorites_cache = updated;

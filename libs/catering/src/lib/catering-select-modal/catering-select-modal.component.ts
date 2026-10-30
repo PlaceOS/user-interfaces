@@ -6,6 +6,7 @@ import {
     OrganisationService,
     SETTING_KEYS,
     SettingsService,
+    toggleListItem,
 } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -274,18 +275,9 @@ export class CateringSelectModalComponent {
     }
 
     public toggleFavourite(item: string) {
-        const fav_list = this.favorites();
-        const new_state = !fav_list.includes(item);
-        if (new_state) {
-            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_CATERING, [
-                ...fav_list,
-                item,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                SETTING_KEYS.FAVORITE_CATERING,
-                fav_list.filter((_) => _ !== item),
-            );
-        }
+        this._settings.saveUserSetting(
+            SETTING_KEYS.FAVORITE_CATERING,
+            toggleListItem(this.favorites(), item),
+        );
     }
 }

@@ -1,7 +1,12 @@
 import { Component, computed, inject, Signal, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { AssetGroup, isMobileSafari, SettingsService } from '@placeos/common';
+import {
+    AssetGroup,
+    isMobileSafari,
+    SettingsService,
+    toggleListItem,
+} from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -213,18 +218,9 @@ export class AssetSelectModalComponent {
 
     public toggleFavourite(asset: AssetGroup | null) {
         if (!asset) return;
-        const fav_list = this.favorites();
-        const new_state = !fav_list.includes(asset.id);
-        if (new_state) {
-            this._settings.saveUserSetting('favourite_assets', [
-                ...fav_list,
-                asset.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                'favourite_assets',
-                fav_list.filter((_) => _ !== asset.id),
-            );
-        }
+        this._settings.saveUserSetting(
+            'favourite_assets',
+            toggleListItem(this.favorites(), asset.id),
+        );
     }
 }
