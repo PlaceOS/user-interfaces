@@ -166,12 +166,6 @@ export const fromCsvField = (field: string) =>
         ? field.slice(1)
         : field;
 
-/**
- * Projects, floorplans and map objects, persisted in the browser.
- *
- * Mirrors the REST surface of the reference application so the pages read the
- * same way, but every call resolves against IndexedDB — there is no server.
- */
 /** When a project or any of its floors last changed. Floor edits do not touch the project. */
 export function lastUpdated(project: Project): string {
     return (project.floorplans ?? []).reduce(
@@ -181,6 +175,12 @@ export function lastUpdated(project: Project): string {
     );
 }
 
+/**
+ * Projects, floorplans and map objects, persisted in the browser.
+ *
+ * Mirrors the REST surface of the reference application so the pages read the
+ * same way, but every call resolves against IndexedDB — there is no server.
+ */
 @Injectable({ providedIn: 'root' })
 export class StoreService {
     private readonly _db = inject(DbService);
