@@ -84,4 +84,14 @@ describe('CounterComponent', () => {
         spectator.setInput({ input_id: 'capacity' });
         expect('[value] input').toHaveAttribute('id', 'capacity');
     });
+
+    it('should stack both step buttons after the value when compact', () => {
+        spectator.setInput({ compact: true });
+        const buttons = spectator.queryAll('[counter] > div:last-child button');
+        expect(buttons.map((_) => _.hasAttribute('increase'))).toEqual([
+            true,
+            false,
+        ]);
+        expect(spectator.query('[counter] > button')).toBeNull();
+    });
 });

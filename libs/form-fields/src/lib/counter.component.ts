@@ -13,6 +13,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         <div
             counter
             class="flex items-center text-base"
+            [class.gap-1]="compact()"
             (window:keydown.shift)="shift_key.set(true)"
             (window:keydown.control)="ctrl_key.set(true)"
             (window:keydown.meta)="ctrl_key.set(true)"
@@ -21,24 +22,30 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             (window:keyup.meta)="ctrl_key.set(false)"
             [class.disabled]="disabled()"
         >
-            <button
-                decrease
-                icon
-                matRipple
-                type="button"
-                class="border-secondary text-secondary z-10 h-12 w-12 rounded-l rounded-r-none border"
-                [disabled]="!value() || value() === min()"
-                (click)="remove()"
-                [attr.aria-label]="'COMMON.DECREASE' | translate"
-            >
-                <icon>remove</icon>
-            </button>
+            @if (!compact()) {
+                <button
+                    decrease
+                    icon
+                    matRipple
+                    type="button"
+                    class="border-secondary text-secondary z-10 h-12 w-12 rounded-l rounded-r-none border"
+                    [disabled]="!value() || value() === min()"
+                    (click)="remove()"
+                    [attr.aria-label]="'COMMON.DECREASE' | translate"
+                >
+                    <icon>remove</icon>
+                </button>
+            }
             <div
                 value
-                class="border-secondary relative z-0 -mx-px flex h-12 min-w-16 flex-1 items-center justify-center rounded-none border p-2 focus-within:z-20"
+                class="border-secondary relative z-0 -mx-px flex h-12 min-w-16 flex-1 items-center justify-center border focus-within:z-20"
+                [class.rounded-none]="!compact()"
+                [class.p-2]="!compact()"
+                [class.rounded-sm]="compact()"
+                [class.p-1]="compact()"
             >
                 @if (!focused()) {
-                    <span>
+                    <span [class.px-3]="compact()">
                         {{
                             (render_fn() ? render_fn()(value()) : value()) ||
                                 '0'
@@ -55,18 +62,47 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     (blur)="setValue(+value()); focused.set(false)"
                 />
             </div>
-            <button
-                increase
-                icon
-                matRipple
-                type="button"
-                class="border-secondary text-secondary z-10 h-12 w-12 rounded-l-none rounded-r border"
-                [disabled]="value() === max()"
-                (click)="add()"
-                [attr.aria-label]="'COMMON.INCREASE' | translate"
-            >
-                <icon>add</icon>
-            </button>
+            @if (compact()) {
+                <div class="flex flex-col justify-center space-y-1">
+                    <button
+                        increase
+                        icon
+                        matRipple
+                        type="button"
+                        class="border-secondary text-secondary z-10 h-5.5 w-5.5 min-w-0 rounded-sm border text-sm"
+                        [disabled]="value() === max()"
+                        (click)="add()"
+                        [attr.aria-label]="'COMMON.INCREASE' | translate"
+                    >
+                        <icon>add</icon>
+                    </button>
+                    <button
+                        decrease
+                        icon
+                        matRipple
+                        type="button"
+                        class="border-secondary text-secondary z-10 h-5.5 w-5.5 min-w-0 rounded-sm border text-sm"
+                        [disabled]="!value() || value() === min()"
+                        (click)="remove()"
+                        [attr.aria-label]="'COMMON.DECREASE' | translate"
+                    >
+                        <icon>remove</icon>
+                    </button>
+                </div>
+            } @else {
+                <button
+                    increase
+                    icon
+                    matRipple
+                    type="button"
+                    class="border-secondary text-secondary z-10 h-12 w-12 rounded-l-none rounded-r border"
+                    [disabled]="value() === max()"
+                    (click)="add()"
+                    [attr.aria-label]="'COMMON.INCREASE' | translate"
+                >
+                    <icon>add</icon>
+                </button>
+            }
         </div>
     `,
     styles: [
@@ -97,6 +133,8 @@ export class CounterComponent implements ControlValueAccessor {
     public readonly render_fn = input<(v: number) => string>(undefined);
     /** ID of the editable input, so that a `<label for>` can name it */
     public readonly input_id = input<string>(undefined);
+    /** Smaller layout with the step buttons stacked to the right */
+    public readonly compact = input(false);
     /** Whether form control is disabled */
     public readonly disabled = model<boolean>(undefined);
     /** Current value of the counter */

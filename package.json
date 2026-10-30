@@ -122,7 +122,6 @@
         "@vitest/coverage-v8": "^4.0.8",
         "angular-eslint": "22.2.0",
         "autoprefixer": "^10.4.16",
-        "blob-util": "^2.0.2",
         "chart.js": "^4.5.0",
         "date-fns": "^4.4.0",
         "date-fns-tz": "^3.2.0",
