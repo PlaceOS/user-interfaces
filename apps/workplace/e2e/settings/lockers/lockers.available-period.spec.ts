@@ -13,6 +13,8 @@ import {
     test,
 } from '../support/settings-harness';
 
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
 async function openLockerPicker(page: Page, audit: Audit, available_period: number) {

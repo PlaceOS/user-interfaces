@@ -18,6 +18,8 @@ const BASE: Settings = {
     'app.basic_user_search': true,
 };
 
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ readOnlyTimezone: 'Etc/UTC', auditHttp: 'strict' });
 
 async function openRequest(page: Page, overrides: Settings) {

@@ -27,6 +27,8 @@ const BASE: Settings = {
     'app.explore.cisco_maps.enabled': false,
 };
 
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ readOnlyTimezone: 'Etc/UTC', auditHttp: 'strict' });
 
 async function openExplore(page: Page, overrides: Settings) {

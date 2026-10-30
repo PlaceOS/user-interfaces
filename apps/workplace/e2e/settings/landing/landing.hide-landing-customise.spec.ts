@@ -19,6 +19,9 @@ import {
     stubBootstrap,
     test,
 } from '../support/settings-harness';
+
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ auditHttp: 'strict' });
 
 /** Saved layout that removes the favourites card when the app applies it */

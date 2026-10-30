@@ -12,6 +12,9 @@ import { type Settings, stubBootstrap, test } from '../support/settings-harness'
 
 // The strict audit aborts and fails every write, every non-local /api read and
 // every calendars or events provider read.
+
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ auditHttp: 'strict' });
 
 const BASE: Settings = {

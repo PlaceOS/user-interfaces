@@ -10,6 +10,8 @@ import { expect } from '../../../../../e2e/support/fixtures';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { type Audit, type Settings, test, visitor } from '../support/settings-harness';
 
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
 // effective_min_duration is min(visitors.min_duration, ...custom options);

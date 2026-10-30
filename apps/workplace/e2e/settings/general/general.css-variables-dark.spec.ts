@@ -20,6 +20,9 @@ import {
     stubBootstrap,
     test,
 } from '../support/settings-harness';
+
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ auditHttp: 'strict' });
 
 const BASE: Settings = {

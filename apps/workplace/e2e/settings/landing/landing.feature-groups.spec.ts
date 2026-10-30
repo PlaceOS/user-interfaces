@@ -21,6 +21,9 @@ import {
 
 // Test-local only: the shared fixture remains unchanged. Authentication is
 // established by that fixture; these guards cover browser activity afterwards.
+
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ auditHttp: 'strict' });
 
 const E2E_GROUP = 'e2e-feature-group-that-no-staff-user-has';

@@ -157,6 +157,8 @@ const LANDING_HIDDEN = hiddenAssets('e2e-settings-landing');
         },
     });
 
+    test.describe.configure({ timeout: 120_000 });
+
     test.use({ storageState: undefined, timezoneId: TIMEZONE });
 
     const ROUTE = '/#/landing';

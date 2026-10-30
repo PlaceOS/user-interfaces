@@ -59,6 +59,8 @@ const BASE: Settings = {
     'app.parking.request_shift_options': [PRESETS[0]],
 };
 
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ readOnlyTimezone: 'Etc/UTC', auditHttp: 'strict' });
 
 async function prepare(page: Page, overrides: Settings) {

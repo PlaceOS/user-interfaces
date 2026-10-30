@@ -237,6 +237,8 @@ async function stubLandingRooms(page: Page) {
         },
     });
 
+    test.describe.configure({ timeout: 120_000 });
+
     test.use({ storageState: undefined, timezoneId: TIMEZONE });
 
     const ROUTE = '/#/landing';

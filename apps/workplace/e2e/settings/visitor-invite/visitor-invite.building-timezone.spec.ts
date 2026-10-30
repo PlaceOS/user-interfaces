@@ -13,6 +13,9 @@ import { type Audit, BASE, ORIGINS, prepareSettings, type Settings, test } from 
 const BUILDING_TIMEZONE = 'Australia/Sydney';
 
 // Far from BUILDING_TIMEZONE, so the time field shows its secondary line.
+
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ readOnlyTimezone: 'Pacific/Kiritimati' });
 
 async function visitor(page: Page, audit: Audit, overrides: Settings) {

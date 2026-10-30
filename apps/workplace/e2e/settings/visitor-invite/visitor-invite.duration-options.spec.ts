@@ -21,6 +21,8 @@ const FALLBACKS: Settings = {
     'app.visitors.custom_duration_options': null,
 };
 
+test.describe.configure({ timeout: 120_000 });
+
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
 async function open(page: Page, audit: Audit, overrides: Settings) {

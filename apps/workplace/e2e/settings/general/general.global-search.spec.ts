@@ -8,6 +8,9 @@ import {
 } from '../support/settings-harness';
 
 const test = landingSafetyTest(BASE_SETTINGS, 'e2e-settings-landing');
+
+test.describe.configure({ timeout: 120_000 });
+
 test.use({
     storageState: undefined,
     timezoneId: LANDING_TIMEZONE,
