@@ -1,0 +1,61 @@
+import "./chunk-653SOEEV.js";
+
+// apps/assistant-panel/src/environments/settings.schema.json
+var type = "object";
+var description = "Customisable settings for the assistant-panel app";
+var properties = {
+  name: {
+    type: "string",
+    description: "Application name sent with PlaceOS API requests. Falls back to `short_name`"
+  },
+  short_name: {
+    type: "string",
+    description: "Prefix for console log messages. Also used as the API application name when `name` is not set"
+  },
+  chat: {
+    type: "object",
+    description: "Settings for the global AI assistant chat widget",
+    properties: {
+      enabled: {
+        type: "boolean",
+        description: "Whether to show the global AI assistant chat widget. Defaults to `false`"
+      }
+    }
+  },
+  environment_bar: {
+    type: "string",
+    description: "CSS colour for thin identifier bars at the top and bottom of the app. Leave unset to hide the bars"
+  },
+  banner: {
+    type: "object",
+    description: "Message banner shown at the top of the app. The user can close it",
+    properties: {
+      id: {
+        type: "string",
+        description: "Unique ID for the banner. A closed banner stays hidden until the ID changes"
+      },
+      type: {
+        type: "string",
+        enum: ["info", "warn", "error"],
+        description: "Colour style for the banner. Defaults to `info`"
+      },
+      content: {
+        type: "string",
+        description: "Message text to show in the banner"
+      }
+    }
+  }
+};
+var settings_schema_default = {
+  type,
+  description,
+  properties
+};
+export {
+  settings_schema_default as default,
+  description,
+  properties,
+  type
+};
+//# debugId=85a08d26-f1c9-5dc0-8882-876afc8663b7
+//# sourceMappingURL=settings.schema-VXS23LU4.js.map
