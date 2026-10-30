@@ -1,5 +1,6 @@
 
 import type { Page } from '@playwright/test';
+import { DeskFlow } from '../../../../../e2e/support/desk/desk-flow.page';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { type Audit, type Debug, getOnly, organisationRoutes, prepare, test, untouchedDesk } from '../support/settings-harness';
 
@@ -82,7 +83,7 @@ for(const enabled of [false,true]){
   // Establish positive current-staff availability before changing the host.
   await expect(staffPage.locator('desk-flow-select-list li[item]')).toHaveCount(1);
   await expect(staffPage.locator('desk-flow-select-list')).toContainText(DESK);
-  await details.getByRole('button',{name:'person_add Book for other',exact:true}).click();
+  await new DeskFlow(staffPage).bookForOtherButton.click();
   // UserSearchField (focus)=selectInputText() runs input.select() in a setTimeout, so per-key typing can
   // overwrite the first characters and send a truncated q. Focus first, then set the full term in one input event.
   const host=details.locator('a-user-search-field input');await expect(host).toBeEditable();

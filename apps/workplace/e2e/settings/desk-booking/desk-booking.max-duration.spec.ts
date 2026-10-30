@@ -1,5 +1,4 @@
 
-import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { DESK_DISTINCT_FALLBACKS, durationMenu, futureDesk, openDesk, test, untouchedDesk } from '../support/settings-harness';
 
