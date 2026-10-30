@@ -19,7 +19,6 @@ import type { Mock } from 'vitest';
 import { Booking } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
-import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BehaviorSubject, NEVER, of } from 'rxjs';
@@ -70,7 +69,6 @@ describe('BookingDetailsModalComponent', () => {
             MockComponent(InteractiveMapComponent),
             MockComponent(IconComponent),
             MockComponent(StatusPillComponent),
-            MockComponent(IndoorMapsComponent),
         ],
         imports: [MockModule(MatMenuModule), MockModule(MatDialogModule)],
     });

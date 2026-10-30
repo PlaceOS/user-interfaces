@@ -456,9 +456,6 @@ export class UserListFieldComponent
     /** Form control on touch handler */
     private _onTouch: (_: User[]) => void;
 
-    public readonly validFn = (s) => validateEmail(s);
-    public readonly emptyClick = () => this.openNewUserModal(new User());
-
     public readonly search_valid_email = computed(() =>
         validateEmail(this.search()),
     );

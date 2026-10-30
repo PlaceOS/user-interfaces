@@ -1,10 +1,6 @@
 import { Component, forwardRef, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import {
-    Attachment,
-    randomInt,
-    UPLOAD_PERMISSIONS_MODAL,
-} from '@placeos/common';
+import { Attachment, randomInt } from '@placeos/common';
 import { takeWhile } from 'rxjs/operators';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -12,7 +8,6 @@ import { uploadFiles } from '@placeos/cloud-uploads';
 import * as blobUtil from 'blob-util';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
 @Component({
     selector: 'upload-file',
@@ -84,10 +79,6 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => UploadFileFieldComponent),
             multi: true,
-        },
-        {
-            provide: UPLOAD_PERMISSIONS_MODAL,
-            useValue: UploadPermissionsModalComponent,
         },
     ],
     imports: [MatProgressSpinnerModule, IconComponent, TranslatePipe],

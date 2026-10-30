@@ -1,7 +1,7 @@
 import {
     clearAuthenticatedImageCache,
     loadAuthenticatedImageWithHeader,
-} from '../lib/authenticated-image.pipe';
+} from '../lib/authenticated-image';
 
 vi.mock('@placeos/ts-client', { spy: true });
 

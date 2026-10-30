@@ -14,7 +14,7 @@ import {
     getCachedAuthenticatedImage,
     loadAuthenticatedImage,
     loadAuthenticatedImageWithHeader,
-} from './authenticated-image.pipe';
+} from './authenticated-image';
 
 type AuthenticatedMediaElement =
     | HTMLImageElement

@@ -3,7 +3,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { UploadCancelledError, UploadsService } from '@placeos/common';
+import { UploadsService } from '@placeos/common';
 import { mockDirective } from '@placeos/common/tests';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -20,9 +20,7 @@ describe('ImageFieldComponent', () => {
         ],
         providers: [
             MockProvider(UploadsService, {
-                uploadFileWithPermissions: vi.fn(() =>
-                    Promise.resolve('upload-1'),
-                ),
+                uploadFile: vi.fn(() => Promise.resolve('upload-1')),
                 upload_list: (() => []) as any,
             }),
             MockProvider(Clipboard, { copy: vi.fn(() => true) }),
@@ -94,7 +92,7 @@ describe('ImageFieldComponent', () => {
 
         it('should report a failed upload rather than rejecting', async () => {
             const uploads = spectator.inject(UploadsService);
-            vi.mocked(uploads.uploadFileWithPermissions).mockRejectedValueOnce(
+            vi.mocked(uploads.uploadFile).mockRejectedValueOnce(
                 new Error('Commit failed with status 401'),
             );
             await expect(
@@ -104,17 +102,6 @@ describe('ImageFieldComponent', () => {
             ).resolves.toBeUndefined();
             expect(notify_open).toHaveBeenCalled();
             expect(spectator.component.progress()).toBe(0);
-        });
-
-        it('should stay silent when the user cancels the upload', async () => {
-            const uploads = spectator.inject(UploadsService);
-            vi.mocked(uploads.uploadFileWithPermissions).mockRejectedValueOnce(
-                new UploadCancelledError(),
-            );
-            await spectator.component.uploadImage(
-                fileEvent(new File([], 'a.png')),
-            );
-            expect(notify_open).not.toHaveBeenCalled();
         });
     });
 });

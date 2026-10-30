@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService, User } from '@placeos/common';
 import { generateMockUser } from 'libs/users/src/lib/user.utilities';
-import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import {
     MatAutocompleteModule,
@@ -14,7 +14,6 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
-import { PlaceUserPipe } from '../lib/place-user.pipe';
 import { UserListFieldComponent } from '../lib/user-list-field.component';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
 
@@ -28,7 +27,6 @@ describe('UserListFieldComponent', () => {
             MockComponent(IconComponent),
             MockComponent(UserSearchFieldComponent),
             MockComponent(UserAvatarComponent),
-            MockPipe(PlaceUserPipe),
         ],
         providers: [
             MockProvider(MatDialog, { open: vi.fn(() => ({})) } as any),
