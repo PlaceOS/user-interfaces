@@ -46,7 +46,7 @@ const OTHER_SPACE = 'e2e-parking-other-space';
 const SPACES_TYPE = 'e2e-settings-type-_PARKING_SPACES_';
 
 const SCENARIOS = [
-    { label: '1 refuses a second parking booking that day', limit: 1, allowed: false },
+    { label: '1 (the default) refuses a second parking booking that day', limit: 1, allowed: false },
     { label: '2 allows a second parking booking that day', limit: 2, allowed: true },
 ];
 
