@@ -10,8 +10,13 @@ export const READ_ONLY_SETTINGS: Record<string, unknown> = {
     'app.desks.use_assets': false,
 };
 
-// This fixture applies only to the explicitly selected read-only tests below.
-// Keep the imported team test and all non-selected tests unchanged.
+/**
+ * The staff page in a fresh context (no admin state, service workers blocked,
+ * optional time zone) for the read-only settings specs. Every /api request that
+ * is not a local GET, HEAD or OPTIONS is aborted and recorded; teardown fails
+ * the test on any recorded request and checks that the app loaded this
+ * worker's non-admin staff user.
+ */
 export const readOnlyTest = test.extend<{ readOnlyTimezone: string | undefined }>({
     readOnlyTimezone: [undefined, { option: true }],
     storageState: async ({}, use) => use(undefined),
@@ -27,7 +32,7 @@ export const readOnlyTest = test.extend<{ readOnlyTimezone: string | undefined }
         type StaffIdentity = { email?: string; sys_admin?: boolean; support?: boolean };
         const identities: Promise<StaffIdentity | null>[] = [];
         try {
-            // Register before creating the page; never allow an API mutation.
+            // Registered before the page exists, so its first request is covered.
             await context.route('**/api/**', async (route) => {
                 const request = route.request();
                 const url = new URL(request.url());
@@ -35,13 +40,12 @@ export const readOnlyTest = test.extend<{ readOnlyTimezone: string | undefined }
                     ![new URL(APP_URL).origin, new URL(BACKEND_URL).origin].includes(url.origin)) {
                     blocked.push(`${request.method()} ${url.pathname}`);
                     await route.abort('blockedbyclient');
-                    await context.close();
                     return;
                 }
                 await route.continue();
             });
             const page = await context.newPage();
-            // Observe the app's own identity GET; do not issue another request.
+            // Reads the app's own identity GET; no extra request is made.
             page.on('response', (response) => {
                 if (response.request().method() === 'GET' &&
                     new URL(response.url()).pathname === '/api/engine/v2/users/current') {
