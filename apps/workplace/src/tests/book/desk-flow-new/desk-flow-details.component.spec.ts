@@ -188,8 +188,12 @@ describe('DeskFlowDetailsComponent', () => {
             spectator
                 .queryAll('button[btn] > icon')
                 .map((el) => el.textContent.trim());
+        const values = signal<Record<string, boolean | null>>({});
+        (spectator.inject(SettingsService).get as any).mockImplementation(
+            (key: string) => values()[key],
+        );
         settingSignal('desks.allow_groups').set(true);
-        settingSignal('desks.can_book_for_others').set(true);
+        values.set({ 'app.desks.can_book_for_others': true });
         spectator.detectChanges();
         expect(typeButtons()).toEqual(['person', 'group_add', 'person_add']);
 
@@ -197,10 +201,18 @@ describe('DeskFlowDetailsComponent', () => {
         spectator.detectChanges();
         expect(typeButtons()).toEqual(['person', 'person_add']);
 
-        settingSignal('desks.can_book_for_others').set(false);
-        settingSignal('bookings.can_book_for_others').set(false);
+        // An explicit desk value of `false` overrides the bookings value
+        values.set({
+            'app.desks.can_book_for_others': false,
+            'app.bookings.can_book_for_others': true,
+        });
         spectator.detectChanges();
         expect(typeButtons()).toEqual([]);
+
+        // Falls back to the bookings value when the desk value is not set
+        values.set({ 'app.bookings.can_book_for_others': true });
+        spectator.detectChanges();
+        expect(typeButtons()).toEqual(['person', 'person_add']);
     });
 
     it('should let desks.has_assets override bookings.has_assets when set', () => {

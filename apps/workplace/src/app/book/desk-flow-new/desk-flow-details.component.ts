@@ -376,10 +376,16 @@ export class DeskFlowDetailsComponent {
         'desks.allow_groups',
         false,
     );
+    /**
+     * `desks.can_book_for_others` overrides `bookings.can_book_for_others`
+     * when set. Reads through `get()` for the same reason as `has_assets`.
+     */
     public readonly can_book_for_others = computed<boolean>(
         () =>
-            !!settingSignal('bookings.can_book_for_others')() ||
-            !!settingSignal('desks.can_book_for_others')(),
+            !!(
+                this._settings.get('app.desks.can_book_for_others') ??
+                this._settings.get('app.bookings.can_book_for_others')
+            ),
     );
     /** Whether the user can select a booking type other than `single` */
     public readonly has_form_types = computed(

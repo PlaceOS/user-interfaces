@@ -405,10 +405,11 @@ export class NewDeskFormDetailsComponent
         );
     }
 
-    public get can_book_for_others() {
-        return (
-            this._settings.get('app.bookings.can_book_for_others') ||
-            this._settings.get('app.desks.can_book_for_others')
+    /** `desks.can_book_for_others` overrides `bookings.can_book_for_others` when set */
+    public get can_book_for_others(): boolean {
+        return !!(
+            this._settings.get('app.desks.can_book_for_others') ??
+            this._settings.get('app.bookings.can_book_for_others')
         );
     }
 
