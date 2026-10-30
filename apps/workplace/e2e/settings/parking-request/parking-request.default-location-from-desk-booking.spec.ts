@@ -1,81 +1,25 @@
-// Coverage: 1 unique setting, 2 scenarios.
 // Setting: parking.default_location_from_desk_booking (docs/settings/workplace.md; source:
 //   apps/workplace/src/app/book/parking-request-flow/parking-request-form-details.component.ts).
+// Scenarios: false and true.
 //
 // A browser-only three-building organisation and one synthetic desk booking
 // are served by GET routes. When the setting is true the form marks the desk
 // booking's building with the desk badge and switches the active building;
 // when false the default building remains selected. Nothing is submitted.
-import type { Page, Route } from '@playwright/test';
-import {
-    APP_URL,
-    BACKEND_URL,
-    assertLocalOnly,
-} from '../../../../../e2e/support/env';
+import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
-import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import {
-    READ_ONLY_SETTINGS,
-    readOnlyTest,
-} from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type Settings } from '../support/settings-harness';
-type DebugWindow = Window & { setting?: (key: string) => unknown };
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
+    type DebugWindow,
+    getOnly,
+    organisationRoutes,
+    PRESETS,
+    prepareSettings,
+    REQUEST,
+    type Settings,
+    test,
+} from '../support/settings-harness';
 
-type WsAudit = { unexpected: string[]; control: string[] };
-const test = readOnlyTest.extend<{ wsAudit: WsAudit }>({
-    wsAudit: [
-        async ({ staffPage }, use) => {
-            const audit: WsAudit = { unexpected: [], control: [] };
-            const closing: Promise<void>[] = [];
-            await staffPage.context().routeWebSocket('**/*', (socket) => {
-                const url = new URL(socket.url());
-                const app = new URL(APP_URL);
-                const local =
-                    url.host === app.host &&
-                    url.protocol ===
-                        (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                if (
-                    local &&
-                    url.pathname === '/' &&
-                    [...url.searchParams.keys()].join(',') === 'token'
-                )
-                    return;
-                if (
-                    local &&
-                    url.pathname === '/api/engine/v2/systems/control'
-                ) {
-                    audit.control.push(url.pathname);
-                } else {
-                    audit.unexpected.push(url.href);
-                }
-                closing.push(socket.close().catch(() => undefined));
-            });
-            await use(audit);
-            await Promise.all(closing);
-            expect(
-                audit.unexpected,
-                'no unexpected WebSocket connections',
-            ).toEqual([]);
-        },
-        { auto: true, timeout: 15_000 },
-    ],
-});
 test.use({ readOnlyTimezone: 'Etc/UTC' });
-
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
-}
 
 const REGION = 'e2e-request-parking-region';
 const BUILDING_A = 'e2e-request-parking-building-a';
@@ -136,256 +80,74 @@ const BUILDINGS = [
         location: '80,80',
     },
 ];
-const CATEGORIES = [
-    { id: 'e2e-request-parking-desk-catering', name: '_CATERING_', hidden: true },
-    { id: 'e2e-request-parking-desk-desks', name: '_DESKS_', hidden: true },
-    { id: 'e2e-request-parking-desk-parking', name: '_PARKING_', hidden: true },
-    { id: 'e2e-request-parking-desk-lockers', name: '_LOCKERS_', hidden: true },
-];
-const TYPES: Record<string, string[]> = {
-    'e2e-request-parking-desk-catering': [],
-    'e2e-request-parking-desk-desks': ['_DESKS_'],
-    'e2e-request-parking-desk-parking': [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    'e2e-request-parking-desk-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
-const REQUEST: Settings = {
-    ...READ_ONLY_SETTINGS,
-    'app.features': ['parking'],
+const BASE: Settings = {
+    ...REQUEST,
     'app.feature_groups': {},
-    'app.chat.enabled': false,
-    'app.global_search': false,
-    'app.auto_release': { resources: [] },
-    'app.schedule.event_sources': ['api'],
-    'app.use_region': false,
-    'app.use_geolocation': false,
-    'app.allow_dark_mode': false,
     'app.events.use_bookings': true,
     'app.virtual_concierge.url': '',
     'app.virtual_concierge_url': '',
     'app.basic_user_search': true,
-    'app.use_24_hour_time': true,
     'app.default_building': BUILDING_A,
-    'app.desks.use_assets': false,
-    'app.parking.restrict_home_location': false,
-    'app.parking.allow_recurrence': false,
-    'app.parking.available_period': 14,
-    'app.parking.use_building_timezone': false,
-    'app.bookings.use_building_timezone': false,
-    'app.parking.hidden_buildings': [],
-    'app.parking.request_types': null,
-    'app.parking.request_shift_options': [
-        {
-            id: 'e2e-day',
-            name: 'E2E Day Shift',
-            start_time: 480,
-            end_time: 1020,
-        },
-    ],
-    'app.parking.hide_custom_shift': false,
-    'app.parking.hide_availability_counter': true,
+    'app.parking.request_shift_options': [PRESETS[0]],
     'app.parking.hide_prefer_toggle': true,
-    'app.parking.require_plate_number': false,
-    'app.parking.require_space_restriction': false,
-    'app.parking.request_space_restrictions': [],
-    'app.parking.extra_space_restrictions': [],
-    'app.parking.approver_groups': [],
-    'app.parking.auto_approved_groups': [],
-    'app.parking.vehicle_types': null,
-    'app.parking.request_submission_notes_html': '',
-    'app.parking.can_book_for_anyone': false,
-    'app.bookings.can_book_for_anyone': null,
-    'app.parking.can_book_for_others': false,
-    'app.bookings.can_book_for_others': null,
 };
 
-async function organisationFixture(page: Page) {
-    await page.addInitScript(() => {
-        for (const key of Object.keys(localStorage)) {
-            if (
-                key.startsWith('PLACEOS.org') ||
-                ['PLACEOS.region', 'PLACEOS.building'].includes(key)
-            ) {
-                localStorage.removeItem(key);
-            }
-        }
-        for (const key of [
-            'PLACEOS.booking_form',
-            'PLACEOS.booking_form_options',
-            'PLACEOS.booking_form_filters',
-        ]) {
-            sessionStorage.removeItem(key);
-        }
-        sessionStorage.removeItem('PLACEOS.building');
-        localStorage.setItem('APP.locale', 'en-AU');
-    });
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'region' &&
-            url.searchParams.get('limit') === '200',
-        () => [
-            {
-                id: REGION,
-                name: 'E2E Parking Region',
-                tags: ['region'],
-                timezone: 'UTC',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'building' &&
-            url.searchParams.get('parent_id') === REGION &&
-            url.searchParams.get('limit') === '500',
-        () => BUILDINGS,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'level' &&
-            url.searchParams.get('limit') === '2500',
-        () => LEVELS,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            /^\/api\/engine\/v2\/metadata\/[^/]+\/bulk$/.test(url.pathname) &&
-            !!url.searchParams.get('parent_ids') &&
-            url.searchParams
-                .get('parent_ids')!
-                .split(',')
-                .every((id) => id.startsWith('e2e-request-parking-')),
-        (url) =>
-            Object.fromEntries(
-                url.searchParams
-                    .get('parent_ids')!
-                    .split(',')
-                    .map((id) => [
-                        id,
-                        {
-                            id,
-                            name: decodeURIComponent(
-                                url.pathname.split('/')[5],
-                            ),
-                            details: {},
-                        },
-                    ]),
-            ),
-    );
-}
-
 async function prepare(page: Page, enabled: boolean) {
-    assertLocalOnly(APP_URL, BACKEND_URL);
-    await page.setViewportSize({ width: 1440, height: 1100 });
     let desk_requests = 0;
-    await organisationFixture(page);
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            url.searchParams.get('hidden') === 'true' &&
-            url.searchParams.get('limit') === '500',
-        () => CATEGORIES,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            url.searchParams.get('limit') === '500' &&
-            Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
-        (url) =>
-            TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'e2e-request-parking-desk-type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' &&
-            (url.searchParams.get('type_id') ?? '').startsWith(
-                'e2e-request-parking-desk-type-',
-            ),
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) => url.pathname === '/api/staff/v1/calendars',
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/staff/v1/bookings' &&
-            url.searchParams.get('type') === 'parking',
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/staff/v1/bookings' &&
-            url.searchParams.get('type') === 'desk',
-        (url) => {
-            desk_requests += 1;
-            const email = url.searchParams.get('email') ?? '';
-            const start =
-                Number(url.searchParams.get('period_start') ?? 0) * 1000;
-            const date = start + 10 * 3600 * 1000;
-            return [
-                {
-                    id: 'e2e-request-parking-desk-booking',
-                    booking_type: 'desk',
-                    user_email: email,
-                    user_name: 'Prepared Parking Desk User',
-                    booked_by_name: 'Prepared Parking Desk User',
-                    asset_id: 'e2e-request-parking-desk',
-                    asset_name: 'Prepared Parking Desk',
-                    date,
-                    date_end: date + 3600 * 1000,
-                    duration: 60,
-                    status: 'approved',
-                    zones: [LEVEL_B, BUILDING_B],
-                    zone_id: LEVEL_B,
-                    extension_data: {},
+    await organisationRoutes(page, {
+        prefix: 'e2e-request-parking-',
+        region: { id: REGION, name: 'E2E Parking Region' },
+        buildings: BUILDINGS,
+        levels: LEVELS,
+        metadata: false,
+        clearSession: ['PLACEOS.booking_form', 'PLACEOS.booking_form_options', 'PLACEOS.booking_form_filters'],
+        locale: 'en-AU',
+    });
+    const fixture = await prepareSettings(page, { 'app.parking.default_location_from_desk_booking': enabled }, {
+        base: BASE,
+        hidden: 'e2e-request-parking-desk',
+        landingRooms: false,
+        identity: false,
+        locale: null,
+        bookings: { types: ['parking'] },
+        routes: () =>
+            getOnly(
+                page,
+                (url) =>
+                    url.pathname === '/api/staff/v1/bookings' &&
+                    url.searchParams.get('type') === 'desk',
+                (url) => {
+                    desk_requests += 1;
+                    const email = url.searchParams.get('email') ?? '';
+                    const start =
+                        Number(url.searchParams.get('period_start') ?? 0) * 1000;
+                    const date = start + 10 * 3600 * 1000;
+                    return [
+                        {
+                            id: 'e2e-request-parking-desk-booking',
+                            booking_type: 'desk',
+                            user_email: email,
+                            user_name: 'Prepared Parking Desk User',
+                            booked_by_name: 'Prepared Parking Desk User',
+                            asset_id: 'e2e-request-parking-desk',
+                            asset_name: 'Prepared Parking Desk',
+                            date,
+                            date_end: date + 3600 * 1000,
+                            duration: 60,
+                            status: 'approved',
+                            zones: [LEVEL_B, BUILDING_B],
+                            zone_id: LEVEL_B,
+                            extension_data: {},
+                        },
+                    ];
                 },
-            ];
-        },
-    );
-    const settings = {
-        ...REQUEST,
-        'app.parking.default_location_from_desk_booking': enabled,
-    };
-    await useSettings(page, settings);
+            ),
+    });
     await page.goto('/#/book/parking-request/form');
-    await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(
-        page.locator('global-loading [initialisation-error]'),
-    ).toHaveCount(0);
-    for (const [key, value] of [
-        ['app.features', settings['app.features']],
-        ['app.parking.default_location_from_desk_booking', enabled],
-    ] as const) {
-        await expect
-            .poll(
-                () =>
-                    page.evaluate(
-                        (name) => (window as DebugWindow).setting?.(name),
-                        key,
-                    ),
-                { message: 'effective setting ' + key },
-            )
-            .toEqual(value);
-    }
+    await fixture.ready({
+        loading: false,
+        keys: ['app.features', 'app.parking.default_location_from_desk_booking'],
+    });
     const root = page.locator('parking-request-form-details');
     await expect(root).toBeVisible();
     return { root, deskRequests: () => desk_requests };
@@ -400,9 +162,7 @@ async function prepare(page: Page, enabled: boolean) {
  */
 function formState(page: Page) {
     return page.locator('parking-request-form-details').evaluate((element) => {
-        const component = (
-            window as Window & { ng?: { getComponent(element: Element): unknown } }
-        ).ng?.getComponent(element) as
+        const component = (window as DebugWindow).ng?.getComponent(element) as
             | { shift_type?: () => string; building_list?: () => unknown[] }
             | undefined;
         if (!component?.shift_type || !component.building_list) {
@@ -417,16 +177,18 @@ function formState(page: Page) {
 
 // With the setting on, building B (the desk booking's building) carries the
 // desk badge and is the active row; with it off, the default building A stays
-// active and B has no badge. Kept as data so the test body has no branches.
+// active and B has no badge.
 const SCENARIOS = [
     {
         enabled: false,
+        title: 'keeps the default building',
         desk_badges: 0,
         active: 'E2E Parking Building A',
         inactive: 'E2E Parking Building B',
     },
     {
         enabled: true,
+        title: 'selects the desk-booking building',
         desk_badges: 1,
         active: 'E2E Parking Building B',
         inactive: 'E2E Parking Building A',
@@ -434,7 +196,7 @@ const SCENARIOS = [
 ];
 
 for (const scenario of SCENARIOS) {
-    test(`parking.default_location_from_desk_booking ${scenario.enabled} selects the desk-booking building`, async ({
+    test(`parking.default_location_from_desk_booking ${scenario.enabled} ${scenario.title}`, async ({
         staffPage,
     }) => {
         const { root, deskRequests } = await prepare(staffPage, scenario.enabled);
@@ -454,8 +216,7 @@ for (const scenario of SCENARIOS) {
         // Location preference rows: one radio per building inside the radiogroup
         // labelled BOOKINGS.PARKING_LOCATION_PREFERENCE ("Location Preference").
         // The form also has a "Request Type" radiogroup, so scope by its name.
-        // aria-checked marks the active building (same condition as the old
-        // border-info class, building()?.id === bld.id).
+        // aria-checked marks the active building (building()?.id === bld.id).
         const rows = root
             .getByRole('radiogroup', { name: 'Location Preference', exact: true })
             .getByRole('radio');
