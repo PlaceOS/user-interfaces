@@ -166,6 +166,15 @@ export const fromCsvField = (field: string) =>
         ? field.slice(1)
         : field;
 
+/** When a project or any of its floors last changed. Floor edits do not touch the project. */
+export function lastUpdated(project: Project): string {
+    return (project.floorplans ?? []).reduce(
+        (latest, floor) =>
+            floor.updated_at > latest ? floor.updated_at : latest,
+        project.updated_at,
+    );
+}
+
 /**
  * Projects, floorplans and map objects, persisted in the browser.
  *
@@ -187,7 +196,7 @@ export class StoreService {
 
     // ── Projects ────────────────────────────────────────────────────────────
 
-    /** Every project, most recently updated first, with its floorplans attached */
+    /** Every project, most recently edited first, with its floorplans attached */
     public async listProjects(): Promise<Project[]> {
         const [projects, floorplans] = await Promise.all([
             this._db.list<Project>('project:'),
@@ -200,7 +209,7 @@ export class StoreService {
                     .filter((f) => f.project_id === project.id)
                     .sort((a, b) => a.floor_index - b.floor_index),
             }))
-            .sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+            .sort((a, b) => lastUpdated(b).localeCompare(lastUpdated(a)));
     }
 
     public async createProject(

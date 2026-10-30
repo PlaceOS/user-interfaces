@@ -1739,7 +1739,13 @@ export class CanvasComponent {
     public finishEditing() {
         const edit = this.editing();
         if (!edit) return;
-        this.state.updateObject(edit.id, { label: edit.value || 'Untitled' });
+        const label = edit.value || 'Untitled';
+        const object = this.state.objects().find((o) => o.id === edit.id);
+        // An undo step only for a real change, so Ctrl+Z undoes the rename
+        if (object && object.label !== label) {
+            this.state.pushHistory();
+            this.state.updateObject(edit.id, { label });
+        }
         this.editing.set(null);
     }
 

@@ -58,7 +58,19 @@ import { PreflightCheck, preflightChecks } from './svg-export';
             }
 
             <div class="flex-1 overflow-y-auto">
+                @if (!has_run() && !running()) {
+                    <p class="text-base-content/60 p-6 text-center text-xs">
+                        Run the checks to find problems before you publish.
+                    </p>
+                } @else if (stale() && !running()) {
+                    <p
+                        class="bg-warning-light border-base-300 border-b px-3 py-2 text-xs"
+                    >
+                        The plan changed after this run. Run the checks again.
+                    </p>
+                }
                 @if (
+                    !stale() &&
                     has_run() &&
                     !issues().length &&
                     !failed_checks().length &&
@@ -130,6 +142,14 @@ export class ValidationPanelComponent {
     public readonly has_run = signal(false);
     public readonly error = signal('');
 
+    /** Objects the last run checked, to tell when the results are out of date */
+    private readonly _checked = signal<readonly MapObject[] | null>(null);
+
+    /** The plan changed after the last run */
+    public readonly stale = computed(
+        () => this.has_run() && this._checked() !== this.state.objects(),
+    );
+
     public readonly failed_checks = computed(() =>
         this.checks().filter((check) => !check.pass),
     );
@@ -147,8 +167,10 @@ export class ValidationPanelComponent {
         this.running.set(true);
         this.error.set('');
         try {
+            const objects = this.state.objects();
             this.issues.set(await this._store.validateFloorplan(floorplan.id));
-            this.checks.set(preflightChecks(this.state.objects()));
+            this.checks.set(preflightChecks(objects));
+            this._checked.set(objects);
             this.has_run.set(true);
         } catch (error) {
             this.error.set(

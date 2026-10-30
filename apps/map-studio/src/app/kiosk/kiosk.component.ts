@@ -65,12 +65,23 @@ const MAX_RESULTS = 8;
                         keeps maps in the browser where they were made. Open the
                         link on that device, or check that the link is correct.
                     </p>
-                    <button
-                        class="bg-primary text-primary-content min-h-11 rounded-lg px-6 text-lg font-semibold"
-                        (click)="retry()"
-                    >
-                        Retry
-                    </button>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <button
+                            class="bg-primary text-primary-content min-h-11 rounded-lg px-6 text-lg font-semibold"
+                            (click)="retry()"
+                        >
+                            Retry
+                        </button>
+                        <!-- Kiosk screens stay on the map; editors need a way out -->
+                        @if (!kiosk_mode) {
+                            <a
+                                class="border-base-300 flex min-h-11 items-center rounded-lg border px-6 text-lg font-semibold no-underline"
+                                routerLink="/"
+                            >
+                                Back to Projects
+                            </a>
+                        }
+                    </div>
                 </div>
             } @else {
                 <header
@@ -98,7 +109,7 @@ const MAX_RESULTS = 8;
                             }}
                         </div>
                         <div class="text-base-content/60 truncate text-sm">
-                            {{ floorplan()?.floor_name || 'Level 1' }}
+                            {{ floorplan()?.floor_name }}
                         </div>
                     </div>
 
@@ -109,6 +120,8 @@ const MAX_RESULTS = 8;
                             aria-label="Search rooms and desks"
                             [value]="search()"
                             (input)="search.set(asValue($event))"
+                            (keydown.escape)="search.set('')"
+                            (keydown.enter)="revealFirst()"
                         />
                         @if (search()) {
                             <button
@@ -322,7 +335,7 @@ const MAX_RESULTS = 8;
                                 <div
                                     class="text-base-content/70 flex h-full items-center justify-center p-6 text-xl"
                                 >
-                                    No floor plan published yet
+                                    No spaces are mapped on this floor yet
                                 </div>
                             }
                         }
@@ -378,12 +391,13 @@ const MAX_RESULTS = 8;
                     </main>
                 </div>
 
+                <!-- Scrolls, so every floor stays reachable in a tall building -->
                 <footer
-                    class="bg-base-200 border-base-300 flex shrink-0 items-center gap-2 border-t px-6 py-2"
+                    class="bg-base-200 border-base-300 flex shrink-0 items-center gap-2 overflow-x-auto border-t px-6 py-2"
                 >
                     @for (floor of floors(); track floor.id) {
                         <button
-                            class="border-base-300 min-h-11 rounded-lg border px-5 text-base font-semibold"
+                            class="border-base-300 min-h-11 shrink-0 rounded-lg border px-5 text-base font-semibold whitespace-nowrap"
                             [class]="
                                 floor.id === floorplan_id()
                                     ? 'bg-primary text-primary-content'
@@ -398,7 +412,7 @@ const MAX_RESULTS = 8;
                         </button>
                     }
                     <span
-                        class="text-base-content/40 ml-auto text-sm font-semibold"
+                        class="text-base-content/40 ml-auto shrink-0 text-sm font-semibold"
                     >
                         Map Studio
                     </span>
@@ -697,6 +711,12 @@ export class KioskComponent extends AsyncHandler {
 
     public pickFloor(id: string) {
         if (id !== this.floorplan_id()) this._openFloor(id);
+    }
+
+    /** Enter in the search box picks the top match */
+    public revealFirst() {
+        const [first] = this.results();
+        if (first) this.reveal(first);
     }
 
     /** Close the search and call the picked space out, on its own floor */
