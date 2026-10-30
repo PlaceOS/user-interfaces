@@ -179,7 +179,7 @@ export class CateringSelectModalComponent {
     public readonly favorites = computed(() => {
         return (
             this._settings.signal<string[]>(
-                SETTING_KEYS.FAVORITE_DESKS,
+                SETTING_KEYS.FAVORITE_CATERING,
                 EMPTY_FAVS,
                 true,
             )() || EMPTY_FAVS
@@ -286,13 +286,13 @@ export class CateringSelectModalComponent {
         const fav_list = this.favorites();
         const new_state = !fav_list.includes(item);
         if (new_state) {
-            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, [
+            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_CATERING, [
                 ...fav_list,
                 item,
             ]);
         } else {
             this._settings.saveUserSetting(
-                SETTING_KEYS.FAVORITE_DESKS,
+                SETTING_KEYS.FAVORITE_CATERING,
                 fav_list.filter((_) => _ !== item),
             );
         }
