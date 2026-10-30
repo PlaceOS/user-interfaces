@@ -1,11 +1,11 @@
-// Coverage: 1 unique setting, 2 scenarios.
+// Coverage: 1 unique setting, 4 scenarios.
 // Setting: bookings.has_assets (docs/settings/workplace.md; source:
 //   apps/workplace/src/app/book/desk-flow-new/desk-flow-details.component.ts).
 //
-// The desk flow ORs the generic booking flag with the desk-specific flag:
-// `has_assets = bookings.has_assets || desks.has_assets`. The existing
-// desks.has-assets specs always hold bookings.has_assets at false, so this file
-// proves the generic key independently. No asset is requested, attached or
+// The desk flow reads `desks.has_assets ?? bookings.has_assets`, so an explicit
+// desks.has_assets overrides the generic key. With desks.has_assets null the
+// generic key alone gates the asset request field; with desks.has_assets set,
+// its value wins over bookings.has_assets. No asset is requested, attached or
 // submitted; the form is never confirmed.
 import type { Page, Route } from '@playwright/test';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
@@ -145,7 +145,7 @@ const BASE: Settings = {
     'app.bookings.custom_duration_options': [],
 };
 
-async function prepare(page: Page, enabled: boolean) {
+async function prepare(page: Page, desks: boolean | null, generic: boolean) {
     assertLocalOnly(APP_URL, BACKEND_URL);
     await page.setViewportSize({ width: 1440, height: 1100 });
     await getOnly(
@@ -186,8 +186,8 @@ async function prepare(page: Page, enabled: boolean) {
     );
     const settings = {
         ...BASE,
-        'app.desks.has_assets': false,
-        'app.bookings.has_assets': enabled,
+        'app.desks.has_assets': desks,
+        'app.bookings.has_assets': generic,
     };
     await useSettings(page, settings);
     await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-AU'));
@@ -198,8 +198,8 @@ async function prepare(page: Page, enabled: boolean) {
     ).toHaveCount(0);
     for (const [key, value] of [
         ['app.features', settings['app.features']],
-        ['app.desks.has_assets', false],
-        ['app.bookings.has_assets', enabled],
+        ['app.desks.has_assets', desks],
+        ['app.bookings.has_assets', generic],
     ] as const) {
         await expect
             .poll(
@@ -218,18 +218,24 @@ async function prepare(page: Page, enabled: boolean) {
     return details;
 }
 
-// One asset request field and label with the generic flag on, none with it
-// off. Kept as data so the test body has no branches.
+// One asset request field and label when the effective flag is on, none when
+// it is off.
 const SCENARIOS = [
-    { enabled: false, fields: 0 },
-    { enabled: true, fields: 1 },
+    { desks: null, generic: false, fields: 0, effect: 'hides' },
+    { desks: null, generic: true, fields: 1, effect: 'shows' },
+    { desks: false, generic: true, fields: 0, effect: 'hides' },
+    { desks: true, generic: false, fields: 1, effect: 'shows' },
 ];
 
 for (const scenario of SCENARIOS) {
-    test(`bookings.has_assets ${scenario.enabled} gates the desk asset request field with desks.has_assets false`, async ({
+    test(`bookings.has_assets ${scenario.generic} with desks.has_assets ${scenario.desks} ${scenario.effect} the desk asset request field`, async ({
         staffPage,
     }) => {
-        const details = await prepare(staffPage, scenario.enabled);
+        const details = await prepare(
+            staffPage,
+            scenario.desks,
+            scenario.generic,
+        );
         await expect(details.locator('asset-list-field')).toHaveCount(
             scenario.fields,
         );
@@ -237,7 +243,7 @@ for (const scenario of SCENARIOS) {
             scenario.fields,
         );
         // No asset is ever requested. With the field absent this also holds,
-        // so it is asserted for both scenarios rather than only when shown.
+        // so it is asserted in every scenario.
         await expect(details.locator('asset-list-field [request]')).toHaveCount(
             0,
         );
