@@ -16,8 +16,6 @@ for (const enabled of [false,true]) {
    await expect(details.locator('time-field, duration-field')).toHaveCount(0);
    await checkbox.uncheck();await expect(details.locator('time-field[name="time"] button[time-field]')).toBeEnabled();
   }
-  // Current source retains timed controls when allow_time_changes is false;
-  // this setting gates the all-day option rather than disabling those controls.
   await untouchedDesk(staffPage);
  });
 }
