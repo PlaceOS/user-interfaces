@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "libs/common/src/lib/timezones.ts"
+  ],
+  "sourcesContent": [
+    "type IntlWithValues = typeof Intl & {\n    supportedValuesOf?: (key: 'timeZone') => string[];\n};\n\n/**\n * Fixed-offset zones, which `Intl.supportedValuesOf` leaves out. The sign is\n * inverted by IANA convention: `Etc/GMT-10` is UTC+10.\n */\nconst FIXED_OFFSET_ZONES = [\n    ...Array.from({ length: 12 }, (_, i) => `Etc/GMT+${i + 1}`),\n    ...Array.from({ length: 14 }, (_, i) => `Etc/GMT-${i + 1}`),\n];\n\n/**\n * Sorted IANA time zone names that the browser supports, plus UTC (some\n * browsers leave it out) and the fixed-offset zones. Browsers without\n * `Intl.supportedValuesOf` get the local zone in place of the full list.\n */\nfunction supportedTimezones(): string[] {\n    const list = (Intl as IntlWithValues).supportedValuesOf?.('timeZone') || [\n        Intl.DateTimeFormat().resolvedOptions().timeZone,\n    ];\n    return [\n        ...new Set(['UTC', ...list.filter(Boolean), ...FIXED_OFFSET_ZONES]),\n    ].sort();\n}\n\n/** IANA time zone names offered in time zone pickers */\nexport const TIMEZONES_IANA = supportedTimezones();\n"
+  ],
+  "mappings": ";AAQA,IAAM,qBAAqB;EACvB,GAAG,MAAM,KAAK,EAAE,QAAQ,GAAE,GAAI,CAAC,GAAG,MAAM,WAAW,IAAI,CAAC,EAAE;EAC1D,GAAG,MAAM,KAAK,EAAE,QAAQ,GAAE,GAAI,CAAC,GAAG,MAAM,WAAW,IAAI,CAAC,EAAE;;AAQ9D,SAAS,qBAAkB;AACvB,QAAM,OAAQ,KAAwB,oBAAoB,UAAU,KAAK;IACrE,KAAK,eAAc,EAAG,gBAAe,EAAG;;AAE5C,SAAO;IACH,GAAG,oBAAI,IAAI,CAAC,OAAO,GAAG,KAAK,OAAO,OAAO,GAAG,GAAG,kBAAkB,CAAC;IACpE,KAAI;AACV;AAGO,IAAM,iBAAiB,mBAAkB;",
+  "names": [],
+  "debugId": "489dd109-70a7-54a9-bae9-0261e2b29f4c"
+}
