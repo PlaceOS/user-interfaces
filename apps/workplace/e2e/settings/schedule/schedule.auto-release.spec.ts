@@ -74,12 +74,19 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { APP_URL, BACKEND_URL, assertLocalOnly, staffEmail } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { BULK_METADATA, clearOrganisationCache, expectSafe, protectNetwork, type Settings, guardedStaffTest as test } from '../support/settings-harness';
-type DebugWindow = Window & {
-    ng?: { getComponent(element: Element): unknown };
-    setting?: (key: string) => unknown;
-};
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
+import {
+    type DebugWindow,
+    ORIGINS,
+    type Settings,
+    clearOrganisationCache,
+    expectSafe,
+    getOnly,
+    guardedStaffTest as test,
+    protectNetwork,
+    syntheticOrg,
+    syntheticOrgRoutes,
+    validPeriod,
+} from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 // The first check can wait for the 60 s interval if the user has not loaded
@@ -87,31 +94,8 @@ test.use({ readOnlyTimezone: 'Etc/UTC' });
 test.describe.configure({ timeout: 150_000 });
 
 /** Every synthetic zone and asset id starts with this prefix. */
-const PREFIX = 'e2e-auto-release-';
-const ORGANISATION = PREFIX + 'org';
-const REGION = PREFIX + 'region';
-const BUILDING = PREFIX + 'building';
-const LEVEL = PREFIX + 'level';
-const ZONES = [ORGANISATION, REGION, BUILDING, LEVEL];
-const HIDDEN_CATEGORIES = [
-    { id: PREFIX + 'catering', name: '_CATERING_', hidden: true },
-    { id: PREFIX + 'desks', name: '_DESKS_', hidden: true },
-    { id: PREFIX + 'parking', name: '_PARKING_', hidden: true },
-    { id: PREFIX + 'lockers', name: '_LOCKERS_', hidden: true },
-];
-const HIDDEN_TYPES: Record<string, string[]> = {
-    [PREFIX + 'catering']: [],
-    [PREFIX + 'desks']: ['_DESKS_'],
-    [PREFIX + 'parking']: [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    [PREFIX + 'lockers']: ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
-const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
-    .flat()
-    .map((name) => PREFIX + 'type-' + name);
+const ORG = syntheticOrg('e2e-auto-release-', { params: 'zones' });
+const { PREFIX, ORGANISATION, REGION, BUILDING, LEVEL, hasParams } = ORG;
 const ZONE_METADATA: Record<string, string[]> = {
     [BUILDING]: ['desk_booking_rules', 'parking_booking_rules'],
     [ORGANISATION]: [
@@ -204,31 +188,6 @@ const CONTROLS: Settings = {
     'app.default_building': BUILDING,
 };
 
-function hasParams(url: URL, expected: Record<string, string>) {
-    const keys = [...url.searchParams.keys()].filter(
-        (key) =>
-            !(
-                url.pathname === '/api/engine/v2/zones' &&
-                key === 'authority_id'
-            ),
-    );
-    return (
-        keys.length === Object.keys(expected).length &&
-        Object.entries(expected).every(
-            ([key, value]) => url.searchParams.get(key) === value,
-        )
-    );
-}
-
-/** Numeric seconds, in increasing order; no malformed period is hidden. */
-function validPeriod(url: URL) {
-    const start = url.searchParams.get('period_start') ?? '';
-    const end = url.searchParams.get('period_end') ?? '';
-    return (
-        /^\d+$/.test(start) && /^\d+$/.test(end) && Number(end) > Number(start)
-    );
-}
-
 /** The release check's query: exactly period and type, starting now. */
 function releaseQuery(url: URL) {
     const period_start = url.searchParams.get('period_start')!;
@@ -270,31 +229,6 @@ function parkingQuery(url: URL) {
             ...base,
             email: staffEmail(test.info().parallelIndex),
         })
-    );
-}
-
-/** Hidden assets may only be read in this synthetic organisation. */
-function hiddenAssetQuery(url: URL) {
-    const type_id = url.searchParams.get('type_id') ?? '';
-    const zone_id = url.searchParams.get('zone_id') ?? '';
-    return (
-        HIDDEN_TYPE_IDS.includes(type_id) &&
-        ZONES.includes(zone_id) &&
-        hasParams(url, { type_id, zone_id, limit: '500' })
-    );
-}
-
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
     );
 }
 
@@ -415,123 +349,13 @@ async function syntheticGets(
     desk_bookings: SyntheticBooking[],
 ) {
     const release_queries: ReleaseQuery[] = [];
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, { tags: 'org', include_children_count: 'true' }),
-        () => [
-            {
-                id: ORGANISATION,
-                name: 'Auto Release Organisation',
-                display_name: 'Auto Release Organisation',
-                tags: ['org'],
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) => {
-            const match = /^\/api\/engine\/v2\/metadata\/([^/]+)\/bulk$/.exec(
-                url.pathname,
-            );
-            const ids = (url.searchParams.get('parent_ids') ?? '').split(',');
-            return (
-                !!match &&
-                BULK_METADATA.includes(match[1]) &&
-                url.searchParams.has('parent_ids') &&
-                hasParams(url, {
-                    parent_ids: url.searchParams.get('parent_ids')!,
-                }) &&
-                ids.every((id) => ZONES.includes(id))
-            );
-        },
-        (url) =>
-            Object.fromEntries(
-                url.searchParams
-                    .get('parent_ids')!
-                    .split(',')
-                    .map((id) => [id, { details: {} }]),
-            ),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, {
-                tags: 'region',
-                parent_id: ORGANISATION,
-                limit: '200',
-            }),
-        () => [
-            {
-                id: REGION,
-                name: 'Auto Release Region',
-                tags: ['region'],
-                timezone: 'UTC',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, {
-                tags: 'building',
-                parent_id: REGION,
-                limit: '500',
-            }),
-        () => [
-            {
-                id: BUILDING,
-                parent_id: REGION,
-                name: 'Auto Release Building',
-                display_name: 'Auto Release Building',
-                tags: ['building'],
-                timezone: 'UTC',
-                location: '0,0',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, { tags: 'level', limit: '2500' }),
-        () => [
-            {
-                id: LEVEL,
-                parent_id: BUILDING,
-                name: 'Auto Release Level',
-                display_name: 'Auto Release Level',
-                tags: ['level'],
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) => {
-            const id = url.pathname.split('/')[5] ?? '';
-            const name = url.searchParams.get('name') ?? '';
-            return (
-                url.pathname === '/api/engine/v2/metadata/' + id &&
-                Object.hasOwn(ZONE_METADATA, id) &&
-                ZONE_METADATA[id].includes(name) &&
-                hasParams(url, { name })
-            );
-        },
-        (url) => {
-            const id = url.pathname.split('/')[5];
-            const name = url.searchParams.get('name')!;
-            return {
-                [name]: {
-                    id,
-                    name,
-                    details: name.endsWith('_booking_rules') ? [] : {},
-                },
-            };
-        },
-    );
+    await syntheticOrgRoutes(page, ORG, {
+        label: 'Auto Release',
+        zone_metadata: ZONE_METADATA,
+        zone_details: (_id, name) => (name.endsWith('_booking_rules') ? [] : {}),
+        user_metadata: ['settings', 'contacts'],
+        user_id: identity.then((user) => user?.id),
+    });
     await getOnly(
         page,
         (url) =>
@@ -540,95 +364,24 @@ async function syntheticGets(
             hasParams(url, { name: 'desks' }),
         () => [],
     );
-    // The signed-in user's own metadata, answered only for the id the app's
-    // own identity GET returned.
-    await page.route(
-        (url) =>
-            ORIGINS.has(url.origin) &&
-            /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
-            ['settings', 'contacts'].some((name) => hasParams(url, { name })),
-        async (route: Route) => {
-            const request = route.request();
-            if (request.method() !== 'GET') return route.fallback();
-            const id = decodeURIComponent(
-                new URL(request.url()).pathname.split('/')[5],
-            );
-            if (!id || id !== (await identity)?.id) return route.fallback();
-            const name = new URL(request.url()).searchParams.get('name')!;
-            await route.fulfill({
-                json: {
-                    [name]: {
-                        name,
-                        description: '',
-                        details: name === 'contacts' ? [] : {},
-                    },
-                },
-            });
-        },
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/groups/current' &&
-            hasParams(url, {}),
-        () => [],
-    );
+    // LandingStateService's building rooms; the organisation list is in
+    // syntheticOrgRoutes.
     await getOnly(
         page,
         (url) =>
             url.pathname === '/api/engine/v2/systems' &&
-            (hasParams(url, { zone_id: ORGANISATION, limit: '5000' }) ||
-                hasParams(url, {
-                    zone_id: BUILDING,
-                    limit: '500',
-                    signage: 'false',
-                })),
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            hasParams(url, { hidden: 'true', limit: '500' }),
-        () => HIDDEN_CATEGORIES,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            Object.hasOwn(
-                HIDDEN_TYPES,
-                url.searchParams.get('category_id') ?? '',
-            ) &&
             hasParams(url, {
-                category_id: url.searchParams.get('category_id')!,
+                zone_id: BUILDING,
                 limit: '500',
+                signage: 'false',
             }),
-        (url) =>
-            HIDDEN_TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: PREFIX + 'type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' && hiddenAssetQuery(url),
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/staff/v1/calendars' && hasParams(url, {}),
         () => [],
     );
     await getOnly(
         page,
         (url) =>
             url.pathname === '/api/staff/v1/events' &&
-            validPeriod(url) &&
+            validPeriod(url, { strict: false }) &&
             hasParams(url, {
                 period_start: url.searchParams.get('period_start')!,
                 period_end: url.searchParams.get('period_end')!,
@@ -642,7 +395,7 @@ async function syntheticGets(
         (url) =>
             ORIGINS.has(url.origin) &&
             url.pathname === '/api/staff/v1/bookings' &&
-            validPeriod(url) &&
+            validPeriod(url, { strict: false }) &&
             (releaseQuery(url) || listingQuery(url) || parkingQuery(url)),
         async (route: Route) => {
             if (route.request().method() !== 'GET') return route.fallback();
@@ -749,8 +502,7 @@ const BASE: AutoRelease = {
 
 // Each Setting has two scenarios that differ only in that field. The control
 // C is eligible in every desk scenario, so the first prompt names the first
-// eligible booking and a skipped booking is proven by C prompting first. Kept
-// as data so the test body has no branches.
+// eligible booking and a skipped booking is proven by C prompting first.
 const SCENARIOS: Scenario[] = [
     {
         label: 'time_after 10 skips a booking that started 20 minutes ago',
