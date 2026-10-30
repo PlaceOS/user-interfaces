@@ -30,8 +30,7 @@ test.describe('parking.use_building_timezone', () => {
 
     test('parking.use_building_timezone false overrides bookings.use_building_timezone true and hides the building-time label',
         async ({ staffPage, audit }) => {
-            // test.fail is declared after the setup steps, so a setup failure
-            // stays an unexpected failure; only the label assertion is expected to fail.
+            // Setup runs before test.fail; only the label step is expected to fail.
             const label = await test.step('setup: the form with a timezone building', async () => {
                 await timezoneBuildings(staffPage, audit);
                 const root = await parkingForm(staffPage, audit, {

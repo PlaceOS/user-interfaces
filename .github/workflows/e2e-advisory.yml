@@ -405,8 +405,8 @@ jobs:
         timeout-minutes: 30
         env:
             TZ: 'Etc/UTC'
-            # The config's webServer timeout, in ms. Playwright starts a cold
-            # `nx serve workplace` here, with no Nx cache on the runner.
+            # The config's webServer timeout, in ms: how long Playwright waits
+            # for `nx serve workplace` to answer.
             E2E_WEBSERVER_TIMEOUT_MS: '900000'
         steps:
             - uses: actions/checkout@v6

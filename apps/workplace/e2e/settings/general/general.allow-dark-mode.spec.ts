@@ -25,7 +25,7 @@ const LIGHT = image('white');
 const DARK_A = image('navy');
 
 // Every PlaceOS WebSocket fails the test, the shared systems/control endpoint
-// included: it carries both the optional LLM hint bind and driver executions.
+// included.
 test.use({ auditSockets: 'block-all' });
 
 async function openBranding(

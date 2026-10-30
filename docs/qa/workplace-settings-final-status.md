@@ -21,7 +21,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, with develop
 
 **Status key**
 - **PASS**: the test passes and checks the documented behaviour.
-- **PASS (current behaviour)**: the test passes but checks the app's current behaviour, which differs from the intended behaviour. The linked Jira ticket tracks the fix. The spec will be updated once the fix reaches the PR branch.
+- **PASS (current behaviour)**: the test passes but checks the app's current behaviour, which differs from the intended behaviour. Where a Jira ticket exists it is linked and tracks the fix; rows without one say so. The spec will be updated once a fix reaches the PR branch.
 - **EXPECTED FAILURE**: a `test.fail` case for a known product gap. It passes while the app still has the gap.
 
 **Jira state on develop (`f9b7be2a60`)**
