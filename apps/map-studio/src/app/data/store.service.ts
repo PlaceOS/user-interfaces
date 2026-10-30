@@ -113,7 +113,7 @@ const CSV_COLUMNS = [
 ] as const;
 
 /** Split a CSV line, honouring quoted fields containing commas or quotes */
-function parseCsvLine(line: string): string[] {
+export function parseCsvLine(line: string): string[] {
     const fields: string[] = [];
     let current = '';
     let in_quotes = false;
@@ -151,6 +151,12 @@ export function toCsvField(value: unknown): string {
     if (typeof value === 'string' && CSV_FORMULA_RE.test(str)) str = `'${str}`;
     return /[,"\n\r]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
 }
+
+/** A parsed cell with the formula guard from `toCsvField` removed */
+export const fromCsvField = (field: string) =>
+    field[0] === "'" && CSV_FORMULA_RE.test(field.slice(1))
+        ? field.slice(1)
+        : field;
 
 /**
  * Projects, floorplans and map objects, persisted in the browser.
@@ -1007,11 +1013,7 @@ export class StoreService {
             const values = parseCsvLine(line);
             const row: Record<string, unknown> = {};
             headers.forEach((header, index) => {
-                const raw = values[index] ?? '';
-                const value =
-                    raw[0] === "'" && CSV_FORMULA_RE.test(raw.slice(1))
-                        ? raw.slice(1)
-                        : raw;
+                const value = fromCsvField(values[index] ?? '');
                 if (value !== '') row[header] = value;
             });
             if (row['geometry'])
