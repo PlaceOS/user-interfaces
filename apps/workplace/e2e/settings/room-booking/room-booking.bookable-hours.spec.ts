@@ -34,7 +34,7 @@ for (const range of [null, {start: 6, end: 11}, {start: 9, end: 17}]) {
         await untouchedRoom(staffPage);
     });
 }
-test('room settings: events.bookable_hours 9-17 offers a start at closing time (current behaviour, no duration fits)', async ({ staffPage, audit }) => {
+test('room settings: events.bookable_hours 9-17 documents current behaviour: a start at closing time is offered, though no duration fits', async ({ staffPage, audit }) => {
     const details = await openRoom(staffPage, audit, { 'app.events.bookable_hours': {start: 9, end: 17} });
     await tomorrowRoom(staffPage, details);
     const times = await startTimes(staffPage, details);

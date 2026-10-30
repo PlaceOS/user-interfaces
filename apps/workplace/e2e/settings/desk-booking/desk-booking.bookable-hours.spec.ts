@@ -28,7 +28,7 @@ for(const range of [null,{start:6,end:11},{start:9,end:17}]){
   await untouchedDesk(staffPage);
  });
 }
-test('desk settings: desks.bookable_hours 9-17 offers a start at closing time (current behaviour, no duration fits)',async({staffPage,audit})=>{
+test('desk settings: desks.bookable_hours 9-17 documents current behaviour: a start at closing time is offered, though no duration fits',async({staffPage,audit})=>{
  const {details}=await openDesk(staffPage,audit,{'app.desks.bookable_hours':{start:9,end:17}});
  const times=await tomorrowStartTimes(staffPage,details);
  expect(Math.max(...times)).toBe(17*60);
