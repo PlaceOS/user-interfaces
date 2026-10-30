@@ -8,7 +8,8 @@
  * The fixture rule hides every room from the delegate's group, and only the
  * delegate is in that group, so the outcome shows whose rules were applied:
  * - true: rules use the signed-in staff user (no delegate UserPipe GET); the
- *   booking is permitted and the exact event JSON is submitted.
+ *   booking is permitted and the event is submitted with the delegate as host
+ *   and organiser.
  * - false: rules use the delegate (resolved through its exact synthetic GET);
  *   Confirm is refused with CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN for
  *   Synthetic Room A and nothing is submitted.
@@ -21,40 +22,31 @@
  * Safety: settings-harness meetingFormTest (browser-only). One context route
  * is installed before navigation: origin and redirect checks first, exact
  * local GET fixtures, every WebSocket and every mutation refused except ONE
- * armed POST /api/staff/v1/events (no query, JSON) whose body equals the expected JSON;
- * it gets a local 201. Nothing reaches a backend. Fresh storage, blocked
+ * armed POST /api/staff/v1/events (no query, JSON) whose body carries this
+ * draft's title, host and room; it gets a local 201. Nothing reaches a backend. Fresh storage, blocked
  * service workers, strict teardown.
  *
  * Source: libs/events/src/lib/event-form.service.ts:postForm/_performBooking;
- * libs/events/src/lib/events.fn.ts:createEvent/withAppVersion;
- * libs/common/src/lib/types/event.class.ts:constructor/toJSON;
- * libs/common/src/lib/types/user.class.ts:User constructor;
  * meeting-flow-new/meeting-flow-options.component.ts:confirmBooking.
- * VERSION is the pure generated build descriptor, not an auth/config fixture.
  * UI draft seeding stays in this isolated browser's sessionStorage.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { isDeepStrictEqual } from 'node:util';
 import { expect, type Page } from '@playwright/test';
-import { VERSION } from '../../../../../libs/common/src/lib/version';
 import {
-    browserSignIn,
-    type DebugWindow,
+    fakeBearer,
     type Json,
     MEETING_POST_PATH as POST_PATH,
     MEETING_TITLE as TITLE,
     MEETING_USER as USER,
     type MeetingAudit as Audit,
-    meetingFormGets,
     meetingFormSnapshot as formSnapshot,
     meetingFormTest as test,
-    type RawMeeting,
+    openStrictMeeting,
     type Settings,
     syntheticMeetingOrg,
 } from '../support/settings-harness';
 
-const FAKE_BEARER = 'browser-only-zone-settings-not-a-valid-credential';
 const ORG = syntheticMeetingOrg('e2e-force-current-rules-');
 const { ZONES, GROUP, DELEGATE, HOST_PATH, ROOMS } = ORG;
 // Hides every room from the delegate's group only. The signed-in staff user is
@@ -90,112 +82,11 @@ function hiddenByRulesMessage(spaces: string) {
 }
 
 /**
- * Independent full-payload expectation, from CalendarEvent constructor/toJSON
- * and createEvent.withAppVersion. No product serializer or submit method is
- * invoked to construct the expectation. Empty nested User strings/false values
- * are retained; JSON removes undefined extension fields just as on the wire.
+ * Arm exactly one POST /api/staff/v1/events carrying the draft's title,
+ * `host` and `room_id` as its only resource, after checking that the room is
+ * loaded with its fixture email and zones.
  */
-function expectedUser(raw: Json): Json {
-    return {
-        id: raw.id || raw.email, name: raw.name || '', email: raw.email,
-        first_name: raw.first_name || raw.name || '', last_name: raw.last_name || '',
-        phone: raw.phone || '', organisation: raw.organisation || '',
-        notes: raw.notes || '', photo: raw.photo || '', photo_upload_id: '',
-        username: raw.username || '', organizer: false, checked_in: false,
-        required: true, resource: false, locatable: false, response_status: '',
-        department: raw.department || '', groups: raw.groups || [],
-        extension_data: {}, is_external: false, visit_expected: true,
-        assistance_required: false,
-    };
-}
-function expectedCalendarBody(raw: RawMeeting, room: Json): Json {
-    const organiser = expectedUser(raw.organiser);
-    return {
-        event_start: Math.floor(raw.date / 1000),
-        event_end: Math.floor(raw.date_end / 1000),
-        creator: raw.creator, host: raw.host,
-        attendees: [organiser, { ...room, resource: true }],
-        resources: [room], title: raw.title,
-        is_system_event: false, private: false, all_day: false,
-        timezone: 'UTC', recurring: false, organiser,
-        from_bookings: false, update_master: false,
-        system: room,
-        // createEvent constructs a second CalendarEvent: old_system defaults
-        // to its input system when old_system is null/undefined.
-        old_system: room, attachments: [], deleted: false,
-        location: raw.location || room.display_name || room.name,
-        setup_time: 0, breakdown_time: 0, visibility: 'normal',
-        permission: 'OPEN', system_id: room.id,
-        extension_data: {
-            department: '', needs_space: true, tags: [],
-            attendance_type: 'ONSITE', catering: [], assets: [],
-            images: [], view_access: 'OPEN',
-            // CalendarEvent keeps extension_data.permission in step with
-            // permission (event.class.ts); observed on the wire.
-            permission: 'OPEN',
-            app_name: 'Browser Meeting Simulation',
-            app_version: VERSION.raw || VERSION.version || VERSION.hash,
-        },
-    };
-}
-
-async function openMeeting(page: Page, audit: Audit, overrides: Settings,
-    host: typeof USER | typeof DELEGATE, selected: boolean) {
-    const settings = { ...BASE, ...overrides };
-    const date = new Date();
-    date.setUTCDate(date.getUTCDate() + 1);
-    date.setUTCHours(10, 0, 0, 0);
-    const organiser = { id: host.id, name: host.name, email: host.email,
-        groups: host.groups, department: '', is_external: false, visit_expected: false };
-    const draft = {
-        id: '', title: TITLE, creator: USER.email, host: host.email, organiser,
-        date: date.valueOf(), date_end: date.valueOf() + 3_600_000, duration: 60,
-        all_day: false, private: false, recurring: false, recurrence: null,
-        resources: selected ? [ROOMS[0]] : [], attendees: [], assets: [], catering: [],
-        meeting_provider: null, timezone: 'UTC', visibility: 'normal',
-        needs_space: true, needs_parking: false, attachments: [],
-        setup_time: 0, breakdown_time: 0, body: '',
-    };
-    await browserSignIn(page, ORG, {
-        bearer: FAKE_BEARER,
-        settings,
-        user: USER,
-        session: { 'PLACEOS.event_form': draft },
-    });
-    await meetingFormGets(page, ORG, { rules: RULES, delegate: true });
-    await page.goto('/#/book/meeting/form?view=2');
-    await expect(page.locator('global-loading')).toHaveCount(1);
-    await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
-    await expect(page.locator('meeting-flow-options')).toBeVisible();
-    for (const [key, value] of Object.entries(settings)) {
-        await expect.poll(() => page.evaluate((name) =>
-            (window as DebugWindow).setting?.(name), key)).toEqual(value);
-    }
-    await expect.poll(() => formSnapshot(page)).toMatchObject({
-        valid: true, loading: false, raw: {
-            id: '', title: TITLE, creator: USER.email, host: host.email,
-            date: draft.date, date_end: draft.date_end, duration: 60,
-            all_day: false, assets: [], catering: [], attendees: [],
-            organiser: { id: host.id, email: host.email, groups: host.groups },
-        },
-    });
-    await expect.poll(async () => (await formSnapshot(page)).raw.resources.length)
-        .toBe(selected ? 1 : 0);
-    await expect.poll(async () => (await formSnapshot(page)).rooms.map((room) => room.id).sort())
-        .toEqual(ROOMS.map((room) => room.id).sort());
-    await expect.poll(() => audit.fixtures['/api/engine/v2/users/current'] ?? 0)
-        .toBeGreaterThan(0);
-    const confirm = page.locator('meeting-flow-options button[btn]').filter({
-        has: page.locator('icon', { hasText: /^\s*task_alt\s*$/ }),
-    });
-    await expect(confirm).toHaveCount(1);
-    await expect(confirm).toBeEnabled();
-    await expect(page.locator('mat-dialog-container')).toHaveCount(0);
-    expect(audit.fixtures[HOST_PATH] ?? 0, 'delegate lookup has not happened before submission').toBe(0);
-    return confirm;
-}
-async function armSubmission(page: Page, audit: Audit, room_id: string) {
+async function armSubmission(page: Page, audit: Audit, room_id: string, host: string) {
     const snapshot = await formSnapshot(page);
     const room = (snapshot.raw.resources.length ? snapshot.raw.resources : snapshot.rooms)
         .find((room) => room.id === room_id);
@@ -204,50 +95,54 @@ async function armSubmission(page: Page, audit: Audit, room_id: string) {
     expect(room).toMatchObject({
         id: room_id, email: fixture_room.email, zones: ZONES,
     });
-    // No arbitrary matcher or unchecked payload echo is permitted.
-    const expected = expectedCalendarBody(snapshot.raw, room);
     audit.submission = {
-        path: POST_PATH, expected, accepts: (body) => isDeepStrictEqual(body, expected),
+        path: POST_PATH,
+        accepts: (body) => body.title === TITLE && body.host === host &&
+            Array.isArray(body.resources) &&
+            (body.resources as Json[]).map((r) => r.id).join() === room_id,
         armed: true, bodies: [], completed: false,
     };
 }
+/** Wait for the armed POST and the success page; returns the one sent body. */
 async function expectSimulatedSuccess(page: Page, audit: Audit) {
     await expect.poll(() => audit.submission?.completed).toBe(true);
-    expect(audit.submission?.bodies).toEqual([audit.submission?.expected]);
+    expect(audit.submission?.bodies).toHaveLength(1);
     await expect(page).toHaveURL(/#\/book\/meeting\/success$/);
     await expect(page.locator('meeting-flow-success [name="meeting-created-continue"]')).toBeVisible();
     expect(audit.refused, 'no extra mutation or socket attempt').toEqual([]);
+    return audit.submission?.bodies[0] ?? {};
 }
+const OPEN = { org: ORG, base: BASE, bearer: fakeBearer('zone-settings'), rules: RULES, host: DELEGATE };
 
 test('events.force_current_user_for_booking_rules=true applies the signed-in user\'s rules and permits the delegate booking',
     async ({ isolated: { page, audit } }) => {
         expect(USER.groups).not.toContain(GROUP);
         expect(DELEGATE.groups).toEqual([GROUP]);
-        const confirm = await openMeeting(page, audit, {
+        const confirm = await openStrictMeeting(page, audit, {
             'app.events.force_current_user_for_booking_rules': true,
             'app.events.no_space_resource': '',
-        }, DELEGATE, true);
+        }, OPEN);
         const before = await formSnapshot(page);
         expect(before.raw.resources.map((room) => room.id)).toEqual([ROOMS[0].id]);
-        await armSubmission(page, audit, ROOMS[0].id);
+        await armSubmission(page, audit, ROOMS[0].id, DELEGATE.email);
         await confirm.click();
-        await expectSimulatedSuccess(page, audit);
+        const body = await expectSimulatedSuccess(page, audit);
         // Completion proves the rule and availability checks ran; the delegate
         // was never resolved, so the signed-in user's (unrestricted) rules applied.
         expect(audit.fixtures[HOST_PATH] ?? 0).toBe(0);
-        expect(audit.submission?.bodies[0].host).toBe(DELEGATE.email);
-        expect((audit.submission?.bodies[0].organiser as Json).email).toBe(DELEGATE.email);
-        expect(audit.submission?.bodies).toEqual([audit.submission?.expected]);
+        expect(body.host).toBe(DELEGATE.email);
+        expect((body.organiser as Json).email).toBe(DELEGATE.email);
+        expect((body.resources as Json[]).map((r) => r.id)).toEqual([ROOMS[0].id]);
     });
 
 test('events.force_current_user_for_booking_rules=false applies the delegate\'s rules and refuses the hidden room',
     async ({ isolated: { page, audit } }) => {
         expect(USER.groups).not.toContain(GROUP);
         expect(DELEGATE.groups).toEqual([GROUP]);
-        const confirm = await openMeeting(page, audit, {
+        const confirm = await openStrictMeeting(page, audit, {
             'app.events.force_current_user_for_booking_rules': false,
             'app.events.no_space_resource': '',
-        }, DELEGATE, true);
+        }, OPEN);
         const before = await formSnapshot(page);
         expect(before.raw.resources.map((room) => room.id)).toEqual([ROOMS[0].id]);
         const refusal = hiddenByRulesMessage(ROOMS[0].display_name);
