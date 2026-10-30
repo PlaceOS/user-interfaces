@@ -43,7 +43,8 @@ import {
  * or non-local /api request and fails the test in teardown; it does not route
  * non-API assets (the app shell loads Google Fonts). WebSockets: the Vite
  * dev-server socket is held open, the shell's local control socket is closed
- * before it connects and recorded, and any other socket fails the test.
+ * before it connects and recorded, and any other socket fails the test. With
+ * `test.use({ auditSockets: 'block-all' })` the control socket fails it too.
  */
 
 /** What the safety audit records for one test. */
@@ -74,6 +75,16 @@ export type Audit = {
  */
 export type AuditHttp = 'guard' | 'strict' | 'local-only';
 
+/**
+ * What `test` does with the shell's local systems/control socket:
+ * - 'close-control': closes it and records it in blocked_control_attempts.
+ * - 'block-all': closes it and records it in websocket_attempts, which fails
+ *   the test like any other socket.
+ * The Vite dev-server socket is held open either way.
+ * Set with `test.use({ auditSockets: 'block-all' })`.
+ */
+export type AuditSockets = 'close-control' | 'block-all';
+
 /** How many times the named getOnly fixture has answered. */
 export function fixtureHits(audit: { fixtures: Record<string, number> }, name: string) {
     return audit.fixtures[name] ?? 0;
@@ -93,10 +104,15 @@ export function safeURL(raw: string) {
     return url.href;
 }
 
-export const test = readOnlyTest.extend<{ audit: Audit; auditHttp: AuditHttp }>({
+export const test = readOnlyTest.extend<{
+    audit: Audit;
+    auditHttp: AuditHttp;
+    auditSockets: AuditSockets;
+}>({
     auditHttp: ['guard', { option: true }],
+    auditSockets: ['close-control', { option: true }],
     audit: [
-        async ({ staffPage, auditHttp }, use, info) => {
+        async ({ staffPage, auditHttp, auditSockets }, use, info) => {
             const context = staffPage.context();
             const audit: Audit = {
                 websocket_attempts: [],
@@ -189,7 +205,8 @@ export const test = readOnlyTest.extend<{ audit: Audit; auditHttp: AuditHttp }>(
                         }
                         if (
                             local &&
-                            url.pathname === '/api/engine/v2/systems/control'
+                            url.pathname === '/api/engine/v2/systems/control' &&
+                            auditSockets === 'close-control'
                         ) {
                             audit.blocked_control_attempts.push(socket_url);
                         } else audit.websocket_attempts.push(socket_url);
@@ -2340,7 +2357,21 @@ export function isLocalControlSocket(url: URL) {
     );
 }
 
-export async function protectNetwork(page: Page): Promise<NetworkAudit> {
+/** Options for `protectNetwork`. */
+export type ProtectNetworkOptions = {
+    /** Also abort every read of /auth or /login (and below), on any origin, into `api`. Default false. */
+    blockAuthReads?: boolean;
+};
+
+/**
+ * Installs the strict network guard on the page's context once and returns
+ * its audit; a later call for the same page returns that audit and ignores
+ * `options`.
+ */
+export async function protectNetwork(
+    page: Page,
+    options: ProtectNetworkOptions = {},
+): Promise<NetworkAudit> {
     const existing = PAGE_AUDITS.get(page);
     if (existing) return existing;
     const audit: NetworkAudit = {
@@ -2366,6 +2397,17 @@ export async function protectNetwork(page: Page): Promise<NetworkAudit> {
     await page.context().route('**/*', async (route) => {
         const request = route.request();
         const url = new URL(request.url());
+        if (
+            options.blockAuthReads &&
+            READ_METHODS.includes(request.method()) &&
+            ['/auth', '/login'].some(
+                (path) =>
+                    url.pathname === path || url.pathname.startsWith(path + '/'),
+            )
+        ) {
+            audit.api.push(request.method() + ' ' + url.pathname);
+            return route.abort('blockedbyclient');
+        }
         if (ORIGINS.has(url.origin)) {
             if (!url.pathname.startsWith('/api/')) {
                 if (READ_METHODS.includes(request.method())) {
@@ -2432,6 +2474,118 @@ export function redact(url: URL) {
     for (const key of [...url.searchParams.keys()])
         url.searchParams.set(key, '[redacted]');
     return url.href;
+}
+
+/** The fixture count isolateChatHint adds to for each bindings GET it answers. */
+export const CHAT_HINT_FIXTURE = 'chat hint bindings';
+
+/**
+ * Answers the org and building bindings metadata GETs with the server's
+ * records, chat_room set to null, so ChatService never binds the LLM hint
+ * over the control socket. Counts each answered GET as CHAT_HINT_FIXTURE;
+ * a fixture error goes to monitoring_errors and the GET continues unchanged.
+ */
+export async function isolateChatHint(page: Page, audit: FixtureSink) {
+    // ChatService._chat_system reads OrganisationService.binding('chat_room'),
+    // then _bindHint calls getModule(id, 'LLM').variable('user_hint').bind().
+    // The launcher (ChatComponent.can_show) reads only chat.enabled and does
+    // not need that optional hint. Null ONLY this binding in browser GET
+    // responses for organization/building initialization; preserve all other
+    // metadata. No backend setting/binding is saved.
+    // OrganisationService._bulkMetadataDetails uses bindings/bulk?parent_ids;
+    // _individualMetadata is its source-supported 404 fallback.
+    await page.addInitScript(() => {
+        // Cached copies (copied in with the staff storage state) would skip the request.
+        for (const key of Object.keys(localStorage)) {
+            if (
+                key.startsWith('PLACEOS.org.metadata.') &&
+                key.includes('.bindings.')
+            )
+                localStorage.removeItem(key);
+        }
+    });
+    const rewrite = (item: { details?: unknown }) => {
+        const details =
+            typeof item.details === 'string'
+                ? JSON.parse(item.details)
+                : (item.details ?? {});
+        if (
+            typeof details !== 'object' ||
+            details === null ||
+            Array.isArray(details)
+        ) {
+            throw new Error('bindings details must be a map');
+        }
+        return { ...item, details: { ...details, chat_room: null } };
+    };
+    const handle = async (route: Route) => {
+        if (route.request().method() !== 'GET') return route.fallback();
+        const url = new URL(route.request().url());
+        try {
+            const bulk =
+                url.pathname === '/api/engine/v2/metadata/bindings/bulk';
+            const parent_ids = bulk
+                ? url.searchParams.get('parent_ids')!.split(',')
+                : [decodeURIComponent(url.pathname.split('/')[5])];
+            if (!parent_ids.every(Boolean))
+                throw new Error(
+                    'binding fixture must identify its requested parents',
+                );
+            const response = await route.fetch({
+                maxRedirects: 0,
+                maxRetries: 0,
+            });
+            // Preserve 404 so the client's existing individual-metadata fallback
+            // still runs. _individualMetadata maps a missing record to null; that
+            // is source-supported absence of a hint, not an application exception.
+            if (response.status() === 404) {
+                if (!bulk)
+                    audit.fixtures[CHAT_HINT_FIXTURE] =
+                        (audit.fixtures[CHAT_HINT_FIXTURE] ?? 0) + 1;
+                return await route.fulfill({ response });
+            }
+            if (!response.ok())
+                throw new Error(
+                    `bindings initialization GET returned ${response.status()}`,
+                );
+            const body = await response.json();
+            if (
+                typeof body !== 'object' ||
+                body === null ||
+                Array.isArray(body)
+            )
+                throw new Error('bindings response must be a map');
+            // showMetadata(id, name) reads data[name] from GET /metadata/id?name=...;
+            // bulkMetadata instead reads a map of parent IDs to metadata records.
+            // Only records the server returned are rewritten; none are invented.
+            const json = { ...body };
+            if (bulk) {
+                for (const id of parent_ids)
+                    if (body[id]) json[id] = rewrite(body[id]);
+            } else if (body.bindings) json.bindings = rewrite(body.bindings);
+            audit.fixtures[CHAT_HINT_FIXTURE] =
+                (audit.fixtures[CHAT_HINT_FIXTURE] ?? 0) + 1;
+            await route.fulfill({ json });
+        } catch (error) {
+            // Never hide a fixture problem: record it (fails in teardown) and
+            // let the unmodified GET continue through the read-only guard.
+            audit.monitoring_errors.push(
+                `chat hint fixture: ${String(error)} (${redact(url)})`,
+            );
+            await route.fallback().catch(() => undefined);
+        }
+    };
+    await page.route(
+        (url) =>
+            ORIGINS.has(url.origin) &&
+            ((url.pathname === '/api/engine/v2/metadata/bindings/bulk' &&
+                [...url.searchParams.keys()].length === 1 &&
+                !!url.searchParams.get('parent_ids')) ||
+                (/^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
+                    [...url.searchParams.keys()].length === 1 &&
+                    url.searchParams.get('name') === 'bindings')),
+        handle,
+    );
 }
 
 export function watchStaffId(page: Page): Promise<string> {
@@ -2732,10 +2886,17 @@ export const staffTokenTest = readOnlyTest.extend({
  * Teardown closes the context, which stops every loader and socket, then runs
  * expectSafe, including after an assertion failure. Admin auth is blocked.
  */
-export const guardedStaffTest = staffTokenTest.extend<{ batchAudit: NetworkAudit }>({
+export const guardedStaffTest = staffTokenTest.extend<{
+    batchAudit: NetworkAudit;
+    guardAuthReads: boolean;
+}>({
+    /** protectNetwork's blockAuthReads, set with `test.use({ guardAuthReads: true })`. */
+    guardAuthReads: [false, { option: true }],
     batchAudit: [
-        async ({ staffPage }, use) => {
-            const audit = await protectNetwork(staffPage);
+        async ({ staffPage, guardAuthReads }, use) => {
+            const audit = await protectNetwork(staffPage, {
+                blockAuthReads: guardAuthReads,
+            });
             try {
                 await use(audit);
             } finally {

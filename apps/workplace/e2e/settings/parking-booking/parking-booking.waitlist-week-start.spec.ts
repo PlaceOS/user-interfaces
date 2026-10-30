@@ -4,8 +4,8 @@
 // unsaved parking fixture across a configured weekly boundary (00:00 / 00:01).
 // Source: libs/bookings/src/lib/bookings.fn.ts isInWaitlistWeek;
 // apps/workplace/src/app/schedule/schedule-day-view.component.ts bookingStatus.
-// Safety: staff auth from staffTokenTest (settings-harness); the genuine staff
-// identity GET is unchanged.
+// Safety: guardedStaffTest (settings-harness) with guardAuthReads, so reads of
+// /auth and /login are blocked too; the genuine staff identity GET is unchanged.
 // Every other API response is a named browser GET fixture. No POST/PUT/PATCH/
 // DELETE, driver messages, booking submission, seeding or backend cleanup.
 // Shell sockets are blocked as a safety guard; no WebSocket data is simulated.
@@ -17,91 +17,18 @@ import { useSettings } from '../../../../../e2e/support/parking/parking.settings
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
     type DebugWindow,
+    expectSafe,
     getOnly,
+    guardedStaffTest as test,
     ORIGINS,
+    protectNetwork,
     type Settings,
     watchStaffId,
-    staffTokenTest as test,
 } from '../support/settings-harness';
-type NetworkAudit = {
-    api: string[];
-    external: string[];
-    websocket: string[];
-    blockedControl: string[];
-    appErrors: string[];
-    closing: Promise<void>[];
-};
-test.use({ readOnlyTimezone: 'Etc/UTC' });
+test.use({ readOnlyTimezone: 'Etc/UTC', guardAuthReads: true });
 const ORGANISATION = 'e2e-waitlist-boundary-org';
 const REGION = 'e2e-waitlist-boundary-region';
 const BUILDING = 'e2e-waitlist-boundary-building';
-
-/**
- * Blocks every non-read request, any read of /auth or /login, every local /api
- * request a page fixture did not answer (except the staff identity GET) and
- * every external request but the Google Fonts css2 GET.
- */
-async function protectNetwork(page: Page): Promise<NetworkAudit> {
-    const audit: NetworkAudit = {
-        api: [], external: [], websocket: [], blockedControl: [],
-        appErrors: [], closing: [],
-    };
-    page.on('pageerror', (error) =>
-        audit.appErrors.push(error.name + ': ' + error.message),
-    );
-    page.on('console', (message) => {
-        if (message.type() === 'error' && /^(ERROR\b|NG0\d+)/.test(message.text())) {
-            audit.appErrors.push(message.text().slice(0, 500));
-        }
-    });
-    await page.context().route('**/*', async (route) => {
-        const request = route.request();
-        const url = new URL(request.url());
-        if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method()) ||
-            ['/auth', '/login'].some((path) => url.pathname === path || url.pathname.startsWith(path + '/'))) {
-            audit.api.push(request.method() + ' ' + url.pathname);
-            return route.abort('blockedbyclient');
-        }
-        if (ORIGINS.has(url.origin)) {
-            if (!url.pathname.startsWith('/api/')) return route.fallback();
-            if (
-                request.method() === 'GET' &&
-                url.pathname === '/api/engine/v2/users/current'
-            ) return route.fallback();
-            audit.api.push(request.method() + ' ' + url.pathname);
-            return route.abort('blockedbyclient');
-        }
-        if (request.method() === 'GET' && url.origin === 'https://fonts.googleapis.com' &&
-            url.pathname === '/css2') {
-            return route.fulfill({ status: 200, contentType: 'text/css', body: '' });
-        }
-        audit.external.push(request.method() + ' ' + url.origin + url.pathname);
-        return route.abort('blockedbyclient');
-    });
-    await page.context().routeWebSocket('**/*', (socket) => {
-        const url = new URL(socket.url());
-        const app = new URL(APP_URL);
-        const local = url.host === app.host &&
-            url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-        if (local && url.pathname === '/' &&
-            [...url.searchParams.keys()].join(',') === 'token') return;
-        if (local && url.pathname === '/api/engine/v2/systems/control') {
-            audit.blockedControl.push(url.pathname);
-        } else {
-            audit.websocket.push(url.pathname);
-        }
-        audit.closing.push(socket.close());
-    });
-    return audit;
-}
-
-async function expectSafe(audit: NetworkAudit) {
-    await Promise.all(audit.closing);
-    expect(audit.api, 'only synthetic GET API responses, except staff identity').toEqual([]);
-    expect(audit.external, 'no external actions').toEqual([]);
-    expect(audit.websocket, 'no live WebSocket bindings').toEqual([]);
-    expect(audit.appErrors, 'no application errors').toEqual([]);
-}
 
 const BOOKING_TITLE = 'Browser-only waitlist boundary';
 

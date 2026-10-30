@@ -6,14 +6,10 @@ import {
     assertLocalOnly,
 } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
-    READ_ONLY_SETTINGS,
-    readOnlyTest,
-} from '../../local/wpa-settings-readonly-legacy.fixture';
-import {
-    isAppError,
-    isDevServerSocket,
-    redact,
+    type Audit,
+    test,
 } from '../support/settings-harness';
 
 // Setting: users.min_search_length (docs/settings/workplace.md).
@@ -30,126 +26,14 @@ const PERSON = {
 };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 
-type SafetyAudit = {
-    websocket_attempts: { url: string; classification: string }[];
-    tooling_websockets: { url: string; classification: string }[];
-    page_errors: { name: string; message: string; stack?: string }[];
-    app_errors: string[];
-    monitoring_errors: string[];
-};
-
 // DirectoryUserList, Topbar and FooterMenu require HTTP only. Chat is disabled
-// and user controls are never opened, so there are NO expected PlaceOS
-// WebSockets. Keep this fixture local: the parent readOnlyTest retains its API
-// mutation guard, staff-identity checks and serviceWorkers: 'block' context.
-const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
-    safetyAudit: [
-        async ({ staffPage }, use, info) => {
-            const audit: SafetyAudit = {
-                websocket_attempts: [],
-                tooling_websockets: [],
-                page_errors: [],
-                app_errors: [],
-                monitoring_errors: [],
-            };
-            const context = staffPage.context();
-            const observePage = (page: Page) => {
-                page.on('pageerror', (error) => {
-                    audit.page_errors.push({
-                        name: error.name,
-                        message: error.message,
-                        stack: error.stack,
-                    });
-                });
-                page.on('console', (message) => {
-                    if (isAppError(message))
-                        audit.app_errors.push(message.text().slice(0, 500));
-                });
-            };
-            observePage(staffPage);
-            context.on('page', observePage);
-            const closing: Promise<void>[] = [];
-            try {
-                // Context-wide interception also covers any newly opened page.
-                // Never call connectToServer: even unexpected sockets stay local.
-                await context.routeWebSocket('**/*', (socket) => {
-                    const url = new URL(socket.url());
-                    if (isDevServerSocket(url)) {
-                        audit.tooling_websockets.push({
-                            url: redact(url),
-                            classification:
-                                'dev-server live reload; mocked and held open, never connected',
-                        });
-                        return;
-                    }
-                    const kind = url.pathname.startsWith(
-                        '/api/engine/v2/chatgpt/chat/',
-                    )
-                        ? 'chat'
-                        : [
-                                '/api/engine/v2/systems/control',
-                                '/control/websocket',
-                            ].includes(url.pathname)
-                          ? 'driver/control'
-                          : 'other';
-                    audit.websocket_attempts.push({
-                        url: redact(url),
-                        classification: `UNEXPECTED ${kind}; directory initialization is HTTP-only`,
-                    });
-                    closing.push(
-                        socket.close().catch((error: unknown) => {
-                            audit.monitoring_errors.push(
-                                `WebSocket close failed: ${String(error)}`,
-                            );
-                        }),
-                    );
-                });
-                await use(audit);
-            } finally {
-                // Runs after the test body whether it passed or failed. Close with
-                // listeners still installed, then inspect all observations. The
-                // parent's context.close() is idempotent; its guard assertions
-                // still run afterwards, including when the test body has failed.
-                try {
-                    await context.close();
-                } catch (error) {
-                    audit.monitoring_errors.push(
-                        `Context close failed: ${String(error)}`,
-                    );
-                }
-                await Promise.all(closing);
-                try {
-                    await info.attach('settings-safety-audit', {
-                        body: Buffer.from(JSON.stringify(audit, null, 2)),
-                        contentType: 'application/json',
-                    });
-                } finally {
-                    // One hard assertion, so every category is reported together.
-                    expect(
-                        {
-                            websocket_attempts: audit.websocket_attempts,
-                            page_errors: audit.page_errors,
-                            app_errors: audit.app_errors,
-                            monitoring_errors: audit.monitoring_errors,
-                        },
-                        'no WebSocket attempt, application exception or monitoring failure is permitted',
-                    ).toEqual({
-                        websocket_attempts: [],
-                        page_errors: [],
-                        app_errors: [],
-                        monitoring_errors: [],
-                    });
-                }
-            }
-        },
-        { auto: true, timeout: 15_000 },
-    ],
-});
+// and user controls are never opened, so every PlaceOS WebSocket fails the test.
+test.use({ auditSockets: 'block-all' });
 
 async function openDirectory(
     page: Page,
     overrides: Record<string, unknown>,
-    audit: SafetyAudit,
+    audit: Audit,
 ) {
     assertLocalOnly(APP_URL, BACKEND_URL);
     await page.setViewportSize({ width: 1440, height: 1000 });
@@ -224,13 +108,13 @@ async function openDirectory(
 for (const minimum of [QUERY.length, QUERY.length + 1]) {
     test(`users.min_search_length ${minimum} gates directory lookup at its boundary`, async ({
         staffPage,
-        safetyAudit,
+        audit,
     }) => {
         await staffPage.clock.install();
         const { root, input, requests } = await openDirectory(
             staffPage,
             { 'app.users.min_search_length': minimum },
-            safetyAudit,
+            audit,
         );
         await staffPage.clock.pauseAt(
             new Date((await staffPage.evaluate(() => Date.now())) + 1000),
