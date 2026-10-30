@@ -1,5 +1,5 @@
 // Setting: events.can_book_for_anyone (docs/settings/workplace.md), legacy
-// meeting form. Coverage: 1 unique setting, 3 scenarios.
+// meeting form. Coverage: 1 unique setting, 4 scenarios.
 // Only the legacy meeting form reads this setting
 // (libs/events/src/lib/meeting-form-details.component.ts): the host user search
 // field when true, which comes before the events.can_book_for_others host
@@ -16,6 +16,7 @@ const SCENARIOS = [
     { anyone: false, others: false, search: 0, select: 0 },
     { anyone: true, others: false, search: 1, select: 0 },
     { anyone: true, others: true, search: 1, select: 0 },
+    { anyone: false, others: true, search: 0, select: 1 },
 ];
 for (const scenario of SCENARIOS) {
     test('room settings: events.can_book_for_anyone ' + scenario.anyone + ' with can_book_for_others ' +
@@ -38,6 +39,7 @@ for (const scenario of SCENARIOS) {
         await expect(details.locator('a-user-search-field')).toHaveCount(scenario.search);
         await expect(details.locator('host-select-field')).toHaveCount(scenario.select);
         if (scenario.search) await expect(details.locator('a-user-search-field input').first()).toBeVisible();
+        if (scenario.select) await expect(details.locator('host-select-field')).toBeVisible();
         await expect(staffPage.locator('meeting-flow-confirm, meeting-flow-success')).toHaveCount(0);
     });
 }
