@@ -142,7 +142,9 @@ test('basic_user_search true searches the PlaceOS user list in the global search
                 await getOnly(
                     staffPage,
                     (url) =>
-                        /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
+                        /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(
+                            url.pathname,
+                        ) &&
                         ['points-of-interest', 'emergency_contacts'].includes(
                             url.searchParams.get('name') ?? '',
                         ),

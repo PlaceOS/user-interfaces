@@ -5,13 +5,21 @@
 // The organisation is a browser-only three-building fixture (a decoy listed
 // first, then A and B); no user or organisation record is changed.
 import type { Page } from '@playwright/test';
-import { expect } from '../../../../../e2e/support/fixtures';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
+import {
+    APP_URL,
+    BACKEND_URL,
+    assertLocalOnly,
+} from '../../../../../e2e/support/env';
+import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { organisationRoutes, type Settings, stubBootstrap, test } from '../support/settings-harness';
+import {
+    organisationRoutes,
+    stubBootstrap,
+    test,
+    type Settings,
+} from '../support/settings-harness';
 test.use({ auditHttp: 'strict' });
-
 
 const REGION = 'e2e-default-region';
 const BUILDING_A = 'e2e-default-building-a';
@@ -61,7 +69,15 @@ const BASE: Settings = {
     'app.show_quick_links': false,
     'app.show_quick_book': false,
     'app.hide_landing_customise': true,
-    'app.hide_landing_widgets': ['available_now', 'quick_actions', 'desk_week', 'favourites', 'colleagues', 'focus_timer', 'world_clock'],
+    'app.hide_landing_widgets': [
+        'available_now',
+        'quick_actions',
+        'desk_week',
+        'favourites',
+        'colleagues',
+        'focus_timer',
+        'world_clock',
+    ],
     'app.use_region': false,
     'app.use_geolocation': false,
     'app.allow_dark_mode': false,
@@ -75,34 +91,34 @@ const BASE: Settings = {
 };
 
 const BUILDINGS = [
-            {
-                id: BUILDING_FALLBACK,
-                parent_id: REGION,
-                name: NAMES[BUILDING_FALLBACK],
-                display_name: NAMES[BUILDING_FALLBACK],
-                tags: ['building'],
-                timezone: 'UTC',
-                location: '0,0',
-            },
-            {
-                id: BUILDING_A,
-                parent_id: REGION,
-                name: 'E2E Default Building A',
-                display_name: 'E2E Default Building A',
-                tags: ['building'],
-                timezone: 'UTC',
-                location: '0,0',
-            },
-            {
-                id: BUILDING_B,
-                parent_id: REGION,
-                name: 'E2E Default Building B',
-                display_name: 'E2E Default Building B',
-                tags: ['building'],
-                timezone: 'UTC',
-                location: '40,40',
-            },
-        ];
+    {
+        id: BUILDING_FALLBACK,
+        parent_id: REGION,
+        name: NAMES[BUILDING_FALLBACK],
+        display_name: NAMES[BUILDING_FALLBACK],
+        tags: ['building'],
+        timezone: 'UTC',
+        location: '0,0',
+    },
+    {
+        id: BUILDING_A,
+        parent_id: REGION,
+        name: 'E2E Default Building A',
+        display_name: 'E2E Default Building A',
+        tags: ['building'],
+        timezone: 'UTC',
+        location: '0,0',
+    },
+    {
+        id: BUILDING_B,
+        parent_id: REGION,
+        name: 'E2E Default Building B',
+        display_name: 'E2E Default Building B',
+        tags: ['building'],
+        timezone: 'UTC',
+        location: '40,40',
+    },
+];
 
 async function openUserControls(page: Page, default_building: string) {
     assertLocalOnly(APP_URL, BACKEND_URL);
@@ -116,16 +132,28 @@ async function openUserControls(page: Page, default_building: string) {
     await stubBootstrap(page);
     const settings = { ...BASE, 'app.default_building': default_building };
     await useSettings(page, settings);
-    await page.addInitScript(() =>
-        localStorage.setItem('APP.locale', 'en-AU'),
-    );
+    await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-AU'));
     await page.goto('/#/landing');
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
+    await expect(
+        page.locator('global-loading [initialisation-error]'),
+    ).toHaveCount(0);
     for (const [key, value] of Object.entries(settings)) {
-        await expect.poll(() => page.evaluate((name) =>
-            (window as Window & { setting?: (key: string) => unknown }).setting?.(name), key),
-        { message: 'effective setting ' + key }).toEqual(value);
+        await expect
+            .poll(
+                () =>
+                    page.evaluate(
+                        (name) =>
+                            (
+                                window as Window & {
+                                    setting?: (key: string) => unknown;
+                                }
+                            ).setting?.(name),
+                        key,
+                    ),
+                { message: 'effective setting ' + key },
+            )
+            .toEqual(value);
     }
 
     await expect(
@@ -138,7 +166,10 @@ async function openUserControls(page: Page, default_building: string) {
 }
 
 /** Only the expected building is shown; the other two names are absent. */
-async function expectBuilding(controls: ReturnType<Page['locator']>, expected: string) {
+async function expectBuilding(
+    controls: ReturnType<Page['locator']>,
+    expected: string,
+) {
     for (const [id, name] of Object.entries(NAMES)) {
         await expect(controls.getByText(name, { exact: true })).toHaveCount(
             id === expected ? 1 : 0,
@@ -146,18 +177,16 @@ async function expectBuilding(controls: ReturnType<Page['locator']>, expected: s
     }
 }
 
-test(
-    'default_building selects building B when the user has no saved building',
-    async ({ staffPage }) => {
-        const controls = await openUserControls(staffPage, BUILDING_B);
-        await expectBuilding(controls, BUILDING_B);
-    },
-);
+test('default_building selects building B when the user has no saved building', async ({
+    staffPage,
+}) => {
+    const controls = await openUserControls(staffPage, BUILDING_B);
+    await expectBuilding(controls, BUILDING_B);
+});
 
-test(
-    'default_building selects building A when the user has no saved building',
-    async ({ staffPage }) => {
-        const controls = await openUserControls(staffPage, BUILDING_A);
-        await expectBuilding(controls, BUILDING_A);
-    },
-);
+test('default_building selects building A when the user has no saved building', async ({
+    staffPage,
+}) => {
+    const controls = await openUserControls(staffPage, BUILDING_A);
+    await expectBuilding(controls, BUILDING_A);
+});

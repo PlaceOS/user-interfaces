@@ -6,11 +6,19 @@
 // The true scenario serves a saved layout (browser-only) that hides favourites
 // and expects favourites to stay on the page.
 import type { Page } from '@playwright/test';
-import { expect } from '../../../../../e2e/support/fixtures';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
+import {
+    APP_URL,
+    BACKEND_URL,
+    assertLocalOnly,
+} from '../../../../../e2e/support/env';
+import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type Settings, stubBootstrap, test } from '../support/settings-harness';
+import {
+    type Settings,
+    stubBootstrap,
+    test,
+} from '../support/settings-harness';
 test.use({ auditHttp: 'strict' });
 
 /** Saved layout that removes the favourites card when the app applies it */
@@ -23,25 +31,46 @@ const SAVED_LAYOUT = { order: [], hidden: ['favourites'] };
  * Call before the page loads. Returns the number of answered requests.
  */
 async function servedSavedLayout(page: Page) {
-    const origins = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-    const identity = page.waitForResponse((response) => {
-        const url = new URL(response.url());
-        return origins.has(url.origin) && url.pathname === '/api/engine/v2/users/current' &&
-            response.request().method() === 'GET';
-    }).then((response) => response.json() as Promise<{ id: string }>).catch(() => null);
+    const origins = new Set([
+        new URL(APP_URL).origin,
+        new URL(BACKEND_URL).origin,
+    ]);
+    const identity = page
+        .waitForResponse((response) => {
+            const url = new URL(response.url());
+            return (
+                origins.has(url.origin) &&
+                url.pathname === '/api/engine/v2/users/current' &&
+                response.request().method() === 'GET'
+            );
+        })
+        .then((response) => response.json() as Promise<{ id: string }>)
+        .catch(() => null);
     let served = 0;
-    await page.route((url) => origins.has(url.origin) &&
-        /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
-        url.searchParams.get('name') === 'settings', async (route) => {
-        const id = new URL(route.request().url()).pathname.split('/')[5];
-        const user = route.request().method() === 'GET' ? await identity : null;
-        if (!user || id !== user.id) return route.fallback();
-        served++;
-        await route.fulfill({ json: { settings: { id, name: 'settings', details: { landing_layout: SAVED_LAYOUT } } } });
-    });
+    await page.route(
+        (url) =>
+            origins.has(url.origin) &&
+            /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
+            url.searchParams.get('name') === 'settings',
+        async (route) => {
+            const id = new URL(route.request().url()).pathname.split('/')[5];
+            const user =
+                route.request().method() === 'GET' ? await identity : null;
+            if (!user || id !== user.id) return route.fallback();
+            served++;
+            await route.fulfill({
+                json: {
+                    settings: {
+                        id,
+                        name: 'settings',
+                        details: { landing_layout: SAVED_LAYOUT },
+                    },
+                },
+            });
+        },
+    );
     return () => served;
 }
-
 
 const BASE: Settings = {
     ...READ_ONLY_SETTINGS,
@@ -73,11 +102,25 @@ async function openLanding(page: Page, overrides: Settings) {
     await page.goto('/#/landing');
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
     await expect(page.locator('landing-new')).toHaveCount(1);
-    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
+    await expect(
+        page.locator('global-loading [initialisation-error]'),
+    ).toHaveCount(0);
     for (const [key, value] of Object.entries(settings)) {
-        await expect.poll(() => page.evaluate((name) =>
-            (window as Window & { setting?: (key: string) => unknown }).setting?.(name), key),
-        { message: 'effective setting ' + key }).toEqual(value);
+        await expect
+            .poll(
+                () =>
+                    page.evaluate(
+                        (name) =>
+                            (
+                                window as Window & {
+                                    setting?: (key: string) => unknown;
+                                }
+                            ).setting?.(name),
+                        key,
+                    ),
+                { message: 'effective setting ' + key },
+            )
+            .toEqual(value);
     }
     await expect(page.locator('landing-new > *').first()).toBeVisible();
     await expect(
@@ -85,46 +128,57 @@ async function openLanding(page: Page, overrides: Settings) {
     ).toBeVisible();
 }
 
-test(
-    'hide_landing_customise false shows the Edit home screen control',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            'app.hide_landing_customise': false,
-        });
-        const edit = staffPage.locator('button[name="edit-home-layout"]');
-        await expect(edit).toHaveCount(1);
-        await expect(edit).toBeVisible();
-        // The control only changes local UI state. Cancel restores the page.
-        await edit.click();
-        await expect(
-            staffPage.locator('button[name="save-home-layout"]'),
-        ).toBeVisible();
-        await staffPage.locator('button[name="cancel-home-layout"]').click();
-        await expect(edit).toBeVisible();
-    },
-);
+test('hide_landing_customise false shows the Edit home screen control', async ({
+    staffPage,
+}) => {
+    await openLanding(staffPage, {
+        'app.hide_landing_customise': false,
+    });
+    const edit = staffPage.locator('button[name="edit-home-layout"]');
+    await expect(edit).toHaveCount(1);
+    await expect(edit).toBeVisible();
+    // The control only changes local UI state. Cancel restores the page.
+    await edit.click();
+    await expect(
+        staffPage.locator('button[name="save-home-layout"]'),
+    ).toBeVisible();
+    await staffPage.locator('button[name="cancel-home-layout"]').click();
+    await expect(edit).toBeVisible();
+});
 
-test(
-    'hide_landing_customise true removes the Edit home screen control and ignores a saved layout',
-    async ({ staffPage }) => {
-        const served = await servedSavedLayout(staffPage);
-        await openLanding(staffPage, {
-            'app.hide_landing_customise': true,
-        });
-        // Anchor: the saved layout has reached the app's user settings.
-        await expect.poll(() => staffPage.evaluate(() =>
-            (window as Window & { setting?: (key: string) => unknown }).setting?.('landing_layout')),
-        { message: 'saved landing_layout loaded' }).toEqual(SAVED_LAYOUT);
-        expect(served(), 'saved layout served from the user settings GET').toBeGreaterThan(0);
-        // The saved layout hides favourites; with the setting on it is not used.
-        await expect(
-            staffPage.locator('section[data-widget="favourites"]'),
-        ).toHaveCount(1);
-        await expect(
-            staffPage.locator('button[name="edit-home-layout"]'),
-        ).toHaveCount(0);
-        await expect(
-            staffPage.locator('button[name="save-home-layout"]'),
-        ).toHaveCount(0);
-    },
-);
+test('hide_landing_customise true removes the Edit home screen control and ignores a saved layout', async ({
+    staffPage,
+}) => {
+    const served = await servedSavedLayout(staffPage);
+    await openLanding(staffPage, {
+        'app.hide_landing_customise': true,
+    });
+    // Anchor: the saved layout has reached the app's user settings.
+    await expect
+        .poll(
+            () =>
+                staffPage.evaluate(() =>
+                    (
+                        window as Window & {
+                            setting?: (key: string) => unknown;
+                        }
+                    ).setting?.('landing_layout'),
+                ),
+            { message: 'saved landing_layout loaded' },
+        )
+        .toEqual(SAVED_LAYOUT);
+    expect(
+        served(),
+        'saved layout served from the user settings GET',
+    ).toBeGreaterThan(0);
+    // The saved layout hides favourites; with the setting on it is not used.
+    await expect(
+        staffPage.locator('section[data-widget="favourites"]'),
+    ).toHaveCount(1);
+    await expect(
+        staffPage.locator('button[name="edit-home-layout"]'),
+    ).toHaveCount(0);
+    await expect(
+        staffPage.locator('button[name="save-home-layout"]'),
+    ).toHaveCount(0);
+});

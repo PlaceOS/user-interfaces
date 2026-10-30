@@ -5,13 +5,20 @@
 // The user-controls help button is enabled by the `help` feature; its tooltip
 // renders one link per configured tile. Links are only inspected, never opened.
 import type { Page } from '@playwright/test';
-import { expect } from '../../../../../e2e/support/fixtures';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
+import {
+    APP_URL,
+    BACKEND_URL,
+    assertLocalOnly,
+} from '../../../../../e2e/support/env';
+import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type Settings, stubBootstrap, test } from '../support/settings-harness';
+import {
+    type Settings,
+    stubBootstrap,
+    test,
+} from '../support/settings-harness';
 test.use({ auditHttp: 'strict' });
-
 
 const HELP_LINK = 'https://example.invalid/e2e-workplace-help';
 
@@ -23,7 +30,15 @@ const BASE: Settings = {
     'app.show_quick_links': false,
     'app.show_quick_book': false,
     'app.hide_landing_customise': true,
-    'app.hide_landing_widgets': ['available_now', 'quick_actions', 'desk_week', 'favourites', 'colleagues', 'focus_timer', 'world_clock'],
+    'app.hide_landing_widgets': [
+        'available_now',
+        'quick_actions',
+        'desk_week',
+        'favourites',
+        'colleagues',
+        'focus_timer',
+        'world_clock',
+    ],
     'app.use_region': false,
     'app.use_geolocation': false,
     'app.allow_dark_mode': false,
@@ -44,11 +59,25 @@ async function openHelp(page: Page, help: unknown[]) {
     await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-AU'));
     await page.goto('/#/landing');
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
+    await expect(
+        page.locator('global-loading [initialisation-error]'),
+    ).toHaveCount(0);
     for (const [key, value] of Object.entries(settings)) {
-        await expect.poll(() => page.evaluate((name) =>
-            (window as Window & { setting?: (key: string) => unknown }).setting?.(name), key),
-        { message: 'effective setting ' + key }).toEqual(value);
+        await expect
+            .poll(
+                () =>
+                    page.evaluate(
+                        (name) =>
+                            (
+                                window as Window & {
+                                    setting?: (key: string) => unknown;
+                                }
+                            ).setting?.(name),
+                        key,
+                    ),
+                { message: 'effective setting ' + key },
+            )
+            .toEqual(value);
     }
 
     await expect(
@@ -66,28 +95,28 @@ async function openHelp(page: Page, help: unknown[]) {
     return page.locator('help-tooltip');
 }
 
-test(
-    'help renders a configured tile link',
-    async ({ staffPage }) => {
-        const tooltip = await openHelp(staffPage, [
-            {
-                name: 'E2E Workplace Help',
-                link: HELP_LINK,
-                // ApplicationIcon object, as help-tooltip binds [icon]="tile.icon".
-                icon: { type: 'icon', class: 'material-symbols-rounded', content: 'help' },
+test('help renders a configured tile link', async ({ staffPage }) => {
+    const tooltip = await openHelp(staffPage, [
+        {
+            name: 'E2E Workplace Help',
+            link: HELP_LINK,
+            // ApplicationIcon object, as help-tooltip binds [icon]="tile.icon".
+            icon: {
+                type: 'icon',
+                class: 'material-symbols-rounded',
+                content: 'help',
             },
-        ]);
-        const link = tooltip.locator(`a[href="${HELP_LINK}"]`);
-        await expect(link).toHaveCount(1);
-        await expect(link).toContainText('E2E Workplace Help');
-        await expect(link.locator('icon')).toHaveText(/^\s*help\s*$/);
-    },
-);
+        },
+    ]);
+    const link = tooltip.locator(`a[href="${HELP_LINK}"]`);
+    await expect(link).toHaveCount(1);
+    await expect(link).toContainText('E2E Workplace Help');
+    await expect(link.locator('icon')).toHaveText(/^\s*help\s*$/);
+});
 
-test(
-    'help [] leaves the help tooltip without link tiles',
-    async ({ staffPage }) => {
-        const tooltip = await openHelp(staffPage, []);
-        await expect(tooltip.locator('a')).toHaveCount(0);
-    },
-);
+test('help [] leaves the help tooltip without link tiles', async ({
+    staffPage,
+}) => {
+    const tooltip = await openHelp(staffPage, []);
+    await expect(tooltip.locator('a')).toHaveCount(0);
+});

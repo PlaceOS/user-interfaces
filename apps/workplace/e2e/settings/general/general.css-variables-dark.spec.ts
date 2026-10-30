@@ -6,13 +6,21 @@
 // preference (a write), so this test only applies the documented theme class
 // locally and checks the resulting custom property.
 import type { Page } from '@playwright/test';
-import { expect } from '../../../../../e2e/support/fixtures';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
+import {
+    APP_URL,
+    BACKEND_URL,
+    assertLocalOnly,
+} from '../../../../../e2e/support/env';
+import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { ORIGINS, type Settings, stubBootstrap, test } from '../support/settings-harness';
+import {
+    ORIGINS,
+    type Settings,
+    stubBootstrap,
+    test,
+} from '../support/settings-harness';
 test.use({ auditHttp: 'strict' });
-
 
 const BASE: Settings = {
     ...READ_ONLY_SETTINGS,
@@ -22,7 +30,15 @@ const BASE: Settings = {
     'app.show_quick_links': false,
     'app.show_quick_book': false,
     'app.hide_landing_customise': true,
-    'app.hide_landing_widgets': ['available_now', 'quick_actions', 'desk_week', 'favourites', 'colleagues', 'focus_timer', 'world_clock'],
+    'app.hide_landing_widgets': [
+        'available_now',
+        'quick_actions',
+        'desk_week',
+        'favourites',
+        'colleagues',
+        'focus_timer',
+        'world_clock',
+    ],
     'app.use_region': false,
     'app.use_geolocation': false,
     'app.allow_dark_mode': false,
@@ -44,11 +60,25 @@ async function openLanding(page: Page, overrides: Settings) {
     await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-AU'));
     await page.goto('/#/landing');
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
+    await expect(
+        page.locator('global-loading [initialisation-error]'),
+    ).toHaveCount(0);
     for (const [key, value] of Object.entries(settings)) {
-        await expect.poll(() => page.evaluate((name) =>
-            (window as Window & { setting?: (key: string) => unknown }).setting?.(name), key),
-        { message: 'effective setting ' + key }).toEqual(value);
+        await expect
+            .poll(
+                () =>
+                    page.evaluate(
+                        (name) =>
+                            (
+                                window as Window & {
+                                    setting?: (key: string) => unknown;
+                                }
+                            ).setting?.(name),
+                        key,
+                    ),
+                { message: 'effective setting ' + key },
+            )
+            .toEqual(value);
     }
 
     await expect(page.locator('landing-new')).toHaveCount(1);
@@ -57,41 +87,47 @@ async function openLanding(page: Page, overrides: Settings) {
     ).toBeVisible();
 }
 
-test(
-    'css_variables_dark emits a dark-theme rule and the property resolves',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            // `secondary` is a real theme variable (shared/styles/application.css
-            // :root and .theme-dark), so the override must beat the dark default.
-            'app.css_variables_dark': { 'secondary': '#123456' },
-        });
-        const style = staffPage.locator('style#css-var-overrides');
-        await expect(style).toHaveCount(1);
-        // Playwright's text matcher excludes STYLE nodes. Read their DOM
-        // content directly; retain the actual computed-property check below.
-        const stylesheet = () => style.evaluate((element) => element.textContent ?? '');
-        await expect.poll(stylesheet).toContain('body.theme-dark');
-        await expect.poll(stylesheet).toContain('--secondary: #123456');
-        // Computed --secondary on body, with and without the theme class.
-        const resolved = await staffPage.evaluate(() => {
-            const was_dark = document.body.classList.contains('theme-dark');
-            const read = () => getComputedStyle(document.body).getPropertyValue('--secondary').trim();
-            try {
-                document.body.classList.add('theme-dark');
-                const dark = read();
-                document.body.classList.remove('theme-dark');
-                const light = read();
-                return { dark, light };
-            } finally {
-                document.body.classList.toggle('theme-dark', was_dark);
-            }
-        });
-        expect(resolved.dark, 'dark theme uses the override').toBe('#123456');
-        // The light theme keeps the stylesheet value (present, not the override).
-        expect(resolved.light, 'light theme --secondary is defined').not.toBe('');
-        expect(resolved.light, 'light theme does not get the dark override').not.toBe('#123456');
-    },
-);
+test('css_variables_dark emits a dark-theme rule and the property resolves', async ({
+    staffPage,
+}) => {
+    await openLanding(staffPage, {
+        // `secondary` is a real theme variable (shared/styles/application.css
+        // :root and .theme-dark), so the override must beat the dark default.
+        'app.css_variables_dark': { secondary: '#123456' },
+    });
+    const style = staffPage.locator('style#css-var-overrides');
+    await expect(style).toHaveCount(1);
+    // Playwright's text matcher excludes STYLE nodes. Read their DOM
+    // content directly; retain the actual computed-property check below.
+    const stylesheet = () =>
+        style.evaluate((element) => element.textContent ?? '');
+    await expect.poll(stylesheet).toContain('body.theme-dark');
+    await expect.poll(stylesheet).toContain('--secondary: #123456');
+    // Computed --secondary on body, with and without the theme class.
+    const resolved = await staffPage.evaluate(() => {
+        const was_dark = document.body.classList.contains('theme-dark');
+        const read = () =>
+            getComputedStyle(document.body)
+                .getPropertyValue('--secondary')
+                .trim();
+        try {
+            document.body.classList.add('theme-dark');
+            const dark = read();
+            document.body.classList.remove('theme-dark');
+            const light = read();
+            return { dark, light };
+        } finally {
+            document.body.classList.toggle('theme-dark', was_dark);
+        }
+    });
+    expect(resolved.dark, 'dark theme uses the override').toBe('#123456');
+    // The light theme keeps the stylesheet value (present, not the override).
+    expect(resolved.light, 'light theme --secondary is defined').not.toBe('');
+    expect(
+        resolved.light,
+        'light theme does not get the dark override',
+    ).not.toBe('#123456');
+});
 
 /** Dark value served as an org-level css_variables_dark setting, in this browser only. */
 const ORG_DARK = '#0a1b2c';
@@ -172,7 +208,5 @@ test('css_variables_dark {} replaces the org dark-theme map', async ({
     const style = staffPage.locator('style#css-var-overrides');
     await expect(style).toHaveCount(1);
     await expect.poll(() => stylesheet(staffPage)).toContain('body.theme-dark');
-    await expect
-        .poll(() => stylesheet(staffPage))
-        .not.toContain('--secondary');
+    await expect.poll(() => stylesheet(staffPage)).not.toContain('--secondary');
 });

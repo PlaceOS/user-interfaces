@@ -5,13 +5,20 @@
 // The button only exists when a URL is configured. Clicking it opens the
 // configured embed shape; no application data is changed.
 import type { Page } from '@playwright/test';
-import { expect } from '../../../../../e2e/support/fixtures';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
+import {
+    APP_URL,
+    BACKEND_URL,
+    assertLocalOnly,
+} from '../../../../../e2e/support/env';
+import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type Settings, stubBootstrap, test } from '../support/settings-harness';
+import {
+    type Settings,
+    stubBootstrap,
+    test,
+} from '../support/settings-harness';
 test.use({ auditHttp: 'strict' });
-
 
 /**
  * A local page answered by openLanding. A data: URL frame would run the
@@ -69,11 +76,25 @@ async function openLanding(page: Page, overrides: Settings) {
     await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-AU'));
     await page.goto('/#/landing');
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
+    await expect(
+        page.locator('global-loading [initialisation-error]'),
+    ).toHaveCount(0);
     for (const [key, value] of Object.entries(settings)) {
-        await expect.poll(() => page.evaluate((name) =>
-            (window as Window & { setting?: (key: string) => unknown }).setting?.(name), key),
-        { message: 'effective setting ' + key }).toEqual(value);
+        await expect
+            .poll(
+                () =>
+                    page.evaluate(
+                        (name) =>
+                            (
+                                window as Window & {
+                                    setting?: (key: string) => unknown;
+                                }
+                            ).setting?.(name),
+                        key,
+                    ),
+                { message: 'effective setting ' + key },
+            )
+            .toEqual(value);
     }
 
     await expect(page.locator('landing-new')).toHaveCount(1);
@@ -98,15 +119,25 @@ async function expectPaneAt(page: Page, side: 'left' | 'right') {
     const gaps = async () => {
         const box = await pane.boundingBox();
         if (!box) return null;
-        const width = await page.evaluate(() => document.documentElement.clientWidth);
+        const width = await page.evaluate(
+            () => document.documentElement.clientWidth,
+        );
         const left = box.x;
         const right = width - (box.x + box.width);
-        return side === 'left' ? { near: left, far: right } : { near: right, far: left };
+        return side === 'left'
+            ? { near: left, far: right }
+            : { near: right, far: left };
     };
-    await expect.poll(async () => Math.abs((await gaps())?.near ?? Infinity),
-        { message: 'pane gap to the ' + side + ' edge' }).toBeLessThanOrEqual(EDGE_TOLERANCE);
+    await expect
+        .poll(async () => Math.abs((await gaps())?.near ?? Infinity), {
+            message: 'pane gap to the ' + side + ' edge',
+        })
+        .toBeLessThanOrEqual(EDGE_TOLERANCE);
     const settled = await gaps();
-    expect(settled?.far ?? 0, 'pane does not also reach the other edge').toBeGreaterThan(EDGE_TOLERANCE);
+    expect(
+        settled?.far ?? 0,
+        'pane does not also reach the other edge',
+    ).toBeGreaterThan(EDGE_TOLERANCE);
 }
 
 async function closeEmbed(page: Page, selector: string) {
@@ -114,147 +145,141 @@ async function closeEmbed(page: Page, selector: string) {
     await expect(page.locator(selector)).toHaveCount(0);
 }
 
-test(
-    'virtual_concierge.url empty hides the concierge button',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            'app.virtual_concierge.url': '',
-            'app.virtual_concierge_url': '',
-        });
-        await expect(button(staffPage)).toHaveCount(0);
-    },
-);
+test('virtual_concierge.url empty hides the concierge button', async ({
+    staffPage,
+}) => {
+    await openLanding(staffPage, {
+        'app.virtual_concierge.url': '',
+        'app.virtual_concierge_url': '',
+    });
+    await expect(button(staffPage)).toHaveCount(0);
+});
 
-test(
-    'virtual_concierge.url configured shows the concierge button',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            'app.virtual_concierge.url': EMBED_URL,
-        });
-        await expect(button(staffPage)).toHaveCount(1);
-        await expect(button(staffPage)).toBeVisible();
-    },
-);
+test('virtual_concierge.url configured shows the concierge button', async ({
+    staffPage,
+}) => {
+    await openLanding(staffPage, {
+        'app.virtual_concierge.url': EMBED_URL,
+    });
+    await expect(button(staffPage)).toHaveCount(1);
+    await expect(button(staffPage)).toBeVisible();
+});
 
-test(
-    'virtual_concierge_url (legacy) is used when virtual_concierge.url is empty',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            'app.virtual_concierge.url': '',
-            'app.virtual_concierge_url': EMBED_URL,
-        });
-        await expect(button(staffPage)).toHaveCount(1);
-        await button(staffPage).click();
-        await expect(staffPage.locator('fullscreen-embed')).toBeVisible();
-        await expect(
-            staffPage.locator('fullscreen-embed iframe'),
-        ).toHaveAttribute('src', EMBED_URL);
-        await closeEmbed(staffPage, 'fullscreen-embed');
-    },
-);
+test('virtual_concierge_url (legacy) is used when virtual_concierge.url is empty', async ({
+    staffPage,
+}) => {
+    await openLanding(staffPage, {
+        'app.virtual_concierge.url': '',
+        'app.virtual_concierge_url': EMBED_URL,
+    });
+    await expect(button(staffPage)).toHaveCount(1);
+    await button(staffPage).click();
+    await expect(staffPage.locator('fullscreen-embed')).toBeVisible();
+    await expect(staffPage.locator('fullscreen-embed iframe')).toHaveAttribute(
+        'src',
+        EMBED_URL,
+    );
+    await closeEmbed(staffPage, 'fullscreen-embed');
+});
 
-test(
-    'virtual_concierge.icon replaces the default support icon',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            'app.virtual_concierge.url': EMBED_URL,
-            'app.virtual_concierge.icon': ICON_URL,
-        });
-        await expect(button(staffPage).locator('img')).toHaveCount(1);
-        await expect(button(staffPage).locator('img')).toHaveAttribute(
-            'src',
-            ICON_URL,
-        );
-        await expect(
-            button(staffPage).locator('icon', { hasText: /^\s*support_agent\s*$/ }),
-        ).toHaveCount(0);
-    },
-);
+test('virtual_concierge.icon replaces the default support icon', async ({
+    staffPage,
+}) => {
+    await openLanding(staffPage, {
+        'app.virtual_concierge.url': EMBED_URL,
+        'app.virtual_concierge.icon': ICON_URL,
+    });
+    await expect(button(staffPage).locator('img')).toHaveCount(1);
+    await expect(button(staffPage).locator('img')).toHaveAttribute(
+        'src',
+        ICON_URL,
+    );
+    await expect(
+        button(staffPage).locator('icon', { hasText: /^\s*support_agent\s*$/ }),
+    ).toHaveCount(0);
+});
 
-test(
-    'virtual_concierge.icon empty shows the default support icon',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            'app.virtual_concierge.url': EMBED_URL,
-            'app.virtual_concierge.icon': '',
-        });
-        await expect(button(staffPage).locator('img')).toHaveCount(0);
-        await expect(
-            button(staffPage).locator('icon', { hasText: /^\s*support_agent\s*$/ }),
-        ).toHaveCount(1);
-    },
-);
+test('virtual_concierge.icon empty shows the default support icon', async ({
+    staffPage,
+}) => {
+    await openLanding(staffPage, {
+        'app.virtual_concierge.url': EMBED_URL,
+        'app.virtual_concierge.icon': '',
+    });
+    await expect(button(staffPage).locator('img')).toHaveCount(0);
+    await expect(
+        button(staffPage).locator('icon', { hasText: /^\s*support_agent\s*$/ }),
+    ).toHaveCount(1);
+});
 
-test(
-    'virtual_concierge.display fullscreen opens the fullscreen embed',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            'app.virtual_concierge.url': EMBED_URL,
-            'app.virtual_concierge.display': 'fullscreen',
-        });
-        await button(staffPage).click();
-        await expect(staffPage.locator('fullscreen-embed')).toBeVisible();
-        await expect(staffPage.locator('sidebar-embed')).toHaveCount(0);
-        await expect(
-            staffPage.locator('fullscreen-embed iframe'),
-        ).toHaveAttribute('src', EMBED_URL);
-        await closeEmbed(staffPage, 'fullscreen-embed');
-    },
-);
+test('virtual_concierge.display fullscreen opens the fullscreen embed', async ({
+    staffPage,
+}) => {
+    await openLanding(staffPage, {
+        'app.virtual_concierge.url': EMBED_URL,
+        'app.virtual_concierge.display': 'fullscreen',
+    });
+    await button(staffPage).click();
+    await expect(staffPage.locator('fullscreen-embed')).toBeVisible();
+    await expect(staffPage.locator('sidebar-embed')).toHaveCount(0);
+    await expect(staffPage.locator('fullscreen-embed iframe')).toHaveAttribute(
+        'src',
+        EMBED_URL,
+    );
+    await closeEmbed(staffPage, 'fullscreen-embed');
+});
 
-test(
-    'virtual_concierge.display sidebar opens the sidebar embed',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            'app.virtual_concierge.url': EMBED_URL,
-            'app.virtual_concierge.display': 'sidebar',
-        });
-        await button(staffPage).click();
-        await expect(staffPage.locator('sidebar-embed')).toBeVisible();
-        await expect(staffPage.locator('fullscreen-embed')).toHaveCount(0);
-        await expect(
-            staffPage.locator('sidebar-embed iframe'),
-        ).toHaveAttribute('src', EMBED_URL);
-        await closeEmbed(staffPage, 'sidebar-embed');
-    },
-);
+test('virtual_concierge.display sidebar opens the sidebar embed', async ({
+    staffPage,
+}) => {
+    await openLanding(staffPage, {
+        'app.virtual_concierge.url': EMBED_URL,
+        'app.virtual_concierge.display': 'sidebar',
+    });
+    await button(staffPage).click();
+    await expect(staffPage.locator('sidebar-embed')).toBeVisible();
+    await expect(staffPage.locator('fullscreen-embed')).toHaveCount(0);
+    await expect(staffPage.locator('sidebar-embed iframe')).toHaveAttribute(
+        'src',
+        EMBED_URL,
+    );
+    await closeEmbed(staffPage, 'sidebar-embed');
+});
 
-test(
-    'virtual_concierge.side right uses the right sidebar position',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            'app.virtual_concierge.url': EMBED_URL,
-            'app.virtual_concierge.display': 'sidebar',
-            'app.virtual_concierge.side': 'right',
-        });
-        await button(staffPage).click();
-        await expect(staffPage.locator('sidebar-embed')).toBeVisible();
-        await expect(
-            staffPage.locator(
-                '.cdk-overlay-pane.sidebar-embed-dialog.sidebar-embed-dialog-right',
-            ),
-        ).toHaveCount(1);
-        await expectPaneAt(staffPage, 'right');
-        await closeEmbed(staffPage, 'sidebar-embed');
-    },
-);
+test('virtual_concierge.side right uses the right sidebar position', async ({
+    staffPage,
+}) => {
+    await openLanding(staffPage, {
+        'app.virtual_concierge.url': EMBED_URL,
+        'app.virtual_concierge.display': 'sidebar',
+        'app.virtual_concierge.side': 'right',
+    });
+    await button(staffPage).click();
+    await expect(staffPage.locator('sidebar-embed')).toBeVisible();
+    await expect(
+        staffPage.locator(
+            '.cdk-overlay-pane.sidebar-embed-dialog.sidebar-embed-dialog-right',
+        ),
+    ).toHaveCount(1);
+    await expectPaneAt(staffPage, 'right');
+    await closeEmbed(staffPage, 'sidebar-embed');
+});
 
-test(
-    'virtual_concierge.side left uses the left sidebar position',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            'app.virtual_concierge.url': EMBED_URL,
-            'app.virtual_concierge.display': 'sidebar',
-            'app.virtual_concierge.side': 'left',
-        });
-        await button(staffPage).click();
-        await expect(staffPage.locator('sidebar-embed')).toBeVisible();
-        await expect(
-            staffPage.locator(
-                '.cdk-overlay-pane.sidebar-embed-dialog.sidebar-embed-dialog-left',
-            ),
-        ).toHaveCount(1);
-        await expectPaneAt(staffPage, 'left');
-        await closeEmbed(staffPage, 'sidebar-embed');
-    },
-);
+test('virtual_concierge.side left uses the left sidebar position', async ({
+    staffPage,
+}) => {
+    await openLanding(staffPage, {
+        'app.virtual_concierge.url': EMBED_URL,
+        'app.virtual_concierge.display': 'sidebar',
+        'app.virtual_concierge.side': 'left',
+    });
+    await button(staffPage).click();
+    await expect(staffPage.locator('sidebar-embed')).toBeVisible();
+    await expect(
+        staffPage.locator(
+            '.cdk-overlay-pane.sidebar-embed-dialog.sidebar-embed-dialog-left',
+        ),
+    ).toHaveCount(1);
+    await expectPaneAt(staffPage, 'left');
+    await closeEmbed(staffPage, 'sidebar-embed');
+});

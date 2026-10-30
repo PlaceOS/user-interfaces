@@ -176,11 +176,17 @@ function resultRows(page: Page) {
  * part before the @, so URL encoding of the @ cannot matter.
  */
 function userRow(page: Page) {
-    return page.locator('global-search a[href*="/explore?"][href*="user=' + USER.email.split('@')[0] + '"]');
+    return page.locator(
+        'global-search a[href*="/explore?"][href*="user=' +
+            USER.email.split('@')[0] +
+            '"]',
+    );
 }
 /** The space result: its link opens Explore with `space=<id>`. */
 function spaceRow(page: Page) {
-    return page.locator('global-search a[href*="/explore?"][href*="space=' + SPACE.id + '"]');
+    return page.locator(
+        'global-search a[href*="/explore?"][href*="space=' + SPACE.id + '"]',
+    );
 }
 /** The empty-state message (`div[empty]`). */
 function emptyState(page: Page) {

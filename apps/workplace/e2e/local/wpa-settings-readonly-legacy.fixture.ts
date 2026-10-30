@@ -17,7 +17,9 @@ export const READ_ONLY_SETTINGS: Record<string, unknown> = {
  * the test on any recorded request and checks that the app loaded this
  * worker's non-admin staff user.
  */
-export const readOnlyTest = test.extend<{ readOnlyTimezone: string | undefined }>({
+export const readOnlyTest = test.extend<{
+    readOnlyTimezone: string | undefined;
+}>({
     readOnlyTimezone: [undefined, { option: true }],
     storageState: async ({}, use) => use(undefined),
     staffPage: async ({ browser, staffPage, readOnlyTimezone }, use, info) => {
@@ -29,15 +31,24 @@ export const readOnlyTest = test.extend<{ readOnlyTimezone: string | undefined }
             timezoneId: readOnlyTimezone,
         });
         const blocked: string[] = [];
-        type StaffIdentity = { email?: string; sys_admin?: boolean; support?: boolean };
+        type StaffIdentity = {
+            email?: string;
+            sys_admin?: boolean;
+            support?: boolean;
+        };
         const identities: Promise<StaffIdentity | null>[] = [];
         try {
             // Registered before the page exists, so its first request is covered.
             await context.route('**/api/**', async (route) => {
                 const request = route.request();
                 const url = new URL(request.url());
-                if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method()) ||
-                    ![new URL(APP_URL).origin, new URL(BACKEND_URL).origin].includes(url.origin)) {
+                if (
+                    !['GET', 'HEAD', 'OPTIONS'].includes(request.method()) ||
+                    ![
+                        new URL(APP_URL).origin,
+                        new URL(BACKEND_URL).origin,
+                    ].includes(url.origin)
+                ) {
                     blocked.push(`${request.method()} ${url.pathname}`);
                     await route.abort('blockedbyclient');
                     return;
@@ -47,20 +58,39 @@ export const readOnlyTest = test.extend<{ readOnlyTimezone: string | undefined }
             const page = await context.newPage();
             // Reads the app's own identity GET; no extra request is made.
             page.on('response', (response) => {
-                if (response.request().method() === 'GET' &&
-                    new URL(response.url()).pathname === '/api/engine/v2/users/current') {
-                    identities.push(response.json().then((user: StaffIdentity) => user).catch(() => null));
+                if (
+                    response.request().method() === 'GET' &&
+                    new URL(response.url()).pathname ===
+                        '/api/engine/v2/users/current'
+                ) {
+                    identities.push(
+                        response
+                            .json()
+                            .then((user: StaffIdentity) => user)
+                            .catch(() => null),
+                    );
                 }
             });
             await use(page);
         } finally {
             await context.close();
-            expect(blocked, 'read-only scenario must perform zero API mutations').toEqual([]);
+            expect(
+                blocked,
+                'read-only scenario must perform zero API mutations',
+            ).toEqual([]);
             const observed = await Promise.all(identities);
-            expect(observed.length, 'the app must establish staff identity').toBeGreaterThan(0);
+            expect(
+                observed.length,
+                'the app must establish staff identity',
+            ).toBeGreaterThan(0);
             for (const user of observed) {
-                expect(user?.email?.toLowerCase()).toBe(staffEmail(info.parallelIndex).toLowerCase());
-                expect(user?.sys_admin || user?.support, 'staff-only scenario').toBeFalsy();
+                expect(user?.email?.toLowerCase()).toBe(
+                    staffEmail(info.parallelIndex).toLowerCase(),
+                );
+                expect(
+                    user?.sys_admin || user?.support,
+                    'staff-only scenario',
+                ).toBeFalsy();
             }
         }
     },
