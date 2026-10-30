@@ -165,11 +165,7 @@ for (const enabled of [false, true]) {
         staffPage,
         audit,
     }) => {
-        await openBranding(
-            staffPage,
-            { 'app.chat.enabled': enabled },
-            audit,
-        );
+        await openBranding(staffPage, { 'app.chat.enabled': enabled }, audit);
         const launcher = staffPage.locator('global-chat button').filter({
             has: staffPage.locator('icon', { hasText: /^\s*chat\s*$/ }),
         });
