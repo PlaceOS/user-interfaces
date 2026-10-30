@@ -4,23 +4,25 @@
 // unsaved parking fixture across a configured weekly boundary (00:00 / 00:01).
 // Source: libs/bookings/src/lib/bookings.fn.ts isInWaitlistWeek;
 // apps/workplace/src/app/schedule/schedule-day-view.component.ts bookingStatus.
-// Safety: staff auth from settingsStaffToken (settings-harness): the stored
-// worker token while it is valid, otherwise a freshly minted one; genuine staff
+// Safety: staff auth from staffTokenTest (settings-harness); the genuine staff
 // identity GET is unchanged.
 // Every other API response is a named browser GET fixture. No POST/PUT/PATCH/
 // DELETE, driver messages, booking submission, seeding or backend cleanup.
 // Shell sockets are blocked as a safety guard; no WebSocket data is simulated.
 // Each scenario creates a fresh context/document and checks effective settings.
-import type { Page, Route } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type Settings, watchStaffId, staffTokenTest as test } from '../support/settings-harness';
-type DebugWindow = Window & {
-    ng?: { getComponent(element: Element): unknown };
-    setting?: (key: string) => unknown;
-};
+import {
+    type DebugWindow,
+    getOnly,
+    ORIGINS,
+    type Settings,
+    watchStaffId,
+    staffTokenTest as test,
+} from '../support/settings-harness';
 type NetworkAudit = {
     api: string[];
     external: string[];
@@ -29,12 +31,16 @@ type NetworkAudit = {
     appErrors: string[];
     closing: Promise<void>[];
 };
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 const ORGANISATION = 'e2e-waitlist-boundary-org';
 const REGION = 'e2e-waitlist-boundary-region';
 const BUILDING = 'e2e-waitlist-boundary-building';
 
+/**
+ * Blocks every non-read request, any read of /auth or /login, every local /api
+ * request a page fixture did not answer (except the staff identity GET) and
+ * every external request but the Google Fonts css2 GET.
+ */
 async function protectNetwork(page: Page): Promise<NetworkAudit> {
     const audit: NetworkAudit = {
         api: [], external: [], websocket: [], blockedControl: [],
@@ -95,20 +101,6 @@ async function expectSafe(audit: NetworkAudit) {
     expect(audit.external, 'no external actions').toEqual([]);
     expect(audit.websocket, 'no live WebSocket bindings').toEqual([]);
     expect(audit.appErrors, 'no application errors').toEqual([]);
-}
-
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
 }
 
 const BOOKING_TITLE = 'Browser-only waitlist boundary';
@@ -230,7 +222,7 @@ async function openSchedule(page: Page, minute: number) {
             ORIGINS.has(url.origin) &&
             /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
             ['settings', 'contacts'].includes(url.searchParams.get('name') ?? ''),
-        async (route: Route) => {
+        async (route) => {
             const request = route.request();
             if (request.method() !== 'GET') return route.fallback();
             const id = decodeURIComponent(

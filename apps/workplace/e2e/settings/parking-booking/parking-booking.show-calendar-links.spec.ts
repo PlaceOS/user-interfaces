@@ -6,93 +6,13 @@
 // parking.show_calendar_links is true. The booked event is a browser-only
 // sessionStorage seed; nothing is submitted and no external calendar link is
 // clicked.
-import type { Page, Route } from '@playwright/test';
-import {
-    APP_URL,
-    BACKEND_URL,
-    assertLocalOnly,
-} from '../../../../../e2e/support/env';
+import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
-import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
-import {
-    READ_ONLY_SETTINGS,
-    readOnlyTest,
-} from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type Settings } from '../support/settings-harness';
-type DebugWindow = Window & { setting?: (key: string) => unknown };
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { prepareSettings, type Settings, test } from '../support/settings-harness';
 
-type WsAudit = { unexpected: string[]; control: string[] };
-const test = readOnlyTest.extend<{ wsAudit: WsAudit }>({
-    wsAudit: [
-        async ({ staffPage }, use) => {
-            const audit: WsAudit = { unexpected: [], control: [] };
-            const closing: Promise<void>[] = [];
-            await staffPage.context().routeWebSocket('**/*', (socket) => {
-                const url = new URL(socket.url());
-                const app = new URL(APP_URL);
-                const local =
-                    url.host === app.host &&
-                    url.protocol ===
-                        (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                if (
-                    local &&
-                    url.pathname === '/' &&
-                    [...url.searchParams.keys()].join(',') === 'token'
-                )
-                    return;
-                if (
-                    local &&
-                    url.pathname === '/api/engine/v2/systems/control'
-                ) {
-                    audit.control.push(url.pathname);
-                } else {
-                    audit.unexpected.push(url.href);
-                }
-                closing.push(socket.close().catch(() => undefined));
-            });
-            await use(audit);
-            await Promise.all(closing);
-            expect(
-                audit.unexpected,
-                'no unexpected WebSocket connections',
-            ).toEqual([]);
-        },
-        { auto: true, timeout: 15_000 },
-    ],
-});
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
-}
-
-const CATEGORIES = [
-    { id: 'e2e-parking-links-catering', name: '_CATERING_', hidden: true },
-    { id: 'e2e-parking-links-desks', name: '_DESKS_', hidden: true },
-    { id: 'e2e-parking-links-parking', name: '_PARKING_', hidden: true },
-    { id: 'e2e-parking-links-lockers', name: '_LOCKERS_', hidden: true },
-];
-const TYPES: Record<string, string[]> = {
-    'e2e-parking-links-catering': [],
-    'e2e-parking-links-desks': ['_DESKS_'],
-    'e2e-parking-links-parking': [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    'e2e-parking-links-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
 const BASE: Settings = {
     ...READ_ONLY_SETTINGS,
     'app.features': ['parking'],
@@ -106,51 +26,14 @@ const BASE: Settings = {
 };
 
 async function prepare(page: Page, enabled: boolean) {
-    assertLocalOnly(APP_URL, BACKEND_URL);
-    await page.setViewportSize({ width: 1440, height: 1100 });
-    await getOnly(
+    return prepareSettings(
         page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            url.searchParams.get('hidden') === 'true' &&
-            url.searchParams.get('limit') === '500',
-        () => CATEGORIES,
+        {
+            'app.parking.show_calendar_links': enabled,
+            'app.parking.show_status_details': true,
+        },
+        { base: BASE, hidden: 'e2e-parking-links', landingRooms: false, identity: false },
     );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            url.searchParams.get('limit') === '500' &&
-            Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
-        (url) =>
-            TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'e2e-parking-links-type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' &&
-            (url.searchParams.get('type_id') ?? '').startsWith(
-                'e2e-parking-links-type-',
-            ),
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) => url.pathname === '/api/staff/v1/calendars',
-        () => [],
-    );
-    const settings = {
-        ...BASE,
-        'app.parking.show_calendar_links': enabled,
-        'app.parking.show_status_details': true,
-    };
-    await useSettings(page, settings);
-    await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-AU'));
 }
 
 /** Browser-only success state for one synthetic parking booking tomorrow. */
@@ -179,9 +62,8 @@ async function seedSuccessState(page: Page) {
 const LINKS = ['desk-outlook-link', 'desk-google-link', 'desk-ical-link'];
 
 // Each calendar link is rendered (and visible) only with the setting on, and
-// only then are its targets checked. Kept as data so the test body has no
-// branches: `links` is the expected count per link and `hrefs` is empty when
-// the links are absent.
+// only then are its targets checked: `links` is the expected count per link
+// and `hrefs` is empty when the links are absent.
 type Scenario = {
     enabled: boolean;
     links: number;
@@ -204,30 +86,13 @@ for (const scenario of SCENARIOS) {
     test(`parking.show_calendar_links ${scenario.enabled} gates the parking success links`, async ({
         staffPage,
     }) => {
-        await prepare(staffPage, scenario.enabled);
+        const fixture = await prepare(staffPage, scenario.enabled);
         await seedSuccessState(staffPage);
         await staffPage.goto('/#/book/parking/success');
-        await expect(staffPage.locator('global-loading [loader]')).toHaveCount(
-            0,
-        );
-        await expect(
-            staffPage.locator('global-loading [initialisation-error]'),
-        ).toHaveCount(0);
-        for (const [key, value] of [
-            ['app.features', ['parking']],
-            ['app.parking.show_calendar_links', scenario.enabled],
-        ] as const) {
-            await expect
-                .poll(
-                    () =>
-                        staffPage.evaluate(
-                            (name) => (window as DebugWindow).setting?.(name),
-                            key,
-                        ),
-                    { message: 'effective setting ' + key },
-                )
-                .toEqual(value);
-        }
+        await fixture.ready({
+            loading: false,
+            keys: ['app.features', 'app.parking.show_calendar_links'],
+        });
         const page = staffPage.locator('parking-flow-success');
         await expect(page).toHaveCount(1);
         await expect(page.locator(':scope > div')).toBeVisible();

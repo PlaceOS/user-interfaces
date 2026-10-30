@@ -10,9 +10,9 @@
 //   2. false with the same assigned desk shows the normal booking form.
 //   3. true with the assigned desk in building B while building A is active
 //      shows the normal booking form, after both buildings' desk scans ran.
-// Preconditions/fixtures: readOnlyTest (local read-only legacy fixture) with the
+// Preconditions/fixtures: the harness test ('local-only' audit) with the
 //   seeded non-admin staff identity read from the app's own
-//   GET /api/engine/v2/users/current (watchIdentity; no extra identity call).
+//   GET /api/engine/v2/users/current (no extra identity call).
 //   GET-only stubs serve a synthetic region with two buildings (A active via
 //   app.default_building) and one level tagged `parking` under A; the hidden
 //   `_PARKING_` category with `_PARKING_SPACES_` / `_PARKING_USERS_` /
@@ -39,145 +39,21 @@
 // - assignedDeskBuilding() is reached from an effect that re-runs when the user
 //   and the building list arrive, so the desk scans are polled rather than
 //   counted once.
-import type { Page, Route } from '@playwright/test';
-import {
-    APP_URL,
-    BACKEND_URL,
-    assertLocalOnly,
-} from '../../../../../e2e/support/env';
+import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { ParkingForm } from '../../../../../e2e/support/parking/parking-form.page';
-import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
 import {
-    readOnlyTest,
-} from '../../local/wpa-settings-readonly-legacy.fixture';
-import { COMMON, CONTROLS, type DebugWindow, type Settings, type WsAudit } from '../support/settings-harness';
-type Identity = { id?: string; email?: string; name?: string };
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const test = readOnlyTest.extend<{ wsAudit: WsAudit }>({
-    wsAudit: [
-        async ({ staffPage }, use) => {
-            const audit: WsAudit = {
-                unexpected: [],
-                control: [],
-                app_errors: [],
-                external: [],
-            };
-            // Non-local traffic never leaves the browser. The app shell's Google Fonts
-            // stylesheet is answered locally with empty CSS, so no font file is
-            // requested either; any other non-local request is aborted and fails the
-            // scenario. Local requests fall through to the read-only /api guard.
-            await staffPage.context().route('**/*', async (route) => {
-                const request = route.request();
-                const url = new URL(request.url());
-                if (ORIGINS.has(url.origin)) return route.fallback();
-                if (
-                    request.method() === 'GET' &&
-                    url.origin === 'https://fonts.googleapis.com' &&
-                    url.pathname === '/css2'
-                ) {
-                    return route.fulfill({
-                        status: 200,
-                        contentType: 'text/css',
-                        body: '',
-                    });
-                }
-                audit.external.push(
-                    request.method() + ' ' + url.origin + url.pathname,
-                );
-                await route.abort('blockedbyclient');
-            });
-            // ErrorHandler logs console.error('ERROR', e); Angular runtime errors
-            // log NG0xxx. Either fails the scenario.
-            staffPage.on('pageerror', (error) =>
-                audit.app_errors.push(
-                    'APP ' + error.name + ': ' + error.message,
-                ),
-            );
-            staffPage.on('console', (message) => {
-                if (
-                    message.type() === 'error' &&
-                    /^(ERROR\b|NG0\d+)/.test(message.text())
-                ) {
-                    audit.app_errors.push(
-                        'APP ' + message.text().slice(0, 500),
-                    );
-                }
-            });
-            const closing: Promise<void>[] = [];
-            await staffPage.context().routeWebSocket('**/*', (socket) => {
-                const url = new URL(socket.url());
-                const app = new URL(APP_URL);
-                const local =
-                    url.host === app.host &&
-                    url.protocol ===
-                        (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                if (
-                    local &&
-                    url.pathname === '/' &&
-                    [...url.searchParams.keys()].join(',') === 'token'
-                )
-                    return;
-                if (
-                    local &&
-                    url.pathname === '/api/engine/v2/systems/control'
-                ) {
-                    audit.control.push(url.pathname);
-                } else {
-                    audit.unexpected.push(url.href);
-                }
-                closing.push(socket.close().catch(() => undefined));
-            });
-            await use(audit);
-            await Promise.all(closing);
-            expect(
-                audit.unexpected,
-                'no unexpected WebSocket connections',
-            ).toEqual([]);
-            expect(audit.app_errors, 'no application errors').toEqual([]);
-            expect(audit.external, 'no non-local network traffic').toEqual([]);
-        },
-        { auto: true, timeout: 15_000 },
-    ],
-});
-test.use({ readOnlyTimezone: 'Etc/UTC' });
+    BOOKING,
+    CONTROLS,
+    type DebugWindow,
+    ORIGINS,
+    organisationRoutes,
+    prepareSettings,
+    type Settings,
+    test,
+} from '../support/settings-harness';
 
-/** Origin-limited GET-only responses. Non-GET always falls through to the guard. */
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
-}
-
-/** The current user's identity, observed on the app's own GET. */
-function watchIdentity(page: Page) {
-    let identity: Promise<Identity> | undefined;
-    page.on('response', (response) => {
-        const url = new URL(response.url());
-        if (
-            ORIGINS.has(url.origin) &&
-            url.pathname === '/api/engine/v2/users/current' &&
-            response.request().method() === 'GET'
-        )
-            identity = response.json();
-    });
-    return async () => {
-        await expect
-            .poll(() => !!identity, {
-                message: 'the app must read the staff identity',
-            })
-            .toBe(true);
-        return identity!;
-    };
-}
+test.use({ readOnlyTimezone: 'Etc/UTC', auditHttp: 'local-only' });
 
 // ------------------------------------------------------------- synthetic org
 const REGION = 'e2e-home-region';
@@ -222,160 +98,22 @@ const BUILDINGS = [
     },
 ];
 
-const CATEGORIES = [
-    { id: 'e2e-home-catering', name: '_CATERING_', hidden: true },
-    { id: 'e2e-home-desks', name: '_DESKS_', hidden: true },
-    { id: 'e2e-home-parking', name: '_PARKING_', hidden: true },
-    { id: 'e2e-home-lockers', name: '_LOCKERS_', hidden: true },
-];
-const TYPES: Record<string, string[]> = {
-    'e2e-home-catering': [],
-    'e2e-home-desks': ['_DESKS_'],
-    'e2e-home-parking': [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    'e2e-home-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
-const BOOKING: Settings = {
-    ...COMMON,
-    'app.features': ['parking'],
+const BASE: Settings = {
+    ...BOOKING,
     'app.feature_groups': {},
     'app.events.use_bookings': true,
     'app.default_building': BUILDING_A,
-    'app.desks.use_assets': false,
-    'app.parking.restrict_home_location': false,
-    'app.parking.require_space_restriction': false,
-    'app.parking.default_duration': 60,
-    'app.bookings.all_day_default': false,
-    'app.parking.all_day_default': null,
-    'app.bookings.allow_all_day': false,
-    'app.parking.allow_all_day': false,
-    'app.bookings.bookable_hours': null,
-    'app.parking.bookable_hours': null,
-    'app.bookings.max_duration': null,
-    'app.parking.max_duration': null,
-    'app.bookings.min_duration': null,
-    'app.parking.min_duration': null,
-    'app.bookings.custom_duration_options': null,
-    'app.parking.custom_duration_options': null,
-    'app.bookings.can_book_for_others': null,
-    'app.parking.can_book_for_others': false,
-    'app.bookings.use_building_timezone': false,
-    'app.parking.use_building_timezone': false,
-    'app.parking.available_period': null,
-    'app.parking.show_calendar_links': false,
-    'app.parking.hide_selected_space': false,
-    'app.parking.show_waitlist': true,
 };
 
-async function organisationFixture(page: Page) {
-    await page.addInitScript(() => {
-        for (const key of Object.keys(localStorage)) {
-            if (
-                key.startsWith('PLACEOS.org') ||
-                ['PLACEOS.region', 'PLACEOS.building'].includes(key)
-            ) {
-                localStorage.removeItem(key);
-            }
-        }
-        for (const key of [
-            'PLACEOS.booking_form',
-            'PLACEOS.booking_form_options',
-            'PLACEOS.booking_form_filters',
-        ]) {
-            sessionStorage.removeItem(key);
-        }
-        sessionStorage.removeItem('PLACEOS.building');
-        localStorage.setItem('APP.locale', 'en-AU');
-    });
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'region' &&
-            url.searchParams.get('limit') === '200',
-        () => [
-            {
-                id: REGION,
-                name: 'E2E Home Region',
-                tags: ['region'],
-                timezone: 'UTC',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'building' &&
-            url.searchParams.get('parent_id') === REGION &&
-            url.searchParams.get('limit') === '500',
-        () => BUILDINGS,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'level' &&
-            url.searchParams.get('limit') === '2500',
-        () => LEVELS,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            /^\/api\/engine\/v2\/metadata\/[^/]+\/bulk$/.test(url.pathname) &&
-            !!url.searchParams.get('parent_ids') &&
-            url.searchParams
-                .get('parent_ids')!
-                .split(',')
-                .every((id) => id.startsWith('e2e-home-')),
-        (url) =>
-            Object.fromEntries(
-                url.searchParams
-                    .get('parent_ids')!
-                    .split(',')
-                    .map((id) => [
-                        id,
-                        {
-                            id,
-                            name: decodeURIComponent(
-                                url.pathname.split('/')[5],
-                            ),
-                            details: {},
-                        },
-                    ]),
-            ),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            /^\/api\/engine\/v2\/metadata\/e2e-home-[^/]+$/.test(
-                url.pathname,
-            ) && !!url.searchParams.get('name'),
-        (url) => {
-            const name = url.searchParams.get('name')!;
-            return {
-                [name]: {
-                    id: url.pathname.split('/')[5],
-                    name,
-                    details: name.endsWith('_booking_rules') ? [] : {},
-                },
-            };
-        },
-    );
-}
-
 /**
- * GET /metadata/<building>/children?name=desks — the source assignedDeskBuilding
+ * GET /metadata/<building>/children?name=desks: the source assignedDeskBuilding
  * reads when app.desks.use_assets is false. Only the desk building carries a
  * desk assigned to the current user.
  */
 async function deskFixture(
     page: Page,
     desk_building: string,
-    user: () => Promise<Identity>,
+    user: () => Promise<{ email?: string }>,
     hits: Record<string, number>,
 ) {
     await page.route(
@@ -385,10 +123,15 @@ async function deskFixture(
                 url.pathname,
             ) &&
             url.searchParams.get('name') === 'desks',
-        async (route: Route) => {
+        async (route) => {
             if (route.request().method() !== 'GET') return route.fallback();
             const id = new URL(route.request().url()).pathname.split('/')[5];
             if (Object.hasOwn(hits, id)) hits[id] += 1;
+            await expect
+                .poll(() => user().then(() => true, () => false), {
+                    message: 'the app must read the staff identity',
+                })
+                .toBe(true);
             const me = await user();
             const details =
                 id === desk_building && me?.email
@@ -418,95 +161,45 @@ async function deskFixture(
 }
 
 async function prepare(page: Page, overrides: Settings, desk_building: string) {
-    assertLocalOnly(APP_URL, BACKEND_URL);
-    await page.setViewportSize({ width: 1440, height: 1100 });
-    await organisationFixture(page);
+    await organisationRoutes(page, {
+        prefix: 'e2e-home-',
+        region: { id: REGION, name: 'E2E Parking Region' },
+        buildings: BUILDINGS,
+        levels: LEVELS,
+        clearSession: ['PLACEOS.booking_form', 'PLACEOS.booking_form_options', 'PLACEOS.booking_form_filters'],
+        locale: 'en-AU',
+    });
     const hits: Record<string, number> = { [BUILDING_A]: 0, [BUILDING_B]: 0 };
     /** _PARKING_USERS_ asset GETs per zone (ParkingService._loadUsers). */
     const users: Record<string, number> = {};
-    await deskFixture(page, desk_building, watchIdentity(page), hits);
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            url.searchParams.get('hidden') === 'true' &&
-            url.searchParams.get('limit') === '500',
-        () => CATEGORIES,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            url.searchParams.get('limit') === '500' &&
-            Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
-        (url) =>
-            TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'e2e-home-type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
-    );
-    // No parking spaces and, critically, no _PARKING_USERS_ assets: the deny
-    // gate must stay false so only the home-location branch can hide the form.
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' &&
-            (url.searchParams.get('type_id') ?? '').startsWith(
-                'e2e-home-type-',
-            ),
-        (url) => {
+    const fixture = await prepareSettings(page, overrides, {
+        base: BASE,
+        controls: CONTROLS,
+        hidden: 'e2e-home',
+        // No parking spaces and no _PARKING_USERS_ assets: the deny gate stays
+        // false, so only the home-location branch can hide the form.
+        hiddenAssets: (url) => {
             if (url.searchParams.get('type_id') === 'e2e-home-type-_PARKING_USERS_') {
                 const zone = url.searchParams.get('zone_id') ?? '';
                 users[zone] = (users[zone] ?? 0) + 1;
             }
             return [];
         },
-    );
-    await getOnly(
-        page,
-        (url) => url.pathname === '/api/staff/v1/calendars',
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/staff/v1/bookings' &&
-            url.searchParams.get('type') === 'parking',
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) => url.pathname === '/api/staff/v1/bookings/booked',
-        () => [],
-    );
-    const settings = { ...BOOKING, ...overrides };
-    await useSettings(page, { ...CONTROLS, ...settings });
+        landingRooms: false,
+        locale: null,
+        bookings: { types: ['parking'] },
+        booked: true,
+        routes: () => deskFixture(page, desk_building, () => fixture.user(), hits),
+    });
     const form = new ParkingForm(page);
     return {
-        settings,
+        settings: fixture.settings,
         form,
         hits,
         users,
         ready: async () => {
             await expect(page.locator('placeos-parking-flow')).toHaveCount(1);
-            await expect(
-                page.locator('global-loading [initialisation-error]'),
-            ).toHaveCount(0);
-            for (const [key, value] of Object.entries(settings)) {
-                await expect
-                    .poll(
-                        () =>
-                            page.evaluate(
-                                (name) =>
-                                    (window as DebugWindow).setting?.(name),
-                                key,
-                            ),
-                        { message: 'effective setting ' + key },
-                    )
-                    .toEqual(value);
-            }
+            await fixture.ready({ loading: false });
         },
     };
 }
@@ -516,8 +209,8 @@ async function prepare(page: Page, overrides: Settings, desk_building: string) {
  *
  * `home_building_id` belongs to the injected ParkingService, not to the flow
  * component. Read that signal through the component's `_parking` reference.
- * This is a read-only probe: it invokes only signal getters. Fail closed if the
- * component, service or signal is unavailable rather than treating it as null.
+ * This is a read-only probe: it invokes only signal getters. Throws if the
+ * component, service or signal is unavailable.
  */
 function flowState(page: Page) {
     return page.locator('placeos-parking-flow').evaluate((element) => {
@@ -552,8 +245,7 @@ function flowState(page: Page) {
             restricted: component.is_home_location?.() ?? null,
             home: parking.home_building_id(),
             denied: component.deny_parking_access?.() ?? null,
-            // null (not false) when the signal is unavailable, so a wait on
-            // true fails closed.
+            // null (not false) when the signal is unavailable.
             assigned_desk: component._state?.has_assigned_desk?.() ?? null,
         };
     });
