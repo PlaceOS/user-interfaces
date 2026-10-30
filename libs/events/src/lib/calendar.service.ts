@@ -1,10 +1,8 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import {
     AsyncHandler,
     Calendar,
-    CalendarEvent,
     log,
     OrganisationService,
     SettingsService,
@@ -50,53 +48,6 @@ export class CalendarService extends AsyncHandler {
 
     public get calendars(): Calendar[] {
         return this._calendars();
-    }
-
-    /** Get Free busy for the selected day
-     * @param calendars User calendar
-     * @param date Selected day
-     */
-    public getFreeBusyDate(date: number, calendars: string) {
-        return querySpaceFreeBusy(
-            {
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
-                calendars,
-            },
-            this._org,
-        );
-    }
-
-    /** Check rooms availability */
-    public async checkSpacesAvailability(
-        system_ids: string[],
-        period_start: number,
-        period_end: number,
-        old_booking?: CalendarEvent,
-    ) {
-        const result = await queryCalendarAvailability({
-            period_start,
-            period_end,
-            system_ids: system_ids.join(','),
-        });
-        const start = new Date(old_booking?.date).valueOf();
-        const end = addMinutes(start, old_booking?.duration).valueOf();
-        const available = result.every((i) => {
-            const availability = i.availability;
-            if (old_booking && i.id === old_booking.system?.email) {
-                const index = availability.findIndex((block) => {
-                    return (
-                        block.date >= start &&
-                        addMinutes(block.date, block.duration).valueOf() <= end
-                    );
-                });
-                if (index !== -1) {
-                    availability.splice(index, 1);
-                }
-            }
-            return !availability.length;
-        });
-        return !!available;
     }
 
     public async loadCalendars() {

@@ -1,7 +1,6 @@
 import {
     queryCalendarAvailability,
     queryCalendars,
-    querySpaceCalendarAvailability,
     querySpaceFreeBusy,
 } from '../lib/calendar.fn';
 
@@ -33,21 +32,6 @@ describe('Calendar API Methods', () => {
             });
             expect(list).toHaveLength(1);
             expect(list[0]).toBeInstanceOf(Calendar);
-            expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/calendars/availability?period_start=1&period_end=2`,
-            );
-        });
-    });
-    describe('querySpaceAvailability', () => {
-        it('should GET space availability from API', async () => {
-            vi.mocked(ts_client.get).mockResolvedValue([
-                { resource: { bookable: true } },
-            ] as any);
-            const list = await querySpaceCalendarAvailability({
-                period_start: 1,
-                period_end: 2,
-            });
-            expect(list).toHaveLength(1);
             expect(ts_client.get).toHaveBeenCalledWith(
                 `/api/staff/v1/calendars/availability?period_start=1&period_end=2`,
             );

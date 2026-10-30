@@ -216,16 +216,6 @@ export async function queryCateringItems(
     );
 }
 
-export async function queryCateringItemsForZones(
-    zone_ids: string[],
-): Promise<CateringItem[]> {
-    if (!zone_ids?.length) return [];
-    const results = await Promise.all(
-        zone_ids.map((zone_id) => queryCateringItems(zone_id)),
-    );
-    return flatten<CateringItem>(results);
-}
-
 export async function saveCateringItem(
     item: Partial<CateringItem>,
     zone_id: string,

@@ -23,6 +23,7 @@ import {
     fromEventRecurrence,
     NO_RECURR,
     Recurrence,
+    RecurrenceDetails,
     recurrenceEndDate,
     recurrenceInstanceCount,
     toBookingRecurrence,
@@ -34,7 +35,6 @@ import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
 
 @Component({

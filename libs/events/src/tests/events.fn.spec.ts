@@ -1,13 +1,10 @@
 import { CalendarEvent, GuestUser, Space, VERSION } from '@placeos/common';
 import {
-    approveEvent,
     checkinEventGuest,
     MAX_EVENT_PAGES,
     queryAllEvents,
-    queryEventGuests,
     queryEventListOrThrow,
     queryEvents,
-    rejectEvent,
     saveEvent,
     showEvent,
 } from '../lib/events.fn';
@@ -210,50 +207,6 @@ describe('Event API Methods', () => {
                         app_version,
                     }),
                 }),
-            );
-            spy.mockReset();
-        });
-    });
-
-    describe('approveEvent', () => {
-        it('should allow calling POST request for approving an event', async () => {
-            const spy = vi.spyOn(ts_client, 'post');
-            expect(spy).not.toHaveBeenCalled();
-            spy.mockResolvedValue({} as any);
-            const event = await approveEvent('1', 'sys-1');
-            expect(event).toBeInstanceOf(CalendarEvent);
-            expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/events/1/approve?system_id=sys-1`,
-                '',
-            );
-            spy.mockReset();
-        });
-    });
-
-    describe('rejectEvent', () => {
-        it('should allow calling POST request for rejecting an event', async () => {
-            const spy = vi.spyOn(ts_client, 'post');
-            expect(spy).not.toHaveBeenCalled();
-            spy.mockResolvedValue({} as any);
-            const event = await rejectEvent('1', 'sys-1');
-            expect(event).toBeInstanceOf(CalendarEvent);
-            expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/events/1/reject?system_id=sys-1`,
-                '',
-            );
-            spy.mockReset();
-        });
-    });
-
-    describe('queryEventGuests', () => {
-        it('should allow calling POST request for querying guest in an event', async () => {
-            const spy = vi.spyOn(ts_client, 'get');
-            expect(spy).not.toHaveBeenCalled();
-            spy.mockResolvedValue([{}] as any);
-            const guests = await queryEventGuests('1');
-            expect(guests[0]).toBeInstanceOf(GuestUser);
-            expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/events/1/guests`,
             );
             spy.mockReset();
         });

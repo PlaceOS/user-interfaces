@@ -7,7 +7,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { AssetStateService } from '../asset-state.service';
 import { AssetDetailsComponent } from './asset-details.component';
-import { AssetFiltersDisplayComponent } from './asset-filters-display.component';
 import { AssetFiltersComponent } from './asset-filters.component';
 import { AssetListComponent } from './asset-list.component';
 
@@ -49,7 +48,6 @@ const EMPTY_FAVS: string[] = [];
                     [class.sm:hidden]="displayed()"
                     [class.md:block]="!displayed()"
                 >
-                    <asset-filters-display></asset-filters-display>
                     <asset-list
                         [selected]="selected_ids()"
                         [favorites]="favorites()"
@@ -141,7 +139,6 @@ const EMPTY_FAVS: string[] = [];
         AssetListComponent,
         AssetDetailsComponent,
         AssetFiltersComponent,
-        AssetFiltersDisplayComponent,
     ],
 })
 export class AssetSelectModalComponent {
@@ -212,16 +209,6 @@ export class AssetSelectModalComponent {
         const list = this.selected().filter((_) => _.id !== group.id);
         if (state) list.push(group);
         this.selected.set([...list]);
-    }
-
-    public updateSelectedCount(count: number) {
-        const displayed = this.displayed();
-        if (!displayed) return;
-        const item = this.selected().find((_) => _.id === displayed.id);
-        if (item) {
-            item.quantity = count;
-            item.assets = displayed.assets;
-        }
     }
 
     public toggleFavourite(asset: AssetGroup | null) {

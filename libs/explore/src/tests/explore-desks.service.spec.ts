@@ -10,7 +10,6 @@ import {
 
 import { generateBookingForm } from 'libs/bookings/src/lib/booking-form.model';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
-import { DesksService } from 'libs/bookings/src/lib/desk.service';
 
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreStateService } from '../lib/explore-state.service';
@@ -41,7 +40,6 @@ describe('ExploreDesksService', () => {
                 buildings: [],
             }),
             MockProvider(SettingsService, { get: vi.fn() }),
-            MockProvider(DesksService, {}),
             MockProvider(BookingFormService, {}),
             MockProvider(MatDialog, { open: vi.fn() }),
         ],

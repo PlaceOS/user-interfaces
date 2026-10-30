@@ -1,9 +1,7 @@
-import { Component, forwardRef, inject, input, signal } from '@angular/core';
+import { Component, forwardRef, inject, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { SETTING_KEYS } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -24,31 +22,6 @@ const EMPTY_FAVS: string[] = [];
                     desk
                     class="border-base-200 relative flex w-full items-center rounded-lg border p-2 shadow-sm"
                 >
-                    @if (features()?.length) {
-                        <div class="flex flex-col">
-                            <label for="title">Type</label>
-                            <div
-                                features
-                                class="flex flex-wrap items-center space-x-2"
-                            >
-                                @for (opt of features(); track opt) {
-                                    <mat-checkbox
-                                        [ngModel]="
-                                            (
-                                                selected_features() || []
-                                            ).includes(opt)
-                                        "
-                                        (ngModelChange)="
-                                            setFeatures(opt, $event)
-                                        "
-                                        [ngModelOptions]="{ standalone: true }"
-                                    >
-                                        {{ opt }}
-                                    </mat-checkbox>
-                                }
-                            </div>
-                        </div>
-                    }
                     <div
                         class="bg-base-200 mr-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl"
                     >
@@ -152,8 +125,6 @@ const EMPTY_FAVS: string[] = [];
         IconComponent,
         TranslatePipe,
         MatRippleModule,
-        MatCheckboxModule,
-        FormsModule,
         AuthenticatedImageDirective,
     ],
 })
@@ -161,11 +132,9 @@ export class DeskListFieldComponent implements ControlValueAccessor {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    public readonly features = input<string[]>([]);
     public readonly room_size = signal(3);
     public readonly items = signal<BookingAsset[]>([]);
     public readonly disabled = signal(false);
-    public readonly selected_features = signal<string[]>([]);
 
     private _onChange: (_: BookingAsset[]) => void;
     private _onTouch: (_: BookingAsset[]) => void;
@@ -220,15 +189,6 @@ export class DeskListFieldComponent implements ControlValueAccessor {
     public readonly registerOnTouched = (fn: (_: BookingAsset[]) => void) =>
         (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
-
-    public setFeatures(opt: string, value: boolean) {
-        const features = this.selected_features() || [];
-        if (value) {
-            this.selected_features.set([...features, opt]);
-        } else {
-            this.selected_features.set(features.filter((f) => f !== opt));
-        }
-    }
 
     public toggleFavourite(space: BookingAsset) {
         if (!space?.id) return;

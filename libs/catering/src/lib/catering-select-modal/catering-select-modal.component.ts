@@ -54,7 +54,6 @@ const EMPTY_FAVS: string[] = [];
                 >
                     <catering-item-list
                         [active]="displayed()?.custom_id"
-                        [selected]="selected_keys()"
                         [selected_items]="selected()"
                         [favorites]="favorites()"
                         (toggleFav)="toggleFavourite($event.id)"
@@ -185,14 +184,6 @@ export class CateringSelectModalComponent {
             )() || EMPTY_FAVS
         );
     });
-
-    public readonly selected_keys = computed(() =>
-        this.selected().map((_) => this.selectionKey(_)),
-    );
-
-    public readonly count = computed(() =>
-        this.selected().reduce((t, i) => t + i.quantity, 0),
-    );
 
     public readonly code = computed(() => {
         this._org.active_building?.();
