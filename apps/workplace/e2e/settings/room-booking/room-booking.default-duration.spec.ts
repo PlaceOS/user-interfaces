@@ -11,10 +11,11 @@
 // An unset key reads as null, not undefined: SettingsService.get falls back to
 // getItemWithKeys (general.ts), which returns null for a missing key.
 //
-// Authentication: the staff bearer comes from tokenFor('staff', worker), which
-// reuses the stored token while the backend accepts it and checks the user is
-// not admin/support (e2e/support/api.ts). It mints only when the stored
-// token is missing or rejected. The readOnlyTest identity guard is unchanged.
+// Authentication: the staff bearer comes from settingsStaffToken
+// (settings-harness), which reuses the token stored for this worker under
+// e2e/.auth while it is valid and mints one otherwise, and checks the user is
+// this worker's staff address and not admin/support. The readOnlyTest
+// identity guard is unchanged.
 //
 // Network policy: every /api request must match one exact synthetic GET
 // fixture below, except the shared staff identity GET (users/current), which
@@ -22,35 +23,18 @@
 // request, any non-GET request to a local non-API path (including /auth/) and
 // any external request is recorded and aborted, and fails the scenario.
 import type { Page, Route } from '@playwright/test';
-import { tokenFor } from '../../../../../e2e/support/api';
-import {
-    APP_URL,
-    BACKEND_URL,
-    assertLocalOnly,
-} from '../../../../../e2e/support/env';
+import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../../e2e/support/room/room.settings';
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
-import {
-    READ_ONLY_SETTINGS,
-    readOnlyTest,
-} from '../../local/wpa-settings-readonly-legacy.fixture';
-import { BULK_METADATA, clearOrganisationCache, expectSafe, type NetworkAudit, READ_METHODS, type Settings } from '../support/settings-harness';
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { BULK_METADATA, clearOrganisationCache, expectSafe, type NetworkAudit, READ_METHODS, type Settings, staffTokenTest as test } from '../support/settings-harness';
 type DebugWindow = Window & {
     ng?: { getComponent(element: Element): unknown };
     setting?: (key: string) => unknown;
 };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 
-// Reuse the validated stored staff bearer instead of minting for every worker.
-const test = readOnlyTest.extend({
-    staffToken: [
-        async ({}, use, info) => {
-            await use(await tokenFor('staff', info.parallelIndex));
-        },
-        { scope: 'worker' },
-    ],
-});
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
 /** Every synthetic zone id starts with this prefix. */

@@ -9,15 +9,18 @@ import type {
     TestInfo,
     WebSocketRoute,
 } from '@playwright/test';
-import { test as playwrightTest } from '@playwright/test';
+import { request as pwRequest, test as playwrightTest } from '@playwright/test';
 import { createHash } from 'node:crypto';
 import * as fs from 'fs';
 import { join } from 'node:path';
+import { mintForWorker } from '../../../../../e2e/support/api';
+import { clientId, redirectUriFor } from '../../../../../e2e/support/auth';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import {
     APP_URL,
     BACKEND_URL,
     assertLocalOnly,
+    roleFor,
     staffEmail,
 } from '../../../../../e2e/support/env';
 import { test as baseTest, expect } from '../../../../../e2e/support/fixtures';
@@ -1755,6 +1758,115 @@ export function watchStaffId(page: Page): Promise<string> {
         })
         .catch(() => '');
 }
+
+// ---------------------------------------------------------------------------
+// Worker staff token for the read-only specs
+// ---------------------------------------------------------------------------
+
+/** Minimum lifetime the stored browser token must still have. */
+const MIN_TOKEN_LIFETIME_MS = 15 * 60_000;
+
+/**
+ * The token in this worker's staff sidecar when the staff storageState holds
+ * the same token for the app origin with at least MIN_TOKEN_LIFETIME_MS left,
+ * so the app never attempts a refresh mid-test. Otherwise null.
+ */
+function storedBrowserToken(workerIndex: number): string | null {
+    const { tokenPath, storagePath } = roleFor('staff', workerIndex);
+    const token = readJson(tokenPath)?.accessToken;
+    if (typeof token !== 'string' || !token) return null;
+    const cid = clientId(redirectUriFor(APP_URL));
+    const origins = readJson(storagePath)?.origins;
+    const app = Array.isArray(origins)
+        ? (origins as { origin?: string; localStorage?: unknown }[]).find(
+              (entry) => entry.origin === new URL(APP_URL).origin,
+          )
+        : undefined;
+    const items = Array.isArray(app?.localStorage)
+        ? (app?.localStorage as { name?: string; value?: string }[])
+        : [];
+    const stored = new Map(items.map((item) => [item.name, item.value]));
+    if (stored.get(cid + '_access_token') !== token) return null;
+    const expires_at = Number(stored.get(cid + '_expires_at'));
+    return expires_at > Date.now() + MIN_TOKEN_LIFETIME_MS ? token : null;
+}
+
+/**
+ * This worker's staff bearer. Reuses the token stored under e2e/.auth when
+ * `storedBrowserToken` returns it and the backend accepts it as this worker's
+ * staff address; otherwise mints one, which rewrites the token sidecar and
+ * the storageState that staffPage loads. Throws when the user is admin or
+ * support.
+ */
+export async function settingsStaffToken(workerIndex: number): Promise<string> {
+    assertLocalOnly(APP_URL, BACKEND_URL);
+    const { email } = roleFor('staff', workerIndex);
+    const token = storedBrowserToken(workerIndex);
+    if (token) {
+        const api = await pwRequest.newContext({
+            baseURL: BACKEND_URL,
+            ignoreHTTPSErrors: true,
+            extraHTTPHeaders: { Authorization: `Bearer ${token}` },
+        });
+        try {
+            const response = await api.get('/api/engine/v2/users/current');
+            const user = response.ok()
+                ? ((await response.json()) as {
+                      email?: string;
+                      sys_admin?: boolean;
+                      support?: boolean;
+                  })
+                : null;
+            if (user?.email?.toLowerCase() === email.toLowerCase()) {
+                if (user.sys_admin || user.support) {
+                    throw new Error(`${email} is admin/support; staff-only scenario.`);
+                }
+                return token;
+            }
+        } finally {
+            await api.dispose();
+        }
+    }
+    return (await mintForWorker('staff', workerIndex)).mint.accessToken;
+}
+
+/** readOnlyTest whose worker staff token comes from `settingsStaffToken`. */
+export const staffTokenTest = readOnlyTest.extend({
+    staffToken: [
+        async ({}, use, info) => {
+            await use(await settingsStaffToken(info.parallelIndex));
+        },
+        { scope: 'worker' },
+    ],
+});
+
+/**
+ * staffTokenTest with the strict network guard (protectNetwork) on staffPage.
+ * Teardown closes the context, which stops every loader and socket, then runs
+ * expectSafe, including after an assertion failure. Admin auth is blocked.
+ */
+export const guardedStaffTest = staffTokenTest.extend<{ batchAudit: NetworkAudit }>({
+    batchAudit: [
+        async ({ staffPage }, use) => {
+            const audit = await protectNetwork(staffPage);
+            try {
+                await use(audit);
+            } finally {
+                await staffPage.context().close();
+                await expectSafe(audit);
+            }
+        },
+        { auto: true, timeout: 15_000 },
+    ],
+    // The inherited admin fixture mints (e2e/support/fixtures.ts) and
+    // readOnlyTest never requests it.
+    adminStorageState: [
+        async () => {
+            throw new Error('Admin auth is not allowed in this read-only spec.');
+        },
+        { scope: 'worker' },
+    ],
+});
 
 // ---------------------------------------------------------------------------
 // Read-only migration audit (meeting form specs)

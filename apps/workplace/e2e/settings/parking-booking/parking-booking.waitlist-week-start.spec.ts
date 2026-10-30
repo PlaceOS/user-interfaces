@@ -4,19 +4,19 @@
 // unsaved parking fixture across a configured weekly boundary (00:00 / 00:01).
 // Source: libs/bookings/src/lib/bookings.fn.ts isInWaitlistWeek;
 // apps/workplace/src/app/schedule/schedule-day-view.component.ts bookingStatus.
-// Safety: pre-existing staff auth only; genuine staff identity GET is unchanged.
+// Safety: staff auth from settingsStaffToken (settings-harness): the stored
+// worker token while it is valid, otherwise a freshly minted one; genuine staff
+// identity GET is unchanged.
 // Every other API response is a named browser GET fixture. No POST/PUT/PATCH/
 // DELETE, driver messages, booking submission, seeding or backend cleanup.
 // Shell sockets are blocked as a safety guard; no WebSocket data is simulated.
 // Each scenario creates a fresh context/document and checks effective settings.
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import type { Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
-import { APP_URL, AUTH_DIR, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
+import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
-import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type Settings, watchStaffId } from '../support/settings-harness';
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { type Settings, watchStaffId, staffTokenTest as test } from '../support/settings-harness';
 type DebugWindow = Window & {
     ng?: { getComponent(element: Element): unknown };
     setting?: (key: string) => unknown;
@@ -30,13 +30,6 @@ type NetworkAudit = {
     closing: Promise<void>[];
 };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const test = readOnlyTest.extend({
-    staffToken: [async ({}, use, info) => {
-        const token = JSON.parse(await readFile(join(AUTH_DIR, 'staff-' + info.parallelIndex + '.token.json'), 'utf8')) as { accessToken?: string };
-        if (!token.accessToken) throw new Error('Valid pre-existing staff authentication is required; this spec never signs in');
-        await use(token.accessToken);
-    }, { scope: 'worker' }],
-});
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 const ORGANISATION = 'e2e-waitlist-boundary-org';
 const REGION = 'e2e-waitlist-boundary-region';

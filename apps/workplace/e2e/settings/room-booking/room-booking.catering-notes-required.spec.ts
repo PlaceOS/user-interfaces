@@ -18,150 +18,32 @@
 // order is present. Every scenario fills the notes and clears them again, so
 // both the required and the not-required paths are exercised without a branch.
 //
-// Authentication (fail-closed, read-only): the staff bearer is the one already
-// stored for this worker under e2e/.auth. The storageState file the inherited
-// staffPage loads must hold that same token with at least 15 minutes left, and
-// the token is checked with one GET /api/engine/v2/users/current: it must
-// belong to this worker's staff address and not be admin/support. This spec
-// never mints, refreshes or writes auth files and never changes token expiry;
-// any failure stops the worker. The admin auth fixture is blocked. A browser
-// token refresh would be a non-GET /auth request, which the network policy
-// blocks and reports. The readOnlyTest identity guard is unchanged.
-// Run with --no-deps: the local project's preflight dependency seeds shared
-// rows through backend writes (e2e/support/preflight.setup.ts).
+// Authentication (read-only): the staff bearer comes from settingsStaffToken
+// (settings-harness): the token stored for this worker under e2e/.auth while
+// the backend accepts it and the storageState the inherited staffPage loads
+// holds it with at least 15 minutes left, otherwise a freshly minted one. It
+// must belong to this worker's staff address and not be admin/support. The
+// admin auth fixture is blocked. A browser token refresh would be a non-GET
+// /auth request, which the network policy blocks and reports. The readOnlyTest
+// identity guard is unchanged.
 //
 // Network policy: every /api request must match one exact synthetic GET
 // fixture below, except the shared staff identity GET (users/current), which
 // the readOnlyTest identity guard observes and is never mocked. Any other /api
 // request, any non-GET request to a local non-API path (including /auth/) and
 // any external request is recorded and aborted, and fails the scenario.
-import { request as pwRequest, type Page, type Route } from '@playwright/test';
-import { clientId, redirectUriFor } from '../../../../../e2e/support/auth';
-import {
-    APP_URL,
-    BACKEND_URL,
-    assertLocalOnly,
-    roleFor,
-} from '../../../../../e2e/support/env';
+import type { Page, Route } from '@playwright/test';
+import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../../e2e/support/room/room.settings';
-import {
-    READ_ONLY_SETTINGS,
-    readOnlyTest,
-} from '../../local/wpa-settings-readonly-legacy.fixture';
-import { BULK_METADATA, clearOrganisationCache, expectSafe, type NetworkAudit, protectNetwork, readJson, type Settings, watchStaffId } from '../support/settings-harness';
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { BULK_METADATA, clearOrganisationCache, expectSafe, protectNetwork, type Settings, watchStaffId, guardedStaffTest as test } from '../support/settings-harness';
 type DebugWindow = Window & {
     ng?: { getComponent(element: Element): unknown };
     setting?: (key: string) => unknown;
 };
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 
-/** Minimum lifetime the stored browser token must still have. */
-const MIN_TOKEN_LIFETIME_MS = 15 * 60_000;
-
-/**
- * The staff bearer already stored for this worker, checked read-only. Never
- * mints, refreshes or writes: every failure throws, so the worker stops before
- * any browser opens. The inherited staffPage fixture loads the storageState
- * file checked here (e2e/support/fixtures.ts), so it must hold this same
- * token for the app origin with an expiry far enough ahead that the app never
- * attempts a refresh mid-test.
- */
-async function storedStaffToken(workerIndex: number): Promise<string> {
-    assertLocalOnly(APP_URL, BACKEND_URL);
-    const { email, tokenPath, storagePath } = roleFor('staff', workerIndex);
-    const rerun =
-        'Refresh e2e/.auth with a separate normal local run (its fixtures mint), then retry this spec with --no-deps.';
-    const token = readJson(tokenPath)?.accessToken;
-    if (typeof token !== 'string' || !token) {
-        throw new Error(
-            `Missing or unreadable staff token for worker ${workerIndex}. ${rerun}`,
-        );
-    }
-    const cid = clientId(redirectUriFor(APP_URL));
-    const origins = readJson(storagePath)?.origins;
-    const app = Array.isArray(origins)
-        ? (origins as { origin?: string; localStorage?: unknown }[]).find(
-              (entry) => entry.origin === new URL(APP_URL).origin,
-          )
-        : undefined;
-    const items = Array.isArray(app?.localStorage)
-        ? (app?.localStorage as { name?: string; value?: string }[])
-        : [];
-    const stored = new Map(items.map((item) => [item.name, item.value]));
-    if (stored.get(cid + '_access_token') !== token) {
-        throw new Error(
-            `Staff storageState for worker ${workerIndex} does not hold the stored token. ${rerun}`,
-        );
-    }
-    const expires_at = Number(stored.get(cid + '_expires_at'));
-    if (!(expires_at > Date.now() + MIN_TOKEN_LIFETIME_MS)) {
-        throw new Error(
-            `Stored staff token for worker ${workerIndex} expires too soon. ${rerun}`,
-        );
-    }
-    const api = await pwRequest.newContext({
-        baseURL: BACKEND_URL,
-        ignoreHTTPSErrors: true,
-        extraHTTPHeaders: { Authorization: `Bearer ${token}` },
-    });
-    try {
-        const response = await api.get('/api/engine/v2/users/current');
-        if (!response.ok()) {
-            throw new Error(
-                `Stored staff token rejected (HTTP ${response.status()}). ${rerun}`,
-            );
-        }
-        const user = (await response.json()) as {
-            email?: string;
-            sys_admin?: boolean;
-            support?: boolean;
-        };
-        if (user.email?.toLowerCase() !== email.toLowerCase()) {
-            throw new Error(`Stored staff token is not ${email}. ${rerun}`);
-        }
-        if (user.sys_admin || user.support) {
-            throw new Error(`${email} is admin/support; staff-only scenario.`);
-        }
-    } finally {
-        await api.dispose();
-    }
-    return token;
-}
-
-// Fail-closed, read-only staff auth (no tokenFor mint/refresh fallback).
-// Browser audits always run in teardown, including on an assertion failure.
-const test = readOnlyTest.extend<{ batchAudit: NetworkAudit }>({
-    batchAudit: [
-        async ({ staffPage }, use) => {
-            const audit = await protectNetwork(staffPage);
-            try {
-                await use(audit);
-            } finally {
-                // Stop all loaders and sockets before the final audit snapshot.
-                await staffPage.context().close();
-                await expectSafe(audit);
-            }
-        },
-        { auto: true, timeout: 15_000 },
-    ],
-    staffToken: [
-        async ({}, use, info) => {
-            await use(await storedStaffToken(info.parallelIndex));
-        },
-        { scope: 'worker' },
-    ],
-    // The inherited admin fixture mints (e2e/support/fixtures.ts).
-    // readOnlyTest never requests it; fail closed if anything ever does.
-    adminStorageState: [
-        async () => {
-            throw new Error(
-                'Admin auth is not allowed in this read-only spec.',
-            );
-        },
-        { scope: 'worker' },
-    ],
-});
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
 /** Every synthetic zone and asset id starts with this prefix. */
