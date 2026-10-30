@@ -104,8 +104,8 @@ export class InviteVisitorForm {
         return this.details.locator('input[name$=".all_day"]');
     }
     /**
-     * The international-visitor checkbox. The page has no such control at the
-     * moment: this is the name that the control would carry.
+     * The international-visitor checkbox of a named visitor. visitor-flow-invites
+     * renders it when `visitors.allow_international` is on.
      */
     get international(): Locator {
         return this.root.locator('input[name$=".international"]');

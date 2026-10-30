@@ -101,10 +101,9 @@ export const ALLOW_ALL_DAY = {
 };
 
 /**
- * Show the pass-number and international-visitor controls.
- *
- * The `visitor-flow-new` page reads only `allow_pass_number`. It has no
- * international control, with or without the setting.
+ * Show the pass-number and international-visitor controls. On the
+ * `visitor-flow-new` page the international checkbox is in
+ * `visitor-flow-invites` and appears once a visitor is named.
  */
 export const ALLOW_EXTRAS = {
     'app.visitors.allow_pass_number': true,
