@@ -326,42 +326,6 @@ describe('[Assets]', () => {
         });
     });
 
-    describe('queryAvailableAssets', () => {
-        it('should exclude booked assets but keep ignored ones', async () => {
-            const { assets_fn } = await load_modules();
-            vi.mocked(ts_client.queryAssets).mockReturnValue(
-                response([
-                    { id: 'a1', asset_type_id: 't1' },
-                    { id: 'a2', asset_type_id: 't1' },
-                ]),
-            );
-            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-                response([{ id: 't1', category_id: 'c1' }]),
-            );
-            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-                response([{ id: 'c1' }]),
-            );
-            // bookedResourceList -> ts_client.query returns ['a1'] as booked
-            vi.mocked(ts_client.query).mockResolvedValue({
-                data: ['a1'],
-                next: undefined,
-                total: 1,
-            });
-
-            const available = await assets_fn.queryAvailableAssets({
-                period_start: 1,
-                period_end: 2,
-            });
-            expect(available.map((a: any) => a.id)).toEqual(['a2']);
-
-            const with_ignore = await assets_fn.queryAvailableAssets(
-                { period_start: 1, period_end: 2 },
-                ['a1'],
-            );
-            expect(with_ignore.map((a: any) => a.id)).toEqual(['a1', 'a2']);
-        });
-    });
-
     describe('queryGroupAvailability', () => {
         it('should drop assets referenced by active bookings', async () => {
             const { assets_fn } = await load_modules();

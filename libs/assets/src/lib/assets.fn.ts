@@ -29,7 +29,6 @@ import {
 } from '@placeos/ts-client';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
-    bookedResourceList,
     BookingsQueryParams,
     createBooking,
     parentBookingId,
@@ -279,22 +278,6 @@ export async function showGroupFull(id: string, query: any = {}) {
     );
     _GROUP_FULL_CACHE.set(id, product);
     return product;
-}
-
-export async function queryAvailableAssets(
-    query: BookingsQueryParams,
-    ignore?: string[],
-) {
-    query.type = 'asset-request';
-    const [assets, booked_assets] = await Promise.all([
-        queryAssets(query),
-        bookedResourceList(query),
-    ]);
-    return assets.data.filter(
-        (asset) =>
-            ignore?.includes(asset.id) ||
-            !booked_assets.find((id) => id === asset.id),
-    );
 }
 
 export async function queryGroupAvailability(

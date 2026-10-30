@@ -1,110 +1,12 @@
-import { HashMap } from '@placeos/common';
+import { TimeBlock, TimePeriod } from '@placeos/common';
 import {
-    addDays,
     addMinutes,
-    addMonths,
     addSeconds,
-    addWeeks,
-    addYears,
     differenceInMinutes,
-    endOfDay,
-    getUnixTime,
     isAfter,
     isBefore,
-    startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { RecurrenceDetails, TimeBlock, TimePeriod } from './event.interfaces';
-
-const DAYS_OF_WEEK = [
-    'sunday',
-    'monday',
-    'tuesday',
-    'wednesday',
-    'thursday',
-    'friday',
-    'saturday',
-];
-
-function weekOfMonth(date: number) {
-    const day = new Date(date).getDate();
-    const week = Math.floor(day / 7) + (day % 7 ? 1 : 0);
-    if ((week === 4 && day >= 25) || week === 5) return -1;
-    return week;
-}
-
-export function eventStatus(
-    details: HashMap,
-): 'approved' | 'tentative' | 'declined' {
-    if (details.status === 'cancelled') return 'declined';
-    if (details.resources?.length) {
-        if (
-            details.resources.every(
-                (i) => i.response_status === 'accepted' || details.approved,
-            )
-        ) {
-            return 'approved';
-        } else if (
-            details.resources.some(
-                (i) =>
-                    i.response_status === 'tentative' ||
-                    i.response_status === 'needsAction',
-            )
-        ) {
-            return 'tentative';
-        }
-        return 'declined';
-    }
-    return 'approved';
-}
-
-export function parseRecurrence(data: RecurrenceDetails) {
-    let start = data.start || (data as any).range_start * 1000;
-    let end = data.end || (data as any).range_end;
-    if (data.occurrences > 1) {
-        switch (data.pattern) {
-            case 'daily':
-                end = addDays(
-                    start || Date.now(),
-                    (data.occurrences - 1) * data.interval,
-                ).valueOf();
-                break;
-            case 'weekly':
-                end = addWeeks(
-                    start || Date.now(),
-                    (data.occurrences - 1) * data.interval,
-                ).valueOf();
-                break;
-            case 'month_day':
-            case 'monthly':
-                end = addMonths(
-                    start || Date.now(),
-                    (data.occurrences - 1) * data.interval,
-                ).valueOf();
-                end = addDays(end, 7).valueOf();
-                break;
-            case 'yearly':
-                end = addYears(
-                    start || Date.now(),
-                    (data.occurrences - 1) * data.interval,
-                ).valueOf();
-                break;
-        }
-    }
-    return {
-        range_start: getUnixTime(startOfDay(start)),
-        range_end: getUnixTime(endOfDay(end)),
-        interval: data.interval,
-        pattern: data.pattern,
-        days_of_week:
-            data.days_of_week?.map((_) =>
-                typeof _ === 'number' ? DAYS_OF_WEEK[_] : _,
-            ) || [],
-        nth_of_month:
-            data.nth_of_month ??
-            (data.pattern === 'month_day' ? weekOfMonth(start) : undefined),
-    };
-}
 
 /**
  * Generate a list of free time slots between the given bookings
@@ -149,26 +51,6 @@ export function getFreeTimeSlots(
         end: (s ? s : Date.now()) * 10,
     });
     return slots;
-}
-
-export function periodInFreeTimeSlot(
-    start: number,
-    end: number,
-    list: TimePeriod[],
-    min_size: number = 29,
-) {
-    const blocks = getFreeTimeSlots(list, min_size);
-    for (const blk of blocks) {
-        if (
-            start >= blk.start &&
-            start < blk.end &&
-            end > blk.start &&
-            end <= blk.end
-        ) {
-            return true;
-        }
-    }
-    return false;
 }
 
 /**

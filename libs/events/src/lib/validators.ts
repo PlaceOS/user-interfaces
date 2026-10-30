@@ -1,5 +1,5 @@
 import { AbstractControl } from '@angular/forms';
-import { addMinutes, isAfter, isBefore } from 'date-fns';
+import { addMinutes, isAfter } from 'date-fns';
 
 export const endInFuture = (control: AbstractControl) => {
     const date = control.parent?.get('date');
@@ -8,12 +8,3 @@ export const endInFuture = (control: AbstractControl) => {
     }
     return null;
 };
-
-/** Check that date in unix ms is in the future */
-export function isFuture(
-    control: AbstractControl,
-): { [key: string]: boolean } | null {
-    return control.value && isBefore(control.value, new Date())
-        ? { is_future: true }
-        : null;
-}

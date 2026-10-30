@@ -90,7 +90,6 @@ export class CateringItemListComponent {
     private _state = inject(CateringOrderStateService);
 
     public readonly active = input('');
-    public readonly selected = input<string[]>([]);
     public readonly selected_items = input<CateringItem[]>([]);
     public readonly favorites = input<string[]>([]);
     public readonly toggleFav = output<CateringItem>();

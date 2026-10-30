@@ -50,11 +50,9 @@ describe('CateringSelectModalComponent', () => {
             ],
         });
         spectator.component.setSelected(item, true);
-        expect(spectator.component.selected_keys()).toContain(
+        expect(spectator.component.selected()).toHaveLength(1);
+        expect(spectator.component.selectionKey(variant)).not.toBe(
             spectator.component.selectionKey(item),
-        );
-        expect(spectator.component.selected_keys()).not.toContain(
-            spectator.component.selectionKey(variant),
         );
         spectator.component.setSelected(variant, true);
         expect(spectator.component.selected()).toHaveLength(2);
@@ -74,14 +72,9 @@ describe('CateringSelectModalComponent', () => {
                 },
             ],
         });
-        spectator.component.setSelected(item, true);
-        expect(spectator.component.selected_keys()).toContain(
-            spectator.component.selectionKey(item),
-        );
+        const key = spectator.component.selectionKey(item);
         item.options[0].active = true;
-        expect(spectator.component.selected_keys()).not.toContain(
-            spectator.component.selectionKey(item),
-        );
+        expect(spectator.component.selectionKey(item)).not.toBe(key);
     });
 
     it('should reset the menu item and show the ordered item after adding it', () => {

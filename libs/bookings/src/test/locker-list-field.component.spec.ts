@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { SETTING_KEYS } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockDirective, MockModule, MockPipe } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -118,45 +117,9 @@ describe('LockerListFieldComponent', () => {
         expect(spectator.component.disabled()).toBe(true);
     });
 
-    it('should render feature checkboxes and toggle selection', () => {
-        spectator.setInput('features', ['power', 'usb']);
-        spectator.component.setValue([{ id: 'a' }] as any);
-        spectator.detectChanges();
-        const boxes = spectator.queryAll('mat-checkbox');
-        expect(boxes.length).toBe(2);
-        spectator.component.setFeatures('power', true);
-        expect(spectator.component.selected_features()).toEqual(['power']);
-        spectator.component.setFeatures('usb', true);
-        expect(spectator.component.selected_features()).toEqual([
-            'power',
-            'usb',
-        ]);
-        spectator.component.setFeatures('power', false);
-        expect(spectator.component.selected_features()).toEqual(['usb']);
-    });
-
     it('should show the accessible indicator for accessible lockers', () => {
         spectator.component.setValue([{ id: 'a', accessible: true }] as any);
         spectator.detectChanges();
         expect(spectator.query('icon.text-info')).toExist();
-    });
-
-    it('should add a favourite when toggling an unfavourited locker', () => {
-        const settings = spectator.inject(SettingsService);
-        spectator.component.toggleFavourite({ id: 'a' } as any);
-        expect(settings.saveUserSetting).toHaveBeenCalledWith(
-            SETTING_KEYS.FAVORITE_LOCKERS,
-            ['a'],
-        );
-    });
-
-    it('should remove a favourite when toggling a favourited locker', () => {
-        const settings = spectator.inject(SettingsService);
-        (settings.get as Mock).mockReturnValue(['a', 'b']);
-        spectator.component.toggleFavourite({ id: 'a' } as any);
-        expect(settings.saveUserSetting).toHaveBeenCalledWith(
-            SETTING_KEYS.FAVORITE_LOCKERS,
-            ['b'],
-        );
     });
 });

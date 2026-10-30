@@ -17,7 +17,6 @@ import {
     currentUser,
     flatten,
     fromBookingRecurrence,
-    GuestUser,
     isRecurrenceInstanceDate,
     readAttendeeFlags,
     setting,
@@ -607,87 +606,6 @@ export async function rejectBookingInstance(
     );
 }
 
-export async function setBookingState(
-    id: string,
-    state: string,
-    utm_source?: string,
-): Promise<Booking> {
-    const query = toQueryString({ state, utm_source });
-    return new Booking(
-        await post(
-            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/update_state${
-                query ? '?' + query : ''
-            }`,
-            {},
-        ),
-    );
-}
-
-/**
- * List the guests in a booking
- * @param id ID of the booking to reject
- */
-export async function queryBookingGuests(id: string): Promise<GuestUser> {
-    return new GuestUser(
-        await post(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/guests`, ''),
-    );
-}
-
-/**
- * Set the checkin state of a guest in a booking
- * @param id ID of the booking to reject
- * @param guest_id ID of the guest to check in
- */
-export async function checkinBookingGuest(
-    id: string,
-    guest_id: string,
-    state = true,
-): Promise<GuestUser> {
-    return new GuestUser(
-        await post(
-            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
-                id,
-            )}/guests/${encodeURIComponent(guest_id)}/check_in?state=${state}&utm_source=${bookingUtmSource()}`,
-            '',
-        ),
-    );
-}
-
-/**
- * Add a guest to a booking
- * @param id ID of the booking
- * @param guest Guest to add to the booking
- */
-export async function bookingAddGuest(
-    id: string,
-    guest: GuestUser,
-): Promise<GuestUser> {
-    return new GuestUser(
-        await post(
-            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/attendee`,
-            guest,
-        ),
-    );
-}
-
-/**
- * Remove an attendee from a booking
- * @param id ID of the booking
- * @param guest Guest to remove from the booking
- */
-export async function bookingRemoveGuest(
-    id: string,
-    guest: GuestUser,
-): Promise<GuestUser> {
-    return new GuestUser(
-        await del(
-            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
-                id,
-            )}/attendee/${encodeURIComponent(guest.email)}`,
-        ),
-    );
-}
-
 /**
  * Set the checkin state of a booking
  * @param id ID of the booking to grab
@@ -761,27 +679,6 @@ export async function setBookingCheckedIn(
 }
 
 /**
- * Set the checkin state of a booking
- * @param id ID of the booking to grab
- * @param state New checkin state of the booking
- */
-export async function checkinBookingAttendee(
-    id: string,
-    email: string,
-    state: boolean,
-): Promise<GuestUser> {
-    const query = toQueryString({ state });
-    return new GuestUser(
-        await post(
-            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
-                id,
-            )}/guests/${encodeURIComponent(email)}/check_in?${query}&utm_source=${bookingUtmSource()}`,
-            '',
-        ),
-    );
-}
-
-/**
  * Filter list of resources based of the bookings found in the given query
  * @param asset_id_list List of resource IDs
  * @param query Booking query
@@ -805,27 +702,6 @@ export async function queryResourceAvailability(
                     (b.asset_id === id || b.asset_ids.includes(id)) &&
                     (!ignore || ignore !== b.id),
             ),
-    );
-}
-
-export async function isResourceAvailable(
-    id: string,
-    start: number,
-    duration: number,
-    ignore?: string,
-    type: BookingType = 'room',
-): Promise<boolean> {
-    const bookings = await queryBookings({
-        type,
-        period_start: getUnixTime(start),
-        period_end: getUnixTime(addMinutes(start, duration)),
-    });
-    return (
-        bookings.filter(
-            (_) =>
-                (_.asset_id === id || _.asset_ids.includes(id)) &&
-                _.id !== ignore,
-        ).length === 0
     );
 }
 

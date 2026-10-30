@@ -91,7 +91,6 @@ import {
 } from './booking-resource.loaders';
 import {
     findResourceById,
-    groupAvailability,
     nearbyResources,
     pickAutoAllocatedResource,
     preferredAllocationPool,
@@ -623,15 +622,6 @@ export class BookingFormService extends AsyncHandler {
     public reloadResources() {
         this._resources_resource.reload();
     }
-
-    /** Signal grouping available resources for group bookings */
-    public readonly grouped_availability = computed<BookingAsset[][]>(() => {
-        const options = this._options();
-        const members = options.members?.length
-            ? options.members
-            : [currentUser()];
-        return groupAvailability(this.available_resources(), members.length);
-    });
 
     public get booking() {
         return this._booking();

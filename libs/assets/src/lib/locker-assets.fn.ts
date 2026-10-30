@@ -109,14 +109,6 @@ export function resolveLockerTypeId(): Promise<string> {
     return _locker_type_id_promise;
 }
 
-export async function queryLockerBankAssets(
-    zone_id: string,
-): Promise<PlaceAsset[]> {
-    const type_id = await resolveLockerBankTypeId();
-    const response = await queryAssets({ zone_id, type_id, limit: 500 });
-    return response.data;
-}
-
 export async function queryLockerBankAssetsForZones(
     zone_ids: string[],
 ): Promise<PlaceAsset[]> {

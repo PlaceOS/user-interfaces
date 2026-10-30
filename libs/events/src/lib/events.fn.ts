@@ -1,6 +1,7 @@
 import {
     BookingClash,
     CalendarEvent,
+    EventExtensionData,
     GuestUser,
     setting,
     toQueryString,
@@ -18,7 +19,6 @@ import {
 import { addMinutes, getUnixTime } from 'date-fns';
 
 import { queryCalendarAvailability, querySpaceFreeBusy } from './calendar.fn';
-import { EventExtensionData } from './event.interfaces';
 
 export interface CalendarEventQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -306,42 +306,6 @@ export function removeEvent(
 }
 
 /**
- * Set the approval state of the event to approved
- * @param id ID of the event to approve
- * @param system_id Associated system to approve
- */
-export async function approveEvent(
-    id: string,
-    system_id: string,
-): Promise<CalendarEvent> {
-    const item = await post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/approve?system_id=${encodeURIComponent(system_id)}`,
-        '',
-    );
-    return new CalendarEvent(item);
-}
-
-/**
- * Set the approval state of the event to rejected
- * @param id ID of the event to reject
- * @param system_id Associated system to reject
- */
-export async function rejectEvent(
-    id: string,
-    system_id: string,
-): Promise<CalendarEvent> {
-    const item = await post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/reject?system_id=${encodeURIComponent(system_id)}`,
-        '',
-    );
-    return new CalendarEvent(item);
-}
-
-/**
  * Decline the given event
  * @param id ID of the event to decline
  * @returns
@@ -358,24 +322,6 @@ export async function declineEvent(
         '',
     );
     return new CalendarEvent(item);
-}
-
-/**
- * List guests for event
- * @param id ID of the event to grab
- * @param q Parameters to pass to the API request
- */
-export async function queryEventGuests(
-    id: string,
-    q: CalendarEventShowParams = {},
-): Promise<GuestUser[]> {
-    const query = toQueryString(q);
-    const list = await get(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests${
-            query ? '?' + query : ''
-        }`,
-    );
-    return list.map((item) => new GuestUser(item));
 }
 
 /**
@@ -496,27 +442,6 @@ export async function updateEventMetadata(
         )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
         metadata,
     )) as EventExtensionData;
-}
-
-/**
- * Check whether a selected space is available
- * @param id ID of the space to check
- * @param start Start of the availability period to check
- * @param duration Duration of the availability block in minutes
- * @param ignore ID of a booking to ignore when checking availability
- */
-export async function isSpaceAvailable(
-    id: string,
-    start: number,
-    duration: number,
-    ignore?: string,
-): Promise<boolean> {
-    const events = await queryEvents({
-        system_ids: id,
-        period_start: getUnixTime(start),
-        period_end: getUnixTime(addMinutes(start, duration)),
-    });
-    return events.filter((_) => _.id !== ignore).length === 0;
 }
 
 /**

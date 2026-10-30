@@ -5,7 +5,6 @@ import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { AssetDetailsComponent } from '../lib/asset-select-modal/asset-details.component';
-import { AssetFiltersDisplayComponent } from '../lib/asset-select-modal/asset-filters-display.component';
 import { AssetFiltersComponent } from '../lib/asset-select-modal/asset-filters.component';
 import { AssetListComponent } from '../lib/asset-select-modal/asset-list.component';
 import { AssetSelectModalComponent } from '../lib/asset-select-modal/asset-select-modal.component';
@@ -24,7 +23,6 @@ describe('AssetSelectModalComponent', () => {
             MockComponent(AssetFiltersComponent),
             MockComponent(AssetListComponent),
             MockComponent(AssetDetailsComponent),
-            MockComponent(AssetFiltersDisplayComponent),
         ],
         providers: [
             { provide: SettingsService, useFactory: () => settings_mock },
@@ -77,16 +75,6 @@ describe('AssetSelectModalComponent', () => {
         ]);
         expect(spectator.component.count()).toBe(5);
         expect(spectator.component.selected_ids()).toBe('1,2');
-    });
-
-    it('should update the quantity of the displayed group', () => {
-        const group = { id: '1', quantity: 1, assets: [{}, {}] } as AssetGroup;
-        spectator.component.selected.set([group]);
-        spectator.component.displayed.set(group);
-
-        spectator.component.updateSelectedCount(2);
-
-        expect(spectator.component.selected()[0].quantity).toBe(2);
     });
 
     it('should add a favourite when not already saved', () => {

@@ -27,11 +27,11 @@ import {
     BookingRecurrence,
     Desk,
     OrganisationService,
+    RecurrenceDetails,
     settingSignal,
     SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { RecurrenceDetails } from '@placeos/events';
 import {
     DateFieldComponent,
     DurationFieldComponent,

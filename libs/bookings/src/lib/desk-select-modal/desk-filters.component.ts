@@ -1,11 +1,4 @@
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
@@ -247,7 +240,6 @@ export class DeskFiltersComponent {
 
     public readonly hide_levels = input<boolean>(undefined);
 
-    public readonly can_close = signal(false);
     public readonly options = this._state.options;
     public readonly features = this._state.features;
     public readonly buildings = this._org.active_buildings;
