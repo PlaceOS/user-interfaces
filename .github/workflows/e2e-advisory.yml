@@ -95,7 +95,7 @@ jobs:
         runs-on: [self-hosted, placeos-e2e]
         # Includes up to 120 minutes waiting for the native e2e job (see "Wait for
         # the native e2e job to finish").
-        timeout-minutes: 165
+        timeout-minutes: 195
         env:
             E2E_BACKEND_URL: https://localhost:9443
             # The runner is a 12-core, 16 GB Mac that also hosts the stack's
