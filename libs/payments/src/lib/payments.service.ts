@@ -27,7 +27,6 @@ export interface PaymentResult {
     updated_at: number;
 }
 
-export const STRIPE_ID_TOKEN = 'STRIPE+customer_id';
 const STRIPE_MODULE = 'Payment';
 
 @Injectable({
@@ -40,10 +39,8 @@ export class PaymentsService {
 
     private _loading = signal('');
     private _active_card = signal('');
-    private _payment_sources = signal<StripeCard[]>([]);
 
     public readonly loading = this._loading.asReadonly();
-    public readonly payment_sources = this._payment_sources.asReadonly();
 
     constructor() {
         this.loadPaymentSources();
@@ -192,6 +189,5 @@ export class PaymentsService {
                   .catch(() => [])
             : [];
         if (list[0]) this._active_card.set(list[0].id);
-        this._payment_sources.set(list);
     }
 }

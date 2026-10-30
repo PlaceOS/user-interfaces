@@ -5,7 +5,6 @@ export * from './lib/new-user-modal.component';
 export * from './lib/select-user-modal.component';
 export * from './lib/staff.fn';
 export * from './lib/user-form.component';
-export * from './lib/user-label-modal.component';
 export * from './lib/user-label.component';
 export * from './lib/user.pipe';
 export * from './lib/user.utilities';

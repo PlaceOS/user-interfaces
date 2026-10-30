@@ -4,7 +4,6 @@ export { MapsPeopleService } from './mapspeople.service';
 export { PushNotificationService } from './push-notification.service';
 export { SettingsService, setting } from './settings.service';
 export { VERSION } from './version';
-export { VorlonService } from './vorlon.service';
 
 export * from './api';
 export * from './application';
@@ -16,6 +15,5 @@ export * from './notifications';
 export * from './placeos';
 export * from './settings';
 export * from './signal.utilities';
-export * from './spec-helpers';
 export * from './types';
 export * from './user-state';
