@@ -94,6 +94,7 @@ All notable changes to this project will be documented in this file.
 - Preserve location selection and building bindings
 - Hide map toggles for groups locked off by settings
 - Open the device tooltip from the visible indicator
+- Look up device owners on the AreaManagement system
 
 #### Form-field
 
