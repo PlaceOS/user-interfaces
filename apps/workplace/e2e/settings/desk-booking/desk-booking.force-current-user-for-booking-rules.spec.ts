@@ -1,7 +1,7 @@
 
 import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
-import { type Audit, type Debug, getOnly, prepare, test, untouchedDesk } from '../support/settings-harness';
+import { type Audit, type Debug, getOnly, organisationRoutes, prepare, test, untouchedDesk } from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 const REGION = 'e2e-settings-region';
@@ -16,63 +16,34 @@ const LEVELS = [
         tags: ['level'] },
 ];
 const GROUP = 'e2e-settings-restricted-host';
+type AvailabilityProbe = {
+    _form_value_debounced: { status(): string; value(): { user?: { email?: string } } | null };
+    _available_resource: { status(): string };
+    available_resources(): { id: string }[];
+};
 const DESK = 'E2E browser-only desk';
 
 async function organisationFixture(page: Page, audit: Audit) {
-    // Preserve the real authority, organisation and authenticated identity.
-    // Only browser GETs for the source-supported region/building/level lists
-    // and synthetic-zone metadata are replaced. All IDs are fixture-local.
-    await page.addInitScript(() => {
-        for (const key of Object.keys(localStorage)) {
-            if (key.startsWith('PLACEOS.org') || ['PLACEOS.region', 'PLACEOS.building'].includes(key)) {
-                localStorage.removeItem(key);
-            }
-        }
-        sessionStorage.removeItem('PLACEOS.building');
+    await organisationRoutes(page, {
+        audit,
+        prefix: 'e2e-settings-',
+        region: { id: REGION, name: 'E2E Region' },
+        regionParent: true,
+        buildings: [
+            { id: BUILDING_A, parent_id: REGION, name: 'E2E Building A', display_name: 'E2E Building A',
+                tags: ['building'], timezone: 'UTC', location: '0,0' },
+            { id: BUILDING_B, parent_id: REGION, name: 'E2E Building B', display_name: 'E2E Building B',
+                tags: ['building'], timezone: 'UTC', location: '40,40' },
+        ],
+        levels: LEVELS,
+        metadata: (name) => (name.endsWith('_booking_rules') || name === 'map_regions' ? [] : {}),
+        desks: (level) => [{
+            id: 'e2e-settings-desk-' + level.id, name: DESK + ' ' + level.id,
+            map_id: 'e2e-settings-desk-shape', bookable: true, assigned_to: '',
+            groups: [], features: [], images: [],
+        }],
+        deskBookings: true,
     });
-    await getOnly(page, audit, 'synthetic regions', (url) => url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.get('tags') === 'region' && url.searchParams.get('limit') === '200',
-    (url) => [{ id: REGION, parent_id: url.searchParams.get('parent_id'), name: 'E2E Region',
-        tags: ['region'], timezone: 'UTC' }]);
-    await getOnly(page, audit, 'synthetic buildings', (url) => url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.get('tags') === 'building' && url.searchParams.get('parent_id') === REGION &&
-        url.searchParams.get('limit') === '500', () => [
-        { id: BUILDING_A, parent_id: REGION, name: 'E2E Building A', display_name: 'E2E Building A',
-            tags: ['building'], timezone: 'UTC', location: '0,0' },
-        { id: BUILDING_B, parent_id: REGION, name: 'E2E Building B', display_name: 'E2E Building B',
-            tags: ['building'], timezone: 'UTC', location: '40,40' },
-    ]);
-    await getOnly(page, audit, 'synthetic levels', (url) => url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.get('tags') === 'level' && url.searchParams.get('limit') === '2500', () => LEVELS);
-    // OrganisationService bulkMetadata(name,{parent_ids}) returns a map of
-    // parent IDs to Metadata records; showMetadata returns { [name]: record }.
-    await getOnly(page, audit, 'synthetic bulk metadata', (url) =>
-        /^\/api\/engine\/v2\/metadata\/[^/]+\/bulk$/.test(url.pathname) &&
-        !!url.searchParams.get('parent_ids') &&
-        url.searchParams.get('parent_ids')!.split(',').every((id) => id.startsWith('e2e-settings-')),
-    (url) => Object.fromEntries(url.searchParams.get('parent_ids')!.split(',').map((id) =>
-        [id, { id, name: decodeURIComponent(url.pathname.split('/')[5]), details: {} }])));
-    await getOnly(page, audit, 'synthetic metadata', (url) =>
-        /^\/api\/engine\/v2\/metadata\/e2e-settings-[^/]+$/.test(url.pathname) &&
-        !!url.searchParams.get('name'), (url) => {
-        const name = url.searchParams.get('name')!;
-        return { [name]: { id: url.pathname.split('/')[5], name,
-            details: name.endsWith('_booking_rules') || name === 'map_regions' ? [] : {} } };
-    });
-    await getOnly(page, audit, 'synthetic desk metadata', (url) =>
-        /^\/api\/engine\/v2\/metadata\/e2e-settings-building-[ab]\/children$/.test(url.pathname) &&
-        url.searchParams.get('name') === 'desks', (url) =>
-        LEVELS.filter((level) => level.parent_id === url.pathname.split('/')[5]).map((level) => ({
-            zone: level,
-            metadata: { desks: { name: 'desks', details: [{
-                id: 'e2e-settings-desk-' + level.id, name: DESK + ' ' + level.id,
-                map_id: 'e2e-settings-desk-shape', bookable: true, assigned_to: '',
-                groups: [], features: [], images: [],
-            }] } },
-        })));
-    await getOnly(page, audit, 'empty desk bookings', (url) => url.pathname === '/api/staff/v1/bookings' &&
-        url.searchParams.get('type') === 'desk' && url.searchParams.has('period_start') &&
-        url.searchParams.has('period_end'), () => []);
 }
 // BookingFormService._computeAvailableResources -> bookedResourceList uses
 // GET /bookings/booked with exactly these five parameters (bookings.fn.ts).
@@ -119,6 +90,18 @@ for(const enabled of [false,true]){
   await expect.poll(()=>audit.fixtures['delegated host search']??0).toBeGreaterThan(0);
   const option=staffPage.getByRole('option').filter({hasText:delegate.email});await expect(option).toHaveCount(1);await expect(option).toBeVisible();await option.click();
   await expect.poll(()=>details.evaluate(el=>{const c=(window as Debug).ng?.getComponent(el) as {model():{user?:{email:string}}}|undefined;return c?.model().user?.email;})).toBe(delegate.email);
+  // BookingFormService debounces the form value by 500 ms before availability
+  // is recomputed. Wait until the debounced value carries the delegate and the
+  // availability resource has resolved for it.
+  await expect.poll(()=>details.evaluate(el=>{
+   const c=(window as Debug).ng?.getComponent(el) as {_booking_form?:AvailabilityProbe}|undefined;
+   const s=c?._booking_form;
+   if(!s)throw new Error('desk booking form service is unavailable');
+   return {user:s._form_value_debounced.status()==='resolved'?s._form_value_debounced.value()?.user?.email:undefined,
+    availability:s._available_resource.status(),
+    desks:s._available_resource.status()==='resolved'?s.available_resources().map(r=>r.id):undefined};
+  }),{message:'availability evaluated with the delegate on the form'}).toEqual({user:delegate.email,availability:'resolved',
+   desks:enabled?['e2e-settings-desk-'+LEVEL_A]:[]});
   const list=staffPage.locator('desk-flow-select-list');await expect(list).toBeVisible();
   await expect.poll(()=>audit.fixtures['host-sensitive desk rules']??0).toBeGreaterThan(0);
   await expect.poll(()=>audit.fixtures['synthetic desk metadata']??0).toBeGreaterThan(0);
