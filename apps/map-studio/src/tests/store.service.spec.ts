@@ -103,6 +103,31 @@ describe('StoreService', () => {
         expect(await store.listObjects(floorplan.id)).toHaveLength(0);
     });
 
+    it('rewrites the canvas record only when a canvas field changes', async () => {
+        const project = await store.createProject('Sydney HQ');
+        const floorplan = await store.addFloorplan(project.id, 'Level 1');
+        const db = TestBed.inject(DbService);
+        const write = vi.spyOn(db, 'write');
+        const puts = () =>
+            write.mock.calls.flatMap(([changes]) =>
+                (changes.put ?? []).map(([key]) => key),
+            );
+
+        await store.updateFloorplan(floorplan.id, { floor_name: 'Ground' });
+        expect(puts()).toEqual([`floorplan:${floorplan.id}`]);
+
+        write.mockClear();
+        await store.updateFloorplan(floorplan.id, { svg_source: '<svg/>' });
+        expect(puts()).toEqual([
+            `floorplan:${floorplan.id}`,
+            `canvas:${floorplan.id}`,
+        ]);
+        await expect(store.getFloorplan(floorplan.id)).resolves.toMatchObject({
+            floor_name: 'Ground',
+            svg_source: '<svg/>',
+        });
+    });
+
     it('keeps the canvas out of project listings', async () => {
         const project = await store.createProject('Sydney HQ');
         const floorplan = await store.addFloorplan(project.id, 'Level 1');

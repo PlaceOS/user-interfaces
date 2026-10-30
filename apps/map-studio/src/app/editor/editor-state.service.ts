@@ -181,8 +181,6 @@ export class EditorStateService extends AsyncHandler {
     // snapshot holds the arrays as they stood — no copy needed.
     private _undo_stack: HistoryEntry[] = [];
     private _redo_stack: HistoryEntry[] = [];
-    /** Set while {@link batch} runs, so inner edits share its one history entry */
-    private _batching = false;
     /** Bumped by every edit, so a save can tell whether newer edits landed */
     private _change_count = 0;
     private _save_task: Promise<void> | null = null;
@@ -621,11 +619,14 @@ export class EditorStateService extends AsyncHandler {
 
     // ── Objects ─────────────────────────────────────────────────────────────
 
-    /** Next label and svg id for a new object of this type */
-    public nextNaming(type: MapObjectType) {
-        const count = this._objects().filter(
-            (o) => o.object_type === type,
-        ).length;
+    /**
+     * Next label and svg id for a new object of this type. `pending` counts
+     * objects of the type about to be created ahead of this one.
+     */
+    public nextNaming(type: MapObjectType, pending = 0) {
+        const count =
+            this._objects().filter((o) => o.object_type === type).length +
+            pending;
         const name = type.charAt(0).toUpperCase() + type.slice(1);
         return {
             label: `${name} ${count + 1}`,
@@ -777,50 +778,36 @@ export class EditorStateService extends AsyncHandler {
         await this._persist([], ids);
     }
 
-    public async duplicateObject(id: string): Promise<MapObject | null> {
-        const source = this._objects().find((o) => o.id === id);
-        if (!source) return null;
-        const geometry = { ...source.geometry };
-        if (geometry.x != null) geometry.x += 20;
-        if (geometry.y != null) geometry.y += 20;
-        const { svg_id } = this.nextNaming(source.object_type);
-        const { id: _ignored, ...rest } = source;
-        void _ignored;
-        return this.createObject({
-            ...rest,
-            label: `${source.label || source.object_type} (copy)`,
-            svg_id,
-            geometry,
-        });
-    }
-
-    /** Duplicates several objects as one undo step and selects the copies */
-    public async duplicateObjects(ids: string[]): Promise<MapObject[]> {
-        const copies = await this.batch(async () => {
-            const created: MapObject[] = [];
-            for (const id of ids) {
-                const copy = await this.duplicateObject(id);
-                if (copy) created.push(copy);
-            }
-            return created;
-        });
-        if (copies.length > 1) this.setMultiSelect(copies.map((c) => c.id));
-        return copies;
-    }
-
     /**
-     * Runs several edits as one undo step. History is recorded once, before
-     * `edit` starts; the edits inside do not add their own entries.
+     * Duplicates several objects, 20px down and right, as one undo step and
+     * one storage write. Selects the copies.
      */
-    public async batch<T>(edit: () => Promise<T>): Promise<T> {
-        if (this._batching) return edit();
-        this.pushHistory();
-        this._batching = true;
-        try {
-            return await edit();
-        } finally {
-            this._batching = false;
+    public async duplicateObjects(ids: string[]): Promise<MapObject[]> {
+        const by_id = new Map(this._objects().map((o) => [o.id, o]));
+        const pending = new Map<MapObjectType, number>();
+        const partials: Partial<MapObject>[] = [];
+        for (const id of ids) {
+            const source = by_id.get(id);
+            if (!source) continue;
+            const type = source.object_type;
+            const { svg_id } = this.nextNaming(type, pending.get(type));
+            pending.set(type, (pending.get(type) ?? 0) + 1);
+            const geometry = { ...source.geometry };
+            if (geometry.x != null) geometry.x += 20;
+            if (geometry.y != null) geometry.y += 20;
+            const { id: _ignored, ...rest } = source;
+            void _ignored;
+            partials.push({
+                ...rest,
+                label: `${source.label || type} (copy)`,
+                svg_id,
+                geometry,
+            });
         }
+        const copies = await this.createObjects(partials);
+        if (copies.length > 1) this.setMultiSelect(copies.map((c) => c.id));
+        else if (copies.length) this._selected_id.set(copies[0].id);
+        return copies;
     }
 
     public async bulkUpdate(ids: string[], updates: Partial<MapObject>) {
@@ -1171,11 +1158,9 @@ export class EditorStateService extends AsyncHandler {
 
     /**
      * Records the objects as they stand so the mutation about to happen can be
-     * undone. Call this immediately *before* changing anything. Inside
-     * {@link batch} it does nothing, because the batch already recorded.
+     * undone. Call this immediately *before* changing anything.
      */
     public pushHistory() {
-        if (this._batching) return;
         // A click that changes nothing must not fill the stack
         if (this._undo_stack.at(-1)?.objects === this._objects()) return;
         this._undo_stack.push(this._snapshot());

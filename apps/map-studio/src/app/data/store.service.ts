@@ -54,6 +54,14 @@ const key = {
     deleted_zones: () => 'deleted-zone:',
 };
 
+/** Floorplan fields that storage keeps in the canvas record */
+const CANVAS_FIELDS = [
+    'canvas_state',
+    'svg_output',
+    'svg_source',
+    'svg_source_ids',
+] as const satisfies readonly (keyof FloorplanCanvas)[];
+
 /** Records that store `floorplan`: its summary and, apart, its canvas */
 function floorplanRecords(floorplan: Floorplan): [string, unknown][] {
     const { canvas_state, svg_output, svg_source, svg_source_ids, ...summary } =
@@ -516,8 +524,12 @@ export class StoreService {
     ): Promise<Floorplan> {
         const floorplan = await this.getFloorplan(id);
         const updated = { ...floorplan, ...updates, id, updated_at: now() };
+        // The canvas record holds the source SVG, often megabytes, so a
+        // rename or reorder rewrites only the summary
+        const [summary, canvas] = floorplanRecords(updated);
+        const canvas_changed = CANVAS_FIELDS.some((field) => field in updates);
         await this._db.write({
-            put: floorplanRecords(updated),
+            put: canvas_changed ? [summary, canvas] : [summary],
             delete: staleThumbnail(floorplan, updated),
         });
         if (updated.level_zone_id && this._placeos.mode() === 'domain') {
