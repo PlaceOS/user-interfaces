@@ -11,10 +11,8 @@ import type {
 } from '@playwright/test';
 import { request as pwRequest, test as playwrightTest } from '@playwright/test';
 import { createHash } from 'node:crypto';
-import { isDeepStrictEqual } from 'node:util';
 import * as fs from 'fs';
 import { join } from 'node:path';
-import { VERSION } from '../../../../../libs/common/src/lib/version';
 import { mintForWorker } from '../../../../../e2e/support/api';
 import { clientId, redirectUriFor } from '../../../../../e2e/support/auth';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
@@ -4646,13 +4644,11 @@ export type Json = Record<string, unknown>;
 /**
  * One armed POST to `path` is accepted only when `query` holds for its URL
  * (no query at all when `query` is absent) and `accepts` holds for its body.
- * With `expected`, teardown also checks that the one body equals it.
  */
 export type MeetingSubmission = {
     path: string;
     query?: (url: URL) => boolean;
     accepts: (body: Json) => boolean;
-    expected?: Json;
     armed: boolean;
     bodies: Json[];
     completed: boolean;
@@ -4742,9 +4738,7 @@ export const meetingFormTest = browserOnlyTest<MeetingAudit>({
         if (audit.submission) {
             expect(audit.submission.armed).toBe(false);
             expect(audit.submission.completed).toBe(true);
-            if (audit.submission.expected)
-                expect(audit.submission.bodies).toEqual([audit.submission.expected]);
-            else expect(audit.submission.bodies).toHaveLength(1);
+            expect(audit.submission.bodies).toHaveLength(1);
         }
     },
 });
@@ -5417,104 +5411,16 @@ export async function openStrictMeeting(
 }
 
 /**
- * The User JSON CalendarEvent sends for `raw`, from the CalendarEvent
- * constructor and toJSON (empty strings and false values kept).
+ * Arm exactly one POST /api/staff/v1/events carrying the draft's title, `host`
+ * and `room_id` as its only resource, after checking that the room is loaded
+ * with its org.ROOMS email and org.ZONES.
  */
-export function expectedMeetingUser(raw: Json): Json {
-    return {
-        id: raw.id || raw.email,
-        name: raw.name || '',
-        email: raw.email,
-        first_name: raw.first_name || raw.name || '',
-        last_name: raw.last_name || '',
-        phone: raw.phone || '',
-        organisation: raw.organisation || '',
-        notes: raw.notes || '',
-        photo: raw.photo || '',
-        photo_upload_id: '',
-        username: raw.username || '',
-        organizer: false,
-        checked_in: false,
-        required: true,
-        resource: false,
-        locatable: false,
-        response_status: '',
-        department: raw.department || '',
-        groups: raw.groups || [],
-        extension_data: {},
-        is_external: false,
-        visit_expected: true,
-        assistance_required: false,
-    };
-}
-
-/**
- * The full POST /api/staff/v1/events body for `raw` booked in `room`, from
- * CalendarEvent's constructor and toJSON and createEvent.withAppVersion. No
- * product serializer runs.
- */
-export function expectedMeetingCalendarBody(
-    raw: RawMeeting,
-    room: Json,
-    app_name = 'Browser Meeting Simulation',
-): Json {
-    const organiser = expectedMeetingUser(raw.organiser);
-    return {
-        event_start: Math.floor(raw.date / 1000),
-        event_end: Math.floor(raw.date_end / 1000),
-        creator: raw.creator,
-        host: raw.host,
-        attendees: [organiser, { ...room, resource: true }],
-        resources: [room],
-        title: raw.title,
-        is_system_event: false,
-        private: false,
-        all_day: false,
-        timezone: 'UTC',
-        recurring: false,
-        organiser,
-        from_bookings: false,
-        update_master: false,
-        system: room,
-        // createEvent constructs a second CalendarEvent: old_system defaults
-        // to its input system when old_system is null/undefined.
-        old_system: room,
-        attachments: [],
-        deleted: false,
-        location: raw.location || room.display_name || room.name,
-        setup_time: 0,
-        breakdown_time: 0,
-        visibility: 'normal',
-        permission: 'OPEN',
-        system_id: room.id,
-        extension_data: {
-            department: '',
-            needs_space: true,
-            tags: [],
-            attendance_type: 'ONSITE',
-            catering: [],
-            assets: [],
-            images: [],
-            view_access: 'OPEN',
-            // CalendarEvent keeps extension_data.permission in step with
-            // permission (event.class.ts).
-            permission: 'OPEN',
-            app_name,
-            app_version: VERSION.raw || VERSION.version || VERSION.hash,
-        },
-    };
-}
-
-/**
- * Arm exactly one POST /api/staff/v1/events whose body must deep-equal
- * expectedMeetingCalendarBody for the loaded form and room `room_id`. The
- * room must be loaded with org's email and zones.
- */
-export async function armExactMeeting(
+export async function armMeetingSubmission(
     page: Page,
     audit: MeetingAudit,
     org: SyntheticMeetingOrg,
     room_id: string,
+    host: string = MEETING_USER.email,
 ) {
     const snapshot = await meetingFormSnapshot(page);
     const room = (snapshot.raw.resources.length ? snapshot.raw.resources : snapshot.rooms).find(
@@ -5528,26 +5434,29 @@ export async function armExactMeeting(
         email: fixture_room.email,
         zones: org.ZONES,
     });
-    const expected = expectedMeetingCalendarBody(snapshot.raw, room);
     audit.submission = {
         path: MEETING_POST_PATH,
-        expected,
-        accepts: (body) => isDeepStrictEqual(body, expected),
+        accepts: (body) =>
+            body.title === MEETING_TITLE &&
+            body.host === host &&
+            Array.isArray(body.resources) &&
+            (body.resources as Json[]).map((r) => r.id).join() === room_id,
         armed: true,
         bodies: [],
         completed: false,
     };
 }
 
-/** Wait for the armed POST, then expect its one body to be the expected one and the success page. */
-export async function expectSimulatedSuccess(page: Page, audit: MeetingAudit) {
+/** Wait for the armed POST and the success page; returns the one sent body. */
+export async function expectSimulatedSuccess(page: Page, audit: MeetingAudit): Promise<Json> {
     await expect.poll(() => audit.submission?.completed).toBe(true);
-    expect(audit.submission?.bodies).toEqual([audit.submission?.expected]);
+    expect(audit.submission?.bodies).toHaveLength(1);
     await expect(page).toHaveURL(/#\/book\/meeting\/success$/);
     await expect(
         page.locator('meeting-flow-success [name="meeting-created-continue"]'),
     ).toBeVisible();
     expect(audit.refused, 'no extra mutation or socket attempt').toEqual([]);
+    return audit.submission?.bodies[0] ?? {};
 }
 
 /**

@@ -32,14 +32,13 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 import {
+    armMeetingSubmission,
+    expectSimulatedSuccess,
     fakeBearer,
     type Json,
-    MEETING_POST_PATH as POST_PATH,
-    MEETING_TITLE as TITLE,
     MEETING_USER as USER,
-    type MeetingAudit as Audit,
     meetingFormSnapshot as formSnapshot,
     meetingFormTest as test,
     openStrictMeeting,
@@ -48,7 +47,7 @@ import {
 } from '../support/settings-harness';
 
 const ORG = syntheticMeetingOrg('e2e-force-current-rules-');
-const { ZONES, GROUP, DELEGATE, HOST_PATH, ROOMS } = ORG;
+const { GROUP, DELEGATE, HOST_PATH, ROOMS } = ORG;
 // Hides every room from the delegate's group only. The signed-in staff user is
 // not in the group, so whose rules are applied decides the outcome.
 const RULES: Json[] = [{ zone: '*', conditions: { groups: [GROUP] },
@@ -81,37 +80,6 @@ function hiddenByRulesMessage(spaces: string) {
     return template.replace('{{ spaces }}', spaces).replace('{{ spaces }}', spaces);
 }
 
-/**
- * Arm exactly one POST /api/staff/v1/events carrying the draft's title,
- * `host` and `room_id` as its only resource, after checking that the room is
- * loaded with its fixture email and zones.
- */
-async function armSubmission(page: Page, audit: Audit, room_id: string, host: string) {
-    const snapshot = await formSnapshot(page);
-    const room = (snapshot.raw.resources.length ? snapshot.raw.resources : snapshot.rooms)
-        .find((room) => room.id === room_id);
-    if (!room) throw new Error('Expected synthetic room is not loaded');
-    const fixture_room = ROOMS.find((item) => item.id === room_id)!;
-    expect(room).toMatchObject({
-        id: room_id, email: fixture_room.email, zones: ZONES,
-    });
-    audit.submission = {
-        path: POST_PATH,
-        accepts: (body) => body.title === TITLE && body.host === host &&
-            Array.isArray(body.resources) &&
-            (body.resources as Json[]).map((r) => r.id).join() === room_id,
-        armed: true, bodies: [], completed: false,
-    };
-}
-/** Wait for the armed POST and the success page; returns the one sent body. */
-async function expectSimulatedSuccess(page: Page, audit: Audit) {
-    await expect.poll(() => audit.submission?.completed).toBe(true);
-    expect(audit.submission?.bodies).toHaveLength(1);
-    await expect(page).toHaveURL(/#\/book\/meeting\/success$/);
-    await expect(page.locator('meeting-flow-success [name="meeting-created-continue"]')).toBeVisible();
-    expect(audit.refused, 'no extra mutation or socket attempt').toEqual([]);
-    return audit.submission?.bodies[0] ?? {};
-}
 const OPEN = { org: ORG, base: BASE, bearer: fakeBearer('zone-settings'), rules: RULES, host: DELEGATE };
 
 test('events.force_current_user_for_booking_rules=true applies the signed-in user\'s rules and permits the delegate booking',
@@ -124,7 +92,7 @@ test('events.force_current_user_for_booking_rules=true applies the signed-in use
         }, OPEN);
         const before = await formSnapshot(page);
         expect(before.raw.resources.map((room) => room.id)).toEqual([ROOMS[0].id]);
-        await armSubmission(page, audit, ROOMS[0].id, DELEGATE.email);
+        await armMeetingSubmission(page, audit, ORG, ROOMS[0].id, DELEGATE.email);
         await confirm.click();
         const body = await expectSimulatedSuccess(page, audit);
         // Completion proves the rule and availability checks ran; the delegate
