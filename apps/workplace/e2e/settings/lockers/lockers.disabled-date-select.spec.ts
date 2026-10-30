@@ -1,8 +1,8 @@
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
-import { type Audit, getOnly, LOCKER, type Settings, test, untouchedLocker } from '../support/settings-harness';
+import { type Audit, getOnly, LOCKER, pickDay, type Settings, test, untouchedLocker } from '../support/settings-harness';
 type Debug = Window & { setting?: (key: string) => unknown };
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
@@ -72,15 +72,31 @@ async function lockerForm(page: Page, audit: Audit, overrides: Settings) {
 // locker-flow-success.component.ts; data from sessionStorage
 // PLACEOS.last_booked_booking (booking-form.service.ts).
 
+const lockerDate = (root: Locator) => root.locator('a-date-field button').first();
+const lockerStart = (root: Locator) => root.locator('a-time-field[name="start-time"] button[time-field]');
+const lockerEnd = (root: Locator) => root.locator('a-duration-field button[duration-field]');
+
 test.describe('lockers.disabled_date_select', () => {
-    for (const disabled of [true, false]) {
-        test('lockers.disabled_date_select ' + disabled + ' controls the All day option beside the date',
-            async ({ staffPage, audit }) => {
-                const root = await lockerForm(staffPage, audit, { 'app.lockers.disabled_date_select': disabled });
-                await expect(root.locator('mat-checkbox')).toHaveCount(disabled ? 0 : 1);
-                // Source only hides the checkbox; the date field itself stays.
-                await expect(root.locator('a-date-field button').first()).toBeVisible();
-                await untouchedLocker(staffPage);
-            });
-    }
+    test('lockers.disabled_date_select true locks the date, start time and end time and hides All day',
+        async ({ staffPage, audit }) => {
+            const root = await lockerForm(staffPage, audit, { 'app.lockers.disabled_date_select': true });
+            await expect(root.locator('mat-checkbox')).toHaveCount(0);
+            await expect(lockerDate(root)).toBeVisible();
+            await expect(lockerDate(root)).toBeDisabled();
+            await expect(lockerStart(root)).toBeDisabled();
+            await expect(lockerEnd(root)).toBeDisabled();
+            await untouchedLocker(staffPage);
+        });
+
+    test('lockers.disabled_date_select false leaves the date, start time and end time editable and shows All day',
+        async ({ staffPage, audit }) => {
+            const root = await lockerForm(staffPage, audit, { 'app.lockers.disabled_date_select': false });
+            await expect(root.locator('mat-checkbox')).toHaveCount(1);
+            await expect(lockerDate(root)).toBeEnabled();
+            // Tomorrow, so "no options left today" cannot disable the time triggers on its own.
+            await pickDay(staffPage, root, 1);
+            await expect(lockerStart(root)).toBeEnabled();
+            await expect(lockerEnd(root)).toBeEnabled();
+            await untouchedLocker(staffPage);
+        });
 });
