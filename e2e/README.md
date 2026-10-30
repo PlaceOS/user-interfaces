@@ -344,6 +344,7 @@ CI-specific choices worth knowing:
 | | |
 |---|---|
 | `E2E_WORKERS: 4` | The same as the local default. The runner also hosts ~10 containers, a dev server and the browsers, and four workers already use all of it: a trial with six took the same time, because each test ran about 50% slower. |
+| `E2E_WEBSERVER_TIMEOUT_MS: '900000'` (settings-browser job only) | The config's webServer timeout, 180000 ms unless set. The GitHub-hosted runner starts `nx serve workplace` cold with no Nx cache, which can take longer than the default. |
 | No `pull_request` trigger | This repo is public and the runner is self-hosted, so a fork PR could run arbitrary code on an internal machine. Triggers are limited to ones requiring write access. Do not add it back without moving to `ubuntu-latest`. |
 | Reclaim step | A self-hosted machine is not a fresh VM; a previous aborted run can leave the stack up or port 4214 held. |
 | No `vm.max_map_count` bump | Needed on GitHub-hosted Linux, meaningless on macOS — the value lives inside Colima's VM, which already sets it to 1048576. Restore it if reverting to `ubuntu-latest`. |

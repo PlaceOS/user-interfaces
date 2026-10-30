@@ -46,6 +46,17 @@ export const APP_URL = process.env.E2E_APP_URL ?? 'http://localhost:4214';
 export const WORKERS = Number(process.env.E2E_WORKERS ?? 4);
 
 /**
+ * How long Playwright waits for the Workplace dev server to answer, in
+ * milliseconds (the config's webServer.timeout). Default 180000.
+ */
+export const WEBSERVER_TIMEOUT_MS = Number(process.env.E2E_WEBSERVER_TIMEOUT_MS ?? 180_000);
+if (!Number.isFinite(WEBSERVER_TIMEOUT_MS) || WEBSERVER_TIMEOUT_MS <= 0) {
+    throw new Error(
+        `E2E_WEBSERVER_TIMEOUT_MS must be a positive number of milliseconds, got '${process.env.E2E_WEBSERVER_TIMEOUT_MS}'.`,
+    );
+}
+
+/**
  * Hard guard: refuse anything that is not a local backend, however we got
  * pointed there. Called at config module scope so it throws before Playwright
  * launches anything.

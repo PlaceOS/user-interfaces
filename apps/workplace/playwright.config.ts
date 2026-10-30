@@ -5,7 +5,7 @@ import { workspaceRoot } from '@nx/devkit';
 
 // env.ts self-loads e2e/.env before reading any E2E_* var, so importing it here
 // is enough to get .env applied.
-import { APP_URL, BACKEND_URL, WORKERS, assertLocalOnly } from '../../e2e/support/env';
+import { APP_URL, BACKEND_URL, WEBSERVER_TIMEOUT_MS, WORKERS, assertLocalOnly } from '../../e2e/support/env';
 
 // Fail fast, loudly, before a single browser launches, if anything points at a
 // backend that is not local. This suite creates and deletes real data.
@@ -133,7 +133,7 @@ export default defineConfig({
         url: APP_URL,
         reuseExistingServer: !CI,
         cwd: workspaceRoot,
-        timeout: 180_000,
+        timeout: WEBSERVER_TIMEOUT_MS,
         // Point the dev server's API proxy at the local stack instead of its
         // default (the shared dev deployment). See config/proxy.conf.js.
         env: {
