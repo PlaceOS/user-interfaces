@@ -5,8 +5,8 @@
 //   2. false: with the identical live values, no presence icon is shown.
 // Scope: the Explore map for one synthetic room. Nothing is clicked or booked.
 // Docs: docs/settings/workplace.md.
-// Readiness still uses a busy fill: a free fill is the unset-status fallback
-// and appeared before any live value arrived.
+// Readiness waits for a busy fill: a free fill is the unset-status fallback
+// and shows before any live value arrives.
 //
 // Source: libs/explore/src/lib/explore-spaces.service.ts subscribes to
 // the `bookings`, `status` and `presence` variables of module `Bookings` on
@@ -20,7 +20,7 @@
 // hover card also subscribes to `hide_meeting_details` and
 // `hide_meeting_title` (explore-space-info.component.ts).
 //
-// Synthetic live values (pilot, approved for this spec only): the app's
+// Synthetic live values: the app's
 // control WebSocket (/api/engine/v2/systems/control) is answered entirely
 // inside the browser with Playwright routeWebSocket; connectToServer() is
 // never called, so no socket reaches the backend. The fixture follows the

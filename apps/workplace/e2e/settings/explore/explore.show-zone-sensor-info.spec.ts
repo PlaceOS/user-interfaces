@@ -1,5 +1,5 @@
 /**
- * User-owned Setting: explore.show_zone_sensor_info
+ * Setting: explore.show_zone_sensor_info
  * Exact runtime key: app.explore.show_zone_sensor_info
  * Coverage: 1 unique Setting / 2 scenarios
  * ExploreZonesService.parseData creates a sensors feature only for a room-

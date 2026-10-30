@@ -4,9 +4,8 @@
 // Source: libs/explore/src/lib/explore-zones.service.ts parseData sets
 // temp_unit = use_imperial_units ? 'F' : 'C' and passes it, with the reading
 // unchanged, to the sensor feature; explore-sensor-info.component.ts shows
-// '<temp>˚<unit>'. The developer confirmed this is intended: the setting only
-// changes the unit label, there is no conversion, and the backend may send
-// either scale.
+// '<temp>˚<unit>'. The setting only changes the unit label; there is no
+// conversion, and the backend may send either scale.
 //
 // Both scenarios use the same synthetic room reading (23, 45%) from the shared
 // zone-sensor harness (settings-harness zoneSensorTest; fully synthetic org,
@@ -14,9 +13,7 @@
 // explore.show_zone_sensor_info on:
 //   1. false: the sensor tooltip shows 23˚C.
 //   2. true: the same reading shows 23˚F (not converted, e.g. not 73.4).
-// The tooltip's warning icon (shown above 82 in either unit) is not asserted:
-// whether that threshold should depend on the unit is a pending developer
-// question.
+// The tooltip's warning icon (shown above 82 in either unit) is not asserted.
 // Runs in the settings-browser project (no backend).
 import { expect } from '@playwright/test';
 import {

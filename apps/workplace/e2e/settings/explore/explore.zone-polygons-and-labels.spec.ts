@@ -1,11 +1,11 @@
 /**
- * User-owned Settings coverage: 3 unique Settings / 6 scenarios.
+ * Settings coverage: 3 unique Settings / 6 scenarios.
  * Exact Setting keys:
  *   explore.use_zone_polygons
  *   explore.show_zone_labels
  *   explore.disable_labels
  * Two independent contexts per Setting: true/false polygons; true/false zone
- * labels; []/['zones'] disabled labels. Only this spec owns these fixtures.
+ * labels; []/['zones'] disabled labels.
  * Source contracts:
  * - explore-zones.service.ts: init reads map_regions.details.areas; hide_label
  *   must be false; draw_polygon OR use_zone_polygons selects the polygon path.

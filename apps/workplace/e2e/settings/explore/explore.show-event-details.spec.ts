@@ -1,5 +1,5 @@
 /**
- * User-owned Setting: explore.show_event_details
+ * Setting: explore.show_event_details
  * Exact runtime key: app.explore.show_event_details
  * Coverage: 1 unique Setting / 2 scenarios
  * ExploreSpaceInfoComponent requires next() and explicit false privacy values

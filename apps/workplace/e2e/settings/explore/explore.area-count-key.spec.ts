@@ -1,5 +1,5 @@
 /**
- * User-owned Setting: explore.area_count_key
+ * Setting: explore.area_count_key
  * Exact runtime key: app.explore.area_count_key
  * Coverage: 1 unique Setting / 2 scenarios
  * Independent contexts use identical AreaManagement data: capacity=10,

@@ -1,5 +1,5 @@
 /**
- * User-owned Setting: explore.show_booking_qr
+ * Setting: explore.show_booking_qr
  * Exact runtime key: app.explore.show_booking_qr
  * Coverage: 1 unique Setting / 2 scenarios
  * ExploreSpacesService.bookSpace chooses ExploreBookQrComponent or
