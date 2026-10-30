@@ -63,7 +63,12 @@ function stubFetch(authority_ok: boolean) {
                 ok: true,
                 json: async () => ({ map_id: '/maps/level-1.svg' }),
             };
-        if (url.endsWith('/maps/level-1.svg'))
+        if (url.endsWith('/zones/level-2'))
+            return {
+                ok: true,
+                json: async () => ({ map_id: '///other.example/map.svg' }),
+            };
+        if (url.endsWith('.svg'))
             return {
                 ok: true,
                 status: 200,
@@ -277,6 +282,17 @@ describe('PlaceOSService', () => {
         );
     });
 
+    it('sends no credentials when a level map is on another host', async () => {
+        const calls = stubFetch(true);
+        await service.init();
+
+        await expect(service.getLevelSvg('level-2')).resolves.toContain('<svg');
+
+        const [url, options] = calls[calls.length - 1];
+        expect(url).toBe('http://other.example/map.svg');
+        expect(options.headers).toEqual({});
+    });
+
     it('loads and saves floorplan metadata on a level', async () => {
         stubFetch(true);
         await service.init();
@@ -369,6 +385,35 @@ describe('PlaceOSService', () => {
         expect(result.ok).toBe(false);
         expect(result.error).toContain('rejected the API key');
         expect(service.config.configured).toBe(false);
+    });
+
+    it('never sends the API key over plain http', async () => {
+        const calls = stubFetch(false);
+        await service.init();
+
+        const result = await service.testConnection({
+            domain: 'http://other.example.com',
+            api_key: 'secret',
+        });
+
+        expect(result.error).toContain('https://');
+        expect(calls.some(([url]) => url.includes('other.example.com'))).toBe(
+            false,
+        );
+    });
+
+    it('checks a blank domain against the page origin', async () => {
+        const calls = stubFetch(false);
+        await service.init();
+        vi.stubGlobal('location', new URL('http://place.example.com/'));
+
+        const result = await service.testConnection({
+            domain: '',
+            api_key: 'secret',
+        });
+
+        expect(result.error).toContain('https://');
+        expect(calls.some(([url]) => url.includes('/api/engine'))).toBe(false);
     });
 
     it('falls back to a domain and API key otherwise', async () => {

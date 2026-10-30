@@ -392,6 +392,34 @@ describe('StoreService', () => {
         });
     });
 
+    it('exports formula-like labels as text and imports them unchanged', async () => {
+        const floorplan = await store.addFloorplan('p1', 'Level 1');
+        const labels = [
+            '=HYPERLINK("https://example.com","Open")',
+            '\r=1+1',
+            '\t=1+1',
+            "'=1+1",
+        ];
+        for (const [index, label] of labels.entries()) {
+            await store.createObject(floorplan.id, {
+                svg_id: `room-${index}`,
+                label,
+                geometry: { type: 'rect', x: 0, y: 0, width: 1, height: 1 },
+            });
+        }
+
+        const csv = await store.exportObjectsCsv(floorplan.id);
+        expect(csv).toContain(`"'=HYPERLINK(`);
+        expect(csv).toContain(`"'\r=1+1"`);
+
+        const target = await store.addFloorplan('p1', 'Level 2');
+        await store.importObjectsCsv(target.id, csv);
+        const imported = await store.listObjects(target.id);
+        expect(imported.map((object) => object.label).sort()).toEqual(
+            [...labels].sort(),
+        );
+    });
+
     it('updates rather than duplicates when a CSV row matches an svg_id', async () => {
         const floorplan = await store.addFloorplan('p1', 'Level 1');
         await store.createObject(floorplan.id, {

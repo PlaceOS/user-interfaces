@@ -136,7 +136,10 @@ function exportStroke(object: MapObject): string {
     if (object.object_type === 'desk') return TYPE_COLORS['desk'] ?? '#22c55e';
     if (object.object_type === 'decorative' && object.layer === 'walls')
         return '#1f2937';
-    return object.stroke_color || TYPE_COLORS[object.object_type] || '#6b7280';
+    return safeColor(
+        object.stroke_color,
+        TYPE_COLORS[object.object_type] || '#6b7280',
+    );
 }
 
 function exportStrokeWidth(object: MapObject): string {
@@ -154,6 +157,19 @@ function escapeXml(value: string): string {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&apos;');
 }
+
+/**
+ * Hex, named and functional colours only. Saved, CSV and PlaceOS data can hold
+ * any string, and the value goes straight into published markup.
+ */
+const CSS_COLOR_RE = /^[#\w(),.%\s-]+$/;
+
+const safeColor = (value: string | null | undefined, fallback: string) =>
+    value && CSS_COLOR_RE.test(value) ? value : fallback;
+
+/** A finite number, or `fallback`, for the same reason as `safeColor` */
+const num = (value: unknown, fallback = 0): number =>
+    typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 
 /** Geometry that carries a full bounding box */
 type Bounded = Required<Pick<ObjectGeometry, 'x' | 'y' | 'width' | 'height'>>;
@@ -213,6 +229,9 @@ export function buildSvg(
         }
         return new XMLSerializer().serializeToString(doc.documentElement);
     }
+    width = num(width);
+    height = num(height);
+    background_color = safeColor(background_color, '#ffffff');
     const lines: string[] = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">`,
@@ -238,32 +257,37 @@ export function buildSvg(
 
             if (g.type === 'rect') {
                 const box = {
-                    x: g.x ?? 0,
-                    y: g.y ?? 0,
-                    width: g.width ?? 50,
-                    height: g.height ?? 50,
+                    x: num(g.x),
+                    y: num(g.y),
+                    width: num(g.width, 50),
+                    height: num(g.height, 50),
                 };
-                if (g.rotation) {
-                    transform = ` transform="rotate(${g.rotation} ${(g.x ?? 0) + (g.width ?? 0) / 2} ${(g.y ?? 0) + (g.height ?? 0) / 2})"`;
+                const rotation = num(g.rotation);
+                if (rotation) {
+                    transform = ` transform="rotate(${rotation} ${box.x + num(g.width) / 2} ${box.y + num(g.height) / 2})"`;
                 }
                 shape = `<rect id="${id}" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="2" ${style} />`;
                 if (label && object.object_type !== 'decorative') {
                     text = boxLabel(label, box);
                 }
             } else if (g.type === 'polygon' && g.points?.length) {
-                const points = g.points.map((p) => `${p.x},${p.y}`).join(' ');
+                const vertices = g.points.map((p) => ({
+                    x: num(p.x),
+                    y: num(p.y),
+                }));
+                const points = vertices.map((p) => `${p.x},${p.y}`).join(' ');
                 const cx =
-                    g.points.reduce((sum, p) => sum + p.x, 0) / g.points.length;
+                    vertices.reduce((sum, p) => sum + p.x, 0) / vertices.length;
                 const cy =
-                    g.points.reduce((sum, p) => sum + p.y, 0) / g.points.length;
+                    vertices.reduce((sum, p) => sum + p.y, 0) / vertices.length;
                 shape = `<polygon id="${id}" points="${points}" ${style} />`;
                 if (label) {
                     text = `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="10" font-weight="600" font-family="Arial, sans-serif">${label}</text>`;
                 }
             } else if (g.type === 'circle') {
-                const cx = g.x ?? 0;
-                const cy = g.y ?? 0;
-                const r = g.r ?? 10;
+                const cx = num(g.x);
+                const cy = num(g.y);
+                const r = num(g.r, 10);
                 shape = `<circle id="${id}" cx="${cx}" cy="${cy}" r="${r}" ${style} />`;
                 if (label) {
                     text = `<text x="${cx}" y="${cy + r + 10}" text-anchor="middle" dominant-baseline="central" fill="${stroke}" font-size="8" font-weight="600" font-family="Arial, sans-serif">${label}</text>`;

@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
+import { fromCsvField, parseCsvLine, toCsvField } from '../data/store.service';
 import { MapObjectType } from '../data/types';
 import { OBJECT_TYPES } from './constants';
 import { EditorStateService } from './editor-state.service';
@@ -15,8 +16,8 @@ interface ImportedId {
 
 const STORAGE_KEY = 'MAP_BUILDER.label-ids';
 
-/** Parse a simple `id,label,type` list, tolerating a header row */
-function parseIdList(text: string): ImportedId[] {
+/** Parse an `id,label,type` CSV list, such as `exportIds` writes, tolerating a header row */
+export function parseIdList(text: string): ImportedId[] {
     const lines = text
         .split('\n')
         .map((line) => line.trim())
@@ -30,9 +31,7 @@ function parseIdList(text: string): ImportedId[] {
     return lines
         .slice(has_header ? 1 : 0)
         .map((line) => {
-            const parts = line
-                .split(',')
-                .map((part) => part.trim().replace(/^["']|["']$/g, ''));
+            const parts = parseCsvLine(line).map(fromCsvField);
             return {
                 id: parts[0],
                 label: parts[1] || undefined,
@@ -529,7 +528,9 @@ export class LabellingPanelComponent {
                     g.y ?? '',
                     g.width ?? '',
                     g.height ?? '',
-                ].join(','),
+                ]
+                    .map(toCsvField)
+                    .join(','),
             );
         }
         const url = URL.createObjectURL(

@@ -113,7 +113,7 @@ const CSV_COLUMNS = [
 ] as const;
 
 /** Split a CSV line, honouring quoted fields containing commas or quotes */
-function parseCsvLine(line: string): string[] {
+export function parseCsvLine(line: string): string[] {
     const fields: string[] = [];
     let current = '';
     let in_quotes = false;
@@ -135,11 +135,28 @@ function parseCsvLine(line: string): string[] {
     return fields;
 }
 
-function toCsvField(value: unknown): string {
+/**
+ * Text a spreadsheet runs as a formula, such as `=HYPERLINK(...)`. A leading
+ * `'` is in the set too, so the guard below reverses exactly on import.
+ */
+const CSV_FORMULA_RE = /^[=+\-@\t\r']/;
+
+/**
+ * One CSV cell. Labels can come from shared PlaceOS data, so text that a
+ * spreadsheet would run gets a leading `'`, which `importObjectsCsv` removes.
+ */
+export function toCsvField(value: unknown): string {
     if (value === null || value === undefined) return '';
-    const str = typeof value === 'object' ? JSON.stringify(value) : `${value}`;
-    return /[,"\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+    let str = typeof value === 'object' ? JSON.stringify(value) : `${value}`;
+    if (typeof value === 'string' && CSV_FORMULA_RE.test(str)) str = `'${str}`;
+    return /[,"\n\r]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
 }
+
+/** A parsed cell with the formula guard from `toCsvField` removed */
+export const fromCsvField = (field: string) =>
+    field[0] === "'" && CSV_FORMULA_RE.test(field.slice(1))
+        ? field.slice(1)
+        : field;
 
 /**
  * Projects, floorplans and map objects, persisted in the browser.
@@ -996,7 +1013,7 @@ export class StoreService {
             const values = parseCsvLine(line);
             const row: Record<string, unknown> = {};
             headers.forEach((header, index) => {
-                const value = values[index] ?? '';
+                const value = fromCsvField(values[index] ?? '');
                 if (value !== '') row[header] = value;
             });
             if (row['geometry'])

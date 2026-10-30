@@ -302,6 +302,35 @@ describe('buildSvg', () => {
         expect(text?.getAttribute('y')).toBe('25');
     });
 
+    it('keeps markup in saved values out of the published SVG', () => {
+        const svg = buildSvg(
+            [
+                object({
+                    object_type: 'zone',
+                    stroke_color: '"/><script>alert(1)</script><g a="',
+                    geometry: {
+                        type: 'rect',
+                        x: '0" onload="alert(1)' as unknown as number,
+                        y: 0,
+                        width: 100,
+                        height: 50,
+                    },
+                }),
+            ],
+            100,
+            100,
+            'url(https://example.com/track)',
+        );
+        const doc = parse(svg);
+        const rect = doc.getElementById('room-001');
+
+        expect(doc.querySelector('parsererror')).toBeNull();
+        expect(doc.querySelector('script')).toBeNull();
+        expect(rect?.getAttribute('x')).toBe('0');
+        expect(rect?.hasAttribute('onload')).toBe(false);
+        expect(svg).not.toContain('example.com');
+    });
+
     it('carries rotation through as a transform on the wrapper', () => {
         const svg = buildSvg(
             [
