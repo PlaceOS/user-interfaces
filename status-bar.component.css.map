@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["status-bar.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                align-items: center;\n                height: 3.5rem;\n                overflow: hidden;\n            }\n\n            /* Phones put recording controls and volume on separate rows */\n            @media (width < 40rem), (height < 30rem) {\n                :host {\n                    flex-wrap: wrap;\n                    height: auto;\n                    min-height: 3.5rem;\n                }\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,eAAA;AACA,UAAA;AACA,YAAA;AACJ;AAGA,OAAA,gBAAA,QAAA,iBAAA;AACI;AACI,eAAA;AACA,YAAA;AACA,gBAAA;AACJ;AACJ;",
+  "names": []
+}

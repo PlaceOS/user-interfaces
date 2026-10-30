@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["output-display.component.ts"],
+  "sourcesContent": ["\n            [view] {\n                width: 28vw;\n            }\n\n            /* Phones show one display per row */\n            @media (width < 40rem), (height < 30rem) {\n                [view] {\n                    width: 100%;\n                }\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,SAAA;AACJ;AAGA,OAAA,gBAAA,QAAA,iBAAA;AACI,GAAA;AACI,WAAA;AACJ;AACJ;",
+  "names": []
+}

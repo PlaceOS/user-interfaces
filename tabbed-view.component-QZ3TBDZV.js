@@ -1,0 +1,4104 @@
+import {
+  ICON_MAP,
+  NextMeetingComponent
+} from "./chunk-GVAO7HJL.js";
+import {
+  VideoCallPageComponent
+} from "./chunk-ZW6HOH62.js";
+import {
+  AuthenticatedImageDirective,
+  BindingDirective,
+  ControlConnectingComponent,
+  ControlStateService,
+  ControlStatusBarComponent,
+  DialpadComponent,
+  JoystickComponent,
+  JoystickPan,
+  JoystickTilt,
+  MobileLayoutService,
+  SplashComponent,
+  TopbarHeaderComponent,
+  VideoCallStateService,
+  ZoomDirection,
+  errorText,
+  marked,
+  moveCamera,
+  parse,
+  selectCamera,
+  zoomCamera
+} from "./chunk-H6WWLBOA.js";
+import {
+  MatProgressSpinner,
+  MatProgressSpinnerModule,
+  MatSelect,
+  MatSelectModule,
+  toSignal
+} from "./chunk-5A2XHOBX.js";
+import {
+  MatFormField,
+  MatFormFieldModule,
+  MatInput,
+  MatInputModule
+} from "./chunk-ULSUD3A6.js";
+import "./chunk-MCJJZCLS.js";
+import "./chunk-57V645BE.js";
+import {
+  MatOption
+} from "./chunk-7HBRZNWQ.js";
+import "./chunk-VQJLU6YC.js";
+import "./chunk-PALHNKDN.js";
+import "./chunk-BDIFYFS3.js";
+import {
+  TranslatePipe
+} from "./chunk-ESQLNESW.js";
+import {
+  OrganisationService,
+  SettingsService,
+  currentUser
+} from "./chunk-2WZZQNFL.js";
+import {
+  DefaultValueAccessor,
+  FormsModule,
+  NgControlStatus,
+  NgModel
+} from "./chunk-LRCUCP3C.js";
+import {
+  AsyncHandler,
+  J,
+  Jp,
+  et,
+  i18n,
+  log,
+  notifyError,
+  randomInt,
+  randomString
+} from "./chunk-ZH3B4WRR.js";
+import {
+  IconComponent
+} from "./chunk-OV3B4QBR.js";
+import "./chunk-SWZP2EMK.js";
+import "./chunk-GYWX62RH.js";
+import {
+  MatRipple,
+  MatRippleModule
+} from "./chunk-QAH3OTXG.js";
+import "./chunk-XF2YXE4S.js";
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink,
+  RouterModule
+} from "./chunk-H574HJHJ.js";
+import {
+  Component,
+  DestroyRef,
+  Injectable,
+  Input,
+  NgTemplateOutlet,
+  Pipe,
+  ViewChildren,
+  computed,
+  effect,
+  inject,
+  input,
+  map,
+  setClassMetadata,
+  signal,
+  untracked,
+  viewChildren,
+  ɵsetClassDebugInfo,
+  ɵɵInheritDefinitionFeature,
+  ɵɵadvance,
+  ɵɵattribute,
+  ɵɵclassProp,
+  ɵɵconditional,
+  ɵɵconditionalCreate,
+  ɵɵcontrol,
+  ɵɵcontrolCreate,
+  ɵɵdeclareLet,
+  ɵɵdefineComponent,
+  ɵɵdefineInjectable,
+  ɵɵdefinePipe,
+  ɵɵelement,
+  ɵɵelementContainer,
+  ɵɵelementContainerEnd,
+  ɵɵelementContainerStart,
+  ɵɵelementEnd,
+  ɵɵelementStart,
+  ɵɵgetCurrentView,
+  ɵɵlistener,
+  ɵɵnextContext,
+  ɵɵpipe,
+  ɵɵpipeBind1,
+  ɵɵpipeBind2,
+  ɵɵproperty,
+  ɵɵpureFunction1,
+  ɵɵpureFunction2,
+  ɵɵqueryAdvance,
+  ɵɵreadContextLet,
+  ɵɵreference,
+  ɵɵrepeater,
+  ɵɵrepeaterCreate,
+  ɵɵrepeaterTrackByIdentity,
+  ɵɵrepeaterTrackByIndex,
+  ɵɵresetView,
+  ɵɵrestoreView,
+  ɵɵsanitizeHtml,
+  ɵɵsanitizeUrl,
+  ɵɵstoreLet,
+  ɵɵtemplate,
+  ɵɵtemplateRefExtractor,
+  ɵɵtext,
+  ɵɵtextInterpolate,
+  ɵɵtextInterpolate1,
+  ɵɵtwoWayBindingSet,
+  ɵɵtwoWayListener,
+  ɵɵtwoWayProperty,
+  ɵɵviewQuerySignal
+} from "./chunk-QU3LMPFF.js";
+import {
+  __spreadProps,
+  __spreadValues
+} from "./chunk-653SOEEV.js";
+
+// libs/components/src/lib/chat/chat.service.ts
+var _ChatService = class _ChatService extends AsyncHandler {
+  get connected() {
+    return !!this._socket;
+  }
+  constructor() {
+    super();
+    this._org = inject(OrganisationService);
+    this._settings = inject(SettingsService);
+    this._binding = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_binding" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._chat_messages = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "_chat_messages" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._progress_message = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_progress_message" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._chat_system = computed(
+      () => {
+        const bld = this._org.active_building();
+        const bind_id = this._binding();
+        if (!(bld == null ? void 0 : bld.id))
+          return "";
+        const binding = this._org.binding("chat_room");
+        const system_id = binding instanceof Object ? binding.id : binding;
+        return bind_id || system_id;
+      },
+      ...ngDevMode ? [{ debugName: "_chat_system" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._chat_id = "";
+    this.chat_hint = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "chat_hint" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.messages = this._chat_messages.asReadonly();
+    this.progress = this._progress_message.asReadonly();
+    effect(() => {
+      const id = this._chat_system();
+      if (id)
+        this._bindHint(id);
+    });
+  }
+  setBinding(system_id) {
+    this._binding.set(system_id);
+  }
+  startChat() {
+    if (this._socket)
+      return;
+    const id = this._chat_system();
+    if (!id)
+      return;
+    const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${et()}`;
+    const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
+    log("CHAT", "Starting chat connection.");
+    const socket = new WebSocket(url);
+    this._socket = socket;
+    socket.onmessage = (event) => {
+      let msg = event.data;
+      try {
+        msg = JSON.parse(event.data);
+      } catch {
+      }
+      this._onMessage(msg);
+    };
+    socket.onerror = (e) => {
+      log("CHAT", "Connection error:", [e], "error");
+      this._cleanup(socket);
+    };
+    socket.onclose = () => this._cleanup(socket);
+    return () => this.endChat();
+  }
+  endChat() {
+    var _a;
+    log("CHAT", "Dropping chat connection.");
+    (_a = this._socket) == null ? void 0 : _a.close();
+    this._cleanup();
+  }
+  close() {
+    this.endChat();
+    this._chat_id = "";
+    this._chat_messages.set([]);
+  }
+  sendMessage(message) {
+    if (!message)
+      return;
+    this._onMessage({ chat_id: "", message, user_id: currentUser().id });
+    const socket = this._socket;
+    if ((socket == null ? void 0 : socket.readyState) === WebSocket.CONNECTING) {
+      socket.addEventListener("open", () => socket.send(message), {
+        once: true
+      });
+    } else
+      socket == null ? void 0 : socket.send(message);
+  }
+  _timeoutSocket(delay = 55 * 1e3) {
+    this.timeout("socket", () => {
+      const msg_list = this._chat_messages();
+      if (msg_list.length > 0 && msg_list[msg_list.length - 1].user_id !== "assistant") {
+        return this._timeoutSocket(delay);
+      }
+      this.endChat();
+    }, delay);
+  }
+  /** Forget the socket. With a socket given, only if it is still the current one. */
+  _cleanup(socket) {
+    if (socket && socket !== this._socket)
+      return;
+    this._socket = null;
+  }
+  _onMessage(msg) {
+    if (msg.chat_id)
+      this._chat_id = msg.chat_id;
+    if (msg.type === "progress") {
+      this._progress_message.set({
+        id: `msg-${randomString(6)}`,
+        chat_id: msg.chat_id,
+        message: msg.message,
+        content: parse(msg.message, { async: false }),
+        user_id: msg.user_id || "assistant",
+        function: msg.function,
+        timestamp: Date.now()
+      });
+      if (msg.function === "task_complete") {
+        this._settings.post("CHAT:task_complete", msg.task_id);
+      }
+    } else {
+      this._chat_messages.set([
+        ...this._chat_messages(),
+        {
+          id: `msg-${randomString(6)}`,
+          chat_id: msg.chat_id,
+          message: msg.message,
+          content: parse(msg.message, { async: false }),
+          user_id: msg.user_id || "assistant",
+          timestamp: Date.now()
+        }
+      ]);
+      if (msg.type === "response") {
+        this._progress_message.set(null);
+      }
+    }
+    this._timeoutSocket();
+  }
+  _bindHint(id) {
+    const mod = Jp(id, "LLM");
+    const binding = mod.variable("user_hint");
+    this.subscription(`binding:LLM:user_hint`, binding.bind());
+    this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
+  }
+};
+_ChatService.\u0275fac = function ChatService_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ChatService)();
+};
+_ChatService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ChatService, factory: _ChatService.\u0275fac, providedIn: "root" });
+var ChatService = _ChatService;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ChatService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
+// apps/control/src/app/ui/mic-levels.ts
+var MIC_LEVEL_BARS = 5;
+var MIN_FREQUENCY = 100;
+var MAX_FREQUENCY = 3e3;
+var MicLevels = class {
+  constructor() {
+    this._ready = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_ready" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.ready = this._ready.asReadonly();
+    this._bytes = new Uint8Array(0);
+    this._levels = new Float32Array(MIC_LEVEL_BARS);
+    this._bands = [];
+    this._stop_watching = () => {
+    };
+  }
+  open(context, stream) {
+    this.close();
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 512;
+    analyser.smoothingTimeConstant = 0.6;
+    analyser.minDecibels = -90;
+    analyser.maxDecibels = -30;
+    const source = context.createMediaStreamSource(stream);
+    source.connect(analyser);
+    this._source = source;
+    this._analyser = analyser;
+    this._bytes = new Uint8Array(analyser.frequencyBinCount);
+    this._bands = speechBands(context.sampleRate / analyser.fftSize, analyser.frequencyBinCount);
+    const update = () => this._ready.set(context.state === "running");
+    context.addEventListener("statechange", update);
+    this._stop_watching = () => context.removeEventListener("statechange", update);
+    update();
+  }
+  close() {
+    var _a;
+    this._stop_watching();
+    (_a = this._source) == null ? void 0 : _a.disconnect();
+    this._source = void 0;
+    this._analyser = void 0;
+    this._ready.set(false);
+  }
+  /** Returns one level from 0 to 1 per bar. The array is reused between calls. */
+  read() {
+    if (!this._analyser)
+      return this._levels.fill(0);
+    this._analyser.getByteFrequencyData(this._bytes);
+    for (let bar = 0; bar < MIC_LEVEL_BARS; bar++) {
+      const [start, end] = this._bands[bar];
+      let sum = 0;
+      for (let i = start; i < end; i++)
+        sum += this._bytes[i];
+      this._levels[bar] = sum / (end - start) / 255;
+    }
+    return this._levels;
+  }
+};
+function speechBands(bin_width, bin_count) {
+  const ratio = MAX_FREQUENCY / MIN_FREQUENCY;
+  const bands = [];
+  let start = Math.max(1, Math.round(MIN_FREQUENCY / bin_width));
+  for (let bar = 1; bar <= MIC_LEVEL_BARS; bar++) {
+    const frequency = MIN_FREQUENCY * ratio ** (bar / MIC_LEVEL_BARS);
+    const end = Math.min(bin_count, Math.max(start + 1, Math.round(frequency / bin_width)));
+    bands.push([start, end]);
+    start = end;
+  }
+  return bands;
+}
+
+// apps/control/src/app/ui/speech/voice-activity.ts
+var SPEECH_SAMPLE_RATE = 16e3;
+var FRAME_SAMPLES = 480;
+var START_FRAMES = 3;
+var END_FRAMES = 30;
+var MIN_SPEECH_FRAMES = 8;
+var MAX_FRAMES = 334;
+var PRE_ROLL_FRAMES = 15;
+var PROGRESS_FRAMES = 34;
+var TAIL_FRAMES = 10;
+var MIN_LEVEL = 4e-3;
+var NOISE_RATIO = 2.5;
+var VoiceActivityDetector = class {
+  constructor(_events) {
+    this._events = _events;
+    this._frame = new Float32Array(FRAME_SAMPLES);
+    this._frame_length = 0;
+    this._noise = MIN_LEVEL / NOISE_RATIO;
+    this._pre_roll = [];
+    this._phrase = [];
+    this._speaking = false;
+    this._loud_run = 0;
+    this._quiet_run = 0;
+    this._loud_frames = 0;
+    this._sent_frames = 0;
+  }
+  push(samples) {
+    let offset = 0;
+    while (offset < samples.length) {
+      const count = Math.min(samples.length - offset, FRAME_SAMPLES - this._frame_length);
+      this._frame.set(samples.subarray(offset, offset + count), this._frame_length);
+      this._frame_length += count;
+      offset += count;
+      if (this._frame_length === FRAME_SAMPLES) {
+        this._process(this._frame.slice());
+        this._frame_length = 0;
+      }
+    }
+  }
+  /** Drops any partial phrase. Use while our own voice plays. */
+  reset() {
+    if (this._speaking)
+      this._events.end();
+    this._clear();
+  }
+  _clear() {
+    this._frame_length = 0;
+    this._pre_roll = [];
+    this._phrase = [];
+    this._speaking = false;
+    this._loud_run = 0;
+    this._quiet_run = 0;
+    this._loud_frames = 0;
+    this._sent_frames = 0;
+  }
+  _process(frame) {
+    var _a, _b;
+    let sum = 0;
+    for (const sample of frame)
+      sum += sample * sample;
+    const level = Math.sqrt(sum / frame.length);
+    const is_loud = level > Math.max(MIN_LEVEL, this._noise * NOISE_RATIO);
+    this._loud_run = is_loud ? this._loud_run + 1 : 0;
+    this._quiet_run = is_loud ? 0 : this._quiet_run + 1;
+    if (!this._speaking) {
+      const rate = level < this._noise ? 0.1 : 5e-3;
+      this._noise += (level - this._noise) * rate;
+      this._pre_roll.push(frame);
+      if (this._pre_roll.length > PRE_ROLL_FRAMES)
+        this._pre_roll.shift();
+      if (this._loud_run < START_FRAMES)
+        return;
+      this._speaking = true;
+      this._phrase = this._pre_roll;
+      this._pre_roll = [];
+      this._loud_frames = this._loud_run;
+      this._events.start();
+      return;
+    }
+    this._phrase.push(frame);
+    if (is_loud)
+      this._loud_frames++;
+    if (this._phrase.length - this._sent_frames >= PROGRESS_FRAMES) {
+      const frames = this._phrase.slice(this._sent_frames);
+      this._sent_frames = this._phrase.length;
+      (_b = (_a = this._events).progress) == null ? void 0 : _b.call(_a, joinFrames(frames));
+    }
+    if (this._quiet_run >= END_FRAMES || this._phrase.length >= MAX_FRAMES) {
+      this._endPhrase();
+    }
+  }
+  _endPhrase() {
+    const frames = this._phrase;
+    const is_speech = this._loud_frames >= MIN_SPEECH_FRAMES;
+    const tail = Math.max(0, this._quiet_run - TAIL_FRAMES);
+    this._clear();
+    if (!is_speech)
+      return this._events.end();
+    this._events.end(joinFrames(frames.slice(0, frames.length - tail)));
+  }
+};
+function joinFrames(frames) {
+  const audio = new Float32Array(frames.length * FRAME_SAMPLES);
+  frames.forEach((frame, i) => audio.set(frame, i * FRAME_SAMPLES));
+  return audio;
+}
+var Downsampler = class {
+  constructor(input_rate, output_rate) {
+    this._position = 0;
+    this._sum = 0;
+    this._count = 0;
+    this._ratio = input_rate / output_rate;
+  }
+  process(input2) {
+    const output = new Float32Array(Math.ceil(input2.length / this._ratio) + 1);
+    let length = 0;
+    for (const sample of input2) {
+      this._sum += sample;
+      this._count++;
+      this._position++;
+      if (this._position < this._ratio)
+        continue;
+      output[length++] = this._sum / this._count;
+      this._position -= this._ratio;
+      this._sum = 0;
+      this._count = 0;
+    }
+    return output.subarray(0, length);
+  }
+};
+
+// apps/control/src/app/ui/speech/mic-capture.ts
+var WORKLET_SOURCE = `
+registerProcessor('mic-capture', class extends AudioWorkletProcessor {
+    buffer = new Float32Array(2048);
+    length = 0;
+    process([input]) {
+        const channel = input && input[0];
+        if (!channel) return true;
+        for (let i = 0; i < channel.length; i++) {
+            this.buffer[this.length++] = channel[i];
+            if (this.length < this.buffer.length) continue;
+            this.port.postMessage(this.buffer, [this.buffer.buffer]);
+            this.buffer = new Float32Array(2048);
+            this.length = 0;
+        }
+        return true;
+    }
+});`;
+var INTERACTION_EVENTS = ["pointerdown", "keydown"];
+var _MicCapture = class _MicCapture {
+  constructor() {
+    this._start_id = 0;
+    this.resume = () => {
+      var _a;
+      if (((_a = this._context) == null ? void 0 : _a.state) === "suspended")
+        void this._context.resume();
+    };
+  }
+  /** The open microphone stream, or undefined when stopped */
+  get stream() {
+    return this._stream;
+  }
+  /** Audio context of the open microphone. Also used to play speech. */
+  get context() {
+    return this._context;
+  }
+  /**
+   * Opens the microphone. Throws if the user or browser blocks it.
+   * `is_muted` returns true while audio must be ignored, such as while our own voice plays.
+   */
+  async start(events, is_muted) {
+    const id = ++this._start_id;
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    });
+    if (id !== this._start_id) {
+      stream.getTracks().forEach((track) => track.stop());
+      return;
+    }
+    const context = new AudioContext();
+    this._stream = stream;
+    this._context = context;
+    const url = URL.createObjectURL(new Blob([WORKLET_SOURCE], { type: "text/javascript" }));
+    try {
+      await context.audioWorklet.addModule(url);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+    if (id !== this._start_id)
+      return;
+    const node = new AudioWorkletNode(context, "mic-capture", {
+      numberOfOutputs: 0
+    });
+    const detector = new VoiceActivityDetector(events);
+    const downsampler = new Downsampler(context.sampleRate, SPEECH_SAMPLE_RATE);
+    node.port.onmessage = ({ data }) => {
+      if (is_muted())
+        return detector.reset();
+      detector.push(downsampler.process(data));
+    };
+    context.createMediaStreamSource(stream).connect(node);
+    this._node = node;
+    this.resume();
+    for (const name of INTERACTION_EVENTS) {
+      document.addEventListener(name, this.resume, { passive: true });
+    }
+  }
+  stop() {
+    var _a, _b, _c;
+    this._start_id++;
+    for (const name of INTERACTION_EVENTS) {
+      document.removeEventListener(name, this.resume);
+    }
+    if (this._node)
+      this._node.port.onmessage = null;
+    (_a = this._stream) == null ? void 0 : _a.getTracks().forEach((track) => track.stop());
+    if (((_b = this._context) == null ? void 0 : _b.state) !== "closed")
+      void ((_c = this._context) == null ? void 0 : _c.close());
+    this._stream = void 0;
+    this._context = void 0;
+    this._node = void 0;
+  }
+};
+_MicCapture.\u0275fac = function MicCapture_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _MicCapture)();
+};
+_MicCapture.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MicCapture, factory: _MicCapture.\u0275fac, providedIn: "root" });
+var MicCapture = _MicCapture;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MicCapture, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], null, null);
+})();
+
+// apps/control/src/app/ui/speech/speech-engine.ts
+var _SpeechEngine = class _SpeechEngine {
+  constructor() {
+    this._next_id = 0;
+    this._pending = /* @__PURE__ */ new Map();
+  }
+  /**
+   * Starts the worker and loads the models. Later calls do nothing,
+   * unless the worker failed. Then a call starts a new worker.
+   */
+  start(setup, events) {
+    if (this._worker)
+      return;
+    this._events = events;
+    this._worker = new Worker(new URL("worker-N5UIU6JO.js", import.meta.url), {
+      type: "module"
+    });
+    this._worker.onmessage = ({ data }) => this._handle(data);
+    this._worker.onerror = (event) => this._fail(event.message || "Speech worker failed");
+    this._send({ type: "setup", setup });
+  }
+  /** Converts a full phrase of 16 kHz mono audio into text */
+  transcribe(audio) {
+    return this._request((id) => ({ type: "transcribe", id, audio }), [audio.buffer]);
+  }
+  /**
+   * Adds about one second of audio to a live transcription and returns the text so far.
+   * Use `reset` for the first audio of a phrase. `transcribe` ends the live transcription.
+   */
+  stream(audio, reset) {
+    return this._request((id) => ({ type: "stream", id, audio, reset }), [audio.buffer]);
+  }
+  /**
+   * Converts text into speech. Calls `on_audio` once per sentence.
+   * Resolves when all audio is sent, or when `signal` aborts.
+   */
+  async synthesize(text, on_audio, signal2) {
+    if (signal2 == null ? void 0 : signal2.aborted)
+      return;
+    await this._request((id) => ({ type: "synthesize", id, text }), [], on_audio, signal2);
+  }
+  /** Resolves with the transcript, or an empty string for speech requests */
+  _request(message, transfer, on_audio, signal2) {
+    const id = this._next_id++;
+    return new Promise((resolve, reject) => {
+      this._send(message(id), transfer);
+      const on_abort = () => {
+        this._send({ type: "cancel", id });
+        this._pending.delete(id);
+        resolve("");
+      };
+      signal2 == null ? void 0 : signal2.addEventListener("abort", on_abort, { once: true });
+      this._pending.set(id, {
+        resolve: (value) => {
+          signal2 == null ? void 0 : signal2.removeEventListener("abort", on_abort);
+          resolve(value);
+        },
+        reject: (error) => {
+          signal2 == null ? void 0 : signal2.removeEventListener("abort", on_abort);
+          reject(error);
+        },
+        on_audio
+      });
+    });
+  }
+  _send(message, transfer = []) {
+    if (!this._worker)
+      throw new Error("Speech engine is not started");
+    this._worker.postMessage(message, transfer);
+  }
+  /** Stops the worker, fails all requests and reports both models as failed */
+  _fail(message) {
+    var _a, _b, _c;
+    (_a = this._worker) == null ? void 0 : _a.terminate();
+    this._worker = void 0;
+    const pending = [...this._pending.values()];
+    this._pending.clear();
+    for (const request of pending)
+      request.reject(new Error(message));
+    (_b = this._events) == null ? void 0 : _b.failed("speech_to_text", message);
+    (_c = this._events) == null ? void 0 : _c.failed("text_to_speech", message);
+  }
+  _handle(message) {
+    var _a, _b, _c;
+    switch (message.type) {
+      case "ready":
+        return (_a = this._events) == null ? void 0 : _a.ready(message.model);
+      case "failed":
+        return (_b = this._events) == null ? void 0 : _b.failed(message.model, message.message);
+    }
+    const pending = this._pending.get(message.id);
+    if (!pending)
+      return;
+    switch (message.type) {
+      case "audio":
+        return (_c = pending.on_audio) == null ? void 0 : _c.call(pending, message.samples, message.sample_rate);
+      case "transcript":
+        this._pending.delete(message.id);
+        return pending.resolve(message.text);
+      case "done":
+        this._pending.delete(message.id);
+        return pending.resolve("");
+      case "error":
+        this._pending.delete(message.id);
+        return pending.reject(new Error(message.message));
+    }
+  }
+};
+_SpeechEngine.\u0275fac = function SpeechEngine_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _SpeechEngine)();
+};
+_SpeechEngine.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _SpeechEngine, factory: _SpeechEngine.\u0275fac, providedIn: "root" });
+var SpeechEngine = _SpeechEngine;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SpeechEngine, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], null, null);
+})();
+
+// apps/control/src/app/ui/speech/speech-player.ts
+var START_DELAY = 0.05;
+var CHIME_NOTES = [660, 880];
+var CHIME_NOTE_LENGTH = 0.09;
+var CHIME_VOLUME = 0.2;
+var _SpeechPlayer = class _SpeechPlayer {
+  constructor() {
+    this._capture = inject(MicCapture);
+    this._sources = /* @__PURE__ */ new Set();
+    this._end_time = 0;
+    this._busy_until = 0;
+  }
+  /** Time in milliseconds (as `Date.now()`) when the queued audio ends */
+  get busy_until() {
+    return this._busy_until;
+  }
+  play(samples, sample_rate) {
+    const context = this._capture.context;
+    if (!context)
+      return;
+    if (context !== this._context)
+      this._end_time = 0;
+    this._context = context;
+    const buffer = context.createBuffer(1, samples.length, sample_rate);
+    buffer.copyToChannel(samples, 0);
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.onended = () => this._sources.delete(source);
+    const start = Math.max(this._end_time, context.currentTime + START_DELAY);
+    source.start(start);
+    this._sources.add(source);
+    this._end_time = start + buffer.duration;
+    this._busy_until = Date.now() + (this._end_time - context.currentTime) * 1e3;
+  }
+  /**
+   * Plays two short rising tones to show that the assistant is listening.
+   * The microphone stays open, so the speaker can start at once.
+   * Echo cancellation removes the tones from the microphone input.
+   */
+  chime() {
+    const context = this._capture.context;
+    if (!context)
+      return;
+    const start = context.currentTime + START_DELAY;
+    CHIME_NOTES.forEach((frequency, i) => {
+      const time = start + i * CHIME_NOTE_LENGTH;
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(CHIME_VOLUME, time + 0.01);
+      gain.gain.exponentialRampToValueAtTime(1e-3, time + CHIME_NOTE_LENGTH * 1.5);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(time);
+      oscillator.stop(time + CHIME_NOTE_LENGTH * 1.5);
+    });
+  }
+  /** Stops all queued audio */
+  stop() {
+    for (const source of this._sources) {
+      source.onended = null;
+      source.stop();
+    }
+    this._sources.clear();
+    this._end_time = 0;
+    this._busy_until = Math.min(this._busy_until, Date.now());
+  }
+};
+_SpeechPlayer.\u0275fac = function SpeechPlayer_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _SpeechPlayer)();
+};
+_SpeechPlayer.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _SpeechPlayer, factory: _SpeechPlayer.\u0275fac, providedIn: "root" });
+var SpeechPlayer = _SpeechPlayer;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SpeechPlayer, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], null, null);
+})();
+
+// apps/control/src/app/ui/voice-assistant.service.ts
+var WAITING_PHRASES = ["One second...", "One moment...", "Working on it..."];
+var WAKE_KEYWORD = "Hey Room";
+var WAKE_PHRASES = [
+  "heyroom",
+  "hayroom",
+  "heyrooms",
+  "heyrum",
+  "heyrome",
+  "hiroom"
+];
+var MAX_WAKE_WORDS = 2;
+var LISTEN_TIMEOUT = 8 * 1e3;
+var NOT_HEARD_MESSAGE = "Sorry, I didn't catch that.";
+var RESPONSE_TIMEOUT = 60 * 1e3;
+var ECHO_DELAY = 1e3;
+var MAX_CONNECT_ATTEMPTS = 20;
+function htmlToText(html) {
+  var _a;
+  if (!html)
+    return "";
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return ((_a = doc.body.textContent) == null ? void 0 : _a.trim()) || "";
+}
+function normalizeTranscript(text) {
+  return text.toLowerCase().replace(/[^\p{L}\p{N}'%\s]/gu, " ").replace(/\s+/g, " ").trim();
+}
+function parseWakePhrase(transcript) {
+  const words = normalizeTranscript(transcript).split(" ");
+  for (let count = Math.min(MAX_WAKE_WORDS, words.length); count > 0; count--) {
+    if (WAKE_PHRASES.includes(words.slice(0, count).join(""))) {
+      return words.slice(count).join(" ");
+    }
+  }
+  return void 0;
+}
+var _VoiceAssistantService = class _VoiceAssistantService extends AsyncHandler {
+  constructor() {
+    super();
+    this._chat_service = inject(ChatService);
+    this._settings = inject(SettingsService);
+    this._system_id = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_system_id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._state = signal(
+      "idle",
+      ...ngDevMode ? [{ debugName: "_state" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._current_text = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_current_text" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._enabled = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_enabled" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._error = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "_error" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.current_text = this._current_text.asReadonly();
+    this.enabled = this._enabled.asReadonly();
+    this.error = this._error.asReadonly();
+    this.state = this._state.asReadonly();
+    this.progress = this._chat_service.progress;
+    this._hearing = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_hearing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._transcribing = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "_transcribing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._live_text = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_live_text" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.hearing = this._hearing.asReadonly();
+    this.live_text = this._live_text.asReadonly();
+    this.transcribing = computed(
+      () => this._transcribing() > 0,
+      ...ngDevMode ? [{ debugName: "transcribing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._ready = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_ready" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.ready = this._ready.asReadonly();
+    this._mic_levels = new MicLevels();
+    this.levels_ready = this._mic_levels.ready;
+    this._engine = inject(SpeechEngine);
+    this._capture = inject(MicCapture);
+    this._player = inject(SpeechPlayer);
+    this._voice_on = false;
+    this._session = 0;
+    this._last_message_id = "";
+    this._phrase_id = 0;
+    this._streamed_phrase_id = -1;
+    let bound_id = "";
+    effect(() => {
+      const id = this._system_id();
+      if (!id || id === bound_id)
+        return;
+      if (bound_id) {
+        untracked(() => this._setIdle());
+        this._chat_service.close();
+      }
+      bound_id = id;
+      this._chat_service.setBinding(id);
+    });
+    effect(() => {
+      var _a;
+      const user_id = (_a = currentUser()) == null ? void 0 : _a.id;
+      const list = this._chat_service.messages();
+      const msg_list = list.filter((_) => _.user_id !== user_id);
+      const last_message = msg_list[msg_list.length - 1];
+      if (!last_message || this._last_message_id === last_message.id) {
+        return;
+      }
+      this._last_message_id = last_message.id;
+      this._speakText(htmlToText(last_message.content) || last_message.message);
+      this._setIdle();
+    });
+    effect(() => {
+      const enabled = this._enabled();
+      if (enabled)
+        untracked(() => void this._startVoice());
+      else
+        untracked(() => this._stopVoice());
+    });
+    effect(() => {
+      const { context, stream } = this._capture;
+      if (this._state() === "listening" && context && stream) {
+        this._mic_levels.open(context, stream);
+      } else
+        this._mic_levels.close();
+    });
+  }
+  destroy() {
+    this._stopVoice();
+    super.destroy();
+  }
+  /** Returns microphone levels from 0 to 1, one per bar. Read once per animation frame. */
+  readLevels() {
+    return this._mic_levels.read();
+  }
+  /** Turning on is debounced. Turning off is immediate, so nothing is heard after the view goes away. */
+  setEnabled(is_enabled) {
+    if (is_enabled) {
+      this.timeout("set_enabled", () => this._enabled.set(true));
+      return;
+    }
+    this.clearTimeout("set_enabled");
+    this._enabled.set(false);
+    this._stopVoice();
+  }
+  setBinding(system_id) {
+    this._system_id.set(system_id);
+  }
+  /** Toggles listening for a command without the wake phrase. Used by the mic button. */
+  activate() {
+    if (this._error().speech_recognition || !this._ready())
+      return;
+    this._capture.resume();
+    if (this._state() === "listening")
+      return this._setIdle();
+    this._stopSpeaking();
+    this._player.chime();
+    this._listen();
+  }
+  /** Waits for a command. `message` shows in place of "Listening...". */
+  _listen(message = "") {
+    this._state.set("listening");
+    this._current_text.set(message);
+    this.timeout("state", () => this._setIdle(), LISTEN_TIMEOUT);
+  }
+  _setIdle() {
+    this.clearTimeout("state");
+    this.clearTimeout("send");
+    this._state.set("idle");
+    this._current_text.set("");
+    this._live_text.set("");
+  }
+  _setError(model) {
+    this._error.update((error) => __spreadProps(__spreadValues({}, error), {
+      [model === "speech_to_text" ? "speech_recognition" : "speech_synthesis"]: true
+    }));
+  }
+  /** Returns true while our own voice can reach the microphone */
+  _isSpeaking() {
+    return Date.now() < this._player.busy_until + ECHO_DELAY;
+  }
+  async _startVoice() {
+    if (this._voice_on || this._error().speech_recognition)
+      return;
+    if (!window.Worker || !window.AudioWorkletNode) {
+      log("VOICE", "Voice control is unavailable.", void 0, "warn");
+      return this._setError("speech_to_text");
+    }
+    this._voice_on = true;
+    const session = this._session;
+    try {
+      await this._capture.start({
+        start: () => this._onSpeechStart(),
+        progress: (audio) => this._onSpeechProgress(audio),
+        end: (phrase) => this._onSpeechEnd(phrase)
+      }, () => this._isSpeaking());
+    } catch (error) {
+      if (session !== this._session)
+        return;
+      log("VOICE", "Unable to open the microphone:", error, "warn");
+      this._setError("speech_to_text");
+      return this._stopVoice();
+    }
+    if (session !== this._session)
+      return;
+    log("VOICE", "Listening for commands.");
+    const mirror = this._settings.get("app.voice_models_url");
+    this._engine.start({
+      wasm_url: new URL("assets/litert/", document.baseURI).href,
+      needle_url: new URL("assets/needle/needle.js", document.baseURI).href,
+      mirror_url: mirror ? new URL(mirror, document.baseURI).href : "",
+      cached_phrases: WAITING_PHRASES,
+      keywords: WAKE_KEYWORD
+    }, {
+      ready: (model) => {
+        log("VOICE", `Loaded ${model} model.`);
+        if (model === "speech_to_text")
+          this._ready.set(true);
+      },
+      failed: (model, message) => {
+        log("VOICE", `Unable to load ${model}:`, message, "warn");
+        this._setError(model);
+        if (model !== "speech_to_text")
+          return;
+        this._ready.set(false);
+        this._stopVoice();
+      }
+    });
+  }
+  _stopVoice() {
+    this._setIdle();
+    if (!this._voice_on)
+      return;
+    this._voice_on = false;
+    this._session++;
+    this._hearing.set(false);
+    this._stopSpeaking();
+    this._mic_levels.close();
+    this._capture.stop();
+    this._chat_service.endChat();
+  }
+  _onSpeechStart() {
+    if (!this._ready())
+      return;
+    this._hearing.set(true);
+    this._phrase_id++;
+    this._live_text.set("");
+    if (this._state() === "listening")
+      this._listen();
+  }
+  /** Shows the words of a command as they are spoken */
+  _onSpeechProgress(audio) {
+    if (!this._ready() || this._state() !== "listening")
+      return;
+    const phrase_id = this._phrase_id;
+    const reset = phrase_id !== this._streamed_phrase_id;
+    this._streamed_phrase_id = phrase_id;
+    this._engine.stream(audio, reset).then((text) => {
+      const is_current = phrase_id === this._phrase_id && this._state() === "listening";
+      if (is_current)
+        this._live_text.set(text);
+    }, (error) => log("VOICE", "Live transcription error:", error, "warn"));
+  }
+  _onSpeechEnd(phrase) {
+    this._hearing.set(false);
+    this._phrase_id++;
+    if (!phrase || !this._ready())
+      return this._live_text.set("");
+    const session = this._session;
+    if (this._state() === "listening")
+      this._listen();
+    this._transcribing.update((count) => count + 1);
+    this._engine.transcribe(phrase).then((text) => session === this._session && this._onTranscript(text), (error) => log("VOICE", "Speech recognition error:", error, "warn")).finally(() => this._transcribing.update((count) => count - 1));
+  }
+  _onTranscript(text) {
+    this._live_text.set("");
+    const heard = normalizeTranscript(text);
+    const is_listening = this._state() === "listening";
+    if (!heard && !is_listening)
+      return;
+    const wake_command = parseWakePhrase(heard);
+    const next = wake_command ?? (is_listening ? heard : void 0);
+    if (next === void 0)
+      return;
+    if (next.length > 3)
+      return this._sendCommand(next);
+    if (wake_command !== void 0) {
+      this._player.chime();
+      return this._listen();
+    }
+    this._listen(NOT_HEARD_MESSAGE);
+  }
+  _sendCommand(command, attempt = 0) {
+    this._state.set("processing");
+    this._current_text.set(command);
+    this._chat_service.startChat();
+    if (!this._chat_service.connected) {
+      if (attempt >= MAX_CONNECT_ATTEMPTS) {
+        log("VOICE", "Unable to connect to chat.", void 0, "warn");
+        this._speakText(`Sorry, I can't reach the assistant.`);
+        return this._setIdle();
+      }
+      return this.timeout("send", () => this._sendCommand(command, attempt + 1));
+    }
+    log("VOICE", `Command: ${command}`);
+    this._chat_service.sendMessage(`Hey PlaceOS, ${command}`);
+    this._speakText(WAITING_PHRASES[randomInt(WAITING_PHRASES.length)]);
+    this.timeout("state", () => {
+      this._speakText(`Sorry, I didn't get a response.`);
+      this._setIdle();
+    }, RESPONSE_TIMEOUT);
+  }
+  _stopSpeaking() {
+    var _a;
+    (_a = this._speech) == null ? void 0 : _a.abort();
+    this._speech = void 0;
+    this._player.stop();
+  }
+  _speakText(text) {
+    if (!text)
+      return;
+    if (!this._voice_on || this._error().speech_synthesis) {
+      log("VOICE", "Speech synthesis is unavailable.", void 0, "warn");
+      return;
+    }
+    log("VOICE", `Response: "${text}"`);
+    this._stopSpeaking();
+    const speech = new AbortController();
+    this._speech = speech;
+    this._engine.synthesize(text, (samples, sample_rate) => this._player.play(samples, sample_rate), speech.signal).catch((error) => log("VOICE", "Speech synthesis error:", error, "warn"));
+  }
+};
+_VoiceAssistantService.\u0275fac = function VoiceAssistantService_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _VoiceAssistantService)();
+};
+_VoiceAssistantService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _VoiceAssistantService, factory: _VoiceAssistantService.\u0275fac, providedIn: "root" });
+var VoiceAssistantService = _VoiceAssistantService;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(VoiceAssistantService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
+// apps/control/src/app/ui/voice-assistant.component.ts
+var _c0 = ["bar"];
+function VoiceAssistantComponent_Conditional_0_Conditional_1_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "span", 6, 0);
+  }
+}
+function VoiceAssistantComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 3);
+    \u0275\u0275repeaterCreate(1, VoiceAssistantComponent_Conditional_0_Conditional_1_For_2_Template, 2, 0, "span", 6, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.bars);
+  }
+}
+function VoiceAssistantComponent_Conditional_0_Conditional_2_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "span", 7);
+  }
+}
+function VoiceAssistantComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, VoiceAssistantComponent_Conditional_0_Conditional_2_Conditional_0_Template, 1, 0, "span", 7);
+    \u0275\u0275elementStart(1, "icon", 8);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275conditional(ctx_r1.state() === "listening" ? 0 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("animate-pulse", ctx_r1.state() === "processing" || !ctx_r1.ready());
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r1.icon());
+  }
+}
+function VoiceAssistantComponent_Conditional_0_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 5)(1, "icon", 9);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "p", 10);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const status_r3 = ctx;
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(status_r3.icon);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", status_r3.message, " ");
+  }
+}
+function VoiceAssistantComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 2);
+    \u0275\u0275conditionalCreate(1, VoiceAssistantComponent_Conditional_0_Conditional_1_Template, 3, 0, "div", 3)(2, VoiceAssistantComponent_Conditional_0_Conditional_2_Template, 3, 4);
+    \u0275\u0275elementStart(3, "button", 4);
+    \u0275\u0275listener("click", function VoiceAssistantComponent_Conditional_0_Template_button_click_3_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      ctx_r1.activate();
+      return \u0275\u0275resetView($event.stopPropagation());
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(4, VoiceAssistantComponent_Conditional_0_Conditional_4_Template, 5, 2, "div", 5);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_11_0;
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("bg-base-400", ctx_r1.state() === "idle")("ring-4", ctx_r1.hearing())("bg-success", ctx_r1.state() === "listening")("text-success-content", ctx_r1.state() === "listening")("bg-info", ctx_r1.state() === "processing")("text-info-content", ctx_r1.state() === "processing");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.show_bars() ? 1 : 2);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("disabled", !ctx_r1.ready());
+    \u0275\u0275attribute("aria-label", !ctx_r1.ready() ? "Voice control is loading" : ctx_r1.state() === "listening" ? "Stop listening" : "Give a voice command")("aria-pressed", ctx_r1.state() === "listening");
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_11_0 = ctx_r1.status()) ? 4 : -1, tmp_11_0);
+  }
+}
+var PROGRESS_ICONS = {
+  list_function_schemas: "help",
+  call_function: "settings",
+  task_complete: "check_circle"
+};
+var _VoiceAssistantComponent = class _VoiceAssistantComponent {
+  constructor() {
+    this._service = inject(VoiceAssistantService);
+    this.system_id = input(
+      void 0,
+      ...ngDevMode ? [{ debugName: "system_id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.enabled = input(
+      void 0,
+      ...ngDevMode ? [{ debugName: "enabled" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.activate = () => this._service.activate();
+    this.state = this._service.state;
+    this.hearing = this._service.hearing;
+    this.ready = this._service.ready;
+    this.icon = computed(
+      () => {
+        if (!this.ready())
+          return "hourglass_empty";
+        return this.state() === "processing" ? "graphic_eq" : "mic";
+      },
+      ...ngDevMode ? [{ debugName: "icon" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.bars = new Array(MIC_LEVEL_BARS);
+    this.show_bars = computed(
+      () => this.state() === "listening" && this._service.levels_ready(),
+      ...ngDevMode ? [{ debugName: "show_bars" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._bar_els = viewChildren(
+      "bar",
+      ...ngDevMode ? [{ debugName: "_bar_els" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.available = computed(
+      () => {
+        var _a;
+        return !((_a = this._service.error()) == null ? void 0 : _a.speech_recognition) && this._service.enabled();
+      },
+      ...ngDevMode ? [{ debugName: "available" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.status = computed(
+      () => {
+        const text = this._service.current_text();
+        switch (this.state()) {
+          case "listening": {
+            const live = this._service.live_text();
+            const busy = this._service.hearing() || this._service.transcribing();
+            if (live && busy) {
+              const words = live.replace(/[.,!?]+$/, "");
+              return { icon: "graphic_eq", message: `\u201C${words}\u2026\u201D` };
+            }
+            if (this._service.hearing()) {
+              return { icon: "graphic_eq", message: "Hearing you..." };
+            }
+            if (this._service.transcribing()) {
+              return { icon: "pending", message: "Processing..." };
+            }
+            return { icon: "hearing", message: text || "Listening..." };
+          }
+          case "processing": {
+            const progress = this._service.progress();
+            return {
+              icon: PROGRESS_ICONS[progress == null ? void 0 : progress.function] || "pending",
+              message: (progress == null ? void 0 : progress.message) || (text ? `\u201C${text}\u201D` : "Working on it...")
+            };
+          }
+          default:
+            return null;
+        }
+      },
+      ...ngDevMode ? [{ debugName: "status" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    effect(() => {
+      const system_id = this.system_id();
+      if (system_id)
+        this._service.setBinding(system_id);
+    });
+    effect(() => {
+      const enabled = this.enabled();
+      if (typeof enabled === "boolean")
+        this._service.setEnabled(enabled);
+    });
+    inject(DestroyRef).onDestroy(() => this._service.setEnabled(false));
+    effect((onCleanup) => {
+      const bar_els = this._bar_els();
+      if (!this.show_bars() || !bar_els.length)
+        return;
+      let frame = 0;
+      const draw = () => {
+        const levels = this._service.readLevels();
+        bar_els.forEach(({ nativeElement }, i) => {
+          const scale = 0.15 + Math.min(1, levels[i]) * 0.85;
+          nativeElement.style.transform = `scaleY(${scale})`;
+        });
+        frame = requestAnimationFrame(draw);
+      };
+      frame = requestAnimationFrame(draw);
+      onCleanup(() => cancelAnimationFrame(frame));
+    });
+  }
+};
+_VoiceAssistantComponent.\u0275fac = function VoiceAssistantComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _VoiceAssistantComponent)();
+};
+_VoiceAssistantComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VoiceAssistantComponent, selectors: [["voice-assistant"]], viewQuery: function VoiceAssistantComponent_Query(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275viewQuerySignal(ctx._bar_els, _c0, 5);
+  }
+  if (rf & 2) {
+    \u0275\u0275queryAdvance();
+  }
+}, inputs: { system_id: [1, "system_id"], enabled: [1, "enabled"] }, decls: 1, vars: 1, consts: [["bar", ""], [1, "ring-success", "relative", "m-4", "flex", "h-12", "w-12", "items-center", "justify-center", "overflow-visible", "rounded-full", "transition", 3, "bg-base-400", "ring-4", "bg-success", "text-success-content", "bg-info", "text-info-content"], [1, "ring-success", "relative", "m-4", "flex", "h-12", "w-12", "items-center", "justify-center", "overflow-visible", "rounded-full", "transition"], ["aria-hidden", "true", 1, "relative", "flex", "h-6", "items-center", "space-x-0.5"], ["matRipple", "", 1, "absolute", "inset-0", "rounded-full", "opacity-0", 3, "click", "disabled"], ["role", "status", "aria-live", "polite", 1, "bg-base-100", "text-base-content", "absolute", "top-1/2", "right-full", "mr-2", "flex", "w-max", "max-w-[30vw]", "-translate-y-1/2", "items-center", "space-x-2", "rounded-xl", "p-2", "shadow-sm"], [1, "block", "h-full", "w-1", "rounded-full", "bg-current", 2, "transform", "scaleY(0.15)"], [1, "bg-success", "absolute", "inline-flex", "h-10", "w-10", "animate-ping", "rounded-full", "opacity-75"], ["aria-hidden", "true", 1, "relative", "text-2xl"], ["aria-hidden", "true", 1, "text-2xl"], [1, "line-clamp-2", "pr-2", "text-sm"]], template: function VoiceAssistantComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, VoiceAssistantComponent_Conditional_0_Template, 5, 17, "div", 1);
+  }
+  if (rf & 2) {
+    \u0275\u0275conditional(ctx.available() ? 0 : -1);
+  }
+}, dependencies: [MatRippleModule, MatRipple, IconComponent], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  height: 100%;\n  align-items: center;\n  justify-content: center;\n}\n/*# sourceMappingURL=voice-assistant.component.css.map */"] });
+var VoiceAssistantComponent = _VoiceAssistantComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(VoiceAssistantComponent, [{
+    type: Component,
+    args: [{ selector: "voice-assistant", template: `
+        @if (available()) {
+            <div
+                class="ring-success relative m-4 flex h-12 w-12 items-center justify-center overflow-visible rounded-full transition"
+                [class.bg-base-400]="state() === 'idle'"
+                [class.ring-4]="hearing()"
+                [class.bg-success]="state() === 'listening'"
+                [class.text-success-content]="state() === 'listening'"
+                [class.bg-info]="state() === 'processing'"
+                [class.text-info-content]="state() === 'processing'"
+            >
+                @if (show_bars()) {
+                    <div
+                        class="relative flex h-6 items-center space-x-0.5"
+                        aria-hidden="true"
+                    >
+                        @for (bar of bars; track $index) {
+                            <span
+                                #bar
+                                class="block h-full w-1 rounded-full bg-current"
+                                style="transform: scaleY(0.15)"
+                            ></span>
+                        }
+                    </div>
+                } @else {
+                    @if (state() === 'listening') {
+                        <span
+                            class="bg-success absolute inline-flex h-10 w-10 animate-ping rounded-full opacity-75"
+                        ></span>
+                    }
+                    <icon
+                        aria-hidden="true"
+                        class="relative text-2xl"
+                        [class.animate-pulse]="
+                            state() === 'processing' || !ready()
+                        "
+                        >{{ icon() }}</icon
+                    >
+                }
+                <button
+                    matRipple
+                    class="absolute inset-0 rounded-full opacity-0"
+                    [disabled]="!ready()"
+                    [attr.aria-label]="
+                        !ready()
+                            ? 'Voice control is loading'
+                            : state() === 'listening'
+                              ? 'Stop listening'
+                              : 'Give a voice command'
+                    "
+                    [attr.aria-pressed]="state() === 'listening'"
+                    (click)="activate(); $event.stopPropagation()"
+                ></button>
+                @if (status(); as status) {
+                    <div
+                        class="bg-base-100 text-base-content absolute top-1/2 right-full mr-2 flex w-max max-w-[30vw] -translate-y-1/2 items-center space-x-2 rounded-xl p-2 shadow-sm"
+                        role="status"
+                        aria-live="polite"
+                    >
+                        <icon aria-hidden="true" class="text-2xl">{{
+                            status.icon
+                        }}</icon>
+                        <p class="line-clamp-2 pr-2 text-sm">
+                            {{ status.message }}
+                        </p>
+                    </div>
+                }
+            </div>
+        }
+    `, imports: [MatRippleModule, IconComponent], styles: ["/* angular:styles/component:css;ee508001b53c12264d0b6f907f32f3b86df7d1dd3b776b0c53e9fa9fe116349c;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/ui/voice-assistant.component.ts */\n:host {\n  display: flex;\n  height: 100%;\n  align-items: center;\n  justify-content: center;\n}\n/*# sourceMappingURL=voice-assistant.component.css.map */\n"] }]
+  }], () => [], { system_id: [{ type: Input, args: [{ isSignal: true, alias: "system_id", required: false }] }], enabled: [{ type: Input, args: [{ isSignal: true, alias: "enabled", required: false }] }], _bar_els: [{ type: ViewChildren, args: ["bar", { isSignal: true }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VoiceAssistantComponent, { className: "VoiceAssistantComponent", filePath: "apps/control/src/app/ui/voice-assistant.component.ts", lineNumber: 111 });
+})();
+
+// apps/control/src/app/ui/camera-controls.component.ts
+function CameraControlsComponent_Conditional_0_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 3);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const cam_r3 = ctx.$implicit;
+    \u0275\u0275property("value", cam_r3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", cam_r3.name, " ");
+  }
+}
+function CameraControlsComponent_Conditional_0_Conditional_24_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 13)(1, "p");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "APP.CONTROL.CAMERA_SELECT_MSG"), " ");
+  }
+}
+function CameraControlsComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 0)(1, "mat-form-field", 1)(2, "mat-select", 2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275listener("ngModelChange", function CameraControlsComponent_Conditional_0_Template_mat_select_ngModelChange_2_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.selectCamera($event));
+    });
+    \u0275\u0275repeaterCreate(4, CameraControlsComponent_Conditional_0_For_5_Template, 2, 2, "mat-option", 3, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 4)(7, "h3", 5);
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "div", 6)(11, "joystick", 7);
+    \u0275\u0275listener("panChange", function CameraControlsComponent_Conditional_0_Template_joystick_panChange_11_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      ctx_r1.pan.set($event);
+      return \u0275\u0275resetView(ctx_r1.moveCamera());
+    })("tiltChange", function CameraControlsComponent_Conditional_0_Template_joystick_tiltChange_11_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      ctx_r1.tilt.set($event);
+      return \u0275\u0275resetView(ctx_r1.moveCamera());
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "div", 8)(13, "button", 9);
+    \u0275\u0275pipe(14, "translate");
+    \u0275\u0275listener("pointerdown", function CameraControlsComponent_Conditional_0_Template_button_pointerdown_13_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.startZoom("in", $event));
+    })("pointerup", function CameraControlsComponent_Conditional_0_Template_button_pointerup_13_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("pointercancel", function CameraControlsComponent_Conditional_0_Template_button_pointercancel_13_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("lostpointercapture", function CameraControlsComponent_Conditional_0_Template_button_lostpointercapture_13_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("contextmenu", function CameraControlsComponent_Conditional_0_Template_button_contextmenu_13_listener($event) {
+      return $event.preventDefault();
+    });
+    \u0275\u0275elementStart(15, "icon", 10);
+    \u0275\u0275text(16, "add");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(17, "div", 11);
+    \u0275\u0275text(18);
+    \u0275\u0275pipe(19, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(20, "button", 12);
+    \u0275\u0275pipe(21, "translate");
+    \u0275\u0275listener("pointerdown", function CameraControlsComponent_Conditional_0_Template_button_pointerdown_20_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.startZoom("out", $event));
+    })("pointerup", function CameraControlsComponent_Conditional_0_Template_button_pointerup_20_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("pointercancel", function CameraControlsComponent_Conditional_0_Template_button_pointercancel_20_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("lostpointercapture", function CameraControlsComponent_Conditional_0_Template_button_lostpointercapture_20_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopZoom());
+    })("contextmenu", function CameraControlsComponent_Conditional_0_Template_button_contextmenu_20_listener($event) {
+      return $event.preventDefault();
+    });
+    \u0275\u0275elementStart(22, "icon", 10);
+    \u0275\u0275text(23, "remove");
+    \u0275\u0275elementEnd()()()();
+    \u0275\u0275conditionalCreate(24, CameraControlsComponent_Conditional_0_Conditional_24_Template, 4, 3, "div", 13);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.active_camera())("placeholder", \u0275\u0275pipeBind1(3, 9, "APP.CONTROL.CAMERA_SELECT"));
+    \u0275\u0275control();
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r1.camera_list());
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 11, "APP.CONTROL.CONTROLS"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275property("pan", ctx_r1.pan())("tilt", ctx_r1.tilt());
+    \u0275\u0275advance(2);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(14, 13, "APP.CONTROL.ZOOM_IN"));
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(19, 15, "APP.CONTROL.ZOOM"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(21, 17, "APP.CONTROL.ZOOM_OUT"));
+    \u0275\u0275advance(4);
+    \u0275\u0275conditional(!ctx_r1.active_camera() ? 24 : -1);
+  }
+}
+var _CameraControlsComponent = class _CameraControlsComponent {
+  get id() {
+    return this._state.id;
+  }
+  constructor() {
+    this._state = inject(ControlStateService);
+    this.active_camera = signal(
+      void 0,
+      ...ngDevMode ? [{ debugName: "active_camera" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.zoom = signal(
+      ZoomDirection.Stop,
+      ...ngDevMode ? [{ debugName: "zoom" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.pan = signal(
+      JoystickPan.Stop,
+      ...ngDevMode ? [{ debugName: "pan" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.tilt = signal(
+      JoystickTilt.Stop,
+      ...ngDevMode ? [{ debugName: "tilt" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.camera_list = this._state.camera_list;
+    this._selected_camera = this._state.selected_camera;
+    inject(DestroyRef).onDestroy(() => this.stopZoom());
+    effect(() => {
+      const list = this.camera_list();
+      const cam = this._selected_camera();
+      this.active_camera.set(list == null ? void 0 : list.find((_) => _.id === cam));
+    });
+  }
+  selectCamera(camera) {
+    this.active_camera.set(camera);
+    selectCamera(this.id, camera.id);
+  }
+  moveCamera() {
+    const cam = this.active_camera();
+    if (!cam)
+      return;
+    clearTimeout(this._move_timeout);
+    this._move_timeout = setTimeout(() => moveCamera(this.id, cam, this.pan(), this.tilt()), 50);
+  }
+  /** Start zooming. Pointer capture makes sure the button receives the release. */
+  async startZoom(dir, e) {
+    var _a, _b;
+    (_b = (_a = e.currentTarget) == null ? void 0 : _a.setPointerCapture) == null ? void 0 : _b.call(_a, e.pointerId);
+    const cam = this.active_camera();
+    if (!cam)
+      return;
+    this.zoom.set(dir === "in" ? ZoomDirection.In : ZoomDirection.Out);
+    await zoomCamera(this.id, cam, this.zoom()).catch(() => null);
+  }
+  stopZoom() {
+    clearTimeout(this._zoom_timeout);
+    this._zoom_timeout = setTimeout(() => {
+      if (this.zoom() === ZoomDirection.Stop)
+        return;
+      const cam = this.active_camera();
+      if (!cam)
+        return;
+      this.zoom.set(ZoomDirection.Stop);
+      zoomCamera(this.id, cam, ZoomDirection.Stop);
+    }, 50);
+  }
+};
+_CameraControlsComponent.\u0275fac = function CameraControlsComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _CameraControlsComponent)();
+};
+_CameraControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CameraControlsComponent, selectors: [["camera-controls"]], decls: 1, vars: 1, consts: [[1, "flex", "flex-col"], ["appearance", "outline", 1, "m-4", "h-12"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], [1, "relative", "p-4"], [1, "mb-2", "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], [3, "panChange", "tiltChange", "pan", "tilt"], ["zoom", "", 1, "border-base-200", "flex", "flex-col", "items-center", "rounded-sm", "border"], ["zoom-in", "", "icon", "", "matRipple", "", 1, "touch-none", "rounded-sm", "select-none", 3, "pointerdown", "pointerup", "pointercancel", "lostpointercapture", "contextmenu"], ["aria-hidden", "true"], [1, "border-base-200", "flex", "h-10", "w-10", "items-center", "justify-center", "border-t", "border-b", "text-xs"], ["zoom-out", "", "icon", "", "matRipple", "", 1, "touch-none", "rounded-sm", "select-none", 3, "pointerdown", "pointerup", "pointercancel", "lostpointercapture", "contextmenu"], ["no-camera", "", 1, "bg-base-100/75", "absolute", "inset-0", "flex", "items-center", "justify-center"]], template: function CameraControlsComponent_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, CameraControlsComponent_Conditional_0_Template, 25, 19, "div", 0);
+  }
+  if (rf & 2) {
+    \u0275\u0275conditional(((_a = ctx.camera_list()) == null ? void 0 : _a.length) ? 0 : -1);
+  }
+}, dependencies: [
+  IconComponent,
+  MatRippleModule,
+  MatRipple,
+  JoystickComponent,
+  MatFormFieldModule,
+  MatFormField,
+  MatSelectModule,
+  MatSelect,
+  MatOption,
+  FormsModule,
+  NgControlStatus,
+  NgModel,
+  TranslatePipe
+], encapsulation: 2 });
+var CameraControlsComponent = _CameraControlsComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CameraControlsComponent, [{
+    type: Component,
+    args: [{ selector: "camera-controls", template: `
+        @if (camera_list()?.length) {
+            <div class="flex flex-col">
+                <mat-form-field appearance="outline" class="m-4 h-12">
+                    <mat-select
+                        [ngModel]="active_camera()"
+                        (ngModelChange)="selectCamera($event)"
+                        [placeholder]="'APP.CONTROL.CAMERA_SELECT' | translate"
+                    >
+                        @for (cam of camera_list(); track cam) {
+                            <mat-option [value]="cam">
+                                {{ cam.name }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <div class="relative p-4">
+                    <h3 class="mb-2 text-xl font-medium">
+                        {{ 'APP.CONTROL.CONTROLS' | translate }}
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <joystick
+                            [pan]="pan()"
+                            [tilt]="tilt()"
+                            (panChange)="pan.set($event); moveCamera()"
+                            (tiltChange)="tilt.set($event); moveCamera()"
+                        ></joystick>
+                        <div
+                            zoom
+                            class="border-base-200 flex flex-col items-center rounded-sm border"
+                        >
+                            <button
+                                zoom-in
+                                icon
+                                [attr.aria-label]="
+                                    'APP.CONTROL.ZOOM_IN' | translate
+                                "
+                                matRipple
+                                class="touch-none rounded-sm select-none"
+                                (pointerdown)="startZoom('in', $event)"
+                                (pointerup)="stopZoom()"
+                                (pointercancel)="stopZoom()"
+                                (lostpointercapture)="stopZoom()"
+                                (contextmenu)="$event.preventDefault()"
+                            >
+                                <icon aria-hidden="true">add</icon>
+                            </button>
+                            <div
+                                class="border-base-200 flex h-10 w-10 items-center justify-center border-t border-b text-xs"
+                            >
+                                {{ 'APP.CONTROL.ZOOM' | translate }}
+                            </div>
+                            <button
+                                zoom-out
+                                icon
+                                [attr.aria-label]="
+                                    'APP.CONTROL.ZOOM_OUT' | translate
+                                "
+                                matRipple
+                                class="touch-none rounded-sm select-none"
+                                (pointerdown)="startZoom('out', $event)"
+                                (pointerup)="stopZoom()"
+                                (pointercancel)="stopZoom()"
+                                (lostpointercapture)="stopZoom()"
+                                (contextmenu)="$event.preventDefault()"
+                            >
+                                <icon aria-hidden="true">remove</icon>
+                            </button>
+                        </div>
+                    </div>
+                    @if (!active_camera()) {
+                        <div
+                            no-camera
+                            class="bg-base-100/75 absolute inset-0 flex items-center justify-center"
+                        >
+                            <p>
+                                {{
+                                    'APP.CONTROL.CAMERA_SELECT_MSG' | translate
+                                }}
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    `, imports: [
+      TranslatePipe,
+      IconComponent,
+      MatRippleModule,
+      JoystickComponent,
+      MatFormFieldModule,
+      MatSelectModule,
+      FormsModule
+    ] }]
+  }], () => [], null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CameraControlsComponent, { className: "CameraControlsComponent", filePath: "apps/control/src/app/ui/camera-controls.component.ts", lineNumber: 120 });
+})();
+
+// apps/control/src/app/ui/markdown.pipe.ts
+var _MarkdownPipe = class _MarkdownPipe {
+  transform(value) {
+    return value ? marked(value, { async: false }) : "";
+  }
+};
+_MarkdownPipe.\u0275fac = function MarkdownPipe_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _MarkdownPipe)();
+};
+_MarkdownPipe.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "markdown", type: _MarkdownPipe, pure: true });
+var MarkdownPipe = _MarkdownPipe;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MarkdownPipe, [{
+    type: Pipe,
+    args: [{
+      name: "markdown"
+    }]
+  }], null, null);
+})();
+
+// apps/control/src/app/video-call/video-call-dial-view.component.ts
+function VideoCallDialViewComponent_Conditional_1_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "dialpad", 14);
+    \u0275\u0275listener("pressed", function VideoCallDialViewComponent_Conditional_1_Conditional_1_Template_dialpad_pressed_0_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.addDigit($event));
+    });
+    \u0275\u0275elementEnd();
+  }
+}
+function VideoCallDialViewComponent_Conditional_1_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "dialpad", 15);
+    \u0275\u0275listener("pressed", function VideoCallDialViewComponent_Conditional_1_Conditional_10_Template_dialpad_pressed_0_listener($event) {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.addDigit($event));
+    });
+    \u0275\u0275elementEnd();
+  }
+}
+function VideoCallDialViewComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementContainerStart(0, 1);
+    \u0275\u0275conditionalCreate(1, VideoCallDialViewComponent_Conditional_1_Conditional_1_Template, 1, 0, "dialpad");
+    \u0275\u0275elementStart(2, "div", 3)(3, "p", 4);
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 5)(7, "mat-form-field", 6)(8, "input", 7);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function VideoCallDialViewComponent_Conditional_1_Template_input_ngModelChange_8_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r2.dial_number, $event) || (ctx_r2.dial_number = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(10, VideoCallDialViewComponent_Conditional_1_Conditional_10_Template, 1, 0, "dialpad", 8);
+    \u0275\u0275elementStart(11, "div", 5)(12, "button", 9);
+    \u0275\u0275listener("click", function VideoCallDialViewComponent_Conditional_1_Template_button_click_12_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.joinConference());
+    });
+    \u0275\u0275text(13);
+    \u0275\u0275pipe(14, "translate");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(15, "div", 10)(16, "button", 11);
+    \u0275\u0275listener("click", function VideoCallDialViewComponent_Conditional_1_Template_button_click_16_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.toggleCamera());
+    });
+    \u0275\u0275elementStart(17, "div", 12)(18, "icon", 13);
+    \u0275\u0275text(19);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(20, "span");
+    \u0275\u0275text(21);
+    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275elementContainerEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx_r2.mobile() ? 1 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 11, "APP.CONTROL.VC_ENTER_CODE"), " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r2.dial_number);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 13, "APP.CONTROL.VC_DIAL"));
+    \u0275\u0275control();
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r2.mobile() ? 10 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("disabled", !ctx_r2.dial_number());
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(14, 15, "APP.CONTROL.JOIN"), " ");
+    const show_pip_r5 = ctx_r2.show_camera_pip();
+    \u0275\u0275advance(3);
+    \u0275\u0275classProp("inverse", show_pip_r5);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(!show_pip_r5 ? "visibility_off" : "visibility");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(show_pip_r5 ? "Hide Camera PIP" : "Show Camera PIP");
+  }
+}
+function VideoCallDialViewComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2);
+    \u0275\u0275element(1, "mat-spinner", 16);
+    \u0275\u0275elementStart(2, "p");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("diameter", 32);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 2, "APP.CONTROL.VC_JOINING"));
+  }
+}
+var _VideoCallDialViewComponent = class _VideoCallDialViewComponent {
+  constructor() {
+    this._call = inject(VideoCallStateService);
+    this.mobile = inject(MobileLayoutService).mobile;
+    this.dial_number = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "dial_number" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._show_camera_pip = this._call.show_camera_pip;
+    this.show_camera_pip = computed(
+      () => !!this._show_camera_pip(),
+      ...ngDevMode ? [{ debugName: "show_camera_pip" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.toggleCamera = async () => this._call.showCameraPIP(!this.show_camera_pip());
+  }
+  addDigit(digit) {
+    digit && digit !== "\b" ? this.dial_number.update((v) => v + digit) : this.dial_number.update((v) => v.substr(0, v.length - 1));
+  }
+  async joinConference() {
+    const dial_number = this.dial_number();
+    if (!dial_number)
+      return;
+    this.loading.set(true);
+    try {
+      await this._call.dial(dial_number);
+    } catch (error) {
+      notifyError(i18n("APP.CONTROL.VC_DIAL_ERROR", { error: errorText(error) }));
+      return;
+    } finally {
+      this.loading.set(false);
+    }
+    this.dial_number.set("");
+  }
+};
+_VideoCallDialViewComponent.\u0275fac = function VideoCallDialViewComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _VideoCallDialViewComponent)();
+};
+_VideoCallDialViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VideoCallDialViewComponent, selectors: [["video-call-dial-view"]], decls: 3, vars: 1, consts: [[1, "flex", "flex-col", "items-center", "sm:flex-row", "sm:items-start", "sm:justify-center"], [1, ""], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "flex", "w-full", "max-w-xs", "flex-col", "sm:w-auto", "sm:max-w-none", "sm:pt-8"], [1, "px-2", "pt-4"], [1, "w-full", "p-2"], ["appearance", "outline", 1, "h-12", "w-full"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "self-center"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click", "disabled"], [1, "w-full", "px-2"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], [1, "flex", "items-center", "space-x-4"], ["aria-hidden", "true"], [3, "pressed"], [1, "self-center", 3, "pressed"], [3, "diameter"]], template: function VideoCallDialViewComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275conditionalCreate(1, VideoCallDialViewComponent_Conditional_1_Template, 22, 17, "ng-container", 1)(2, VideoCallDialViewComponent_Conditional_2_Template, 5, 4, "div", 2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx.loading() ? 1 : 2);
+  }
+}, dependencies: [
+  FormsModule,
+  DefaultValueAccessor,
+  NgControlStatus,
+  NgModel,
+  MatFormFieldModule,
+  MatFormField,
+  MatInputModule,
+  MatInput,
+  MatProgressSpinnerModule,
+  MatProgressSpinner,
+  IconComponent,
+  MatRippleModule,
+  MatRipple,
+  DialpadComponent,
+  TranslatePipe
+], encapsulation: 2 });
+var VideoCallDialViewComponent = _VideoCallDialViewComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(VideoCallDialViewComponent, [{
+    type: Component,
+    args: [{ selector: "video-call-dial-view", template: `
+        <div
+            class="flex flex-col items-center sm:flex-row sm:items-start sm:justify-center"
+        >
+            @if (!loading()) {
+                <ng-container class="">
+                    <!-- Phones show the code above the keypad, as a phone dialler does.
+                         The DOM order matches the visual order, so focus follows it. -->
+                    @if (!mobile()) {
+                        <dialpad (pressed)="addDigit($event)"></dialpad>
+                    }
+                    <div
+                        class="flex w-full max-w-xs flex-col sm:w-auto sm:max-w-none sm:pt-8"
+                    >
+                        <p class="px-2 pt-4">
+                            {{ 'APP.CONTROL.VC_ENTER_CODE' | translate }}
+                        </p>
+                        <div class="w-full p-2">
+                            <mat-form-field
+                                appearance="outline"
+                                class="h-12 w-full"
+                            >
+                                <input
+                                    matInput
+                                    [(ngModel)]="dial_number"
+                                    [placeholder]="
+                                        'APP.CONTROL.VC_DIAL' | translate
+                                    "
+                                />
+                            </mat-form-field>
+                        </div>
+                        @if (mobile()) {
+                            <dialpad
+                                class="self-center"
+                                (pressed)="addDigit($event)"
+                            ></dialpad>
+                        }
+                        <div class="w-full p-2">
+                            <button
+                                btn
+                                matRipple
+                                class="w-full"
+                                [disabled]="!dial_number()"
+                                (click)="joinConference()"
+                            >
+                                {{ 'APP.CONTROL.JOIN' | translate }}
+                            </button>
+                        </div>
+                        <div class="w-full px-2">
+                            @let show_pip = show_camera_pip();
+                            <button
+                                btn
+                                matRipple
+                                class="w-full"
+                                (click)="toggleCamera()"
+                                [class.inverse]="show_pip"
+                            >
+                                <div class="flex items-center space-x-4">
+                                    <icon aria-hidden="true">{{
+                                        !show_pip
+                                            ? 'visibility_off'
+                                            : 'visibility'
+                                    }}</icon>
+                                    <span>{{
+                                        show_pip
+                                            ? 'Hide Camera PIP'
+                                            : 'Show Camera PIP'
+                                    }}</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </ng-container>
+            } @else {
+                <div
+                    class="flex flex-col items-center justify-center space-y-2 p-16"
+                >
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>{{ 'APP.CONTROL.VC_JOINING' | translate }}</p>
+                </div>
+            }
+        </div>
+    `, imports: [
+      FormsModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatProgressSpinnerModule,
+      TranslatePipe,
+      IconComponent,
+      MatRippleModule,
+      DialpadComponent
+    ] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VideoCallDialViewComponent, { className: "VideoCallDialViewComponent", filePath: "apps/control/src/app/video-call/video-call-dial-view.component.ts", lineNumber: 111 });
+})();
+
+// apps/control/src/app/tabbed-view/output-list-item.component.ts
+function DeviceOutputListItemComponent_Conditional_0_Conditional_4_Template(rf, ctx) {
+  var _a, _b, _c;
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 7);
+    \u0275\u0275pipe(1, "translate");
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("bg-success", (_a = ctx_r1.item()) == null ? void 0 : _a.power)("bg-base-300", !((_b = ctx_r1.item()) == null ? void 0 : _b.power));
+    \u0275\u0275attribute("title", \u0275\u0275pipeBind1(1, 5, ((_c = ctx_r1.item()) == null ? void 0 : _c.power) ? "APP.CONTROL.OUTPUT_ON" : "APP.CONTROL.OUTPUT_OFF"));
+  }
+}
+function DeviceOutputListItemComponent_Conditional_0_Template(rf, ctx) {
+  var _a, _b;
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1)(1, "button", 2);
+    \u0275\u0275listener("click", function DeviceOutputListItemComponent_Conditional_0_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.setActiveOutput());
+    });
+    \u0275\u0275elementStart(2, "div", 3);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(4, DeviceOutputListItemComponent_Conditional_0_Conditional_4_Template, 2, 7, "div", 4);
+    \u0275\u0275elementStart(5, "icon", 5);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "span", 6);
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("border-base-200", !ctx_r1.active())("border-primary", ctx_r1.active());
+    const source_r3 = ctx_r1.input();
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-base-300!", !source_r3);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("bg-primary!", ctx_r1.active());
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ((_a = ctx_r1.item()) == null ? void 0 : _a.name) || "Display", " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(((_b = ctx_r1.item()) == null ? void 0 : _b.power) != null ? 4 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("opacity-30", !source_r3)("text-base-content", !source_r3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (source_r3 == null ? void 0 : source_r3.icon) || ctx_r1.icons[source_r3 == null ? void 0 : source_r3.type] || "add_to_queue", " ");
+    \u0275\u0275advance();
+    \u0275\u0275classProp("opacity-30", !source_r3)("text-base-content", !source_r3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (source_r3 == null ? void 0 : source_r3.name) || \u0275\u0275pipeBind1(9, 20, "APP.CONTROL.INPUT_EMPTY"), " ");
+  }
+}
+var _DeviceOutputListItemComponent = class _DeviceOutputListItemComponent {
+  constructor() {
+    this._state = inject(ControlStateService);
+    this.item = input(
+      void 0,
+      ...ngDevMode ? [{ debugName: "item" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active = input(
+      void 0,
+      ...ngDevMode ? [{ debugName: "active" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.icons = ICON_MAP;
+    this._available_inputs = this._state.available_inputs;
+    this._system = this._state.system;
+    this.input = computed(
+      () => {
+        var _a;
+        const id = ((_a = this.item()) == null ? void 0 : _a.source) || "";
+        return this._available_inputs().find((_) => _.id === id || _.ref === id);
+      },
+      ...ngDevMode ? [{ debugName: "input" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.setActiveOutput = () => {
+      const { selected_input } = this._system() || {};
+      const input2 = this.input();
+      const item = this.item();
+      (input2 == null ? void 0 : input2.id) === selected_input ? this._state.unroute(item.id) : this._state.setOutput(item == null ? void 0 : item.id);
+    };
+  }
+};
+_DeviceOutputListItemComponent.\u0275fac = function DeviceOutputListItemComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _DeviceOutputListItemComponent)();
+};
+_DeviceOutputListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeviceOutputListItemComponent, selectors: [["device-output-list-item"]], inputs: { item: [1, "item"], active: [1, "active"] }, decls: 1, vars: 1, consts: [[1, "bg-base-100", "relative", "m-2", "h-40", "w-full", "flex-1", "rounded-sm", "border", "p-2", "shadow-sm", 3, "border-base-200", "border-primary"], [1, "bg-base-100", "relative", "m-2", "h-40", "w-full", "flex-1", "rounded-sm", "border", "p-2", "shadow-sm"], ["matRipple", "", 1, "bg-info", "relative", "z-0", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "rounded-sm", 3, "click"], [1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1", "left-1", "rounded-full", "border", "px-2", "py-1", "text-xs"], ["power", "", 1, "border-base-100", "absolute", "top-2", "right-2", "size-3", "rounded-full", "border", 3, "bg-success", "bg-base-300"], ["aria-hidden", "true", 1, "text-5xl"], [1, "text-sm"], ["power", "", 1, "border-base-100", "absolute", "top-2", "right-2", "size-3", "rounded-full", "border"]], template: function DeviceOutputListItemComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, DeviceOutputListItemComponent_Conditional_0_Template, 10, 22, "div", 0);
+  }
+  if (rf & 2) {
+    \u0275\u0275conditional(ctx.item() ? 0 : -1);
+  }
+}, dependencies: [MatRippleModule, MatRipple, IconComponent, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n}\n/*# sourceMappingURL=output-list-item.component.css.map */"] });
+var DeviceOutputListItemComponent = _DeviceOutputListItemComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DeviceOutputListItemComponent, [{
+    type: Component,
+    args: [{ selector: "device-output-list-item", template: `
+        @if (item()) {
+            <div
+                class="bg-base-100 relative m-2 h-40 w-full flex-1 rounded-sm border p-2 shadow-sm"
+                [class.border-base-200]="!active()"
+                [class.border-primary]="active()"
+            >
+                @let source = input();
+                <button
+                    matRipple
+                    class="bg-info relative z-0 flex h-full w-full flex-col items-center justify-center rounded-sm"
+                    [class.bg-base-300!]="!source"
+                    (click)="setActiveOutput()"
+                >
+                    <div
+                        class="border-base-300 bg-base-100 text-base-content absolute top-1 left-1 rounded-full border px-2 py-1 text-xs"
+                        [class.bg-primary!]="active()"
+                    >
+                        {{ item()?.name || 'Display' }}
+                    </div>
+                    @if (item()?.power != null) {
+                        <div
+                            power
+                            class="border-base-100 absolute top-2 right-2 size-3 rounded-full border"
+                            [class.bg-success]="item()?.power"
+                            [class.bg-base-300]="!item()?.power"
+                            [attr.title]="
+                                (item()?.power
+                                    ? 'APP.CONTROL.OUTPUT_ON'
+                                    : 'APP.CONTROL.OUTPUT_OFF'
+                                ) | translate
+                            "
+                        ></div>
+                    }
+                    <icon
+                        aria-hidden="true"
+                        class="text-5xl"
+                        [class.opacity-30]="!source"
+                        [class.text-base-content]="!source"
+                    >
+                        {{
+                            source?.icon ||
+                                icons[source?.type] ||
+                                'add_to_queue'
+                        }}
+                    </icon>
+                    <span
+                        class="text-sm"
+                        [class.opacity-30]="!source"
+                        [class.text-base-content]="!source"
+                    >
+                        {{
+                            source?.name ||
+                                ('APP.CONTROL.INPUT_EMPTY' | translate)
+                        }}
+                    </span>
+                </button>
+            </div>
+        }
+    `, imports: [TranslatePipe, MatRippleModule, IconComponent], styles: ["/* angular:styles/component:css;cc697b08d9f2fbde961b53703f5a7647bcb7d79fe59beff1abcb16f98f102d91;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/tabbed-view/output-list-item.component.ts */\n:host {\n  display: flex;\n}\n/*# sourceMappingURL=output-list-item.component.css.map */\n"] }]
+  }], null, { item: [{ type: Input, args: [{ isSignal: true, alias: "item", required: false }] }], active: [{ type: Input, args: [{ isSignal: true, alias: "active", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeviceOutputListItemComponent, { className: "DeviceOutputListItemComponent", filePath: "apps/control/src/app/tabbed-view/output-list-item.component.ts", lineNumber: 78 });
+})();
+
+// apps/control/src/app/tabbed-view/output-list.component.ts
+var _forTrack0 = ($index, $item) => $item.id;
+function DeviceOutputListComponent_Conditional_1_For_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "device-output-list-item", 1);
+  }
+  if (rf & 2) {
+    const output_r1 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("item", output_r1)("active", ctx_r1.active_output() === output_r1.id);
+  }
+}
+function DeviceOutputListComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275repeaterCreate(0, DeviceOutputListComponent_Conditional_1_For_1_Template, 1, 2, "device-output-list-item", 1, _forTrack0);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275repeater(ctx_r1.outputs());
+  }
+}
+var _DeviceOutputListComponent = class _DeviceOutputListComponent {
+  constructor() {
+    this._state = inject(ControlStateService);
+    this.outputs = this._state.output_list;
+    this.active_output = this._state.active_output;
+    this.preview_outputs = this._state.preview_outputs;
+  }
+};
+_DeviceOutputListComponent.\u0275fac = function DeviceOutputListComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _DeviceOutputListComponent)();
+};
+_DeviceOutputListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeviceOutputListComponent, selectors: [["device-output-list"]], decls: 2, vars: 1, consts: [[1, "flex", "h-full", "w-full", "items-center", "overflow-x-auto"], [1, "w-64", "max-w-1/2", "sm:min-w-64", 3, "item", "active"]], template: function DeviceOutputListComponent_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275conditionalCreate(1, DeviceOutputListComponent_Conditional_1_Template, 2, 0);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275conditional(((_a = ctx.outputs()) == null ? void 0 : _a.length) > 1 || ctx.preview_outputs() ? 1 : -1);
+  }
+}, dependencies: [DeviceOutputListItemComponent], encapsulation: 2 });
+var DeviceOutputListComponent = _DeviceOutputListComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DeviceOutputListComponent, [{
+    type: Component,
+    args: [{ selector: "device-output-list", template: `
+        <div class="flex h-full w-full items-center overflow-x-auto">
+            @if (outputs()?.length > 1 || preview_outputs()) {
+                @for (output of outputs(); track output.id) {
+                    <device-output-list-item
+                        [item]="output"
+                        [active]="active_output() === output.id"
+                        class="w-64 max-w-1/2 sm:min-w-64"
+                    ></device-output-list-item>
+                }
+            }
+        </div>
+    `, imports: [DeviceOutputListItemComponent] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeviceOutputListComponent, { className: "DeviceOutputListComponent", filePath: "apps/control/src/app/tabbed-view/output-list.component.ts", lineNumber: 23 });
+})();
+
+// apps/control/src/app/tabbed-view/tv-controls.component.ts
+function TVControlsComponent_Conditional_3_For_2_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 6);
+  }
+  if (rf & 2) {
+    const item_r2 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275property("source", item_r2.icon);
+  }
+}
+function TVControlsComponent_Conditional_3_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 5);
+    \u0275\u0275listener("click", function TVControlsComponent_Conditional_3_For_2_Template_button_click_0_listener() {
+      const item_r2 = \u0275\u0275restoreView(_r1).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.setChannel(item_r2.channel));
+    });
+    \u0275\u0275conditionalCreate(1, TVControlsComponent_Conditional_3_For_2_Conditional_1_Template, 1, 1, "img", 6);
+    \u0275\u0275elementStart(2, "div", 7);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const item_r2 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("bg-base-200", ctx_r2.channel_url !== item_r2.channel)("bg-primary", ctx_r2.channel_url === item_r2.channel)("text-white", ctx_r2.channel_url === item_r2.channel);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((item_r2 == null ? void 0 : item_r2.icon) ? 1 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(item_r2.name);
+  }
+}
+function TVControlsComponent_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 3);
+    \u0275\u0275repeaterCreate(1, TVControlsComponent_Conditional_3_For_2_Template, 4, 8, "button", 4, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r2.channel_list);
+  }
+}
+var _TVControlsComponent = class _TVControlsComponent {
+  constructor() {
+    this._state = inject(ControlStateService);
+    this.mod = input(
+      "",
+      ...ngDevMode ? [{ debugName: "mod" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.channel_list = [];
+    this.channel_url = "";
+  }
+  get system_id() {
+    return this._state.id;
+  }
+  setChannel(url) {
+    const mod = Jp(this._state.id, this.mod());
+    mod.execute("channel", [url]);
+  }
+};
+_TVControlsComponent.\u0275fac = function TVControlsComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _TVControlsComponent)();
+};
+_TVControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TVControlsComponent, selectors: [["tv-controls"]], inputs: { mod: [1, "mod"] }, decls: 4, vars: 8, consts: [["hidden", ""], ["binding", "", "bind", "channel_details", 3, "modelChange", "model", "sys", "mod"], ["binding", "", "bind", "current_channel", 3, "modelChange", "model", "sys", "mod"], [1, "flex", "flex-wrap", "items-center", "justify-center", "p-2", "sm:p-8"], ["matRipple", "", 1, "border-base-200", "m-2", "flex", "h-28", "w-32", "flex-col", "items-center", "justify-center", "space-y-2", "rounded-sm", "border", 3, "bg-base-200", "bg-primary", "text-white"], ["matRipple", "", 1, "border-base-200", "m-2", "flex", "h-28", "w-32", "flex-col", "items-center", "justify-center", "space-y-2", "rounded-sm", "border", 3, "click"], ["auth", "", 1, "max-h-14", "max-w-14", 3, "source"], [1, ""]], template: function TVControlsComponent_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0)(1, "i", 1);
+    \u0275\u0275twoWayListener("modelChange", function TVControlsComponent_Template_i_modelChange_1_listener($event) {
+      \u0275\u0275twoWayBindingSet(ctx.channel_list, $event) || (ctx.channel_list = $event);
+      return $event;
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "i", 2);
+    \u0275\u0275twoWayListener("modelChange", function TVControlsComponent_Template_i_modelChange_2_listener($event) {
+      \u0275\u0275twoWayBindingSet(ctx.channel_url, $event) || (ctx.channel_url = $event);
+      return $event;
+    });
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(3, TVControlsComponent_Conditional_3_Template, 3, 0, "div", 3);
+  }
+  if (rf & 2) {
+    \u0275\u0275attribute("mod", ctx.mod());
+    \u0275\u0275advance();
+    \u0275\u0275twoWayProperty("model", ctx.channel_list);
+    \u0275\u0275property("sys", ctx.system_id)("mod", ctx.mod());
+    \u0275\u0275advance();
+    \u0275\u0275twoWayProperty("model", ctx.channel_url);
+    \u0275\u0275property("sys", ctx.system_id)("mod", ctx.mod());
+    \u0275\u0275advance();
+    \u0275\u0275conditional(((_a = ctx.channel_list) == null ? void 0 : _a.length) ? 3 : -1);
+  }
+}, dependencies: [BindingDirective, MatRippleModule, MatRipple, AuthenticatedImageDirective], encapsulation: 2 });
+var TVControlsComponent = _TVControlsComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TVControlsComponent, [{
+    type: Component,
+    args: [{
+      selector: "tv-controls",
+      template: `
+        <div hidden [attr.mod]="mod()">
+            <i
+                binding
+                [(model)]="channel_list"
+                [sys]="system_id"
+                [mod]="mod()"
+                bind="channel_details"
+            ></i>
+            <i
+                binding
+                [(model)]="channel_url"
+                [sys]="system_id"
+                [mod]="mod()"
+                bind="current_channel"
+            ></i>
+        </div>
+        @if (channel_list?.length) {
+            <div class="flex flex-wrap items-center justify-center p-2 sm:p-8">
+                @for (item of channel_list; track item) {
+                    <button
+                        matRipple
+                        class="border-base-200 m-2 flex h-28 w-32 flex-col items-center justify-center space-y-2 rounded-sm border"
+                        [class.bg-base-200]="channel_url !== item.channel"
+                        [class.bg-primary]="channel_url === item.channel"
+                        [class.text-white]="channel_url === item.channel"
+                        (click)="setChannel(item.channel)"
+                    >
+                        @if (item?.icon) {
+                            <img
+                                auth
+                                [source]="item.icon"
+                                class="max-h-14 max-w-14"
+                            />
+                        }
+                        <div class="">{{ item.name }}</div>
+                    </button>
+                }
+            </div>
+        }
+    `,
+      imports: [BindingDirective, MatRippleModule, AuthenticatedImageDirective]
+    }]
+  }], null, { mod: [{ type: Input, args: [{ isSignal: true, alias: "mod", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TVControlsComponent, { className: "TVControlsComponent", filePath: "apps/control/src/app/tabbed-view/tv-controls.component.ts", lineNumber: 55 });
+})();
+
+// apps/control/src/app/tabbed-view/tab-outlet.component.ts
+var _c02 = (a0, a1) => ["/tabbed", a0, a1];
+var _c1 = (a0) => ({ names: a0 });
+var _c2 = (a0) => ({ name: a0 });
+var _forTrack02 = ($index, $item) => $item.id || $item.name;
+var _forTrack1 = ($index, $item) => $item.id;
+function TabOutletComponent_For_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "a", 11);
+    \u0275\u0275listener("click", function TabOutletComponent_For_6_Template_a_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.onAction());
+    });
+    \u0275\u0275elementStart(1, "icon", 12);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "p", 13);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const tab_r4 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("opacity-100!", (tab_r4.id || tab_r4.name) === ctx_r2.active_tab())("text-secondary!", (tab_r4.id || tab_r4.name) === ctx_r2.active_tab());
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction2(8, _c02, ctx_r2.id(), tab_r4.id || tab_r4.name));
+    \u0275\u0275attribute("aria-current", (tab_r4.id || tab_r4.name) === ctx_r2.active_tab() ? "page" : null);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(tab_r4.icon);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", tab_r4.name, " ");
+  }
+}
+function TabOutletComponent_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 9)(1, "div", 14);
+    \u0275\u0275element(2, "img", 15);
+    \u0275\u0275elementStart(3, "p", 16);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275property("src", ctx_r2.hearing_tloop ? "assets/loop_t.png" : "assets/loop.png", \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r2.join_code, " ");
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_1_For_6_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 28);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275nextContext();
+    const shown_r7 = \u0275\u0275readContextLet(0);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, "APP.CONTROL.DISPLAY_SHOWING", \u0275\u0275pureFunction1(4, _c1, shown_r7)), " ");
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_1_For_6_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "icon", 29);
+    \u0275\u0275text(1, " chevron_right ");
+    \u0275\u0275elementEnd();
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_1_For_6_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "icon", 25);
+    \u0275\u0275text(1, " check_circle ");
+    \u0275\u0275elementEnd();
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_1_For_6_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275declareLet(0);
+    \u0275\u0275elementStart(1, "button", 24);
+    \u0275\u0275listener("click", function TabOutletComponent_Conditional_10_Conditional_1_For_6_Template_button_click_1_listener() {
+      const input_r6 = \u0275\u0275restoreView(_r5).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.pickSource(input_r6));
+    });
+    \u0275\u0275elementStart(2, "icon", 25);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 26)(5, "div", 27);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, TabOutletComponent_Conditional_10_Conditional_1_For_6_Conditional_7_Template, 3, 6, "div", 28);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(8, TabOutletComponent_Conditional_10_Conditional_1_For_6_Conditional_8_Template, 2, 0, "icon", 29)(9, TabOutletComponent_Conditional_10_Conditional_1_For_6_Conditional_9_Template, 2, 0, "icon", 25);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const input_r6 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    const selected_r8 = ((_a = ctx_r2.system()) == null ? void 0 : _a.selected_input) === (input_r6.id || input_r6.name);
+    const shown_r9 = \u0275\u0275storeLet(ctx_r2.shown_on()[input_r6.id]);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("text-secondary", selected_r8);
+    \u0275\u0275attribute("aria-pressed", selected_r8)("aria-haspopup", ctx_r2.can_pick_display() ? "dialog" : null);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", input_r6.icon || ctx_r2.icons[input_r6.type] || "input", " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", input_r6.name, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(shown_r9 ? 7 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.can_pick_display() ? 8 : selected_r8 ? 9 : -1);
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_1_Conditional_7_For_5_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 34);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275listener("click", function TabOutletComponent_Conditional_10_Conditional_1_Conditional_7_For_5_Conditional_9_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const display_r11 = \u0275\u0275nextContext().$implicit;
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.clearDisplay(display_r11.id));
+    });
+    \u0275\u0275elementStart(2, "icon", 35);
+    \u0275\u0275text(3, " close ");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const display_r11 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 1, "APP.CONTROL.DISPLAY_CLEAR", \u0275\u0275pureFunction1(4, _c2, display_r11.name)));
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_1_Conditional_7_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 30)(1, "icon", 25);
+    \u0275\u0275text(2, " tv ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 26)(4, "div", 27);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 32);
+    \u0275\u0275text(7);
+    \u0275\u0275pipe(8, "translate");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(9, TabOutletComponent_Conditional_10_Conditional_1_Conditional_7_For_5_Conditional_9_Template, 4, 6, "button", 33);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const display_r11 = ctx.$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275classProp("opacity-40", !display_r11.source);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", display_r11.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", display_r11.source || \u0275\u0275pipeBind1(8, 5, "APP.CONTROL.INPUT_EMPTY"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(display_r11.source ? 9 : -1);
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_1_Conditional_7_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 31)(1, "button", 36);
+    \u0275\u0275listener("click", function TabOutletComponent_Conditional_10_Conditional_1_Conditional_7_Conditional_6_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r12);
+      const ctx_r2 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r2.clearAll());
+    });
+    \u0275\u0275elementStart(2, "icon", 25);
+    \u0275\u0275text(3, " cancel_presentation ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 37);
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275property("disabled", !ctx_r2.has_routes());
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 2, "APP.CONTROL.CLEAR_ALL"), " ");
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_1_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "section", 23)(1, "h3", 21);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275repeaterCreate(4, TabOutletComponent_Conditional_10_Conditional_1_Conditional_7_For_5_Template, 10, 7, "div", 30, _forTrack1);
+    \u0275\u0275conditionalCreate(6, TabOutletComponent_Conditional_10_Conditional_1_Conditional_7_Conditional_6_Template, 7, 4, "div", 31);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 2, "APP.CONTROL.DISPLAYS"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.displays());
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r2.outputs().length > 1 ? 6 : -1);
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 17)(1, "section", 20)(2, "h3", 21);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275repeaterCreate(5, TabOutletComponent_Conditional_10_Conditional_1_For_6_Template, 10, 9, "button", 22, _forTrack02);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, TabOutletComponent_Conditional_10_Conditional_1_Conditional_7_Template, 7, 4, "section", 23);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 2, "APP.CONTROL.INPUTS_AVAILABLE"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.inputs());
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r2.can_pick_display() ? 7 : -1);
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_2_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r13 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 38)(1, "button", 40);
+    \u0275\u0275listener("click", function TabOutletComponent_Conditional_10_Conditional_2_Conditional_1_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r13);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.viewHelp());
+    });
+    \u0275\u0275elementStart(2, "div", 41)(3, "icon", 42);
+    \u0275\u0275text(4, "help");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 43);
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 1, "APP.CONTROL.ACTION_HELP"), " ");
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_2_ng_container_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_2_Template(rf, ctx) {
+  var _a, _b;
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "section", 18);
+    \u0275\u0275conditionalCreate(1, TabOutletComponent_Conditional_10_Conditional_2_Conditional_1_Template, 8, 3, "div", 38);
+    \u0275\u0275template(2, TabOutletComponent_Conditional_10_Conditional_2_ng_container_2_Template, 1, 0, "ng-container", 39);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    const controls_r14 = \u0275\u0275reference(13);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(((_a = ctx_r2.tab()) == null ? void 0 : _a.help) && ((_b = ctx_r2.tab()) == null ? void 0 : _b.controls) ? 1 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngTemplateOutlet", controls_r14);
+  }
+}
+function TabOutletComponent_Conditional_10_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 19)(1, "p");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "APP.CONTROL.CONTROLS_EMPTY"), " ");
+  }
+}
+function TabOutletComponent_Conditional_10_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 10);
+    \u0275\u0275conditionalCreate(1, TabOutletComponent_Conditional_10_Conditional_1_Template, 8, 4, "div", 17);
+    \u0275\u0275conditionalCreate(2, TabOutletComponent_Conditional_10_Conditional_2_Template, 3, 2, "section", 18)(3, TabOutletComponent_Conditional_10_Conditional_3_Template, 4, 3, "div", 19);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.inputs().length ? 1 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(((_a = ctx_r2.tab()) == null ? void 0 : _a.controls) || ctx_r2.help() ? 2 : !ctx_r2.inputs().length ? 3 : -1);
+  }
+}
+function TabOutletComponent_Conditional_11_Conditional_1_For_5_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    const _r15 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 52);
+    \u0275\u0275listener("click", function TabOutletComponent_Conditional_11_Conditional_1_For_5_Template_button_click_0_listener() {
+      const input_r16 = \u0275\u0275restoreView(_r15).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.setInput(input_r16));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const input_r16 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275classProp("inverse", ((_a = ctx_r2.system()) == null ? void 0 : _a.selected_input) !== (input_r16.id || input_r16.name));
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", input_r16 == null ? void 0 : input_r16.name, " ");
+  }
+}
+function TabOutletComponent_Conditional_11_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 45)(1, "h3", 50);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275repeaterCreate(4, TabOutletComponent_Conditional_11_Conditional_1_For_5_Template, 2, 3, "button", 51, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "APP.CONTROL.INPUTS_AVAILABLE"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.inputs());
+  }
+}
+function TabOutletComponent_Conditional_11_ng_container_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function TabOutletComponent_Conditional_11_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r17 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 53);
+    \u0275\u0275listener("click", function TabOutletComponent_Conditional_11_Conditional_4_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r17);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.viewHelp());
+    });
+    \u0275\u0275elementStart(1, "div", 41)(2, "icon", 42);
+    \u0275\u0275text(3, "help");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 43);
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 1, "APP.CONTROL.ACTION_HELP"), " ");
+  }
+}
+function TabOutletComponent_Conditional_11_Conditional_7_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r19 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 56);
+    \u0275\u0275listener("click", function TabOutletComponent_Conditional_11_Conditional_7_Conditional_1_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r19);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.presentToAll());
+    });
+    \u0275\u0275elementStart(1, "icon", 25);
+    \u0275\u0275text(2, "output");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 37);
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 1, "APP.CONTROL.PRESENT_ALL"), " ");
+  }
+}
+function TabOutletComponent_Conditional_11_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r18 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 49);
+    \u0275\u0275conditionalCreate(1, TabOutletComponent_Conditional_11_Conditional_7_Conditional_1_Template, 6, 3, "button", 54);
+    \u0275\u0275elementStart(2, "button", 55);
+    \u0275\u0275listener("click", function TabOutletComponent_Conditional_11_Conditional_7_Template_button_click_2_listener() {
+      \u0275\u0275restoreView(_r18);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.clearAll());
+    });
+    \u0275\u0275elementStart(3, "icon", 25);
+    \u0275\u0275text(4, "cancel_presentation");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 37);
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.hide_present_all() !== true ? 1 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275property("disabled", !ctx_r2.has_routes());
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 3, "APP.CONTROL.CLEAR_ALL"), " ");
+  }
+}
+function TabOutletComponent_Conditional_11_Template(rf, ctx) {
+  var _a, _b;
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 44);
+    \u0275\u0275conditionalCreate(1, TabOutletComponent_Conditional_11_Conditional_1_Template, 6, 3, "div", 45);
+    \u0275\u0275elementStart(2, "div", 46);
+    \u0275\u0275template(3, TabOutletComponent_Conditional_11_ng_container_3_Template, 1, 0, "ng-container", 39);
+    \u0275\u0275conditionalCreate(4, TabOutletComponent_Conditional_11_Conditional_4_Template, 7, 3, "button", 47);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(5, "div", 48);
+    \u0275\u0275element(6, "device-output-list", 26);
+    \u0275\u0275conditionalCreate(7, TabOutletComponent_Conditional_11_Conditional_7_Template, 8, 5, "div", 49);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    const controls_r14 = \u0275\u0275reference(13);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.inputs().length > 1 ? 1 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngTemplateOutlet", controls_r14);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(((_a = ctx_r2.tab()) == null ? void 0 : _a.help) && ((_b = ctx_r2.tab()) == null ? void 0 : _b.controls) ? 4 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(ctx_r2.outputs().length > 1 ? 7 : -1);
+  }
+}
+function TabOutletComponent_ng_template_12_Case_0_Conditional_0_Template(rf, ctx) {
+  var _a, _b;
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 58);
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275property("reserve_top", !!((_a = ctx_r2.tab()) == null ? void 0 : _a.help) && !ctx_r2.mobile())("present_output", (_b = ctx_r2.tab()) == null ? void 0 : _b.presentation_source)("redirect", false);
+  }
+}
+function TabOutletComponent_ng_template_12_Case_0_Conditional_1_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "camera-controls");
+  }
+}
+function TabOutletComponent_ng_template_12_Case_0_Conditional_1_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "camera-controls", 61);
+  }
+}
+function TabOutletComponent_ng_template_12_Case_0_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 59);
+    \u0275\u0275conditionalCreate(1, TabOutletComponent_ng_template_12_Case_0_Conditional_1_Conditional_1_Template, 1, 0, "camera-controls");
+    \u0275\u0275element(2, "video-call-dial-view", 60);
+    \u0275\u0275conditionalCreate(3, TabOutletComponent_ng_template_12_Case_0_Conditional_1_Conditional_3_Template, 1, 0, "camera-controls", 61);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx_r2.speaker_track() && !ctx_r2.mobile() ? 1 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(!ctx_r2.speaker_track() && ctx_r2.mobile() ? 3 : -1);
+  }
+}
+function TabOutletComponent_ng_template_12_Case_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, TabOutletComponent_ng_template_12_Case_0_Conditional_0_Template, 1, 3, "div", 58)(1, TabOutletComponent_ng_template_12_Case_0_Conditional_1_Template, 4, 2, "div", 59);
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275conditional(ctx_r2.call() ? 0 : 1);
+  }
+}
+function TabOutletComponent_ng_template_12_Case_1_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275element(0, "tv-controls", 57);
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("mod", (_a = ctx_r2.tab()) == null ? void 0 : _a.mod);
+  }
+}
+function TabOutletComponent_ng_template_12_Case_2_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 62);
+    \u0275\u0275pipe(1, "markdown");
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, ctx_r2.help().content), \u0275\u0275sanitizeHtml);
+  }
+}
+function TabOutletComponent_ng_template_12_Case_2_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 63)(1, "p");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "APP.CONTROL.CONTROLS_EMPTY"), " ");
+  }
+}
+function TabOutletComponent_ng_template_12_Case_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, TabOutletComponent_ng_template_12_Case_2_Conditional_0_Template, 2, 3, "div", 62);
+    \u0275\u0275conditionalCreate(1, TabOutletComponent_ng_template_12_Case_2_Conditional_1_Template, 4, 3, "div", 63);
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275conditional(ctx_r2.help() ? 0 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx_r2.help() ? 1 : -1);
+  }
+}
+function TabOutletComponent_ng_template_12_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, TabOutletComponent_ng_template_12_Case_0_Template, 2, 1)(1, TabOutletComponent_ng_template_12_Case_1_Template, 1, 1, "tv-controls", 57)(2, TabOutletComponent_ng_template_12_Case_2_Template, 2, 2);
+  }
+  if (rf & 2) {
+    let tmp_2_0;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275conditional((tmp_2_0 = (_a = ctx_r2.tab()) == null ? void 0 : _a.controls) === "vidconf-controls" ? 0 : tmp_2_0 === "tv-channels" ? 1 : 2);
+  }
+}
+var _TabOutletComponent = class _TabOutletComponent extends AsyncHandler {
+  /**
+   * Select a source on the phone layout, then ask which display shows it.
+   * Only selects the input, so a display picked on the wide layout does not change before the user picks one.
+   */
+  pickSource(input2) {
+    var _a;
+    if (!this.can_pick_display())
+      return this.setInput(input2);
+    this._service.setSelectedInput(input2.id);
+    (_a = this._display_ref) == null ? void 0 : _a.close();
+    this._display_ref = this._service.selectDisplay(input2.id);
+  }
+  /** Close the display list with the view. For example, when the room powers off elsewhere. */
+  ngOnDestroy() {
+    var _a;
+    (_a = this._display_ref) == null ? void 0 : _a.close();
+    super.ngOnDestroy();
+  }
+  constructor() {
+    super();
+    this._service = inject(ControlStateService);
+    this._vc_state = inject(VideoCallStateService);
+    this._route = inject(ActivatedRoute);
+    this._router = inject(Router);
+    this._display_ref = null;
+    this.hearing_tloop = false;
+    this.icons = ICON_MAP;
+    this.mobile = inject(MobileLayoutService).mobile;
+    this.id = this._service.system_id;
+    this.hide_present_all = this._service.hide_present_all;
+    this.outputs = this._service.output_list;
+    this.has_routes = computed(
+      () => this.outputs().some((_) => !!_.source),
+      ...ngDevMode ? [{ debugName: "has_routes" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.can_pick_display = computed(
+      () => this.outputs().length > 1 || this._service.preview_outputs(),
+      ...ngDevMode ? [{ debugName: "can_pick_display" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.system = this._service.system;
+    this.tabs = this._service.tabs;
+    this.call = this._vc_state.call;
+    this.speaker_track = this._vc_state.speaker_track;
+    this.tab = computed(
+      () => this.tabs().find((t) => (t.id || t.name) === this.active_tab()),
+      ...ngDevMode ? [{ debugName: "tab" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.inputs = computed(
+      () => {
+        const tab = this.tab();
+        if (!tab)
+          return [];
+        return this._available_inputs().filter((_) => tab.inputs ? tab.inputs.includes(_.id) : !tab.type || _.type === tab.type);
+      },
+      ...ngDevMode ? [{ debugName: "inputs" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_tab = computed(
+      () => {
+        const first = this.tabs()[0];
+        return this._route_tab() || this._selected_tab() || (first == null ? void 0 : first.id) || (first == null ? void 0 : first.name) || "";
+      },
+      ...ngDevMode ? [{ debugName: "active_tab" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.shown_on = computed(
+      () => {
+        const outputs = this.outputs();
+        const names = {};
+        for (const input2 of this.inputs()) {
+          names[input2.id] = outputs.filter((_) => !!_.source && (_.source === input2.id || _.source === input2.ref)).map((_) => _.name).join(", ");
+        }
+        return names;
+      },
+      ...ngDevMode ? [{ debugName: "shown_on" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.displays = computed(
+      () => {
+        const inputs = this._available_inputs();
+        return this.outputs().map((output) => {
+          var _a;
+          return {
+            id: output.id,
+            name: output.name,
+            source: output.source ? ((_a = inputs.find((_) => _.id === output.source || _.ref === output.source)) == null ? void 0 : _a.name) || output.source : ""
+          };
+        });
+      },
+      ...ngDevMode ? [{ debugName: "displays" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._user_action = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_user_action" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._selected_tab = computed(
+      () => {
+        var _a;
+        return (_a = this.system()) == null ? void 0 : _a.selected_tab;
+      },
+      ...ngDevMode ? [{ debugName: "_selected_tab" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._available_inputs = this._service.available_inputs;
+    this._route_tab = toSignal(this._route.paramMap.pipe(map((params) => params.get("tab") || "")), { initialValue: "" });
+    this.help = computed(
+      () => {
+        const tab = this.tab();
+        return (this._help_items() || []).find((h) => h.id === (tab == null ? void 0 : tab.help));
+      },
+      ...ngDevMode ? [{ debugName: "help" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._help_items = this._service.help_items;
+    this.join_code = "";
+    this.setInput = (input2) => this._service.setOutputSource(input2.id);
+    this.viewHelp = () => {
+      var _a;
+      return this._service.viewHelp((_a = this.tab()) == null ? void 0 : _a.help);
+    };
+    effect(() => {
+      const selected_tab = this._selected_tab();
+      this.timeout("update_tab", () => {
+        if (selected_tab) {
+          this._router.navigate(["/tabbed", this.id(), selected_tab], {
+            queryParamsHandling: "merge"
+          });
+        }
+      }, 500);
+    });
+    effect(() => {
+      var _a;
+      const input_list = this.inputs();
+      const selected_input = (_a = this.system()) == null ? void 0 : _a.selected_input;
+      const user_action = this._user_action();
+      this.timeout("inputs", () => {
+        const has_selected = input_list.find((i) => (i.id || i.name) === selected_input);
+        if (has_selected || !user_action)
+          return;
+        input_list.length ? this._service.setSelectedInput(input_list[0].id) : log("TABS", "No available inputs to select on the tab.", void 0, "warn");
+      }, 300);
+    });
+  }
+  presentToAll() {
+    const tab = this.tab();
+    if (!tab)
+      return;
+    this._service.routeToAll();
+  }
+  clearAll() {
+    this._service.unrouteAll();
+  }
+  /** Stop showing a source on one display */
+  clearDisplay(id) {
+    this._service.unroute(id);
+  }
+  onAction() {
+    if (this._user_action())
+      return;
+    this._user_action.set(true);
+    setTimeout(() => this._user_action.set(false), 1e3);
+  }
+};
+_TabOutletComponent.\u0275fac = function TabOutletComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _TabOutletComponent)();
+};
+_TabOutletComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TabOutletComponent, selectors: [["tab-outlet"], ["", "tab-outlet", ""]], features: [\u0275\u0275InheritDefinitionFeature], decls: 14, vars: 8, consts: [["controls", ""], ["binding", "", "mod", "HearingAugmentation", "bind", "join_code", 3, "modelChange", "sys", "model"], ["binding", "", "mod", "HearingAugmentation", "bind", "has_t_coil", 3, "modelChange", "sys", "model"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "p-1"], [1, "flex", "w-[calc(100%-1rem)]", "px-1", "pt-2"], ["tabs", "", 1, "flex", "min-w-0", "flex-1", "overflow-x-auto"], ["matRipple", "", "queryParamsHandling", "merge", 1, "bg-base-100", "text-base-content", "mx-1", "flex", "h-16", "w-20", "shrink-0", "flex-col", "items-center", "justify-center", "overflow-hidden", "rounded-t", "rounded-b-none", "leading-tight", "opacity-60", "shadow-sm", "sm:h-24", "sm:w-32", 3, "routerLink", "opacity-100!", "text-secondary!"], [1, "flex", "shrink-0", "space-x-2", "pb-2"], [3, "system_id", "enabled"], [1, "max-h-full", "w-12", "sm:w-16"], ["mobile-content", "", 1, "mb-1", "flex", "min-h-0", "w-[calc(100%-1rem)]", "flex-1", "flex-col", "space-y-2", "overflow-auto"], ["matRipple", "", "queryParamsHandling", "merge", 1, "bg-base-100", "text-base-content", "mx-1", "flex", "h-16", "w-20", "shrink-0", "flex-col", "items-center", "justify-center", "overflow-hidden", "rounded-t", "rounded-b-none", "leading-tight", "opacity-60", "shadow-sm", "sm:h-24", "sm:w-32", 3, "click", "routerLink"], ["aria-hidden", "true", "className", "material-symbols-outlined", 1, "text-3xl", "sm:text-5xl"], [1, "max-w-full", "truncate", "px-1", "text-xs", "sm:text-base"], [1, "bg-base-100", "space-y-1", "rounded-sm", "p-1", "shadow-sm", "sm:p-2"], [1, "w-16", "overflow-hidden", "rounded-sm", "border", "border-[hsl(217,62%,38%)]", 3, "src"], [1, "text-base-content", "text-center", "font-mono", "text-xs"], [1, "grid", "shrink-0", "items-start", "gap-2", "landscape:grid-cols-2"], ["controls", "", 1, "bg-base-100", "text-base-content", "relative", "shrink-0", "rounded-sm", "shadow-sm"], [1, "bg-base-100", "text-base-content", "flex", "flex-1", "items-center", "justify-center", "rounded-sm", "p-8", "text-center", "opacity-60", "shadow-sm"], ["sources", "", 1, "bg-base-100", "text-base-content", "shrink-0", "overflow-hidden", "rounded-sm", "shadow-sm"], [1, "px-4", "pt-3", "pb-2", "text-sm", "font-medium", "opacity-60"], ["source", "", "matRipple", "", 1, "border-base-200", "flex", "w-full", "items-center", "space-x-4", "border-t", "px-4", "py-3", "text-left", 3, "text-secondary"], ["displays", "", 1, "bg-base-100", "text-base-content", "shrink-0", "overflow-hidden", "rounded-sm", "shadow-sm"], ["source", "", "matRipple", "", 1, "border-base-200", "flex", "w-full", "items-center", "space-x-4", "border-t", "px-4", "py-3", "text-left", 3, "click"], ["aria-hidden", "true", 1, "text-2xl"], [1, "min-w-0", "flex-1"], [1, "truncate", "font-medium"], [1, "text-base-content", "truncate", "text-sm", "opacity-60"], ["aria-hidden", "true", 1, "text-2xl", "opacity-40"], ["display", "", 1, "border-base-200", "flex", "min-h-14", "items-center", "gap-4", "border-t", "py-1", "pr-2", "pl-4"], [1, "border-base-200", "border-t", "p-4"], [1, "truncate", "text-sm", "opacity-60"], ["icon", "", "matRipple", "", "clear-display", ""], ["icon", "", "matRipple", "", "clear-display", "", 3, "click"], ["aria-hidden", "true", 1, "opacity-60"], ["btn", "", "matRipple", "", "clear-all", "", 1, "inverse", "w-full", "space-x-2", 3, "click", "disabled"], [1, "pr-4"], [1, "flex", "justify-end", "p-2"], [4, "ngTemplateOutlet"], ["btn", "", "matRipple", "", 1, "inverse", "black", "w-32", 3, "click"], [1, "mr-2", "flex", "items-center", "justify-center"], ["aria-hidden", "true"], [1, "mx-2"], [1, "divide-base-200", "bg-base-100", "text-base-content", "mb-1", "flex", "h-1/2", "w-[calc(100%-1rem)]", "flex-1", "items-center", "divide-x", "overflow-auto", "rounded-sm", "shadow-sm"], [1, "h-full", "w-64", "min-w-64", "space-y-2", "overflow-auto", "px-4", "pt-2", "pb-4", "sm:min-w-0"], [1, "relative", "h-full", "min-h-full", "min-w-full", "overflow-auto", "sm:min-w-0", 2, "flex", "2"], ["btn", "", "matRipple", "", 1, "inverse", "black", "absolute", "top-4", "right-4", "w-32"], [1, "flex", "w-full", "items-center"], ["output-actions", "", 1, "flex", "flex-col", "space-y-2", "px-4"], [1, "p-2", "text-center", "text-lg", "font-medium"], ["btn", "", "matRipple", "", 1, "w-full", 3, "inverse"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["btn", "", "matRipple", "", 1, "inverse", "black", "absolute", "top-4", "right-4", "w-32", 3, "click"], ["btn", "", "matRipple", "", "present-all", "", 1, "space-x-2"], ["btn", "", "matRipple", "", "clear-all", "", 1, "inverse", "space-x-2", 3, "click", "disabled"], ["btn", "", "matRipple", "", "present-all", "", 1, "space-x-2", 3, "click"], [3, "mod"], ["video-call-page", "", 3, "reserve_top", "present_output", "redirect"], [1, "flex", "flex-col", "items-center", "sm:flex-row", "sm:items-stretch", "sm:justify-center", "sm:space-x-8"], [1, "block", "sm:mt-4"], [1, "mt-4"], ["content", "", 1, "p-4", "sm:p-8", 3, "innerHTML"], [1, "flex", "h-full", "w-full", "items-center", "justify-center", "opacity-60"]], template: function TabOutletComponent_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "i", 1);
+    \u0275\u0275twoWayListener("modelChange", function TabOutletComponent_Template_i_modelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      \u0275\u0275twoWayBindingSet(ctx.join_code, $event) || (ctx.join_code = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(1, "i", 2);
+    \u0275\u0275twoWayListener("modelChange", function TabOutletComponent_Template_i_modelChange_1_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      \u0275\u0275twoWayBindingSet(ctx.hearing_tloop, $event) || (ctx.hearing_tloop = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "div", 3)(3, "div", 4)(4, "nav", 5);
+    \u0275\u0275repeaterCreate(5, TabOutletComponent_For_6_Template, 5, 11, "a", 6, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "div", 7);
+    \u0275\u0275element(8, "voice-assistant", 8);
+    \u0275\u0275conditionalCreate(9, TabOutletComponent_Conditional_9_Template, 5, 2, "div", 9);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(10, TabOutletComponent_Conditional_10_Template, 4, 2, "div", 10)(11, TabOutletComponent_Conditional_11_Template, 8, 4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(12, TabOutletComponent_ng_template_12_Template, 3, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+  }
+  if (rf & 2) {
+    \u0275\u0275property("sys", ctx.id());
+    \u0275\u0275twoWayProperty("model", ctx.join_code);
+    \u0275\u0275advance();
+    \u0275\u0275property("sys", ctx.id());
+    \u0275\u0275twoWayProperty("model", ctx.hearing_tloop);
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(ctx.tabs());
+    \u0275\u0275advance(3);
+    \u0275\u0275property("system_id", ctx.id())("enabled", (_a = ctx.system()) == null ? void 0 : _a.voice_control);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx.join_code ? 9 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx.mobile() ? 10 : 11);
+  }
+}, dependencies: [
+  BindingDirective,
+  MatRippleModule,
+  MatRipple,
+  IconComponent,
+  DeviceOutputListComponent,
+  TVControlsComponent,
+  VideoCallDialViewComponent,
+  CameraControlsComponent,
+  VideoCallPageComponent,
+  VoiceAssistantComponent,
+  RouterModule,
+  RouterLink,
+  NgTemplateOutlet,
+  TranslatePipe,
+  MarkdownPipe
+], styles: ["\na[_ngcontent-%COMP%] {\n  color: #000;\n}\n/*# sourceMappingURL=tab-outlet.component.css.map */"] });
+var TabOutletComponent = _TabOutletComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TabOutletComponent, [{
+    type: Component,
+    args: [{ selector: "tab-outlet,[tab-outlet]", template: `
+        <i
+            binding
+            [sys]="id()"
+            mod="HearingAugmentation"
+            bind="join_code"
+            [(model)]="join_code"
+        ></i>
+        <i
+            binding
+            [sys]="id()"
+            mod="HearingAugmentation"
+            bind="has_t_coil"
+            [(model)]="hearing_tloop"
+        ></i>
+        <div class="flex h-full w-full flex-col items-center p-1">
+            <div class="flex w-[calc(100%-1rem)] px-1 pt-2">
+                <nav tabs class="flex min-w-0 flex-1 overflow-x-auto">
+                    @for (tab of tabs(); track tab) {
+                        <a
+                            matRipple
+                            class="bg-base-100 text-base-content mx-1 flex h-16 w-20 shrink-0 flex-col items-center justify-center overflow-hidden rounded-t rounded-b-none leading-tight opacity-60 shadow-sm sm:h-24 sm:w-32"
+                            [routerLink]="['/tabbed', id(), tab.id || tab.name]"
+                            [class.opacity-100!]="
+                                (tab.id || tab.name) === active_tab()
+                            "
+                            [class.text-secondary!]="
+                                (tab.id || tab.name) === active_tab()
+                            "
+                            [attr.aria-current]="
+                                (tab.id || tab.name) === active_tab()
+                                    ? 'page'
+                                    : null
+                            "
+                            queryParamsHandling="merge"
+                            (click)="onAction()"
+                        >
+                            <icon
+                                aria-hidden="true"
+                                class="text-3xl sm:text-5xl"
+                                className="material-symbols-outlined"
+                                >{{ tab.icon }}</icon
+                            >
+                            <p
+                                class="max-w-full truncate px-1 text-xs sm:text-base"
+                            >
+                                {{ tab.name }}
+                            </p>
+                        </a>
+                    }
+                </nav>
+                <div class="flex shrink-0 space-x-2 pb-2">
+                    <voice-assistant
+                        [system_id]="id()"
+                        [enabled]="system()?.voice_control"
+                    ></voice-assistant>
+                    @if (join_code) {
+                        <div class="max-h-full w-12 sm:w-16">
+                            <div
+                                class="bg-base-100 space-y-1 rounded-sm p-1 shadow-sm sm:p-2"
+                            >
+                                <img
+                                    class="w-16 overflow-hidden rounded-sm border border-[hsl(217,62%,38%)]"
+                                    [src]="
+                                        hearing_tloop
+                                            ? 'assets/loop_t.png'
+                                            : 'assets/loop.png'
+                                    "
+                                />
+                                <p
+                                    class="text-base-content text-center font-mono text-xs"
+                                >
+                                    {{ join_code }}
+                                </p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            @if (mobile()) {
+                <div
+                    mobile-content
+                    class="mb-1 flex min-h-0 w-[calc(100%-1rem)] flex-1 flex-col space-y-2 overflow-auto"
+                >
+                    @if (inputs().length) {
+                        <!-- Landscape puts the sources and displays side by side -->
+                        <div
+                            class="grid shrink-0 items-start gap-2 landscape:grid-cols-2"
+                        >
+                            <section
+                                sources
+                                class="bg-base-100 text-base-content shrink-0 overflow-hidden rounded-sm shadow-sm"
+                            >
+                                <h3
+                                    class="px-4 pt-3 pb-2 text-sm font-medium opacity-60"
+                                >
+                                    {{
+                                        'APP.CONTROL.INPUTS_AVAILABLE'
+                                            | translate
+                                    }}
+                                </h3>
+                                @for (
+                                    input of inputs();
+                                    track input.id || input.name
+                                ) {
+                                    @let selected =
+                                        system()?.selected_input ===
+                                        (input.id || input.name);
+                                    @let shown = shown_on()[input.id];
+                                    <button
+                                        source
+                                        matRipple
+                                        class="border-base-200 flex w-full items-center space-x-4 border-t px-4 py-3 text-left"
+                                        [class.text-secondary]="selected"
+                                        [attr.aria-pressed]="selected"
+                                        [attr.aria-haspopup]="
+                                            can_pick_display() ? 'dialog' : null
+                                        "
+                                        (click)="pickSource(input)"
+                                    >
+                                        <icon
+                                            class="text-2xl"
+                                            aria-hidden="true"
+                                        >
+                                            {{
+                                                input.icon ||
+                                                    icons[input.type] ||
+                                                    'input'
+                                            }}
+                                        </icon>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="truncate font-medium">
+                                                {{ input.name }}
+                                            </div>
+                                            @if (shown) {
+                                                <div
+                                                    class="text-base-content truncate text-sm opacity-60"
+                                                >
+                                                    {{
+                                                        'APP.CONTROL.DISPLAY_SHOWING'
+                                                            | translate
+                                                                : {
+                                                                      names: shown,
+                                                                  }
+                                                    }}
+                                                </div>
+                                            }
+                                        </div>
+                                        @if (can_pick_display()) {
+                                            <icon
+                                                class="text-2xl opacity-40"
+                                                aria-hidden="true"
+                                            >
+                                                chevron_right
+                                            </icon>
+                                        } @else if (selected) {
+                                            <icon
+                                                class="text-2xl"
+                                                aria-hidden="true"
+                                            >
+                                                check_circle
+                                            </icon>
+                                        }
+                                    </button>
+                                }
+                            </section>
+                            @if (can_pick_display()) {
+                                <section
+                                    displays
+                                    class="bg-base-100 text-base-content shrink-0 overflow-hidden rounded-sm shadow-sm"
+                                >
+                                    <h3
+                                        class="px-4 pt-3 pb-2 text-sm font-medium opacity-60"
+                                    >
+                                        {{ 'APP.CONTROL.DISPLAYS' | translate }}
+                                    </h3>
+                                    @for (
+                                        display of displays();
+                                        track display.id
+                                    ) {
+                                        <div
+                                            display
+                                            class="border-base-200 flex min-h-14 items-center gap-4 border-t py-1 pr-2 pl-4"
+                                        >
+                                            <icon
+                                                class="text-2xl"
+                                                aria-hidden="true"
+                                                [class.opacity-40]="
+                                                    !display.source
+                                                "
+                                            >
+                                                tv
+                                            </icon>
+                                            <div class="min-w-0 flex-1">
+                                                <div
+                                                    class="truncate font-medium"
+                                                >
+                                                    {{ display.name }}
+                                                </div>
+                                                <div
+                                                    class="truncate text-sm opacity-60"
+                                                >
+                                                    {{
+                                                        display.source ||
+                                                            ('APP.CONTROL.INPUT_EMPTY'
+                                                                | translate)
+                                                    }}
+                                                </div>
+                                            </div>
+                                            @if (display.source) {
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    clear-display
+                                                    [attr.aria-label]="
+                                                        'APP.CONTROL.DISPLAY_CLEAR'
+                                                            | translate
+                                                                : {
+                                                                      name: display.name,
+                                                                  }
+                                                    "
+                                                    (click)="
+                                                        clearDisplay(display.id)
+                                                    "
+                                                >
+                                                    <icon
+                                                        aria-hidden="true"
+                                                        class="opacity-60"
+                                                    >
+                                                        close
+                                                    </icon>
+                                                </button>
+                                            }
+                                        </div>
+                                    }
+                                    @if (outputs().length > 1) {
+                                        <div
+                                            class="border-base-200 border-t p-4"
+                                        >
+                                            <button
+                                                btn
+                                                matRipple
+                                                clear-all
+                                                class="inverse w-full space-x-2"
+                                                [disabled]="!has_routes()"
+                                                (click)="clearAll()"
+                                            >
+                                                <icon
+                                                    class="text-2xl"
+                                                    aria-hidden="true"
+                                                >
+                                                    cancel_presentation
+                                                </icon>
+                                                <div class="pr-4">
+                                                    {{
+                                                        'APP.CONTROL.CLEAR_ALL'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </button>
+                                        </div>
+                                    }
+                                </section>
+                            }
+                        </div>
+                    }
+                    @if (tab()?.controls || help()) {
+                        <section
+                            controls
+                            class="bg-base-100 text-base-content relative shrink-0 rounded-sm shadow-sm"
+                        >
+                            @if (tab()?.help && tab()?.controls) {
+                                <div class="flex justify-end p-2">
+                                    <button
+                                        btn
+                                        matRipple
+                                        class="inverse black w-32"
+                                        (click)="viewHelp()"
+                                    >
+                                        <div
+                                            class="mr-2 flex items-center justify-center"
+                                        >
+                                            <icon aria-hidden="true">help</icon>
+                                            <div class="mx-2">
+                                                {{
+                                                    'APP.CONTROL.ACTION_HELP'
+                                                        | translate
+                                                }}
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
+                            }
+                            <ng-container *ngTemplateOutlet="controls" />
+                        </section>
+                    } @else if (!inputs().length) {
+                        <div
+                            class="bg-base-100 text-base-content flex flex-1 items-center justify-center rounded-sm p-8 text-center opacity-60 shadow-sm"
+                        >
+                            <p>
+                                {{ 'APP.CONTROL.CONTROLS_EMPTY' | translate }}
+                            </p>
+                        </div>
+                    }
+                </div>
+            } @else {
+                <div
+                    class="divide-base-200 bg-base-100 text-base-content mb-1 flex h-1/2 w-[calc(100%-1rem)] flex-1 items-center divide-x overflow-auto rounded-sm shadow-sm"
+                >
+                    @if (inputs().length > 1) {
+                        <div
+                            class="h-full w-64 min-w-64 space-y-2 overflow-auto px-4 pt-2 pb-4 sm:min-w-0"
+                        >
+                            <h3 class="p-2 text-center text-lg font-medium">
+                                {{ 'APP.CONTROL.INPUTS_AVAILABLE' | translate }}
+                            </h3>
+                            @for (input of inputs(); track input) {
+                                <button
+                                    btn
+                                    matRipple
+                                    class="w-full"
+                                    [class.inverse]="
+                                        system()?.selected_input !==
+                                        (input.id || input.name)
+                                    "
+                                    (click)="setInput(input)"
+                                >
+                                    {{ input?.name }}
+                                </button>
+                            }
+                        </div>
+                    }
+                    <div
+                        style="flex: 2"
+                        class="relative h-full min-h-full min-w-full overflow-auto sm:min-w-0"
+                    >
+                        <ng-container *ngTemplateOutlet="controls" />
+                        @if (tab()?.help && tab()?.controls) {
+                            <button
+                                btn
+                                matRipple
+                                class="inverse black absolute top-4 right-4 w-32"
+                                (click)="viewHelp()"
+                            >
+                                <div
+                                    class="mr-2 flex items-center justify-center"
+                                >
+                                    <icon aria-hidden="true">help</icon>
+                                    <div class="mx-2">
+                                        {{
+                                            'APP.CONTROL.ACTION_HELP'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                        }
+                    </div>
+                </div>
+                <div class="flex w-full items-center">
+                    <device-output-list
+                        class="min-w-0 flex-1"
+                    ></device-output-list>
+                    @if (outputs().length > 1) {
+                        <div
+                            output-actions
+                            class="flex flex-col space-y-2 px-4"
+                        >
+                            @if (hide_present_all() !== true) {
+                                <button
+                                    btn
+                                    matRipple
+                                    present-all
+                                    class="space-x-2"
+                                    (click)="presentToAll()"
+                                >
+                                    <icon aria-hidden="true" class="text-2xl"
+                                        >output</icon
+                                    >
+                                    <div class="pr-4">
+                                        {{
+                                            'APP.CONTROL.PRESENT_ALL'
+                                                | translate
+                                        }}
+                                    </div>
+                                </button>
+                            }
+                            <button
+                                btn
+                                matRipple
+                                clear-all
+                                class="inverse space-x-2"
+                                [disabled]="!has_routes()"
+                                (click)="clearAll()"
+                            >
+                                <icon aria-hidden="true" class="text-2xl"
+                                    >cancel_presentation</icon
+                                >
+                                <div class="pr-4">
+                                    {{ 'APP.CONTROL.CLEAR_ALL' | translate }}
+                                </div>
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        <ng-template #controls>
+            @switch (tab()?.controls) {
+                @case ('vidconf-controls') {
+                    @if (call()) {
+                        <div
+                            video-call-page
+                            [reserve_top]="!!tab()?.help && !mobile()"
+                            [present_output]="tab()?.presentation_source"
+                            [redirect]="false"
+                        ></div>
+                    } @else {
+                        <div
+                            class="flex flex-col items-center sm:flex-row sm:items-stretch sm:justify-center sm:space-x-8"
+                        >
+                            <!-- Phones show the dial view first, as calls are the main task.
+                                 The DOM order matches the visual order, so focus follows it. -->
+                            @if (!speaker_track() && !mobile()) {
+                                <camera-controls></camera-controls>
+                            }
+                            <video-call-dial-view
+                                class="block sm:mt-4"
+                            ></video-call-dial-view>
+                            @if (!speaker_track() && mobile()) {
+                                <camera-controls class="mt-4"></camera-controls>
+                            }
+                        </div>
+                    }
+                }
+                @case ('tv-channels') {
+                    <tv-controls [mod]="tab()?.mod"></tv-controls>
+                }
+                @default {
+                    @if (help()) {
+                        <div
+                            class="p-4 sm:p-8"
+                            content
+                            [innerHTML]="help().content | markdown"
+                        ></div>
+                    }
+                    @if (!help()) {
+                        <div
+                            class="flex h-full w-full items-center justify-center opacity-60"
+                        >
+                            <p>
+                                {{ 'APP.CONTROL.CONTROLS_EMPTY' | translate }}
+                            </p>
+                        </div>
+                    }
+                }
+            }
+        </ng-template>
+    `, imports: [
+      BindingDirective,
+      MatRippleModule,
+      IconComponent,
+      DeviceOutputListComponent,
+      TranslatePipe,
+      MarkdownPipe,
+      TVControlsComponent,
+      VideoCallDialViewComponent,
+      CameraControlsComponent,
+      VideoCallPageComponent,
+      VoiceAssistantComponent,
+      RouterModule,
+      NgTemplateOutlet
+    ], styles: ["/* angular:styles/component:css;5a2d56206ea3c48b09789f001d41a622bbc3d2a2c34668ecfe492742875574c1;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/tabbed-view/tab-outlet.component.ts */\na {\n  color: #000;\n}\n/*# sourceMappingURL=tab-outlet.component.css.map */\n"] }]
+  }], () => [], null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TabOutletComponent, { className: "TabOutletComponent", filePath: "apps/control/src/app/tabbed-view/tab-outlet.component.ts", lineNumber: 511 });
+})();
+
+// apps/control/src/app/tabbed-view/tabbed-view.component.ts
+function ControlTabbedViewComponent_Conditional_0_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275element(1, "topbar-header")(2, "div", 2)(3, "control-status-bar");
+    \u0275\u0275elementEnd();
+  }
+}
+function ControlTabbedViewComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "control-splash");
+    \u0275\u0275element(1, "next-meeting", 3);
+    \u0275\u0275elementStart(2, "div", 4);
+    \u0275\u0275listener("click", function ControlTabbedViewComponent_Conditional_0_Conditional_1_Template_div_click_2_listener($event) {
+      return $event.stopPropagation();
+    });
+    \u0275\u0275element(3, "voice-assistant", 5);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("system_id", ctx_r0.id())("enabled", (_a = ctx_r0.system()) == null ? void 0 : _a.voice_control);
+  }
+}
+function ControlTabbedViewComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1)(1, "div", 6);
+    \u0275\u0275element(2, "img", 7);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "icon", 8);
+    \u0275\u0275text(4, "lock");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "p", 9);
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("source", ((_a = ctx_r0.logo()) == null ? void 0 : _a.src) || ctx_r0.logo());
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 2, "APP.CONTROL.ROOMS_JOINED"), " ");
+  }
+}
+function ControlTabbedViewComponent_Conditional_0_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, ControlTabbedViewComponent_Conditional_0_Conditional_0_Template, 4, 0, "div", 0)(1, ControlTabbedViewComponent_Conditional_0_Conditional_1_Template, 4, 2, "control-splash");
+    \u0275\u0275conditionalCreate(2, ControlTabbedViewComponent_Conditional_0_Conditional_2_Template, 8, 4, "div", 1);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(((_a = ctx_r0.system()) == null ? void 0 : _a.active) ? 0 : 1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(!ctx_r0.join_status()[0] && ctx_r0.join_status()[1] ? 2 : -1);
+  }
+}
+function ControlTabbedViewComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "control-connecting");
+  }
+}
+var _ControlTabbedViewComponent = class _ControlTabbedViewComponent {
+  constructor() {
+    this._route = inject(ActivatedRoute);
+    this._router = inject(Router);
+    this._state = inject(ControlStateService);
+    this._settings = inject(SettingsService);
+    this._org = inject(OrganisationService);
+    this._param_map = toSignal(this._route.paramMap, {
+      initialValue: this._route.snapshot.paramMap
+    });
+    this._query_param_map = toSignal(this._route.queryParamMap, {
+      initialValue: this._route.snapshot.queryParamMap
+    });
+    this.system = this._state.system;
+    this.join_status = this._state.join_status;
+    this.id = this._state.system_id;
+    this.logo = computed(
+      () => {
+        this._org.active_building();
+        return (this._settings.theme === "dark" ? this._settings.get("app.logo_dark") : this._settings.get("app.logo_light")) || {};
+      },
+      ...ngDevMode ? [{ debugName: "logo" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    effect(() => {
+      const params = this._param_map();
+      if (params.has("system"))
+        this._state.setID(params.get("system"));
+    });
+    effect(() => {
+      const params = this._query_param_map();
+      if (params.get("join") !== "true")
+        return;
+      this._state.selectMeeting();
+      this._router.navigate([], {
+        relativeTo: this._route,
+        queryParams: { join: null },
+        queryParamsHandling: "merge",
+        replaceUrl: true
+      });
+    });
+  }
+};
+_ControlTabbedViewComponent.\u0275fac = function ControlTabbedViewComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ControlTabbedViewComponent)();
+};
+_ControlTabbedViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlTabbedViewComponent, selectors: [["app-control-tabbed-view"]], decls: 2, vars: 1, consts: [[1, "divide", "divide-base-200", "bg-base-100", "relative", "flex", "h-full", "w-full", "flex-col", "pt-[env(safe-area-inset-top)]", "pr-[env(safe-area-inset-right)]", "pb-[env(safe-area-inset-bottom)]", "pl-[env(safe-area-inset-left)]"], ["lockout", "", 1, "bg-base-100", "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["tab-outlet", "", 1, "bg-base-200", "h-1/2", "flex-1"], [1, "mt-8"], [1, "absolute", "right-4", "bottom-4", 3, "click"], [3, "system_id", "enabled"], [1, "absolute", "top-4", "left-4", "z-0"], ["auth", "", "alt", "Logo", 1, "h-10", 3, "source"], ["aria-hidden", "true", 1, "text-base-content", "relative", "z-10", "text-8xl"], [1, "text-base-content", "relative", "z-10", "text-2xl"]], template: function ControlTabbedViewComponent_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, ControlTabbedViewComponent_Conditional_0_Template, 3, 2)(1, ControlTabbedViewComponent_Conditional_1_Template, 1, 0, "control-connecting");
+  }
+  if (rf & 2) {
+    \u0275\u0275conditional(((_a = ctx.system()) == null ? void 0 : _a.connected) ? 0 : 1);
+  }
+}, dependencies: [
+  TopbarHeaderComponent,
+  TabOutletComponent,
+  ControlStatusBarComponent,
+  ControlConnectingComponent,
+  NextMeetingComponent,
+  IconComponent,
+  AuthenticatedImageDirective,
+  VoiceAssistantComponent,
+  SplashComponent,
+  TranslatePipe
+], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  position: relative;\n  width: 100%;\n  height: 100%;\n}\n[_nghost-%COMP%]    > div[_ngcontent-%COMP%] {\n  color: #fff;\n}\n/*# sourceMappingURL=tabbed-view.component.css.map */"] });
+var ControlTabbedViewComponent = _ControlTabbedViewComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ControlTabbedViewComponent, [{
+    type: Component,
+    args: [{ selector: "app-control-tabbed-view", template: `
+        @if (system()?.connected) {
+            @if (system()?.active) {
+                <div
+                    class="divide divide-base-200 bg-base-100 relative flex h-full w-full flex-col pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
+                >
+                    <topbar-header></topbar-header>
+                    <div class="bg-base-200 h-1/2 flex-1" tab-outlet></div>
+                    <control-status-bar></control-status-bar>
+                </div>
+            } @else {
+                <control-splash>
+                    <next-meeting class="mt-8" />
+                    <div
+                        class="absolute right-4 bottom-4"
+                        (click)="$event.stopPropagation()"
+                    >
+                        <voice-assistant
+                            [system_id]="id()"
+                            [enabled]="system()?.voice_control"
+                        ></voice-assistant>
+                    </div>
+                </control-splash>
+            }
+            @if (!join_status()[0] && join_status()[1]) {
+                <div
+                    lockout
+                    class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center space-y-2 p-16"
+                >
+                    <div class="absolute top-4 left-4 z-0">
+                        <img
+                            auth
+                            class="h-10"
+                            alt="Logo"
+                            [source]="logo()?.src || logo()"
+                        />
+                    </div>
+                    <icon
+                        aria-hidden="true"
+                        class="text-base-content relative z-10 text-8xl"
+                        >lock</icon
+                    >
+                    <p class="text-base-content relative z-10 text-2xl">
+                        {{ 'APP.CONTROL.ROOMS_JOINED' | translate }}
+                    </p>
+                </div>
+            }
+        } @else {
+            <control-connecting />
+        }
+    `, imports: [
+      TopbarHeaderComponent,
+      TabOutletComponent,
+      ControlStatusBarComponent,
+      ControlConnectingComponent,
+      NextMeetingComponent,
+      TranslatePipe,
+      IconComponent,
+      AuthenticatedImageDirective,
+      VoiceAssistantComponent,
+      SplashComponent
+    ], styles: ["/* angular:styles/component:css;5653e8145a7eb9e9062a6b756348b23fd47695d22bf14c8a0efd20507a877107;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/tabbed-view/tabbed-view.component.ts */\n:host {\n  display: block;\n  position: relative;\n  width: 100%;\n  height: 100%;\n}\n:host > div {\n  color: #fff;\n}\n/*# sourceMappingURL=tabbed-view.component.css.map */\n"] }]
+  }], () => [], null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ControlTabbedViewComponent, { className: "ControlTabbedViewComponent", filePath: "apps/control/src/app/tabbed-view/tabbed-view.component.ts", lineNumber: 102 });
+})();
+export {
+  ControlTabbedViewComponent
+};
+//# debugId=8710cffb-190d-56fa-9e06-7f5bb1d5e86a
+//# sourceMappingURL=tabbed-view.component-QZ3TBDZV.js.map
