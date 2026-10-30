@@ -1,5 +1,5 @@
-// Coverage: 1 unique Setting. Exact key: app.bookings.all_day_period.
-// Scenarios: 2.
+// Setting: app.bookings.all_day_period.
+// Scenarios:
 //   1. all_day_period { start: 9, end: 17 }: turning All Day on sets the
 //      unsaved visitor window to 09:00 UTC for 480 minutes.
 //   2. all_day_period { start: 8, end: 12 }: the same action sets 08:00 UTC
@@ -10,68 +10,42 @@
 // setting('all_day_period') to the form time sync as all_day_start/end, and
 // settingForType resolves app.visitor.all_day_period, then
 // app.visitors.all_day_period, then app.bookings.all_day_period. The first two
-// are asserted unset, so the key under test is the one applied.
-// libs/common/src/lib/general.ts applies getAllDayTimeRange with that
-// period when All Day turns on. The All Day checkbox is shown only while
-// app.visitors.allow_all_day is true
+// are asserted unset. libs/common/src/lib/general.ts applies
+// getAllDayTimeRange with that period when All Day turns on. The All Day
+// checkbox is shown only while app.visitors.allow_all_day is true
 // (visitor-flow-details.component.ts), so that control is pinned true.
 // The visit is moved to tomorrow first, so the window is never in the past.
 //
-// Authentication (read-only): the staff bearer comes from settingsStaffToken
-// (settings-harness): the token stored for this worker under e2e/.auth while
-// the backend accepts it and the storageState the inherited staffPage loads
-// holds it with at least 15 minutes left, otherwise a freshly minted one. It
-// must belong to this worker's staff address and not be admin/support. The
-// admin auth fixture is blocked. A browser token refresh would be a non-GET
-// /auth request, which the network policy blocks and reports. The readOnlyTest
-// identity guard is unchanged.
-//
-// Network policy: every /api request must match one exact synthetic GET
-// fixture below, except the shared staff identity GET (users/current), which
-// the readOnlyTest identity guard observes and is never mocked. Any other /api
+// Authentication: guardedStaffTest (settings-harness). Network policy: every
+// /api request must match one exact synthetic GET fixture below, except the
+// staff identity GET (users/current), which is never mocked. Any other /api
 // request, any non-GET request to a local non-API path (including /auth/) and
 // any external request is recorded and aborted, and fails the scenario.
-import type { Page, Route } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { APP_URL, BACKEND_URL, assertLocalOnly, staffEmail } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { BULK_METADATA, clearOrganisationCache, expectSafe, PIXEL, protectNetwork, type Settings, watchStaffId, guardedStaffTest as test } from '../support/settings-harness';
-type DebugWindow = Window & {
-    ng?: { getComponent(element: Element): unknown };
-    setting?: (key: string) => unknown;
-};
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
+import {
+    clearOrganisationCache,
+    type DebugWindow,
+    expectSafe,
+    getOnly,
+    PIXEL,
+    protectNetwork,
+    type Settings,
+    syntheticOrg,
+    syntheticOrgRoutes,
+    guardedStaffTest as test,
+    validPeriod,
+} from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
-/** Every synthetic zone id starts with this prefix. */
-const PREFIX = 'e2e-visitor-all-day-';
-const ORGANISATION = PREFIX + 'org';
-const REGION = PREFIX + 'region';
-const BUILDING = PREFIX + 'building';
-const LEVEL = PREFIX + 'level';
-const ZONES = [ORGANISATION, REGION, BUILDING, LEVEL];
-const HIDDEN_CATEGORIES = [
-    { id: PREFIX + 'catering', name: '_CATERING_', hidden: true },
-    { id: PREFIX + 'desks', name: '_DESKS_', hidden: true },
-    { id: PREFIX + 'parking', name: '_PARKING_', hidden: true },
-    { id: PREFIX + 'lockers', name: '_LOCKERS_', hidden: true },
-];
-const HIDDEN_TYPES: Record<string, string[]> = {
-    [PREFIX + 'catering']: [],
-    [PREFIX + 'desks']: ['_DESKS_'],
-    [PREFIX + 'parking']: [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    [PREFIX + 'lockers']: ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
-const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
-    .flat()
-    .map((name) => PREFIX + 'type-' + name);
+const ORG = syntheticOrg('e2e-visitor-all-day-', { params: 'zones' });
+const { BUILDING, ORGANISATION, hasParams } = ORG;
+
 // Exact single-zone metadata names. BookingFormService loads
 // `<type>_booking_rules` for each building (booking-form.service.ts);
 // its type starts as `desk` until the visitor flow sets `visitor`,
@@ -86,8 +60,8 @@ const ZONE_METADATA: Record<string, string[]> = {
     ],
 };
 
-// Controls, not covered settings: every other visitor time setting is held so
-// the configured all-day period is the only input to the window.
+// Every other visitor time setting is held, so the configured all-day period
+// is the only input to the window.
 const CONTROLS: Settings = {
     'app.has_assets': false,
     'app.global_search': false,
@@ -110,31 +84,6 @@ const CONTROLS: Settings = {
     'app.visitors.reason_required': false,
 };
 
-function hasParams(url: URL, expected: Record<string, string>) {
-    const keys = [...url.searchParams.keys()].filter(
-        (key) =>
-            !(
-                url.pathname === '/api/engine/v2/zones' &&
-                key === 'authority_id'
-            ),
-    );
-    return (
-        keys.length === Object.keys(expected).length &&
-        Object.entries(expected).every(
-            ([key, value]) => url.searchParams.get(key) === value,
-        )
-    );
-}
-
-/** Numeric seconds, in increasing order; no malformed period is hidden. */
-function validPeriod(url: URL) {
-    const start = url.searchParams.get('period_start') ?? '';
-    const end = url.searchParams.get('period_end') ?? '';
-    return (
-        /^\d+$/.test(start) && /^\d+$/.test(end) && Number(end) > Number(start)
-    );
-}
-
 /** The signed-in user's own day lists, by booking type; always empty. */
 function ownBookingQuery(url: URL) {
     const period_start = url.searchParams.get('period_start')!;
@@ -151,151 +100,14 @@ function ownBookingQuery(url: URL) {
     });
 }
 
-/** Hidden assets may only be read in this synthetic organisation. */
-function hiddenAssetQuery(url: URL) {
-    const type_id = url.searchParams.get('type_id') ?? '';
-    const zone_id = url.searchParams.get('zone_id') ?? '';
-    return (
-        HIDDEN_TYPE_IDS.includes(type_id) &&
-        ZONES.includes(zone_id) &&
-        hasParams(url, { type_id, zone_id, limit: '500' })
-    );
-}
-
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
-}
-
 /** Exact synthetic GET fixtures for the visitor invite page. */
 async function syntheticGets(page: Page) {
-    const staff_id = watchStaffId(page);
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, { tags: 'org', include_children_count: 'true' }),
-        () => [
-            {
-                id: ORGANISATION,
-                name: 'Visitor All Day Organisation',
-                display_name: 'Visitor All Day Organisation',
-                tags: ['org'],
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) => {
-            const match = /^\/api\/engine\/v2\/metadata\/([^/]+)\/bulk$/.exec(
-                url.pathname,
-            );
-            const ids = (url.searchParams.get('parent_ids') ?? '').split(',');
-            return (
-                !!match &&
-                BULK_METADATA.includes(match[1]) &&
-                url.searchParams.has('parent_ids') &&
-                hasParams(url, {
-                    parent_ids: url.searchParams.get('parent_ids')!,
-                }) &&
-                ids.every((id) => ZONES.includes(id))
-            );
-        },
-        (url) =>
-            Object.fromEntries(
-                url.searchParams
-                    .get('parent_ids')!
-                    .split(',')
-                    .map((id) => [id, { details: {} }]),
-            ),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, {
-                tags: 'region',
-                parent_id: ORGANISATION,
-                limit: '200',
-            }),
-        () => [
-            {
-                id: REGION,
-                name: 'Visitor All Day Region',
-                tags: ['region'],
-                timezone: 'UTC',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, {
-                tags: 'building',
-                parent_id: REGION,
-                limit: '500',
-            }),
-        () => [
-            {
-                id: BUILDING,
-                parent_id: REGION,
-                name: 'Visitor All Day Building',
-                display_name: 'Visitor All Day Building',
-                tags: ['building'],
-                timezone: 'UTC',
-                location: '0,0',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, { tags: 'level', limit: '2500' }),
-        () => [
-            {
-                id: LEVEL,
-                parent_id: BUILDING,
-                name: 'Visitor All Day Level',
-                display_name: 'Visitor All Day Level',
-                tags: ['level'],
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) => {
-            const id = url.pathname.split('/')[5] ?? '';
-            const name = url.searchParams.get('name') ?? '';
-            return (
-                url.pathname === '/api/engine/v2/metadata/' + id &&
-                Object.hasOwn(ZONE_METADATA, id) &&
-                ZONE_METADATA[id].includes(name) &&
-                hasParams(url, { name })
-            );
-        },
-        (url) => {
-            const id = url.pathname.split('/')[5];
-            const name = url.searchParams.get('name')!;
-            return {
-                [name]: {
-                    id,
-                    name,
-                    details: name.endsWith('_booking_rules') ? [] : {},
-                },
-            };
-        },
-    );
+    await syntheticOrgRoutes(page, ORG, {
+        label: 'Visitor All Day',
+        zone_metadata: ZONE_METADATA,
+        zone_details: (_id, name) => (name.endsWith('_booking_rules') ? [] : {}),
+        user_metadata: ['settings', 'contacts'],
+    });
     // BookingFormService checks whether the user has an assigned desk
     // (booking-form.service.ts) by listing the building's child
     // `desks` metadata (booking-resource.loaders.ts). No level
@@ -308,93 +120,23 @@ async function syntheticGets(page: Page) {
             hasParams(url, { name: 'desks' }),
         () => [],
     );
-    await page.route(
-        (url) =>
-            ORIGINS.has(url.origin) &&
-            /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
-            ['settings', 'contacts'].some((name) => hasParams(url, { name })),
-        async (route: Route) => {
-            const request = route.request();
-            if (request.method() !== 'GET') return route.fallback();
-            const id = decodeURIComponent(
-                new URL(request.url()).pathname.split('/')[5],
-            );
-            if (!id || id !== (await staff_id)) return route.fallback();
-            const name = new URL(request.url()).searchParams.get('name')!;
-            await route.fulfill({
-                json: {
-                    [name]: {
-                        name,
-                        description: '',
-                        details: name === 'contacts' ? [] : {},
-                    },
-                },
-            });
-        },
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/groups/current' &&
-            hasParams(url, {}),
-        () => [],
-    );
+    // LandingStateService loads the active building's rooms on every route.
     await getOnly(
         page,
         (url) =>
             url.pathname === '/api/engine/v2/systems' &&
-            (hasParams(url, { zone_id: ORGANISATION, limit: '5000' }) ||
-                hasParams(url, {
-                    zone_id: BUILDING,
-                    limit: '500',
-                    signage: 'false',
-                })),
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            hasParams(url, { hidden: 'true', limit: '500' }),
-        () => HIDDEN_CATEGORIES,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            Object.hasOwn(
-                HIDDEN_TYPES,
-                url.searchParams.get('category_id') ?? '',
-            ) &&
             hasParams(url, {
-                category_id: url.searchParams.get('category_id')!,
+                zone_id: BUILDING,
                 limit: '500',
+                signage: 'false',
             }),
-        (url) =>
-            HIDDEN_TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: PREFIX + 'type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' && hiddenAssetQuery(url),
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/staff/v1/calendars' && hasParams(url, {}),
         () => [],
     );
     await getOnly(
         page,
         (url) =>
             url.pathname === '/api/staff/v1/bookings' &&
-            validPeriod(url) &&
+            validPeriod(url, { strict: false }) &&
             ownBookingQuery(url),
         () => [],
     );
@@ -477,8 +219,7 @@ function visitorWindow(page: Page): Promise<VisitorWindow> {
     });
 }
 
-// Two different windows, so neither can pass on a default. Kept as data so
-// the test body has no branches.
+// Two windows, neither of them the app default.
 const SCENARIOS: { period: Period; duration: number }[] = [
     { period: { start: 9, end: 17 }, duration: 480 },
     { period: { start: 8, end: 12 }, duration: 240 },

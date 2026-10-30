@@ -1,49 +1,19 @@
 // Settings: visitors.min_duration, visitors.max_duration,
 // visitors.duration_step, visitors.custom_duration_options
 // (docs/settings/workplace.md).
-// Coverage: 4 unique settings, 4 scenarios (one per setting).
 // Consumer: apps/workplace/src/app/book/visitor-flow-new/visitor-flow-details.component.ts
 // passed to libs/form-fields/src/lib/duration-field.component.ts.
 // The visitor form's duration menu is read only. No field is submitted.
-import type { Page, Route } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
-import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
-import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { CATEGORIES, PIXEL, type Settings, TYPES } from '../support/settings-harness';
+import type { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
+import { type Audit, type Settings, test, visitor } from '../support/settings-harness';
 
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-
-const BASE: Settings = {
-    ...READ_ONLY_SETTINGS,
-    'app.features': ['visitor-invite'],
-    'app.chat.enabled': false,
-    'app.global_search': false,
-    'app.auto_release': { resources: [] },
-    'app.schedule.event_sources': ['api'],
-    'app.events.use_bookings': true,
-    'app.use_region': false,
-    'app.use_geolocation': false,
-    'app.allow_dark_mode': false,
-    'app.logo_light': PIXEL,
-    'app.bookings.multiple_visitors': false,
-    'app.bookings.all_day_default': false,
-    'app.bookings.can_book_for_anyone': false,
-    'app.bookings.can_book_for_others': false,
-    'app.visitors.can_book_for_anyone': false,
-    'app.visitors.can_book_for_others': false,
-    'app.visitors.allow_all_day': false,
-    'app.bookings.use_building_timezone': false,
-    'app.visitors.use_building_timezone': false,
-    'app.visitors.bookable_hours': null,
-    'app.bookings.bookable_hours': null,
-    'app.visitors.reason_required': false,
-    // The getters are visitors.x || bookings.x (visitor-flow-details.component.ts).
-    // Pin the bookings.* fallbacks to values no scenario expects, so the stack's
-    // zone settings cannot change the menu and an ignored visitors.* key fails.
-    // An override key wins even when null (SettingsService.get exact-key match);
-    // null custom options fall through to the pinned []. Scenario 4 sets its own.
+// The getters are visitors.x || bookings.x (visitor-flow-details.component.ts).
+// These bookings.* fallbacks differ from every value a scenario expects. An
+// override key wins even when null (SettingsService.get exact-key match); null
+// custom options fall through to the bookings []. Scenario 4 sets its own.
+const FALLBACKS: Settings = {
     'app.bookings.min_duration': 15,
     'app.bookings.max_duration': 480,
     'app.bookings.duration_step': 15,
@@ -51,80 +21,10 @@ const BASE: Settings = {
     'app.visitors.custom_duration_options': null,
 };
 
-readOnlyTest.use({ readOnlyTimezone: 'Etc/UTC' });
+test.use({ readOnlyTimezone: 'Etc/UTC' });
 
-readOnlyTest.describe.configure({ retries: 0, timeout: 120_000 });
-
-/** Origin-limited GET-only responses. Non-GET always falls through to the guard. */
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
-}
-
-async function visitor(page: Page, overrides: Settings) {
-    assertLocalOnly(APP_URL, BACKEND_URL);
-    await page.setViewportSize({ width: 1440, height: 1100 });
-    // The parking and locker modules are not under test, but their shared
-    // bootstrap must find the hidden categories/types instead of creating them.
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            url.searchParams.get('hidden') === 'true' &&
-            url.searchParams.get('limit') === '500',
-        () => CATEGORIES,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            url.searchParams.get('limit') === '500' &&
-            Object.hasOwn(
-                TYPES,
-                url.searchParams.get('category_id') ?? '',
-            ),
-        (url) =>
-            TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'e2e-settings-type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' &&
-            (url.searchParams.get('type_id') ?? '').startsWith(
-                'e2e-settings-type-',
-            ),
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) => url.pathname === '/api/staff/v1/calendars',
-        () => [],
-    );
-    await useSettings(page, { ...BASE, ...overrides });
-    await page.addInitScript(() =>
-        localStorage.setItem('APP.locale', 'en-US'),
-    );
-    const form = new InviteVisitorForm(page);
-    await form.open();
-    await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(form.reason).toBeVisible();
-    await expect(form.sendButton).toBeVisible();
-    await expect(form.successPanel).toHaveCount(0);
-    return form;
+async function open(page: Page, audit: Audit, overrides: Settings) {
+    return visitor(page, audit, { ...FALLBACKS, ...overrides });
 }
 
 /** Choose tomorrow at noon, so today's clock cannot bound the options. */
@@ -135,10 +35,10 @@ async function setTomorrow(form: InviteVisitorForm) {
     await form.setDate(tomorrow.valueOf());
 }
 
-readOnlyTest(
+test(
     'visitors.min_duration bounds the duration menu and removes shorter options',
-    async ({ staffPage }) => {
-        const form = await visitor(staffPage, {
+    async ({ staffPage, audit }) => {
+        const form = await open(staffPage, audit, {
             'app.visitors.min_duration': 60,
             'app.visitors.max_duration': 180,
             'app.visitors.duration_step': 30,
@@ -152,10 +52,10 @@ readOnlyTest(
     },
 );
 
-readOnlyTest(
+test(
     'visitors.max_duration removes longer options from the duration menu',
-    async ({ staffPage }) => {
-        const form = await visitor(staffPage, {
+    async ({ staffPage, audit }) => {
+        const form = await open(staffPage, audit, {
             'app.visitors.min_duration': 30,
             'app.visitors.max_duration': 120,
             'app.visitors.duration_step': 30,
@@ -169,10 +69,10 @@ readOnlyTest(
     },
 );
 
-readOnlyTest(
+test(
     'visitors.duration_step changes the spacing of duration options',
-    async ({ staffPage }) => {
-        const form = await visitor(staffPage, {
+    async ({ staffPage, audit }) => {
+        const form = await open(staffPage, audit, {
             'app.visitors.min_duration': 45,
             'app.visitors.max_duration': 225,
             'app.visitors.duration_step': 45,
@@ -184,10 +84,10 @@ readOnlyTest(
     },
 );
 
-readOnlyTest(
+test(
     'visitors.custom_duration_options adds exact values outside the generated step',
-    async ({ staffPage }) => {
-        const form = await visitor(staffPage, {
+    async ({ staffPage, audit }) => {
+        const form = await open(staffPage, audit, {
             'app.visitors.min_duration': 30,
             'app.visitors.max_duration': 120,
             'app.visitors.duration_step': 30,
