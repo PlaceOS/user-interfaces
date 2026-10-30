@@ -96,7 +96,7 @@ test('explore.legend of four pairs collapses behind a toggle', async ({ staffPag
     const toggle = legend.locator('button[aria-controls="explore-map-legend-items"]');
     const items = legend.locator('#explore-map-legend-items');
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    await expect(items).toBeHidden();
+    await expect(items).toHaveClass(/\bhidden\b/);
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     await expect(items).toBeVisible();
