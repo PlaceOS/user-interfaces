@@ -1,0 +1,128 @@
+import "./chunk-653SOEEV.js";
+
+// apps/signage-manager/src/environments/settings.schema.json
+var type = "object";
+var description = "Customisable settings for the signage-manager app";
+var properties = {
+  name: {
+    type: "string",
+    description: "Application name for the PlaceOS API client. If the URL pathname is empty, the app also uses this name to make the settings metadata key."
+  },
+  short_name: {
+    type: "string",
+    description: "Prefix for console log messages. The app also uses it as the API client application name if `name` is not set."
+  },
+  access_subsystem: {
+    type: "string",
+    description: "Group subsystem that grants access to the app, when the authority's `use_group_subsystem_access` is on. Defaults to `signage`."
+  },
+  logo_light: {
+    $ref: "#/$defs/logo",
+    description: "Logo shown in the navigation sidebar when using the light theme. Either a URL string or an object with a `src` URL."
+  },
+  logo_dark: {
+    $ref: "#/$defs/logo",
+    description: "Logo shown in the navigation sidebar when using the dark theme. Either a URL string or an object with a `src` URL. Needs `allow_dark_mode`."
+  },
+  allow_dark_mode: {
+    type: "boolean",
+    description: "Allow the dark theme. When on, the app uses the theme saved in the user's settings. When off or not set, the app uses the light theme."
+  },
+  show_locale_selector: {
+    type: "boolean",
+    description: "Whether to show the locale (language) selector in the navigation sidebar. The selector is only rendered when more than one locale is configured."
+  },
+  show_group_selector: {
+    type: "boolean",
+    description: "Whether to show the signage group selector in the navigation sidebar and mobile navigation menu. Defaults to `false`. If the value is not set at any level, the selector shows. The group breadcrumbs in each section header can still be used to change group."
+  },
+  show_media_group_tabs: {
+    type: "boolean",
+    description: "Whether to show the signage group tab bar above the media list. Defaults to `false`. If the value is not set at any level, the tab bar shows. The group breadcrumbs in the media header can still be used to change group."
+  },
+  schedule_timezone_once_only: {
+    type: "boolean",
+    default: true,
+    description: "Show the timezone selector above the timing fields for schedules that play once at an exact time, and inside the validity block for other schedules. Set to false to show it above the timing fields for both schedule types."
+  },
+  locales: {
+    type: "array",
+    description: "List of locales available in the navigation sidebar locale selector.",
+    items: { $ref: "#/$defs/locale" }
+  },
+  media_allow_extended_video_codecs: {
+    type: "boolean",
+    description: "Whether media upload validation accepts extended video codecs \u2014 AV1 (`av01`/`V_AV1`) and HEVC (`hev1`/`hvc1`) \u2014 in MP4 and WebM files, in addition to the default allowed codec set."
+  },
+  signage_path: {
+    type: "string",
+    description: "Base URL path of the signage viewer application, used to build display preview links. Defaults to `/signage`."
+  },
+  features: {
+    type: "array",
+    description: "Signage features available to every group: `templates`, `template-editing`, `ai-generation`, `ai-editing`, `branding-editing`. Signage group feature flags can narrow this list. Defaults to all features.",
+    items: {
+      type: "string",
+      enum: [
+        "templates",
+        "template-editing",
+        "ai-generation",
+        "ai-editing",
+        "branding-editing"
+      ]
+    }
+  }
+};
+var $defs = {
+  logo: {
+    anyOf: [
+      {
+        type: "string",
+        description: "URL of the logo image"
+      },
+      {
+        type: "object",
+        required: ["src"],
+        properties: {
+          src: {
+            type: "string",
+            description: "URL of the logo image"
+          }
+        }
+      }
+    ]
+  },
+  locale: {
+    type: "object",
+    required: ["id", "name"],
+    properties: {
+      id: {
+        type: "string",
+        description: "Locale code, e.g. `en` or `fr`. Persisted to local storage when selected."
+      },
+      name: {
+        type: "string",
+        description: "Display name for the locale. Supports translation keys."
+      },
+      local: {
+        type: "string",
+        description: "Name of the locale in its own language, shown alongside the translated name."
+      }
+    }
+  }
+};
+var settings_schema_default = {
+  type,
+  description,
+  properties,
+  $defs
+};
+export {
+  $defs,
+  settings_schema_default as default,
+  description,
+  properties,
+  type
+};
+//# debugId=26c966dd-8ae0-5052-bdb2-83a82162b28a
+//# sourceMappingURL=settings.schema-XU24KAFA.js.map
