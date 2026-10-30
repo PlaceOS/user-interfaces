@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/workplace/src/app/components/fullscreen-embed.component.ts"
+  ],
+  "sourcesContent": [
+    "import { Component, inject, signal } from '@angular/core';\nimport { MatRippleModule } from '@angular/material/core';\nimport { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';\nimport { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';\n\n@Component({\n    selector: 'fullscreen-embed',\n    template: `\n        <div class=\"relative h-screen w-screen bg-base-200\">\n            <button\n                icon\n                matRipple\n                mat-dialog-close\n                class=\"absolute right-2 top-2 rounded border border-base-300 bg-base-100\"\n                [attr.aria-label]=\"'COMMON.CLOSE' | translate\"\n            >\n                <icon>close</icon>\n            </button>\n            <iframe\n                class=\"h-full w-full\"\n                [title]=\"'APP.WORKPLACE.EMBED_TITLE' | translate\"\n                [src]=\"embed_url() | safe: 'resource'\"\n            ></iframe>\n        </div>\n    `,\n    styles: [``],\n    imports: [\n        IconComponent,\n        MatRippleModule,\n        SafePipe,\n        TranslatePipe,\n        MatDialogModule,\n    ],\n})\nexport class FullscreenEmbedComponent {\n    private _data: string = inject(MAT_DIALOG_DATA);\n    public readonly embed_url = signal(this._data);\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAkCM,IAAO,2BAAP,MAAO,0BAAwB;EA7BrC,cAAA;AA8BY,SAAA,QAAgB,OAAO,eAAe;AAC9B,SAAA,YAAY;MAAO,KAAK;;;;;;;;;uCAF/B,2BAAwB;IAAA;EAAA;;yEAAxB,2BAAwB,WAAA,CAAA,CAAA,kBAAA,CAAA,GAAA,OAAA,GAAA,MAAA,IAAA,QAAA,CAAA,CAAA,GAAA,YAAA,YAAA,YAAA,aAAA,GAAA,CAAA,QAAA,IAAA,aAAA,IAAA,oBAAA,IAAA,GAAA,YAAA,WAAA,SAAA,WAAA,UAAA,mBAAA,aAAA,GAAA,CAAA,GAAA,UAAA,UAAA,GAAA,SAAA,KAAA,CAAA,GAAA,UAAA,SAAA,kCAAA,IAAA,KAAA;AAAA,UAAA,KAAA,GAAA;AA1B7B,QAAA,yBAAA,GAAA,OAAA,CAAA,EAAoD,GAAA,UAAA,CAAA;;AAQ5C,QAAA,yBAAA,GAAA,MAAA;AAAM,QAAA,iBAAA,GAAA,OAAA;AAAK,QAAA,uBAAA,EAAO;AAEtB,QAAA,oBAAA,GAAA,UAAA,CAAA;;;AAKJ,QAAA,uBAAA;;;AATQ,QAAA,oBAAA;;AAMA,QAAA,oBAAA,CAAA;AAAA,QAAA,qBAAA,SAAA,sBAAA,GAAA,GAAA,2BAAA,CAAA,EAAiD,OAAA,sBAAA,GAAA,GAAA,IAAA,UAAA,GAAA,UAAA,GAAA,+BAAA;;;MAOzD;MACA;MAAe;MAGf;MAAe;MAFf;MACA;IAAa,GAAA,eAAA,EAAA,CAAA;EAAA;;;sEAIR,0BAAwB,CAAA;UA7BpC;uBACa,oBAAkB,UAClB;;;;;;;;;;;;;;;;;OAiBT,SAEQ;MACL;MACA;MACA;MACA;MACA;MACH,CAAA;;;;6EAEQ,0BAAwB,EAAA,WAAA,4BAAA,UAAA,mEAAA,YAAA,GAAA,CAAA;AAAA,GAAA;",
+  "names": [],
+  "debugId": "2bb179c8-a782-5e44-9301-94fbdba3cef4"
+}

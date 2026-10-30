@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["schedule-sidebar.component.ts"],
+  "sourcesContent": ["\n            mat-checkbox {\n                pointer-events: none;\n            }\n        "],
+  "mappings": ";AACY;AACI,kBAAA;AACJ;",
+  "names": []
+}

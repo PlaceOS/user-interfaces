@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/workplace/src/app/legacy-flows.guard.ts"
+  ],
+  "sourcesContent": [
+    "import { computed, inject, Injector } from '@angular/core';\nimport {\n    firstValueWhere,\n    OrganisationService,\n    SettingsService,\n} from '@placeos/common';\n\n/** Longest wait for zone settings before the guard uses the default flows */\nconst SETTINGS_WAIT = 20 * 1000;\n\n/**\n * Matches a route only when `app.use_legacy_flows` is set.\n * Put the legacy route before the route of the new flow on the same path.\n * The router then opens the legacy flow when the setting is on and the\n * new flow when it is off.\n */\nexport async function legacyFlowsGuard() {\n    const org = inject(OrganisationService);\n    const settings = inject(SettingsService);\n    const injector = inject(Injector);\n    // Building settings load after org initialisation and reach the settings\n    // service after a short delay. OrganisationService puts them first in the\n    // override stack, so wait until that entry is the loaded building's.\n    const ready = computed(() => {\n        if (!org.initialised()) return false;\n        const id = org.active_building()?.id;\n        if (!id || settings.get('dont_load_metadata')) return true;\n        return (\n            org.active_building_loaded() &&\n            settings.overrides()[0] === org.buildingSettings(id)\n        );\n    });\n    let timer: ReturnType<typeof setTimeout>;\n    await Promise.race([\n        firstValueWhere(ready, Boolean, injector),\n        new Promise((resolve) => (timer = setTimeout(resolve, SETTINGS_WAIT))),\n    ]);\n    clearTimeout(timer);\n    return !!settings.get('app.use_legacy_flows');\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;;;AAQA,IAAM,gBAAgB,KAAK;AAQ3B,eAAsB,mBAAgB;AAClC,QAAM,MAAM,OAAO,mBAAmB;AACtC,QAAM,WAAW,OAAO,eAAe;AACvC,QAAM,WAAW,OAAO,QAAQ;AAIhC,QAAM,QAAQ;IAAS,MAAK;AACxB,UAAI,CAAC,IAAI,YAAW;AAAI,eAAO;AAC/B,YAAM,KAAK,IAAI,gBAAe,GAAI;AAClC,UAAI,CAAC,MAAM,SAAS,IAAI,oBAAoB;AAAG,eAAO;AACtD,aACI,IAAI,uBAAsB,KAC1B,SAAS,UAAS,EAAG,CAAC,MAAM,IAAI,iBAAiB,EAAE;IAE3D;;;;;;AACA,MAAI;AACJ,QAAM,QAAQ,KAAK;IACf,gBAAgB,OAAO,SAAS,QAAQ;IACxC,IAAI,QAAQ,CAAC,YAAa,QAAQ,WAAW,SAAS,aAAa,CAAE;GACxE;AACD,eAAa,KAAK;AAClB,SAAO,CAAC,CAAC,SAAS,IAAI,sBAAsB;AAChD;",
+  "names": [],
+  "debugId": "b946885c-10aa-5a95-bbdc-ed6dec4dc5e9"
+}
