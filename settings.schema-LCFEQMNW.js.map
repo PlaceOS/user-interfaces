@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/signage/src/environments/settings.schema.json"
+  ],
+  "sourcesContent": [
+    "{\n    \"type\": \"object\",\n    \"description\": \"Customisable settings for the signage app\",\n    \"properties\": {\n        \"name\": {\n            \"type\": \"string\",\n            \"description\": \"Application name for the PlaceOS API client. If the URL pathname is empty, the app also uses this name to make the settings metadata key\"\n        },\n        \"short_name\": {\n            \"type\": \"string\",\n            \"description\": \"Prefix for console log messages. The app also uses it as the API client application name if `name` is not set\"\n        },\n        \"default_animation_time\": {\n            \"type\": \"number\",\n            \"description\": \"Duration in milliseconds of the media player's transition animation between playlist items. Defaults to `1000`. If the value is `0` or not set, the player uses `3000`\"\n        },\n        \"templates_enabled\": {\n            \"type\": \"boolean\",\n            \"description\": \"Whether template selection is available during signage bootstrap. Defaults to `true`.\"\n        }\n    }\n}\n"
+  ],
+  "mappings": ";;;AACI,WAAQ;AACR,kBAAe;AACf,iBAAc;AAAA,EACV,MAAQ;AAAA,IACJ,MAAQ;AAAA,IACR,aAAe;AAAA,EACnB;AAAA,EACA,YAAc;AAAA,IACV,MAAQ;AAAA,IACR,aAAe;AAAA,EACnB;AAAA,EACA,wBAA0B;AAAA,IACtB,MAAQ;AAAA,IACR,aAAe;AAAA,EACnB;AAAA,EACA,mBAAqB;AAAA,IACjB,MAAQ;AAAA,IACR,aAAe;AAAA,EACnB;AACJ;AApBJ;AAAA,EACI;AAAA,EACA;AAAA,EACA;AAkBJ;",
+  "names": [],
+  "debugId": "d2cad32f-2543-5079-a604-c45e9a3971bf"
+}
