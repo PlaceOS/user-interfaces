@@ -2,18 +2,18 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import {
     Component,
     ElementRef,
-    forwardRef,
     inject,
     signal,
     viewChild,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     notifyError,
     notifyInfo,
+    provideValueAccessor,
     UploadsService,
 } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -117,13 +117,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         </div>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ImageFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => ImageFieldComponent)],
     imports: [
         MatRippleModule,
         MatTooltipModule,

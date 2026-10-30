@@ -1,9 +1,13 @@
-import { Component, forwardRef, inject, signal } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { MatRippleModule } from '@angular/material/core';
-import { SETTING_KEYS, toggleListItem } from '@placeos/common';
+import {
+    provideValueAccessor,
+    SETTING_KEYS,
+    toggleListItem,
+} from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -114,13 +118,7 @@ const EMPTY_FAVS: string[] = [];
         </div>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => DeskListFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => DeskListFieldComponent)],
     imports: [
         IconComponent,
         TranslatePipe,

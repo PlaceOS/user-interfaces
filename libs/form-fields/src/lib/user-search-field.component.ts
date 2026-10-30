@@ -4,18 +4,13 @@ import {
     computed,
     debounced,
     ElementRef,
-    forwardRef,
     input,
     model,
     resource,
     signal,
     viewChild,
 } from '@angular/core';
-import {
-    ControlValueAccessor,
-    FormsModule,
-    NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { ControlValueAccessor, FormsModule } from '@angular/forms';
 import {
     MatAutocompleteModule,
     MatAutocompleteTrigger,
@@ -24,7 +19,13 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AsyncHandler, EMPTY_USER, settingSignal, User } from '@placeos/common';
+import {
+    AsyncHandler,
+    EMPTY_USER,
+    provideValueAccessor,
+    settingSignal,
+    User,
+} from '@placeos/common';
 import { authority, queryUsers, showUser } from '@placeos/ts-client';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -146,13 +147,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
             }
         `,
     ],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => UserSearchFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => UserSearchFieldComponent)],
     imports: [
         CommonModule,
         FormsModule,

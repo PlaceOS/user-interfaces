@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
-    forwardRef,
     inject,
     input,
     OnChanges,
@@ -10,7 +9,7 @@ import {
     signal,
     SimpleChanges,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -20,6 +19,7 @@ import {
     CateringOrder,
     i18n,
     OrganisationService,
+    provideValueAccessor,
     randomString,
     SETTING_KEYS,
     SettingsService,
@@ -319,14 +319,7 @@ const EMPTY_FAVS = [];
         </mat-menu>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            /* istanbul ignore next */
-            useExisting: forwardRef(() => CateringListFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => CateringListFieldComponent)],
     imports: [
         CommonModule,
         IconComponent,

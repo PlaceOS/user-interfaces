@@ -14,7 +14,6 @@ import {
     AbstractControl,
     ControlValueAccessor,
     NG_VALIDATORS,
-    NG_VALUE_ACCESSOR,
     ValidationErrors,
     Validator,
 } from '@angular/forms';
@@ -24,6 +23,7 @@ import {
     formatDuration,
     getTimeInTimezone,
     getTimezoneOffsetString,
+    provideValueAccessor,
 } from '@placeos/common';
 import { addMinutes, differenceInMinutes, format, set } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -182,11 +182,7 @@ export interface DurationOption {
         `,
     ],
     providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => DurationFieldComponent),
-            multi: true,
-        },
+        provideValueAccessor(() => DurationFieldComponent),
         {
             provide: NG_VALIDATORS,
             useExisting: forwardRef(() => DurationFieldComponent),

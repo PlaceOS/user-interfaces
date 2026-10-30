@@ -1,9 +1,6 @@
-import { Component, forwardRef, input, model, signal } from '@angular/core';
-import {
-    ControlValueAccessor,
-    FormsModule,
-    NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { Component, input, model, signal } from '@angular/core';
+import { ControlValueAccessor, FormsModule } from '@angular/forms';
+import { provideValueAccessor } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
@@ -112,14 +109,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             }
         `,
     ],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            /* istanbul ignore next */
-            useExisting: forwardRef(() => CounterComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => CounterComponent)],
     imports: [FormsModule, IconComponent, TranslatePipe],
 })
 export class CounterComponent implements ControlValueAccessor {

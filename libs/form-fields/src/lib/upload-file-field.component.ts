@@ -1,6 +1,6 @@
-import { Component, forwardRef, signal } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Attachment } from '@placeos/common';
+import { Component, signal } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
+import { Attachment, provideValueAccessor } from '@placeos/common';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -72,13 +72,7 @@ import { uploadAttachment } from './upload-attachment';
         </div>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => UploadFileFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => UploadFileFieldComponent)],
     imports: [MatProgressSpinnerModule, IconComponent, TranslatePipe],
 })
 export class UploadFileFieldComponent implements ControlValueAccessor {
