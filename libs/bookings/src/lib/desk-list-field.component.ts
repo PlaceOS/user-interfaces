@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { MatRippleModule } from '@angular/material/core';
-import { SETTING_KEYS } from '@placeos/common';
+import { SETTING_KEYS, toggleListItem } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -192,18 +192,9 @@ export class DeskListFieldComponent implements ControlValueAccessor {
 
     public toggleFavourite(space: BookingAsset) {
         if (!space?.id) return;
-        const fav_list = this.favorites() || EMPTY_FAVS;
-        const new_state = !fav_list.includes(space.id);
-        if (new_state) {
-            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, [
-                ...fav_list,
-                space.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                SETTING_KEYS.FAVORITE_DESKS,
-                fav_list.filter((_) => _ !== space.id),
-            );
-        }
+        this._settings.saveUserSetting(
+            SETTING_KEYS.FAVORITE_DESKS,
+            toggleListItem(this.favorites() || EMPTY_FAVS, space.id),
+        );
     }
 }

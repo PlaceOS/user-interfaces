@@ -140,6 +140,16 @@ export function getItemWithKeys(keys: string[], map: HashMap) {
 }
 
 /**
+ * Add the item to the list, or remove it if the list already has it.
+ * Returns a new array, e.g. for toggling an ID in a favourites setting.
+ */
+export function toggleListItem<T>(list: readonly T[], item: T): T[] {
+    return list.includes(item)
+        ? list.filter((_) => _ !== item)
+        : [...list, item];
+}
+
+/**
  * Remove duplicates from the given array
  * @param array List of items to remove duplicates from
  * @param key Key on array objects to compare for uniqueness

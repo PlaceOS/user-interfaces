@@ -7,7 +7,12 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { isMobileSafari, SETTING_KEYS, SettingsService } from '@placeos/common';
+import {
+    isMobileSafari,
+    SETTING_KEYS,
+    SettingsService,
+    toggleListItem,
+} from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -238,11 +243,7 @@ export class ParkingSelectModalComponent {
 
     public toggleFavourite(item: BookingAsset | null) {
         if (!item?.id) return;
-        const fav_list = this.favorites();
-        const new_state = !fav_list.includes(item.id);
-        const next_favs = new_state
-            ? [...fav_list, item.id]
-            : fav_list.filter((_) => _ !== item.id);
+        const next_favs = toggleListItem(this.favorites(), item.id);
         this.favorites.set(next_favs);
         this._settings.saveUserSetting(
             SETTING_KEYS.FAVORITE_PARKING_SPACES,
