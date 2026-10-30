@@ -18,14 +18,7 @@
 // without the `parking` tag and the parking scenarios a level with it and no
 // desks, so the two action groups cannot be confused.
 //
-// Authentication (read-only): the staff bearer comes from settingsStaffToken
-// (settings-harness): the token stored for this worker under e2e/.auth while
-// the backend accepts it and the storageState the inherited staffPage loads
-// holds it with at least 15 minutes left, otherwise a freshly minted one. It
-// must belong to this worker's staff address and not be admin/support. The
-// admin auth fixture is blocked. A browser token refresh would be a non-GET
-// /auth request, which the network policy blocks and reports. The readOnlyTest
-// identity guard is unchanged.
+// Authentication: guardedStaffTest (settings-harness).
 //
 // Network policy: every /api request must match one exact synthetic GET
 // fixture below, except the shared staff identity GET (users/current), which
@@ -37,48 +30,31 @@ import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import { APP_URL, BACKEND_URL, assertLocalOnly, staffEmail } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { BULK_METADATA, clearOrganisationCache, expectSafe, LIST_METADATA, protectNetwork, type Settings, watchStaffId, guardedStaffTest as test } from '../support/settings-harness';
-type DebugWindow = Window & {
-    ng?: { getComponent(element: Element): unknown };
-    setting?: (key: string) => unknown;
-};
+import {
+    clearOrganisationCache,
+    type DebugWindow,
+    expectSafe,
+    getOnly,
+    LIST_METADATA,
+    ORIGINS,
+    protectNetwork,
+    type Settings,
+    syntheticOrg,
+    syntheticOrgRoutes,
+    guardedStaffTest as test,
+    validPeriod,
+} from '../support/settings-harness';
 type MapView = {
     features(): { track_id?: string }[];
     actions(): { id?: string; action?: string }[];
 };
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
 type Mode = 'desk' | 'parking';
 
-/** Every synthetic zone and asset id starts with this prefix. */
-const PREFIX = 'e2e-enable-maps-';
-const ORGANISATION = PREFIX + 'org';
-const REGION = PREFIX + 'region';
-const BUILDING = PREFIX + 'building';
-const LEVEL = PREFIX + 'level';
-const ZONES = [ORGANISATION, REGION, BUILDING, LEVEL];
-const MAP_PATH = '/' + PREFIX + 'map.svg';
-const HIDDEN_CATEGORIES = [
-    { id: PREFIX + 'catering', name: '_CATERING_', hidden: true },
-    { id: PREFIX + 'desks', name: '_DESKS_', hidden: true },
-    { id: PREFIX + 'parking', name: '_PARKING_', hidden: true },
-    { id: PREFIX + 'lockers', name: '_LOCKERS_', hidden: true },
-];
-const HIDDEN_TYPES: Record<string, string[]> = {
-    [PREFIX + 'catering']: [],
-    [PREFIX + 'desks']: ['_DESKS_'],
-    [PREFIX + 'parking']: [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    [PREFIX + 'lockers']: ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
-const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
-    .flat()
-    .map((name) => PREFIX + 'type-' + name);
+const ORG = syntheticOrg('e2e-enable-maps-', { params: 'zones' });
+const { PREFIX, ORGANISATION, BUILDING, LEVEL, MAP_PATH, hasParams } = ORG;
 const SPACES_TYPE = PREFIX + 'type-_PARKING_SPACES_';
 const ZONE_METADATA: Record<string, string[]> = {
     [BUILDING]: [
@@ -150,240 +126,28 @@ const CONTROLS: Settings = {
     'app.maps_people.use_zones': [],
 };
 
-function hasParams(url: URL, expected: Record<string, string>) {
-    const keys = [...url.searchParams.keys()].filter(
-        (key) =>
-            !(
-                url.pathname === '/api/engine/v2/zones' &&
-                key === 'authority_id'
-            ),
-    );
-    return (
-        keys.length === Object.keys(expected).length &&
-        Object.entries(expected).every(
-            ([key, value]) => url.searchParams.get(key) === value,
-        )
-    );
-}
-
-/** Explore level availability, own-day list, or ParkingService's day list. */
-function parkingQuery(url: URL) {
-    const period_start = url.searchParams.get('period_start')!;
-    const period_end = url.searchParams.get('period_end')!;
-    const base = { type: 'parking', period_start, period_end };
-    return (
-        hasParams(url, base) ||
-        hasParams(url, { ...base, zones: LEVEL, rejected: 'false' }) ||
-        hasParams(url, {
-            ...base,
-            email: staffEmail(test.info().parallelIndex),
-        })
-    );
-}
-
-/** Numeric seconds, in increasing order; no malformed period is hidden. */
-function validPeriod(url: URL) {
-    const start = url.searchParams.get('period_start') ?? '';
-    const end = url.searchParams.get('period_end') ?? '';
-    return (
-        /^\d+$/.test(start) && /^\d+$/.test(end) && Number(end) > Number(start)
-    );
-}
-
-/** Hidden assets may only be read in this synthetic organisation. */
-function hiddenAssetQuery(url: URL) {
-    const type_id = url.searchParams.get('type_id') ?? '';
-    const zone_id = url.searchParams.get('zone_id') ?? '';
-    return (
-        HIDDEN_TYPE_IDS.includes(type_id) &&
-        ZONES.includes(zone_id) &&
-        hasParams(url, { type_id, zone_id, limit: '500' })
-    );
-}
-
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
-}
-
-/** Exact synthetic GET fixtures; the level is a desk or a parking level. */
 async function syntheticGets(page: Page, mode: Mode) {
-    const staff_id = watchStaffId(page);
     let desk_list_requests = 0;
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, { tags: 'org', include_children_count: 'true' }),
-        () => [
-            {
-                id: ORGANISATION,
-                name: 'Enable Maps Organisation',
-                display_name: 'Enable Maps Organisation',
-                tags: ['org'],
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) => {
-            const match = /^\/api\/engine\/v2\/metadata\/([^/]+)\/bulk$/.exec(
-                url.pathname,
-            );
-            const ids = (url.searchParams.get('parent_ids') ?? '').split(',');
-            return (
-                !!match &&
-                BULK_METADATA.includes(match[1]) &&
-                url.searchParams.has('parent_ids') &&
-                hasParams(url, {
-                    parent_ids: url.searchParams.get('parent_ids')!,
-                }) &&
-                ids.every((id) => ZONES.includes(id))
-            );
-        },
-        (url) =>
-            Object.fromEntries(
-                url.searchParams
-                    .get('parent_ids')!
-                    .split(',')
-                    .map((id) => [id, { details: {} }]),
-            ),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, {
-                tags: 'region',
-                parent_id: ORGANISATION,
-                limit: '200',
-            }),
-        () => [
-            {
-                id: REGION,
-                name: 'Enable Maps Region',
-                tags: ['region'],
-                timezone: 'UTC',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, {
-                tags: 'building',
-                parent_id: REGION,
-                limit: '500',
-            }),
-        () => [
-            {
-                id: BUILDING,
-                parent_id: REGION,
-                name: 'Enable Maps Building',
-                display_name: 'Enable Maps Building',
-                tags: ['building'],
-                timezone: 'UTC',
-                location: '0,0',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            hasParams(url, { tags: 'level', limit: '2500' }),
-        () => [
-            {
-                id: LEVEL,
-                parent_id: BUILDING,
-                name: 'Enable Maps Level',
-                display_name: 'Enable Maps Level',
-                tags: mode === 'parking' ? ['level', 'parking'] : ['level'],
-                map_id: new URL(MAP_PATH, APP_URL).href,
-            },
-        ],
-    );
-    // Named zone metadata. The level's `desks` list holds the one desk in the
-    // desk scenarios and is empty in the parking scenarios.
-    await getOnly(
-        page,
-        (url) => {
-            const id = url.pathname.split('/')[5] ?? '';
-            const name = url.searchParams.get('name') ?? '';
-            return (
-                url.pathname === '/api/engine/v2/metadata/' + id &&
-                Object.hasOwn(ZONE_METADATA, id) &&
-                ZONE_METADATA[id].includes(name) &&
-                hasParams(url, { name })
-            );
-        },
-        (url) => {
-            const id = url.pathname.split('/')[5];
-            const name = url.searchParams.get('name')!;
+    await syntheticOrgRoutes(page, ORG, {
+        label: 'Enable Maps',
+        zone_metadata: ZONE_METADATA,
+        // The level's `desks` list holds the one desk in the desk scenarios
+        // and is empty in the parking scenarios.
+        zone_details: (id, name) => {
             const desks = id === LEVEL && name === 'desks';
             desk_list_requests += Number(desks);
-            return {
-                [name]: {
-                    id,
-                    name,
-                    details:
-                        desks && mode === 'desk'
-                            ? DESKS
-                            : LIST_METADATA.includes(name)
-                              ? []
-                              : {},
-                },
-            };
+            return desks && mode === 'desk'
+                ? DESKS
+                : LIST_METADATA.includes(name)
+                  ? []
+                  : {};
         },
-    );
-    await page.route(
-        (url) =>
-            ORIGINS.has(url.origin) &&
-            /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
-            ['settings', 'contacts'].some((name) => hasParams(url, { name })),
-        async (route: Route) => {
-            const request = route.request();
-            if (request.method() !== 'GET') return route.fallback();
-            const id = decodeURIComponent(
-                new URL(request.url()).pathname.split('/')[5],
-            );
-            if (!id || id !== (await staff_id)) return route.fallback();
-            const name = new URL(request.url()).searchParams.get('name')!;
-            await route.fulfill({
-                json: {
-                    [name]: {
-                        name,
-                        description: '',
-                        details: name === 'contacts' ? [] : {},
-                    },
-                },
-            });
+        user_metadata: ['settings', 'contacts'],
+        level: {
+            tags: mode === 'parking' ? ['level', 'parking'] : ['level'],
+            map_id: new URL(MAP_PATH, APP_URL).href,
         },
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/groups/current' &&
-            hasParams(url, {}),
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            hasParams(url, { zone_id: ORGANISATION, limit: '5000' }),
-        () => [],
-    );
+    });
     await getOnly(
         page,
         (url) =>
@@ -392,33 +156,6 @@ async function syntheticGets(page: Page, mode: Mode) {
                 hasParams(url, { zone_id, limit: '50' }),
             ),
         () => [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            hasParams(url, { hidden: 'true', limit: '500' }),
-        () => HIDDEN_CATEGORIES,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            Object.hasOwn(
-                HIDDEN_TYPES,
-                url.searchParams.get('category_id') ?? '',
-            ) &&
-            hasParams(url, {
-                category_id: url.searchParams.get('category_id')!,
-                limit: '500',
-            }),
-        (url) =>
-            HIDDEN_TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: PREFIX + 'type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
     );
     // LandingStateService loads the active building's rooms even on Explore.
     await getOnly(
@@ -432,35 +169,28 @@ async function syntheticGets(page: Page, mode: Mode) {
             }),
         () => [],
     );
-    // Hidden asset lists. Only the parking scenarios' level returns the bay
-    // (parking-assets.fn.ts); every other list is empty.
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' && hiddenAssetQuery(url),
-        (url) =>
-            mode === 'parking' &&
-            hasParams(url, {
-                zone_id: LEVEL,
-                type_id: SPACES_TYPE,
-                limit: '500',
-            })
-                ? SPACES
-                : [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/staff/v1/calendars' && hasParams(url, {}),
-        () => [],
-    );
+    // Only the parking scenarios' level returns the bay (parking-assets.fn.ts);
+    // syntheticOrgRoutes answers every other hidden asset list with [].
+    if (mode === 'parking')
+        await getOnly(
+            page,
+            (url) =>
+                url.pathname === '/api/engine/v2/assets' &&
+                ORG.hiddenAssetQuery(url) &&
+                hasParams(url, {
+                    zone_id: LEVEL,
+                    type_id: SPACES_TYPE,
+                    limit: '500',
+                }),
+            () => SPACES,
+        );
     // Level and user parking bookings: none, so the bay is available.
     await getOnly(
         page,
         (url) =>
             url.pathname === '/api/staff/v1/bookings' &&
-            validPeriod(url) &&
-            parkingQuery(url),
+            validPeriod(url, { strict: false }) &&
+            ORG.parkingQuery(url, staffEmail(test.info().parallelIndex)),
         () => [],
     );
     const shape = mode === 'parking' ? BAY.shape : DESK_SHAPE;
@@ -512,7 +242,7 @@ function setting(page: Page, key: string) {
     );
 }
 
-/** Read-only probe of the map view's inputs. Fails closed if unavailable. */
+/** Read-only probe of the map view's inputs. Throws if unavailable. */
 function mapState(page: Page) {
     return page.locator('explore-map-view').evaluate((element) => {
         const view = (window as DebugWindow).ng?.getComponent(element) as
@@ -534,10 +264,9 @@ const bayCard = (page: Page) =>
         .filter({ hasText: BAY.name });
 
 // Each enabled scenario is the positive control for its disabled one: the
-// same fixture, the same probe, and the actions do arrive. Kept as data so
-// the test body has no branches.
-// Desk actions are counted, not matched by id: the source fixes four events
-// per bookable desk, not the action ids.
+// same fixture, the same probe, and the actions do arrive.
+// Desk actions are counted: the source fixes four events per bookable desk,
+// not the action ids.
 const DESK_SCENARIOS = [
     { enabled: false, actions: 0 },
     { enabled: true, actions: 4 },

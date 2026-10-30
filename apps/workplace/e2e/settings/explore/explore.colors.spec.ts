@@ -1,183 +1,26 @@
-import type { Page, Route } from '@playwright/test';
+// Setting: explore.colors on the desk booking map (docs/settings/workplace.md).
+// Consumer: apps/workplace/src/app/book/desk-flow-new/desk-flow-select-map.component.ts
+// styles(): colours['space-' + status] || colours[status]. The Explore map's desk
+// layer reads 'desk-' + status instead (libs/explore/src/lib/explore-desks.service.ts)
+// and is not covered here.
+// Scenarios: space-free alone, free alone, and both keys with space-free winning.
+// No desk is selected and the details form is never confirmed.
+import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
-import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
+import { APP_URL } from '../../../../../e2e/support/env';
 import { DeskFlow } from '../../../../../e2e/support/desk/desk-flow.page';
-import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { CATEGORIES, type Debug, type Identity, PIXEL, type Settings, TYPES } from '../support/settings-harness';
-type Audit = {
-    websocket_attempts: string[];
-    blocked_control_attempts: string[];
-    tooling_websockets: string[];
-    page_errors: string[];
-    app_errors: string[];
-    monitoring_errors: string[];
-    fixtures: Record<string, number>;
-    blocked_requests: string[];
-};
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
+import {
+    type Audit,
+    type Debug,
+    getOnly,
+    organisationRoutes,
+    prepareSettings,
+    type Settings,
+    test,
+} from '../support/settings-harness';
 
-function safeURL(raw: string) {
-    const url = new URL(raw);
-    for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
-    return url.href;
-}
-// HTTP: the parent
-// readOnlyTest guard (wpa-settings-readonly-legacy.fixture.ts) aborts every
-// non-GET or non-local /api request and fails the test in teardown; it does
-// not route non-API assets (the app shell loads Google Fonts). WebSockets:
-// the Vite dev-server socket is held open, the shell's local control socket is
-// closed before it connects and recorded, and any other socket fails.
-const test = readOnlyTest.extend<{ audit: Audit }>({
-    audit: [async ({ staffPage }, use, info) => {
-        const context = staffPage.context();
-        const audit: Audit = { websocket_attempts: [], blocked_control_attempts: [],
-            tooling_websockets: [], page_errors: [], app_errors: [], monitoring_errors: [], fixtures: {}, blocked_requests: [] };
-        const observe = (page: Page) => {
-            page.on('pageerror', (error) => audit.page_errors.push(error.name + ': ' + error.message));
-            page.on('console', (message) => {
-                if (message.type() === 'error' && /^(ERROR\b|NG0\d+)/.test(message.text())) {
-                    audit.app_errors.push(message.text().slice(0, 500));
-                }
-            });
-        };
-        observe(staffPage);
-        context.on('page', observe);
-        const closing: Promise<void>[] = [];
-        try {
-            // Page-local GET fixtures run first. Block every HTTP write and
-            // unknown provider read before it can reach a server.
-            await context.route('**/*', async (route) => {
-                const request = route.request();
-                const url = new URL(request.url());
-                const read = ['GET', 'HEAD', 'OPTIONS'].includes(request.method());
-                const provider = /^\/api\/staff\/v1\/(calendars|events)(\/|$)/.test(url.pathname);
-                if (read && !provider && (!url.pathname.startsWith('/api/') || ORIGINS.has(url.origin))) {
-                    return route.fallback();
-                }
-                audit.blocked_requests.push(request.method() + ' ' + url.pathname);
-                await route.abort('blockedbyclient');
-            });
-            await context.routeWebSocket('**/*', (socket) => {
-                let socket_url = '<unparsed URL>';
-                try {
-                    const url = new URL(socket.url());
-                    socket_url = safeURL(url.href);
-                    const app = new URL(APP_URL);
-                    const local = url.host === app.host &&
-                        url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                    // Vite client.mjs opens this socket; closing it makes
-                    // the client poll and reload. Held open, never connected.
-                    if (local && url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token') {
-                        audit.tooling_websockets.push(socket_url);
-                        return;
-                    }
-                    if (local && url.pathname === '/api/engine/v2/systems/control') {
-                        audit.blocked_control_attempts.push(socket_url);
-                    } else audit.websocket_attempts.push(socket_url);
-                } catch (error) {
-                    audit.monitoring_errors.push('WebSocket interception for ' + socket_url + ': ' + String(error));
-                }
-                closing.push(socket.close().catch((error: unknown) => {
-                    audit.monitoring_errors.push('WebSocket close for ' + socket_url + ': ' + String(error));
-                }));
-            });
-            await use(audit);
-        } finally {
-            try {
-                await context.close();
-            } catch (error) {
-                audit.monitoring_errors.push('Context close: ' + String(error));
-            }
-            await Promise.all(closing);
-            try {
-                await info.attach('settings-safety-audit', {
-                    body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
-                });
-            } finally {
-                expect({
-                    ws: audit.websocket_attempts, page: audit.page_errors,
-                    app: audit.app_errors, monitoring: audit.monitoring_errors, blocked: audit.blocked_requests,
-                }, 'zero unexpected WebSocket, application or monitoring failures').toEqual({
-                    ws: [], page: [], app: [], monitoring: [], blocked: [],
-                });
-            }
-        }
-    }, { auto: true, timeout: 15_000 }],
-});
-test.use({ readOnlyTimezone: 'Etc/UTC' });
+test.use({ readOnlyTimezone: 'Etc/UTC', auditHttp: 'strict' });
 
-/** Origin-limited GET-only responses. Non-GET always falls through to the guard. */
-async function getOnly(page: Page, audit: Audit, name: string, match: (url: URL) => boolean,
-    body: (url: URL) => unknown | Promise<unknown>) {
-    await page.route((url) => ORIGINS.has(url.origin) && match(url), async (route: Route) => {
-        if (route.request().method() !== 'GET') return route.fallback();
-        try {
-            const json = await body(new URL(route.request().url()));
-            audit.fixtures[name] = (audit.fixtures[name] ?? 0) + 1;
-            await route.fulfill({ json });
-        } catch (error) {
-            // Recorded (fails in teardown); the unmodified GET continues to the guard.
-            audit.monitoring_errors.push(name + ' fixture: ' + String(error));
-            await route.fallback().catch(() => undefined);
-        }
-    });
-}
-const BASE: Settings = {
-    ...READ_ONLY_SETTINGS,
-    'app.features': ['visitor-invite'], 'app.chat.enabled': false, 'app.global_search': false,
-    'app.auto_release': { resources: [] }, 'app.schedule.event_sources': ['api'],
-    'app.events.use_bookings': true, 'app.use_region': false, 'app.use_geolocation': false,
-    'app.allow_dark_mode': false, 'app.logo_light': PIXEL,
-    'app.bookings.multiple_visitors': false, 'app.bookings.all_day_default': false,
-    'app.bookings.can_book_for_anyone': false, 'app.bookings.can_book_for_others': false,
-    'app.visitors.can_book_for_anyone': false, 'app.visitors.can_book_for_others': false,
-    'app.visitors.allow_all_day': false, 'app.bookings.use_building_timezone': false,
-    'app.visitors.use_building_timezone': false, 'app.visitors.bookable_hours': null,
-    'app.bookings.bookable_hours': null, 'app.visitors.reason_required': false,
-};
-async function prepare(page: Page, audit: Audit, overrides: Settings) {
-    assertLocalOnly(APP_URL, BACKEND_URL);
-    await page.setViewportSize({ width: 1440, height: 1100 });
-    let identity: Promise<Identity> | undefined;
-    page.on('response', (response) => {
-        const url = new URL(response.url());
-        if (ORIGINS.has(url.origin) && url.pathname === '/api/engine/v2/users/current' &&
-            response.request().method() === 'GET') identity = response.json();
-    });
-    // Parking/locker modules are not tested. Their shared bootstrap is read-only:
-    // ensure_hidden_category/move_type_to_category must find matching records.
-    await getOnly(page, audit, 'hidden categories', (url) => url.pathname === '/api/engine/v2/asset_categories' &&
-        url.searchParams.get('hidden') === 'true' && url.searchParams.get('limit') === '500', () => CATEGORIES);
-    await getOnly(page, audit, 'hidden types', (url) => url.pathname === '/api/engine/v2/asset_types' &&
-        url.searchParams.get('limit') === '500' && Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
-    (url) => TYPES[url.searchParams.get('category_id')!].map((name) => ({
-        id: 'e2e-settings-type-' + name, name, category_id: url.searchParams.get('category_id'), brand: 'PlaceOS',
-    })));
-    await getOnly(page, audit, 'hidden assets', (url) => url.pathname === '/api/engine/v2/assets' &&
-        (url.searchParams.get('type_id') ?? '').startsWith('e2e-settings-type-'), () => []);
-    await getOnly(page, audit, 'calendar list', (url) => url.pathname === '/api/staff/v1/calendars', () => []);
-    const settings = { ...BASE, ...overrides };
-    await useSettings(page, settings);
-    await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-US'));
-    return {
-        settings,
-        user: async () => {
-            if (!identity) throw new Error('the application must establish staff identity');
-            return identity;
-        },
-        ready: async () => {
-            await expect(page.locator('global-loading')).toHaveCount(1);
-            await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-            await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
-            for (const [key, value] of Object.entries(settings)) {
-                await expect.poll(() => page.evaluate((name) => (window as Debug).setting?.(name), key),
-                    { message: 'effective setting ' + key }).toEqual(value);
-            }
-        },
-    };
-}
-// DeskFlowSelectMapComponent.styles(): space-<status>, then <status>.
 const REGION = 'e2e-settings-region';
 const BUILDING_A = 'e2e-settings-building-a';
 const BUILDING_B = 'e2e-settings-building-b';
@@ -192,61 +35,29 @@ const LEVELS = [
 ];
 const DESK = 'E2E browser-only desk';
 
+const DESK_DETAILS = (level: { id: string }) => [{
+    id: 'e2e-settings-desk-' + level.id, name: DESK + ' ' + level.id,
+    map_id: 'e2e-settings-desk-shape', bookable: true, assigned_to: '',
+    groups: [], features: [], images: [],
+}];
+
 async function organisationFixture(page: Page, audit: Audit) {
-    // Preserve the real authority, organisation and authenticated identity.
-    // Only browser GETs for the source-supported region/building/level lists
-    // and synthetic-zone metadata are replaced. All IDs are fixture-local.
-    await page.addInitScript(() => {
-        for (const key of Object.keys(localStorage)) {
-            if (key.startsWith('PLACEOS.org') || ['PLACEOS.region', 'PLACEOS.building'].includes(key)) {
-                localStorage.removeItem(key);
-            }
-        }
-        sessionStorage.removeItem('PLACEOS.building');
+    await organisationRoutes(page, {
+        audit,
+        prefix: 'e2e-settings-',
+        region: { id: REGION, name: 'E2E Region' },
+        regionParent: true,
+        buildings: [
+            { id: BUILDING_A, parent_id: REGION, name: 'E2E Building A', display_name: 'E2E Building A',
+                tags: ['building'], timezone: 'UTC', location: '0,0' },
+            { id: BUILDING_B, parent_id: REGION, name: 'E2E Building B', display_name: 'E2E Building B',
+                tags: ['building'], timezone: 'UTC', location: '40,40' },
+        ],
+        levels: LEVELS,
+        metadata: (name) => (name.endsWith('_booking_rules') || name === 'map_regions' ? [] : {}),
+        desks: DESK_DETAILS,
+        deskBookings: true,
     });
-    await getOnly(page, audit, 'synthetic regions', (url) => url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.get('tags') === 'region' && url.searchParams.get('limit') === '200',
-    (url) => [{ id: REGION, parent_id: url.searchParams.get('parent_id'), name: 'E2E Region',
-        tags: ['region'], timezone: 'UTC' }]);
-    await getOnly(page, audit, 'synthetic buildings', (url) => url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.get('tags') === 'building' && url.searchParams.get('parent_id') === REGION &&
-        url.searchParams.get('limit') === '500', () => [
-        { id: BUILDING_A, parent_id: REGION, name: 'E2E Building A', display_name: 'E2E Building A',
-            tags: ['building'], timezone: 'UTC', location: '0,0' },
-        { id: BUILDING_B, parent_id: REGION, name: 'E2E Building B', display_name: 'E2E Building B',
-            tags: ['building'], timezone: 'UTC', location: '40,40' },
-    ]);
-    await getOnly(page, audit, 'synthetic levels', (url) => url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.get('tags') === 'level' && url.searchParams.get('limit') === '2500', () => LEVELS);
-    // OrganisationService bulkMetadata(name,{parent_ids}) returns a map of
-    // parent IDs to Metadata records; showMetadata returns { [name]: record }.
-    await getOnly(page, audit, 'synthetic bulk metadata', (url) =>
-        /^\/api\/engine\/v2\/metadata\/[^/]+\/bulk$/.test(url.pathname) &&
-        !!url.searchParams.get('parent_ids') &&
-        url.searchParams.get('parent_ids')!.split(',').every((id) => id.startsWith('e2e-settings-')),
-    (url) => Object.fromEntries(url.searchParams.get('parent_ids')!.split(',').map((id) =>
-        [id, { id, name: decodeURIComponent(url.pathname.split('/')[5]), details: {} }])));
-    await getOnly(page, audit, 'synthetic metadata', (url) =>
-        /^\/api\/engine\/v2\/metadata\/e2e-settings-[^/]+$/.test(url.pathname) &&
-        !!url.searchParams.get('name'), (url) => {
-        const name = url.searchParams.get('name')!;
-        return { [name]: { id: url.pathname.split('/')[5], name,
-            details: name.endsWith('_booking_rules') || name === 'map_regions' ? [] : {} } };
-    });
-    await getOnly(page, audit, 'synthetic desk metadata', (url) =>
-        /^\/api\/engine\/v2\/metadata\/e2e-settings-building-[ab]\/children$/.test(url.pathname) &&
-        url.searchParams.get('name') === 'desks', (url) =>
-        LEVELS.filter((level) => level.parent_id === url.pathname.split('/')[5]).map((level) => ({
-            zone: level,
-            metadata: { desks: { name: 'desks', details: [{
-                id: 'e2e-settings-desk-' + level.id, name: DESK + ' ' + level.id,
-                map_id: 'e2e-settings-desk-shape', bookable: true, assigned_to: '',
-                groups: [], features: [], images: [],
-            }] } },
-        })));
-    await getOnly(page, audit, 'empty desk bookings', (url) => url.pathname === '/api/staff/v1/bookings' &&
-        url.searchParams.get('type') === 'desk' && url.searchParams.has('period_start') &&
-        url.searchParams.has('period_end'), () => []);
     await page.route((url) => url.href === MAP, async (route) => {
         if (route.request().method() !== 'GET') return route.fallback();
         audit.fixtures['synthetic SVG'] = (audit.fixtures['synthetic SVG'] ?? 0) + 1;
@@ -286,11 +97,13 @@ const DESK_SETTINGS: Settings = {
     'app.explore.cisco_maps.enabled': false,
     'app.desks.allow_recurrence': false, 'app.desks.allow_multiple': false,
 };
-// Current runtime: desk-flow-new/desk-flow-select(-map).component.ts. The
+// Runtime: desk-flow-new/desk-flow-select(-map).component.ts. The
 // desk map is reached through the List/Map toggle; no desk is selected and the
 // details form is never confirmed.
 async function deskForm(page: Page, audit: Audit, overrides: Settings) {
-    const fixture = await prepare(page, audit, { ...DESK_SETTINGS, ...overrides });
+    const fixture = await prepareSettings(page, { ...DESK_SETTINGS, ...overrides }, {
+        audit, landingRooms: false, locale: 'en-US',
+    });
     await organisationFixture(page, audit);
     await bookedDeskResourcesFixture(page, audit);
     const flow = new DeskFlow(page);
@@ -328,14 +141,15 @@ async function untouchedDesk(page: Page, flow: DeskFlow) {
     await expect(flow.chosenDesks).toHaveCount(0);
 }
 
-for (const { key, colour } of [
-    { key: 'space-free', colour: '#123456' },
-    { key: 'free', colour: '#654321' },
+for (const { name, colors, colour } of [
+    { name: 'space-free', colors: { 'space-free': '#123456' }, colour: '#123456' },
+    { name: 'free', colors: { free: '#654321' }, colour: '#654321' },
+    { name: 'space-free over free', colors: { 'space-free': '#123456', free: '#654321' }, colour: '#123456' },
 ]) {
-    test('explore.colors ' + key + ' paints the free desk ' + colour,
+    test('explore.colors ' + name + ' paints the free desk ' + colour + ' on the desk booking map',
         async ({ staffPage, audit }) => {
             const { flow } = await deskForm(staffPage, audit, {
-                'app.explore.colors': { [key]: colour },
+                'app.explore.colors': colors,
             });
             const map = await deskMap(staffPage);
             await expect.poll(() => audit.fixtures['synthetic SVG'] ?? 0).toBeGreaterThan(0);
@@ -350,10 +164,9 @@ for (const { key, colour } of [
                 return c?.styles()['#e2e-settings-desk-shape']?.fill;
             });
             await expect.poll(fill, { message: 'the fixture desk must be styled on the map' }).toBeTruthy();
-            await expect.poll(fill, { message: 'explore.colors ' + key + ' must reach the free desk style' }).toBe(colour);
-            // Prove actual renderer output, not only the Angular style input.
-            // The SVG contains one grey rectangle; neither custom colour is in
-            // the fixture asset. Never patch the renderer or its drawing calls.
+            await expect.poll(fill, { message: 'explore.colors ' + name + ' must reach the free desk style' }).toBe(colour);
+            // Rendered canvas pixels: the SVG holds one grey rectangle, so
+            // neither custom colour comes from the fixture asset.
             const canvas = map.locator('interactive-map dynamic-map canvas');
             await expect(canvas).toHaveCount(1);
             await expect(canvas).toBeVisible();
