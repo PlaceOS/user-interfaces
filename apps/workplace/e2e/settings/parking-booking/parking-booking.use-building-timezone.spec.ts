@@ -30,15 +30,25 @@ test.describe('parking.use_building_timezone', () => {
 
     test('parking.use_building_timezone false overrides bookings.use_building_timezone true and hides the building-time label',
         async ({ staffPage, audit }) => {
-            test.fail(true, 'parking-form-details reads bookings || parking for use_building_timezone; no ticket yet');
-            await timezoneBuildings(staffPage, audit);
-            const root = await parkingForm(staffPage, audit, {
-                'app.parking.use_building_timezone': false, 'app.bookings.use_building_timezone': true,
+            // test.fail is declared after the setup steps, so a setup failure
+            // stays an unexpected failure; only the label assertion is expected to fail.
+            const label = await test.step('setup: the form with a timezone building', async () => {
+                await timezoneBuildings(staffPage, audit);
+                const root = await parkingForm(staffPage, audit, {
+                    'app.parking.use_building_timezone': false, 'app.bookings.use_building_timezone': true,
+                });
+                expect(audit.fixtures['timezone buildings'] ?? 0).toBeGreaterThan(0);
+                await expect(root.locator('a-time-field[name="start-time"] button[time-field]')).toBeVisible();
+                await untouchedParking(staffPage);
+                expect({
+                    ws: audit.websocket_attempts, page: audit.page_errors,
+                    app: audit.app_errors, monitoring: audit.monitoring_errors,
+                }, 'no audit failure before the expected failure').toEqual({ ws: [], page: [], app: [], monitoring: [] });
+                return root.locator('a-time-field[name="start-time"] button[time-field] div.truncate.text-xs');
             });
-            expect(audit.fixtures['timezone buildings'] ?? 0).toBeGreaterThan(0);
-            await expect(root.locator('a-time-field[name="start-time"] button[time-field]')).toBeVisible();
-            await expect(root.locator('a-time-field[name="start-time"] button[time-field] div.truncate.text-xs'))
-                .toHaveCount(0);
-            await untouchedParking(staffPage);
+            test.fail(true, 'parking-form-details reads bookings || parking for use_building_timezone; no ticket yet');
+            await test.step('bug: parking false hides the building-time label', async () => {
+                await expect(label).toHaveCount(0);
+            });
         });
 });
