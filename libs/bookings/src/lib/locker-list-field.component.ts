@@ -1,8 +1,9 @@
-import { Component, forwardRef, inject, signal } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { MatRippleModule } from '@angular/material/core';
+import { provideValueAccessor } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { LevelPipe } from 'libs/components/src/lib/level.pipe';
@@ -109,13 +110,7 @@ import { LockerSelectModalComponent } from './locker-select-modal/locker-select-
         </div>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => LockerListFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => LockerListFieldComponent)],
     imports: [
         IconComponent,
         TranslatePipe,

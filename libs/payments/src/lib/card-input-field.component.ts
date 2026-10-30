@@ -3,7 +3,6 @@ import {
     Component,
     computed,
     ElementRef,
-    forwardRef,
     OnInit,
     signal,
     viewChild,
@@ -12,14 +11,13 @@ import {
     ControlValueAccessor,
     FormControl,
     FormGroup,
-    NG_VALUE_ACCESSOR,
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, provideValueAccessor } from '@placeos/common';
 import { addYears, setMonth } from 'date-fns';
 
 export interface PaymentCardDetails {
@@ -136,14 +134,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
             }
         `,
     ],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            /* istanbul ignore next */
-            useExisting: forwardRef(() => CardInputFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => CardInputFieldComponent)],
     imports: [
         MatFormFieldModule,
         MatInputModule,

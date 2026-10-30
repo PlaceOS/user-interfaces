@@ -4,22 +4,18 @@ import {
     Component,
     computed,
     ElementRef,
-    forwardRef,
     input,
     signal,
     viewChild,
 } from '@angular/core';
-import {
-    ControlValueAccessor,
-    FormControl,
-    NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { ControlValueAccessor, FormControl } from '@angular/forms';
 import {
     MatAutocompleteModule,
     MatAutocompleteTrigger,
 } from '@angular/material/autocomplete';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { provideValueAccessor } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 interface ChipListControl<T> {
@@ -121,14 +117,7 @@ export function uniqueChipItems<T = string>(items: T[]): T[] {
         </mat-autocomplete>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            /* istanbul ignore next */
-            useExisting: forwardRef(() => ItemListFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => ItemListFieldComponent)],
     imports: [
         MatFormFieldModule,
         MatChipsModule,

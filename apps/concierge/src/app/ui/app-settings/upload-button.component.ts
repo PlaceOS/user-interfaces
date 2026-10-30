@@ -1,16 +1,18 @@
 import {
     Component,
     effect,
-    forwardRef,
     inject,
     Injector,
     input,
     signal,
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { notifyError, UploadsService } from '@placeos/common';
+import {
+    notifyError,
+    provideValueAccessor,
+    UploadsService,
+} from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
 @Component({
@@ -56,13 +58,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         MatRippleModule,
         TranslatePipe,
     ],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => UploadButtonComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => UploadButtonComponent)],
 })
 export class UploadButtonComponent {
     private _uploads = inject(UploadsService);

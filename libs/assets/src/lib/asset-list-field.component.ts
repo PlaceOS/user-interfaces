@@ -3,14 +3,13 @@ import {
     Component,
     computed,
     effect,
-    forwardRef,
     inject,
     input,
     Signal,
     signal,
     untracked,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -19,6 +18,7 @@ import {
     AssetRequest,
     i18n,
     notifyError,
+    provideValueAccessor,
     randomInt,
     randomString,
     SettingsService,
@@ -241,14 +241,7 @@ const EMPTY_FAVS: string[] = [];
         }
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            /* istanbul ignore next */
-            useExisting: forwardRef(() => AssetListFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => AssetListFieldComponent)],
     imports: [
         CommonModule,
         IconComponent,

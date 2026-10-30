@@ -3,7 +3,6 @@ import {
     AfterViewInit,
     Component,
     computed,
-    forwardRef,
     input,
     model,
     OnChanges,
@@ -12,7 +11,7 @@ import {
     SimpleChanges,
     viewChild,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import {
@@ -22,6 +21,7 @@ import {
     getTimeInTimezone,
     getTimezoneOffsetString,
     markUserDateChange,
+    provideValueAccessor,
     setTimeInTimezone,
     startOfDayInTimezone,
 } from '@placeos/common';
@@ -127,13 +127,7 @@ function toHourOfDay(value: unknown): number | null {
             }
         `,
     ],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => TimeFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => TimeFieldComponent)],
     imports: [CommonModule, MatMenuModule, MatFormFieldModule, IconComponent],
 })
 export class TimeFieldComponent

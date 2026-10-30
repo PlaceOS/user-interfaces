@@ -1,16 +1,5 @@
-import {
-    Component,
-    OnDestroy,
-    forwardRef,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
-import {
-    ControlValueAccessor,
-    FormsModule,
-    NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { Component, OnDestroy, inject, input, signal } from '@angular/core';
+import { ControlValueAccessor, FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MatDialog,
@@ -23,6 +12,7 @@ import {
     SETTING_KEYS,
     SettingsService,
     Space,
+    provideValueAccessor,
     toggleListItem,
 } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -196,13 +186,7 @@ const EMPTY_FAVS: string[] = [];
         </button>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => SpaceListFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => SpaceListFieldComponent)],
     imports: [
         MatRadioModule,
         FormsModule,

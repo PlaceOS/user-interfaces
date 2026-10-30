@@ -1,8 +1,8 @@
-import { Component, forwardRef, signal } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, signal } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Attachment, randomInt } from '@placeos/common';
+import { Attachment, provideValueAccessor, randomInt } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -94,13 +94,7 @@ import { uploadAttachment } from './upload-attachment';
         </div>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => UploadListFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => UploadListFieldComponent)],
     imports: [
         MatProgressSpinnerModule,
         IconComponent,

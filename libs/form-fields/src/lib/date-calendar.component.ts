@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
-    forwardRef,
     inject,
     input,
     OnChanges,
@@ -10,9 +9,13 @@ import {
     signal,
     SimpleChanges,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    provideValueAccessor,
+    SettingsService,
+} from '@placeos/common';
 import {
     addDays,
     addMonths,
@@ -111,13 +114,7 @@ interface DateItem {
         </div>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => DateCalendarComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => DateCalendarComponent)],
     imports: [CommonModule, IconComponent, MatRippleModule, TranslatePipe],
 })
 export class DateCalendarComponent

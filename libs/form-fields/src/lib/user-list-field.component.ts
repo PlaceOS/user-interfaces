@@ -4,7 +4,6 @@ import {
     computed,
     debounced,
     ElementRef,
-    forwardRef,
     inject,
     input,
     model,
@@ -14,11 +13,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { outputToObservable } from '@angular/core/rxjs-interop';
-import {
-    ControlValueAccessor,
-    FormsModule,
-    NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { ControlValueAccessor, FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -26,6 +21,7 @@ import {
     currentUser,
     downloadFile,
     notifyError,
+    provideValueAccessor,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -309,13 +305,7 @@ const DENIED_FILE_TYPES = [
         </div>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => UserListFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => UserListFieldComponent)],
     imports: [
         CommonModule,
         MatFormFieldModule,

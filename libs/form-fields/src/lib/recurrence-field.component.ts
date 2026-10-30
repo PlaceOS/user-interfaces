@@ -2,18 +2,13 @@ import {
     Component,
     computed,
     effect,
-    forwardRef,
     inject,
     input,
     output,
     signal,
     untracked,
 } from '@angular/core';
-import {
-    ControlValueAccessor,
-    FormsModule,
-    NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { ControlValueAccessor, FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import {
     BookingRecurrence,
@@ -22,6 +17,7 @@ import {
     fromBookingRecurrence,
     fromEventRecurrence,
     NO_RECURR,
+    provideValueAccessor,
     Recurrence,
     RecurrenceDetails,
     recurrenceEndDate,
@@ -139,14 +135,7 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
             }
         `,
     ],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            /* istanbul ignore next */
-            useExisting: forwardRef(() => RecurrenceFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => RecurrenceFieldComponent)],
     imports: [
         MatFormFieldModule,
         MatSelectModule,

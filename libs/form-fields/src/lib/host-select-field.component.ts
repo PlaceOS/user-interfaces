@@ -1,21 +1,12 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    computed,
-    forwardRef,
-    resource,
-    signal,
-} from '@angular/core';
-import {
-    ControlValueAccessor,
-    FormsModule,
-    NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { Component, computed, resource, signal } from '@angular/core';
+import { ControlValueAccessor, FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import {
     Calendar,
     currentUser,
+    provideValueAccessor,
     StaffUser,
     unique,
     User,
@@ -52,13 +43,7 @@ import { queryCalendars } from 'libs/events/src/lib/calendar.fn';
         </mat-form-field>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => HostSelectFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => HostSelectFieldComponent)],
     imports: [MatFormFieldModule, MatSelectModule, CommonModule, FormsModule],
 })
 export class HostSelectFieldComponent implements ControlValueAccessor {

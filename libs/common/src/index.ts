@@ -25,6 +25,7 @@ export * from './lib/token-handoff';
 export * from './lib/uploads.service';
 export * from './lib/user-group-sync';
 export * from './lib/user-idle-time.service';
+export * from './lib/value-accessor';
 export { userSignal } from './lib/user-state';
 
 export * from './lib/types/asset-request.class';

@@ -6,13 +6,11 @@ import {
     computed,
     effect,
     ElementRef,
-    forwardRef,
     inject,
     Injector,
     signal,
     viewChild,
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { Upload } from '@placeos/cloud-uploads';
 
@@ -24,6 +22,7 @@ import {
     AsyncHandler,
     notifyError,
     notifyInfo,
+    provideValueAccessor,
     unique,
     UploadsService,
 } from '@placeos/common';
@@ -228,13 +227,7 @@ export interface UploadDetails {
             }
         `,
     ],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ImageListFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => ImageListFieldComponent)],
     imports: [
         MatFormFieldModule,
         MatChipsModule,
