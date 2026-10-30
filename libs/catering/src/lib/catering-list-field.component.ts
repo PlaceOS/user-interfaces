@@ -21,6 +21,7 @@ import {
     i18n,
     OrganisationService,
     randomString,
+    SETTING_KEYS,
     SettingsService,
     Space,
 } from '@placeos/common';
@@ -383,7 +384,7 @@ export class CateringListFieldComponent
     public readonly favorites = computed(() => {
         return (
             this._settings.signal<string[]>(
-                'favourite_menu_items',
+                SETTING_KEYS.FAVORITE_CATERING,
                 EMPTY_FAVS,
                 true,
             )() || EMPTY_FAVS
@@ -610,13 +611,13 @@ export class CateringListFieldComponent
         const fav_list = this.favorites();
         const new_state = !fav_list.includes(cateringitem.id);
         if (new_state) {
-            this._settings.saveUserSetting('favourite_menu_items', [
+            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_CATERING, [
                 ...fav_list,
                 cateringitem.id,
             ]);
         } else {
             this._settings.saveUserSetting(
-                'favourite_menu_items',
+                SETTING_KEYS.FAVORITE_CATERING,
                 fav_list.filter((_) => _ !== cateringitem.id),
             );
         }
