@@ -105,13 +105,33 @@ test.describe('parking.allow_all_day', () => {
         await untouchedParking(staffPage);
     });
 
-    test('parking.allow_all_day false alone keeps the checkbox while bookings.allow_all_day is unset',
+    test('parking.allow_all_day false alone removes the checkbox while bookings.allow_all_day is unset',
         async ({ staffPage, audit }) => {
-            // Source: (parking || bookings) ?? true -> (false || null) ?? true === true.
+            // Source: parking ?? bookings ?? true -> false ?? null ?? true === false.
             const root = await parkingForm(staffPage, audit, {
                 'app.parking.allow_all_day': false, 'app.bookings.allow_all_day': null,
             });
-            await expect(root.locator('mat-checkbox')).toHaveCount(1);
+            await expect(root.locator('mat-checkbox')).toHaveCount(0);
+            await expect(root.locator('a-time-field[name="start-time"] button[time-field]')).toBeVisible();
+            await untouchedParking(staffPage);
+        });
+
+    test('parking.allow_all_day false overrides bookings.allow_all_day true and removes the checkbox',
+        async ({ staffPage, audit }) => {
+            const root = await parkingForm(staffPage, audit, {
+                'app.parking.allow_all_day': false, 'app.bookings.allow_all_day': true,
+            });
+            await expect(root.locator('mat-checkbox')).toHaveCount(0);
+            await expect(root.locator('a-time-field[name="start-time"] button[time-field]')).toBeVisible();
+            await untouchedParking(staffPage);
+        });
+
+    test('parking.allow_all_day unset falls back to bookings.allow_all_day true and shows the checkbox',
+        async ({ staffPage, audit }) => {
+            const root = await parkingForm(staffPage, audit, {
+                'app.parking.allow_all_day': null, 'app.bookings.allow_all_day': true,
+            });
+            await expect(root.locator('mat-checkbox input[type="checkbox"]')).toHaveCount(1);
             await untouchedParking(staffPage);
         });
 });

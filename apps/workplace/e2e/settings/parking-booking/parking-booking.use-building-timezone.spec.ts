@@ -118,4 +118,18 @@ test.describe('parking.use_building_timezone', () => {
             await untouchedParking(staffPage);
         });
     }
+
+    test('parking.use_building_timezone false overrides bookings.use_building_timezone true and hides the building-time label',
+        async ({ staffPage, audit }) => {
+            test.fail(true, 'parking-form-details reads bookings || parking for use_building_timezone; no ticket yet');
+            await timezoneBuildings(staffPage, audit);
+            const root = await parkingForm(staffPage, audit, {
+                'app.parking.use_building_timezone': false, 'app.bookings.use_building_timezone': true,
+            });
+            expect(audit.fixtures['timezone buildings'] ?? 0).toBeGreaterThan(0);
+            await expect(root.locator('a-time-field[name="start-time"] button[time-field]')).toBeVisible();
+            await expect(root.locator('a-time-field[name="start-time"] button[time-field] div.truncate.text-xs'))
+                .toHaveCount(0);
+            await untouchedParking(staffPage);
+        });
 });

@@ -92,4 +92,22 @@ test.describe('parking.can_book_for_others', () => {
             await untouchedParking(staffPage);
         });
     }
+
+    test('parking.can_book_for_others false overrides bookings.can_book_for_others true and hides the host selector',
+        async ({ staffPage, audit }) => {
+            const root = await parkingForm(staffPage, audit, {
+                'app.parking.can_book_for_others': false, 'app.bookings.can_book_for_others': true,
+            });
+            await expect(root.locator('host-select-field')).toHaveCount(0);
+            await untouchedParking(staffPage);
+        });
+
+    test('parking.can_book_for_others true overrides bookings.can_book_for_others false and shows the host selector',
+        async ({ staffPage, audit }) => {
+            const root = await parkingForm(staffPage, audit, {
+                'app.parking.can_book_for_others': true, 'app.bookings.can_book_for_others': false,
+            });
+            await expect(root.locator('host-select-field')).toBeVisible();
+            await untouchedParking(staffPage);
+        });
 });
