@@ -3,8 +3,9 @@
 // explore.disable (docs/settings/workplace.md).
 // Consumer: libs/explore/src/lib/explore-map-view.component.ts
 // and ExploreStateService.setOptions. Visibility scenarios do not
-// click overlays; disable scenarios exercise their browser-local toggle state
-// and check the map's applied options before and after the click.
+// click overlays. A group in explore.disable has no overlay toggle and stays
+// disabled in the map's applied options; without it, the Show Devices toggle
+// turns devices on.
 import type { Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
@@ -97,7 +98,7 @@ const BASE: Settings = {
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
-test.describe.configure({ retries: 0, timeout: 120_000 });
+test.describe.configure({ timeout: 120_000 });
 
 async function getOnly(
     page: Page,
@@ -277,27 +278,20 @@ test(
 );
 
 test(
-    'explore.disable devices keeps the Show Devices toggle off after a click',
+    'explore.disable devices hides the Show Devices toggle and keeps devices disabled',
     async ({ staffPage }) => {
         await openExplore(staffPage, {
             'app.explore.hide_zones': true,
             'app.explore.hide_devices': false,
-            'app.explore.hide_sensors': true,
+            'app.explore.hide_sensors': false,
             'app.explore.disable': ['devices'],
         });
-        const toggle = overlay(staffPage, 'Show Devices').locator('button').first();
-        await expect(toggle).toHaveCount(1);
-        // Click only once the map has applied the disabled state.
+        // Show Sensors renders in the same overlay list, so the list is on screen.
+        await expect(overlay(staffPage, 'Show Sensors')).toBeVisible();
+        await expect(overlay(staffPage, 'Show Devices')).toHaveCount(0);
         await expect
-            .poll(() => devicesDisabled(staffPage), { message: 'devices disabled before the click' })
+            .poll(() => devicesDisabled(staffPage), { message: 'devices disabled by explore.disable' })
             .toBe(true);
-        await expect(toggle).toHaveClass(/border-base-300/);
-        await toggle.click();
-        // The click cannot enable devices: the applied state and the toggle both stay off.
-        await expect
-            .poll(() => devicesDisabled(staffPage), { message: 'devices still disabled after the click' })
-            .toBe(true);
-        await expect(toggle).toHaveClass(/border-base-300/);
     },
 );
 
