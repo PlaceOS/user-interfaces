@@ -11,8 +11,10 @@ import type {
 } from '@playwright/test';
 import { request as pwRequest, test as playwrightTest } from '@playwright/test';
 import { createHash } from 'node:crypto';
+import { isDeepStrictEqual } from 'node:util';
 import * as fs from 'fs';
 import { join } from 'node:path';
+import { VERSION } from '../../../../../libs/common/src/lib/version';
 import { mintForWorker } from '../../../../../e2e/support/api';
 import { clientId, redirectUriFor } from '../../../../../e2e/support/auth';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
@@ -55,7 +57,29 @@ export type Audit = {
     app_errors: string[];
     monitoring_errors: string[];
     fixtures: Record<string, number>;
+    /** Requests the 'strict' auditHttp route aborted. */
+    blocked_requests: string[];
+    /** Requests the 'local-only' auditHttp route aborted. */
+    external: string[];
 };
+
+/**
+ * The extra HTTP route `test` adds to the audited context, ahead of the
+ * parent /api guard:
+ * - 'guard': none.
+ * - 'strict': aborts every write, every non-local /api read and every
+ *   /api/staff/v1/calendars or /events read that no page fixture answered;
+ *   records them in blocked_requests.
+ * - 'local-only': answers the Google Fonts css2 GET with empty CSS and aborts
+ *   every other non-local request; records them in external.
+ * Set with `test.use({ auditHttp: 'strict' })`.
+ */
+export type AuditHttp = 'guard' | 'strict' | 'local-only';
+
+/** How many times the named getOnly fixture has answered. */
+export function fixtureHits(audit: { fixtures: Record<string, number> }, name: string) {
+    return audit.fixtures[name] ?? 0;
+}
 
 /** The local app and backend origins; fixtures only answer these. */
 export const ORIGINS = new Set([
@@ -71,9 +95,10 @@ export function safeURL(raw: string) {
     return url.href;
 }
 
-export const test = readOnlyTest.extend<{ audit: Audit }>({
+export const test = readOnlyTest.extend<{ audit: Audit; auditHttp: AuditHttp }>({
+    auditHttp: ['guard', { option: true }],
     audit: [
-        async ({ staffPage }, use, info) => {
+        async ({ staffPage, auditHttp }, use, info) => {
             const context = staffPage.context();
             const audit: Audit = {
                 websocket_attempts: [],
@@ -83,6 +108,8 @@ export const test = readOnlyTest.extend<{ audit: Audit }>({
                 app_errors: [],
                 monitoring_errors: [],
                 fixtures: {},
+                blocked_requests: [],
+                external: [],
             };
             const observe = (page: Page) => {
                 page.on('pageerror', (error) =>
@@ -101,6 +128,47 @@ export const test = readOnlyTest.extend<{ audit: Audit }>({
             context.on('page', observe);
             const closing: Promise<void>[] = [];
             try {
+                if (auditHttp === 'strict')
+                    await context.route('**/*', async (route) => {
+                        const request = route.request();
+                        const url = new URL(request.url());
+                        const read = READ_METHODS.includes(request.method());
+                        const provider =
+                            /^\/api\/staff\/v1\/(calendars|events)(\/|$)/.test(
+                                url.pathname,
+                            );
+                        if (
+                            read &&
+                            !provider &&
+                            (!url.pathname.startsWith('/api/') ||
+                                ORIGINS.has(url.origin))
+                        )
+                            return route.fallback();
+                        audit.blocked_requests.push(
+                            request.method() + ' ' + url.pathname,
+                        );
+                        await route.abort('blockedbyclient');
+                    });
+                if (auditHttp === 'local-only')
+                    await context.route('**/*', async (route) => {
+                        const request = route.request();
+                        const url = new URL(request.url());
+                        if (ORIGINS.has(url.origin)) return route.fallback();
+                        if (
+                            request.method() === 'GET' &&
+                            url.origin === 'https://fonts.googleapis.com' &&
+                            url.pathname === '/css2'
+                        )
+                            return route.fulfill({
+                                status: 200,
+                                contentType: 'text/css',
+                                body: '',
+                            });
+                        audit.external.push(
+                            request.method() + ' ' + url.origin + url.pathname,
+                        );
+                        await route.abort('blockedbyclient');
+                    });
                 await context.routeWebSocket('**/*', (socket) => {
                     let socket_url = '<unparsed URL>';
                     try {
@@ -168,6 +236,12 @@ export const test = readOnlyTest.extend<{ audit: Audit }>({
                             page: audit.page_errors,
                             app: audit.app_errors,
                             monitoring: audit.monitoring_errors,
+                            ...(auditHttp === 'strict'
+                                ? { blocked: audit.blocked_requests }
+                                : {}),
+                            ...(auditHttp === 'local-only'
+                                ? { external: audit.external }
+                                : {}),
                         },
                         'zero unexpected WebSocket, application or monitoring failures',
                     ).toEqual({
@@ -175,6 +249,8 @@ export const test = readOnlyTest.extend<{ audit: Audit }>({
                         page: [],
                         app: [],
                         monitoring: [],
+                        ...(auditHttp === 'strict' ? { blocked: [] } : {}),
+                        ...(auditHttp === 'local-only' ? { external: [] } : {}),
                     });
                 }
             }
@@ -183,28 +259,90 @@ export const test = readOnlyTest.extend<{ audit: Audit }>({
     ],
 });
 
-/** Origin-limited GET-only responses. Non-GET always falls through to the guard. */
+/**
+ * What a counted getOnly fixture does when its body throws:
+ * - 'fallback' (default): count nothing, record the error in
+ *   monitoring_errors (fails in teardown) and let the unmodified GET continue
+ *   to the guard.
+ * - 'abort': the same record, then abort the GET with 'failed'.
+ * - 'throw': count before the body runs and let the error escape the route
+ *   handler.
+ */
+export type GetOnlyOptions = { onError?: 'fallback' | 'abort' | 'throw' };
+
+/** Anything that counts named fixtures and records monitoring errors. */
+export type FixtureSink = {
+    fixtures: Record<string, number>;
+    monitoring_errors: string[];
+};
+
+/**
+ * Origin-limited GET-only responses. Non-GET always falls through to the guard.
+ * The three-argument form neither counts nor catches: a body error escapes the
+ * route handler.
+ */
 export async function getOnly(
     page: Page,
-    audit: Audit,
+    match: (url: URL) => boolean,
+    body: (url: URL) => unknown | Promise<unknown>,
+): Promise<void>;
+export async function getOnly(
+    page: Page,
+    audit: FixtureSink,
     name: string,
     match: (url: URL) => boolean,
     body: (url: URL) => unknown | Promise<unknown>,
+    options?: GetOnlyOptions,
+): Promise<void>;
+export async function getOnly(
+    page: Page,
+    ...args:
+        | [(url: URL) => boolean, (url: URL) => unknown | Promise<unknown>]
+        | [
+              FixtureSink,
+              string,
+              (url: URL) => boolean,
+              (url: URL) => unknown | Promise<unknown>,
+              GetOnlyOptions?,
+          ]
 ) {
+    if (args.length === 2) {
+        const [match, body] = args;
+        await page.route(
+            (url) => ORIGINS.has(url.origin) && match(url),
+            async (route: Route) => {
+                if (route.request().method() !== 'GET') return route.fallback();
+                await route.fulfill({
+                    json: await body(new URL(route.request().url())),
+                });
+            },
+        );
+        return;
+    }
+    const [audit, name, match, body, options] = args;
+    const on_error = options?.onError ?? 'fallback';
     await page.route(
         (url) => ORIGINS.has(url.origin) && match(url),
         async (route: Route) => {
             if (route.request().method() !== 'GET') return route.fallback();
+            if (on_error === 'throw') {
+                audit.fixtures[name] = (audit.fixtures[name] ?? 0) + 1;
+                await route.fulfill({
+                    json: await body(new URL(route.request().url())),
+                });
+                return;
+            }
             try {
                 const json = await body(new URL(route.request().url()));
                 audit.fixtures[name] = (audit.fixtures[name] ?? 0) + 1;
                 await route.fulfill({ json });
             } catch (error) {
-                // Recorded (fails in teardown); the unmodified GET continues to the guard.
                 audit.monitoring_errors.push(
                     name + ' fixture: ' + String(error),
                 );
-                await route.fallback().catch(() => undefined);
+                if (on_error === 'abort')
+                    await route.abort('failed').catch(() => undefined);
+                else await route.fallback().catch(() => undefined);
             }
         },
     );
@@ -301,12 +439,161 @@ export const BULK_METADATA = [
     'booking_rules',
 ];
 
-export const CATEGORIES = [
-    { id: 'e2e-settings-catering', name: '_CATERING_', hidden: true },
-    { id: 'e2e-settings-desks', name: '_DESKS_', hidden: true },
-    { id: 'e2e-settings-parking', name: '_PARKING_', hidden: true },
-    { id: 'e2e-settings-lockers', name: '_LOCKERS_', hidden: true },
-];
+/** The hidden asset categories the parking, locker and desk bootstrap reads. */
+export type HiddenCategory = 'catering' | 'desks' | 'parking' | 'lockers';
+
+/** The asset type names the bootstrap expects in each hidden category. */
+export const HIDDEN_TYPE_NAMES: Record<HiddenCategory, string[]> = {
+    catering: [],
+    desks: ['_DESKS_'],
+    parking: ['_PARKING_SPACES_', '_PARKING_USERS_', '_PARKING_FLEET_VEHICLES_'],
+    lockers: ['_LOCKER_BANKS_', '_LOCKERS_'],
+};
+
+/**
+ * Ids for one hidden asset catalogue. A string `prefix` gives category ids
+ * `<prefix>-<category>` and type ids `<prefix>-type-<NAME>`, for example
+ * 'e2e-settings-desks' and 'e2e-settings-type-_DESKS_'.
+ */
+export type HiddenAssetIds =
+    | string
+    | {
+          category: (category: HiddenCategory) => string;
+          type: (name: string) => string;
+          /** Category order in the categories list. Default catering, desks, parking, lockers. */
+          order?: HiddenCategory[];
+      };
+
+/**
+ * The hidden categories and types the shell's hidden asset bootstrap reads
+ * (parking-assets.fn.ts, locker-assets.fn.ts). The bootstrap creates records
+ * when a GET finds none, so every one is answered from this catalogue.
+ */
+export function hiddenAssets(ids: HiddenAssetIds = 'e2e-settings') {
+    const spec =
+        typeof ids === 'string'
+            ? {
+                  category: (category: HiddenCategory) => ids + '-' + category,
+                  type: (name: string) => ids + '-type-' + name,
+                  order: undefined,
+              }
+            : ids;
+    const order = spec.order ?? (['catering', 'desks', 'parking', 'lockers'] as const);
+    const categories = order.map((category) => ({
+        id: spec.category(category),
+        name: '_' + category.toUpperCase() + '_',
+        hidden: true,
+    }));
+    /** Type names by category id. */
+    const types: Record<string, string[]> = Object.fromEntries(
+        order.map((category) => [spec.category(category), HIDDEN_TYPE_NAMES[category]]),
+    );
+    /** Type rows by category id, as GET /asset_types returns them less brand and category_id. */
+    const type_rows: Record<string, { id: string; name: string }[]> = Object.fromEntries(
+        order.map((category) => [
+            spec.category(category),
+            HIDDEN_TYPE_NAMES[category].map((name) => ({ id: spec.type(name), name })),
+        ]),
+    );
+    const type_ids = Object.values(type_rows)
+        .flat()
+        .map((row) => row.id);
+    return { categories, types, type_rows, type_ids, typeId: spec.type };
+}
+
+export type HiddenAssets = ReturnType<typeof hiddenAssets>;
+
+/** Options for `hiddenAssetRoutes`. */
+export type HiddenAssetRoutes = {
+    /** Count and catch through the audit (getOnly's counted form). Omitted: uncounted. */
+    audit?: FixtureSink;
+    /** Called with the fixture name before each uncounted answer, for an external counter. */
+    count?: (name: string) => void;
+    /** Fixture names. Default 'hidden categories', 'hidden types', 'hidden assets'. */
+    names?: { categories?: string; types?: string; assets?: string };
+    /** Require limit=500 on the category and type GETs. Default true. */
+    limit?: boolean;
+    /** Answer only these asset GETs. Default any type_id in the catalogue. */
+    assetMatch?: (url: URL) => boolean;
+    /** The asset rows for a matched asset GET. Default []. */
+    assets?: (url: URL) => unknown | Promise<unknown>;
+    /** Passed to the counted getOnly. */
+    onError?: GetOnlyOptions['onError'];
+};
+
+/**
+ * Exact GETs for the hidden asset bootstrap: categories (hidden=true), the
+ * types of each catalogue category and the assets of each catalogue type.
+ */
+export async function hiddenAssetRoutes(
+    page: Page,
+    catalogue: HiddenAssets,
+    options: HiddenAssetRoutes = {},
+) {
+    const limit = options.limit ?? true;
+    const names = {
+        categories: options.names?.categories ?? 'hidden categories',
+        types: options.names?.types ?? 'hidden types',
+        assets: options.names?.assets ?? 'hidden assets',
+    };
+    const serve = async (
+        name: string,
+        match: (url: URL) => boolean,
+        body: (url: URL) => unknown | Promise<unknown>,
+    ) => {
+        if (options.audit)
+            return getOnly(page, options.audit, name, match, body, {
+                onError: options.onError,
+            });
+        const count = options.count;
+        return getOnly(
+            page,
+            match,
+            count
+                ? (url) => {
+                      count(name);
+                      return body(url);
+                  }
+                : body,
+        );
+    };
+    await serve(
+        names.categories,
+        (url) =>
+            url.pathname === '/api/engine/v2/asset_categories' &&
+            url.searchParams.get('hidden') === 'true' &&
+            (!limit || url.searchParams.get('limit') === '500'),
+        () => catalogue.categories,
+    );
+    await serve(
+        names.types,
+        (url) =>
+            url.pathname === '/api/engine/v2/asset_types' &&
+            (!limit || url.searchParams.get('limit') === '500') &&
+            Object.hasOwn(catalogue.type_rows, url.searchParams.get('category_id') ?? ''),
+        (url) => {
+            const category_id = (url.searchParams.get('category_id') ?? '');
+            return catalogue.type_rows[category_id].map((row) => ({
+                ...row,
+                category_id,
+                brand: 'PlaceOS',
+            }));
+        },
+    );
+    await serve(
+        names.assets,
+        options.assetMatch ??
+            ((url) =>
+                url.pathname === '/api/engine/v2/assets' &&
+                catalogue.type_ids.includes(url.searchParams.get('type_id') ?? '')),
+        options.assets ?? (() => []),
+    );
+}
+
+/** The default catalogue ('e2e-settings' ids). */
+const SETTINGS_HIDDEN = hiddenAssets('e2e-settings');
+
+export const CATEGORIES = SETTINGS_HIDDEN.categories;
 
 export const CONTROLS: Settings = {
     'app.use_legacy_flows': false,
@@ -448,16 +735,7 @@ export const ROOM_TWO = {
 
 export const ROUTE = '/#/book/parking-request/form';
 
-export const TYPES: Record<string, string[]> = {
-    'e2e-settings-catering': [],
-    'e2e-settings-desks': ['_DESKS_'],
-    'e2e-settings-parking': [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    'e2e-settings-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
+export const TYPES: Record<string, string[]> = SETTINGS_HIDDEN.types;
 
 export const USER = {
     id: 'e2e-zone-settings-user',
@@ -897,83 +1175,185 @@ export async function pickDay(page: Page, root: Locator, offset: number) {
     await expect(picker).toHaveCount(0);
 }
 
-export async function prepare(page: Page, audit: Audit, overrides: Settings) {
+/** Options for `prepareSettings`. Every default reproduces `prepare`. */
+export type PrepareOptions = {
+    /** Count and catch the fixtures through this audit. Omitted: uncounted. */
+    audit?: FixtureSink;
+    /** Merged under the overrides; the result is applied and polled. Default BASE. */
+    base?: Settings;
+    /** Applied under the polled settings and never polled. Default none. */
+    controls?: Settings;
+    /** Hidden asset catalogue or its id prefix. Default 'e2e-settings'. */
+    hidden?: HiddenAssets | string;
+    /** Asset rows for a hidden asset GET. Default []. */
+    hiddenAssets?: (url: URL) => unknown | Promise<unknown>;
+    /** Hidden category and type GETs must carry limit=500. Default true. */
+    hiddenLimit?: boolean;
+    /** APP.locale stored before load; null stores nothing. Default 'en-AU'. */
+    locale?: string | null;
+    /** Answer every GET /api/staff/v1/calendars with []. Default true. */
+    calendars?: boolean;
+    /** Answer requestSpacesForZone's exact systems GET with []. Default true. */
+    landingRooms?: boolean;
+    /**
+     * Answer GET /api/staff/v1/bookings for these booking types, with
+     * rows(type) or []. Default none. `name` defaults to the types joined by '/'
+     * plus ' bookings', for example 'parking/locker bookings'.
+     */
+    bookings?: {
+        types: string[];
+        name?: string;
+        rows?: (type: string) => unknown[] | Promise<unknown[]>;
+    };
+    /** Answer GET /api/staff/v1/bookings/booked with []. Default false. */
+    booked?: boolean;
+    /**
+     * 'watch' records the app's own identity GET for user(); 'groups' fetches
+     * that GET and fulfils it with `groups` replaced (read-through, never a
+     * write) and counts it for identityHits(); false does neither.
+     * Default 'watch'.
+     */
+    identity?: 'watch' | { groups: string[] } | false;
+    /** Set a 1440x1100 viewport. Default true. */
+    viewport?: boolean;
+    /** Ready waits for the hidden-category fixture unless told otherwise. Default false. */
+    bootstrap?: boolean;
+    /** Extra routes, registered after the core GETs and before the settings. */
+    routes?: () => Promise<void>;
+};
+
+/** Options for the `ready()` that `prepareSettings` returns. */
+export type ReadyOptions = {
+    /** Expect exactly one global-loading element first. Default true. */
+    loading?: boolean;
+    /** Wait until the hidden-category fixture answered. Default PrepareOptions.bootstrap. */
+    bootstrap?: boolean;
+    /** Poll only these keys of the applied settings. Default every key. */
+    keys?: string[];
+};
+
+/**
+ * Read-only page setup for a settings spec: the hidden asset bootstrap,
+ * optional empty lists, then the settings and locale as init scripts.
+ * Navigation is the caller's. `ready()` waits for the shell and polls every
+ * applied setting; a boolean argument is the bootstrap flag.
+ */
+export async function prepareSettings(
+    page: Page,
+    overrides: Settings,
+    options: PrepareOptions = {},
+) {
     assertLocalOnly(APP_URL, BACKEND_URL);
-    await page.setViewportSize({ width: 1440, height: 1100 });
+    if (options.viewport ?? true)
+        await page.setViewportSize({ width: 1440, height: 1100 });
+    const audit = options.audit;
+    const serve = (
+        name: string,
+        match: (url: URL) => boolean,
+        body: (url: URL) => unknown | Promise<unknown>,
+    ) =>
+        audit
+            ? getOnly(page, audit, name, match, body)
+            : getOnly(page, match, body);
+    const identity_mode = options.identity ?? 'watch';
     let identity: Promise<Identity> | undefined;
-    page.on('response', (response) => {
-        const url = new URL(response.url());
-        if (
-            ORIGINS.has(url.origin) &&
-            url.pathname === '/api/engine/v2/users/current' &&
-            response.request().method() === 'GET'
-        )
-            identity = response.json();
-    });
+    let identity_hits = 0;
+    if (identity_mode === 'watch')
+        page.on('response', (response) => {
+            const url = new URL(response.url());
+            if (
+                ORIGINS.has(url.origin) &&
+                url.pathname === '/api/engine/v2/users/current' &&
+                response.request().method() === 'GET'
+            )
+                identity = response.json();
+        });
+    else if (identity_mode)
+        await page.route(
+            (url) =>
+                ORIGINS.has(url.origin) &&
+                url.pathname === '/api/engine/v2/users/current',
+            async (route: Route) => {
+                if (route.request().method() !== 'GET') return route.fallback();
+                const response = await route.fetch();
+                const user = await response.json();
+                identity_hits += 1;
+                await route.fulfill({
+                    response,
+                    json: { ...user, groups: identity_mode.groups },
+                });
+            },
+        );
+    const hidden =
+        typeof options.hidden === 'object'
+            ? options.hidden
+            : hiddenAssets(options.hidden ?? 'e2e-settings');
+    const type_prefix =
+        typeof options.hidden === 'object'
+            ? undefined
+            : (options.hidden ?? 'e2e-settings') + '-type-';
     // Parking/locker modules are not tested. Their shared bootstrap is read-only:
     // ensure_hidden_category/move_type_to_category must find matching records.
-    await getOnly(
-        page,
+    await hiddenAssetRoutes(page, hidden, {
         audit,
-        'hidden categories',
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            url.searchParams.get('hidden') === 'true' &&
-            url.searchParams.get('limit') === '500',
-        () => CATEGORIES,
-    );
-    await getOnly(
-        page,
-        audit,
-        'hidden types',
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            url.searchParams.get('limit') === '500' &&
-            Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''),
-        (url) =>
-            TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'e2e-settings-type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
-    );
-    await getOnly(
-        page,
-        audit,
-        'hidden assets',
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' &&
-            (url.searchParams.get('type_id') ?? '').startsWith(
-                'e2e-settings-type-',
-            ),
-        () => [],
-    );
-    await getOnly(
-        page,
-        audit,
-        'calendar list',
-        (url) => url.pathname === '/api/staff/v1/calendars',
-        () => [],
-    );
+        limit: options.hiddenLimit,
+        assetMatch: type_prefix
+            ? (url) =>
+                  url.pathname === '/api/engine/v2/assets' &&
+                  (url.searchParams.get('type_id') ?? '').startsWith(type_prefix)
+            : undefined,
+        assets: options.hiddenAssets,
+    });
+    if (options.calendars ?? true)
+        await serve(
+            'calendar list',
+            (url) => url.pathname === '/api/staff/v1/calendars',
+            () => [],
+        );
     // requestSpacesForZone: exact GET query; no resource status connections.
-    await getOnly(
+    if (options.landingRooms ?? true)
+        await serve(
+            'empty landing rooms',
+            (url) =>
+                url.pathname === '/api/engine/v2/systems' &&
+                !!url.searchParams.get('zone_id') &&
+                url.searchParams.get('limit') === '500' &&
+                url.searchParams.get('signage') === 'false' &&
+                [...url.searchParams.keys()].every((key) =>
+                    ['zone_id', 'limit', 'signage'].includes(key),
+                ),
+            () => [],
+        );
+    const bookings = options.bookings;
+    if (bookings)
+        await serve(
+            bookings.name ?? bookings.types.join('/') + ' bookings',
+            (url) =>
+                url.pathname === '/api/staff/v1/bookings' &&
+                bookings.types.includes(url.searchParams.get('type') ?? ''),
+            (url) =>
+                bookings.rows
+                    ? bookings.rows((url.searchParams.get('type') ?? ''))
+                    : [],
+        );
+    if (options.booked)
+        await serve(
+            'empty booked resources',
+            (url) => url.pathname === '/api/staff/v1/bookings/booked',
+            () => [],
+        );
+    if (options.routes) await options.routes();
+    const settings = { ...(options.base ?? BASE), ...overrides };
+    await useSettings(
         page,
-        audit,
-        'empty landing rooms',
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            !!url.searchParams.get('zone_id') &&
-            url.searchParams.get('limit') === '500' &&
-            url.searchParams.get('signage') === 'false' &&
-            [...url.searchParams.keys()].every((key) =>
-                ['zone_id', 'limit', 'signage'].includes(key),
-            ),
-        () => [],
+        options.controls ? { ...options.controls, ...settings } : settings,
     );
-    const settings = { ...BASE, ...overrides };
-    await useSettings(page, settings);
-    await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-AU'));
+    const locale = options.locale === undefined ? 'en-AU' : options.locale;
+    if (locale !== null)
+        await page.addInitScript(
+            (value) => localStorage.setItem('APP.locale', value),
+            locale,
+        );
     return {
         settings,
         user: async () => {
@@ -983,15 +1363,20 @@ export async function prepare(page: Page, audit: Audit, overrides: Settings) {
                 );
             return identity;
         },
-        ready: async () => {
-            await expect(page.locator('global-loading')).toHaveCount(1);
+        /** Identity GETs answered with the replaced groups. */
+        identityHits: () => identity_hits,
+        ready: async (ready: boolean | ReadyOptions = {}) => {
+            const opts = typeof ready === 'boolean' ? { bootstrap: ready } : ready;
+            if (opts.loading ?? true)
+                await expect(page.locator('global-loading')).toHaveCount(1);
             await expect(page.locator('global-loading [loader]')).toHaveCount(
                 0,
             );
             await expect(
                 page.locator('global-loading [initialisation-error]'),
             ).toHaveCount(0);
-            for (const [key, value] of Object.entries(settings)) {
+            const keys = opts.keys ?? Object.keys(settings);
+            for (const key of keys) {
                 await expect
                     .poll(
                         () =>
@@ -1001,13 +1386,72 @@ export async function prepare(page: Page, audit: Audit, overrides: Settings) {
                             ),
                         { message: 'effective setting ' + key },
                     )
-                    .toEqual(value);
+                    .toEqual(settings[key]);
             }
+            if ((opts.bootstrap ?? options.bootstrap ?? false) && audit)
+                await expect
+                    .poll(() => audit.fixtures['hidden categories'] ?? 0, {
+                        message: 'hidden-category bootstrap served by the fixture',
+                    })
+                    .toBeGreaterThan(0);
         },
     };
 }
 
-export async function openDesk(page: Page, audit: Audit, overrides: Settings) {
+export async function prepare(page: Page, audit: Audit, overrides: Settings) {
+    return prepareSettings(page, overrides, { audit });
+}
+
+/**
+ * prepareSettings for the parking and locker booking specs: `settings` is
+ * applied as given (no BASE), parking and locker booking lists answer
+ * rows(type) or [] (ParkingService.loadBookings, the locker flow's
+ * _loadTodaysBookings, schedule queryAllBookings; other booking types reach
+ * the real backend), no landing-room or identity fixture, and `ready()` waits
+ * for the hidden-category fixture unless passed false.
+ */
+export async function prepareBooking(
+    page: Page,
+    audit: Audit,
+    settings: Settings,
+    rows: (type: string) => unknown[] | Promise<unknown[]> = () => [],
+) {
+    return prepareSettings(page, settings, {
+        audit,
+        base: {},
+        landingRooms: false,
+        identity: false,
+        bookings: { types: ['parking', 'locker'], rows },
+        bootstrap: true,
+    });
+}
+
+/**
+ * bookings.* duration fallbacks unlike any value a desk case expects.
+ * DeskFlowDetails reads desks.x || bookings.x, so with these a desks.* key
+ * the form ignores shows a different duration menu.
+ */
+export const DESK_DISTINCT_FALLBACKS: Settings = {
+    'app.bookings.min_duration': 15,
+    'app.bookings.max_duration': 480,
+    'app.bookings.duration_step': 15,
+    'app.bookings.custom_duration_options': [75],
+};
+
+/** Options for `openDesk`. */
+export type OpenDeskOptions = {
+    /** Merged over the defaults and under the overrides, e.g. DESK_DISTINCT_FALLBACKS. */
+    fallbacks?: Settings;
+    /** Expect the date field to be enabled before returning. Default true. */
+    dateReady?: boolean;
+};
+
+export async function openDesk(
+    page: Page,
+    audit: Audit,
+    overrides: Settings,
+    options: OpenDeskOptions = {},
+) {
     const fixture = await prepare(page, audit, {
         'app.features': ['desks'],
         'app.feature_groups': {},
@@ -1042,13 +1486,15 @@ export async function openDesk(page: Page, audit: Audit, overrides: Settings) {
         'app.bookings.max_duration': 180,
         'app.bookings.duration_step': 30,
         'app.bookings.custom_duration_options': [],
+        ...options.fallbacks,
         ...overrides,
     });
     await page.goto('/#/book/desk/form');
     await fixture.ready();
     const details = page.locator('desk-flow-new desk-flow-details');
     await expect(details.locator('input[name$=".title"]')).toBeEditable();
-    await expect(details.locator('date-field button').first()).toBeEnabled();
+    if (options.dateReady ?? true)
+        await expect(details.locator('date-field button').first()).toBeEnabled();
     return { details, fixture };
 }
 
@@ -1368,70 +1814,258 @@ export async function roomView(
     return { root, fixture };
 }
 
-export async function stubBootstrap(page: Page) {
-    const origins = new Set([
-        new URL(APP_URL).origin,
-        new URL(BACKEND_URL).origin,
-    ]);
-    const types: Record<string, string[]> = {
-        catering: [],
-        desks: ['_DESKS_'],
-        parking: [
-            '_PARKING_SPACES_',
-            '_PARKING_USERS_',
-            '_PARKING_FLEET_VEHICLES_',
-        ],
-        lockers: ['_LOCKER_BANKS_', '_LOCKERS_'],
-    };
-    const get = async (match: (url: URL) => boolean, body: unknown) => {
-        await page.route(
-            (url) => origins.has(url.origin) && match(url),
-            async (route) => {
-                if (route.request().method() !== 'GET') return route.fallback();
-                await route.fulfill({ json: body });
-            },
-        );
-    };
-    await get(
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            url.searchParams.get('hidden') === 'true' &&
-            url.searchParams.get('limit') === '500',
-        Object.keys(types).map((name) => ({
-            id: 'landing-readonly-' + name,
-            name: '_' + name.toUpperCase() + '_',
-            hidden: true,
-        })),
-    );
-    for (const [category, names] of Object.entries(types)) {
-        await get(
-            (url) =>
-                url.pathname === '/api/engine/v2/asset_types' &&
-                url.searchParams.get('category_id') ===
-                    'landing-readonly-' + category &&
-                url.searchParams.get('limit') === '500',
-            names.map((name) => ({
-                id: 'landing-readonly-type-' + name,
-                name,
-                category_id: 'landing-readonly-' + category,
-                brand: 'PlaceOS',
-            })),
-        );
-    }
-    await get(
-        (url) =>
+/** Options for `stubBootstrap`. Every default reproduces the landing variant. */
+export type StubBootstrapOptions = {
+    /** Hidden asset id prefix. Default 'landing-readonly'. */
+    prefix?: string;
+    /** Category and type GETs must carry limit=500. Default true. */
+    limit?: boolean;
+    /**
+     * Also answer the new meeting form's bootstrap with empty data: the exact
+     * requestSpacesForZone systems GET, room bookings for a period and the
+     * zone's room_booking_rules. Default false.
+     */
+    meeting?: boolean;
+};
+
+/**
+ * Uncounted browser GETs for the shell's hidden asset bootstrap and the bare
+ * calendar list, so the bootstrap never writes.
+ */
+export async function stubBootstrap(page: Page, options: StubBootstrapOptions = {}) {
+    const prefix = options.prefix ?? 'landing-readonly';
+    await hiddenAssetRoutes(page, hiddenAssets(prefix), {
+        limit: options.limit ?? true,
+        assetMatch: (url) =>
             url.pathname === '/api/engine/v2/assets' &&
-            (url.searchParams.get('type_id') ?? '').startsWith(
-                'landing-readonly-type-',
-            ),
-        [],
-    );
-    await get(
+            (url.searchParams.get('type_id') ?? '').startsWith(prefix + '-type-'),
+    });
+    await getOnly(
+        page,
         (url) =>
             url.pathname === '/api/staff/v1/calendars' &&
             [...url.searchParams.keys()].length === 0,
-        [],
+        () => [],
     );
+    if (!options.meeting) return;
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/systems' &&
+            !!url.searchParams.get('zone_id') &&
+            url.searchParams.get('signage') === 'false' &&
+            url.searchParams.get('limit') === '500' &&
+            [...url.searchParams.keys()].every((key) =>
+                ['zone_id', 'signage', 'limit'].includes(key),
+            ),
+        () => [],
+    );
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/staff/v1/bookings' &&
+            url.searchParams.get('type') === 'room' &&
+            url.searchParams.has('period_start') &&
+            url.searchParams.has('period_end'),
+        () => [],
+    );
+    await getOnly(
+        page,
+        (url) =>
+            /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
+            url.searchParams.get('name') === 'room_booking_rules' &&
+            [...url.searchParams.keys()].length === 1,
+        () => ({ room_booking_rules: { name: 'room_booking_rules', details: [] } }),
+    );
+}
+
+/** A synthetic level row for `organisationRoutes`. */
+export type OrganisationLevel = Record<string, unknown> & { id: string; parent_id: string };
+
+/** Options for `organisationRoutes`. */
+export type OrganisationRoutes = {
+    /**
+     * Count through the audit as 'synthetic regions', 'synthetic buildings',
+     * 'synthetic levels', 'synthetic bulk metadata', 'synthetic metadata',
+     * 'synthetic desk metadata' and 'empty desk bookings'. Omitted: uncounted.
+     */
+    audit?: FixtureSink;
+    /** Every synthetic zone id starts with this, e.g. 'e2e-settings-'. */
+    prefix: string;
+    /** The one region under the real organisation. */
+    region: { id: string; name: string };
+    /** Copy the query's parent_id onto the region row. Default false. */
+    regionParent?: boolean;
+    /** The region's buildings. */
+    buildings: Record<string, unknown>[];
+    levels: OrganisationLevel[];
+    /** Extra sessionStorage keys removed before load, e.g. the booking form keys. */
+    clearSession?: string[];
+    /** APP.locale stored in the same init script. Default none. */
+    locale?: string;
+    /**
+     * Details of a single-zone metadata entry for a synthetic zone, or false to
+     * leave those GETs alone. Default: [] for *_booking_rules, else {}.
+     */
+    metadata?: false | ((name: string) => unknown);
+    /** The bookable desks of a level, served as each building's children desks metadata. */
+    desks?: (level: OrganisationLevel) => unknown[];
+    /** Answer desk bookings for a period with []. Default false. */
+    deskBookings?: boolean;
+};
+
+/**
+ * Replace the real organisation's region, building and level lists and the
+ * synthetic zones' metadata with fixtures, keeping the real authority,
+ * organisation and identity. Clears the cached organisation, region and
+ * building first so the app reads these lists.
+ */
+export async function organisationRoutes(page: Page, options: OrganisationRoutes) {
+    await page.addInitScript(
+        ({ session, locale }) => {
+            for (const key of Object.keys(localStorage)) {
+                if (
+                    key.startsWith('PLACEOS.org') ||
+                    ['PLACEOS.region', 'PLACEOS.building'].includes(key)
+                )
+                    localStorage.removeItem(key);
+            }
+            for (const key of session) sessionStorage.removeItem(key);
+            sessionStorage.removeItem('PLACEOS.building');
+            if (locale) localStorage.setItem('APP.locale', locale);
+        },
+        { session: options.clearSession ?? [], locale: options.locale ?? '' },
+    );
+    const audit = options.audit;
+    const serve = (
+        name: string,
+        match: (url: URL) => boolean,
+        body: (url: URL) => unknown | Promise<unknown>,
+    ) =>
+        audit
+            ? getOnly(page, audit, name, match, body)
+            : getOnly(page, match, body);
+    const { prefix, region } = options;
+    await serve(
+        'synthetic regions',
+        (url) =>
+            url.pathname === '/api/engine/v2/zones' &&
+            url.searchParams.get('tags') === 'region' &&
+            url.searchParams.get('limit') === '200',
+        (url) => [
+            {
+                id: region.id,
+                ...(options.regionParent
+                    ? { parent_id: url.searchParams.get('parent_id') }
+                    : {}),
+                name: region.name,
+                tags: ['region'],
+                timezone: 'UTC',
+            },
+        ],
+    );
+    await serve(
+        'synthetic buildings',
+        (url) =>
+            url.pathname === '/api/engine/v2/zones' &&
+            url.searchParams.get('tags') === 'building' &&
+            url.searchParams.get('parent_id') === region.id &&
+            url.searchParams.get('limit') === '500',
+        () => options.buildings,
+    );
+    await serve(
+        'synthetic levels',
+        (url) =>
+            url.pathname === '/api/engine/v2/zones' &&
+            url.searchParams.get('tags') === 'level' &&
+            url.searchParams.get('limit') === '2500',
+        () => options.levels,
+    );
+    // OrganisationService bulkMetadata(name,{parent_ids}) returns a map of
+    // parent IDs to Metadata records; showMetadata returns { [name]: record }.
+    await serve(
+        'synthetic bulk metadata',
+        (url) =>
+            /^\/api\/engine\/v2\/metadata\/[^/]+\/bulk$/.test(url.pathname) &&
+            !!url.searchParams.get('parent_ids') &&
+            (url.searchParams.get('parent_ids') ?? '')
+                .split(',')
+                .every((id) => id.startsWith(prefix)),
+        (url) =>
+            Object.fromEntries(
+                (url.searchParams.get('parent_ids') ?? '')
+                    .split(',')
+                    .map((id) => [
+                        id,
+                        {
+                            id,
+                            name: decodeURIComponent(url.pathname.split('/')[5]),
+                            details: {},
+                        },
+                    ]),
+            ),
+    );
+    const metadata =
+        options.metadata === undefined
+            ? (name: string) => (name.endsWith('_booking_rules') ? [] : {})
+            : options.metadata;
+    if (metadata) {
+        const single = '/api/engine/v2/metadata/' + prefix;
+        await serve(
+            'synthetic metadata',
+            (url) =>
+                url.pathname.startsWith(single) &&
+                !url.pathname.slice(single.length).includes('/') &&
+                url.pathname.length > single.length &&
+                !!url.searchParams.get('name'),
+            (url) => {
+                const name = (url.searchParams.get('name') ?? '');
+                return {
+                    [name]: {
+                        id: url.pathname.split('/')[5],
+                        name,
+                        details: metadata(name),
+                    },
+                };
+            },
+        );
+    }
+    const desks = options.desks;
+    if (desks) {
+        const buildings = options.buildings.map((building) => building.id);
+        await serve(
+            'synthetic desk metadata',
+            (url) => {
+                const match = /^\/api\/engine\/v2\/metadata\/([^/]+)\/children$/.exec(
+                    url.pathname,
+                );
+                return (
+                    !!match &&
+                    buildings.includes(match[1]) &&
+                    url.searchParams.get('name') === 'desks'
+                );
+            },
+            (url) =>
+                options.levels
+                    .filter((level) => level.parent_id === url.pathname.split('/')[5])
+                    .map((level) => ({
+                        zone: level,
+                        metadata: {
+                            desks: { name: 'desks', details: desks(level) },
+                        },
+                    })),
+        );
+    }
+    if (options.deskBookings)
+        await serve(
+            'empty desk bookings',
+            (url) =>
+                url.pathname === '/api/staff/v1/bookings' &&
+                url.searchParams.get('type') === 'desk' &&
+                url.searchParams.has('period_start') &&
+                url.searchParams.has('period_end'),
+            () => [],
+        );
 }
 
 export async function timezoneBuildings(page: Page, audit: Audit) {
@@ -1505,6 +2139,26 @@ export async function untouchedLocker(page: Page) {
     await expect(page.locator('locker-flow-success')).toHaveCount(0);
 }
 
+/**
+ * Open the new locker form through prepareBooking with LOCKER (or `base`)
+ * under the overrides and wait for every setting, the hidden-category
+ * fixture and the confirm button.
+ */
+export async function lockerForm(
+    page: Page,
+    audit: Audit,
+    overrides: Settings,
+    base: Settings = LOCKER,
+) {
+    const fixture = await prepareBooking(page, audit, { ...base, ...overrides });
+    await page.goto('/#/book/locker/form');
+    await fixture.ready();
+    const root = page.locator('new-locker-form-details');
+    await expect(root).toBeVisible();
+    await expect(page.locator('button[name="open-locker-confirm"]')).toBeVisible();
+    return root;
+}
+
 export async function untouchedParking(page: Page) {
     await expect(
         page.locator('parking-flow-form button[confirm]'),
@@ -1532,17 +2186,61 @@ export async function untouchedVisitor(form: InviteVisitorForm) {
     await expect(form.successPanel).toHaveCount(0);
 }
 
-export function validPeriod(url: URL) {
+/**
+ * Numeric period_start and period_end with end after start. By default both
+ * are also safe integers and start is above 0; `{ strict: false }` checks
+ * only digits and order.
+ */
+export function validPeriod(url: URL, options: { strict?: boolean } = {}) {
     const start = url.searchParams.get('period_start') ?? '';
     const end = url.searchParams.get('period_end') ?? '';
+    if (!(/^\d+$/.test(start) && /^\d+$/.test(end))) return false;
+    if (options.strict === false) return Number(end) > Number(start);
     return (
-        /^\d+$/.test(start) &&
-        /^\d+$/.test(end) &&
         Number.isSafeInteger(Number(start)) &&
         Number(start) > 0 &&
         Number.isSafeInteger(Number(end)) &&
         Number(end) > Number(start)
     );
+}
+
+/**
+ * True when the URL carries exactly the expected query keys and values,
+ * ignoring `authority_id`, which the API client may add: on zone queries
+ * only ('zones', the default) or on any path ('any'). Duplicates are not
+ * checked; syntheticOrg's own hasParams is the exact-multiset version.
+ */
+export function hasParams(
+    url: URL,
+    expected: Record<string, string>,
+    authority: 'zones' | 'any' = 'zones',
+) {
+    return looseParams(url, expected, authority);
+}
+
+function looseParams(
+    url: URL,
+    expected: Record<string, string>,
+    authority: 'zones' | 'any',
+) {
+    const keys = [...url.searchParams.keys()].filter(
+        (key) =>
+            !(
+                key === 'authority_id' &&
+                (authority === 'any' || url.pathname === '/api/engine/v2/zones')
+            ),
+    );
+    return (
+        keys.length === Object.keys(expected).length &&
+        Object.entries(expected).every(
+            ([key, value]) => url.searchParams.get(key) === value,
+        )
+    );
+}
+
+/** A browser-only fake bearer: 'browser-only-<label>-not-a-valid-credential'. */
+export function fakeBearer(label: string) {
+    return 'browser-only-' + label + '-not-a-valid-credential';
 }
 
 export async function visitor(page: Page, audit: Audit, overrides: Settings) {
@@ -1760,6 +2458,197 @@ export function watchStaffId(page: Page): Promise<string> {
 }
 
 // ---------------------------------------------------------------------------
+// Landing presentation specs (general.*): isolated staff contexts
+// ---------------------------------------------------------------------------
+
+/** The clock and Intl time zone landingSafetyTest expects. */
+export const LANDING_TIMEZONE = 'Etc/UTC';
+
+const landingMonitors = new WeakMap<LandingAudit, (context: BrowserContext) => Promise<void>>();
+
+export type LandingAttempt = { url: string; classification: string };
+/** What landingSafetyTest records for one test. */
+export type LandingAudit = {
+    websocket_attempts: LandingAttempt[];
+    blocked_control_attempts: LandingAttempt[];
+    tooling_websockets: LandingAttempt[];
+    page_errors: { name: string; message: string; stack?: string }[];
+    app_errors: string[];
+    monitoring_errors: string[];
+    blocked_api_requests: string[];
+    staff_identities: { email: string; privileged: boolean }[];
+    observe(context: BrowserContext): void;
+};
+/**
+ * readOnlyTest with `safetyAudit` (auto) and `isolated.open(overrides)` for
+ * the landing presentation specs. The first open() uses staffPage; later
+ * calls open a new staff context with the legacy /api write guard. Each
+ * open() serves the hidden asset bootstrap (`hidden` ids, no limit check,
+ * uncounted), applies `{ ...base, ...overrides }`, loads /#/landing, checks
+ * the staff identity, the UTC clock and the stored overrides, and waits for
+ * the topbar. Sockets: the Vite socket is held open, the shell's control
+ * socket is closed before it connects, any other fails the test. The spec
+ * sets `test.use({ storageState: undefined, timezoneId: LANDING_LANDING_TIMEZONE,
+ * readOnlyTimezone: LANDING_LANDING_TIMEZONE, locale: 'en-AU' })`.
+ */
+export function landingSafetyTest(
+    base: Settings,
+    hidden: HiddenAssetIds = {
+        category: (category) => 'pr1-hidden-' + category,
+        type: (name) => 'pr1-type-' + name,
+    },
+) {
+    const catalogue = hiddenAssets(hidden);
+    return readOnlyTest.extend<{
+    safetyAudit: LandingAudit;
+    isolated: { open(overrides: Settings): Promise<Page> };
+}>({
+    safetyAudit: [async ({ staffPage }, use, info) => {
+        const contexts: BrowserContext[] = [];
+        const closing: Promise<void>[] = [];
+        const audit: LandingAudit = {
+            websocket_attempts: [], blocked_control_attempts: [], tooling_websockets: [],
+            page_errors: [], app_errors: [], monitoring_errors: [], blocked_api_requests: [], staff_identities: [],
+            observe(context) {
+                contexts.push(context);
+                const observePage = (page: Page) => {
+                    page.on('pageerror', (error) => audit.page_errors.push({ name: error.name, message: error.message, stack: error.stack }));
+                    page.on('console', (message) => {
+                        if (message.type() === 'error' && /^(ERROR\b|NG0\d+)/.test(message.text())) {
+                            audit.app_errors.push(message.text().slice(0, 500));
+                        }
+                    });
+                };
+                for (const page of context.pages()) observePage(page);
+                context.on('page', observePage);
+            },
+        };
+        const monitor = async (context: BrowserContext) => {
+            audit.observe(context);
+            await context.routeWebSocket('**/*', (socket) => {
+                try {
+                    const url = new URL(socket.url());
+                    const app = new URL(APP_URL);
+                    const protocol = app.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const local = url.protocol === protocol && url.host === app.host;
+                    const tooling = local && url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token';
+                    const control = local && url.pathname === '/api/engine/v2/systems/control';
+                    for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
+                    if (tooling) {
+                        audit.tooling_websockets.push({ url: url.href, classification: 'dev-server live reload; mocked and held open, never connected' });
+                        return;
+                    }
+                    if (control) {
+                        audit.blocked_control_attempts.push({ url: url.href,
+                            classification: 'known Workplace shell initialization; intercepted and closed before server connection' });
+                    } else {
+                        audit.websocket_attempts.push({ url: url.href, classification: 'UNEXPECTED socket; these presentation scenarios are HTTP-only' });
+                    }
+                } catch (error) {
+                    audit.monitoring_errors.push(`WebSocket interception failed: ${String(error)}`);
+                }
+                closing.push(socket.close().catch((error: unknown) => {
+                    audit.monitoring_errors.push(`WebSocket close failed: ${String(error)}`);
+                }));
+            });
+        };
+        // Expose an async registration hook to isolated.open, before new pages
+        // or navigation. Audit data itself remains JSON serializable.
+        const registered = new Set<BrowserContext>();
+        audit.observe = ((observe) => (context: BrowserContext) => {
+            if (!registered.has(context)) { registered.add(context); observe(context); }
+        })(audit.observe);
+        landingMonitors.set(audit, monitor);
+        try {
+            await monitor(staffPage.context());
+            await use(audit);
+        } finally {
+            for (const context of contexts) {
+                try { await context.close(); }
+                catch (error) { audit.monitoring_errors.push(`Context close failed: ${String(error)}`); }
+            }
+            await Promise.all(closing);
+            landingMonitors.delete(audit);
+            try {
+                await info.attach('settings-safety-audit', {
+                    body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
+                });
+            } finally {
+                expect({ websocket_attempts: audit.websocket_attempts, page_errors: audit.page_errors,
+                    app_errors: audit.app_errors, monitoring_errors: audit.monitoring_errors,
+                    blocked_api_requests: audit.blocked_api_requests }, 'no unexpected socket, error or API mutation').toEqual({
+                    websocket_attempts: [], page_errors: [], app_errors: [], monitoring_errors: [], blocked_api_requests: [],
+                });
+                expect(audit.staff_identities.length, 'each scenario must verify staff identity').toBeGreaterThan(0);
+                for (const identity of audit.staff_identities) {
+                    expect(identity.email).toBe(staffEmail(info.parallelIndex).toLowerCase());
+                    expect(identity.privileged).toBe(false);
+                }
+            }
+        }
+    }, { auto: true, timeout: 30_000 }],
+    isolated: async ({ browser, staffPage, safetyAudit }, use, info) => {
+        assertLocalOnly(APP_URL, BACKEND_URL);
+        const auth = await staffPage.context().storageState();
+        let first = true;
+        await use({ open: async (overrides) => {
+            let page: Page;
+            if (first) {
+                first = false;
+                page = staffPage; // The shared parent guard observes identity and checks teardown.
+            } else {
+                const context = await browser.newContext({ storageState: auth, baseURL: APP_URL,
+                    ignoreHTTPSErrors: true, timezoneId: LANDING_TIMEZONE, locale: 'en-AU',
+                    viewport: { width: 1440, height: 1100 }, serviceWorkers: 'block' });
+                await landingMonitors.get(safetyAudit)!(context);
+                // Additional isolated contexts retain the legacy API guard;
+                // the parent fixture guards the first page independently.
+                await context.route('**/api/**', async (route) => {
+                    const request = route.request();
+                    const url = new URL(request.url());
+                    if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method()) ||
+                        ![new URL(APP_URL).origin, new URL(BACKEND_URL).origin].includes(url.origin)) {
+                        safetyAudit.blocked_api_requests.push(`${request.method()} ${url.pathname}`);
+                        await route.abort('blockedbyclient');
+                    } else await route.continue();
+                });
+                page = await context.newPage();
+            }
+            await page.setViewportSize({ width: 1440, height: 1100 });
+            const observed = page.waitForResponse((response) => response.request().method() === 'GET' &&
+                new URL(response.url()).pathname === '/api/engine/v2/users/current')
+                .then((response) => ({ response }), (error: unknown) => ({ error }));
+            await hiddenAssetRoutes(page, catalogue, {
+                limit: false,
+                assetMatch: (url) =>
+                    url.pathname === '/api/engine/v2/assets' &&
+                    (url.searchParams.get('type_id') ?? '').startsWith(catalogue.typeId('')),
+            });
+            const settings = { ...base, ...overrides };
+            await useSettings(page, settings);
+            await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-AU'));
+            await page.goto('/#/landing');
+            const result = await observed;
+            if ('error' in result) throw result.error;
+            expect(result.response.ok(), 'the app must load the signed-in staff user').toBe(true);
+            const user = await result.response.json();
+            const identity = { email: user.email?.toLowerCase() ?? '', privileged: !!(user.sys_admin || user.support) };
+            safetyAudit.staff_identities.push(identity);
+            expect(identity.email).toBe(staffEmail(info.parallelIndex).toLowerCase());
+            expect(identity.privileged, 'staff-only scenario').toBeFalsy();
+            expect(new URL(page.url()).origin).toBe(new URL(APP_URL).origin);
+            expect(await page.evaluate(() => new Date().getTimezoneOffset())).toBe(0);
+            expect(['UTC', LANDING_TIMEZONE]).toContain(await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone));
+            const stored = await page.evaluate(() => localStorage.getItem('PLACEOS.setting_overrides'));
+            expect(JSON.parse(stored ?? 'null')).toEqual(settings);
+            await expect(page.locator('topbar')).toBeVisible();
+            return page;
+        } });
+    },
+});
+}
+
+// ---------------------------------------------------------------------------
 // Worker staff token for the read-only specs
 // ---------------------------------------------------------------------------
 
@@ -1884,6 +2773,24 @@ export type MigrationAudit = {
     blocked_api_requests: string[];
     readonly_queries: { method: string; path: string }[];
     staff_identities: { email: string; privileged: boolean }[];
+    /** Hits per named fixture, for specs that count their own GETs (migrationCount). */
+    fixtures: Record<string, number>;
+};
+
+/** Options for `migrationAuditFor`. Every default reproduces migrationAuditFixture. */
+export type MigrationAuditOptions = {
+    /**
+     * 'api' (default): a route on /api/ URLs continues local reads (and the
+     * clash query when allowed) and aborts every other /api/ request.
+     * 'strict': a route on every URL falls back for non-API reads and local
+     * API reads outside /api/staff/v1/calendars and /events, and aborts
+     * everything else, including writes outside /api/.
+     */
+    guard?: 'api' | 'strict';
+    /** Let POST /api/staff/v1/bookings/clashing-assets through the 'api' guard. Default MIGRATION_ALLOW_CLASH_QUERY. */
+    allowClashQuery?: boolean;
+    /** Publish the audit as migrationActive for migrationNewContext and migrationCount. Default true. */
+    register?: boolean;
 };
 
 export let migrationActive:
@@ -1893,7 +2800,8 @@ export let migrationActive:
       }
     | undefined;
 
-export const migrationAuditFixture: {
+/** The fixture object `migrationAuditFor` returns; pass it to test.extend. */
+export type MigrationAuditFixture = {
     migrationAudit: [
         (
             args: { staffPage: Page },
@@ -1902,233 +2810,278 @@ export const migrationAuditFixture: {
         ) => Promise<void>,
         { auto: true; timeout: number },
     ];
-} = {
-    migrationAudit: [
-        async (
-            { staffPage }: { staffPage: Page },
-            use: (audit: MigrationAudit) => Promise<void>,
-            info: TestInfo,
-        ) => {
-            assertLocalOnly(APP_URL, BACKEND_URL);
-            const audit: MigrationAudit = {
-                websocket_attempts: [],
-                blocked_control_attempts: [],
-                tooling_websockets: [],
-                page_errors: [],
-                app_errors: [],
-                monitoring_errors: [],
-                blocked_api_requests: [],
-                readonly_queries: [],
-                staff_identities: [],
-            };
-            const contexts: BrowserContext[] = [];
-            const closing: Promise<void>[] = [];
-            const identities: Promise<void>[] = [];
-            const navigated = new Set<BrowserContext>();
-            const identified = new Set<BrowserContext>();
-            const origins = new Set([
-                new URL(APP_URL).origin,
-                new URL(BACKEND_URL).origin,
-            ]);
-            const register = async (context: BrowserContext) => {
-                contexts.push(context);
-                const observe = (page: Page) => {
-                    page.on('framenavigated', (frame) => {
-                        if (
-                            frame === page.mainFrame() &&
-                            frame
-                                .url()
-                                .startsWith(new URL(APP_URL).origin + '/')
-                        )
-                            navigated.add(context);
-                    });
-                    page.on('pageerror', (error) =>
-                        audit.page_errors.push(String(error)),
-                    );
-                    page.on('console', (message) => {
-                        if (
-                            message.type() === 'error' &&
-                            /^(ERROR\b|NG0\d+)/.test(message.text())
-                        )
-                            audit.app_errors.push(message.text().slice(0, 500));
-                    });
-                    page.on('response', (response) => {
-                        const url = new URL(response.url());
-                        if (
-                            response.request().method() !== 'GET' ||
-                            !origins.has(url.origin) ||
-                            url.pathname !== '/api/engine/v2/users/current'
-                        )
-                            return;
-                        identities.push(
-                            (async () => {
-                                expect(
-                                    response.ok(),
-                                    'staff identity GET must succeed',
-                                ).toBe(true);
-                                const user = await response.json();
-                                const identity = {
-                                    email: user.email?.toLowerCase() ?? '',
-                                    privileged: !!(
-                                        user.sys_admin || user.support
-                                    ),
-                                };
-                                audit.staff_identities.push(identity);
-                                expect(identity.email).toBe(
-                                    staffEmail(
-                                        info.parallelIndex,
-                                    ).toLowerCase(),
+};
+
+/**
+ * The read-only migration safety audit as a test.extend fixture object: one
+ * guard per registered context, intercepted sockets, staff identity checks
+ * and a strict teardown.
+ */
+export function migrationAuditFor(
+    options: MigrationAuditOptions = {},
+): MigrationAuditFixture {
+    const guard = options.guard ?? 'api';
+    const allow_clash = options.allowClashQuery ?? MIGRATION_ALLOW_CLASH_QUERY;
+    const publish = options.register ?? true;
+    return {
+        migrationAudit: [
+            async (
+                { staffPage }: { staffPage: Page },
+                use: (audit: MigrationAudit) => Promise<void>,
+                info: TestInfo,
+            ) => {
+                assertLocalOnly(APP_URL, BACKEND_URL);
+                const audit: MigrationAudit = {
+                    websocket_attempts: [],
+                    blocked_control_attempts: [],
+                    tooling_websockets: [],
+                    page_errors: [],
+                    app_errors: [],
+                    monitoring_errors: [],
+                    blocked_api_requests: [],
+                    readonly_queries: [],
+                    staff_identities: [],
+                    fixtures: {},
+                };
+                const contexts: BrowserContext[] = [];
+                const closing: Promise<void>[] = [];
+                const identities: Promise<void>[] = [];
+                const navigated = new Set<BrowserContext>();
+                const identified = new Set<BrowserContext>();
+                const origins = new Set([
+                    new URL(APP_URL).origin,
+                    new URL(BACKEND_URL).origin,
+                ]);
+                const register = async (context: BrowserContext) => {
+                    contexts.push(context);
+                    const observe = (page: Page) => {
+                        page.on('framenavigated', (frame) => {
+                            if (
+                                frame === page.mainFrame() &&
+                                frame
+                                    .url()
+                                    .startsWith(new URL(APP_URL).origin + '/')
+                            )
+                                navigated.add(context);
+                        });
+                        page.on('pageerror', (error) =>
+                            audit.page_errors.push(String(error)),
+                        );
+                        page.on('console', (message) => {
+                            if (
+                                message.type() === 'error' &&
+                                /^(ERROR\b|NG0\d+)/.test(message.text())
+                            )
+                                audit.app_errors.push(message.text().slice(0, 500));
+                        });
+                        page.on('response', (response) => {
+                            const url = new URL(response.url());
+                            if (
+                                response.request().method() !== 'GET' ||
+                                !origins.has(url.origin) ||
+                                url.pathname !== '/api/engine/v2/users/current'
+                            )
+                                return;
+                            identities.push(
+                                (async () => {
+                                    expect(
+                                        response.ok(),
+                                        'staff identity GET must succeed',
+                                    ).toBe(true);
+                                    const user = await response.json();
+                                    const identity = {
+                                        email: user.email?.toLowerCase() ?? '',
+                                        privileged: !!(
+                                            user.sys_admin || user.support
+                                        ),
+                                    };
+                                    audit.staff_identities.push(identity);
+                                    expect(identity.email).toBe(
+                                        staffEmail(
+                                            info.parallelIndex,
+                                        ).toLowerCase(),
+                                    );
+                                    expect(
+                                        identity.privileged,
+                                        'staff-only scenario',
+                                    ).toBe(false);
+                                    identified.add(context);
+                                })().catch((error: unknown) => {
+                                    audit.monitoring_errors.push(
+                                        `Staff identity: ${String(error)}`,
+                                    );
+                                }),
+                            );
+                        });
+                    };
+                    for (const page of context.pages()) observe(page);
+                    context.on('page', observe);
+                    if (guard === 'strict')
+                        await context.route('**/*', async (route) => {
+                            const request = route.request();
+                            const url = new URL(request.url());
+                            const read = READ_METHODS.includes(request.method());
+                            const api = url.pathname.startsWith('/api/');
+                            const provider =
+                                url.pathname.startsWith('/api/staff/v1/calendars') ||
+                                url.pathname.startsWith('/api/staff/v1/events');
+                            if (read && (!api || (origins.has(url.origin) && !provider))) {
+                                await route.fallback();
+                            } else {
+                                audit.blocked_api_requests.push(
+                                    `${request.method()} ${url.origin}${url.pathname}`,
                                 );
-                                expect(
-                                    identity.privileged,
-                                    'staff-only scenario',
-                                ).toBe(false);
-                                identified.add(context);
-                            })().catch((error: unknown) => {
+                                await route.abort('blockedbyclient');
+                            }
+                        });
+                    else await context.route('**/api/**', async (route) => {
+                        const request = route.request();
+                        const url = new URL(request.url());
+                        const read = ['GET', 'HEAD', 'OPTIONS'].includes(
+                            request.method(),
+                        );
+                        // findBookingClashes is a source-supported availability query,
+                        // not booking creation (libs/bookings/src/lib/bookings.fn.ts).
+                        const clash =
+                            allow_clash &&
+                            request.method() === 'POST' &&
+                            url.pathname ===
+                                '/api/staff/v1/bookings/clashing-assets';
+                        if (origins.has(url.origin) && (read || clash)) {
+                            if (clash)
+                                audit.readonly_queries.push({
+                                    method: 'POST',
+                                    path: url.pathname,
+                                });
+                            await route.continue();
+                        } else {
+                            audit.blocked_api_requests.push(
+                                `${request.method()} ${url.origin}${url.pathname}`,
+                            );
+                            await route.abort('blockedbyclient');
+                        }
+                    });
+                    await context.routeWebSocket('**/*', (socket) => {
+                        try {
+                            const url = new URL(socket.url());
+                            const app = new URL(APP_URL);
+                            const local =
+                                url.host === app.host &&
+                                url.protocol ===
+                                    (app.protocol === 'https:' ? 'wss:' : 'ws:');
+                            const tooling =
+                                local &&
+                                url.pathname === '/' &&
+                                [...url.searchParams.keys()].join(',') === 'token';
+                            const control =
+                                local &&
+                                url.pathname === '/api/engine/v2/systems/control';
+                            for (const key of [...url.searchParams.keys()])
+                                url.searchParams.set(key, '[redacted]');
+                            if (tooling) {
+                                audit.tooling_websockets.push({
+                                    url: url.href,
+                                    classification:
+                                        'dev-server live reload; mocked and held open, never connected',
+                                });
+                                return;
+                            }
+                            if (control)
+                                audit.blocked_control_attempts.push({
+                                    url: url.href,
+                                    classification:
+                                        'known Workplace shell initialization; intercepted and closed before server connection',
+                                });
+                            else
+                                audit.websocket_attempts.push({
+                                    url: url.href,
+                                    classification:
+                                        'UNEXPECTED connection; intercepted before server connection',
+                                });
+                        } catch (error) {
+                            audit.monitoring_errors.push(
+                                `WebSocket interception: ${String(error)}`,
+                            );
+                        }
+                        // No connectToServer call: all connections remain browser-local.
+                        closing.push(
+                            socket.close().catch((error: unknown) => {
                                 audit.monitoring_errors.push(
-                                    `Staff identity: ${String(error)}`,
+                                    `WebSocket close: ${String(error)}`,
                                 );
                             }),
                         );
                     });
                 };
-                for (const page of context.pages()) observe(page);
-                context.on('page', observe);
-                await context.route('**/api/**', async (route) => {
-                    const request = route.request();
-                    const url = new URL(request.url());
-                    const read = ['GET', 'HEAD', 'OPTIONS'].includes(
-                        request.method(),
-                    );
-                    // findBookingClashes is a source-supported availability query,
-                    // not booking creation (libs/bookings/src/lib/bookings.fn.ts).
-                    // Enabled only for the recurrence scenario.
-                    const clash =
-                        MIGRATION_ALLOW_CLASH_QUERY &&
-                        request.method() === 'POST' &&
-                        url.pathname ===
-                            '/api/staff/v1/bookings/clashing-assets';
-                    if (origins.has(url.origin) && (read || clash)) {
-                        if (clash)
-                            audit.readonly_queries.push({
-                                method: 'POST',
-                                path: url.pathname,
-                            });
-                        await route.continue();
-                    } else {
-                        audit.blocked_api_requests.push(
-                            `${request.method()} ${url.origin}${url.pathname}`,
-                        );
-                        await route.abort('blockedbyclient');
-                    }
-                });
-                await context.routeWebSocket('**/*', (socket) => {
-                    try {
-                        const url = new URL(socket.url());
-                        const app = new URL(APP_URL);
-                        const local =
-                            url.host === app.host &&
-                            url.protocol ===
-                                (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                        const tooling =
-                            local &&
-                            url.pathname === '/' &&
-                            [...url.searchParams.keys()].join(',') === 'token';
-                        const control =
-                            local &&
-                            url.pathname === '/api/engine/v2/systems/control';
-                        for (const key of [...url.searchParams.keys()])
-                            url.searchParams.set(key, '[redacted]');
-                        if (tooling) {
-                            audit.tooling_websockets.push({
-                                url: url.href,
-                                classification:
-                                    'dev-server live reload; mocked and held open, never connected',
-                            });
-                            return;
-                        }
-                        if (control)
-                            audit.blocked_control_attempts.push({
-                                url: url.href,
-                                classification:
-                                    'known Workplace shell initialization; intercepted and closed before server connection',
-                            });
-                        else
-                            audit.websocket_attempts.push({
-                                url: url.href,
-                                classification:
-                                    'UNEXPECTED connection; intercepted before server connection',
-                            });
-                    } catch (error) {
-                        audit.monitoring_errors.push(
-                            `WebSocket interception: ${String(error)}`,
-                        );
-                    }
-                    // No connectToServer call: all connections remain browser-local.
-                    closing.push(
-                        socket.close().catch((error: unknown) => {
-                            audit.monitoring_errors.push(
-                                `WebSocket close: ${String(error)}`,
-                            );
-                        }),
-                    );
-                });
-            };
-            migrationActive = { audit, register };
-            try {
-                await register(staffPage.context());
-                await use(audit);
-            } finally {
-                for (const context of contexts) {
-                    try {
-                        await context.close();
-                    } catch (error) {
-                        audit.monitoring_errors.push(
-                            `Context close: ${String(error)}`,
-                        );
-                    }
-                }
-                await Promise.all(closing);
-                await Promise.all(identities);
-                for (const context of navigated) {
-                    if (!identified.has(context))
-                        audit.monitoring_errors.push(
-                            'A navigated context did not establish staff identity',
-                        );
-                }
-                migrationActive = undefined;
+                if (publish) migrationActive = { audit, register };
                 try {
-                    await info.attach('settings-safety-audit', {
-                        body: Buffer.from(JSON.stringify(audit, null, 2)),
-                        contentType: 'application/json',
-                    });
+                    await register(staffPage.context());
+                    await use(audit);
                 } finally {
-                    expect(
-                        {
-                            websocket_attempts: audit.websocket_attempts,
-                            page_errors: audit.page_errors,
-                            app_errors: audit.app_errors,
-                            monitoring_errors: audit.monitoring_errors,
-                            blocked_api_requests: audit.blocked_api_requests,
-                        },
-                        'migration safety audit must be clean',
-                    ).toEqual({
-                        websocket_attempts: [],
-                        page_errors: [],
-                        app_errors: [],
-                        monitoring_errors: [],
-                        blocked_api_requests: [],
-                    });
-                    expect(
-                        audit.staff_identities.length,
-                        'staff identity must be observed',
-                    ).toBeGreaterThan(0);
+                    for (const context of contexts) {
+                        try {
+                            await context.close();
+                        } catch (error) {
+                            audit.monitoring_errors.push(
+                                `Context close: ${String(error)}`,
+                            );
+                        }
+                    }
+                    await Promise.all(closing);
+                    await Promise.all(identities);
+                    for (const context of navigated) {
+                        if (!identified.has(context))
+                            audit.monitoring_errors.push(
+                                'A navigated context did not establish staff identity',
+                            );
+                    }
+                    if (publish) migrationActive = undefined;
+                    try {
+                        await info.attach('settings-safety-audit', {
+                            body: Buffer.from(JSON.stringify(audit, null, 2)),
+                            contentType: 'application/json',
+                        });
+                    } finally {
+                        expect(
+                            {
+                                websocket_attempts: audit.websocket_attempts,
+                                page_errors: audit.page_errors,
+                                app_errors: audit.app_errors,
+                                monitoring_errors: audit.monitoring_errors,
+                                blocked_api_requests: audit.blocked_api_requests,
+                            },
+                            'migration safety audit must be clean',
+                        ).toEqual({
+                            websocket_attempts: [],
+                            page_errors: [],
+                            app_errors: [],
+                            monitoring_errors: [],
+                            blocked_api_requests: [],
+                        });
+                        expect(
+                            audit.staff_identities.length,
+                            'staff identity must be observed',
+                        ).toBeGreaterThan(0);
+                    }
                 }
-            }
-        },
-        { auto: true, timeout: 30_000 },
-    ],
-};
+            },
+            { auto: true, timeout: 30_000 },
+        ],
+    };
+}
+
+export const migrationAuditFixture = migrationAuditFor();
+
+/**
+ * Count one hit of the named fixture on the active migration audit. Throws
+ * when no audit is active, so a fixture used outside the audit fails.
+ */
+export function migrationCount(name: string) {
+    if (!migrationActive)
+        throw new Error(name + ' fixture requires the migration safety audit');
+    migrationActive.audit.fixtures[name] =
+        (migrationActive.audit.fixtures[name] ?? 0) + 1;
+}
 
 export async function migrationNewContext(
     browser: Browser,
@@ -2666,7 +3619,16 @@ export function controlSocket<A extends ControlAudit>(
  * Ids, hidden asset data and exact-query matchers for one synthetic
  * organisation, region, building and level. Every id starts with `prefix`.
  */
-export function syntheticOrg(prefix: string) {
+export function syntheticOrg(
+    prefix: string,
+    /**
+     * Query matching for hasParams and the queries built on it. 'exact'
+     * (default): an exact multiset, and a zone query's authority_id must be
+     * `<prefix>authority`. 'zones' or 'any': the module-level hasParams, which
+     * ignores authority_id on zone queries or on every path.
+     */
+    options: { params?: 'exact' | 'zones' | 'any' } = {},
+) {
     const ORGANISATION = prefix + 'org';
     const REGION = prefix + 'region';
     const BUILDING = prefix + 'building';
@@ -2691,8 +3653,9 @@ export function syntheticOrg(prefix: string) {
     const HIDDEN_TYPE_IDS = Object.values(HIDDEN_TYPES)
         .flat()
         .map((name) => prefix + 'type-' + name);
+    const params = options.params ?? 'exact';
     /** Exact query multiset: duplicates, unknown keys and foreign authority fail. */
-    const hasParams = (url: URL, expected: Record<string, string>) => {
+    const exactParams = (url: URL, expected: Record<string, string>) => {
         const entries = [...url.searchParams.entries()];
         if (
             url.pathname === '/api/engine/v2/zones' &&
@@ -2717,6 +3680,11 @@ export function syntheticOrg(prefix: string) {
             )
         );
     };
+    const hasParams =
+        params === 'exact'
+            ? exactParams
+            : (url: URL, expected: Record<string, string>) =>
+                  looseParams(url, expected, params);
     /** The parking booking queries the shell makes for the level and `email`. */
     const parkingQuery = (url: URL, email: string) => {
         const period_start = url.searchParams.get('period_start')!;
@@ -3034,6 +4002,245 @@ export async function syntheticOrgGets(
             body: () => svg,
         });
     }
+}
+
+/** Options for `syntheticOrgRoutes`. */
+export type SyntheticOrgRoutes = {
+    /** First words of the zone names, e.g. 'Schedule Driver' gives 'Schedule Driver Organisation'. */
+    label: string;
+    /** The single-zone metadata names each zone may be asked for. */
+    zone_metadata: Record<string, string[]>;
+    /** Details of one zone metadata entry. Default {}. */
+    zone_details?: (id: string, name: string) => unknown;
+    /** Details of one bulk metadata entry. Default {}. */
+    bulk_details?: (name: string, id: string) => unknown;
+    /** Metadata names answered for the signed-in user ('any' for every name). Default ['settings']. */
+    user_metadata?: string[] | 'any';
+    /** The signed-in user's id. Default watchStaffId(page). */
+    user_id?: Promise<string | undefined>;
+    /** Extra fields on the level row, such as map_id. */
+    level?: Record<string, unknown>;
+    /** The systems listed for the organisation (limit 5000). Default none. */
+    rooms?: unknown[];
+};
+
+/**
+ * The same shell bootstrap as syntheticOrgGets for a backend-backed spec:
+ * uncounted page.route GETs (local origins only; every other request reaches
+ * the read-only guard). Zones, bulk and zone metadata, the signed-in user's
+ * metadata (only for `user_id`), groups, organisation systems, hidden asset
+ * categories, types and assets, and calendars. Matching uses org.hasParams.
+ * The spec adds its own events, bookings and level systems.
+ */
+export async function syntheticOrgRoutes(
+    page: Page,
+    org: SyntheticOrg,
+    options: SyntheticOrgRoutes,
+) {
+    const { hasParams } = org;
+    const label = options.label;
+    const user_id = options.user_id ?? watchStaffId(page);
+    const user_names = options.user_metadata ?? ['settings'];
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/zones' &&
+            hasParams(url, { tags: 'org', include_children_count: 'true' }),
+        () => [
+            {
+                id: org.ORGANISATION,
+                name: label + ' Organisation',
+                display_name: label + ' Organisation',
+                tags: ['org'],
+            },
+        ],
+    );
+    await getOnly(
+        page,
+        (url) => {
+            const match = /^\/api\/engine\/v2\/metadata\/([^/]+)\/bulk$/.exec(
+                url.pathname,
+            );
+            const ids = (url.searchParams.get('parent_ids') ?? '').split(',');
+            return (
+                !!match &&
+                BULK_METADATA.includes(match[1]) &&
+                url.searchParams.has('parent_ids') &&
+                hasParams(url, {
+                    parent_ids: (url.searchParams.get('parent_ids') ?? ''),
+                }) &&
+                ids.every((id) => org.ZONES.includes(id))
+            );
+        },
+        (url) => {
+            const name = url.pathname.split('/')[5];
+            return Object.fromEntries(
+                (url.searchParams.get('parent_ids') ?? '')
+                    .split(',')
+                    .map((id) => [
+                        id,
+                        { details: options.bulk_details?.(name, id) ?? {} },
+                    ]),
+            );
+        },
+    );
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/zones' &&
+            hasParams(url, {
+                tags: 'region',
+                parent_id: org.ORGANISATION,
+                limit: '200',
+            }),
+        () => [
+            {
+                id: org.REGION,
+                name: label + ' Region',
+                tags: ['region'],
+                timezone: 'UTC',
+            },
+        ],
+    );
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/zones' &&
+            hasParams(url, {
+                tags: 'building',
+                parent_id: org.REGION,
+                limit: '500',
+            }),
+        () => [
+            {
+                id: org.BUILDING,
+                parent_id: org.REGION,
+                name: label + ' Building',
+                display_name: label + ' Building',
+                tags: ['building'],
+                timezone: 'UTC',
+                location: '0,0',
+            },
+        ],
+    );
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/zones' &&
+            hasParams(url, { tags: 'level', limit: '2500' }),
+        () => [
+            {
+                id: org.LEVEL,
+                parent_id: org.BUILDING,
+                name: label + ' Level',
+                display_name: label + ' Level',
+                tags: ['level'],
+                ...options.level,
+            },
+        ],
+    );
+    await getOnly(
+        page,
+        (url) => {
+            const id = url.pathname.split('/')[5] ?? '';
+            const name = url.searchParams.get('name') ?? '';
+            return (
+                url.pathname === '/api/engine/v2/metadata/' + id &&
+                Object.hasOwn(options.zone_metadata, id) &&
+                options.zone_metadata[id].includes(name) &&
+                hasParams(url, { name })
+            );
+        },
+        (url) => {
+            const id = url.pathname.split('/')[5];
+            const name = (url.searchParams.get('name') ?? '');
+            return {
+                [name]: { id, name, details: options.zone_details?.(id, name) ?? {} },
+            };
+        },
+    );
+    await page.route(
+        (url) => {
+            const name = url.searchParams.get('name') ?? '';
+            return (
+                ORIGINS.has(url.origin) &&
+                /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
+                (user_names === 'any' || user_names.includes(name)) &&
+                hasParams(url, { name })
+            );
+        },
+        async (route: Route) => {
+            const request = route.request();
+            if (request.method() !== 'GET') return route.fallback();
+            const url = new URL(request.url());
+            const id = decodeURIComponent(url.pathname.split('/')[5]);
+            if (!id || id !== (await user_id)) return route.fallback();
+            const name = (url.searchParams.get('name') ?? '');
+            await route.fulfill({
+                json: {
+                    [name]: {
+                        name,
+                        description: '',
+                        details: name === 'contacts' ? [] : {},
+                    },
+                },
+            });
+        },
+    );
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/groups/current' &&
+            hasParams(url, {}),
+        () => [],
+    );
+    // SpacesService.loadSpaces: every system in the organisation.
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/systems' &&
+            hasParams(url, { zone_id: org.ORGANISATION, limit: '5000' }),
+        () => options.rooms ?? [],
+    );
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/asset_categories' &&
+            hasParams(url, { hidden: 'true', limit: '500' }),
+        () => org.HIDDEN_CATEGORIES,
+    );
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/asset_types' &&
+            Object.hasOwn(
+                org.HIDDEN_TYPES,
+                url.searchParams.get('category_id') ?? '',
+            ) &&
+            hasParams(url, {
+                category_id: (url.searchParams.get('category_id') ?? ''),
+                limit: '500',
+            }),
+        (url) =>
+            org.HIDDEN_TYPES[(url.searchParams.get('category_id') ?? '')].map((name) => ({
+                id: org.PREFIX + 'type-' + name,
+                name,
+                category_id: url.searchParams.get('category_id'),
+                brand: 'PlaceOS',
+            })),
+    );
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/engine/v2/assets' && org.hiddenAssetQuery(url),
+        () => [],
+    );
+    await getOnly(
+        page,
+        (url) =>
+            url.pathname === '/api/staff/v1/calendars' && hasParams(url, {}),
+        () => [],
+    );
 }
 
 /** Options for `browserSignIn`. */
@@ -4053,6 +5260,335 @@ export async function submitMeeting(
     expect(audit.refused, 'no extra mutation or socket attempt').toEqual([]);
     expect(audit.submission?.bodies).toHaveLength(1);
     return audit.submission!.bodies[0];
+}
+
+// ---------------------------------------------------------------------------
+// Strict meeting submission (room-booking specs with their own organisation)
+// ---------------------------------------------------------------------------
+
+/** Options for `openStrictMeeting`. */
+export type StrictMeetingOptions = {
+    org: SyntheticMeetingOrg;
+    /** Merged under the overrides. */
+    base: Settings;
+    bearer: string;
+    /** The building's room_booking_rules. */
+    rules: Json[];
+    /** The draft's host. Default MEETING_USER, who is always the creator and signed in. */
+    host?: { id: string; name: string; email: string; groups: string[] };
+    /** The draft holds the first room. Default true. */
+    selected?: boolean;
+    /**
+     * The draft's one attendee is org.GUEST, and opening waits for the
+     * guest's email in the form and its chip on the page. Default false: no
+     * attendees, and the form must hold none.
+     */
+    guest?: boolean;
+};
+
+/**
+ * Open the new meeting form's review step (view=2) for `options.org` with a
+ * prepared draft (10:00-11:00 UTC tomorrow), signed in as MEETING_USER with
+ * DELEGATE's lookup and the rules served. Waits for every setting, the draft
+ * (organiser, room count, attendees), the room list and the identity GET,
+ * and checks that the delegate has not been looked up. Returns Confirm.
+ */
+export async function openStrictMeeting(
+    page: Page,
+    audit: MeetingAudit,
+    overrides: Settings,
+    options: StrictMeetingOptions,
+) {
+    const { org } = options;
+    const host = options.host ?? MEETING_USER;
+    const selected = options.selected ?? true;
+    const settings = { ...options.base, ...overrides };
+    const date = new Date();
+    date.setUTCDate(date.getUTCDate() + 1);
+    date.setUTCHours(10, 0, 0, 0);
+    const organiser = {
+        id: host.id,
+        name: host.name,
+        email: host.email,
+        groups: host.groups,
+        department: '',
+        is_external: false,
+        visit_expected: false,
+    };
+    const draft = {
+        id: '',
+        title: MEETING_TITLE,
+        creator: MEETING_USER.email,
+        host: host.email,
+        organiser,
+        date: date.valueOf(),
+        date_end: date.valueOf() + 3_600_000,
+        duration: 60,
+        all_day: false,
+        private: false,
+        recurring: false,
+        recurrence: null,
+        resources: selected ? [org.ROOMS[0]] : [],
+        attendees: options.guest ? [org.GUEST] : [],
+        assets: [],
+        catering: [],
+        meeting_provider: null,
+        timezone: 'UTC',
+        visibility: 'normal',
+        needs_space: true,
+        needs_parking: false,
+        attachments: [],
+        setup_time: 0,
+        breakdown_time: 0,
+        body: '',
+    };
+    await browserSignIn(page, org, {
+        bearer: options.bearer,
+        settings,
+        user: MEETING_USER,
+        session: { 'PLACEOS.event_form': draft },
+    });
+    await meetingFormGets(page, org, { rules: options.rules, delegate: true });
+    await page.goto('/#/book/meeting/form?view=2');
+    await expect(page.locator('global-loading')).toHaveCount(1);
+    await expect(page.locator('global-loading [loader]')).toHaveCount(0);
+    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
+    await expect(page.locator('meeting-flow-options')).toBeVisible();
+    for (const [key, value] of Object.entries(settings)) {
+        await expect
+            .poll(() => page.evaluate((name) => (window as DebugWindow).setting?.(name), key))
+            .toEqual(value);
+    }
+    await expect
+        .poll(() => meetingFormSnapshot(page))
+        .toMatchObject({
+            valid: true,
+            loading: false,
+            raw: {
+                id: '',
+                title: MEETING_TITLE,
+                creator: MEETING_USER.email,
+                host: host.email,
+                date: draft.date,
+                date_end: draft.date_end,
+                duration: 60,
+                all_day: false,
+                assets: [],
+                catering: [],
+                ...(options.guest ? {} : { attendees: [] }),
+                organiser: { id: host.id, email: host.email, groups: host.groups },
+            },
+        });
+    await expect
+        .poll(async () => (await meetingFormSnapshot(page)).raw.resources.length)
+        .toBe(selected ? 1 : 0);
+    if (options.guest) {
+        await expect
+            .poll(async () =>
+                (await meetingFormSnapshot(page)).raw.attendees.map((a) => a.email),
+            )
+            .toEqual([org.GUEST.email]);
+        // The rendered attendee chip proves the attendee list has drawn its rows.
+        await expect(
+            page
+                .locator('meeting-flow-options a-user-list-field mat-chip-row[user]')
+                .filter({ hasText: org.GUEST.name }),
+        ).toBeVisible();
+    }
+    await expect
+        .poll(async () =>
+            (await meetingFormSnapshot(page)).rooms.map((room) => room.id).sort(),
+        )
+        .toEqual(org.ROOMS.map((room) => room.id).sort());
+    await expect
+        .poll(() => audit.fixtures['/api/engine/v2/users/current'] ?? 0)
+        .toBeGreaterThan(0);
+    const confirm = page.locator('meeting-flow-options button[btn]').filter({
+        has: page.locator('icon', { hasText: /^\s*task_alt\s*$/ }),
+    });
+    await expect(confirm).toHaveCount(1);
+    await expect(confirm).toBeEnabled();
+    await expect(page.locator('mat-dialog-container')).toHaveCount(0);
+    expect(
+        audit.fixtures[org.HOST_PATH] ?? 0,
+        'delegate lookup has not happened before submission',
+    ).toBe(0);
+    return confirm;
+}
+
+/**
+ * The User JSON CalendarEvent sends for `raw`, from the CalendarEvent
+ * constructor and toJSON (empty strings and false values kept).
+ */
+export function expectedMeetingUser(raw: Json): Json {
+    return {
+        id: raw.id || raw.email,
+        name: raw.name || '',
+        email: raw.email,
+        first_name: raw.first_name || raw.name || '',
+        last_name: raw.last_name || '',
+        phone: raw.phone || '',
+        organisation: raw.organisation || '',
+        notes: raw.notes || '',
+        photo: raw.photo || '',
+        photo_upload_id: '',
+        username: raw.username || '',
+        organizer: false,
+        checked_in: false,
+        required: true,
+        resource: false,
+        locatable: false,
+        response_status: '',
+        department: raw.department || '',
+        groups: raw.groups || [],
+        extension_data: {},
+        is_external: false,
+        visit_expected: true,
+        assistance_required: false,
+    };
+}
+
+/**
+ * The full POST /api/staff/v1/events body for `raw` booked in `room`, from
+ * CalendarEvent's constructor and toJSON and createEvent.withAppVersion. No
+ * product serializer runs.
+ */
+export function expectedMeetingCalendarBody(
+    raw: RawMeeting,
+    room: Json,
+    app_name = 'Browser Meeting Simulation',
+): Json {
+    const organiser = expectedMeetingUser(raw.organiser);
+    return {
+        event_start: Math.floor(raw.date / 1000),
+        event_end: Math.floor(raw.date_end / 1000),
+        creator: raw.creator,
+        host: raw.host,
+        attendees: [organiser, { ...room, resource: true }],
+        resources: [room],
+        title: raw.title,
+        is_system_event: false,
+        private: false,
+        all_day: false,
+        timezone: 'UTC',
+        recurring: false,
+        organiser,
+        from_bookings: false,
+        update_master: false,
+        system: room,
+        // createEvent constructs a second CalendarEvent: old_system defaults
+        // to its input system when old_system is null/undefined.
+        old_system: room,
+        attachments: [],
+        deleted: false,
+        location: raw.location || room.display_name || room.name,
+        setup_time: 0,
+        breakdown_time: 0,
+        visibility: 'normal',
+        permission: 'OPEN',
+        system_id: room.id,
+        extension_data: {
+            department: '',
+            needs_space: true,
+            tags: [],
+            attendance_type: 'ONSITE',
+            catering: [],
+            assets: [],
+            images: [],
+            view_access: 'OPEN',
+            // CalendarEvent keeps extension_data.permission in step with
+            // permission (event.class.ts).
+            permission: 'OPEN',
+            app_name,
+            app_version: VERSION.raw || VERSION.version || VERSION.hash,
+        },
+    };
+}
+
+/**
+ * Arm exactly one POST /api/staff/v1/events whose body must deep-equal
+ * expectedMeetingCalendarBody for the loaded form and room `room_id`. The
+ * room must be loaded with org's email and zones.
+ */
+export async function armExactMeeting(
+    page: Page,
+    audit: MeetingAudit,
+    org: SyntheticMeetingOrg,
+    room_id: string,
+) {
+    const snapshot = await meetingFormSnapshot(page);
+    const room = (snapshot.raw.resources.length ? snapshot.raw.resources : snapshot.rooms).find(
+        (room) => room.id === room_id,
+    );
+    if (!room) throw new Error('Expected synthetic room is not loaded');
+    const fixture_room = org.ROOMS.find((item) => item.id === room_id);
+    if (!fixture_room) throw new Error('room_id is not one of org.ROOMS');
+    expect(room).toMatchObject({
+        id: room_id,
+        email: fixture_room.email,
+        zones: org.ZONES,
+    });
+    const expected = expectedMeetingCalendarBody(snapshot.raw, room);
+    audit.submission = {
+        path: MEETING_POST_PATH,
+        expected,
+        accepts: (body) => isDeepStrictEqual(body, expected),
+        armed: true,
+        bodies: [],
+        completed: false,
+    };
+}
+
+/** Wait for the armed POST, then expect its one body to be the expected one and the success page. */
+export async function expectSimulatedSuccess(page: Page, audit: MeetingAudit) {
+    await expect.poll(() => audit.submission?.completed).toBe(true);
+    expect(audit.submission?.bodies).toEqual([audit.submission?.expected]);
+    await expect(page).toHaveURL(/#\/book\/meeting\/success$/);
+    await expect(
+        page.locator('meeting-flow-success [name="meeting-created-continue"]'),
+    ).toBeVisible();
+    expect(audit.refused, 'no extra mutation or socket attempt').toEqual([]);
+}
+
+/**
+ * Arm one POST /api/staff/v1/events carrying the draft's title, MEETING_USER
+ * as host, the first room and org.GUEST, press Confirm and wait for success.
+ * Expects the guest's own extension_data to hold neither attendee flag
+ * (postForm strips them) and returns the event's extension_data.
+ */
+export async function submitGuestMeeting(
+    page: Page,
+    audit: MeetingAudit,
+    confirm: Locator,
+    org: SyntheticMeetingOrg,
+) {
+    audit.submission = {
+        path: MEETING_POST_PATH,
+        accepts: (body) =>
+            body.title === MEETING_TITLE &&
+            body.host === MEETING_USER.email &&
+            Array.isArray(body.resources) &&
+            (body.resources as Json[]).map((r) => r.id).join() === org.ROOMS[0].id &&
+            Array.isArray(body.attendees) &&
+            (body.attendees as Json[]).some((a) => a.email === org.GUEST.email),
+        armed: true,
+        bodies: [],
+        completed: false,
+    };
+    await confirm.click();
+    await expect.poll(() => audit.submission?.completed).toBe(true);
+    await expect(page).toHaveURL(/#\/book\/meeting\/success$/);
+    await expect(
+        page.locator('meeting-flow-success [name="meeting-created-continue"]'),
+    ).toBeVisible();
+    expect(audit.refused, 'no extra mutation or socket attempt').toEqual([]);
+    expect(audit.submission?.bodies).toHaveLength(1);
+    const body: Json = audit.submission?.bodies[0] ?? {};
+    const guest = (body.attendees as Json[]).find((a) => a.email === org.GUEST.email);
+    if (!guest) throw new Error('org.GUEST is not in the sent attendees');
+    expect(guest.extension_data ?? {}).not.toHaveProperty('international');
+    expect(guest.extension_data ?? {}).not.toHaveProperty('visitor_internal_or_external');
+    return (body.extension_data ?? {}) as Json;
 }
 
 // ---------------------------------------------------------------------------
