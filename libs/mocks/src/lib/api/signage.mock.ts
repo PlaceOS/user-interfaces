@@ -985,7 +985,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/groups/current',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             if (request.query_params?.subsystem === 'signage') {
@@ -997,14 +996,12 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/groups',
-        metadata: {},
         method: 'GET',
         callback: (request) => listSignageMockGroups(request.query_params),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/groups',
-        metadata: {},
         method: 'POST',
         callback: (request) => {
             const group = {
@@ -1021,7 +1018,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/groups/:id',
-        metadata: {},
         method: 'PATCH',
         callback: (request) => {
             const item = SIGNAGE_GROUPS.find(
@@ -1039,7 +1035,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/groups/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const item = SIGNAGE_GROUPS.find(
@@ -1053,7 +1048,6 @@ export function registerMockSignage() {
     // Effective features: each group's own flags merged over its ancestors'
     registerMockEndpoint({
         path: '/api/engine/v2/groups/:id/features',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const groups = SIGNAGE_GROUPS.map(({ group }) => group);
@@ -1082,7 +1076,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/groups/:id',
-        metadata: {},
         method: 'DELETE',
         callback: (request) => {
             const index = SIGNAGE_GROUPS.findIndex(
@@ -1095,7 +1088,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/groups',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const q = (request.query_params?.q || '').toLowerCase();
@@ -1110,7 +1102,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/group_users',
-        metadata: {},
         method: 'GET',
         callback: (request) =>
             SIGNAGE_GROUP_USERS.filter(
@@ -1120,7 +1111,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/group_users',
-        metadata: {},
         method: 'POST',
         callback: (request) => {
             const user = MOCK_STAFF.find(
@@ -1148,7 +1138,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/group_users/:user_id/:group_id',
-        metadata: {},
         method: 'PATCH',
         callback: (request) => {
             const user_id = decodeURIComponent(request.route_params.user_id);
@@ -1166,7 +1155,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/group_users/:user_id/:group_id',
-        metadata: {},
         method: 'DELETE',
         callback: (request) => {
             const user_id = decodeURIComponent(request.route_params.user_id);
@@ -1181,7 +1169,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/group_zones',
-        metadata: {},
         method: 'GET',
         callback: (request) =>
             SIGNAGE_GROUP_ZONES.filter(
@@ -1191,7 +1178,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/group_zones',
-        metadata: {},
         method: 'POST',
         callback: (request) => {
             const zone = MOCK_ZONES.find(
@@ -1212,7 +1198,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/group_zones/:group_id/:zone_id',
-        metadata: {},
         method: 'PATCH',
         callback: (request) => {
             const group_id = decodeURIComponent(request.route_params.group_id);
@@ -1230,7 +1215,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/group_zones/:group_id/:zone_id',
-        metadata: {},
         method: 'DELETE',
         callback: (request) => {
             const group_id = decodeURIComponent(request.route_params.group_id);
@@ -1245,7 +1229,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media',
-        metadata: {},
         method: 'GET',
         callback: (request) =>
             filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(
@@ -1255,7 +1238,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media/tags',
-        metadata: {},
         method: 'GET',
         callback: (request) => [
             ...new Set(
@@ -1268,7 +1250,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media/tag_counts',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const counts: Record<string, number> = {};
@@ -1287,7 +1268,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media',
-        metadata: {},
         method: 'POST',
         callback: (request) => ({
             ...request.body,
@@ -1299,7 +1279,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => ({
             ...toEngineMedia(
@@ -1311,7 +1290,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media/:id',
-        metadata: {},
         method: 'PATCH',
         callback: (request) => ({
             ...toEngineMedia(
@@ -1324,14 +1302,12 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media/:id',
-        metadata: {},
         method: 'DELETE',
         callback: () => ({}),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media/:id/thumbnail',
-        metadata: {},
         method: 'GET',
         callback: () => ({}),
     });
@@ -1339,7 +1315,6 @@ export function registerMockSignage() {
     // Webpage and plugin thumbnails start from a server side screenshot
     registerMockEndpoint({
         path: '/api/engine/v2/uploads/screenshot',
-        metadata: {},
         method: 'POST',
         callback: (request) => ({
             id: `upload-screenshot-${Date.now()}`,
@@ -1351,28 +1326,24 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/uploads/:id',
-        metadata: {},
         method: 'DELETE',
         callback: () => ({}),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media/share',
-        metadata: {},
         method: 'POST',
         callback: () => ({}),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/plugins',
-        metadata: {},
         method: 'GET',
         callback: () => MOCK_PLUGINS,
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/plugins/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) =>
             MOCK_PLUGINS.find(
@@ -1382,7 +1353,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists',
-        metadata: {},
         method: 'GET',
         callback: (request) =>
             filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(
@@ -1392,7 +1362,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/approvers',
-        metadata: {},
         method: 'GET',
         callback: (request) =>
             SIGNAGE_GROUP_USERS.filter(
@@ -1405,7 +1374,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists',
-        metadata: {},
         method: 'POST',
         callback: (request) => ({
             ...request.body,
@@ -1417,7 +1385,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => ({
             ...toEnginePlaylist(
@@ -1434,7 +1401,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id',
-        metadata: {},
         method: 'PATCH',
         callback: (request) => ({
             ...toEnginePlaylist(
@@ -1449,14 +1415,12 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id',
-        metadata: {},
         method: 'DELETE',
         callback: () => ({}),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id/media',
-        metadata: {},
         method: 'GET',
         callback: (request) =>
             playlistMediaResponse(request.route_params.id, false),
@@ -1464,7 +1428,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id/media',
-        metadata: {},
         method: 'POST',
         callback: (request) => ({
             ...playlistMediaResponse(request.route_params.id, false),
@@ -1475,7 +1438,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id/media/schedule',
-        metadata: {},
         method: 'POST',
         callback: (request) => ({
             ...playlistMediaResponse(request.route_params.id, false),
@@ -1491,7 +1453,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id/media/schedule/:item_id',
-        metadata: {},
         method: 'PATCH',
         callback: (request) => ({
             id: request.route_params.item_id,
@@ -1502,7 +1463,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id/media/revisions',
-        metadata: {},
         method: 'GET',
         callback: (request) => [
             playlistMediaResponse(request.route_params.id, false),
@@ -1512,7 +1472,6 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id/media/approve',
-        metadata: {},
         method: 'POST',
         callback: (request) =>
             playlistMediaResponse(request.route_params.id, true),
@@ -1520,28 +1479,24 @@ export function registerMockSignage() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id/media/request_approval',
-        metadata: {},
         method: 'POST',
         callback: () => ({}),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/share',
-        metadata: {},
         method: 'POST',
         callback: () => ({}),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => signageDisplay(request.route_params.id),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/:id/metrics',
-        metadata: {},
         method: 'POST',
         callback: () => ({}),
     });
@@ -1659,7 +1614,6 @@ function registerMockSignageImageGen() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/ai/capabilities',
-        metadata: {},
         method: 'GET',
         callback: () => ({
             enabled: true,
@@ -1695,28 +1649,24 @@ function registerMockSignageImageGen() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/ai/generate',
-        metadata: {},
         method: 'POST',
         callback: (request) => makeJob(request.body || {}, 'generate'),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/ai/edit',
-        metadata: {},
         method: 'POST',
         callback: (request) => makeJob(request.body || {}, 'edit'),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/ai/jobs',
-        metadata: {},
         method: 'GET',
         callback: () => Object.values(IMAGE_GEN_JOBS),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/ai/jobs/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const job = IMAGE_GEN_JOBS[request.route_params.id];
@@ -1727,7 +1677,6 @@ function registerMockSignageImageGen() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/ai/jobs/:id/cancel',
-        metadata: {},
         method: 'POST',
         callback: (request) => {
             const job = IMAGE_GEN_JOBS[request.route_params.id];
@@ -1742,7 +1691,6 @@ function registerMockSignageImageGen() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/ai/jobs/:id/claim',
-        metadata: {},
         method: 'POST',
         callback: (request) => {
             const job = IMAGE_GEN_JOBS[request.route_params.id];
