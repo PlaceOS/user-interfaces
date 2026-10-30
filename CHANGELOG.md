@@ -308,6 +308,7 @@ All notable changes to this project will be documented in this file.
 
 - Compose the imported map once per drag, not per pointer move
 - Keep the editor responsive on large floors
+- Stop redundant SVG composes, re-checks and writes
 
 #### Workplace
 
