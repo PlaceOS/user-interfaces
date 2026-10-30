@@ -1,13 +1,13 @@
 # Workplace Settings E2E coverage: final status
 
-Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, pushed head `6be84e50c`.
+Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`. Last pushed head `2f6fd46b5a`; the 30 Oct 2026 review fixes and a merge of develop `f9b7be2a60` follow it.
 
 ## Summary
 
 | Group | Specs | Unique Settings | Scenarios | Status |
 |---|---|---|---|---|
-| **In PR #595 (committed and pushed)** | **189** | **214** | **417** | **All pass locally** |
-| Held locally, not in the PR | 3 (+1 product check) | 2 (+1 scenario on a PR setting) | 7 | See "Held locally" |
+| **In PR #595** | **189** | **214** | **430** | **417 passed locally on 29 Oct; the 30 Oct review fixes (11 specs, 13 new scenarios) are not yet run** |
+| Held locally, not in the PR | 2 (+1 product check) | 2 | 6 | See "Held locally" |
 | Excluded or ignored by developer decision | – | 5 | – | Not tested |
 
 **Evidence for the PR coverage**
@@ -15,26 +15,26 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, pushed head 
   - 422 tests, 417 passed.
   - The 5 failures were 4 held local tests and 1 dev-server hiccup (`events.room_as_host` with `force_host`), which passed 6/6 on a repeat run.
 - Typecheck: no errors.
-- Local change not yet committed: `bookings.allow-all-day` now uses tomorrow's date, so it can't fail near midnight UTC. Its checks are unchanged. It passed 2/2 on the PR branch app.
 
 **Status key**
 - **PASS**: the test passes and checks the documented behaviour.
 - **PASS (current behaviour)**: the test passes but checks the app's current behaviour, which differs from the intended behaviour. The linked Jira ticket tracks the fix. The spec will be updated once the fix reaches the PR branch.
+- **UPDATED, NOT YET RUN**: changed on 30 Oct 2026 to assert the behaviour now on develop, or to answer review comments; typechecked but not yet run against the stack.
 
-**Jira state on latest develop (`20bc8d023`)**
+**Jira state on develop (`f9b7be2a60`)**
 
 | Jira | State |
 |---|---|
 | PPT-2859, PPT-2861, PPT-2862, PPT-2863, PPT-2858, PPT-2864, PPT-2865, PPT-2866, PPT-2854 | Verified fixed |
-| PPT-2860, PPT-2868, PPT-2869, PPT-2870 | Open |
+| PPT-2860, PPT-2868, PPT-2869, PPT-2870 | Fix merged on develop (#636, #651, #650, #652); not yet verified |
 
 ## Settings in PR #595
 
-### bookings (10 specs, 11 Settings, 22 scenarios)
+### bookings (10 specs, 11 Settings, 25 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
 |---|---|---|---|---|
 | bookings.all_day_default | bookings.all-day-default | 2 | PASS | |
-| bookings.allow_all_day | bookings.allow-all-day | 2 | PASS (current behaviour) | PPT-2859 fixed on develop; the true case needs updating after the merge |
+| bookings.allow_all_day | bookings.allow-all-day | 3 | UPDATED, NOT YET RUN | Generic key with desks.allow_all_day unset, plus desks.allow_all_day false overriding it (PPT-2859) |
 | bookings.bookable_hours | bookings.bookable-hours | 2 | PASS | |
 | bookings.can_book_for_anyone | bookings.can-book-for-anyone | 2 | PASS | |
 | bookings.can_book_for_others | bookings.can-book-for-others | 2 | PASS | |
@@ -42,7 +42,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, pushed head 
 | bookings.min_duration | bookings.duration-bounds | 2 | PASS | |
 | bookings.max_duration | bookings.duration-bounds | 2 | PASS | |
 | bookings.duration_step | bookings.duration-step | 2 | PASS | |
-| bookings.has_assets | bookings.has-assets | 2 | PASS (current behaviour) | PPT-2864 fixed on develop; update after the merge |
+| bookings.has_assets | bookings.has-assets | 4 | UPDATED, NOT YET RUN | Generic key with desks.has_assets unset, plus desks.has_assets overriding it both ways (PPT-2864) |
 | bookings.use_building_timezone | bookings.use-building-timezone | 2 | PASS | Also tested on the locker form (lockers area) |
 
 ### chat (1 spec, 1 Setting, 2 scenarios)
@@ -50,7 +50,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, pushed head 
 |---|---|---|---|---|
 | chat.enabled | chat.enabled | 2 | PASS | |
 
-### desk-booking (27 specs, 27 Settings, 52 scenarios)
+### desk-booking (27 specs, 27 Settings, 55 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
 |---|---|---|---|---|
 | desks.allow_all_day | desk-booking.allow-all-day | 2 | PASS | |
@@ -63,8 +63,8 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, pushed head 
 | desks.auto_allocation | desk-booking.auto-allocation | 2 | PASS | |
 | desks.auto_checkin | desk-booking.auto-checkin | 2 | PASS | |
 | desks.available_period | desk-booking.available-period | 2 | PASS | |
-| desks.bookable_hours | desk-booking.bookable-hours | 3 | PASS | |
-| desks.can_book_for_others | desk-booking.can-book-for-others | 2 | PASS | Open PPT-2869 concerns the explicit-false override, which this spec doesn't cover |
+| desks.bookable_hours | desk-booking.bookable-hours | 4 | UPDATED, NOT YET RUN | The start offered at closing time is its own case, named as current behaviour |
+| desks.can_book_for_others | desk-booking.can-book-for-others | 4 | UPDATED, NOT YET RUN | Adds the explicit-false override and the fallback to bookings.can_book_for_others (PPT-2869) |
 | desks.can_book_lockers | desk-booking.can-book-lockers | 2 | PASS | |
 | desks.custom_duration_options | desk-booking.custom-duration-options | 2 | PASS | |
 | desks.default_duration | desk-booking.default-duration | 2 | PASS | |
@@ -95,7 +95,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, pushed head 
 | explore.hide_zones | explore.map-overlays | 2 | PASS | |
 | explore.hide_devices | explore.map-overlays | 2 | PASS | |
 | explore.hide_sensors | explore.map-overlays | 2 | PASS | |
-| explore.disable | explore.map-overlays | 2 | PASS (current behaviour) | PPT-2866 / PPT-2854 fixed on develop (switch now hidden); update after the merge. Was intermittent before. |
+| explore.disable | explore.map-overlays | 2 | UPDATED, NOT YET RUN | A disabled group has no switch (PPT-2866 / PPT-2854); the file no longer sets retries: 0 |
 | explore.show_legend | explore.show-legend | 2 | PASS | |
 | explore.area_count_key | explore.area-count-key | 2 | PASS | |
 | explore.show_booking_qr | explore.show-booking-qr | 2 | PASS | |
@@ -170,7 +170,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, pushed head 
 | lockers.allow_time_changes | lockers.allow-time-changes | 2 | PASS | |
 | bookings.allowed_daily_locker_count | lockers.allowed-daily-locker-count | 2 | PASS | Added in 6be84e50c |
 | lockers.available_period | lockers.available-period | 2 | PASS | |
-| lockers.disabled_date_select | lockers.disabled-date-select | 2 | PASS (current behaviour) | **PPT-2860 open**: the fix isn't on develop. The date can still be changed. |
+| lockers.disabled_date_select | lockers.disabled-date-select | 2 | UPDATED, NOT YET RUN | Asserts the date, start time and end time are disabled when set and enabled when not (PPT-2860) |
 | lockers.disabled_start_time | lockers.disabled-start-time | 2 | PASS | |
 | lockers.hide_end_time | lockers.hide-end-time | 2 | PASS | |
 | lockers.hide_user | lockers.hide-user | 2 | PASS | Added in 6be84e50c. Related open bug PPT-2870 (picker TypeError); the test avoids it. |
@@ -178,14 +178,14 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, pushed head 
 | lockers.show_calendar_links | lockers.show-calendar-links | 2 | PASS | |
 | bookings.use_building_timezone (locker form) | lockers.use-building-timezone | 2 | PASS | Same Setting as in bookings, so not counted again |
 
-### parking-booking (15 specs, 16 Settings, 35 scenarios)
+### parking-booking (15 specs, 16 Settings, 40 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
 |---|---|---|---|---|
-| parking.allow_all_day | parking-booking.allow-all-day | 3 | PASS (current behaviour) | PPT-2859 fixed on develop; the "false alone" case needs updating after the merge |
+| parking.allow_all_day | parking-booking.allow-all-day | 5 | UPDATED, NOT YET RUN | "False alone" now hides the checkbox; adds the override of bookings.allow_all_day and the fallback to it (PPT-2859) |
 | bookings.allowed_daily_parking_count | parking-booking.allowed-daily-parking-count | 2 | PASS | Added in 6be84e50c |
 | parking.available_period | parking-booking.available-period | 2 | PASS | |
 | parking.bookable_hours | parking-booking.bookable-hours | 3 | PASS | |
-| parking.can_book_for_others | parking-booking.can-book-for-others | 2 | PASS | Open PPT-2869 concerns the explicit-false override, which this spec doesn't cover |
+| parking.can_book_for_others | parking-booking.can-book-for-others | 4 | UPDATED, NOT YET RUN | Adds the override of bookings.can_book_for_others both ways (PPT-2869) |
 | parking.custom_duration_options | parking-booking.custom-duration-options | 2 | PASS | |
 | parking.hide_user (+ legacy parkings.hide_user) | parking-booking.hide-user | 3 | PASS | |
 | parking.max_duration | parking-booking.max-duration | 2 | PASS | |
@@ -193,7 +193,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, pushed head 
 | parking.restrict_home_location | parking-booking.restrict-home-location | 3 | PASS | |
 | parking.show_calendar_links | parking-booking.show-calendar-links | 2 | PASS | |
 | parking.show_waitlist | parking-booking.show-waitlist | 2 | PASS | |
-| parking.use_building_timezone | parking-booking.use-building-timezone | 2 | PASS | |
+| parking.use_building_timezone | parking-booking.use-building-timezone | 3 | UPDATED, NOT YET RUN | The override case is marked test.fail: the getter is still bookings \|\| parking (no ticket yet) |
 | parking.show_status_details | parking-booking.map-tooltip | 2 | PASS | |
 | parking.show_users | parking-booking.map-tooltip | 1 | PASS | |
 | parking.waitlist_week_start | parking-booking.waitlist-week-start | 2 | PASS | |
@@ -220,18 +220,18 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, pushed head 
 | parking.require_space_restriction | parking-request.require-space-restriction | 2 | PASS | |
 | parking.vehicle_types | parking-request.vehicle-types | 2 | PASS | |
 
-### room-booking (39 specs, 39 Settings, 79 scenarios)
+### room-booking (39 specs, 39 Settings, 81 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
 |---|---|---|---|---|
 | events.all_day_period | room-booking.all-day-period | 2 | PASS | |
 | events.allow_all_day | room-booking.allow-all-day | 2 | PASS | |
-| events.allow_daily_allday_recurrence | room-booking.allow-daily-allday-recurrence | 2 | PASS | PPT-2861 fixed on develop. The Daily→None repro is held locally (see below). |
+| events.allow_daily_allday_recurrence | room-booking.allow-daily-allday-recurrence | 3 | UPDATED, NOT YET RUN | Adds the Daily then "Doesn't repeat" case (PPT-2861) |
 | events.allow_externals | room-booking.allow-externals | 2 | PASS | |
 | events.allow_multiday | room-booking.allow-multiday | 2 | PASS | |
 | events.allow_online_meetings | room-booking.allow-online-meetings | 2 | PASS | |
 | events.allow_recurrence | room-booking.allow-recurrence | 2 | PASS | |
 | events.allowed_future_days | room-booking.allowed-future-days | 2 | PASS | |
-| events.bookable_hours | room-booking.bookable-hours | 3 | PASS | |
+| events.bookable_hours | room-booking.bookable-hours | 4 | UPDATED, NOT YET RUN | The start offered at closing time is its own case, named as current behaviour |
 | events.booking_unavailable | room-booking.booking-unavailable | 2 | PASS | |
 | events.can_book_for_anyone | room-booking.can-book-for-anyone | 3 | PASS | Legacy meeting form |
 | events.can_book_for_others | room-booking.can-book-for-others | 2 | PASS | |
@@ -300,9 +300,8 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, pushed head 
 | Spec | Setting | Scen. | Latest develop (`20bc8d023`) | PR branch app | Jira | Next step |
 |---|---|---|---|---|---|---|
 | parking-booking.hide-selected-space | parking.hide_selected_space | 4 (card 2, details pop-up 2) | 4/4 PASS | Card true case fails (fix not on branch) | PPT-2863 / PPT-2858 verified | Add to the PR once the fix reaches the branch |
-| explore.hide-device-fields | explore.hide_device_fields | 2 | Tooltip rows pass; fails at the owner lookup | Fails (tooltip can't open) | PPT-2865 verified; **PPT-2868 open** | Add after PPT-2868 is fixed |
-| room-booking.allow-daily-allday-recurrence (local addition) | events.allow_daily_allday_recurrence | +1 (Daily → None) | PASS | Fails (fix not on branch) | PPT-2861 verified | Add to the PR once the fix reaches the branch |
-| lockers.picker-loading | – (product check, not a setting) | 1 | Fails: TypeError reproduced | – | **PPT-2870 open** | Keep as a regression check after the fix |
+| explore.hide-device-fields | explore.hide_device_fields | 2 | Tooltip rows pass; fails at the owner lookup | Fails (tooltip can't open) | PPT-2865 verified; PPT-2868 fix merged on develop | Add after PPT-2868 is fixed |
+| lockers.picker-loading | – (product check, not a setting) | 1 | Fails: TypeError reproduced | – | PPT-2870 fix merged on develop | Keep as a regression check |
 
 `e2e/local/wpa-settings-write-guard.ts` is also held locally. It's a helper, not a setting.
 
@@ -322,17 +321,14 @@ Docs still describe `new_features`, `spaces.show_images` and `desks.hide_reason`
 
 | Jira | Setting | Issue | State |
 |---|---|---|---|
-| PPT-2860 | lockers.disabled_date_select | Date and time stay editable | Open; fix not on develop |
-| PPT-2868 | explore.hide_device_fields (tooltip) | Device owner lookup uses the module id | Open |
-| PPT-2869 | desks / parking.can_book_for_others | Explicit false doesn't override the generic value | Open |
-| PPT-2870 | lockers (picker) | TypeError while the picker's lockers load | Open |
+| PPT-2860 | lockers.disabled_date_select | Date and time stay editable | Fix merged on develop (#636); spec updated |
+| PPT-2868 | explore.hide_device_fields (tooltip) | Device owner lookup uses the module id | Fix merged on develop (#651) |
+| PPT-2869 | desks / parking.can_book_for_others | Explicit false doesn't override the generic value | Fix merged on develop (#650); specs updated |
+| PPT-2870 | lockers (picker) | TypeError while the picker's lockers load | Fix merged on develop (#652) |
+| no ticket yet | parking.use_building_timezone | Explicit false doesn't override bookings.use_building_timezone | Open; covered by a test.fail case |
 
 ## Spec updates due once develop's fixes reach the PR branch
 
 | Spec | Case | Jira |
 |---|---|---|
-| bookings.allow-all-day | true case | PPT-2859 |
-| parking-booking.allow-all-day | "false alone" case | PPT-2859 |
-| bookings.has-assets | true + desks false | PPT-2864 |
 | desk-booking.allow-time-changes | false case | PPT-2862 |
-| explore.map-overlays | explore.disable | PPT-2866 / PPT-2854 |
