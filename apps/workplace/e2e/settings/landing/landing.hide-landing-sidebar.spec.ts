@@ -5,9 +5,9 @@
 // favourites sidebar renders only while hide_landing_sidebar is not true).
 // The routed new landing page (landing-new) has no such sidebar, so both
 // scenarios set app.use_legacy_flows true; legacyFlowsGuard then routes
-// /#/landing to the legacy page. The developer confirmed the legacy sidebar is
-// still in scope. hide_colleagues is false, so the sidebar opens on the
-// colleagues tab next to the favourites tab. Nothing is clicked or sent.
+// /#/landing to the legacy page. hide_colleagues is false, so the sidebar
+// opens on the colleagues tab next to the favourites tab. Nothing is clicked
+// or sent.
 import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { prepare, test } from '../support/settings-harness';
