@@ -29,7 +29,7 @@
 // rooms and sign-in; every API GET must match an exact fixture; the only write
 // allowed is one armed POST /api/staff/v1/bookings (utm_source query only),
 // answered in the browser. Nothing reaches a backend.
-// Run with --project=local --no-deps --workers=1.
+// Runs in the settings-browser project (no backend).
 import { expect } from '../../../../../e2e/support/fixtures';
 import {
     MEETING_ROOMS,

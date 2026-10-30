@@ -22,6 +22,7 @@ export E2E_BACKEND_URL=https://localhost:9443
 bunx playwright test --config apps/workplace/playwright.config.ts                    # everything
 bunx playwright test --config apps/workplace/playwright.config.ts --project=local    # real backend
 bunx playwright test --config apps/workplace/playwright.config.ts --project=mock     # no backend
+bunx playwright test --config apps/workplace/playwright.config.ts --project=settings-browser  # browser-only settings specs, no backend
 bunx playwright test --config apps/workplace/playwright.config.ts --ui               # watch it
 ```
 

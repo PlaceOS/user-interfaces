@@ -14,6 +14,28 @@ assertLocalOnly(BACKEND_URL, APP_URL);
 const CI = !!process.env.CI;
 const PORT = new URL(APP_URL).port || '4214';
 
+// Settings specs built on the settings-harness browser-only fixtures
+// (browserOnlyTest, meetingTest, zoneSensorTest). They answer every request in
+// the browser, so they need no backend and no preflight.
+const BROWSER_ONLY_SETTINGS = [
+    'explore/explore.area-count-key',
+    'explore/explore.show-booking-qr',
+    'explore/explore.show-event-details',
+    'explore/explore.show-presence-indicators',
+    'explore/explore.show-zone-sensor-info',
+    'explore/explore.use-imperial-units',
+    'explore/explore.zone-polygons-and-labels',
+    'room-booking/room-booking.allow-attendee-internal-or-external',
+    'room-booking/room-booking.allow-international',
+    'room-booking/room-booking.breakdown',
+    'room-booking/room-booking.force-current-user-for-booking-rules',
+    'room-booking/room-booking.force-host',
+    'room-booking/room-booking.no-approval',
+    'room-booking/room-booking.no-space-resource',
+    'room-booking/room-booking.room-as-host',
+    'room-booking/room-booking.setup',
+].map((spec) => `**/settings/${spec}.spec.ts`);
+
 export default defineConfig({
     ...nxE2EPreset(__filename, { testDir: './e2e' }),
     timeout: 90_000,
@@ -69,7 +91,17 @@ export default defineConfig({
                 '**/local/**/*.@(spec|test).?(c|m)[jt]s?(x)',
                 '**/settings/**/*.@(spec|test).?(c|m)[jt]s?(x)',
             ],
+            testIgnore: BROWSER_ONLY_SETTINGS,
             dependencies: ['preflight'],
+            use: { ...devices['Desktop Chrome'] },
+        },
+
+        // --- settings specs that need no backend ---------------------------
+        // No preflight dependency, so these run without the local stack.
+        {
+            name: 'settings-browser',
+            testDir: './e2e',
+            testMatch: BROWSER_ONLY_SETTINGS,
             use: { ...devices['Desktop Chrome'] },
         },
 

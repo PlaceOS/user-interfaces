@@ -18,7 +18,7 @@
 // Safety: settings-harness meetingTest. Fully synthetic organisation, user,
 // rooms and sign-in; every API GET must match an exact fixture; the only write
 // allowed is one armed POST /api/staff/v1/events, answered in the browser.
-// Run with --project=local --no-deps --workers=1.
+// Runs in the settings-browser project (no backend).
 import { expect } from '../../../../../e2e/support/fixtures';
 import {
     meetingTest as test,

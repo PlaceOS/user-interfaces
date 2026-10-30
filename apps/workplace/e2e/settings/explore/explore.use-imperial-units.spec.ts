@@ -17,7 +17,7 @@
 // The tooltip's warning icon (shown above 82 in either unit) is not asserted:
 // whether that threshold should depend on the unit is a pending developer
 // question.
-// Run with --project=local --no-deps --workers=1.
+// Runs in the settings-browser project (no backend).
 import { expect } from '@playwright/test';
 import {
     type DebugWindow,
