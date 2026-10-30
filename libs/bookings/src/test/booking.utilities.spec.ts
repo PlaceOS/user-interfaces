@@ -17,6 +17,7 @@ import { generateBookingForm } from '../lib/booking-form.model';
 import {
     bookingLocationString,
     loadLockersForScope,
+    lockerBankFromAsset,
     newBookingFromCalendarEvent,
     parkingRequestStatus,
 } from '../lib/booking.utilities';
@@ -291,6 +292,19 @@ describe('Booking Utilities', () => {
             );
 
             expect(typeof form.date().disabled()).toBe('boolean');
+        });
+    });
+
+    describe('lockerBankFromAsset', () => {
+        it('should start each bank with an empty locker list', () => {
+            // Pickers read `bank.lockers` before the lockers query returns
+            const bank = lockerBankFromAsset({
+                id: 'bank-1',
+                zone_id: 'level-1',
+                other_data: {},
+            } as any);
+
+            expect(bank.lockers).toEqual([]);
         });
     });
 

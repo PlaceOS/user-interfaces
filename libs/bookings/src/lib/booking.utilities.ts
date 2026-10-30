@@ -42,6 +42,10 @@ export function parkingRequestStatus(
     return 'pending';
 }
 
+/**
+ * Build a locker bank from its asset. The bank starts with no lockers.
+ * `loadLockersForScope` adds them later, from a separate query.
+ */
 export function lockerBankFromAsset(asset: PlaceAsset): LockerBank {
     const data = asset.other_data || {};
     return {
@@ -54,6 +58,7 @@ export function lockerBankFromAsset(asset: PlaceAsset): LockerBank {
         zones: asset.zones || [asset.zone_id].filter((_) => _),
         tags: (asset as any).tags || parseJson(data.tags, []),
         images: parseJson(data.images, []),
+        lockers: [],
     } as LockerBank;
 }
 
