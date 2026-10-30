@@ -1,6 +1,8 @@
-// Setting: bookings.assigned_resource_booking (docs/settings/workplace.md),
-// legacy desk form. Coverage: 1 unique setting, 2 scenarios.
-// Only the legacy desk form shows the reserved-desk overlay
+// Setting: bookings.assigned_resource_booking (docs/settings/workplace.md).
+// Coverage: 1 unique setting, 6 scenarios.
+//
+// Legacy desk form (3 scenarios): only the legacy desk form shows the
+// reserved-desk overlay
 // (apps/workplace/src/app/book/desk-flow/desk-flow-form.component.ts:
 // has_assigned_desk() && assignedResourceBooking('desk') === 'deny'); the routed
 // new flow (desk-flow-new) has no such overlay, so every scenario sets
@@ -10,10 +12,29 @@
 // GET in the browser (assigned_to = the signed-in user). Nothing is saved; the
 // desk picker is never opened and no desk is selected. The parent read-only
 // guard fails any write.
+//
+// New desk flow, at submission (3 scenarios): BookingFormService
+// _checkResourceAvailable refuses a desk booking when the user's bookings for
+// the period include one tagged extension_data.is_assigned, unless the setting
+// is 'allow' (unset or unknown values act as 'other_only'). The existing-bookings
+// GET is answered in the browser with ONE such booking on another desk, and
+// bookings.allowed_daily_desk_count is 2 so the daily limit cannot refuse.
+//   allow: exactly one desk booking POST, answered in the browser
+//     (armBookingPost); the success view opens.
+//   other_only, deny: refused with the assigned-desk message; no POST.
 import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL } from '../../../../../e2e/support/env';
-import { type Audit, type DebugWindow, prepare, test } from '../support/settings-harness';
+import {
+    armBookingPost,
+    type Audit,
+    bookingPosts,
+    type DebugWindow,
+    getOnly,
+    openDesk,
+    prepare,
+    test,
+} from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
@@ -57,7 +78,7 @@ function hasAssignedDesk(page: Page) {
     });
 }
 
-for (const policy of ['deny', 'allow'] as const) {
+for (const policy of ['deny', 'other_only', 'allow'] as const) {
     test('desk settings: bookings.assigned_resource_booking ' + policy + ' controls the legacy assigned-desk overlay', async ({ staffPage, audit }) => {
         const fixture = await prepare(staffPage, audit, {
             'app.use_legacy_flows': true,
@@ -91,5 +112,77 @@ for (const policy of ['deny', 'allow'] as const) {
         }
         await expect(form.locator('desk-list-field div[desk]')).toHaveCount(0);
         await expect(staffPage.locator('desk-flow-confirm, desk-flow-success')).toHaveCount(0);
+    });
+}
+
+const OTHER_DESK = 'e2e-assigned-other-desk';
+const ASSIGNED_REFUSAL = 'You have an assigned desk and cannot book another desk.';
+
+/**
+ * Answer the daily-limit check of _checkResourceAvailable (GET
+ * /api/staff/v1/bookings with exactly email, limit=1000, period_end,
+ * period_start and type=desk) with ONE active desk booking for `email` on
+ * OTHER_DESK, tagged extension_data.is_assigned. Returns the periods served.
+ */
+async function assignedDeskBooking(page: Page, audit: Audit, email: string) {
+    const served: { period_start: number; period_end: number }[] = [];
+    await getOnly(page, audit, 'existing assigned desk booking', (url) =>
+        url.pathname === '/api/staff/v1/bookings' &&
+        [...url.searchParams.keys()].sort().join() === 'email,limit,period_end,period_start,type' &&
+        url.searchParams.get('type') === 'desk' &&
+        url.searchParams.get('email') === email &&
+        url.searchParams.get('limit') === '1000', (url) => {
+        const period_start = Number(url.searchParams.get('period_start'));
+        const period_end = Number(url.searchParams.get('period_end'));
+        served.push({ period_start, period_end });
+        return [{
+            id: 'e2e-assigned-existing-desk', booking_type: 'desk', asset_id: OTHER_DESK,
+            asset_name: 'E2E assigned other desk', user_email: email,
+            booking_start: period_start, booking_end: period_end,
+            approved: true, rejected: false, deleted: false,
+            extension_data: { is_assigned: true },
+        }];
+    });
+    return served;
+}
+
+for (const policy of ['allow', 'other_only', 'deny'] as const) {
+    test('desk settings: bookings.assigned_resource_booking ' + policy + ' decides a new-flow booking beside an assigned one', async ({ staffPage, audit }) => {
+        const { fixture } = await openDesk(staffPage, audit, {
+            'app.desk.assigned_resource_booking': null,
+            'app.desks.assigned_resource_booking': null,
+            'app.bookings.assigned_resource_booking': policy,
+            'app.bookings.allowed_daily_desk_count': 2,
+            // Seeded desks live in level desk metadata.
+            'app.desks.use_assets': false,
+        });
+        const { email } = await fixture.user();
+        const served = await assignedDeskBooking(staffPage, audit, email);
+        const posts = bookingPosts(staffPage);
+        const armed = policy === 'allow'
+            ? await armBookingPost(staffPage, (body) =>
+                body.booking_type === 'desk' && body.user_email === email &&
+                typeof body.asset_id === 'string' && body.asset_id !== OTHER_DESK)
+            : undefined;
+
+        const confirm = staffPage.locator('desk-flow-new button[btn]').filter({
+            has: staffPage.locator('icon', { hasText: /^\s*task_alt\s*$/ }),
+        });
+        await expect(confirm).toHaveCount(1);
+        await confirm.click();
+
+        await expect.poll(() => served.length, { message: 'existing desk bookings were read' }).toBeGreaterThan(0);
+        if (policy !== 'allow') {
+            await expect(staffPage.locator('mat-snack-bar-container')).toContainText(ASSIGNED_REFUSAL);
+            expect(posts, 'no booking POST is sent').toEqual([]);
+            await expect(staffPage).toHaveURL(/#\/book\/desk\/form$/);
+            await expect(staffPage.locator('desk-flow-success')).toHaveCount(0);
+        } else {
+            await expect.poll(() => armed!.completed, { message: 'the armed booking POST was answered' }).toBe(true);
+            expect(posts, 'exactly one booking POST').toHaveLength(1);
+            expect(armed!.bodies[0].asset_id).not.toBe(OTHER_DESK);
+            await expect(staffPage).toHaveURL(/#\/book\/desk\/success$/);
+            await expect(staffPage.locator('desk-flow-success h2')).toBeVisible();
+        }
     });
 }
