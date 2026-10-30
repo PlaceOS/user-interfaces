@@ -1,18 +1,18 @@
 // Setting: desks.auto_checkin (docs/settings/workplace.md).
 // Coverage: 1 unique setting, 2 scenarios.
-// Held setting controls are listed in CONTROLS; non-local requests (Google
-// Fonts) are answered locally by the audit fixture; the browser clock is frozen
-// at the real time (see the test body).
-// Desk auto check-in.
+// Held setting controls are listed in CONTROLS. The harness audit runs with
+// auditHttp 'local-only': Google Fonts css2 is answered with empty CSS and any
+// other non-local request fails the test. The browser clock is frozen (see
+// frozenInstant).
 //
 // Exact setting key(s): app.desks.auto_checkin
 //                       (legacy app.desk.auto_checkin is held false as a
 //                        control, so only the current key can hide the control)
 // Unique settings: 1
 // Scenarios: 2
-//   1. app.desks.auto_checkin: false — a near-start desk booking still offers
+//   1. app.desks.auto_checkin false: a near-start desk booking still offers
 //      the check-in control in the booking details modal.
-//   2. app.desks.auto_checkin: true — the same booking offers no check-in
+//   2. app.desks.auto_checkin true: the same booking offers no check-in
 //      control, because a detected person is already treated as checked in.
 //
 // Omitted scenario (not source-supported by GET fixtures here):
@@ -25,7 +25,7 @@
 //   binding without a live driver, and the Explore page is not opened here.
 //
 // Preconditions/fixtures:
-//   - Read-only local stack (`readOnlyTest`, GET-only route stubs, no writes).
+//   - Read-only local stack (harness `test`, GET-only route stubs, no writes).
 //   - `/your-bookings?view=list` with one synthetic, owned, approved desk
 //     booking starting five minutes from now. `asset_id` uses the desk shape id
 //     convention (`e2e-auto-checkin-desk-shape`) so the same booking would be
@@ -45,149 +45,24 @@
 // Source references:
 //   libs/bookings/src/lib/booking-details-modal.component.ts
 //   libs/explore/src/lib/explore-desks.service.ts
-//   apps/workplace/e2e/settings/desk-booking/desk-booking.hide-checkin.spec.ts
 // ---------------------------------------------------------------------------
-import type { Page, Route } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { SchedulePage } from '../../../../../e2e/support/bookings/schedule.page';
-import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import {
-    APP_URL,
-    BACKEND_URL,
-    assertLocalOnly,
-} from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
-    READ_ONLY_SETTINGS,
-    readOnlyTest,
-} from '../../local/wpa-settings-readonly-legacy.fixture';
-import { CONTROLS, type DebugWindow, type Settings } from '../support/settings-harness';
-type Identity = { id: string; email: string; name: string };
-type Audit = {
-    fixtures: Record<string, number>;
-    unexpected_ws: string[];
-    control_ws: string[];
-    app_errors: string[];
-    external: string[];
-};
+    type Audit,
+    CONTROLS,
+    fixtureHits,
+    getOnly,
+    type Identity,
+    prepareSettings,
+    type Settings,
+    test,
+} from '../support/settings-harness';
 
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
+test.use({ readOnlyTimezone: 'Etc/UTC', auditHttp: 'local-only' });
 
-const test = readOnlyTest.extend<{ audit: Audit }>({
-    audit: [
-        async ({ staffPage }, use) => {
-            const audit: Audit = {
-                fixtures: {},
-                unexpected_ws: [],
-                control_ws: [],
-                app_errors: [],
-                external: [],
-            };
-            // Non-local traffic never leaves the browser. The app shell's
-            // Google Fonts stylesheet is answered locally with empty CSS, so no
-            // font file is requested either; any other non-local request is
-            // aborted and fails the scenario. Local requests fall through to
-            // the read-only /api guard.
-            await staffPage.context().route('**/*', async (route) => {
-                const request = route.request();
-                const url = new URL(request.url());
-                if (ORIGINS.has(url.origin)) return route.fallback();
-                if (
-                    request.method() === 'GET' &&
-                    url.origin === 'https://fonts.googleapis.com' &&
-                    url.pathname === '/css2'
-                ) {
-                    return route.fulfill({
-                        status: 200,
-                        contentType: 'text/css',
-                        body: '',
-                    });
-                }
-                audit.external.push(
-                    request.method() + ' ' + url.origin + url.pathname,
-                );
-                await route.abort('blockedbyclient');
-            });
-            // ErrorHandler logs console.error('ERROR', e); Angular runtime
-            // errors log NG0xxx. Either fails the scenario.
-            staffPage.on('pageerror', (error) =>
-                audit.app_errors.push(
-                    'APP ' + error.name + ': ' + error.message,
-                ),
-            );
-            staffPage.on('console', (message) => {
-                if (
-                    message.type() === 'error' &&
-                    /^(ERROR\b|NG0\d+)/.test(message.text())
-                )
-                    audit.app_errors.push(
-                        'APP ' + message.text().slice(0, 500),
-                    );
-            });
-            const closing: Promise<void>[] = [];
-            await staffPage.context().routeWebSocket('**/*', (socket) => {
-                const url = new URL(socket.url());
-                const app = new URL(APP_URL);
-                const local =
-                    url.host === app.host &&
-                    url.protocol ===
-                        (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                if (
-                    local &&
-                    url.pathname === '/' &&
-                    [...url.searchParams.keys()].join(',') === 'token'
-                )
-                    return;
-                if (
-                    local &&
-                    url.pathname === '/api/engine/v2/systems/control'
-                ) {
-                    audit.control_ws.push(url.pathname);
-                } else {
-                    audit.unexpected_ws.push(url.origin + url.pathname);
-                }
-                closing.push(socket.close().catch(() => undefined));
-            });
-            await use(audit);
-            await Promise.all(closing);
-            expect(
-                audit.unexpected_ws,
-                'no unexpected WebSocket connections',
-            ).toEqual([]);
-            expect(audit.app_errors, 'no application errors').toEqual([]);
-            expect(audit.external, 'no non-local network traffic').toEqual([]);
-        },
-        { auto: true, timeout: 15_000 },
-    ],
-});
-
-test.use({ readOnlyTimezone: 'Etc/UTC' });
-test.describe.configure({ retries: 0, timeout: 120_000 });
-
-async function getOnly(
-    page: Page,
-    audit: Audit,
-    name: string,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown | Promise<unknown>,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            audit.fixtures[name] = (audit.fixtures[name] ?? 0) + 1;
-            await route.fulfill({
-                json: await body(new URL(route.request().url())),
-            });
-        },
-    );
-}
-
-const PARKING_CATEGORY = 'e2e-auto-checkin-parking';
-const PARKING_TYPES = [
-    'e2e-auto-checkin-type-_PARKING_SPACES_',
-    'e2e-auto-checkin-type-_PARKING_USERS_',
-    'e2e-auto-checkin-type-_PARKING_FLEET_VEHICLES_',
-];
 const BOOKING_ID = 9400101;
 const DESK_ASSET = 'e2e-auto-checkin-desk-shape';
 
@@ -216,114 +91,20 @@ const BASE: Settings = {
     'app.bookings.hide_checkin': false,
 };
 
-async function preparePage(
-    page: Page,
-    audit: Audit,
-    overrides: Settings,
-): Promise<{ user: () => Promise<Identity>; ready: () => Promise<void> }> {
-    assertLocalOnly(APP_URL, BACKEND_URL);
-    await page.setViewportSize({ width: 1440, height: 1100 });
-
-    let identity: Promise<Identity> | undefined;
-    page.on('response', (response) => {
-        if (
-            response.request().method() === 'GET' &&
-            new URL(response.url()).pathname === '/api/engine/v2/users/current'
-        ) {
-            identity = response.json();
-        }
+/**
+ * prepareSettings with BASE and CONTROLS, en-US. Every booking card injects
+ * ParkingService, whose constructor resolves the hidden asset categories and
+ * types; the 'e2e-auto-checkin' catalogue answers them locally.
+ */
+async function preparePage(page: Page, audit: Audit, overrides: Settings) {
+    return prepareSettings(page, overrides, {
+        audit,
+        base: BASE,
+        controls: CONTROLS,
+        hidden: 'e2e-auto-checkin',
+        locale: 'en-US',
+        landingRooms: false,
     });
-
-    // Every booking card injects ParkingService, whose constructor resolves the
-    // hidden _PARKING_ category and the _PARKING_* types. Answering these GETs
-    // locally keeps that bootstrap read-only.
-    await getOnly(
-        page,
-        audit,
-        'parking hidden categories',
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            url.searchParams.get('hidden') === 'true' &&
-            url.searchParams.get('limit') === '500',
-        () => [{ id: PARKING_CATEGORY, name: '_PARKING_', hidden: true }],
-    );
-    await getOnly(
-        page,
-        audit,
-        'parking types',
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            url.searchParams.get('category_id') === PARKING_CATEGORY &&
-            url.searchParams.get('limit') === '500',
-        () => [
-            {
-                id: PARKING_TYPES[0],
-                name: '_PARKING_SPACES_',
-                category_id: PARKING_CATEGORY,
-                brand: 'PlaceOS',
-            },
-            {
-                id: PARKING_TYPES[1],
-                name: '_PARKING_USERS_',
-                category_id: PARKING_CATEGORY,
-                brand: 'PlaceOS',
-            },
-            {
-                id: PARKING_TYPES[2],
-                name: '_PARKING_FLEET_VEHICLES_',
-                category_id: PARKING_CATEGORY,
-                brand: 'PlaceOS',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        audit,
-        'parking assets',
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' &&
-            PARKING_TYPES.includes(url.searchParams.get('type_id') ?? ''),
-        () => [],
-    );
-    await getOnly(
-        page,
-        audit,
-        'calendar provider list',
-        (url) => url.pathname === '/api/staff/v1/calendars',
-        () => [],
-    );
-
-    const settings = { ...BASE, ...overrides };
-    await useSettings(page, { ...CONTROLS, ...settings });
-    await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-US'));
-
-    return {
-        user: async () => {
-            if (!identity)
-                throw new Error(
-                    'the app must establish its existing staff identity before loading fixtures',
-                );
-            return identity;
-        },
-        ready: async () => {
-            await expect(page.locator('global-loading [loader]')).toHaveCount(
-                0,
-            );
-            for (const [key, value] of Object.entries(settings)) {
-                await expect
-                    .poll(
-                        () =>
-                            page.evaluate(
-                                (name) =>
-                                    (window as DebugWindow).setting?.(name),
-                                key,
-                            ),
-                        { message: 'effective setting ' + key },
-                    )
-                    .toEqual(value);
-            }
-        },
-    };
 }
 
 async function deskBooking(
@@ -389,12 +170,7 @@ function deskListing(fixture: { user: () => Promise<Identity> }, now: number) {
     };
 }
 
-function fixtureHits(audit: Audit, name: string) {
-    return audit.fixtures[name] ?? 0;
-}
-
-// One visible check-in control without auto_checkin, none with it. Kept as
-// data so the test body has no branches.
+// One visible check-in control without auto_checkin, none with it.
 const SCENARIOS = [
     {
         auto_checkin: false,
@@ -429,6 +205,7 @@ for (const scenario of SCENARIOS) {
             'desk booking listing',
             isDeskListing,
             deskListing(fixture, now),
+            { onError: 'throw' },
         );
 
         await staffPage.goto('/#/your-bookings?view=list');
@@ -444,8 +221,7 @@ for (const scenario of SCENARIOS) {
         await expect(modal).toContainText('Settings auto check-in booking');
         await expect(modal.locator('status-pill')).toBeVisible();
         const control = schedule.checkInButton(modal);
-        // Count, then visible count: for the offered control this is the
-        // former toHaveCount(1) + toBeVisible(); for auto_checkin both are 0.
+        // The count of matching controls, then of visible ones.
         await expect(control, scenario.message).toHaveCount(scenario.controls);
         await expect(
             control.filter({ visible: true }),
