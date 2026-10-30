@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/visitor-kiosk/src/app/components/announce.directive.ts"
+  ],
+  "sourcesContent": [
+    "import { LiveAnnouncer } from '@angular/cdk/a11y';\nimport { afterNextRender, Directive, ElementRef, inject } from '@angular/core';\n\n/**\n * Screen readers read the text of the element when it renders. Use on\n * loading messages that show in place of a step. A `role=\"status\"` element\n * that renders with its text is not read reliably, but the live region of\n * `LiveAnnouncer` is always on the page.\n */\n@Directive({ selector: '[announce]' })\nexport class AnnounceDirective {\n    constructor() {\n        const el = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;\n        const announcer = inject(LiveAnnouncer);\n        afterNextRender(() => {\n            const text = el.textContent?.trim();\n            if (text) announcer.announce(text, 'polite');\n        });\n    }\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;;;;AAUM,IAAO,oBAAP,MAAO,mBAAiB;EAC1B,cAAA;AACI,UAAM,KAAK,OAAgC,UAAU,EAAE;AACvD,UAAM,YAAY,OAAO,aAAa;AACtC,oBAAgB,MAAK;AACjB,YAAM,OAAO,GAAG,aAAa,KAAI;AACjC,UAAI;AAAM,kBAAU,SAAS,MAAM,QAAQ;IAC/C,CAAC;EACL;;;uCARS,oBAAiB;IAAA;EAAA;;yEAAjB,oBAAiB,WAAA,CAAA,CAAA,IAAA,YAAA,EAAA,CAAA,EAAA,CAAA;EAAA;;;sEAAjB,mBAAiB,CAAA;UAD7B;WAAU,EAAE,UAAU,aAAY,CAAE;;;",
+  "names": [],
+  "debugId": "98b8ac35-6d53-5811-99d9-635efd16ae30"
+}
