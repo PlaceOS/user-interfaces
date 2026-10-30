@@ -218,7 +218,15 @@ async function openBranding(page: Page, overrides: Record<string, unknown>, audi
 
 for (const enabled of [false, true]) {
     test(`allow_dark_mode ${enabled} gates a saved dark theme`, async ({ staffPage, safetyAudit }) => {
+        await staffPage.clock.install();
         const logo = await openBranding(staffPage, { 'app.allow_dark_mode': enabled }, safetyAudit);
+        // SettingsService applies the theme class from setOverrides (after the
+        // org settings load, which creates the override style) and from a timer
+        // 1000 ms after the user settings load.
+        await expect.poll(() => staffPage.evaluate(() =>
+            (window as Window & { setting?: (key: string) => unknown }).setting?.('theme'))).toBe('dark');
+        await expect(staffPage.locator('style#css-var-overrides')).toHaveCount(1);
+        await staffPage.clock.runFor(1_100);
         if (enabled) await expect(staffPage.locator('body')).toHaveClass(/\btheme-dark\b/);
         else await expect(staffPage.locator('body')).not.toHaveClass(/\btheme-dark\b/);
         await expect(logo).toBeVisible();

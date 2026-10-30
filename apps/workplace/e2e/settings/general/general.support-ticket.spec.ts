@@ -8,52 +8,9 @@ import type { Locator, Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type SafetyAudit, type Settings, stubBootstrap } from '../support/settings-harness';
-const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
-    safetyAudit: [async ({ staffPage }, use, info) => {
-        const context = staffPage.context();
-        const origins = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-        const audit: SafetyAudit = { blocked_http: [], unexpected_ws: [] };
-        const closing: Promise<void>[] = [];
-        await context.route('**/*', async (route) => {
-            const request = route.request();
-            const url = new URL(request.url());
-            const read = ['GET', 'HEAD', 'OPTIONS'].includes(request.method());
-            const provider = /^\/api\/staff\/v1\/(calendars|events)(\/|$)/.test(url.pathname);
-            if (read && !provider && (!url.pathname.startsWith('/api/') || origins.has(url.origin))) {
-                return route.fallback();
-            }
-            audit.blocked_http.push(request.method() + ' ' + url.pathname);
-            await route.abort('blockedbyclient');
-        });
-        await context.routeWebSocket('**/*', (socket) => {
-            const url = new URL(socket.url());
-            const app = new URL(APP_URL);
-            const local = url.host === app.host &&
-                url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-            // Hold Vite's browser-local socket open to prevent reload polling.
-            // No socket is ever connected to its server.
-            if (local && url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token') return;
-            if (!(local && url.pathname === '/api/engine/v2/systems/control')) {
-                audit.unexpected_ws.push(url.origin + url.pathname);
-            }
-            closing.push(socket.close());
-        });
-        try {
-            await use(audit);
-        } finally {
-            await context.close();
-            await Promise.all(closing);
-            await info.attach('settings-safety-audit', {
-                body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
-            });
-            expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({
-                blocked_http: [], unexpected_ws: [],
-            });
-        }
-    }, { auto: true, timeout: 30_000 }],
-});
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { type Settings, stubBootstrap, test } from '../support/settings-harness';
+test.use({ auditHttp: 'strict' });
 
 
 const EXTERNAL_URL = new URL('/e2e-external-support', APP_URL).href;
@@ -79,8 +36,6 @@ const BASE: Settings = {
     'app.virtual_concierge.url': '',
     'app.virtual_concierge_url': '',
 };
-
-test.describe.configure({ retries: 0, timeout: 120_000 });
 
 async function openUserControls(page: Page, overrides: Settings) {
     assertLocalOnly(APP_URL, BACKEND_URL);
@@ -129,9 +84,11 @@ test(
         await expect(heading).toBeVisible();
         await expect(heading).toHaveText('Raise a support ticket');
         await expect(modal.locator('fullscreen-modal-shell main form')).toBeVisible();
-        // The first select is the optional location; the second is the issue
-        // type and only renders when support_issue_types is non-empty.
-        const issueSelect = modal.locator('mat-select').nth(1);
+        // The issue type field only renders when support_issue_types is non-empty.
+        const issueSelect = modal
+            .locator('label', { hasText: /^\s*Issue Type\s*$/ })
+            .locator('xpath=..')
+            .locator('mat-select');
         await expect(issueSelect).toBeVisible();
         await issueSelect.click();
         const options = staffPage.locator('.cdk-overlay-container mat-option');
@@ -162,6 +119,8 @@ test(
         await expect(heading).toBeVisible();
         await expect(heading).toHaveText('Raise a support ticket');
         await expect(modal.locator('fullscreen-modal-shell main form')).toBeVisible();
+        await expect(modal.locator('label', { hasText: /^\s*Location\s*$/ })).toBeVisible();
+        await expect(modal.locator('label', { hasText: /^\s*Issue Type\s*$/ })).toHaveCount(0);
         await expect(modal.locator('mat-select')).toHaveCount(1);
         await modal.locator('fullscreen-modal-shell header button[mat-dialog-close]').click();
         await expect(modal).toHaveCount(0);

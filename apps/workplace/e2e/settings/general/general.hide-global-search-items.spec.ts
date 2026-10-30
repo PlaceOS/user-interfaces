@@ -1,7 +1,7 @@
 // Setting: hide_global_search_items (docs/settings/workplace.md).
 // Coverage: 1 unique setting, 3 scenarios.
 // Held setting controls are listed in CONTROLS; non-local requests (Google
-// Fonts) are answered locally by the wsAudit fixture.
+// Fonts) are answered locally by the 'local-only' audit.
 //
 // Source: libs/explore/src/lib/explore-search.service.ts (space and user
 //   searches, and hideItem, which reads `app.hide_global_search_items`);
@@ -13,7 +13,7 @@
 //   2. ['users'] hides the user result and leaves the space result intact.
 //   3. ['spaces'] hides the space result and leaves the user result intact
 //      (the list is per-result-type, not an all-or-nothing switch).
-// Preconditions/fixtures: readOnlyTest (local read-only legacy fixture) with the
+// Preconditions/fixtures: the harness `test` (read-only guard and audit) with the
 //   seeded non-admin staff identity read from GET /api/engine/v2/users/current
 //   (no extra call) and the REAL organisation, on /#/landing with
 //   app.global_search true. GET-only stubs serve: one `/api/staff/v1/people`
@@ -44,142 +44,18 @@
 //   only direct child div with no nested div (the name block has nested divs).
 // - Hiding a type must be anchored on the other type, so scenario 2 and 3 each
 //   prove the visible row is the one that was NOT hidden.
-import type { Locator, Page, Route } from '@playwright/test';
-import {
-    APP_URL,
-    BACKEND_URL,
-    assertLocalOnly,
-} from '../../../../../e2e/support/env';
+import type { Locator, Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
-import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
-    READ_ONLY_SETTINGS,
-    readOnlyTest,
-} from '../../local/wpa-settings-readonly-legacy.fixture';
-import { CONTROLS, type Settings, type WsAudit } from '../support/settings-harness';
-type DebugWindow = Window & { setting?: (key: string) => unknown };
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-const test = readOnlyTest.extend<{ wsAudit: WsAudit }>({
-    wsAudit: [
-        async ({ staffPage }, use) => {
-            const audit: WsAudit = {
-                unexpected: [],
-                control: [],
-                app_errors: [],
-                external: [],
-            };
-            // Non-local traffic never leaves the browser. The app shell's Google Fonts
-            // stylesheet is answered locally with empty CSS, so no font file is
-            // requested either; any other non-local request is aborted and fails the
-            // scenario. Local requests fall through to the read-only /api guard.
-            await staffPage.context().route('**/*', async (route) => {
-                const request = route.request();
-                const url = new URL(request.url());
-                if (ORIGINS.has(url.origin)) return route.fallback();
-                if (
-                    request.method() === 'GET' &&
-                    url.origin === 'https://fonts.googleapis.com' &&
-                    url.pathname === '/css2'
-                ) {
-                    return route.fulfill({
-                        status: 200,
-                        contentType: 'text/css',
-                        body: '',
-                    });
-                }
-                audit.external.push(
-                    request.method() + ' ' + url.origin + url.pathname,
-                );
-                await route.abort('blockedbyclient');
-            });
-            // ErrorHandler logs console.error('ERROR', e); Angular runtime errors
-            // log NG0xxx. Either fails the scenario.
-            staffPage.on('pageerror', (error) =>
-                audit.app_errors.push(
-                    'APP ' + error.name + ': ' + error.message,
-                ),
-            );
-            staffPage.on('console', (message) => {
-                if (
-                    message.type() === 'error' &&
-                    /^(ERROR\b|NG0\d+)/.test(message.text())
-                ) {
-                    audit.app_errors.push(
-                        'APP ' + message.text().slice(0, 500),
-                    );
-                }
-            });
-            const closing: Promise<void>[] = [];
-            await staffPage.context().routeWebSocket('**/*', (socket) => {
-                const url = new URL(socket.url());
-                const app = new URL(APP_URL);
-                const local =
-                    url.host === app.host &&
-                    url.protocol ===
-                        (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                if (
-                    local &&
-                    url.pathname === '/' &&
-                    [...url.searchParams.keys()].join(',') === 'token'
-                )
-                    return;
-                if (
-                    local &&
-                    url.pathname === '/api/engine/v2/systems/control'
-                ) {
-                    audit.control.push(url.pathname);
-                } else {
-                    audit.unexpected.push(url.href);
-                }
-                closing.push(socket.close().catch(() => undefined));
-            });
-            await use(audit);
-            await Promise.all(closing);
-            expect(
-                audit.unexpected,
-                'no unexpected WebSocket connections',
-            ).toEqual([]);
-            expect(audit.app_errors, 'no application errors').toEqual([]);
-            expect(audit.external, 'no non-local network traffic').toEqual([]);
-        },
-        { auto: true, timeout: 15_000 },
-    ],
-});
-test.use({ readOnlyTimezone: 'Etc/UTC' });
+    CONTROLS,
+    getOnly,
+    prepareSettings,
+    type Settings,
+    test,
+} from '../support/settings-harness';
 
-/** Origin-limited GET-only responses. Non-GET always falls through to the guard. */
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
-}
-
-// The landing page bootstraps the hidden parking/locker/desk categories and
-// creates them when a GET finds none, so serve those GETs from fixtures.
-const HIDDEN_CATEGORIES = [
-    { id: 'e2e-search-catering', name: '_CATERING_', hidden: true },
-    { id: 'e2e-search-desks', name: '_DESKS_', hidden: true },
-    { id: 'e2e-search-parking', name: '_PARKING_', hidden: true },
-    { id: 'e2e-search-lockers', name: '_LOCKERS_', hidden: true },
-];
-const HIDDEN_TYPES: Record<string, string[]> = {
-    'e2e-search-catering': [],
-    'e2e-search-desks': ['_DESKS_'],
-    'e2e-search-parking': [
-        '_PARKING_SPACES_',
-        '_PARKING_USERS_',
-        '_PARKING_FLEET_VEHICLES_',
-    ],
-    'e2e-search-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
+test.use({ readOnlyTimezone: 'Etc/UTC', auditHttp: 'local-only' });
 
 const QUERY = 'e2e';
 const USER = {
@@ -212,124 +88,76 @@ const BASE: Settings = {
 };
 
 async function prepare(page: Page, overrides: Settings) {
-    assertLocalOnly(APP_URL, BACKEND_URL);
-    await page.setViewportSize({ width: 1440, height: 1100 });
-    await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-AU'));
-    // Hidden asset bootstrap (parking-assets.fn.ts / locker-assets.fn.ts).
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            url.searchParams.get('hidden') === 'true' &&
-            url.searchParams.get('limit') === '500',
-        () => HIDDEN_CATEGORIES,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_types' &&
-            url.searchParams.get('limit') === '500' &&
-            Object.hasOwn(
-                HIDDEN_TYPES,
-                url.searchParams.get('category_id') ?? '',
-            ),
-        (url) =>
-            HIDDEN_TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: 'e2e-search-type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/assets' &&
-            (url.searchParams.get('type_id') ?? '').startsWith(
-                'e2e-search-type-',
-            ),
-        () => [],
-    );
-    // ExploreSearchService user results: searchStaff(q) -> /api/staff/v1/people.
-    await getOnly(
-        page,
-        (url) => url.pathname === '/api/staff/v1/people',
-        () => [USER],
-    );
-    // ExploreSearchService space results: querySystems({ q, zone_id }).
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/systems' &&
-            url.searchParams.get('q') === QUERY,
-        () => [SPACE],
-    );
-    // Session noise loaders, all served empty.
-    await getOnly(
-        page,
-        (url) =>
-            /^\/api\/engine\/v2\/metadata\/[^/]+\/children$/.test(
-                url.pathname,
-            ) &&
-            ['desks', 'map_features'].includes(
-                url.searchParams.get('name') ?? '',
-            ),
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
-            ['points-of-interest', 'emergency_contacts'].includes(
-                url.searchParams.get('name') ?? '',
-            ),
-        (url) => {
-            const name = url.searchParams.get('name')!;
-            return {
-                [name]: { id: url.pathname.split('/')[5], name, details: {} },
-            };
+    const fixture = await prepareSettings(page, overrides, {
+        base: BASE,
+        controls: CONTROLS,
+        hidden: 'e2e-search',
+        landingRooms: false,
+        identity: false,
+        routes: async () => {
+            // ExploreSearchService user results: searchStaff(q) -> /api/staff/v1/people.
+            await getOnly(
+                page,
+                (url) => url.pathname === '/api/staff/v1/people',
+                () => [USER],
+            );
+            // ExploreSearchService space results: querySystems({ q, zone_id }).
+            await getOnly(
+                page,
+                (url) =>
+                    url.pathname === '/api/engine/v2/systems' &&
+                    url.searchParams.get('q') === QUERY,
+                () => [SPACE],
+            );
+            await getOnly(
+                page,
+                (url) =>
+                    /^\/api\/engine\/v2\/metadata\/[^/]+\/children$/.test(
+                        url.pathname,
+                    ) &&
+                    ['desks', 'map_features'].includes(
+                        url.searchParams.get('name') ?? '',
+                    ),
+                () => [],
+            );
+            await getOnly(
+                page,
+                (url) =>
+                    /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
+                    ['points-of-interest', 'emergency_contacts'].includes(
+                        url.searchParams.get('name') ?? '',
+                    ),
+                (url) => {
+                    const name = url.searchParams.get('name') ?? '';
+                    return {
+                        [name]: {
+                            id: url.pathname.split('/')[5],
+                            name,
+                            details: {},
+                        },
+                    };
+                },
+            );
+            // _asset_based_contacts: no _EMERGENCY_CONTACTS_ category in the building.
+            await getOnly(
+                page,
+                (url) =>
+                    url.pathname === '/api/engine/v2/asset_categories' &&
+                    !!url.searchParams.get('zone_id'),
+                () => [],
+            );
+            await getOnly(
+                page,
+                (url) => url.pathname === '/api/staff/v1/bookings',
+                () => [],
+            );
         },
-    );
-    // _asset_based_contacts: no _EMERGENCY_CONTACTS_ category in the building.
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/asset_categories' &&
-            !!url.searchParams.get('zone_id'),
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) => url.pathname === '/api/staff/v1/bookings',
-        () => [],
-    );
-    await getOnly(
-        page,
-        (url) => url.pathname === '/api/staff/v1/calendars',
-        () => [],
-    );
-    const settings = { ...BASE, ...overrides };
-    await useSettings(page, { ...CONTROLS, ...settings });
+    });
     return {
-        settings,
+        settings: fixture.settings,
         open: async () => {
             await page.goto('/#/landing');
-            await expect(
-                page.locator('global-loading [initialisation-error]'),
-            ).toHaveCount(0);
-            for (const [key, value] of Object.entries(settings)) {
-                await expect
-                    .poll(
-                        () =>
-                            page.evaluate(
-                                (name) =>
-                                    (window as DebugWindow).setting?.(name),
-                                key,
-                            ),
-                        { message: 'effective setting ' + key },
-                    )
-                    .toEqual(value);
-            }
+            await fixture.ready({ loading: false });
             await expect(page.locator('topbar')).toBeVisible();
             return page.locator('topbar global-search');
         },

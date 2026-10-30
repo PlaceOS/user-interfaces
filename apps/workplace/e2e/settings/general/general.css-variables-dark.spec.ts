@@ -1,4 +1,4 @@
-// Coverage: 1 unique setting, 2 scenarios.
+// Coverage: 1 unique setting, 3 scenarios.
 // Setting: css_variables_dark (docs/settings/workplace.md).
 // Consumer: libs/common/src/lib/settings.service.ts.
 // The dark overrides are emitted as a `body.theme-dark` rule in the shared
@@ -9,52 +9,9 @@ import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type SafetyAudit, type Settings, stubBootstrap } from '../support/settings-harness';
-const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
-    safetyAudit: [async ({ staffPage }, use, info) => {
-        const context = staffPage.context();
-        const origins = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-        const audit: SafetyAudit = { blocked_http: [], unexpected_ws: [] };
-        const closing: Promise<void>[] = [];
-        await context.route('**/*', async (route) => {
-            const request = route.request();
-            const url = new URL(request.url());
-            const read = ['GET', 'HEAD', 'OPTIONS'].includes(request.method());
-            const provider = /^\/api\/staff\/v1\/(calendars|events)(\/|$)/.test(url.pathname);
-            if (read && !provider && (!url.pathname.startsWith('/api/') || origins.has(url.origin))) {
-                return route.fallback();
-            }
-            audit.blocked_http.push(request.method() + ' ' + url.pathname);
-            await route.abort('blockedbyclient');
-        });
-        await context.routeWebSocket('**/*', (socket) => {
-            const url = new URL(socket.url());
-            const app = new URL(APP_URL);
-            const local = url.host === app.host &&
-                url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-            // Hold Vite's browser-local socket open to prevent reload polling.
-            // No socket is ever connected to its server.
-            if (local && url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token') return;
-            if (!(local && url.pathname === '/api/engine/v2/systems/control')) {
-                audit.unexpected_ws.push(url.origin + url.pathname);
-            }
-            closing.push(socket.close());
-        });
-        try {
-            await use(audit);
-        } finally {
-            await context.close();
-            await Promise.all(closing);
-            await info.attach('settings-safety-audit', {
-                body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
-            });
-            expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({
-                blocked_http: [], unexpected_ws: [],
-            });
-        }
-    }, { auto: true, timeout: 30_000 }],
-});
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { ORIGINS, type Settings, stubBootstrap, test } from '../support/settings-harness';
+test.use({ auditHttp: 'strict' });
 
 
 const BASE: Settings = {
@@ -77,8 +34,6 @@ const BASE: Settings = {
     'app.virtual_concierge_url': '',
     'app.css_variables': {},
 };
-
-test.describe.configure({ retries: 0, timeout: 120_000 });
 
 async function openLanding(page: Page, overrides: Settings) {
     assertLocalOnly(APP_URL, BACKEND_URL);
@@ -138,18 +93,86 @@ test(
     },
 );
 
-test(
-    'css_variables_dark {} leaves the dark-theme rule empty',
-    async ({ staffPage }) => {
-        await openLanding(staffPage, {
-            'app.css_variables_dark': {},
-        });
-        const style = staffPage.locator('style#css-var-overrides');
-        await expect(style).toHaveCount(1);
-        const stylesheet = () => style.evaluate((element) => element.textContent ?? '');
-        // Establish stylesheet readiness before checking absence, so an empty
-        // or uninitialised element cannot make this scenario pass.
-        await expect.poll(stylesheet).toContain('body.theme-dark');
-        await expect.poll(stylesheet).not.toContain('--secondary');
-    },
-);
+/** Dark value served as an org-level css_variables_dark setting, in this browser only. */
+const ORG_DARK = '#0a1b2c';
+
+/**
+ * Answer the org's global `settings` bulk metadata (OrganisationService
+ * loadSettings, an override layer below PLACEOS.setting_overrides) with
+ * css_variables_dark { secondary: ORG_DARK } added to each zone's details. The
+ * real GET runs first and its other details are kept. Clears the cached org
+ * metadata so the response is used. Returns the number of answered GETs.
+ */
+async function orgDarkVariables(page: Page) {
+    let served = 0;
+    await page.addInitScript(() => {
+        for (const store of [localStorage, sessionStorage]) {
+            for (const key of Object.keys(store)) {
+                if (key.startsWith('PLACEOS.org')) store.removeItem(key);
+            }
+        }
+    });
+    await page.route(
+        (url) =>
+            ORIGINS.has(url.origin) &&
+            url.pathname === '/api/engine/v2/metadata/settings/bulk',
+        async (route) => {
+            if (route.request().method() !== 'GET') return route.fallback();
+            const url = new URL(route.request().url());
+            const ids = (url.searchParams.get('parent_ids') ?? '')
+                .split(',')
+                .filter(Boolean);
+            const response = await route.fetch({ maxRedirects: 0 });
+            const real: Record<string, { details?: Record<string, unknown> }> =
+                response.ok() ? await response.json() : {};
+            served++;
+            await route.fulfill({
+                status: 200,
+                json: Object.fromEntries(
+                    ids.map((id) => [
+                        id,
+                        {
+                            ...(real[id] ?? {}),
+                            details: {
+                                ...(real[id]?.details ?? {}),
+                                css_variables_dark: { secondary: ORG_DARK },
+                            },
+                        },
+                    ]),
+                ),
+            });
+        },
+    );
+    return () => served;
+}
+
+const stylesheet = (page: Page) =>
+    page
+        .locator('style#css-var-overrides')
+        .evaluate((element) => element.textContent ?? '');
+
+test('css_variables_dark from the org settings applies without a local override', async ({
+    staffPage,
+}) => {
+    const served = await orgDarkVariables(staffPage);
+    await openLanding(staffPage, {});
+    await expect.poll(served).toBeGreaterThan(0);
+    await expect.poll(() => stylesheet(staffPage)).toContain('body.theme-dark');
+    await expect
+        .poll(() => stylesheet(staffPage))
+        .toContain('--secondary: ' + ORG_DARK);
+});
+
+test('css_variables_dark {} replaces the org dark-theme map', async ({
+    staffPage,
+}) => {
+    const served = await orgDarkVariables(staffPage);
+    await openLanding(staffPage, { 'app.css_variables_dark': {} });
+    await expect.poll(served).toBeGreaterThan(0);
+    const style = staffPage.locator('style#css-var-overrides');
+    await expect(style).toHaveCount(1);
+    await expect.poll(() => stylesheet(staffPage)).toContain('body.theme-dark');
+    await expect
+        .poll(() => stylesheet(staffPage))
+        .not.toContain('--secondary');
+});

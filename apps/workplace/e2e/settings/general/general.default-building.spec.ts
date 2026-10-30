@@ -4,59 +4,15 @@
 // When the user has no saved building, the app selects `default_building`.
 // The organisation is a browser-only three-building fixture (a decoy listed
 // first, then A and B); no user or organisation record is changed.
-import type { Page, Route } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type SafetyAudit, type Settings, stubBootstrap } from '../support/settings-harness';
-const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
-    safetyAudit: [async ({ staffPage }, use, info) => {
-        const context = staffPage.context();
-        const origins = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-        const audit: SafetyAudit = { blocked_http: [], unexpected_ws: [] };
-        const closing: Promise<void>[] = [];
-        await context.route('**/*', async (route) => {
-            const request = route.request();
-            const url = new URL(request.url());
-            const read = ['GET', 'HEAD', 'OPTIONS'].includes(request.method());
-            const provider = /^\/api\/staff\/v1\/(calendars|events)(\/|$)/.test(url.pathname);
-            if (read && !provider && (!url.pathname.startsWith('/api/') || origins.has(url.origin))) {
-                return route.fallback();
-            }
-            audit.blocked_http.push(request.method() + ' ' + url.pathname);
-            await route.abort('blockedbyclient');
-        });
-        await context.routeWebSocket('**/*', (socket) => {
-            const url = new URL(socket.url());
-            const app = new URL(APP_URL);
-            const local = url.host === app.host &&
-                url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-            // Hold Vite's browser-local socket open to prevent reload polling.
-            // No socket is ever connected to its server.
-            if (local && url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token') return;
-            if (!(local && url.pathname === '/api/engine/v2/systems/control')) {
-                audit.unexpected_ws.push(url.origin + url.pathname);
-            }
-            closing.push(socket.close());
-        });
-        try {
-            await use(audit);
-        } finally {
-            await context.close();
-            await Promise.all(closing);
-            await info.attach('settings-safety-audit', {
-                body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
-            });
-            expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({
-                blocked_http: [], unexpected_ws: [],
-            });
-        }
-    }, { auto: true, timeout: 30_000 }],
-});
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { organisationRoutes, type Settings, stubBootstrap, test } from '../support/settings-harness';
+test.use({ auditHttp: 'strict' });
 
 
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
 const REGION = 'e2e-default-region';
 const BUILDING_A = 'e2e-default-building-a';
 const BUILDING_B = 'e2e-default-building-b';
@@ -118,57 +74,7 @@ const BASE: Settings = {
     'app.disable_building_select': false,
 };
 
-test.describe.configure({ retries: 0, timeout: 120_000 });
-
-async function getOnly(
-    page: Page,
-    match: (url: URL) => boolean,
-    body: (url: URL) => unknown,
-) {
-    await page.route(
-        (url) => ORIGINS.has(url.origin) && match(url),
-        async (route: Route) => {
-            if (route.request().method() !== 'GET') return route.fallback();
-            await route.fulfill({ json: body(new URL(route.request().url())) });
-        },
-    );
-}
-
-async function organisationFixture(page: Page) {
-    await page.addInitScript(() => {
-        for (const key of Object.keys(localStorage)) {
-            if (
-                key.startsWith('PLACEOS.org') ||
-                ['PLACEOS.region', 'PLACEOS.building'].includes(key)
-            ) {
-                localStorage.removeItem(key);
-            }
-        }
-        sessionStorage.removeItem('PLACEOS.building');
-    });
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'region' &&
-            url.searchParams.get('limit') === '200',
-        () => [
-            {
-                id: REGION,
-                name: 'E2E Default Region',
-                tags: ['region'],
-                timezone: 'UTC',
-            },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'building' &&
-            url.searchParams.get('parent_id') === REGION &&
-            url.searchParams.get('limit') === '500',
-        () => [
+const BUILDINGS = [
             {
                 id: BUILDING_FALLBACK,
                 parent_id: REGION,
@@ -196,66 +102,17 @@ async function organisationFixture(page: Page) {
                 timezone: 'UTC',
                 location: '40,40',
             },
-        ],
-    );
-    await getOnly(
-        page,
-        (url) =>
-            url.pathname === '/api/engine/v2/zones' &&
-            url.searchParams.get('tags') === 'level' &&
-            url.searchParams.get('limit') === '2500',
-        () => LEVELS,
-    );
-    await getOnly(
-        page,
-        (url) =>
-            /^\/api\/engine\/v2\/metadata\/[^/]+\/bulk$/.test(url.pathname) &&
-            !!url.searchParams.get('parent_ids') &&
-            url
-                .searchParams.get('parent_ids')!
-                .split(',')
-                .every((id) => id.startsWith('e2e-default-')),
-        (url) =>
-            Object.fromEntries(
-                url
-                    .searchParams.get('parent_ids')!
-                    .split(',')
-                    .map((id) => [
-                        id,
-                        {
-                            id,
-                            name: decodeURIComponent(url.pathname.split('/')[5]),
-                            details: {},
-                        },
-                    ]),
-            ),
-    );
-    await getOnly(
-        page,
-        (url) =>
-            /^\/api\/engine\/v2\/metadata\/e2e-default-[^/]+$/.test(
-                url.pathname,
-            ) &&
-            !!url.searchParams.get('name'),
-        (url) => {
-            const name = url.searchParams.get('name')!;
-            return {
-                [name]: {
-                    id: url.pathname.split('/')[5],
-                    name,
-                    details: name.endsWith('_booking_rules')
-                        ? []
-                        : {},
-                },
-            };
-        },
-    );
-}
+        ];
 
 async function openUserControls(page: Page, default_building: string) {
     assertLocalOnly(APP_URL, BACKEND_URL);
     await page.setViewportSize({ width: 1440, height: 1100 });
-    await organisationFixture(page);
+    await organisationRoutes(page, {
+        prefix: 'e2e-default-',
+        region: { id: REGION, name: 'E2E Default Region' },
+        buildings: BUILDINGS,
+        levels: LEVELS,
+    });
     await stubBootstrap(page);
     const settings = { ...BASE, 'app.default_building': default_building };
     await useSettings(page, settings);

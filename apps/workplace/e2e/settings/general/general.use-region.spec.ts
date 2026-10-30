@@ -1,40 +1,11 @@
 
 import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
-import { type Audit, getOnly, prepare, type Settings, test, untouchedDesk } from '../support/settings-harness';
+import { type Audit, getOnly, openDesk, organisationRoutes, test, untouchedDesk } from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
 
-// Current runtime: desk-flow-new/desk-flow-details.component.ts.
-// Auto-allocation is pinned only to expose the desktop details controls. Never
-// click the parent's confirmation action, select a resource, or save a booking.
-async function openDesk(page: Page, audit: Audit, overrides: Settings) {
-    const fixture = await prepare(page, audit, {
-        'app.features': ['desks'], 'app.feature_groups': {},
-        'app.desk.auto_allocation': true, 'app.desks.auto_allocation': true,
-        'app.desks.hide_title': false, 'app.desks.allow_groups': false,
-        'app.desks.can_book_for_others': false, 'app.bookings.can_book_for_others': false,
-        'app.desks.can_book_lockers': false, 'app.desks.has_assets': false,
-        'app.desks.use_assets': true, 'app.desks.allow_recurrence': false,
-        'app.desks.allow_time_changes': true, 'app.desks.allow_all_day': false,
-        'app.bookings.allow_all_day': false, 'app.desk.all_day_default': false,
-        'app.desks.all_day_default': false, 'app.bookings.all_day_default': false,
-        'app.desks.use_building_timezone': false,
-        'app.desks.available_period': 30, 'app.desks.bookable_hours': null,
-        'app.desk.min_duration': null, 'app.desk.max_duration': null,
-        'app.desk.duration_step': null, 'app.desk.custom_duration_options': null,
-        'app.desks.min_duration': 30, 'app.desks.max_duration': 180,
-        'app.desks.duration_step': 30, 'app.desks.custom_duration_options': [],
-        'app.bookings.min_duration': 30, 'app.bookings.max_duration': 180,
-        'app.bookings.duration_step': 30, 'app.bookings.custom_duration_options': [],
-        ...overrides,
-    });
-    await page.goto('/#/book/desk/form'); await fixture.ready();
-    const details = page.locator('desk-flow-new desk-flow-details');
-    await expect(details.locator('input[name$=".title"]')).toBeEditable();
-    return { details, fixture };
-}
 const REGION = 'e2e-settings-region';
 const BUILDING_A = 'e2e-settings-building-a';
 const BUILDING_B = 'e2e-settings-building-b';
@@ -49,60 +20,26 @@ const LEVELS = [
 const DESK = 'E2E browser-only desk';
 
 async function organisationFixture(page: Page, audit: Audit) {
-    // Preserve the real authority, organisation and authenticated identity.
-    // Only browser GETs for the source-supported region/building/level lists
-    // and synthetic-zone metadata are replaced. All IDs are fixture-local.
-    await page.addInitScript(() => {
-        for (const key of Object.keys(localStorage)) {
-            if (key.startsWith('PLACEOS.org') || ['PLACEOS.region', 'PLACEOS.building'].includes(key)) {
-                localStorage.removeItem(key);
-            }
-        }
-        sessionStorage.removeItem('PLACEOS.building');
+    await organisationRoutes(page, {
+        audit,
+        prefix: 'e2e-settings-',
+        region: { id: REGION, name: 'E2E Region' },
+        regionParent: true,
+        buildings: [
+            { id: BUILDING_A, parent_id: REGION, name: 'E2E Building A', display_name: 'E2E Building A',
+                tags: ['building'], timezone: 'UTC', location: '0,0' },
+            { id: BUILDING_B, parent_id: REGION, name: 'E2E Building B', display_name: 'E2E Building B',
+                tags: ['building'], timezone: 'UTC', location: '40,40' },
+        ],
+        levels: LEVELS,
+        metadata: (name) => (name.endsWith('_booking_rules') || name === 'map_regions' ? [] : {}),
+        desks: (level) => [{
+            id: 'e2e-settings-desk-' + level.id, name: DESK + ' ' + level.id,
+            map_id: 'e2e-settings-desk-shape', bookable: true, assigned_to: '',
+            groups: [], features: [], images: [],
+        }],
+        deskBookings: true,
     });
-    await getOnly(page, audit, 'synthetic regions', (url) => url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.get('tags') === 'region' && url.searchParams.get('limit') === '200',
-    (url) => [{ id: REGION, parent_id: url.searchParams.get('parent_id'), name: 'E2E Region',
-        tags: ['region'], timezone: 'UTC' }]);
-    await getOnly(page, audit, 'synthetic buildings', (url) => url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.get('tags') === 'building' && url.searchParams.get('parent_id') === REGION &&
-        url.searchParams.get('limit') === '500', () => [
-        { id: BUILDING_A, parent_id: REGION, name: 'E2E Building A', display_name: 'E2E Building A',
-            tags: ['building'], timezone: 'UTC', location: '0,0' },
-        { id: BUILDING_B, parent_id: REGION, name: 'E2E Building B', display_name: 'E2E Building B',
-            tags: ['building'], timezone: 'UTC', location: '40,40' },
-    ]);
-    await getOnly(page, audit, 'synthetic levels', (url) => url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.get('tags') === 'level' && url.searchParams.get('limit') === '2500', () => LEVELS);
-    // OrganisationService bulkMetadata(name,{parent_ids}) returns a map of
-    // parent IDs to Metadata records; showMetadata returns { [name]: record }.
-    await getOnly(page, audit, 'synthetic bulk metadata', (url) =>
-        /^\/api\/engine\/v2\/metadata\/[^/]+\/bulk$/.test(url.pathname) &&
-        !!url.searchParams.get('parent_ids') &&
-        url.searchParams.get('parent_ids')!.split(',').every((id) => id.startsWith('e2e-settings-')),
-    (url) => Object.fromEntries(url.searchParams.get('parent_ids')!.split(',').map((id) =>
-        [id, { id, name: decodeURIComponent(url.pathname.split('/')[5]), details: {} }])));
-    await getOnly(page, audit, 'synthetic metadata', (url) =>
-        /^\/api\/engine\/v2\/metadata\/e2e-settings-[^/]+$/.test(url.pathname) &&
-        !!url.searchParams.get('name'), (url) => {
-        const name = url.searchParams.get('name')!;
-        return { [name]: { id: url.pathname.split('/')[5], name,
-            details: name.endsWith('_booking_rules') || name === 'map_regions' ? [] : {} } };
-    });
-    await getOnly(page, audit, 'synthetic desk metadata', (url) =>
-        /^\/api\/engine\/v2\/metadata\/e2e-settings-building-[ab]\/children$/.test(url.pathname) &&
-        url.searchParams.get('name') === 'desks', (url) =>
-        LEVELS.filter((level) => level.parent_id === url.pathname.split('/')[5]).map((level) => ({
-            zone: level,
-            metadata: { desks: { name: 'desks', details: [{
-                id: 'e2e-settings-desk-' + level.id, name: DESK + ' ' + level.id,
-                map_id: 'e2e-settings-desk-shape', bookable: true, assigned_to: '',
-                groups: [], features: [], images: [],
-            }] } },
-        })));
-    await getOnly(page, audit, 'empty desk bookings', (url) => url.pathname === '/api/staff/v1/bookings' &&
-        url.searchParams.get('type') === 'desk' && url.searchParams.has('period_start') &&
-        url.searchParams.has('period_end'), () => []);
 }
 // BookingFormService._computeAvailableResources -> bookedResourceList uses
 // GET /bookings/booked with exactly these five parameters (bookings.fn.ts).
@@ -128,7 +65,7 @@ for(const enabled of [false,true]){
  test('use_region '+enabled+' scopes inline desk levels to region versus building',async({staffPage,audit})=>{
   await organisationFixture(staffPage,audit);await bookedDeskResourcesFixture(staffPage,audit);
   await openDesk(staffPage,audit,{'app.desk.auto_allocation':null,'app.desks.auto_allocation':false,
-    'app.desks.use_assets':false,'app.default_building':BUILDING_A,'app.use_region':enabled});
+    'app.desks.use_assets':false,'app.default_building':BUILDING_A,'app.use_region':enabled},{dateReady:false});
   const picker=staffPage.locator('desk-flow-select');await expect(picker).toBeVisible();
   await expect(picker.locator('desk-flow-select-map')).toHaveCount(0);
   const region=picker.locator('mat-select[name="region"]').first();

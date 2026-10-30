@@ -10,7 +10,8 @@ for (const offset of [0,1]) {
         await details.locator('date-field button').first().click();
         const calendar=staffPage.locator('.cdk-overlay-container date-calendar');
         await expect(calendar).toBeVisible();
-        const labels=calendar.locator(':scope > div > div').nth(1).locator(':scope > div');
+        // The weekday row is the only row of the calendar without a button.
+        const labels=calendar.locator(':scope > div > div').filter({hasNot:staffPage.locator('button')}).locator(':scope > div');
         await expect(labels).toHaveText(offset===0?['Sun','Mon','Tue','Wed','Thu','Fri','Sat']:['Mon','Tue','Wed','Thu','Fri','Sat','Sun']);
         await expect(calendar.locator('button[name="schedule-set-date"]')).toHaveCount(42);
         await staffPage.keyboard.press('Escape'); await expect(calendar).toHaveCount(0);

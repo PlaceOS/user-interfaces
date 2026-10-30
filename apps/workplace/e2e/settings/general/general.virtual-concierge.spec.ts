@@ -8,56 +8,16 @@ import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type SafetyAudit, type Settings, stubBootstrap } from '../support/settings-harness';
-const test = readOnlyTest.extend<{ safetyAudit: SafetyAudit }>({
-    safetyAudit: [async ({ staffPage }, use, info) => {
-        const context = staffPage.context();
-        const origins = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
-        const audit: SafetyAudit = { blocked_http: [], unexpected_ws: [] };
-        const closing: Promise<void>[] = [];
-        await context.route('**/*', async (route) => {
-            const request = route.request();
-            const url = new URL(request.url());
-            const read = ['GET', 'HEAD', 'OPTIONS'].includes(request.method());
-            const provider = /^\/api\/staff\/v1\/(calendars|events)(\/|$)/.test(url.pathname);
-            if (read && !provider && (!url.pathname.startsWith('/api/') || origins.has(url.origin))) {
-                return route.fallback();
-            }
-            audit.blocked_http.push(request.method() + ' ' + url.pathname);
-            await route.abort('blockedbyclient');
-        });
-        await context.routeWebSocket('**/*', (socket) => {
-            const url = new URL(socket.url());
-            const app = new URL(APP_URL);
-            const local = url.host === app.host &&
-                url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-            // Hold Vite's browser-local socket open to prevent reload polling.
-            // No socket is ever connected to its server.
-            if (local && url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token') return;
-            if (!(local && url.pathname === '/api/engine/v2/systems/control')) {
-                audit.unexpected_ws.push(url.origin + url.pathname);
-            }
-            closing.push(socket.close());
-        });
-        try {
-            await use(audit);
-        } finally {
-            await context.close();
-            await Promise.all(closing);
-            await info.attach('settings-safety-audit', {
-                body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
-            });
-            expect(audit, 'zero attempted HTTP writes/provider reads or unexpected WebSockets').toEqual({
-                blocked_http: [], unexpected_ws: [],
-            });
-        }
-    }, { auto: true, timeout: 30_000 }],
-});
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
+import { type Settings, stubBootstrap, test } from '../support/settings-harness';
+test.use({ auditHttp: 'strict' });
 
 
-const EMBED_URL =
-    'data:text/html;charset=utf-8,%3Ctitle%3EE2E%20Virtual%20Concierge%3C/title%3E';
+/**
+ * A local page answered by openLanding. A data: URL frame would run the
+ * context's init scripts, which cannot read localStorage there.
+ */
+const EMBED_URL = new URL('/e2e-virtual-concierge.html', APP_URL).href;
 const ICON_URL =
     'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%3E%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%23123456%22%2F%3E%3C%2Fsvg%3E';
 
@@ -92,12 +52,18 @@ const BASE: Settings = {
     ],
 };
 
-test.describe.configure({ retries: 0, timeout: 120_000 });
-
 async function openLanding(page: Page, overrides: Settings) {
     assertLocalOnly(APP_URL, BACKEND_URL);
     await page.setViewportSize({ width: 1440, height: 1100 });
     await stubBootstrap(page);
+    await page.route(EMBED_URL, (route) =>
+        route.request().method() === 'GET'
+            ? route.fulfill({
+                  contentType: 'text/html',
+                  body: '<!doctype html><title>E2E Virtual Concierge</title>',
+              })
+            : route.fallback(),
+    );
     const settings = { ...BASE, ...overrides };
     await useSettings(page, settings);
     await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-AU'));
