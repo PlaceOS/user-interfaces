@@ -29,7 +29,8 @@ import {
 import { mintToken, clientId, redirectUriFor } from './auth';
 import { ENGINE_API, STAFF_API, alreadyExists, getJson as json } from './api';
 import { describeDrivers, ensureDrivers } from './drivers/drivers.seed';
-import { CALENDAR_ENABLED, CALENDAR_TENANT_NAME, O365 } from './calendar/calendar.env';
+import { ensureOrgShape } from './org/org.seed';
+import { CALENDAR_TENANT_NAME, O365, assertCalendarConfigured } from './calendar/calendar.env';
 
 /** The app `init` guarantees exists — our way in before anything else is registered. */
 const BOOTSTRAP_APP_URL = `${BACKEND_URL}/backoffice`;
@@ -136,19 +137,14 @@ async function ensureAbsoluteLoginUrl(api: APIRequestContext) {
  * "domain does not have a tenant configured" until a tenant row exists for the
  * request hostname (staff-api/src/controllers/utilities/multi_tenant.cr).
  *
- * The credentials below are deliberately PLACEHOLDERS. They are only ever
- * dereferenced when staff-api instantiates a PlaceCalendar client, which happens
- * for the calendar-backed routes (/calendars, /events) and nothing else — so a
- * placeholder tenant unblocks the whole PlaceOS-native booking surface (desks,
- * lockers, parking, visitors) with ZERO external calls. That is what keeps this
- * suite genuinely local. Real credentials are opt-in through the `E2E_O365_*`
- * variables (`e2e/support/calendar/calendar.env.ts`); with them the row is
- * app-only (no delegated access, no service account) so staff-api acts as the
- * signed-in user, and is named `CALENDAR_TENANT_NAME` so specs can tell.
+ * The row carries the Microsoft 365 sandbox credentials from the `E2E_O365_*`
+ * variables (`e2e/support/calendar/calendar.env.ts`). It is app-only (no
+ * delegated access, no service account), so staff-api acts as the signed-in
+ * user, and is named `CALENDAR_TENANT_NAME`, which is what `calendarBacked`
+ * looks for.
  *
- * An existing row is always re-sent. Credentials are never returned, so there is
- * no way to see what it holds, and a stack reused after a calendar run must go
- * back to placeholders rather than keep calling Microsoft.
+ * An existing row is always re-sent: credentials are never returned, so there is
+ * no way to see what it holds.
  */
 async function ensureTenant(api: APIRequestContext) {
     const domain = new URL(BACKEND_URL).hostname;
@@ -156,16 +152,8 @@ async function ensureTenant(api: APIRequestContext) {
         domain,
         platform: 'office365',
         delegated: false,
-        ...(CALENDAR_ENABLED
-            ? { name: CALENDAR_TENANT_NAME, credentials: O365 }
-            : {
-                  name: 'E2E Local',
-                  credentials: {
-                      tenant: 'e2e-local-placeholder',
-                      client_id: 'e2e-local-placeholder',
-                      client_secret: 'e2e-local-placeholder',
-                  },
-              }),
+        name: CALENDAR_TENANT_NAME,
+        credentials: O365,
     };
     const existing = await json(api, `${STAFF_API}/tenants`);
     const list = Array.isArray(existing) ? existing : (existing.results ?? []);
@@ -312,6 +300,7 @@ async function ensureStaffUsers(api: APIRequestContext) {
 
 export async function seed(): Promise<void> {
     assertLocalOnly(BACKEND_URL, APP_URL);
+    assertCalendarConfigured();
     const api = await adminApi();
     try {
         const app = await ensureOAuthApp(api, APP_URL, 'workplace (e2e dev server)');
@@ -323,14 +312,17 @@ export async function seed(): Promise<void> {
         const tenant = await ensureTenant(api);
         console.log(
             `  tenant     ${tenant.created ? 'created' : 'present'}  domain=${tenant.domain}  ` +
-                `calendar=${CALENDAR_ENABLED ? `microsoft 365 (${O365.tenant})` : 'placeholder'}`,
+                `calendar=microsoft 365 (${O365.tenant})`,
         );
-        if (CALENDAR_ENABLED) {
-            const calendar_user = await ensureCalendarUser(api);
-            console.log(
-                `  calendar   ${calendar_user.created ? 'created' : 'present'}  admin ${calendar_user.email}`,
-            );
-        }
+        const calendar_user = await ensureCalendarUser(api);
+        console.log(
+            `  calendar   ${calendar_user.created ? 'created' : 'present'}  admin ${calendar_user.email}`,
+        );
+        const shape = await ensureOrgShape(api);
+        console.log(
+            `  org shape  org_zone ${shape.org_zone_set ? 'set' : 'ok'}, region ${shape.region}, ` +
+                `${shape.buildings.length} building(s), ${shape.moved} moved, ${shape.filled} zone(s) given a timezone/name, workplace_app on org + building`,
+        );
         const desks = await ensureDesks(api);
         console.log(`  desks      ${desks.count} on ${desks.zone}`);
         const users = await ensureStaffUsers(api);

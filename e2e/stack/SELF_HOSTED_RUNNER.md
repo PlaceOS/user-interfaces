@@ -6,6 +6,14 @@ install rather than from documentation, so the gotchas below are ones that reall
 **Current runner:** `placeos-e2e-mac` — macOS 26.1, Intel x86_64, 12 CPU / 16 GB.
 Labels `self-hosted, macOS, X64, placeos-e2e`. Docker via **Colima**, not Docker Desktop.
 
+**The machine is shared.** A second runner on it runs the Patrol e2e job of
+`place-technology/placeos-native-wpa`. That job brings up its own stack (compose
+project `placeos-e2e-native`) and an Android emulator. Colima's VM and the 16 GB
+hold only one stack at a time, and the two runners cannot see each other's queues.
+Each job waits while the other job's stack is up: this one in the step
+*Wait for the native e2e job to finish*. Do not remove the other job's containers,
+volumes or images while it runs.
+
 ---
 
 ## No inbound access is needed
@@ -175,6 +183,9 @@ cd <repo>/e2e/stack && ./down.sh --volumes   # reset the stack by hand
 docker system prune -a --volumes       # reclaim disk (stack rebuilds from nothing)
 ```
 
+Run `docker system prune -a --volumes` only when no job runs on either runner. It
+also removes the native job's stack.
+
 ### Known limitation: it will not survive a reboot unattended
 
 Colima and the runner are both launchd **agents**, which need a logged-in user
@@ -194,6 +205,7 @@ stack-bring-up failure.
 | `docker: command not found` | Service PATH — step 3. |
 | `docker compose` not a valid command | The compose plugin is not registered — step 1. |
 | Hangs on **Bring up the local PlaceOS stack** | `up.sh` prints `compose ps` plus every service's logs on failure; read the step output first. Usually Colima not running (`colima status`) or the registry unreachable. |
+| Stuck on **Wait for the native e2e job to finish**, or it fails after 120 min | The native stack is up. Make sure no native e2e job is running in `place-technology/placeos-native-wpa`. If none is, its last run died before teardown: `docker compose -p placeos-e2e-native down`. |
 | `port is already allocated` | Previous run died. The reclaim step handles it; otherwise `./down.sh --volumes`. |
 | `elastic-1 is unhealthy` | Give Colima more memory. ES is pinned to 7.17.28 to avoid the cgroup v2 JDK crash — do not downgrade. |
 | Can't SSH the machine from the LAN | Expected and irrelevant to CI. It sits on a different subnet with inter-VLAN traffic filtered; use Tailscale for admin. |

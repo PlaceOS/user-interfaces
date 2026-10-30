@@ -129,284 +129,303 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
 
             <!-- Toolbar. Two fixed rows: what you draw, then how you edit. -->
             <header
-                class="bg-base-100 border-base-300 flex shrink-0 flex-col gap-1 overflow-x-auto border-b px-2.5 py-1.5 whitespace-nowrap"
+                class="bg-base-100 border-base-300 flex shrink-0 items-start gap-1 border-b px-2.5 py-1.5 whitespace-nowrap"
             >
-                <div class="flex items-center gap-1">
-                    <div class="flex shrink-0 items-center gap-0.5">
-                        @for (tool of tools; track tool.id) {
+                <div class="flex min-w-0 flex-1 flex-col gap-1 overflow-x-auto">
+                    <div class="flex items-center gap-1">
+                        <div class="flex shrink-0 items-center gap-0.5">
+                            @for (tool of tools; track tool.id) {
+                                <button
+                                    [class]="
+                                        toolClass(
+                                            state.active_tool() === tool.id
+                                        )
+                                    "
+                                    [title]="
+                                        tool.key
+                                            ? tool.label + ' (' + tool.key + ')'
+                                            : tool.label
+                                    "
+                                    [attr.aria-pressed]="
+                                        state.active_tool() === tool.id
+                                    "
+                                    (click)="pickTool(tool.id)"
+                                >
+                                    <icon class="text-base" aria-hidden="true">
+                                        {{ tool.icon }}
+                                    </icon>
+                                    {{ tool.label }}
+                                </button>
+                            }
+                        </div>
+
+                        <!-- The layer new shapes go on, beside the tools that draw them -->
+                        <span
+                            id="active-layer-label"
+                            class="text-base-content/60 ml-1.5 shrink-0 text-xs font-medium"
+                        >
+                            Layer
+                        </span>
+                        <select
+                            id="active-layer"
+                            aria-labelledby="active-layer-label"
+                            class="border-base-300 shrink-0 rounded border p-2 text-xs"
+                            title="Layer that new shapes go on"
+                            (change)="state.setActiveLayer(asValue($event))"
+                        >
+                            @for (
+                                layer of state.sorted_layers();
+                                track layer.id
+                            ) {
+                                <option
+                                    [value]="layer.id"
+                                    [selected]="
+                                        layer.id === state.active_layer_id()
+                                    "
+                                >
+                                    {{ layer.name }}
+                                </option>
+                            }
+                        </select>
+                        @if (active_layer(); as layer) {
+                            @if (layer.locked) {
+                                <span
+                                    class="text-warning flex shrink-0 items-center gap-0.5 text-xs font-medium"
+                                    title="Unlock this layer in the Layers panel to draw on it"
+                                >
+                                    <icon class="text-base" aria-hidden="true">
+                                        lock
+                                    </icon>
+                                    Locked
+                                </span>
+                            } @else if (!layer.visible) {
+                                <span
+                                    class="text-warning flex shrink-0 items-center gap-0.5 text-xs font-medium"
+                                    title="Show this layer in the Layers panel to see new shapes"
+                                >
+                                    <icon class="text-base" aria-hidden="true">
+                                        visibility_off
+                                    </icon>
+                                    Hidden
+                                </span>
+                            }
+                        }
+
+                        <span
+                            class="bg-base-300 mx-1.5 h-6 w-px shrink-0"
+                        ></span>
+
+                        <map-studio-asset-picker />
+                    </div>
+
+                    <div class="flex items-center gap-1">
+                        <!-- Actions -->
+                        <div class="flex shrink-0 items-center gap-0.5">
                             <button
+                                [class]="toolClass(state.dirty())"
+                                [title]="
+                                    state.dirty()
+                                        ? 'Changes save automatically. Save now (Ctrl+S)'
+                                        : 'All changes saved. Changes save automatically.'
+                                "
+                                [disabled]="state.saving() || !state.dirty()"
+                                (click)="state.save()"
+                            >
+                                <icon class="text-base" aria-hidden="true">
+                                    save
+                                </icon>
+                                {{ state.saving() ? 'Saving...' : 'Save' }}
+                            </button>
+                            <button
+                                [class]="toolClass(false)"
+                                title="Undo (Ctrl+Z)"
+                                [disabled]="!state.can_undo()"
+                                (click)="state.undo()"
+                            >
+                                <icon class="text-base" aria-hidden="true">
+                                    undo
+                                </icon>
+                                Undo
+                            </button>
+                            <button
+                                [class]="toolClass(false)"
+                                title="Redo (Ctrl+Shift+Z)"
+                                [disabled]="!state.can_redo()"
+                                (click)="state.redo()"
+                            >
+                                <icon class="text-base" aria-hidden="true">
+                                    redo
+                                </icon>
+                                Redo
+                            </button>
+                            <!-- sr-only, not hidden, so the input stays keyboard reachable.
+                                 text-xs! beats the global label font size. -->
+                            <label
                                 [class]="
-                                    toolClass(state.active_tool() === tool.id)
+                                    toolClass(false) +
+                                    ' text-xs! ' +
+                                    (uploading()
+                                        ? 'opacity-35'
+                                        : 'cursor-pointer')
                                 "
-                                [title]="
-                                    tool.key
-                                        ? tool.label + ' (' + tool.key + ')'
-                                        : tool.label
-                                "
-                                [attr.aria-pressed]="
-                                    state.active_tool() === tool.id
-                                "
-                                (click)="pickTool(tool.id)"
+                                title="Upload a background image"
                             >
                                 <icon class="text-base" aria-hidden="true">
-                                    {{ tool.icon }}
+                                    upload
                                 </icon>
-                                {{ tool.label }}
-                            </button>
-                        }
-                    </div>
-
-                    <!-- The layer new shapes go on, beside the tools that draw them -->
-                    <span
-                        id="active-layer-label"
-                        class="text-base-content/60 ml-1.5 shrink-0 text-xs font-medium"
-                    >
-                        Layer
-                    </span>
-                    <select
-                        id="active-layer"
-                        aria-labelledby="active-layer-label"
-                        class="border-base-300 shrink-0 rounded border p-2 text-xs"
-                        title="Layer that new shapes go on"
-                        (change)="state.setActiveLayer(asValue($event))"
-                    >
-                        @for (layer of state.sorted_layers(); track layer.id) {
-                            <option
-                                [value]="layer.id"
-                                [selected]="
-                                    layer.id === state.active_layer_id()
-                                "
-                            >
-                                {{ layer.name }}
-                            </option>
-                        }
-                    </select>
-                    @if (active_layer(); as layer) {
-                        @if (layer.locked) {
-                            <span
-                                class="text-warning flex shrink-0 items-center gap-0.5 text-xs font-medium"
-                                title="Unlock this layer in the Layers panel to draw on it"
-                            >
-                                <icon class="text-base" aria-hidden="true">
-                                    lock
-                                </icon>
-                                Locked
-                            </span>
-                        } @else if (!layer.visible) {
-                            <span
-                                class="text-warning flex shrink-0 items-center gap-0.5 text-xs font-medium"
-                                title="Show this layer in the Layers panel to see new shapes"
-                            >
-                                <icon class="text-base" aria-hidden="true">
-                                    visibility_off
-                                </icon>
-                                Hidden
-                            </span>
-                        }
-                    }
-
-                    <span class="bg-base-300 mx-1.5 h-6 w-px shrink-0"></span>
-
-                    <map-studio-asset-picker />
-
-                    <!-- Search, right-aligned as in the reference toolbar -->
-                    <div class="relative ml-auto shrink-0">
-                        <input
-                            #search_input
-                            class="border-base-300 w-36 rounded border p-2 text-xs"
-                            placeholder="Search (Ctrl+F)"
-                            aria-label="Search objects"
-                            [value]="search()"
-                            (input)="search.set(asValue($event))"
-                            (keydown.escape)="search.set('')"
-                        />
-                        @if (search_results(); as results) {
-                            <div
-                                class="bg-base-100 border-base-300 absolute top-full right-0 z-30 mt-1 max-h-52 w-56 overflow-y-auto rounded-md border shadow-lg"
-                            >
-                                @for (object of results; track object.id) {
-                                    <button
-                                        class="border-base-300 hover:bg-base-200 flex w-full items-center gap-1.5 border-b px-2.5 py-1.5 text-left text-xs last:border-b-0"
-                                        (click)="reveal(object)"
-                                    >
-                                        <span
-                                            class="flex-1 truncate font-medium"
-                                        >
-                                            {{ object.label }}
-                                        </span>
-                                        <span
-                                            class="text-base-content/60 text-[0.65rem] uppercase"
-                                        >
-                                            {{ object.object_type }}
-                                        </span>
-                                    </button>
-                                }
-                                @if (!results.length) {
-                                    <p
-                                        class="text-base-content/60 m-0 px-2.5 py-2 text-center text-xs"
-                                    >
-                                        No results
-                                    </p>
-                                }
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-1">
-                    <!-- Actions -->
-                    <div class="flex shrink-0 items-center gap-0.5">
-                        <button
-                            [class]="toolClass(state.dirty())"
-                            [title]="
-                                state.dirty()
-                                    ? 'Changes save automatically. Save now (Ctrl+S)'
-                                    : 'All changes saved. Changes save automatically.'
-                            "
-                            [disabled]="state.saving() || !state.dirty()"
-                            (click)="state.save()"
-                        >
-                            <icon class="text-base" aria-hidden="true">
-                                save
-                            </icon>
-                            {{ state.saving() ? 'Saving...' : 'Save' }}
-                        </button>
-                        <button
-                            [class]="toolClass(false)"
-                            title="Undo (Ctrl+Z)"
-                            [disabled]="!state.can_undo()"
-                            (click)="state.undo()"
-                        >
-                            <icon class="text-base" aria-hidden="true">
-                                undo
-                            </icon>
-                            Undo
-                        </button>
-                        <button
-                            [class]="toolClass(false)"
-                            title="Redo (Ctrl+Shift+Z)"
-                            [disabled]="!state.can_redo()"
-                            (click)="state.redo()"
-                        >
-                            <icon class="text-base" aria-hidden="true">
-                                redo
-                            </icon>
-                            Redo
-                        </button>
-                        <!-- sr-only, not hidden, so the input stays keyboard reachable -->
-                        <label
-                            [class]="toolClass(false) + ' cursor-pointer'"
-                            title="Upload a background image"
-                        >
-                            <icon class="text-base" aria-hidden="true">
-                                upload
-                            </icon>
-                            Image
-                            <input
-                                type="file"
-                                accept="image/*"
-                                class="sr-only"
-                                (change)="onUpload($event)"
-                            />
-                        </label>
-                        @if (state.can_reimport_svg()) {
-                            <button
-                                [class]="toolClass(false)"
-                                (click)="state.reimportSvg()"
-                            >
-                                Reimport original SVG
-                            </button>
-                        }
-                        @if (ai_configured) {
-                            <button
-                                [class]="toolClass(false)"
-                                [title]="
-                                    state.image_url()
-                                        ? 'AI: detect building outline'
-                                        : 'Upload a floor plan image first'
-                                "
-                                [disabled]="!state.image_url() || ai_busy()"
-                                (click)="detectAiOutline()"
-                            >
-                                <icon class="text-base" aria-hidden="true">
+                                {{ uploading() ? 'Uploading...' : 'Image' }}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    class="sr-only"
+                                    [disabled]="uploading()"
+                                    (change)="onUpload($event)"
+                                />
+                            </label>
+                            @if (state.can_reimport_svg()) {
+                                <button
+                                    [class]="toolClass(false)"
+                                    (click)="state.reimportSvg()"
+                                >
+                                    Reimport original SVG
+                                </button>
+                            }
+                            @if (ai_configured) {
+                                <button
+                                    [class]="toolClass(false)"
+                                    [title]="
+                                        state.image_url()
+                                            ? 'AI: detect building outline'
+                                            : 'Upload a floor plan image first'
+                                    "
+                                    [disabled]="!state.image_url() || ai_busy()"
+                                    (click)="detectAiOutline()"
+                                >
+                                    <icon class="text-base" aria-hidden="true">
+                                        {{
+                                            ai_outline_analyzing()
+                                                ? 'progress_activity'
+                                                : 'border_outer'
+                                        }}
+                                    </icon>
                                     {{
                                         ai_outline_analyzing()
-                                            ? 'progress_activity'
-                                            : 'border_outer'
+                                            ? 'Detecting...'
+                                            : 'AI Outline'
                                     }}
-                                </icon>
-                                {{
-                                    ai_outline_analyzing()
-                                        ? 'Detecting...'
-                                        : 'AI Outline'
-                                }}
-                            </button>
-                            <button
-                                [class]="toolClass(false)"
-                                [title]="
-                                    state.image_url()
-                                        ? 'AI: detect rooms and add them to the map'
-                                        : 'Upload a floor plan image first'
-                                "
-                                [disabled]="!state.image_url() || ai_busy()"
-                                (click)="detectAiRooms()"
-                            >
-                                <icon class="text-base" aria-hidden="true">
+                                </button>
+                                <button
+                                    [class]="toolClass(false)"
+                                    [title]="
+                                        state.image_url()
+                                            ? 'AI: detect rooms and add them to the map'
+                                            : 'Upload a floor plan image first'
+                                    "
+                                    [disabled]="!state.image_url() || ai_busy()"
+                                    (click)="detectAiRooms()"
+                                >
+                                    <icon class="text-base" aria-hidden="true">
+                                        {{
+                                            ai_rooms_analyzing()
+                                                ? 'progress_activity'
+                                                : 'meeting_room'
+                                        }}
+                                    </icon>
                                     {{
                                         ai_rooms_analyzing()
-                                            ? 'progress_activity'
-                                            : 'meeting_room'
+                                            ? 'Detecting...'
+                                            : 'AI Rooms'
                                     }}
+                                </button>
+                            }
+                        </div>
+
+                        <span
+                            class="bg-base-300 mx-1.5 h-6 w-px shrink-0"
+                        ></span>
+
+                        <!-- View -->
+                        <div class="flex shrink-0 items-center gap-1">
+                            <button
+                                [class]="toolClass(state.snap_enabled())"
+                                title="Toggle snapping"
+                                [attr.aria-pressed]="state.snap_enabled()"
+                                (click)="state.toggleSnap()"
+                            >
+                                <icon class="text-base" aria-hidden="true">
+                                    grid_goldenratio
                                 </icon>
-                                {{
-                                    ai_rooms_analyzing()
-                                        ? 'Detecting...'
-                                        : 'AI Rooms'
-                                }}
+                                Snap
                             </button>
-                        }
+                            <button
+                                [class]="toolClass(state.grid_enabled())"
+                                title="Toggle grid (G)"
+                                [attr.aria-pressed]="state.grid_enabled()"
+                                (click)="state.toggleGrid()"
+                            >
+                                <icon class="text-base" aria-hidden="true">
+                                    grid_on
+                                </icon>
+                                Grid
+                            </button>
+                            @if (state.grid_enabled()) {
+                                <input
+                                    type="number"
+                                    min="5"
+                                    max="100"
+                                    step="5"
+                                    class="border-base-300 w-16 rounded border p-2 text-center text-xs"
+                                    title="Grid size (px)"
+                                    aria-label="Grid size in pixels"
+                                    [value]="state.grid_size()"
+                                    (change)="
+                                        state.setGridSize(+asValue($event))
+                                    "
+                                />
+                            }
+                        </div>
                     </div>
-
-                    <span class="bg-base-300 mx-1.5 h-6 w-px shrink-0"></span>
-
-                    <!-- View -->
-                    <div class="flex shrink-0 items-center gap-1">
-                        <button
-                            [class]="toolClass(state.snap_enabled())"
-                            title="Toggle snapping"
-                            [attr.aria-pressed]="state.snap_enabled()"
-                            (click)="state.toggleSnap()"
+                </div>
+                <!-- Search, right-aligned and outside the scrolling rows so its
+                     results are not clipped -->
+                <div class="relative shrink-0">
+                    <input
+                        #search_input
+                        class="border-base-300 w-36 rounded border p-2 text-xs"
+                        placeholder="Search (Ctrl+F)"
+                        aria-label="Search objects"
+                        [value]="search()"
+                        (input)="search.set(asValue($event))"
+                        (keydown.escape)="search.set('')"
+                    />
+                    @if (search_results(); as results) {
+                        <div
+                            class="bg-base-100 border-base-300 absolute top-full right-0 z-30 mt-1 max-h-52 w-56 overflow-y-auto rounded-md border shadow-lg"
                         >
-                            <icon class="text-base" aria-hidden="true">
-                                grid_goldenratio
-                            </icon>
-                            Snap
-                        </button>
-                        <button
-                            [class]="toolClass(state.grid_enabled())"
-                            title="Toggle grid (G)"
-                            [attr.aria-pressed]="state.grid_enabled()"
-                            (click)="state.toggleGrid()"
-                        >
-                            <icon class="text-base" aria-hidden="true">
-                                grid_on
-                            </icon>
-                            Grid
-                        </button>
-                        @if (state.grid_enabled()) {
-                            <input
-                                type="number"
-                                min="5"
-                                max="100"
-                                step="5"
-                                class="border-base-300 w-16 rounded border p-2 text-center text-xs"
-                                title="Grid size (px)"
-                                aria-label="Grid size in pixels"
-                                [value]="state.grid_size()"
-                                (change)="state.setGridSize(+asValue($event))"
-                            />
-                        }
-                    </div>
+                            @for (object of results; track object.id) {
+                                <button
+                                    class="border-base-300 hover:bg-base-200 flex w-full items-center gap-1.5 border-b px-2.5 py-1.5 text-left text-xs last:border-b-0"
+                                    (click)="reveal(object)"
+                                >
+                                    <span class="flex-1 truncate font-medium">
+                                        {{ object.label }}
+                                    </span>
+                                    <span
+                                        class="text-base-content/60 text-[0.65rem] uppercase"
+                                    >
+                                        {{ object.object_type }}
+                                    </span>
+                                </button>
+                            }
+                            @if (!results.length) {
+                                <p
+                                    class="text-base-content/60 m-0 px-2.5 py-2 text-center text-xs"
+                                >
+                                    No results
+                                </p>
+                            }
+                        </div>
+                    }
                 </div>
             </header>
 
@@ -569,13 +588,13 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                             [style.width.px]="right_width()"
                         >
                             <div
-                                class="border-base-300 flex overflow-x-auto border-b"
+                                class="border-base-300 flex flex-wrap border-b"
                                 role="tablist"
                                 aria-label="Editor details"
                             >
                                 @for (tab of right_tabs; track tab.id) {
                                     <button
-                                        class="flex-1 px-2 py-2 text-xs font-semibold whitespace-nowrap"
+                                        class="flex-1 px-1.5 py-2 text-xs font-semibold whitespace-nowrap"
                                         [class]="
                                             right_tab() === tab.id
                                                 ? 'border-primary border-b-2'
@@ -742,7 +761,17 @@ const TOOLS: { id: Tool; label: string; key: string; icon: string }[] = [
                         </span>
                     }
                     <span class="ml-auto flex items-center gap-2">
-                        <span class="capitalize">{{ state.mode() }} mode</span>
+                        <!-- Preview changes what canvas clicks do, so say so outside its tab -->
+                        @if (state.availability_enabled()) {
+                            <span
+                                class="text-primary font-semibold"
+                                title="Clicks on rooms and desks change their preview status. Turn preview off in the Preview tab."
+                            >
+                                Preview mode
+                            </span>
+                        } @else {
+                            <span>Design mode</span>
+                        }
                         <span
                             aria-hidden="true"
                             class="bg-base-300 h-3 w-px shrink-0"
@@ -868,6 +897,7 @@ export class EditorComponent {
     public readonly ai_busy = computed(
         () => this.ai_outline_analyzing() || this.ai_rooms_analyzing(),
     );
+    public readonly uploading = signal(false);
 
     public readonly shortcuts = [
         { key: 'V', label: 'Select' },
@@ -1156,11 +1186,23 @@ export class EditorComponent {
         if (window.innerWidth < 1100) this.right_open.set(false);
     }
 
+    /** Uploads a background image. Replacing one cannot be undone, so ask first. */
     public async onUpload(event: Event) {
         const input = event.target as HTMLInputElement;
         const file = input.files?.[0];
-        if (file) await this.state.uploadSourceImage(file);
         input.value = '';
+        if (!file) return;
+        if (
+            this.state.image_url() &&
+            !confirm('Replace the current background image?')
+        )
+            return;
+        this.uploading.set(true);
+        try {
+            await this.state.uploadSourceImage(file);
+        } finally {
+            this.uploading.set(false);
+        }
     }
 
     public async detectAiOutline() {
@@ -1339,6 +1381,8 @@ export class EditorComponent {
         // A focused button, select or other control keeps its own keys
         const canvas = this.canvas();
         const on_canvas = !!canvas?.ownsKey(target);
+        // A row picked in the Objects list keeps focus, and Delete still applies to it
+        const in_object_list = !!target.closest('map-studio-object-list-panel');
 
         // While a polygon is being drawn, these keys edit it, not the selection
         if (canvas?.outline_points().length && on_canvas) {
@@ -1355,7 +1399,7 @@ export class EditorComponent {
         }
         if (event.key === 'Delete' || event.key === 'Backspace') {
             const ids = this._selectionIds();
-            if (on_canvas && ids.length) {
+            if ((on_canvas || in_object_list) && ids.length) {
                 event.preventDefault();
                 this.state.deleteObjects(ids);
             }

@@ -13,7 +13,7 @@ import { MatInput } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { IconComponent } from '@placeos/components';
 
-import { StoreService } from '../data/store.service';
+import { lastUpdated, StoreService } from '../data/store.service';
 import { Project } from '../data/types';
 
 const formatDate = (iso: string) =>
@@ -29,8 +29,9 @@ const formatDate = (iso: string) =>
         <div class="mx-auto max-w-[68.75rem]">
             <div class="mb-7 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h2 class="mb-1 text-2xl font-bold">Projects</h2>
-                    <p class="text-base-content/60 text-sm">
+                    <!-- Important margins beat the global heading and paragraph margins -->
+                    <h2 class="mb-1! text-2xl font-bold">Projects</h2>
+                    <p class="text-base-content/60 m-0! text-sm">
                         Manage your floor plan projects
                     </p>
                 </div>
@@ -96,6 +97,7 @@ const formatDate = (iso: string) =>
                 <form
                     class="bg-base-100 border-base-300 mb-6 rounded-lg border p-6 shadow-sm"
                     (submit)="create($event)"
+                    (keydown.escape)="show_form.set(false)"
                 >
                     <div class="grid gap-4 sm:grid-cols-2">
                         <mat-form-field
@@ -182,6 +184,7 @@ const formatDate = (iso: string) =>
                             <div class="mb-3 min-w-0">
                                 <h3
                                     class="mb-1 truncate text-base font-semibold"
+                                    [title]="project.name"
                                 >
                                     <a
                                         class="no-underline after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
@@ -270,7 +273,7 @@ export class ProjectsComponent {
         project.floorplans?.length ?? 0;
 
     public readonly updatedOn = (project: Project) =>
-        formatDate(project.updated_at);
+        formatDate(lastUpdated(project));
 
     /** Reads the project list. `quiet` keeps the current list on screen. */
     public async load(quiet = false) {
@@ -294,6 +297,7 @@ export class ProjectsComponent {
         const name = this.form_name().trim();
         if (!name) return;
         this.creating.set(true);
+        this.error.set('');
         try {
             const project = await this._store.createProject(
                 name,
@@ -315,6 +319,7 @@ export class ProjectsComponent {
             `Delete project "${project.name}" and all of its floors? This cannot be undone.${synced}`,
         );
         if (!confirmed) return;
+        this.error.set('');
         try {
             await this._store.deleteProject(project.id);
             this.projects.update((list) =>

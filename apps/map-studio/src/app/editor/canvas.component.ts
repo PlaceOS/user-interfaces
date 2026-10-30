@@ -2,7 +2,6 @@ import {
     Component,
     DestroyRef,
     ElementRef,
-    HostListener,
     afterNextRender,
     computed,
     effect,
@@ -19,6 +18,7 @@ import {
     FURNITURE_ASSETS,
     HANDLES,
     HANDLE_CURSORS,
+    HEX_COLOR_RE,
     Handle,
     TYPE_COLORS,
 } from './constants';
@@ -122,7 +122,6 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
             #container
             class="bg-base-200 relative flex h-full w-full overflow-auto p-4 outline-none"
             tabindex="-1"
-            (wheel)="onWheel($event)"
         >
             <svg
                 #canvas
@@ -744,18 +743,36 @@ export class CanvasComponent {
     private readonly _art = new Map<string, SafeHtml>();
 
     constructor() {
-        // Pointer moves are handled outside Angular's template listeners: a
-        // template listener would re-check every object on every move. The
-        // signals written here still refresh whatever reads them.
+        // Frequent events are handled outside Angular's template and host
+        // listeners: those would re-check every object on each pointer move,
+        // wheel tick or key press anywhere. The signals written here still
+        // refresh whatever reads them.
         const onMove = (event: MouseEvent) => {
             const canvas = this._canvas().nativeElement;
             if (this._interacting() || canvas.contains(event.target as Node))
                 this.onMouseMove(event);
         };
-        afterNextRender(() => window.addEventListener('mousemove', onMove));
-        inject(DestroyRef).onDestroy(() =>
-            window.removeEventListener('mousemove', onMove),
-        );
+        const onWheel = (event: WheelEvent) => this.onWheel(event);
+        const onMouseUp = () => this.onWindowMouseUp();
+        const onKeyDown = (event: KeyboardEvent) => this.onKeyDown(event);
+        const onKeyUp = (event: KeyboardEvent) => this.onKeyUp(event);
+        let container: HTMLDivElement | undefined;
+        afterNextRender(() => {
+            container = this._containerEl();
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onMouseUp);
+            window.addEventListener('keydown', onKeyDown);
+            window.addEventListener('keyup', onKeyUp);
+            // Not passive, so a pinch or Ctrl+wheel can stop the page zooming
+            container.addEventListener('wheel', onWheel, { passive: false });
+        });
+        inject(DestroyRef).onDestroy(() => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onMouseUp);
+            window.removeEventListener('keydown', onKeyDown);
+            window.removeEventListener('keyup', onKeyUp);
+            container?.removeEventListener('wheel', onWheel);
+        });
         // Focus the rename box as soon as a double-click opens it
         effect(() => this._rename_input()?.nativeElement.select());
     }
@@ -874,22 +891,49 @@ export class CanvasComponent {
     private _last_source_image: string | null = null;
 
     /**
-     * The imported map with object edits applied, as an image. It is held
-     * while a pointer edit is under way and composed again on release, since
-     * composing parses and serialises the whole source SVG.
+     * Ids of objects that hidden layers or flags keep off the map. Layer
+     * changes that keep the same objects hidden, such as opacity or lock,
+     * leave it unchanged, so the map is not composed again.
      */
-    public readonly sourceImage = computed(() => {
+    private readonly _hidden_ids = computed(
+        () => {
+            const visible = new Set(
+                this.state.visible_objects().map((object) => object.id),
+            );
+            return this.state
+                .objects()
+                .filter((object) => !visible.has(object.id))
+                .map((object) => object.id);
+        },
+        {
+            equal: (a, b) =>
+                a.length === b.length && a.every((id, i) => id === b[i]),
+        },
+    );
+
+    /**
+     * The imported map with object edits applied, as an image. Composing
+     * parses and serialises the whole source SVG, so it runs only when the
+     * objects or their visibility change.
+     */
+    private readonly _composed_source = computed(() => {
         const floor = this.state.floorplan();
-        if (!floor?.svg_source) return (this._last_source_image = null);
-        if (this._pointer_editing() && this._last_source_image)
-            return this._last_source_image;
-        const visible = new Set(
-            this.state.visible_objects().map((object) => object.id),
-        );
+        if (!floor?.svg_source) return null;
+        const hidden = new Set(this._hidden_ids());
         const objects = this.state
             .objects()
-            .map((object) => ({ ...object, visible: visible.has(object.id) }));
-        return (this._last_source_image = `data:image/svg+xml,${encodeURIComponent(composeSourceSvg(floor.svg_source, objects, floor.svg_source_ids))}`);
+            .map((object) => ({ ...object, visible: !hidden.has(object.id) }));
+        return `data:image/svg+xml,${encodeURIComponent(composeSourceSvg(floor.svg_source, objects, floor.svg_source_ids))}`;
+    });
+
+    /**
+     * {@link _composed_source}, held while a pointer edit is under way and
+     * composed again on release. A click that moves nothing composes nothing.
+     */
+    public readonly sourceImage = computed(() => {
+        if (this._pointer_editing() && this._last_source_image)
+            return this._last_source_image;
+        return (this._last_source_image = this._composed_source());
     });
 
     public readonly guideImage = computed(() => {
@@ -1110,7 +1154,10 @@ export class CanvasComponent {
             ? FURNITURE_ASSETS.find((a) => a.id === type)
             : undefined;
         if (!asset) return null;
-        const color = object.stroke_color ?? '#333';
+        // The colour goes into trusted markup, and imported or saved maps can
+        // hold any string, so anything but a hex colour could inject markup
+        const stroke = object.stroke_color ?? '';
+        const color = HEX_COLOR_RE.test(stroke) ? stroke : '#333';
         return this._trusted(`furniture:${asset.id}:${color}`, () =>
             asset.svg.replace(/currentColor/g, color),
         );
@@ -1692,7 +1739,13 @@ export class CanvasComponent {
     public finishEditing() {
         const edit = this.editing();
         if (!edit) return;
-        this.state.updateObject(edit.id, { label: edit.value || 'Untitled' });
+        const label = edit.value || 'Untitled';
+        const object = this.state.objects().find((o) => o.id === edit.id);
+        // An undo step only for a real change, so Ctrl+Z undoes the rename
+        if (object && object.label !== label) {
+            this.state.pushHistory();
+            this.state.updateObject(edit.id, { label });
+        }
         this.editing.set(null);
     }
 
@@ -2313,7 +2366,6 @@ export class CanvasComponent {
         );
     }
 
-    @HostListener('window:mouseup')
     public onWindowMouseUp() {
         if (this._interacting()) this.onMouseUp();
     }
@@ -2330,7 +2382,6 @@ export class CanvasComponent {
         );
     }
 
-    @HostListener('window:keydown', ['$event'])
     public onKeyDown(event: KeyboardEvent) {
         if (event.code !== 'Space' || event.repeat) return;
         // Space on a button, select or the minimap keeps its own meaning
@@ -2339,7 +2390,6 @@ export class CanvasComponent {
         this._space_held.set(true);
     }
 
-    @HostListener('window:keyup', ['$event'])
     public onKeyUp(event: KeyboardEvent) {
         if (event.code !== 'Space') return;
         this._space_held.set(false);

@@ -16,7 +16,7 @@
  */
 import { APIRequestContext } from '@playwright/test';
 import { ENGINE_API, apiFor, zonesWithTag } from '../api';
-import { ensureLogicModule, waitForModuleState } from '../drivers/drivers.api';
+import { ensureLogicModule, restartModule, waitForModuleState } from '../drivers/drivers.api';
 import { ensureDrivers } from '../drivers/drivers.seed';
 import { WORKERS } from '../env';
 import { adminApi } from '../seed';
@@ -207,12 +207,19 @@ export async function ensureRoomModules(
         const mod = await ensureLogicModule(api, room.id, drivers.bookings.id);
         bookings.push({ room, module_id: mod.id });
     }
+    // Core can log "No protocol manager" for a module started just after it was
+    // created and then never start it; a restart recovers it.
     await Promise.all(
-        bookings.map(({ room, module_id }) =>
-            waitForModuleState(api, module_id, 'status', 120_000).catch((error) => {
-                throw new Error(`${room.name}: ${error.message}`);
-            }),
-        ),
+        bookings.map(async ({ room, module_id }) => {
+            try {
+                await waitForModuleState(api, module_id, 'status', 45_000);
+            } catch {
+                await restartModule(api, module_id);
+                await waitForModuleState(api, module_id, 'status', 120_000).catch((error) => {
+                    throw new Error(`${room.name}: ${error.message}`);
+                });
+            }
+        }),
     );
 }
 

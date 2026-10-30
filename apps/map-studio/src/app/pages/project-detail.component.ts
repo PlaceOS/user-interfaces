@@ -90,13 +90,17 @@ type RenameTarget = 'name' | 'building' | { floor: string };
                                 </div>
                             } @else {
                                 <div class="mb-1 flex items-center gap-1">
-                                    <h2 class="text-2xl font-bold">
+                                    <!-- m-0! beats the global heading margin, which pushed the text off centre -->
+                                    <h2
+                                        class="m-0! text-2xl font-bold break-words"
+                                    >
                                         {{ detail.name }}
                                     </h2>
                                     <button
                                         icon
                                         class="hover:bg-base-200 text-base-content/50 hover:text-base-content text-sm"
                                         aria-label="Rename project"
+                                        title="Rename project"
                                         (click)="
                                             startRename('name', detail.name)
                                         "
@@ -118,7 +122,7 @@ type RenameTarget = 'name' | 'building' | { floor: string };
                                 <div
                                     class="text-base-content/60 flex items-center gap-1 text-sm"
                                 >
-                                    <p>
+                                    <p class="m-0!">
                                         {{
                                             detail.building_name ||
                                                 'No building name'
@@ -128,6 +132,7 @@ type RenameTarget = 'name' | 'building' | { floor: string };
                                         icon
                                         class="hover:bg-base-200 text-base-content/50 hover:text-base-content text-xs"
                                         aria-label="Rename building"
+                                        title="Rename building"
                                         (click)="
                                             startRename(
                                                 'building',
@@ -168,7 +173,7 @@ type RenameTarget = 'name' | 'building' | { floor: string };
                 <div
                     class="mb-5 flex flex-wrap items-center justify-between gap-3"
                 >
-                    <h3 class="text-lg font-semibold">
+                    <h3 class="m-0! text-lg font-semibold">
                         Floors ({{ floorplans().length }})
                     </h3>
                     <button
@@ -196,6 +201,7 @@ type RenameTarget = 'name' | 'building' | { floor: string };
                     <form
                         class="bg-base-100 border-base-300 mb-5 flex items-center gap-3 rounded-lg border p-5 shadow-sm"
                         (submit)="addFloor($event)"
+                        (keydown.escape)="show_form.set(false)"
                     >
                         <mat-form-field
                             appearance="outline"
@@ -297,13 +303,15 @@ type RenameTarget = 'name' | 'building' | { floor: string };
                                                 class="flex min-w-0 items-center gap-1"
                                             >
                                                 <h4
-                                                    class="truncate text-sm font-semibold"
+                                                    class="m-0! truncate text-sm font-semibold"
+                                                    [title]="floor.floor_name"
                                                 >
                                                     {{ floor.floor_name }}
                                                 </h4>
                                                 <button
                                                     icon
                                                     class="hover:bg-base-200 text-base-content/50 hover:text-base-content text-xs"
+                                                    title="Rename floor"
                                                     [attr.aria-label]="
                                                         'Rename ' +
                                                         floor.floor_name
@@ -333,6 +341,7 @@ type RenameTarget = 'name' | 'building' | { floor: string };
                                             <button
                                                 icon
                                                 class="hover:bg-base-200 text-xs disabled:opacity-30"
+                                                title="Move up"
                                                 [attr.aria-label]="
                                                     'Move ' +
                                                     floor.floor_name +
@@ -348,6 +357,7 @@ type RenameTarget = 'name' | 'building' | { floor: string };
                                             <button
                                                 icon
                                                 class="hover:bg-base-200 text-xs disabled:opacity-30"
+                                                title="Move down"
                                                 [attr.aria-label]="
                                                     'Move ' +
                                                     floor.floor_name +
@@ -362,6 +372,7 @@ type RenameTarget = 'name' | 'building' | { floor: string };
                                             </button>
                                             <span
                                                 class="text-base-content/60 ml-1 text-xs"
+                                                title="Version"
                                             >
                                                 v{{ floor.version }}
                                             </span>
@@ -501,6 +512,7 @@ export class ProjectDetailComponent {
         const project = this.project();
         if (!target || !project) return;
         this.editing.set(null);
+        this.error.set('');
         const value = this.draft().trim();
         try {
             if (target === 'name') {
@@ -517,11 +529,12 @@ export class ProjectDetailComponent {
                     (f) => f.id === target.floor,
                 );
                 if (!floor || !value || value === floor.floor_name) return;
-                this._replaceFloor(
-                    await this._store.updateFloorplan(floor.id, {
-                        floor_name: value,
-                    }),
-                );
+                const updated = await this._store.updateFloorplan(floor.id, {
+                    floor_name: value,
+                });
+                this._replaceFloor(updated);
+                const save_error = this._serverSaveError(updated);
+                if (save_error) this.error.set(save_error);
             }
         } catch (error) {
             this.error.set(this._message(error, 'Failed to rename'));
@@ -536,16 +549,22 @@ export class ProjectDetailComponent {
         if (from < 0 || to < 0 || to >= order.length) return;
         [order[from], order[to]] = [order[to], order[from]];
         this.reordering.set(true);
+        this.error.set('');
         try {
             const changed = order
                 .map((f, floor_index) => ({ f, floor_index }))
                 .filter(({ f, floor_index }) => f.floor_index !== floor_index);
-            const updated = await Promise.all(
-                changed.map(({ f, floor_index }) =>
-                    this._store.updateFloorplan(f.id, { floor_index }),
-                ),
-            );
-            updated.forEach((f) => this._replaceFloor(f));
+            // One at a time: each save resets the shared PlaceOS error, so
+            // read it after each one or a later success hides a failure
+            let save_error = '';
+            for (const { f, floor_index } of changed) {
+                const updated = await this._store.updateFloorplan(f.id, {
+                    floor_index,
+                });
+                this._replaceFloor(updated);
+                save_error ||= this._serverSaveError(updated);
+            }
+            if (save_error) this.error.set(save_error);
         } catch (error) {
             this.error.set(this._message(error, 'Failed to reorder floors'));
         } finally {
@@ -558,6 +577,7 @@ export class ProjectDetailComponent {
         const name = this.floor_name().trim();
         if (!name) return;
         this.creating.set(true);
+        this.error.set('');
         try {
             const floor = await this._store.addFloorplan(this._id, name);
             this._patchProject({
@@ -580,6 +600,7 @@ export class ProjectDetailComponent {
             `Delete floor "${floor.floor_name}" and its floor plan? This cannot be undone.${synced}`,
         );
         if (!confirmed) return;
+        this.error.set('');
         try {
             await this._store.deleteFloorplan(floor.id);
             this._patchProject({
@@ -588,6 +609,14 @@ export class ProjectDetailComponent {
         } catch (error) {
             this.error.set(this._message(error, 'Failed to delete floor'));
         }
+    }
+
+    /**
+     * Why PlaceOS did not take the save of a linked floor that was just
+     * saved locally. Read right after that save, before another one resets it.
+     */
+    private _serverSaveError(floor: FloorplanSummary): string {
+        return floor.level_zone_id ? this._store.server_save_error() : '';
     }
 
     private _patchProject(data: Partial<Project>) {

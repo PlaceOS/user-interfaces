@@ -424,6 +424,87 @@ describe('ScheduleStateService', () => {
         expect(ts_client.query).toHaveBeenCalledTimes(2);
     });
 
+    it('should share identical in-flight event queries', async () => {
+        const query = (spectator.service as any)._periodQuery(
+            'day',
+            new Date(2026, 5, 22, 9).valueOf(),
+        );
+
+        await Promise.all([
+            (spectator.service as any)._eventQuery(query, false),
+            (spectator.service as any)._eventQuery(query, false),
+        ]);
+
+        expect(ts_client.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not reuse in-flight event queries after a poll is triggered', async () => {
+        const query = (spectator.service as any)._periodQuery(
+            'day',
+            new Date(2026, 5, 22, 9).valueOf(),
+        );
+
+        const first = (spectator.service as any)._eventQuery(query, false);
+        spectator.service.triggerPoll();
+        const second = (spectator.service as any)._eventQuery(query, false);
+        await Promise.all([first, second]);
+
+        expect(ts_client.get).toHaveBeenCalledTimes(2);
+    });
+
+    it('should make one events request while the schedule settings load', async () => {
+        const org = spectator.inject(OrganisationService) as any;
+        org.initialised = signal(true);
+        org.regions = [];
+        const settings = spectator.inject(SettingsService) as any;
+        settings.overrides = signal([{}, {}]);
+        let features = ['spaces'];
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.features' ? features : undefined,
+        );
+        let resolve_events: (list: unknown[]) => void = () => undefined;
+        vi.mocked<(url: string) => Promise<unknown>>(ts_client.get)
+            .mockReset()
+            .mockImplementation((url) =>
+                url.includes('/events')
+                    ? new Promise((resolve) => (resolve_events = resolve))
+                    : Promise.resolve([]),
+            );
+        const settle = async () => {
+            for (let i = 0; i < 4; i++) {
+                TestBed.tick();
+                await vi.advanceTimersByTimeAsync(400);
+            }
+        };
+        // The organisation mock is shared between tests
+        try {
+            org.active_building.set({ id: 'bld-1' });
+            spectator.service.raw_events();
+            await settle();
+
+            features = ['spaces', 'desks'];
+            settings.overrides.set([{}, {}, {}]);
+            await settle();
+            features = ['spaces', 'desks', 'lockers'];
+            settings.overrides.set([{}, {}, {}, {}]);
+            await settle();
+
+            const event_requests = vi
+                .mocked(ts_client.get)
+                .mock.calls.filter(([url]) => String(url).includes('/events'));
+            expect(event_requests).toHaveLength(1);
+            expect(spectator.service.loading()).toBe(true);
+            resolve_events([]);
+            await settle();
+            expect(spectator.service.loading()).toBe(false);
+        } finally {
+            resolve_events([]);
+            org.initialised.set(false);
+            org.active_building.set({});
+            TestBed.tick();
+        }
+    });
+
     it('should list every page of a day, not only the first', async () => {
         vi.mocked(ts_client.query).mockResolvedValueOnce({
             total: 3,

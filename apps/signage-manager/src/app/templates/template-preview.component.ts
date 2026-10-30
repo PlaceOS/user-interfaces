@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { settingSignal } from '@placeos/common';
+import { parseWebUrl, settingSignal } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     SafePipe,
@@ -23,7 +23,6 @@ import { mediaThumbnail } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { SignagePluginService } from '../signage-plugin.service';
 import { pluginName } from '../signage-plugin.util';
-import { parseWebUrl } from '../signage-url.util';
 import { SignageTemplateService } from './signage-template.service';
 import {
     applyLayoutPositionDefaults,

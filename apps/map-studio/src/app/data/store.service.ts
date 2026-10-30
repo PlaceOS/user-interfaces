@@ -54,6 +54,14 @@ const key = {
     deleted_zones: () => 'deleted-zone:',
 };
 
+/** Floorplan fields that storage keeps in the canvas record */
+const CANVAS_FIELDS = [
+    'canvas_state',
+    'svg_output',
+    'svg_source',
+    'svg_source_ids',
+] as const satisfies readonly (keyof FloorplanCanvas)[];
+
 /** Records that store `floorplan`: its summary and, apart, its canvas */
 function floorplanRecords(floorplan: Floorplan): [string, unknown][] {
     const { canvas_state, svg_output, svg_source, svg_source_ids, ...summary } =
@@ -113,7 +121,7 @@ const CSV_COLUMNS = [
 ] as const;
 
 /** Split a CSV line, honouring quoted fields containing commas or quotes */
-function parseCsvLine(line: string): string[] {
+export function parseCsvLine(line: string): string[] {
     const fields: string[] = [];
     let current = '';
     let in_quotes = false;
@@ -135,10 +143,36 @@ function parseCsvLine(line: string): string[] {
     return fields;
 }
 
-function toCsvField(value: unknown): string {
+/**
+ * Text a spreadsheet runs as a formula, such as `=HYPERLINK(...)`. A leading
+ * `'` is in the set too, so the guard below reverses exactly on import.
+ */
+const CSV_FORMULA_RE = /^[=+\-@\t\r']/;
+
+/**
+ * One CSV cell. Labels can come from shared PlaceOS data, so text that a
+ * spreadsheet would run gets a leading `'`, which `importObjectsCsv` removes.
+ */
+export function toCsvField(value: unknown): string {
     if (value === null || value === undefined) return '';
-    const str = typeof value === 'object' ? JSON.stringify(value) : `${value}`;
-    return /[,"\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+    let str = typeof value === 'object' ? JSON.stringify(value) : `${value}`;
+    if (typeof value === 'string' && CSV_FORMULA_RE.test(str)) str = `'${str}`;
+    return /[,"\n\r]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+}
+
+/** A parsed cell with the formula guard from `toCsvField` removed */
+export const fromCsvField = (field: string) =>
+    field[0] === "'" && CSV_FORMULA_RE.test(field.slice(1))
+        ? field.slice(1)
+        : field;
+
+/** When a project or any of its floors last changed. Floor edits do not touch the project. */
+export function lastUpdated(project: Project): string {
+    return (project.floorplans ?? []).reduce(
+        (latest, floor) =>
+            floor.updated_at > latest ? floor.updated_at : latest,
+        project.updated_at,
+    );
 }
 
 /**
@@ -162,7 +196,7 @@ export class StoreService {
 
     // ── Projects ────────────────────────────────────────────────────────────
 
-    /** Every project, most recently updated first, with its floorplans attached */
+    /** Every project, most recently edited first, with its floorplans attached */
     public async listProjects(): Promise<Project[]> {
         const [projects, floorplans] = await Promise.all([
             this._db.list<Project>('project:'),
@@ -175,7 +209,7 @@ export class StoreService {
                     .filter((f) => f.project_id === project.id)
                     .sort((a, b) => a.floor_index - b.floor_index),
             }))
-            .sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+            .sort((a, b) => lastUpdated(b).localeCompare(lastUpdated(a)));
     }
 
     public async createProject(
@@ -499,8 +533,12 @@ export class StoreService {
     ): Promise<Floorplan> {
         const floorplan = await this.getFloorplan(id);
         const updated = { ...floorplan, ...updates, id, updated_at: now() };
+        // The canvas record holds the source SVG, often megabytes, so a
+        // rename or reorder rewrites only the summary
+        const [summary, canvas] = floorplanRecords(updated);
+        const canvas_changed = CANVAS_FIELDS.some((field) => field in updates);
         await this._db.write({
-            put: floorplanRecords(updated),
+            put: canvas_changed ? [summary, canvas] : [summary],
             delete: staleThumbnail(floorplan, updated),
         });
         if (updated.level_zone_id && this._placeos.mode() === 'domain') {
@@ -996,7 +1034,7 @@ export class StoreService {
             const values = parseCsvLine(line);
             const row: Record<string, unknown> = {};
             headers.forEach((header, index) => {
-                const value = values[index] ?? '';
+                const value = fromCsvField(values[index] ?? '');
                 if (value !== '') row[header] = value;
             });
             if (row['geometry'])

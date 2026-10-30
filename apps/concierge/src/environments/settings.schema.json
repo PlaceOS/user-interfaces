@@ -26,6 +26,11 @@
             "type": "string",
             "description": "Default currency code for pricing (e.g. catering orders). Defaults to `USD`"
         },
+        "staff_search_exclude_guests": {
+            "type": "boolean",
+            "default": true,
+            "description": "Exclude Microsoft Entra Guest accounts from staff and host directory searches. Set false to include directory guests. Multi-person attendee pickers keep directory guests eligible, as in Workplace. Does not affect basic_user_search or PlaceOS visitor records."
+        },
         "use_24_hour_time": {
             "type": "boolean",
             "description": "Whether times are displayed using a 24 hour clock"
@@ -532,7 +537,7 @@
             "properties": {
                 "disabled_date_select": {
                     "type": "boolean",
-                    "description": "Whether the date field is disabled in the locker booking form"
+                    "description": "Whether the date and time fields are disabled in the locker booking form"
                 },
                 "disabled_start_time": {
                     "type": "boolean",

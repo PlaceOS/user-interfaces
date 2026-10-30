@@ -614,7 +614,9 @@ export class MeetingFlowOptionsComponent {
         if (
             !this.allow_daily_allday_recurrence() &&
             value.all_day &&
-            value.recurrence?.pattern === 'daily'
+            // "None" keeps pattern 'daily' with _pattern 'none'.
+            value.recurrence?.pattern === 'daily' &&
+            value.recurrence._pattern !== 'none'
         ) {
             return notifyError(i18n('CALENDAR_EVENT.DAILY_RECURR_ERROR'));
         }

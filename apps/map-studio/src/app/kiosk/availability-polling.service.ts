@@ -136,11 +136,20 @@ export class AvailabilityPollingService extends AsyncHandler {
         }
     }
 
+    /**
+     * Stores a poll's states. A poll that changes nothing keeps the current
+     * record, so the floor plan does not compose its imported map again.
+     */
     private _apply(
         states: Record<string, AvailabilityState>,
         simulated: boolean,
     ) {
-        this._states.set(states);
+        const current = this._states();
+        const keys = Object.keys(states);
+        const same =
+            keys.length === Object.keys(current).length &&
+            keys.every((id) => current[id] === states[id]);
+        if (!same) this._states.set(states);
         this._simulated.set(simulated);
         this._last_updated.set(new Date());
         this._failures.set(0);

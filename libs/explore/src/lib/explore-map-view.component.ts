@@ -79,21 +79,21 @@ const EMPTY = [];
                     class="space-y-2"
                     [class.hidden]="toggles_collapsed() && toggle_count() >= 2"
                 >
-                    @if (!hide_zones()) {
+                    @if (show_zones()) {
                         <settings-toggle
                             [label]="'EXPLORE.AREAS' | translate"
                             [ngModel]="!options()?.disable?.includes('zones')"
                             (ngModelChange)="toggleFeature('zones', $event)"
                         />
                     }
-                    @if (!hide_devices()) {
+                    @if (show_devices()) {
                         <settings-toggle
                             label="Show Devices"
                             [ngModel]="!options()?.disable?.includes('devices')"
                             (ngModelChange)="toggleFeature('devices', $event)"
                         />
                     }
-                    @if (!hide_sensors()) {
+                    @if (show_sensors()) {
                         <settings-toggle
                             label="Show Sensors"
                             [ngModel]="!options()?.disable?.includes('sensors')"
@@ -239,11 +239,24 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     public readonly hide_zones = settingSignal('explore.hide_zones', false);
     public readonly hide_devices = settingSignal('explore.hide_devices', true);
     public readonly hide_sensors = settingSignal('explore.hide_sensors', true);
-    public readonly toggle_count = computed(
+    /** Show a group toggle only when the settings allow users to change it */
+    public readonly show_zones = computed(
         () =>
-            +!this.hide_zones() +
-            +!this.hide_devices() +
-            +!this.hide_sensors(),
+            !this.hide_zones() &&
+            !this._state.locked_groups().includes('zones'),
+    );
+    public readonly show_devices = computed(
+        () =>
+            !this.hide_devices() &&
+            !this._state.locked_groups().includes('devices'),
+    );
+    public readonly show_sensors = computed(
+        () =>
+            !this.hide_sensors() &&
+            !this._state.locked_groups().includes('sensors'),
+    );
+    public readonly toggle_count = computed(
+        () => +this.show_zones() + +this.show_devices() + +this.show_sensors(),
     );
 
     public readonly legend = settingSignal<[string, string][]>(

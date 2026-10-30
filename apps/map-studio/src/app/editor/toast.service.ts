@@ -32,8 +32,15 @@ export class ToastService extends AsyncHandler {
 
     public readonly toasts = this._toasts.asReadonly();
 
-    /** Shows a toast. A repeat of a visible message restarts its timer instead of stacking. */
-    public show(message: string, type: ToastType = 'info', duration = 3000) {
+    /**
+     * Shows a toast. A repeat of a visible message restarts its timer instead
+     * of stacking. Errors stay longer, so there is time to read them.
+     */
+    public show(
+        message: string,
+        type: ToastType = 'info',
+        duration = type === 'error' ? 8000 : 3000,
+    ) {
         const existing = this._toasts().find(
             (t) => t.message === message && t.type === type,
         );

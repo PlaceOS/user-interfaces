@@ -40,10 +40,17 @@ const EMPTY: string[] = [];
                 "
             ></div>
         }
+        <!-- Map point overlays are 0x0, so the visible indicator is the tooltip trigger -->
         <div
             shadow
+            customTooltip
+            [content]="device_tooltip"
+            [backdrop]="false"
+            [xPosition]="x_pos()"
+            [yPosition]="y_pos()"
+            [hover]="true"
             class="center pointer-events-auto absolute h-8 w-8 rounded-full bg-black opacity-30"
-            (mouseenter)="show_radius.set(true)"
+            (mouseenter)="show_radius.set(true); loadUser()"
             (window:click)="show_radius.set(false)"
             (click)="show_radius.set(true)"
             (mouseleave)="show_radius.set(false)"
@@ -51,18 +58,8 @@ const EMPTY: string[] = [];
         <div
             name="dot"
             #dot
-            class="center absolute h-3 w-3 rounded-full border-2 border-white shadow-sm"
+            class="center pointer-events-none absolute h-3 w-3 rounded-full border-2 border-white shadow-sm"
             [style.background-color]="bg_color()"
-        ></div>
-        <div
-            customTooltip
-            [content]="device_tooltip"
-            [backdrop]="false"
-            [xPosition]="x_pos()"
-            [yPosition]="y_pos()"
-            [hover]="true"
-            (mouseenter)="loadUser()"
-            class="pointer-events-auto absolute inset-0"
         ></div>
 
         <ng-template #device_tooltip>

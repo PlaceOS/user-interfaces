@@ -1,6 +1,11 @@
 import * as ts_client from '@placeos/ts-client';
 
-import { PLACE_SETUP_TIMEOUT, PlaceSettings, setupPlace } from '../lib/placeos';
+import {
+    PLACE_SETUP_TIMEOUT,
+    PlaceSettings,
+    setupPlace,
+    storeApiKeyFromUrl,
+} from '../lib/placeos';
 import { VERSION } from '../lib/version';
 
 // Only the external ts-client API layer is stubbed; native detection is driven
@@ -125,5 +130,31 @@ describe('setupPlace', () => {
             'https://other.example.com/auth/oauth/token',
             { method: 'POST' },
         );
+    });
+});
+
+describe('storeApiKeyFromUrl', () => {
+    const start = location.href;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.mocked(ts_client.setAPI_Key).mockImplementation(() => undefined);
+        history.replaceState(null, '', '/app?x-api-key=secret&lang=fr#/home');
+    });
+
+    afterEach(() => history.replaceState(null, '', start));
+
+    it('should store the key from the page query and remove it from the URL', () => {
+        vi.mocked(ts_client.clientId).mockReturnValue('client');
+        storeApiKeyFromUrl();
+        expect(ts_client.setAPI_Key).toHaveBeenCalledWith('secret');
+        expect(location.search).toBe('?lang=fr');
+    });
+
+    it('should keep the key in the URL before setup sets a client ID', () => {
+        vi.mocked(ts_client.clientId).mockReturnValue('');
+        storeApiKeyFromUrl();
+        expect(ts_client.setAPI_Key).not.toHaveBeenCalled();
+        expect(location.search).toBe('?x-api-key=secret&lang=fr');
     });
 });

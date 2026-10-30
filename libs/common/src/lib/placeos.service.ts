@@ -419,10 +419,13 @@ export class PlaceOS_Service extends AsyncHandler {
                 // The exchange runs inside setupPlace — landing here with a
                 // code in the URL means it was dropped or failed. ts-client
                 // silently discards the code when state and nonce differ.
+                // Logs reach the remote Logger, so show only whether they match
+                const state_matches =
+                    boot_params.get('state') ===
+                    localStorage.getItem(`${clientId()}_nonce`);
                 console.warn(
                     '[AUTH] Auth code was present on load but the token exchange did not complete.',
-                    `State: "${boot_params.get('state')}"`,
-                    `Nonce: "${localStorage.getItem(`${clientId()}_nonce`)}"`,
+                    `State matches nonce: ${state_matches}`,
                 );
             }
         }
@@ -440,7 +443,7 @@ export class PlaceOS_Service extends AsyncHandler {
             }
             setLoadingMessage('Opening sign in...');
             const auth_url = await createNativeAuthUrl(settings, clientId());
-            console.warn(`[AUTH] Opening sign in: ${auth_url}`);
+            console.warn(`[AUTH] Opening sign in: ${auth_url.split('?')[0]}`);
             await openNativeBrowser(auth_url);
             return;
         }

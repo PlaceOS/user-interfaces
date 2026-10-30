@@ -68,6 +68,21 @@ describe('RecorderGridViewComponent', () => {
         expect(spectator.component.domain).toBe('recorder.example.com');
     });
 
+    it('should load no streams when the metadata has no recorder host', async () => {
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: {
+                domain: '',
+                api_path: '/snapshot/{IP_ADDRESS}/{DEVICE_ID}',
+                images: [{ name: 'Camera A', ip_address: '10.0.0.1', id: 'a' }],
+            },
+        } as any);
+        spectator = createComponent();
+        await spectator.component.ngOnInit();
+        await flush();
+
+        expect(spectator.component.images()).toEqual([]);
+    });
+
     it('should cache-bust the next image url on each refresh cycle', async () => {
         spectator = createComponent();
         await spectator.component.ngOnInit();
@@ -85,5 +100,19 @@ describe('RecorderGridViewComponent', () => {
         const second = (spectator.component.images() as any[])[1];
         expect(spectator.component.refresh_index).toBe(2);
         expect(second.url).toMatch(/&t=\d+$/);
+    });
+
+    // a new id would rebuild the image's element on each refresh
+    it('should keep each image id across refreshes', async () => {
+        spectator = createComponent();
+        await spectator.component.ngOnInit();
+        await flush();
+        const ids = (spectator.component.images() as any[]).map((i) => i.id);
+        vi.setSystemTime(Date.now() + 1000);
+        spectator.component.refresh_image();
+        spectator.component.refresh_image();
+        expect(
+            (spectator.component.images() as any[]).map((i) => i.id),
+        ).toEqual(ids);
     });
 });

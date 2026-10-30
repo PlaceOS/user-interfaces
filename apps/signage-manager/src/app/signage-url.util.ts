@@ -1,19 +1,4 @@
-/**
- * Parse `url` and return it only when it uses http or https. Relative URLs
- * resolve against `base`. Without `base`, only absolute URLs parse. Use it to
- * refuse schemes such as `javascript:` and `data:` before a URL is stored or
- * loaded in an iframe.
- */
-export function parseWebUrl(url: string, base?: string): URL | null {
-    try {
-        const parsed = new URL(url, base);
-        return parsed.protocol === 'http:' || parsed.protocol === 'https:'
-            ? parsed
-            : null;
-    } catch {
-        return null;
-    }
-}
+import { parseWebUrl } from '@placeos/common';
 
 /**
  * Absolute http or https `url` in the parsed form, or null for other URLs.

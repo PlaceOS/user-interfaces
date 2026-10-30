@@ -4,8 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
-    BookingFormValue,
     BookingFormService,
+    BookingFormValue,
     generateBookingForm,
 } from '@placeos/bookings';
 import {
@@ -188,8 +188,12 @@ describe('DeskFlowDetailsComponent', () => {
             spectator
                 .queryAll('button[btn] > icon')
                 .map((el) => el.textContent.trim());
+        const values = signal<Record<string, boolean | null>>({});
+        (spectator.inject(SettingsService).get as any).mockImplementation(
+            (key: string) => values()[key],
+        );
         settingSignal('desks.allow_groups').set(true);
-        settingSignal('desks.can_book_for_others').set(true);
+        values.set({ 'app.desks.can_book_for_others': true });
         spectator.detectChanges();
         expect(typeButtons()).toEqual(['person', 'group_add', 'person_add']);
 
@@ -197,10 +201,73 @@ describe('DeskFlowDetailsComponent', () => {
         spectator.detectChanges();
         expect(typeButtons()).toEqual(['person', 'person_add']);
 
-        settingSignal('desks.can_book_for_others').set(false);
-        settingSignal('bookings.can_book_for_others').set(false);
+        // An explicit desk value of `false` overrides the bookings value
+        values.set({
+            'app.desks.can_book_for_others': false,
+            'app.bookings.can_book_for_others': true,
+        });
         spectator.detectChanges();
         expect(typeButtons()).toEqual([]);
+
+        // Falls back to the bookings value when the desk value is not set
+        values.set({ 'app.bookings.can_book_for_others': true });
+        spectator.detectChanges();
+        expect(typeButtons()).toEqual(['person', 'person_add']);
+    });
+
+    it('should let desks.has_assets override bookings.has_assets when set', () => {
+        const values = signal<Record<string, boolean | null>>({});
+        (spectator.inject(SettingsService).get as any).mockImplementation(
+            (key: string) => values()[key],
+        );
+        const cases: [
+            boolean | null | undefined,
+            boolean | undefined,
+            boolean,
+        ][] = [
+            [undefined, undefined, false],
+            [undefined, true, true],
+            [undefined, false, false],
+            [true, false, true],
+            [false, true, false],
+            [null, true, true],
+            // A building switch that unsets the desk value falls back again
+            [undefined, true, true],
+        ];
+        for (const [desks, bookings, expected] of cases) {
+            values.set({
+                'app.desks.has_assets': desks,
+                'app.bookings.has_assets': bookings,
+            });
+            expect(spectator.component.has_assets()).toBe(expected);
+        }
+    });
+
+    it('should only let users change the time when desks.allow_time_changes is not false', () => {
+        const allow_time_changes = settingSignal('desks.allow_time_changes');
+        const timeControls = () =>
+            spectator.queryAll('time-field, duration-field').length;
+        const availabilityButton = () =>
+            spectator.query('button[name="find-availability"]');
+        spectator.component.setActiveForm('group');
+
+        allow_time_changes.set(undefined);
+        spectator.detectChanges();
+        expect(timeControls()).toBe(2);
+        expect(spectator.component.allow_time_changes()).toBe(true);
+
+        allow_time_changes.set(false);
+        spectator.detectChanges();
+        expect(timeControls()).toBe(0);
+        expect(spectator.component.allow_time_changes()).toBe(false);
+        // The availability modal also changes the booking time
+        expect(availabilityButton()).not.toExist();
+
+        allow_time_changes.set(true);
+        spectator.detectChanges();
+        expect(timeControls()).toBe(2);
+        expect(availabilityButton()).toExist();
+        allow_time_changes.set(undefined);
     });
 
     it('should limit the selectable end date to the configured available period', () => {

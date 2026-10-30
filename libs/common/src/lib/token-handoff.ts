@@ -40,8 +40,9 @@ export function answerTokenRequests(origin: () => string): () => void {
 
 /**
  * Asks the window that opened this one for its PlaceOS token. Replies are
- * accepted only from the opener on this page's host, any port. Resolves null
- * when there is no opener or no reply within `timeout_ms`; never rejects.
+ * accepted only from the opener on an origin that `isHandoffOrigin` allows.
+ * Resolves null when there is no opener or no reply within `timeout_ms`;
+ * never rejects.
  */
 export function requestTokenFromOpener(
     timeout_ms = 3000,
@@ -56,7 +57,7 @@ export function requestTokenFromOpener(
         };
         const reply = (event: MessageEvent) => {
             if (event.source !== opener) return;
-            if (!sameHost(event.origin)) return;
+            if (!isHandoffOrigin(event.origin)) return;
             const data = event.data;
             if (data?.type !== TOKEN_REPLY) return;
             if (typeof data.token !== 'string' || !data.token) return;
@@ -87,9 +88,26 @@ async function freshToken(): Promise<string> {
     return authorise().catch(() => '');
 }
 
-function sameHost(origin: string): boolean {
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+
+/**
+ * Whether a token reply from `origin` is accepted on `page`. Apps on a
+ * loopback host accept any port, as each app serves on its own port in
+ * development. Other hosts accept only their own origin, so another service
+ * on the same host cannot sign this window in to its own account.
+ */
+export function isHandoffOrigin(
+    origin: string,
+    page: Pick<Location, 'origin' | 'hostname'> = location,
+): boolean {
+    if (origin === page.origin) return true;
+    if (!LOOPBACK_HOSTS.has(page.hostname)) return false;
     try {
-        return new URL(origin).hostname === location.hostname;
+        const url = new URL(origin);
+        return (
+            url.hostname === page.hostname &&
+            (url.protocol === 'http:' || url.protocol === 'https:')
+        );
     } catch {
         return false;
     }

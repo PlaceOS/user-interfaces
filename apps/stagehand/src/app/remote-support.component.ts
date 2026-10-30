@@ -34,6 +34,7 @@ import {
 } from '@placeos/components';
 import { startOfMonth } from 'date-fns';
 import { CameraSnapshotModalComponent } from './camera-snapshot-modal.component';
+import { Alert } from './dashboards/broker-alerts';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SupportService } from './support.service';
 import { SidebarComponent } from './ui/sidebar.component';
@@ -204,7 +205,13 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 },
                             ]"
                             [sortable]="true"
-                            empty_message="No rooms able to be remotely supported"
+                            [empty_message]="
+                                loading()
+                                    ? 'Loading rooms...'
+                                    : room_list().length
+                                      ? 'No rooms match the current filters'
+                                      : 'No rooms able to be remotely supported'
+                            "
                         ></simple-table>
                         <ng-template #status_template let-space="row">
                             <i
@@ -498,6 +505,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     private _initialized = signal(false);
 
     public readonly is_eduction = settingSignal('educational_environment');
+    public readonly loading = this._support.loading;
 
     public readonly alerts = this._dashboard.dashboard_alerts;
     public readonly alert_sort = (a: unknown[], b: unknown[]) =>
@@ -558,10 +566,15 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         ),
     );
     public readonly room_data = computed(() => {
-        const alerts_list = this.alerts();
+        // alerts by room, so each room doesn't scan every alert
+        const issues = new Map<string, Alert[]>();
+        for (const alert of this.alerts()) {
+            if (!issues.has(alert.location)) issues.set(alert.location, []);
+            issues.get(alert.location).push(alert);
+        }
         return this.zone_rooms().map((rm) => ({
             ...rm,
-            issues: alerts_list.filter((a) => a.location === rm.id),
+            issues: issues.get(rm.id) || [],
         }));
     });
     public readonly room_alerts = computed(() => {
@@ -584,7 +597,12 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public readonly filtered_rooms = computed(() => {
         const term = this.search_term().toLowerCase();
         const current_state = this.state();
-        const status_map = this.status();
+        // read only when filtering on it, so each room's status coming in
+        // doesn't filter the list again
+        const status_map =
+            current_state === 'in_use' || current_state === 'available'
+                ? this.status()
+                : {};
 
         // Use room_data as base which includes location filtering and issues
         const rooms = this.room_data();
@@ -606,8 +624,8 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
             // Filter by search term
             if (term) {
                 if (
-                    !room.name.toLowerCase().includes(term) &&
-                    !room.display_name.toLowerCase().includes(term)
+                    !(room.name || '').toLowerCase().includes(term) &&
+                    !(room.display_name || '').toLowerCase().includes(term)
                 ) {
                     return false;
                 }
@@ -711,8 +729,9 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public setCurrentBooking(space: Space, event: CalendarEvent) {
         const current = this.current();
         if (!event && current[space.id]) {
-            delete current[space.id];
-            this.current.set(current);
+            // a new object, so the signal sees the booking end
+            const { [space.id]: _, ...rest } = current;
+            this.current.set(rest);
             return;
         }
         // Only update if the event actually changed
@@ -724,8 +743,9 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public setNextBooking(space: Space, event: CalendarEvent) {
         const current = this.next();
         if (!event && current[space.id]) {
-            delete current[space.id];
-            this.next.set(current);
+            // a new object, so the signal sees the booking end
+            const { [space.id]: _, ...rest } = current;
+            this.next.set(rest);
             return;
         }
         // Only update if the event actually changed

@@ -14,13 +14,19 @@ export class SupportService {
     private _load_count = 0;
 
     public readonly space_list = signal<any[]>([]);
+    /** True until the selected group's systems have loaded */
+    public readonly loading = signal(true);
 
     constructor() {
         // Systems of the selected group, loaded again when it changes
         effect(() => {
             const scope = this._groups.scope();
             const group_id = this._groups.group_id();
-            if (!this._groups.scope_ready()) return;
+            if (!this._groups.scope_ready()) {
+                // drop a load still running for the previous group
+                this._load_count++;
+                return this.loading.set(true);
+            }
             untracked(() => this._loadSpaces(group_id, scope));
         });
     }
@@ -32,7 +38,8 @@ export class SupportService {
         const load = ++this._load_count;
         this.space_list.set([]);
         // a user who is in no group sees no systems
-        if (scope && !scope.reachable.size) return;
+        if (scope && !scope.reachable.size) return this.loading.set(false);
+        this.loading.set(true);
         await this._org.waitUntilInitialised();
         const response = await querySystems({
             ...(group_id
@@ -56,6 +63,7 @@ export class SupportService {
                     camera_snapshot_urls: this._camera_snapshot_urls(space),
                 })),
         );
+        this.loading.set(false);
     }
 
     private _camera_snapshot_urls(space: {

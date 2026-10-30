@@ -15,7 +15,7 @@ test('CON-SURV-01: a survey created through the builder persists and is listed',
     const builder = adminPage.locator('survey-builder');
     await builder.locator('mat-select').first().click();
     await adminPage
-        .getByRole('option', { name: building.name, exact: true })
+        .getByRole('option', { name: building.display_name || building.name, exact: true })
         .click();
     await builder.locator('input[name$=".title"]').fill(title);
     await builder

@@ -183,10 +183,7 @@ export type DeskFormType = 'single' | 'group' | 'other';
                 >
                     <div class="relative flex-1">
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                        <date-field
-                            [formField]="form.date"
-                            [to]="end_date()"
-                        />
+                        <date-field [formField]="form.date" [to]="end_date()" />
                         @if (allow_all_day()) {
                             <mat-checkbox
                                 [formField]="form.all_day"
@@ -196,7 +193,7 @@ export type DeskFormType = 'single' | 'group' | 'other';
                             </mat-checkbox>
                         }
                     </div>
-                    @if (!form_value().all_day) {
+                    @if (!form_value().all_day && allow_time_changes()) {
                         <div class="flex-1">
                             <label for="time">{{
                                 'FORM.TIME' | translate
@@ -278,23 +275,27 @@ export type DeskFormType = 'single' | 'group' | 'other';
                             [ngModelOptions]="{ standalone: true }"
                             [time]="model().date"
                         >
-                            <button
-                                btn
-                                matRipple
-                                type="button"
-                                class="inverse min-w-1/4 flex-1 sm:flex-none"
-                                (click)="findAvailableTime()"
-                            >
-                                <div class="hidden sm:flex">
-                                    {{
-                                        'CALENDAR_EVENT.FIND_AVAILABILITY'
-                                            | translate
-                                    }}
-                                </div>
-                                <div class="flex sm:hidden">
-                                    {{ 'COMMON.AVAILABILITY' | translate }}
-                                </div>
-                            </button>
+                            <!-- The availability modal changes the booking time -->
+                            @if (allow_time_changes()) {
+                                <button
+                                    btn
+                                    matRipple
+                                    type="button"
+                                    name="find-availability"
+                                    class="inverse min-w-1/4 flex-1 sm:flex-none"
+                                    (click)="findAvailableTime()"
+                                >
+                                    <div class="hidden sm:flex">
+                                        {{
+                                            'CALENDAR_EVENT.FIND_AVAILABILITY'
+                                                | translate
+                                        }}
+                                    </div>
+                                    <div class="flex sm:hidden">
+                                        {{ 'COMMON.AVAILABILITY' | translate }}
+                                    </div>
+                                </button>
+                            }
                         </a-user-list-field>
                         <p
                             class="bg-info text-info-content mt-1 flex items-center space-x-1 rounded p-1 text-sm shadow"
@@ -375,19 +376,32 @@ export class DeskFlowDetailsComponent {
         'desks.allow_groups',
         false,
     );
+    /**
+     * `desks.can_book_for_others` overrides `bookings.can_book_for_others`
+     * when set. Reads through `get()` for the same reason as `has_assets`.
+     */
     public readonly can_book_for_others = computed<boolean>(
         () =>
-            !!settingSignal('bookings.can_book_for_others')() ||
-            !!settingSignal('desks.can_book_for_others')(),
+            !!(
+                this._settings.get('app.desks.can_book_for_others') ??
+                this._settings.get('app.bookings.can_book_for_others')
+            ),
     );
     /** Whether the user can select a booking type other than `single` */
     public readonly has_form_types = computed(
         () => this.allow_groups() || this.can_book_for_others(),
     );
+    /**
+     * `desks.has_assets` overrides `bookings.has_assets` when set.
+     * Reads through `get()` because setting signals keep their old value
+     * when a building switch unsets a key.
+     */
     public readonly has_assets = computed<boolean>(
         () =>
-            !!settingSignal('bookings.has_assets')() ||
-            !!settingSignal('desks.has_assets')(),
+            !!(
+                this._settings.get('app.desks.has_assets') ??
+                this._settings.get('app.bookings.has_assets')
+            ),
     );
     public readonly bookable_hours = computed<
         { start: number; end: number } | undefined
@@ -443,11 +457,15 @@ export class DeskFlowDetailsComponent {
     public readonly allow_time_changes = computed(
         () => settingSignal('desks.allow_time_changes')() !== false,
     );
+    // An explicit desk value wins over the bookings value. Read raw values,
+    // as a cached setting signal can keep a default when the key is unset.
     public readonly allow_all_day = computed(
         () =>
             this.allow_time_changes() &&
-            (settingSignal('desks.allow_all_day')() ||
-                settingSignal('bookings.allow_all_day')()),
+            !!(
+                this._settings.get<boolean>('app.desks.allow_all_day') ??
+                this._settings.get<boolean>('app.bookings.allow_all_day')
+            ),
     );
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
 

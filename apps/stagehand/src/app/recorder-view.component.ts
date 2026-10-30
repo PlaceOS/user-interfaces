@@ -68,7 +68,7 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
 
     public readonly time = signal(Date.now());
     public readonly images = signal([]);
-    public domain = 'placeos-nonprod.avit.it.ucla.edu';
+    public domain = '';
     public api_path = '';
     public image_data = [];
     public refresh_index = 0;
@@ -82,7 +82,8 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
         );
         const { domain, api_path, images } =
             block.details as RecorderStreamMetadata;
-        console.log(domain, api_path, images);
+        // Streams load only from a recorder host set in the metadata
+        if (!domain) return;
         this.domain = domain;
         this.api_path = api_path;
         this.image_data = images;
@@ -94,11 +95,9 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
             if (images.length <= 0) return images;
             let index = this.refresh_index;
             if (index >= images.length || index < 0) index = 0;
-            const time = Date.now();
-            images[index].id = `${images[index].id.split('|')[0]}|${time}`;
-            images[index].url = `${images[index].raw_url}&t=${time}`;
+            // the id stays the same, so only the image's source changes
+            images[index].url = `${images[index].raw_url}&t=${Date.now()}`;
             this.refresh_index = index + 1;
-            console.log('Refresh');
             return [...images];
         });
         this.timeout(
@@ -114,17 +113,15 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
         for (const image of this.image_data) {
             const { name, ip_address, id } = image;
             const request_path = this.api_path
-                .replace('{IP_ADDRESS}', ip_address)
-                .replace('{DEVICE_ID}', id);
-            const time = Date.now();
+                .replace('{IP_ADDRESS}', encodeURIComponent(ip_address))
+                .replace('{DEVICE_ID}', encodeURIComponent(id));
             image_list.push({
-                id: `${ip_address}+${id}|${time}`,
+                id: `${ip_address}+${id}`,
                 name,
                 raw_url: `https://${this.domain}${request_path}`,
                 url: `https://${this.domain}${request_path}`,
             });
         }
-        console.log('Images:', image_list);
         this.images.set(image_list);
         this.refresh_image();
     }

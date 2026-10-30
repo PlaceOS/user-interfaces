@@ -1,5 +1,6 @@
 import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
@@ -140,6 +141,19 @@ describe('AlertsComponent', () => {
         expect(spectator.component.locationName('sys-1')).toBe('');
     });
 
+    it('should ask for each location name once', async () => {
+        spectator = build();
+        vi.mocked(showSystem).mockClear();
+        dashboard_alerts.set([make_alert()]);
+        TestBed.tick();
+        dashboard_alerts.set([make_alert(), make_alert({ id: 'a-2' })]);
+        TestBed.tick();
+        await Promise.resolve();
+        dashboard_alerts.set([make_alert()]);
+        TestBed.tick();
+        expect(showSystem).toHaveBeenCalledTimes(1);
+    });
+
     it('should load filter values from query parameters on init', () => {
         spectator = build({
             search: 'projector',
@@ -180,12 +194,14 @@ describe('AlertsComponent', () => {
         expect(injected_org.building).toBe(building);
     });
 
-    it('should navigate to the selected dashboard route', () => {
+    it('should navigate to the selected dashboard route, keeping the filters', () => {
         vi.useFakeTimers();
         spectator = build();
         spectator.component.setDashboard('dash-9');
         vi.advanceTimersByTime(100);
-        expect(router.navigate).toHaveBeenCalledWith(['/alerts', 'dash-9']);
+        expect(router.navigate).toHaveBeenCalledWith(['/alerts', 'dash-9'], {
+            queryParamsHandling: 'preserve',
+        });
         vi.clearAllTimers();
         vi.useRealTimers();
     });

@@ -82,6 +82,14 @@ export class ExploreStateService {
     public readonly level = this._level.asReadonly();
     /** Message to display over the map */
     public readonly message = this._message.asReadonly();
+    /**
+     * Map groups that the `app.explore.disable` setting turns off.
+     * Users cannot turn these groups on, so the map view hides their toggles.
+     */
+    public readonly locked_groups = computed<string[]>(() => {
+        this._overrides();
+        return this._normaliseDisabledSetting('app.explore.disable');
+    });
     /** Spaces associated with the active level */
     private _spaces = resource({
         params: () => ({

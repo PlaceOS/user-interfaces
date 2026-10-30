@@ -27,6 +27,31 @@ Set settings in Backoffice zone metadata under `concierge_app` for the standard 
 }
 ```
 
+## Staff directory search
+
+`staff_search_exclude_guests` defaults to `true` in Concierge. Directory searches
+omit Microsoft Entra Guest accounts, requesting `userType` and continuing through
+Staff API pagination links until up to 100 eligible matches are found. This prevents
+a page of guest accounts from hiding member matches. Older API responses use the
+`#EXT#` username marker as a fallback. Google directory users remain eligible.
+
+To include directory guests, set this in the relevant zone's `concierge_app`
+metadata details and reload Concierge:
+
+```json
+{
+    "staff_search_exclude_guests": false
+}
+```
+
+This applies to staff directory searches, including host pickers. Multi-person
+attendee pickers keep the same behavior as Workplace: directory guest matches
+remain eligible, and enabling external attendees adds PlaceOS guest records and
+saved attendee suggestions. The attendee list keeps its existing alphabetical
+ordering. Local PlaceOS searches (`basic_user_search: true`) and direct user
+lookups are unaffected. Other applications retain their current default. Entra member status
+is not an employment or UK-location check.
+
 ## Localisation
 
 | Setting | Type | Default | Description |
@@ -264,7 +289,7 @@ Each custom column requires a `field` (the booking extension data field to displ
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `lockers.disabled_date_select` | boolean | – | Disable the date field in the locker booking form. |
+| `lockers.disabled_date_select` | boolean | – | Disable the date, start time and end time fields, and hide the all day option, in the locker booking form. |
 | `lockers.disabled_start_time` | boolean | – | Disable the start time field in the locker booking form. |
 | `lockers.hide_end_time` | boolean | – | Hide the end time field in the locker booking form. |
 | `lockers.allow_all_day` | boolean | – | Allow all day locker bookings in the locker booking form and the locker select modal. Falls back to `bookings.allow_all_day`. Defaults to `true`. |

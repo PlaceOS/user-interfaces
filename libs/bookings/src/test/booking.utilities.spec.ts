@@ -2,11 +2,13 @@ import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
     Booking,
+    BookingType,
     BuildingLevel,
     CalendarEvent,
     fromBookingRecurrence,
     getAllDayTimeRange,
     OrganisationService,
+    settingSignal,
     Space,
     User,
     WeekOfMonth,
@@ -15,6 +17,7 @@ import { generateBookingForm } from '../lib/booking-form.model';
 import {
     bookingLocationString,
     loadLockersForScope,
+    lockerBankFromAsset,
     newBookingFromCalendarEvent,
     parkingRequestStatus,
 } from '../lib/booking.utilities';
@@ -59,6 +62,25 @@ describe('Booking Utilities', () => {
                 system,
             });
             expect(bookingLocationString(event, org)).toBe('Room 1 - L2');
+        });
+
+        it('should show only the level of a hidden parking space', () => {
+            const booking = (booking_type: BookingType) =>
+                new Booking({
+                    booking_type,
+                    asset_id: 'space-1',
+                    asset_name: 'Bay 1',
+                    zones: ['lvl-2'],
+                });
+            expect(bookingLocationString(booking('parking'), org)).toBe(
+                'Bay 1 - L2',
+            );
+            expect(bookingLocationString(booking('parking'), org, true)).toBe(
+                'L2',
+            );
+            expect(bookingLocationString(booking('desk'), org, true)).toBe(
+                'Bay 1 - L2',
+            );
         });
     });
 
@@ -240,6 +262,27 @@ describe('Booking Utilities', () => {
             expect(recurrence.end_date).toBe(end_date);
         });
 
+        it('should lock locker date and time fields when lockers.disabled_date_select is set', () => {
+            const lock = settingSignal('lockers.disabled_date_select');
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({ booking_type: 'locker' }),
+                    injector,
+                ),
+            );
+            expect(form.date().disabled()).toBe(false);
+            expect(form.duration().disabled()).toBe(false);
+
+            lock.set(true);
+            expect(form.date().disabled()).toBe(true);
+            expect(form.duration().disabled()).toBe(true);
+
+            model.update((m) => ({ ...m, booking_type: 'desk' }));
+            expect(form.date().disabled()).toBe(false);
+            expect(form.duration().disabled()).toBe(false);
+            lock.set(false);
+        });
+
         it('should keep the date field disabled state stable (no oscillation)', () => {
             const { form } = TestBed.runInInjectionContext(() =>
                 generateBookingForm(
@@ -249,6 +292,19 @@ describe('Booking Utilities', () => {
             );
 
             expect(typeof form.date().disabled()).toBe('boolean');
+        });
+    });
+
+    describe('lockerBankFromAsset', () => {
+        it('should start each bank with an empty locker list', () => {
+            // Pickers read `bank.lockers` before the lockers query returns
+            const bank = lockerBankFromAsset({
+                id: 'bank-1',
+                zone_id: 'level-1',
+                other_data: {},
+            } as any);
+
+            expect(bank.lockers).toEqual([]);
         });
     });
 

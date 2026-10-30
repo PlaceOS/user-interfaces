@@ -6,11 +6,8 @@
  * Room booking has two completely different back ends:
  *
  *   default                        -> POST /events, and free/busy from /calendars.
- *                                     Both are Microsoft/Google backed and return
- *                                     500 on a stack with placeholder tenant
- *                                     credentials. Untestable locally, which is
- *                                     why `E2E_USER_STORIES.md` had rooms down as
- *                                     "out of scope (external)".
+ *                                     Both are Microsoft/Google backed (the
+ *                                     sandbox tenant on this stack).
  *   app.events.use_bookings = true -> the room is saved as an ordinary PlaceOS
  *                                     booking of type `room`, and availability
  *                                     comes from the bookings list

@@ -41,6 +41,8 @@ export interface BrokerValue {
     time: number;
     topic: StateTopic;
     topic_str: string;
+    /** `topic_str` split on `/`, so matching doesn't split it again */
+    topic_parts: string[];
     value: unknown;
 }
 
@@ -102,9 +104,11 @@ export function compareAsTopic(
     );
 }
 
-export function matchTopics(topic: string, comp: string): boolean {
-    const t_state = topic.split('/');
-    const comp_t_state = comp.split('/');
+/** Whether two topics, split on `/`, match. `+` matches any level. */
+export function matchTopics(
+    t_state: readonly string[],
+    comp_t_state: readonly string[],
+): boolean {
     for (let i = 0; i < t_state.length; i++) {
         if (
             t_state[i] !== comp_t_state[i] &&
@@ -133,6 +137,7 @@ export function parseBrokerMessage(
         value: data.value,
         topic: stringToTopic(topic_str),
         topic_str,
+        topic_parts: topic_str.split('/'),
     };
 }
 
@@ -197,10 +202,10 @@ export function findCompareMatches(
     values: Iterable<BrokerValue>,
     item: TriggerComparison,
 ): BrokerValue[] {
-    const topic = compareAsTopic(item);
+    const topic = compareAsTopic(item).split('/');
     const matches: BrokerValue[] = [];
     for (const entry of values) {
-        if (!matchTopics(topic, entry.topic_str)) continue;
+        if (!matchTopics(topic, entry.topic_parts)) continue;
         const value = comparedValue(entry.value, item);
         if (evaluate(value, item.operator, item.right)) matches.push(entry);
     }
@@ -219,23 +224,36 @@ export function raisedAlerts(
     values: Iterable<BrokerValue>,
 ): Alert[] {
     const list = [...values];
-    let out: Alert[] = [];
+    const out: Alert[] = [];
     for (const alert of definitions) {
         const comparisons = alert.conditions?.comparisons || [];
         if (!comparisons.length) continue;
-        const comparison_matches = comparisons.map((item) =>
+        const [first_matches, ...other_matches] = comparisons.map((item) =>
             findCompareMatches(list, item),
         );
+        // the other conditions' matches by system, so grouping doesn't scan
+        // every match for each one
+        const others_by_system = other_matches.map((matches) => {
+            const by_system = new Map<string, BrokerValue[]>();
+            for (const entry of matches) {
+                const id = entry.topic.system_id;
+                if (!by_system.has(id)) by_system.set(id, []);
+                by_system.get(id).push(entry);
+            }
+            return by_system;
+        });
         const required = alert.any_match ? 1 : comparisons.length;
-        for (const match of comparison_matches[0]) {
+        for (const match of first_matches) {
             const group = [match];
-            for (let i = 1; i < comparison_matches.length; i++) {
+            for (const by_system of others_by_system) {
                 // conditions are about one system, within the debounce period
-                const other = comparison_matches[i].find(
-                    (_) =>
-                        _.topic.system_id === match.topic.system_id &&
-                        Math.abs(_.time - match.time) < alert.debounce_period,
-                );
+                const other = by_system
+                    .get(match.topic.system_id)
+                    ?.find(
+                        (_) =>
+                            Math.abs(_.time - match.time) <
+                            alert.debounce_period,
+                    );
                 if (other) group.push(other);
             }
             if (group.length < required) continue;
@@ -253,7 +271,6 @@ export function raisedAlerts(
                 timestamp: time * 1000,
             });
         }
-        out = unique(out, 'id');
     }
-    return out;
+    return unique(out, 'id');
 }

@@ -1,7 +1,7 @@
+import { parseWebUrl } from '@placeos/common';
 import {
     isWebPageUrl,
     normaliseWebPageUrl,
-    parseWebUrl,
     webPageFrameUrl,
 } from '../app/signage-url.util';
 

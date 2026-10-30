@@ -42,4 +42,31 @@ describe('DynamicMapComponent', () => {
 
         component.ngOnDestroy();
     });
+
+    it('should render label content as text, not HTML', () => {
+        const component = TestBed.runInInjectionContext(
+            () => new DynamicMapComponent(),
+        );
+        const setOverlays = vi.fn();
+        (component as any)._map_viewer = { setOverlays };
+
+        (component as any)._applyOverlays(
+            [],
+            [
+                {
+                    location: 'zone-1',
+                    content: '<img src="x" onerror="alert(1)">',
+                    css_class: ['zone'],
+                },
+            ],
+            [],
+        );
+
+        const label = setOverlays.mock.calls[0][0][0].contents as HTMLElement;
+        expect(label.className).toBe('map-label zone');
+        expect(label.textContent).toBe('<img src="x" onerror="alert(1)">');
+        expect(label.children).toHaveLength(0);
+        (component as any)._map_viewer = null;
+        component.ngOnDestroy();
+    });
 });

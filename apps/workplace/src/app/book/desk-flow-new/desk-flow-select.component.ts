@@ -183,7 +183,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 }}</settings-toggle
                             >
                         }
-                        @if (!field('all_day')) {
+                        @if (!field('all_day') && allow_time_changes()) {
                             <label for="date">{{
                                 'FORM.TIME' | translate
                             }}</label>
@@ -475,7 +475,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             >{{ 'COMMON.ALL_DAY' | translate }}</settings-toggle
                         >
                     }
-                    @if (!field('all_day')) {
+                    @if (!field('all_day') && allow_time_changes()) {
                         <label for="date">{{ 'FORM.TIME' | translate }}</label>
                         <div class="flex space-x-2">
                             <time-field
@@ -650,11 +650,15 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     public readonly allow_time_changes = computed(
         () => settingSignal('desks.allow_time_changes')() !== false,
     );
+    // An explicit desk value wins over the bookings value. Read raw values,
+    // as a cached setting signal can keep a default when the key is unset.
     public readonly allow_all_day = computed(
         () =>
             this.allow_time_changes() &&
-            (settingSignal('desks.allow_all_day')() ||
-                settingSignal('bookings.allow_all_day')()),
+            !!(
+                this._settings.get<boolean>('app.desks.allow_all_day') ??
+                this._settings.get<boolean>('app.bookings.allow_all_day')
+            ),
     );
     public readonly feature_display = settingSignal<Record<string, string>>(
         'desks.feature_decriptions',

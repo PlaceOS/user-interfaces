@@ -112,9 +112,12 @@ describe('RemoteSupportComponent', () => {
         const event = { id: 'evt-1', title: 'Standup' } as any;
         spectator.component.setCurrentBooking(space, event);
         expect(spectator.component.current()['sys-1']).toBe(event);
+        const before = spectator.component.current();
 
         spectator.component.setCurrentBooking(space, null);
         expect(spectator.component.current()['sys-1']).toBeUndefined();
+        // a new map, so the template sees the booking end
+        expect(spectator.component.current()).not.toBe(before);
     });
 
     it('should set and clear the next booking for a room', () => {
@@ -122,9 +125,11 @@ describe('RemoteSupportComponent', () => {
         const event = { id: 'evt-2', title: 'Review' } as any;
         spectator.component.setNextBooking(space, event);
         expect(spectator.component.next()['sys-1']).toBe(event);
+        const before = spectator.component.next();
 
         spectator.component.setNextBooking(space, null);
         expect(spectator.component.next()['sys-1']).toBeUndefined();
+        expect(spectator.component.next()).not.toBe(before);
     });
 
     it('should mirror the support service space list into the room list', () => {
@@ -184,6 +189,13 @@ describe('RemoteSupportComponent', () => {
         ]);
     });
 
+    it('should keep the room list when a status comes in and no state is picked', () => {
+        spectator.component.room_list.set([room({ id: 'a' })] as any);
+        const rooms = spectator.component.filtered_rooms();
+        spectator.component.setStatus(room({ id: 'a' }) as any, 'busy');
+        expect(spectator.component.filtered_rooms()).toBe(rooms);
+    });
+
     it('should filter rooms by search term over name and display name', () => {
         spectator.component.room_list.set([
             room({ id: 'a', name: 'boardroom', display_name: 'Boardroom' }),
@@ -193,6 +205,15 @@ describe('RemoteSupportComponent', () => {
         expect(spectator.component.filtered_rooms().map((r) => r.id)).toEqual([
             'a',
         ]);
+    });
+
+    it('should search rooms that have no display name', () => {
+        spectator.component.room_list.set([
+            room({ id: 'a', name: 'boardroom', display_name: undefined }),
+        ] as any);
+        // a term the name misses, so the display name is checked too
+        spectator.component.search_term.set('kitchen');
+        expect(spectator.component.filtered_rooms()).toEqual([]);
     });
 
     it('should filter rooms that only have issues when state is `issues`', () => {

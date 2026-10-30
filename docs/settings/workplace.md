@@ -361,7 +361,7 @@ Request types (`forced_time` locks the form to a fixed window and hides the shif
 | `lockers.allow_time_changes` | boolean | – | Allow users to change the time of locker bookings. On when not set; set to `false` to turn it off. |
 | `lockers.available_period` | number | – | Number of days ahead available in the date selector of the locker selection modal. Falls back to `bookings.available_period`, then `90`. |
 | `lockers.hide_user` | boolean | – | Hide the users of lockers on the locker selection map. |
-| `lockers.disabled_date_select` | boolean | – | Disable date selection on the locker form. |
+| `lockers.disabled_date_select` | boolean | – | Disable the date, start time and end time fields, and hide the all day option, on the locker form and in the locker selection modal. |
 | `lockers.disabled_start_time` | boolean | – | Disable start time selection on the locker form. |
 | `lockers.hide_end_time` | boolean | – | Hide the end time field on the locker form. |
 | `lockers.max_duration` | number | – | Maximum locker booking duration, in minutes. Falls back to `bookings.max_duration`, then `480`. |
@@ -383,7 +383,7 @@ Request types (`forced_time` locks the form to a fixed window and hides the shif
 | `explore.show_zone_labels` | boolean | – | Show zone labels on the explore map. |
 | `explore.show_zone_sensor_info` | boolean | – | Show sensor information in the zone labels. |
 | `explore.area_count_key` | string | – | Key in the zone data that gives the people count of an area. Falls back to `count`. |
-| `explore.disable` | string[] | – | Map feature groups to turn off in every map view. A comma-separated string is also valid. |
+| `explore.disable` | string[] | – | Map feature groups to turn off in every map view. The explore map also hides the Areas, Devices and Sensors toggles of these groups, because users cannot turn them on. A comma-separated string is also valid. |
 | `explore.disable_actions` | string[] | – | Map feature groups whose click actions are turned off. A comma-separated string is also valid. |
 | `explore.disable_features` | string[] | – | Map feature groups whose features (such as tooltips) are turned off. A comma-separated string is also valid. |
 | `explore.disable_labels` | string[] | – | Map feature groups whose labels are turned off. A comma-separated string is also valid. |

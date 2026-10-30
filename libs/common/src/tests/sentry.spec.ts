@@ -7,6 +7,7 @@ import {
     initSentry,
     initSentryFromSettings,
     LazySentryErrorHandler,
+    scrubEnvelope,
     scrubSecrets,
 } from '../lib/sentry';
 import { settingSignal } from '../lib/settings.service';
@@ -16,6 +17,8 @@ vi.mock('@sentry/angular', () => ({
     browserTracingIntegration: vi.fn(),
     createErrorHandler: vi.fn(() => ({ handleError: vi.fn() })),
     TraceService: vi.fn(),
+    makeFetchTransport: vi.fn(() => ({ send: vi.fn(), flush: vi.fn() })),
+    replayIntegration: vi.fn(),
 }));
 
 describe('scrubSecrets', () => {
@@ -61,6 +64,41 @@ describe('scrubSecrets', () => {
     });
 });
 
+describe('scrubEnvelope', () => {
+    it('should scrub recordings and update their length', () => {
+        // Replay records the page URL, CSS URLs with escaped quotes, and
+        // text that is longer in UTF-8 bytes than in characters
+        const recording = JSON.stringify([
+            { data: { href: 'https://a.b.com/kiosk/?x-api-key=abc#/' } },
+            { data: { style: 'url("/img.png?token=t1")' } },
+            { data: { text: 'Café 東京' } },
+        ]);
+        const envelope = [
+            {},
+            [
+                [{ type: 'replay_event' }, { urls: ['/?jwt=j1'] }],
+                [{ type: 'replay_recording', length: 1 }, recording],
+            ],
+        ] as unknown as Parameters<typeof scrubEnvelope>[0];
+
+        scrubEnvelope(envelope);
+
+        const [[, event], [header, payload]] = envelope[1] as unknown as [
+            [unknown, { urls: string[] }],
+            [{ length: number }, string],
+        ];
+        expect(event.urls).toEqual(['/?jwt=[Filtered]']);
+        expect(JSON.parse(payload)).toEqual([
+            { data: { href: 'https://a.b.com/kiosk/?x-api-key=[Filtered]#/' } },
+            { data: { style: 'url("/img.png?token=[Filtered]")' } },
+            { data: { text: 'Café 東京' } },
+        ]);
+        const bytes = new TextEncoder().encode(payload).length;
+        expect(bytes).toBeGreaterThan(payload.length);
+        expect(header.length).toBe(bytes);
+    });
+});
+
 describe('LazySentryErrorHandler', () => {
     afterEach(() => vi.restoreAllMocks());
 
@@ -84,6 +122,7 @@ describe('initSentryFromSettings', () => {
         );
         const early_error = new Error('Before Sentry');
         new LazySentryErrorHandler().handleError(early_error);
+        settingSignal('sentry_replays_on_error_sample_rate').set(1);
         TestBed.runInInjectionContext(() => initSentryFromSettings());
         TestBed.tick();
         expect(Sentry.init).not.toHaveBeenCalled();
@@ -98,8 +137,15 @@ describe('initSentryFromSettings', () => {
         );
         expect(Sentry.init).toHaveBeenCalledTimes(1);
         expect(Sentry.init).toHaveBeenCalledWith(
-            expect.objectContaining({ tracesSampleRate: 0.1 }),
+            expect.objectContaining({
+                tracesSampleRate: 0.1,
+                replaysSessionSampleRate: 0,
+                replaysOnErrorSampleRate: 1,
+            }),
         );
+        expect(Sentry.replayIntegration).toHaveBeenCalledWith({
+            useCompression: false,
+        });
         const handler = vi.mocked(Sentry.createErrorHandler).mock.results[0]
             .value as ErrorHandler;
         expect(handler.handleError).toHaveBeenCalledWith(early_error);

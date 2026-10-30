@@ -2,7 +2,13 @@ import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
-import { Booking, CalendarEvent, OrganisationService } from '@placeos/common';
+import {
+    Booking,
+    BuildingLevel,
+    CalendarEvent,
+    OrganisationService,
+    settingSignal,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 
@@ -210,6 +216,38 @@ describe('LandingUpcomingBookingComponent', () => {
         expect(edit_button).toHaveClass('flex-1');
         expect(edit_button).not.toHaveClass('w-12');
         expect(edit_button?.querySelector('div.pr-2')).toExist();
+    });
+
+    it('should hide the parking space name when enabled', () => {
+        vi.mocked(
+            spectator.inject(OrganisationService).levelWithID,
+        ).mockReturnValue(new BuildingLevel({ name: 'Level 1' }));
+        upcoming_events.set([
+            new Booking({
+                id: 'parking-booking-1',
+                booking_type: 'parking',
+                type: 'parking',
+                title: '',
+                asset_id: 'parking-123',
+                asset_name: 'Bay 12',
+                description: 'Bay 12',
+                zones: ['level-1'],
+                date: Date.now(),
+                duration: 60,
+                status: 'approved',
+            } as any),
+        ]);
+        expect(spectator.component.eventTitle()).toBe('Bay 12');
+        expect(spectator.component.eventLocation()).toBe('Bay 12');
+
+        const hide_space = settingSignal('parking.hide_selected_space');
+        hide_space.set(true);
+        try {
+            expect(spectator.component.eventTitle()).toBe('RESOURCE.PARKING');
+            expect(spectator.component.eventLocation()).toBe('Level 1');
+        } finally {
+            hide_space.set(false);
+        }
     });
 
     it('should show check-in for allocated parking bookings', () => {

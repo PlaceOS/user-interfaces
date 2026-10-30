@@ -16,6 +16,18 @@
             "maximum": 1,
             "description": "Share of page loads and navigations that Sentry traces, from 0 to 1. Defaults to 0.1."
         },
+        "sentry_replays_session_sample_rate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Share of sessions that Sentry Replay records, from 0 to 1. Defaults to 0."
+        },
+        "sentry_replays_on_error_sample_rate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Share of sessions with an error that Sentry Replay records, from 0 to 1. Defaults to 0."
+        },
         "show_changelog": {
             "type": "boolean",
             "description": "Whether the version in user controls links to the changelog modal"
@@ -761,7 +773,7 @@
                 },
                 "disable": {
                     "type": "array",
-                    "description": "Map feature groups to disable for every map view. A comma-separated string is also accepted",
+                    "description": "Map feature groups to disable for every map view. The explore map also hides the Areas, Devices and Sensors toggles of these groups. A comma-separated string is also accepted",
                     "items": { "type": "string" }
                 },
                 "disable_actions": {
@@ -1032,7 +1044,7 @@
                 },
                 "disabled_date_select": {
                     "type": "boolean",
-                    "description": "Whether date selection is disabled on the locker form"
+                    "description": "Whether date and time selection is disabled on the locker form"
                 },
                 "disabled_start_time": {
                     "type": "boolean",

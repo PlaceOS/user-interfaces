@@ -69,6 +69,21 @@ export class PlaceOSRequestError extends Error {
     }
 }
 
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+
+/** Whether an API key may go to `domain`: https, or http on a loopback host */
+function isSecureDomain(domain: string): boolean {
+    try {
+        const { protocol, hostname } = new URL(domain);
+        return (
+            protocol === 'https:' ||
+            (protocol === 'http:' && LOOPBACK_HOSTS.has(hostname))
+        );
+    } catch {
+        return false;
+    }
+}
+
 /** Plain message for a failed connection test */
 function connectionMessage(error: unknown): string {
     if (error instanceof PlaceOSRequestError) {
@@ -332,7 +347,7 @@ export class PlaceOSService {
     }
 
     public getZone(id: string): Promise<PlaceOSZone> {
-        return this._request<PlaceOSZone>(`/zones/${id}`);
+        return this._request<PlaceOSZone>(`/zones/${encodeURIComponent(id)}`);
     }
 
     public updateZone(
@@ -340,7 +355,7 @@ export class PlaceOSService {
         data: Partial<PlaceOSZone>,
     ): Promise<PlaceOSZone> {
         return this._request<PlaceOSZone>(
-            `/zones/${id}`,
+            `/zones/${encodeURIComponent(id)}`,
             {},
             {
                 method: 'PUT',
@@ -402,18 +417,23 @@ export class PlaceOSService {
         const map_id = (await this.getZone(level_id)).map_id;
         if (!map_id) return null;
 
-        const external = /^[a-z][a-z\d+.-]*:/i.test(map_id);
         const on_domain = this._mode() === 'domain';
         const { domain, api_key } = this._settings();
-        const url = external
-            ? map_id
-            : `${on_domain ? '' : domain}/${map_id.replace(/^\//, '')}`;
-        const response = await fetch(url, {
-            headers: external
-                ? {}
-                : on_domain
-                  ? { Authorization: `Bearer ${token()}` }
-                  : { 'X-API-Key': api_key },
+        const api = new URL(
+            `${on_domain ? location.origin : domain}/`,
+            location.href,
+        );
+        // One leading slash is relative to the domain; `//host` is another host
+        const url = new URL(map_id.replace(/^\/(?![/\\])/, ''), api);
+        // Credentials go only to the PlaceOS host. Zone editors set map_id,
+        // and a value such as `///host/map.svg` resolves to another origin.
+        const response = await fetch(url.href, {
+            headers:
+                url.origin !== api.origin
+                    ? {}
+                    : on_domain
+                      ? { Authorization: `Bearer ${token()}` }
+                      : { 'X-API-Key': api_key },
         });
         if (!response.ok) {
             throw new Error(`Failed to load level SVG: ${response.status}`);
@@ -443,7 +463,7 @@ export class PlaceOSService {
         data: Partial<PlaceOSSystem>,
     ): Promise<PlaceOSSystem> {
         return this._request<PlaceOSSystem>(
-            `/systems/${id}`,
+            `/systems/${encodeURIComponent(id)}`,
             {},
             {
                 method: 'PUT',
@@ -529,7 +549,7 @@ export class PlaceOSService {
             throw new Error(`Upload to storage failed: ${stored.status}`);
 
         const finalised = await this._request<{ public_url?: string }>(
-            `/uploads/${upload.id}`,
+            `/uploads/${encodeURIComponent(upload.id)}`,
             {},
             { method: 'PUT', body: JSON.stringify({ upload_complete: true }) },
         );
@@ -551,6 +571,9 @@ export class PlaceOSService {
         const { domain, api_key } = settings;
         const on_domain = this._mode() === 'domain';
         if (!on_domain && !api_key) throw new Error('PlaceOS not configured');
+        // A blank domain means this page's own origin
+        if (!on_domain && !isSecureDomain(domain || location.origin))
+            throw new Error('Enter the PlaceOS domain as an https:// address.');
         const query = new URLSearchParams(params).toString();
         return fetchWithDeadline(
             `${on_domain ? '' : domain}/api/engine/v2${path}${query ? `?${query}` : ''}`,

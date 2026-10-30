@@ -175,6 +175,7 @@ export async function currentUser(api: APIRequestContext): Promise<CurrentUser> 
 export interface Zone {
     id: string;
     name: string;
+    display_name?: string;
     tags: string[];
     parent_id?: string;
     [k: string]: unknown;

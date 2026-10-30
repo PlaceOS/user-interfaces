@@ -14,24 +14,26 @@ import { STAGEHAND_SYSTEM_PREFIX } from './stagehand.env';
 
 export interface HierarchyZones {
     org: string;
+    region: string;
     building: string;
     level: string;
 }
 
-/** The org, building and level `init` seeded. */
+/** The org, building and level `init` seeded, and the region `seed.ts` adds. */
 export async function hierarchyZones(
     api: APIRequestContext,
 ): Promise<HierarchyZones> {
-    const [[org], [building], [level]] = await Promise.all(
-        ['org', 'building', 'level'].map((tag) => zonesWithTag(api, tag)),
+    const [[org], [region], [building], [level]] = await Promise.all(
+        ['org', 'region', 'building', 'level'].map((tag) => zonesWithTag(api, tag)),
     );
-    if (!org || !building || !level) {
+    if (!org || !region || !building || !level) {
         throw new Error(
-            `the stack has no org/building/level zones (got ${!!org}/${!!building}/${!!level}); ` +
-                `\`init start\` creates them`,
+            `the stack has no org/region/building/level zones ` +
+                `(got ${!!org}/${!!region}/${!!building}/${!!level}); ` +
+                `\`init start\` and \`seed.ts\` create them`,
         );
     }
-    return { org: org.id, building: building.id, level: level.id };
+    return { org: org.id, region: region.id, building: building.id, level: level.id };
 }
 
 export interface SystemRow {
@@ -42,10 +44,13 @@ export interface SystemRow {
 }
 
 /**
- * A system in the org, building and level, with any other `fields` given.
+ * A system in the org, region, building and level, with any other `fields`
+ * given.
  *
  * The org zone is what makes source publish its modules at all: a status topic
  * begins with the org, and source drops events for a system it cannot scope.
+ * Source fills the topic's region slot only from a region zone in the system's
+ * own `zones`, and stagehand listens on the region it has selected.
  */
 export async function createSystem(
     api: APIRequestContext,
@@ -57,7 +62,7 @@ export async function createSystem(
         data: {
             name: uniqueTitle(`${STAGEHAND_SYSTEM_PREFIX} ${label}`),
             description: 'Created by the stagehand e2e specs. Safe to delete.',
-            zones: [zones.org, zones.building, zones.level],
+            zones: [zones.org, zones.region, zones.building, zones.level],
             ...fields,
         },
     });
@@ -362,6 +367,7 @@ export async function expectedTopics(
     const system = await getSystem(api, system_id).catch(() => null);
     if (!system) return {};
     if (!system.zones.includes(zones.org)) return {};
+    const region = system.zones.includes(zones.region) ? zones.region : '_';
     const building = system.zones.includes(zones.building)
         ? zones.building
         : '_';
@@ -378,7 +384,7 @@ export async function expectedTopics(
         const state = await moduleState(api, module_id);
         for (const [status, value] of Object.entries(state)) {
             out[
-                `_/${building}/${level}/_/${system_id}/${mod.driver_id}/${name}/${index}/${status}`
+                `${region}/${building}/${level}/_/${system_id}/${mod.driver_id}/${name}/${index}/${status}`
             ] = value;
         }
     }

@@ -207,14 +207,14 @@ import { DashboardsService } from './dashboards.service';
                         "
                         [matTooltip]="
                             (show_children()?.[dashboard.id]
-                                ? 'APP.STAGEHAND.DASHBOARD_ALERTS_OPEN'
-                                : 'APP.STAGEHAND.DASHBOARD_ALERTS_CLOSE'
+                                ? 'APP.STAGEHAND.DASHBOARD_ALERTS_CLOSE'
+                                : 'APP.STAGEHAND.DASHBOARD_ALERTS_OPEN'
                             ) | translate
                         "
                     >
                         <icon class="text-2xl">{{
                             show_children()?.[dashboard.id]
-                                ? 'keyboard_arrow_left'
+                                ? 'keyboard_arrow_up'
                                 : 'keyboard_arrow_down'
                         }}</icon>
                     </button>

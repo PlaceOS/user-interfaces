@@ -1,7 +1,12 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
-import { Booking, OrganisationService } from '@placeos/common';
+import {
+    Booking,
+    BuildingLevel,
+    OrganisationService,
+    settingSignal,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 import { ScheduleWeekViewComponent } from '../../app/schedule/schedule-week-view.component';
@@ -55,6 +60,25 @@ describe('ScheduleWeekViewComponent', () => {
         expect(spectator.component.location(via_asset_name)).toBe('');
         expect(spectator.component.location(via_description)).toBe('');
         expect(spectator.component.location(allocated)).toBe('Bay 1');
+    });
+
+    it('should show only the level of a hidden parking space', () => {
+        vi.mocked(
+            spectator.inject(OrganisationService).levelWithID,
+        ).mockReturnValue(new BuildingLevel({ name: 'Level 1' }));
+        const parking = new Booking({
+            booking_type: 'parking',
+            asset_id: 'space-1',
+            asset_name: 'Bay 1',
+            zones: ['level-1'],
+        });
+        const hide_space = settingSignal('parking.hide_selected_space');
+        hide_space.set(true);
+        try {
+            expect(spectator.component.location(parking)).toBe('Level 1');
+        } finally {
+            hide_space.set(false);
+        }
     });
 
     it('should not show a visitor name for non-visitor bookings', () => {

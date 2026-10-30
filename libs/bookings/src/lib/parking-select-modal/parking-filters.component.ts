@@ -315,15 +315,21 @@ export class ParkingFiltersComponent {
     );
     private readonly _parking_allow_all_day = this._settings.signal(
         'parking.allow_all_day',
-        false,
     );
     private readonly _booking_allow_all_day = this._settings.signal(
         'bookings.allow_all_day',
-        false,
     );
-    private readonly _allow_all_day = computed(
-        () => this._parking_allow_all_day() || this._booking_allow_all_day(),
-    );
+    // Parking, then bookings, then off. A cached setting signal keeps the
+    // default of the first caller when the key is unset, so read the signals
+    // only to track changes and use raw values.
+    private readonly _allow_all_day = computed(() => {
+        this._parking_allow_all_day();
+        this._booking_allow_all_day();
+        return !!(
+            this._settings.get<boolean>('app.parking.allow_all_day') ??
+            this._settings.get<boolean>('app.bookings.allow_all_day')
+        );
+    });
     private readonly _available_period = this._settings.signal(
         'parking.available_period',
         7,

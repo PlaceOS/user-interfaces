@@ -128,7 +128,6 @@ function objectIdOf(target: EventTarget | null) {
                 preserveAspectRatio="xMidYMid meet"
                 class="block h-full w-full touch-none select-none"
                 (pointerdown)="onPointerDown($event)"
-                (pointermove)="onPointerMove($event)"
                 (pointerup)="onPointerUp($event)"
                 (pointercancel)="onPointerCancel($event)"
                 (wheel)="onWheel($event)"
@@ -719,8 +718,20 @@ export class FloorPlan2dComponent {
                 h: entry.contentRect.height,
             }),
         );
-        afterNextRender(() => observer.observe(this._svg().nativeElement));
-        inject(DestroyRef).onDestroy(() => observer.disconnect());
+        // A template listener would re-check every shape on each mouse move,
+        // even a hover with no pointer down. The signals written here still
+        // refresh whatever reads them.
+        const onMove = (event: PointerEvent) => this.onPointerMove(event);
+        let svg: SVGSVGElement | undefined;
+        afterNextRender(() => {
+            svg = this._svg().nativeElement;
+            observer.observe(svg);
+            svg.addEventListener('pointermove', onMove);
+        });
+        inject(DestroyRef).onDestroy(() => {
+            observer.disconnect();
+            svg?.removeEventListener('pointermove', onMove);
+        });
 
         // Zoom to a search hit as soon as it is on this floor
         effect(() => {

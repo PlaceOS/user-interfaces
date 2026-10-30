@@ -222,8 +222,8 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
 
     public get allow_all_day() {
         return (
-            (this._settings.get('app.parking.allow_all_day') ||
-                this._settings.get('app.bookings.allow_all_day')) ??
+            this._settings.get('app.parking.allow_all_day') ??
+            this._settings.get('app.bookings.allow_all_day') ??
             true
         );
     }
@@ -232,10 +232,11 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
         return this._settings.get('app.use_24_hour_time');
     }
 
-    public get can_book_for_others() {
-        return (
-            this._settings.get('app.bookings.can_book_for_others') ||
-            this._settings.get('app.parking.can_book_for_others')
+    /** `parking.can_book_for_others` overrides `bookings.can_book_for_others` when set */
+    public get can_book_for_others(): boolean {
+        return !!(
+            this._settings.get('app.parking.can_book_for_others') ??
+            this._settings.get('app.bookings.can_book_for_others')
         );
     }
 

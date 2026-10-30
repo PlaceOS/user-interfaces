@@ -64,8 +64,19 @@ type ConnectionStatus = 'idle' | 'loading' | 'connected' | 'error';
                         <span class="font-semibold">{{ domain() }}</span
                         >. No API key needed.
                     </p>
+                    @if (status() === 'loading') {
+                        <p
+                            class="text-base-content/60 mt-2 text-xs"
+                            role="status"
+                        >
+                            Checking connection...
+                        </p>
+                    }
                 } @else {
-                    <div class="flex flex-col gap-2">
+                    <form
+                        class="flex flex-col gap-2"
+                        (submit)="$event.preventDefault(); save()"
+                    >
                         <label for="placeos-domain">PlaceOS Domain</label>
                         <mat-form-field
                             appearance="outline"
@@ -98,11 +109,11 @@ type ConnectionStatus = 'idle' | 'loading' | 'connected' | 'error';
                         <div class="mt-1 flex flex-wrap gap-2">
                             <button
                                 btn
+                                type="submit"
                                 class="flex-1"
                                 [disabled]="
                                     status() === 'loading' || !api_key()
                                 "
-                                (click)="save()"
                             >
                                 {{
                                     status() === 'loading'
@@ -115,6 +126,7 @@ type ConnectionStatus = 'idle' | 'loading' | 'connected' | 'error';
                             @if (has_saved_key()) {
                                 <button
                                     btn
+                                    type="button"
                                     class="inverse"
                                     [disabled]="status() === 'loading'"
                                     (click)="disconnect()"
@@ -123,13 +135,8 @@ type ConnectionStatus = 'idle' | 'loading' | 'connected' | 'error';
                                 </button>
                             }
                         </div>
-                        @if (error(); as message) {
-                            <p class="text-error text-xs" role="alert">
-                                {{ message }}
-                            </p>
-                        }
                         @if (saved()) {
-                            <p class="text-success text-xs">
+                            <p class="text-success text-xs" role="status">
                                 Connection saved successfully.
                             </p>
                         }
@@ -138,7 +145,13 @@ type ConnectionStatus = 'idle' | 'loading' | 'connected' | 'error';
                             the workspace dev proxy already forwards
                             <code class="text-mono">/api</code> to PlaceOS.
                         </p>
-                    </div>
+                    </form>
+                }
+                <!-- Outside the mode branches, so a failed check shows in domain mode too -->
+                @if (error(); as message) {
+                    <p class="text-error mt-2 text-xs" role="alert">
+                        {{ message }}
+                    </p>
                 }
             </div>
         </div>
@@ -180,6 +193,12 @@ export class SettingsComponent extends AsyncHandler {
 
     /** Forgets the stored credentials */
     public disconnect() {
+        if (
+            !confirm(
+                'Disconnect from PlaceOS? You will need to enter the API key again to reconnect.',
+            )
+        )
+            return;
         this._placeos.clearConfig();
         this.domain.set('');
         this.api_key.set('');

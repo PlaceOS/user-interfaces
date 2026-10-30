@@ -1,8 +1,4 @@
-import {
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, linkedSignal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, settingSignal } from '@placeos/common';
 
@@ -55,8 +51,10 @@ interface AnalyticsPage {
                     class="w-full flex-1 overflow-auto"
                 >
                     @if (page()?.url; as url) {
+                        <!-- No allow-top-navigation: a cross-origin dashboard can't send this tab to another page -->
                         <iframe
                             class="h-full w-full"
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-downloads"
                             [title]="page()?.name || 'Analytics dashboard'"
                             [src]="url | safe: 'resource'"
                         ></iframe>
@@ -98,5 +96,8 @@ export class AnalyticsComponent extends AsyncHandler {
         'analytics_pages',
         [],
     );
-    public readonly page = signal<AnalyticsPage | null>(null);
+    /** Opens on the first page, so the user does not land on an empty view */
+    public readonly page = linkedSignal<AnalyticsPage | null>(
+        () => this.analytics_pages()[0] || null,
+    );
 }

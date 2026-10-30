@@ -305,7 +305,11 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     },
                                 ]"
                                 [sortable]="true"
-                                empty_message="No requested assets for this product"
+                                [empty_message]="
+                                    alert_list().length
+                                        ? 'No alerts match the current filters'
+                                        : 'No active alerts'
+                                "
                             ></simple-table>
                         }
                         <ng-template #issue_template let-row="row">
@@ -457,16 +461,17 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     private _initialized = signal(false);
     private _waiting_for_first_alert = signal(true);
     private _location_names = signal<Record<string, string>>({});
+    /** Locations whose name was asked for, so each is asked for once */
+    private _requested_locations = new Set<string>();
     private _first_alert_watch = effect(() => {
         if (this.alert_list().length > 0) {
             this._waiting_for_first_alert.set(false);
         }
     });
     private _location_name_sync = effect(() => {
-        const locations = this.alert_list()
-            .map((alert) => alert.location)
-            .filter((location) => location && !this._location_names()[location]);
-        for (const location of new Set(locations)) {
+        for (const { location } of this.alert_list()) {
+            if (!location || this._requested_locations.has(location)) continue;
+            this._requested_locations.add(location);
             this._loadLocationName(location);
         }
     });
@@ -615,14 +620,16 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
         this.timeout('apply_dash', () => this._applyDashboard(''));
         const id = this._route.snapshot.paramMap.get('id');
         if (id) this.timeout('apply_dash', () => this._applyDashboard(id));
-        console.log('Backoffice Link:', this.backoffice_link());
     }
 
     public async setDashboard(dash_id: string) {
         this.timeout(
             'route_dash',
             () => {
-                this._router.navigate(['/alerts', dash_id]);
+                // keep the filters in the URL
+                this._router.navigate(['/alerts', dash_id], {
+                    queryParamsHandling: 'preserve',
+                });
                 this.timeout('apply_dash', () => this._applyDashboard(dash_id));
             },
             100,

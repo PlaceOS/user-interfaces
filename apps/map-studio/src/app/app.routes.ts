@@ -35,17 +35,20 @@ export const routes: Routes = [
     },
     {
         path: 'editor/:floorplan_id',
+        title: 'Editor | Map Studio',
         loadComponent: () =>
             import('./editor/editor.component').then((m) => m.EditorComponent),
         canDeactivate: [saveBeforeLeaving],
     },
     {
         path: 'kiosk/:project_id',
+        title: 'Kiosk | Map Studio',
         loadComponent: () =>
             import('./kiosk/kiosk.component').then((m) => m.KioskComponent),
     },
     {
         path: 'kiosk/:project_id/:floorplan_id',
+        title: 'Kiosk | Map Studio',
         loadComponent: () =>
             import('./kiosk/kiosk.component').then((m) => m.KioskComponent),
     },
@@ -56,6 +59,7 @@ export const routes: Routes = [
         children: [
             {
                 path: '',
+                title: 'Projects | Map Studio',
                 loadComponent: () =>
                     import('./pages/projects.component').then(
                         (m) => m.ProjectsComponent,
@@ -63,6 +67,7 @@ export const routes: Routes = [
             },
             {
                 path: 'project/:id',
+                title: 'Project | Map Studio',
                 loadComponent: () =>
                     import('./pages/project-detail.component').then(
                         (m) => m.ProjectDetailComponent,
@@ -70,6 +75,7 @@ export const routes: Routes = [
             },
             {
                 path: 'import',
+                title: 'Import SVG | Map Studio',
                 loadComponent: () =>
                     import('./pages/import.component').then(
                         (m) => m.ImportComponent,
@@ -77,6 +83,7 @@ export const routes: Routes = [
             },
             {
                 path: 'settings',
+                title: 'Settings | Map Studio',
                 loadComponent: () =>
                     import('./pages/settings.component').then(
                         (m) => m.SettingsComponent,

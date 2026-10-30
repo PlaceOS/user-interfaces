@@ -1947,7 +1947,7 @@ import { errorText } from '../modal-actions';
                                         [formField]="form.lockers.use_building_timezone"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        label="Disable Date selection"
+                                        label="Disable date and time selection"
                                         [formField]="form.lockers.disabled_date_select"
                                     ></settings-toggle>
                                     <settings-toggle

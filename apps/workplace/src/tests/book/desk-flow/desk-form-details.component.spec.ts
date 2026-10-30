@@ -139,11 +139,21 @@ describe('NewDeskFormDetailsComponent', () => {
         expect(spectator.component.max_duration).toBe(300);
     });
 
-    it('should allow booking for others when either setting is enabled', () => {
-        expect(spectator.component.can_book_for_others).toBeFalsy();
-        settings['app.desks.can_book_for_others'] = true;
-        expect(spectator.component.can_book_for_others).toBe(true);
-    });
+    it.each([
+        [undefined, undefined, false],
+        [undefined, true, true],
+        [undefined, false, false],
+        [true, false, true],
+        [false, true, false],
+        [null, true, true],
+    ])(
+        'should resolve can_book_for_others with desks %s and bookings %s to %s',
+        (desks, bookings, expected) => {
+            settings['app.desks.can_book_for_others'] = desks;
+            settings['app.bookings.can_book_for_others'] = bookings;
+            expect(spectator.component.can_book_for_others).toBe(expected);
+        },
+    );
 
     it('should read locker/recurrence/group toggles from settings', () => {
         settings['app.desks.can_book_lockers'] = true;
@@ -154,11 +164,21 @@ describe('NewDeskFormDetailsComponent', () => {
         expect(spectator.component.allow_groups).toBe(true);
     });
 
-    it('should report assets support from either bookings or desks settings', () => {
-        expect(spectator.component.has_assets).toBe(false);
-        settings['app.bookings.has_assets'] = true;
-        expect(spectator.component.has_assets).toBe(true);
-    });
+    it.each([
+        [undefined, undefined, false],
+        [undefined, true, true],
+        [undefined, false, false],
+        [true, false, true],
+        [false, true, false],
+        [null, true, true],
+    ])(
+        'should resolve has_assets with desks %s and bookings %s to %s',
+        (desks, bookings, expected) => {
+            settings['app.desks.has_assets'] = desks;
+            settings['app.bookings.has_assets'] = bookings;
+            expect(spectator.component.has_assets).toBe(expected);
+        },
+    );
 
     it('should default allow_time_changes to true unless explicitly disabled', () => {
         expect(spectator.component.allow_time_changes).toBe(true);

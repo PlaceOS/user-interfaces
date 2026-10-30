@@ -2,7 +2,11 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 
-import { answerTokenRequests, requestTokenFromOpener } from './token-handoff';
+import {
+    answerTokenRequests,
+    isHandoffOrigin,
+    requestTokenFromOpener,
+} from './token-handoff';
 
 /** Unsigned JWT with the given `exp` claim in seconds */
 function jwt(exp: number) {
@@ -157,6 +161,17 @@ describe('requestTokenFromOpener', () => {
         vi.advanceTimersByTime(1000);
         await expect(request).resolves.toBeNull();
         vi.useRealTimers();
+    });
+
+    it('accepts other ports only on a loopback host', () => {
+        const local = new URL('http://localhost:4201');
+        const deployed = new URL('https://placeos.test');
+        expect(isHandoffOrigin('http://localhost:4200', local)).toBe(true);
+        expect(isHandoffOrigin('https://placeos.test', deployed)).toBe(true);
+        expect(isHandoffOrigin('https://placeos.test:8443', deployed)).toBe(
+            false,
+        );
+        expect(isHandoffOrigin('http://placeos.test', deployed)).toBe(false);
     });
 
     it('resolves null when nothing opened this window', async () => {

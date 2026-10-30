@@ -392,23 +392,29 @@ export class UserListFieldComponent
         () => this.flags() && !!this._allow_internal_or_external(),
     );
 
-    private async searchStaff(q: string): Promise<User[]> {
+    private async searchStaff(
+        q: string,
+        signal?: AbortSignal,
+    ): Promise<User[]> {
+        // Preserve the shared attendee search, including directory guests,
+        // independently of staff/host directory restrictions.
         return this._use_basic_user_search()
             ? queryUsers({ q, authority_id: authority()?.id }).then((_) =>
                   _.data.map((u) => new User(u)),
               )
-            : searchStaff(q);
+            : searchStaff(q, { signal, exclude_guests: false });
     }
 
     private readonly _debounced_search = debounced(this.search, 300);
     private readonly _user_search = resource({
         params: () => ({ q: this._debounced_search.value() }),
-        loader: async ({ params: { q } }): Promise<User[]> => {
+        loader: async ({ params: { q }, abortSignal }): Promise<User[]> => {
             if (!q) return [];
             try {
-                if (!this.guests()) return await this.searchStaff(q);
+                if (!this.guests())
+                    return await this.searchStaff(q, abortSignal);
                 const [staff_results, guests] = await Promise.all([
-                    this.searchStaff(q),
+                    this.searchStaff(q, abortSignal),
                     searchGuests(q),
                 ]);
                 const staff = this.guests_only() ? [] : staff_results;

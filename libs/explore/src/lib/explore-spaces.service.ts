@@ -203,7 +203,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                     encodeURIComponent(email_start || ''),
                 )
                 .replace(/\{email_end\}/g, encodeURIComponent(email_end || ''));
-            window.open(url, '_blank', 'noopener noreferer');
+            window.open(url, '_blank', 'noopener,noreferrer');
             return;
         }
         this._event_form.newForm();

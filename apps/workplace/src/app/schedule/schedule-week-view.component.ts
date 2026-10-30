@@ -23,6 +23,7 @@ import {
     BOOKING_TYPE_COLORS,
     CalendarEvent,
     OrganisationService,
+    settingSignal,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
@@ -259,6 +260,12 @@ export class ScheduleWeekViewComponent {
     private _dialog = inject(MatDialog);
     private _state = inject(ScheduleStateService);
     private _org = inject(OrganisationService);
+
+    /** Shows only the level of parking bookings in location text */
+    private readonly _hide_parking_space = settingSignal(
+        'parking.hide_selected_space',
+        false,
+    );
     public readonly date = input(Date.now());
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
     public readonly loading = input(false);
@@ -383,7 +390,11 @@ export class ScheduleWeekViewComponent {
     }
 
     public location(booking: Booking | CalendarEvent): string {
-        return bookingLocationString(booking, this._org);
+        return bookingLocationString(
+            booking,
+            this._org,
+            this._hide_parking_space(),
+        );
     }
 
     public backgroundColor(booking: Booking | CalendarEvent) {

@@ -76,3 +76,8 @@ topo_order = false
 sort_commits = "oldest"
 # limit the number of commits included in the changelog.
 # limit_commits = 42
+
+[remote]
+# The template uses only local commits and tags. Avoid GitHub metadata lookups
+# (enabled by GITHUB_REPO in CI), which can panic on API errors or rate limits.
+offline = true

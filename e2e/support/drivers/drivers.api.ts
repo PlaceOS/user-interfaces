@@ -356,6 +356,16 @@ export async function moduleState(
     return state;
 }
 
+/** Stop and start a module. */
+export async function restartModule(api: APIRequestContext, module_id: string): Promise<void> {
+    for (const action of ['stop', 'start']) {
+        const res = await api.post(`${ENGINE_API}/modules/${module_id}/${action}`);
+        if (!res.ok()) {
+            throw new Error(`${action} ${module_id} failed: HTTP ${res.status()} ${await res.text()}`);
+        }
+    }
+}
+
 /** Wait until the module has published `key`, and return its value. */
 export async function waitForModuleState(
     api: APIRequestContext,

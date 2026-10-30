@@ -177,7 +177,10 @@ export async function bindNativeAuthRedirects(
         async ({ url }: { url?: string }) => {
             try {
                 if (!url) return;
-                console.warn(`[AUTH] App opened with URL: ${url}`);
+                // The query or fragment can hold an auth code, so only the path is logged
+                console.warn(
+                    `[AUTH] App opened with URL: ${url.split(/[?#]/)[0]}`,
+                );
                 if (!(await isNativeAuthRedirect(url))) {
                     console.warn('[AUTH] URL is not an auth redirect.');
                     return;
@@ -229,7 +232,7 @@ export async function consumeNativeAuthRedirect(): Promise<string | null> {
         console.warn('[AUTH] Launch URL already consumed.');
         return null;
     }
-    console.warn(`[AUTH] Consuming auth redirect from launch URL: ${url}`);
+    console.warn('[AUTH] Consuming auth redirect from launch URL.');
     return url;
 }
 

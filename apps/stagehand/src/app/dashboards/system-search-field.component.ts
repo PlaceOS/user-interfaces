@@ -17,12 +17,7 @@ import {
     FormsModule,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import {
-    PlaceDriverRole,
-    PlaceModule,
-    PlaceSystem,
-    querySystems,
-} from '@placeos/ts-client';
+import { PlaceSystem, querySystems } from '@placeos/ts-client';
 
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -33,7 +28,6 @@ import { AsyncHandler } from '@placeos/common';
 import { inGroupScope } from '../support-groups';
 import { SupportGroupsService } from '../support-groups.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 
 @Component({
     selector: 'system-search-field',
@@ -82,10 +76,8 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                         @for (option of item_list(); track option) {
                             <button
                                 matRipple
-                                (click)="
-                                    search_str.set(option.name);
-                                    setValue(option)
-                                "
+                                type="button"
+                                (click)="setValue(option)"
                                 class="hover:bg-base-200 w-full rounded-sm px-4 py-2 text-left"
                             >
                                 <div class="leading-tight">
@@ -119,9 +111,12 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
             }
             <mat-autocomplete #auto="matAutocomplete">
                 @for (option of item_list(); track option.id) {
+                    <!-- onSelectionChange also fires for keyboard selection -->
                     <mat-option
                         [value]="option.name || option.id"
-                        (click)="search_str.set(option.name); setValue(option)"
+                        (onSelectionChange)="
+                            $event.isUserInput && setValue(option)
+                        "
                         class="leading-tight"
                     >
                         <ng-container
@@ -135,10 +130,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
             </mat-autocomplete>
             <ng-template #item_option let-option="option">
                 <div class="flex h-5 items-center justify-between">
-                    <div
-                        name
-                        [innerHTML]="item_name()[option.id] | sanitize"
-                    ></div>
+                    <div name>{{ item_name()[option.id] }}</div>
                     @if (option.notes) {
                         <code class="truncate text-xs!">{{
                             option.notes
@@ -187,7 +179,6 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
     imports: [
         CommonModule,
         MatAutocompleteModule,
-        SanitizePipe,
         MatFormFieldModule,
         MatInputModule,
         FormsModule,
@@ -369,20 +360,9 @@ export class SystemSearchFieldComponent
         const map = {};
         const list = this.items || [];
         for (const item of list) {
-            if (item instanceof PlaceModule) {
-                const detail =
-                    item.role === PlaceDriverRole.Service
-                        ? item.uri
-                        : item.role === PlaceDriverRole.Logic
-                          ? item.control_system_id
-                          : item.ip;
-                map[item.id] = `${
-                    item.name || '<Unnamed>'
-                } <span class="small">${detail}<span>`;
-            } else {
-                map[item.id] =
-                    (item as any).custom_name || item.name || '<Unnamed>';
-            }
+            // shown as text, so a name can't add markup to the page
+            map[item.id] =
+                (item as any).custom_name || item.name || '<Unnamed>';
         }
         this.item_name.set(map);
     }

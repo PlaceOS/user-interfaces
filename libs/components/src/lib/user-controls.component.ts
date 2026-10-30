@@ -551,6 +551,7 @@ export class UserControlsComponent implements OnInit {
             window.open(
                 this._settings.get('app.external_support_url'),
                 '_blank',
+                'noopener,noreferrer',
             );
         } else {
             this._dialog.open(SupportTicketModalComponent);

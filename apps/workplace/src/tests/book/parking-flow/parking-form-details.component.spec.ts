@@ -72,11 +72,21 @@ describe('ParkingFormDetailsComponent', () => {
         expect(spectator.component.allow_all_day).toBe(false);
     });
 
-    it('should read can_book_for_others from bookings or parking settings', () => {
-        expect(spectator.component.can_book_for_others).toBeFalsy();
-        settings['app.parking.can_book_for_others'] = true;
-        expect(spectator.component.can_book_for_others).toBe(true);
-    });
+    it.each([
+        [undefined, undefined, false],
+        [undefined, true, true],
+        [undefined, false, false],
+        [true, false, true],
+        [false, true, false],
+        [null, true, true],
+    ])(
+        'should resolve can_book_for_others with parking %s and bookings %s to %s',
+        (parking, bookings, expected) => {
+            settings['app.parking.can_book_for_others'] = parking;
+            settings['app.bookings.can_book_for_others'] = bookings;
+            expect(spectator.component.can_book_for_others).toBe(expected);
+        },
+    );
 
     it('should only use the building timezone when the setting is enabled', () => {
         expect(spectator.component.timezone).toBe('');
