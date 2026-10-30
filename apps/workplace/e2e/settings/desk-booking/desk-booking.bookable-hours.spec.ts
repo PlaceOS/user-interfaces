@@ -14,13 +14,16 @@ async function tomorrowStartTimes(page:Page,details:Locator){
  await page.keyboard.press('Escape');await expect(options).toHaveCount(0);
  return times;
 }
-// Desk details does not bind TimeField.min_duration: the closing endpoint is inclusive.
+// DeskFlowDetails binds neither step (default 15) nor min_duration (default 0)
+// on TimeField, so generateAvailableTimes offers range.end rounded down to the
+// 15-minute step as the last start, inclusive (time-field.component.ts).
+const STEP=15;
 for(const range of [null,{start:6,end:11},{start:9,end:17}]){
  test('desk settings: desks.bookable_hours '+(range?range.start+'-'+range.end:'unset')+' bounds tomorrow time options',async({staffPage,audit})=>{
   const {details}=await openDesk(staffPage,audit,{'app.desks.bookable_hours':range});
   const times=await tomorrowStartTimes(staffPage,details);
   expect(times.length).toBeGreaterThan(0);
-  if(range){expect(Math.min(...times)).toBe(range.start*60);expect(Math.max(...times)).toBeLessThanOrEqual(range.end*60);}
+  if(range){expect(Math.min(...times)).toBe(range.start*60);expect(Math.max(...times)).toBe(Math.floor(range.end*60/STEP)*STEP);}
   else{expect(Math.min(...times)).toBe(0);expect(Math.max(...times)).toBeGreaterThan(17*60);}
   await untouchedDesk(staffPage);
  });

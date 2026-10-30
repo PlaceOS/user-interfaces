@@ -1,6 +1,6 @@
 # Workplace Settings E2E coverage: final status
 
-Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`. Last pushed head `2f6fd46b5a`; the 30 Oct 2026 review fixes and a merge of develop `f9b7be2a60` follow it.
+Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, with develop `f9b7be2a60` merged in and the 30 Oct 2026 review fixes on top.
 
 ## Summary
 
@@ -57,13 +57,13 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`. Last pushed 
 | desks.allow_groups | desk-booking.allow-groups | 2 | PASS | |
 | desks.allow_multiple | desk-booking.allow-multiple | 2 | PASS | |
 | desks.allow_recurrence | desk-booking.allow-recurrence | 2 | PASS | |
-| desks.allow_time_changes | desk-booking.allow-time-changes | 1 | PASS (current behaviour) | PPT-2862 fixed on develop; update after the merge |
+| desks.allow_time_changes | desk-booking.allow-time-changes | 1 | PASS | False hides the all-day option, time and duration (PPT-2862) |
 | bookings.allowed_daily_desk_count | desk-booking.allowed-daily-desk-count | 2 | PASS | Added in 6be84e50c |
 | bookings.assigned_resource_booking | desk-booking.assigned-resource-booking | 2 | PASS | Legacy desk flow |
 | desks.auto_allocation | desk-booking.auto-allocation | 2 | PASS | |
 | desks.auto_checkin | desk-booking.auto-checkin | 2 | PASS | |
 | desks.available_period | desk-booking.available-period | 2 | PASS | |
-| desks.bookable_hours | desk-booking.bookable-hours | 4 | UPDATED, NOT YET RUN | The start offered at closing time is its own case, named as current behaviour |
+| desks.bookable_hours | desk-booking.bookable-hours | 4 | PASS | Each range checks its exact first and last start; the start offered at closing time is its own case, named as current behaviour |
 | desks.can_book_for_others | desk-booking.can-book-for-others | 4 | UPDATED, NOT YET RUN | Adds the explicit-false override and the fallback to bookings.can_book_for_others (PPT-2869) |
 | desks.can_book_lockers | desk-booking.can-book-lockers | 2 | PASS | |
 | desks.custom_duration_options | desk-booking.custom-duration-options | 2 | PASS | |
@@ -231,7 +231,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`. Last pushed 
 | events.allow_online_meetings | room-booking.allow-online-meetings | 2 | PASS | |
 | events.allow_recurrence | room-booking.allow-recurrence | 2 | PASS | |
 | events.allowed_future_days | room-booking.allowed-future-days | 2 | PASS | |
-| events.bookable_hours | room-booking.bookable-hours | 4 | UPDATED, NOT YET RUN | The start offered at closing time is its own case, named as current behaviour |
+| events.bookable_hours | room-booking.bookable-hours | 4 | PASS | Each range checks its exact first and last start; the start offered at closing time is its own case, named as current behaviour |
 | events.booking_unavailable | room-booking.booking-unavailable | 2 | PASS | |
 | events.can_book_for_anyone | room-booking.can-book-for-anyone | 3 | PASS | Legacy meeting form |
 | events.can_book_for_others | room-booking.can-book-for-others | 2 | PASS | |
@@ -300,7 +300,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`. Last pushed 
 | Spec | Setting | Scen. | Latest develop (`20bc8d023`) | PR branch app | Jira | Next step |
 |---|---|---|---|---|---|---|
 | parking-booking.hide-selected-space | parking.hide_selected_space | 4 (card 2, details pop-up 2) | 4/4 PASS | Card true case fails (fix not on branch) | PPT-2863 / PPT-2858 verified | Add to the PR once the fix reaches the branch |
-| explore.hide-device-fields | explore.hide_device_fields | 2 | Tooltip rows pass; fails at the owner lookup | Fails (tooltip can't open) | PPT-2865 verified; PPT-2868 fix merged on develop | Add after PPT-2868 is fixed |
+| explore.hide-device-fields | explore.hide_device_fields | 2 | Tooltip rows pass; fails at the owner lookup | Fails (tooltip can't open) | PPT-2865 verified; PPT-2868 fix merged on develop | Re-run on this branch (develop with #651 is merged in), then add to the PR |
 | lockers.picker-loading | – (product check, not a setting) | 1 | Fails: TypeError reproduced | – | PPT-2870 fix merged on develop | Keep as a regression check |
 
 `e2e/local/wpa-settings-write-guard.ts` is also held locally. It's a helper, not a setting.
@@ -326,9 +326,3 @@ Docs still describe `new_features`, `spaces.show_images` and `desks.hide_reason`
 | PPT-2869 | desks / parking.can_book_for_others | Explicit false doesn't override the generic value | Fix merged on develop (#650); specs updated |
 | PPT-2870 | lockers (picker) | TypeError while the picker's lockers load | Fix merged on develop (#652) |
 | no ticket yet | parking.use_building_timezone | Explicit false doesn't override bookings.use_building_timezone | Open; covered by a test.fail case |
-
-## Spec updates due once develop's fixes reach the PR branch
-
-| Spec | Case | Jira |
-|---|---|---|
-| desk-booking.allow-time-changes | false case | PPT-2862 |
