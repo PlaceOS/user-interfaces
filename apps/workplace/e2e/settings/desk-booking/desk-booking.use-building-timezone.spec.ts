@@ -8,62 +8,19 @@
 // UTC and the real building rows are rewritten to Pacific/Honolulu, so the
 // offset is deterministic without changing any backend record. No desk is
 // selected, no asset is attached and no booking is confirmed.
-import type { Locator, Page, Route } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
-import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
-import { READ_ONLY_SETTINGS, readOnlyTest } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type Settings } from '../support/settings-harness';
-type DebugWindow = Window & { setting?: (key: string) => unknown };
-const ORIGINS = new Set([new URL(APP_URL).origin, new URL(BACKEND_URL).origin]);
+import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
+import {
+    type Audit,
+    futureDesk,
+    prepareSettings,
+    type Settings,
+    test,
+    timezoneBuildings,
+} from '../support/settings-harness';
 
-type WsAudit = { unexpected: string[]; control: string[] };
-const test = readOnlyTest.extend<{ wsAudit: WsAudit }>({
-    wsAudit: [async ({ staffPage }, use) => {
-        const audit: WsAudit = { unexpected: [], control: [] };
-        const closing: Promise<void>[] = [];
-        await staffPage.context().routeWebSocket('**/*', (socket) => {
-            const url = new URL(socket.url());
-            const app = new URL(APP_URL);
-            const local = url.host === app.host &&
-                url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-            if (local && url.pathname === '/' &&
-                [...url.searchParams.keys()].join(',') === 'token') return;
-            if (local && url.pathname === '/api/engine/v2/systems/control') {
-                audit.control.push(url.pathname);
-            } else {
-                audit.unexpected.push(url.href);
-            }
-            closing.push(socket.close().catch(() => undefined));
-        });
-        await use(audit);
-        await Promise.all(closing);
-        expect(audit.unexpected, 'no unexpected WebSocket connections').toEqual([]);
-    }, { auto: true, timeout: 15_000 }],
-});
 test.use({ readOnlyTimezone: 'Etc/UTC' });
-
-async function getOnly(page: Page, match: (url: URL) => boolean,
-    body: (url: URL) => unknown) {
-    await page.route((url) => ORIGINS.has(url.origin) && match(url), async (route: Route) => {
-        if (route.request().method() !== 'GET') return route.fallback();
-        await route.fulfill({ json: body(new URL(route.request().url())) });
-    });
-}
-
-const CATEGORIES = [
-    { id: 'e2e-desk-timezone-catering', name: '_CATERING_', hidden: true },
-    { id: 'e2e-desk-timezone-desks', name: '_DESKS_', hidden: true },
-    { id: 'e2e-desk-timezone-parking', name: '_PARKING_', hidden: true },
-    { id: 'e2e-desk-timezone-lockers', name: '_LOCKERS_', hidden: true },
-];
-const TYPES: Record<string, string[]> = {
-    'e2e-desk-timezone-catering': [],
-    'e2e-desk-timezone-desks': ['_DESKS_'],
-    'e2e-desk-timezone-parking': ['_PARKING_SPACES_', '_PARKING_USERS_', '_PARKING_FLEET_VEHICLES_'],
-    'e2e-desk-timezone-lockers': ['_LOCKER_BANKS_', '_LOCKERS_'],
-};
 
 const DESK: Settings = {
     ...READ_ONLY_SETTINGS,
@@ -112,97 +69,36 @@ const DESK: Settings = {
     'app.bookings.custom_duration_options': [],
 };
 
-type Fixtures = { timezone_buildings: number };
-async function prepare(page: Page, enabled: boolean, fixtures: Fixtures) {
-    assertLocalOnly(APP_URL, BACKEND_URL);
-    await page.setViewportSize({ width: 1440, height: 1100 });
-    await getOnly(page, (url) => url.pathname === '/api/engine/v2/asset_categories' &&
-        url.searchParams.get('hidden') === 'true' &&
-        url.searchParams.get('limit') === '500', () => CATEGORIES);
-    await getOnly(page, (url) => url.pathname === '/api/engine/v2/asset_types' &&
-        url.searchParams.get('limit') === '500' &&
-        Object.hasOwn(TYPES, url.searchParams.get('category_id') ?? ''), (url) =>
-        TYPES[url.searchParams.get('category_id')!].map((name) => ({
-            id: 'e2e-desk-timezone-type-' + name,
-            name,
-            category_id: url.searchParams.get('category_id'),
-            brand: 'PlaceOS',
-        })));
-    await getOnly(page, (url) => url.pathname === '/api/engine/v2/assets' &&
-        (url.searchParams.get('type_id') ?? '').startsWith('e2e-desk-timezone-type-'),
-    () => []);
-    await getOnly(page, (url) => url.pathname === '/api/staff/v1/calendars', () => []);
-    await page.addInitScript(() => {
-        for (const key of Object.keys(localStorage)) {
-            if (key.startsWith('PLACEOS.org')) localStorage.removeItem(key);
-        }
-        localStorage.setItem('APP.locale', 'en-AU');
-    });
-    // Real building rows, rewritten to a timezone that differs from the
+async function prepare(page: Page, audit: Audit, enabled: boolean) {
+    // Real building rows, rewritten to Pacific/Honolulu, which differs from the
     // browser's pinned Etc/UTC. This is a browser GET response only.
-    await page.route((url) => ORIGINS.has(url.origin) &&
-        url.pathname === '/api/engine/v2/zones' &&
-        url.searchParams.get('tags') === 'building', async (route) => {
-        if (route.request().method() !== 'GET') return route.fallback();
-        try {
-            const response = await route.fetch({ maxRedirects: 0, maxRetries: 0 });
-            if (!response.ok()) return route.fulfill({ response });
-            const body = await response.json();
-            const rows: Record<string, unknown>[] = Array.isArray(body) ? body : body?.results ?? [];
-            fixtures.timezone_buildings += rows.length;
-            const patched = rows.map((row) => ({ ...row, timezone: 'Pacific/Honolulu' }));
-            await route.fulfill({
-                response,
-                json: Array.isArray(body) ? patched : { ...body, results: patched },
-            });
-        } catch {
-            await route.fallback().catch(() => undefined);
-        }
-    });
-    const settings = {
-        ...DESK,
+    await timezoneBuildings(page, audit);
+    const fixture = await prepareSettings(page, {
         'app.desks.use_building_timezone': enabled,
-    };
-    await useSettings(page, settings);
+    }, { audit, base: DESK, hidden: 'e2e-desk-timezone', landingRooms: false });
     await page.goto('/#/book/desk/form');
-    await expect(page.locator('global-loading')).toHaveCount(1);
-    await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
-    for (const [key, value] of [
-        ['app.features', settings['app.features']],
-        ['app.desks.use_building_timezone', enabled],
-        ['app.bookings.use_building_timezone', false],
-    ] as const) {
-        await expect.poll(() => page.evaluate((name) =>
-            (window as DebugWindow).setting?.(name), key),
-        { message: 'effective setting ' + key }).toEqual(value);
-    }
+    await fixture.ready({
+        keys: ['app.features', 'app.desks.use_building_timezone', 'app.bookings.use_building_timezone'],
+    });
     const details = page.locator('desk-flow-new desk-flow-details');
     await expect(details.locator('input[name$=".title"]')).toBeEditable();
     await expect(details.locator('date-field button').first()).toBeEnabled();
     return details;
 }
 
-async function futureDesk(page: Page, details: Locator) {
-    const date = new Date();
-    date.setUTCDate(date.getUTCDate() + 1);
-    date.setUTCHours(12, 0, 0, 0);
-    await details.locator('date-field button').first().click();
-    await pickCalendarDay(page, page.locator('.cdk-overlay-container date-calendar'),
-        date.valueOf(), { closes_on_pick: true });
-    await details.locator('time-field[name="time"] button[time-field]').click();
-    await page.locator('.cdk-overlay-container button[data-time="10:00"]').click();
+/** Tomorrow at 10:00 with the first duration offered. */
+async function futureDeskWithDuration(page: Page, details: Locator) {
+    await futureDesk(page, details);
     await details.locator('duration-field button[duration-field]').click();
     await page.locator('.cdk-overlay-container button[data-duration]').first().click();
 }
 
 for (const enabled of [false, true]) {
     test(`desks.use_building_timezone ${enabled} gates the duration secondary time line`,
-        async ({ staffPage }) => {
-            const fixtures: Fixtures = { timezone_buildings: 0 };
-            const details = await prepare(staffPage, enabled, fixtures);
-            expect(fixtures.timezone_buildings, 'building-timezone rows served').toBeGreaterThan(0);
-            await futureDesk(staffPage, details);
+        async ({ staffPage, audit }) => {
+            const details = await prepare(staffPage, audit, enabled);
+            expect(audit.fixtures['timezone buildings'] ?? 0, 'building-timezone rows served').toBeGreaterThan(0);
+            await futureDeskWithDuration(staffPage, details);
             const secondary = details.locator('duration-field div.opacity-30');
             await expect(secondary).toHaveCount(enabled ? 1 : 0);
             if (enabled) {
