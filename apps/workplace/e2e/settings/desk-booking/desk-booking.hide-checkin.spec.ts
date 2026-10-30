@@ -9,11 +9,14 @@
 import { SchedulePage } from '../../../../../e2e/support/bookings/schedule.page';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { getOnly, prepareSettings, type Settings, test } from '../support/settings-harness';
+import { getOnly, hiddenAssets, prepareSettings, type Settings, test } from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
 const ID = 9100047;
+
+const HIDDEN = hiddenAssets('e2e-settings');
+const PARKING_CATEGORY = HIDDEN.categories.find((category) => category.name === '_PARKING_')!.id;
 
 const BASE: Settings = {
     ...READ_ONLY_SETTINGS,
@@ -40,12 +43,21 @@ for (const hidden of [false, true]) {
     test(`bookings.hide_checkin ${hidden} gates the control on a synthetic owned desk booking`, async ({ staffPage, audit }) => {
         // Every booking-card injects ParkingService, whose constructor effects
         // resolve the hidden asset categories and types (parking-assets.fn.ts);
-        // prepareSettings answers those GETs so nothing is created.
+        // prepareSettings answers those GETs so nothing is created; the
+        // 'parking types' route counts the parking category's type GETs only.
         const fixture = await prepareSettings(staffPage, {
             'app.features': ['desks'], 'app.bookings.hide_checkin': hidden,
             'app.desks.hide_checkin': false, 'app.desk.hide_checkin': false,
             'app.desk.auto_checkin': false, 'app.desks.auto_checkin': false,
-        }, { audit, base: BASE, locale: 'en-US', landingRooms: false });
+        }, {
+            audit, base: BASE, locale: 'en-US', landingRooms: false,
+            routes: () => getOnly(staffPage, audit, 'parking types', (url) =>
+                url.pathname === '/api/engine/v2/asset_types' &&
+                url.searchParams.get('category_id') === PARKING_CATEGORY && url.searchParams.get('limit') === '500',
+            () => HIDDEN.type_rows[PARKING_CATEGORY].map((row) => ({
+                ...row, category_id: PARKING_CATEGORY, brand: 'PlaceOS',
+            }))),
+        });
         // Freeze Date.now (timers keep running) so the near-start window holds.
         const instant = frozenInstant();
         await staffPage.clock.setFixedTime(instant);
@@ -82,7 +94,7 @@ for (const hidden of [false, true]) {
         // A type lookup can come from ParkingService._loadUsers alone;
         // _loadSpaces only runs when the active organisation has parking levels.
         // This proves a bootstrap lookup used the stub, not that spaces exist.
-        await expect.poll(() => audit.fixtures['hidden types'] ?? 0,
+        await expect.poll(() => audit.fixtures['parking types'] ?? 0,
             { message: 'ParkingService must resolve at least one type from the GET fixture' }).toBeGreaterThan(0);
         const modal = await schedule.openDetails(ID);
         await expect(modal).toContainText('Settings check-in visibility');
