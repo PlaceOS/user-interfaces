@@ -607,33 +607,6 @@ export const MOCK_PURCHASE_ORDERS = Array(30)
         };
     });
 
-// Helper functions for asset management
-export const getAssetsByCategory = (categoryId: string) =>
-    (MOCK_ASSETS as any).filter((asset) => asset.category_id === categoryId);
-
-export const getAssetsByStatus = (status: string) =>
-    (MOCK_ASSETS as any).filter((asset) => asset.status === status);
-
-export const getAssetsByLocation = (building: string, floor?: number) =>
-    (MOCK_ASSETS as any).filter(
-        (asset) =>
-            asset.location?.building === building &&
-            (!floor || asset.location?.floor === floor),
-    );
-
-export const getAvailableAssets = () =>
-    (MOCK_ASSETS as any).filter((asset) => asset.status === 'Available');
-
-export const getAssetsRequiringMaintenance = () =>
-    MOCK_ASSETS.filter((asset) => {
-        const schedule = asset.other_data?.maintenance_schedule;
-        if (!schedule) return false;
-        return (
-            schedule.next_service <=
-            getUnixTime(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))
-        ); // Due within 7 days
-    });
-
 const MOCK_PARKING_ASSETS_CACHE: Record<string, any[]> = {};
 
 export function generateMockParkingAssets(zone_id: string) {

@@ -472,5 +472,3 @@ export const MOCK_EVENTS = (() => {
 
     return uniqueEvents.sort((a, b) => a.event_start - b.event_start);
 })();
-
-export const event_spaces = MOCK_SPACES.map((space) => space.id);

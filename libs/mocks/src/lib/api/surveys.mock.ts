@@ -774,10 +774,3 @@ export function registerMockSurveys() {
         },
     });
 }
-
-// Re-export for mocks.ts compatibility
-export const SURVEY_MOCKS = {
-    MOCK_SURVEYS,
-    MOCK_QUESTIONS,
-    MOCK_ANSWERS,
-};
