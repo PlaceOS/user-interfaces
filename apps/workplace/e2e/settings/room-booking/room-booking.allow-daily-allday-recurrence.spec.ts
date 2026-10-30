@@ -1,4 +1,4 @@
-// Phase 2 migration to the current MeetingFlow (details all-day/recurrence; options confirmBooking).
+// events.allow_daily_allday_recurrence on the MeetingFlow details step (All Day, recurrence) and options step (confirmBooking).
 // Covered active keys: events.allow_daily_allday_recurrence
 // Form state and incidental bootstrap fixtures exist only in this browser.
 import type { BrowserContext as MigrationContext, Page as MigrationPage, TestInfo as MigrationTestInfo } from '@playwright/test';
@@ -305,7 +305,7 @@ async function dailyAllDayState(flow: MeetingFlow) {
 }
 
 for (const enabled of [false, true]) {
-    readOnlyTest(`WPA draft: events.allow_daily_allday_recurrence ${enabled} controls form confirmation`,
+    readOnlyTest(`events.allow_daily_allday_recurrence ${enabled} controls confirmation of an all-day daily meeting`,
         async ({ staffPage, migrationAudit }, info) => {
             const email = migrationStaffEmail(info.parallelIndex);
             const { flow, settings } = await openDetails(staffPage, {
@@ -358,3 +358,49 @@ for (const enabled of [false, true]) {
             expect(migrationAudit.blocked_api_requests, 'no write or provider request may be attempted').toEqual([]);
         });
 }
+
+readOnlyTest("events.allow_daily_allday_recurrence false allows an all-day meeting set to Daily and back to Doesn't repeat",
+    async ({ staffPage, migrationAudit }, info) => {
+        const email = migrationStaffEmail(info.parallelIndex);
+        const { flow, settings } = await openDetails(staffPage, {
+            'app.events.allow_daily_allday_recurrence': false,
+            'app.events.allow_recurrence': true,
+            'app.events.allow_all_day': true,
+            'app.events.all_day_period': { start: 9, end: 17 },
+            'app.events.no_standalone': false,
+            'app.events.booking_unavailable': false,
+        }, email);
+        await flow.setAllDay(true);
+        await expect(flow.recurrence).toBeVisible();
+        await flow.recurrence.click();
+        await staffPage.getByRole('option', { name: 'Daily', exact: true }).click();
+        await expect(flow.recurrence).toContainText('Daily');
+        await flow.recurrence.click();
+        await staffPage.getByRole('option', { name: "Doesn't repeat", exact: true }).click();
+        await expect(flow.recurrence).toContainText("Doesn't repeat");
+        await staffPage.goto('/#/book/meeting/form?view=2');
+        await expect(flow.options).toBeVisible();
+        // "Doesn't repeat" is stored as pattern 'daily' with _pattern 'none' (recurrence.ts).
+        await expect.poll(() => dailyAllDayState(flow), {
+            message: 'a valid unsaved roomless all-day form with no recurrence must reach the recurrence gate',
+        }).toEqual({
+            valid: true, id: '', title: TITLE, future: true, rooms: 0,
+            all_day: true, pattern: 'daily', chosen: 'none',
+            no_standalone: false, booking_unavailable: false, strict_capacity: false, loading: false,
+        });
+        await expect(flow.confirm).toBeEnabled();
+        await flow.confirm.click();
+        const standalone = staffPage.locator('confirm-modal');
+        // Past the recurrence gate, a roomless meeting asks before postForm.
+        await expect(standalone).toHaveCount(1);
+        await expect(standalone.locator('header h2')).toHaveText(STANDALONE_TITLE);
+        await expect(staffPage.locator('mat-snack-bar-container').filter({ hasText: DAILY_RECURR_ERROR })).toHaveCount(0);
+        // Never send: cancel instead of accept.
+        await standalone.locator('footer button[mat-dialog-close]').click();
+        await expect(standalone).toHaveCount(0);
+        await expect(staffPage.locator('event-link-modal')).toHaveCount(0);
+        await expect(flow.success).toHaveCount(0);
+        await expect(staffPage).toHaveURL(/#\/book\/meeting\/form\?view=2$/);
+        await expectSettings(staffPage, settings);
+        expect(migrationAudit.blocked_api_requests, 'no write or provider request may be attempted').toEqual([]);
+    });
