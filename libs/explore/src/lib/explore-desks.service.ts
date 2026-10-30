@@ -212,7 +212,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             this.subscription(
                 `lvl-in_use`,
                 binding.bindThenSubscribe((d) =>
-                    this.processBindingChange(d || {}, mod.id),
+                    this.processBindingChange(d || {}, mod.system.id),
                 ),
             );
         }

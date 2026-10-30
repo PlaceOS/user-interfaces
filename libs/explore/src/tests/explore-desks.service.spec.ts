@@ -152,6 +152,30 @@ describe('ExploreDesksService', () => {
         expect(booking_service.confirmPost).toHaveBeenCalled();
     });
 
+    it('should give device features the AreaManagement system id', () => {
+        const device = { location: 'wireless', mac: 'aa:bb', x: 1, y: 1 };
+        const variable = vi.fn(() => ({
+            bindThenSubscribe: (cb: (d: any) => void) => {
+                cb({ value: [device] });
+                return () => null;
+            },
+        }));
+        (spectator.inject(OrganisationService) as any).module = vi.fn(() => ({
+            id: 'AreaManagement_1',
+            system: { id: 'sys-1' },
+            variable,
+        }));
+        const state = spectator.inject(ExploreStateService);
+
+        (spectator.service as any)._bindToLevel('lvl-1');
+
+        expect(state.setFeatures).toHaveBeenCalledWith('devices', [
+            expect.objectContaining({
+                data: expect.objectContaining({ system: 'sys-1' }),
+            }),
+        ]);
+    });
+
     it('should preserve the all-day default when booking a desk from the map', async () => {
         const booking_service = spectator.inject(BookingFormService) as any;
         const { model, form } = generateBookingForm(
