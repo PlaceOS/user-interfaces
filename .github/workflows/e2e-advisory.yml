@@ -275,10 +275,10 @@ jobs:
               id: local
               run: bunx playwright test --config apps/workplace/playwright.config.ts --project=local --project=mock
 
-            # The Workplace settings suite: about 400 tests, roughly 40 minutes on
-            # this machine. Scheduled and manual runs only. It also runs after a
-            # failed `local` step, but not when that step was skipped (the stack
-            # never came up).
+            # The Workplace settings suite: about 400 tests, about 12 minutes on
+            # this machine with six workers. Scheduled and manual runs only. It
+            # also runs after a failed `local` step, but not when that step was
+            # skipped (the stack never came up).
             #
             # The PLAYWRIGHT_* variables and --output move this run's reports and
             # test artifacts away from the `local` run's, which Playwright would
