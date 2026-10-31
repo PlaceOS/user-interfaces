@@ -108,8 +108,11 @@ jobs:
             # The runner is a 12-core, 16 GB Mac that also hosts the stack's
             # containers, the Angular dev server and the browsers. Seeding reads
             # this too (one staff user, desk and room set per worker), so it must
-            # be the same here as in the test step.
-            E2E_WORKERS: '4'
+            # be the same here as in the test step. Six workers became faster
+            # than four once the specs paused the animated page background
+            # (e2e/support/background.ts); before that the browsers used all
+            # the CPU.
+            E2E_WORKERS: '6'
             TZ: 'Etc/UTC'
         steps:
             # persist-credentials: false — checkout otherwise leaves the token in
