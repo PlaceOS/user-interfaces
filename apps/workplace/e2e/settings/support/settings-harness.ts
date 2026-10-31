@@ -25,6 +25,11 @@ import {
     staffEmail,
 } from '../../../../../e2e/support/env';
 import { test as baseTest, expect } from '../../../../../e2e/support/fixtures';
+import {
+    closedByTeardown,
+    ignoreClosed,
+    jsonBody,
+} from '../../../../../e2e/support/teardown';
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import {
@@ -232,6 +237,10 @@ export const test = readOnlyTest.extend<{
                 });
                 await use(audit);
             } finally {
+                // Route handlers still running when the context closes fail
+                // with a closed-target error. Those come from this teardown,
+                // so they are dropped; errors recorded during the test stay.
+                const recorded = audit.monitoring_errors.length;
                 try {
                     await context.close();
                 } catch (error) {
@@ -240,6 +249,10 @@ export const test = readOnlyTest.extend<{
                     );
                 }
                 await Promise.all(closing);
+                const late = audit.monitoring_errors.splice(recorded);
+                audit.monitoring_errors.push(
+                    ...late.filter((error) => !closedByTeardown(error)),
+                );
                 try {
                     await info.attach('settings-safety-audit', {
                         body: Buffer.from(JSON.stringify(audit, null, 2)),
@@ -1310,14 +1323,14 @@ export async function prepareSettings(
                 url.pathname === '/api/engine/v2/users/current' &&
                 response.request().method() === 'GET'
             )
-                identity = response.json();
+                identity = jsonBody(response);
         });
     else if (identity_mode)
         await page.route(
             (url) =>
                 ORIGINS.has(url.origin) &&
                 url.pathname === '/api/engine/v2/users/current',
-            async (route: Route) => {
+            ignoreClosed(async (route: Route) => {
                 if (route.request().method() !== 'GET') return route.fallback();
                 const response = await route.fetch();
                 const user = await response.json();
@@ -1326,7 +1339,7 @@ export async function prepareSettings(
                     response,
                     json: { ...user, groups: identity_mode.groups },
                 });
-            },
+            }),
         );
     const hidden =
         typeof options.hidden === 'object'
@@ -3207,6 +3220,9 @@ export function migrationAuditFor(
                     await register(staffPage.context());
                     await use(audit);
                 } finally {
+                    // As in `test`: closed-target errors from this teardown
+                    // are dropped; errors recorded during the test stay.
+                    const recorded = audit.monitoring_errors.length;
                     for (const context of contexts) {
                         try {
                             await context.close();
@@ -3218,6 +3234,10 @@ export function migrationAuditFor(
                     }
                     await Promise.all(closing);
                     await Promise.all(identities);
+                    const late = audit.monitoring_errors.splice(recorded);
+                    audit.monitoring_errors.push(
+                        ...late.filter((error) => !closedByTeardown(error)),
+                    );
                     for (const context of navigated) {
                         if (!identified.has(context))
                             audit.monitoring_errors.push(

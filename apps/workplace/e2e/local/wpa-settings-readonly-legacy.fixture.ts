@@ -1,6 +1,7 @@
 import { pauseBackground } from '../../../../e2e/support/background';
 import { APP_URL, BACKEND_URL, staffEmail } from '../../../../e2e/support/env';
 import { expect, test } from '../../../../e2e/support/fixtures';
+import { closedByTeardown } from '../../../../e2e/support/teardown';
 
 export const READ_ONLY_SETTINGS: Record<string, unknown> = {
     'app.allow_dark_mode': false,
@@ -38,7 +39,8 @@ export const readOnlyTest = test.extend<{
             sys_admin?: boolean;
             support?: boolean;
         };
-        const identities: Promise<StaffIdentity | null>[] = [];
+        // undefined: the body was still loading when the context closed.
+        const identities: Promise<StaffIdentity | null | undefined>[] = [];
         try {
             // Registered before the page exists, so its first request is covered.
             await context.route('**/api/**', async (route) => {
@@ -69,7 +71,9 @@ export const readOnlyTest = test.extend<{
                         response
                             .json()
                             .then((user: StaffIdentity) => user)
-                            .catch(() => null),
+                            .catch((error) =>
+                                closedByTeardown(error) ? undefined : null,
+                            ),
                     );
                 }
             });
@@ -80,7 +84,11 @@ export const readOnlyTest = test.extend<{
                 blocked,
                 'read-only scenario must perform zero API mutations',
             ).toEqual([]);
-            const observed = await Promise.all(identities);
+            // A test that uses the settings audit has its context closed by
+            // the audit first, so a late body can be cut off before this.
+            const observed = (await Promise.all(identities)).filter(
+                (user) => user !== undefined,
+            );
             expect(
                 observed.length,
                 'the app must establish staff identity',

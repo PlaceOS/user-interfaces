@@ -167,6 +167,7 @@ e2e/                          shared engine, all apps
     login.ts                    drives the REAL login form
     fixtures.ts                 worker-scoped auth fixtures — import test/expect from here
     background.ts               pauses the animated page background in a browser context
+    teardown.ts                 tells teardown errors from app errors (closedByTeardown, jsonBody)
     api.ts                      engine/staff-api helpers + asset sweep
     flows.ts                    multi-step UI flows (bookDeskViaUI)
     visitor/                    visitor-invite coverage, kept out of the files above
@@ -417,4 +418,9 @@ failure that looked like something else entirely.
   first page. The `context` fixture does it for you. The animated page background
   costs headless Chromium about 5 CPU-s per page load, and on the CPU-bound CI
   runner that is most of the run time.
+- **The app can still have requests in flight when a test ends.** A route handler
+  that calls `route.fetch()`, or a response body kept for later, then fails with a
+  closed-target error. Wrap such a handler in `ignoreClosed`, and read a kept body
+  with `jsonBody(response)`. The settings audits drop closed-target errors that
+  are recorded after their teardown starts.
 - `.auth/` and `.env` are gitignored — those tokens are impersonation-grade.

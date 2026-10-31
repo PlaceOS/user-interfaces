@@ -13,6 +13,7 @@ import {
     BACKEND_URL,
 } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
+import { jsonBody } from '../../../../../e2e/support/teardown';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
     type Audit,
@@ -38,7 +39,7 @@ async function preparePage(
             response.request().method() === 'GET' &&
             new URL(response.url()).pathname === '/api/engine/v2/users/current'
         )
-            identity = response.json();
+            identity = jsonBody(response);
     });
     // BookingFormService.loadForm/newForm -> CalendarService.loadCalendars reads
     // the calendar provider (/api/staff/v1/calendars). Keep it local and empty.

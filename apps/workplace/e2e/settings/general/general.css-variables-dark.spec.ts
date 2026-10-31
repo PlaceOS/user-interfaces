@@ -5,7 +5,7 @@
 // `<style id="css-var-overrides">`. The dark-mode toggle itself saves a user
 // preference (a write), so this test only applies the documented theme class
 // locally and checks the resulting custom property.
-import type { Page } from '@playwright/test';
+import type { Page, Route } from '@playwright/test';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import {
     APP_URL,
@@ -13,6 +13,7 @@ import {
     assertLocalOnly,
 } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
+import { ignoreClosed } from '../../../../../e2e/support/teardown';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
     ORIGINS,
@@ -155,7 +156,7 @@ async function orgDarkVariables(page: Page) {
         (url) =>
             ORIGINS.has(url.origin) &&
             url.pathname === '/api/engine/v2/metadata/settings/bulk',
-        async (route) => {
+        ignoreClosed(async (route: Route) => {
             if (route.request().method() !== 'GET') return route.fallback();
             const url = new URL(route.request().url());
             const ids = (url.searchParams.get('parent_ids') ?? '')
@@ -180,7 +181,7 @@ async function orgDarkVariables(page: Page) {
                     ]),
                 ),
             });
-        },
+        }),
     );
     return () => served;
 }

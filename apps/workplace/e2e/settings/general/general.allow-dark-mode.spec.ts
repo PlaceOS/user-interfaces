@@ -6,6 +6,7 @@ import {
     assertLocalOnly,
 } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
+import { jsonBody } from '../../../../../e2e/support/teardown';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
     type Audit,
@@ -43,7 +44,7 @@ async function openBranding(
             response.request().method() === 'GET' &&
             new URL(response.url()).pathname === '/api/engine/v2/users/current'
         )
-            identity = response.json();
+            identity = jsonBody(response);
     });
     let theme_reads = 0;
     await page.route(

@@ -1,4 +1,4 @@
-import type { BrowserContext, Page } from '@playwright/test';
+import type { BrowserContext, Page, Route } from '@playwright/test';
 import {
     APP_URL,
     assertLocalOnly,
@@ -7,6 +7,7 @@ import {
 } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../../e2e/support/parking/parking.settings';
+import { ignoreClosed } from '../../../../../e2e/support/teardown';
 import {
     hiddenAssetRoutes,
     hiddenAssets,
@@ -230,7 +231,7 @@ const LANDING_HIDDEN = hiddenAssets('e2e-settings-landing');
             (url) =>
                 origins.includes(url.origin) &&
                 url.pathname === '/api/engine/v2/metadata/settings/bulk',
-            async (route) => {
+            ignoreClosed(async (route: Route) => {
                 if (route.request().method() !== 'GET') return route.fallback();
                 const url = new URL(route.request().url());
                 const ids = (url.searchParams.get('parent_ids') ?? '')
@@ -256,7 +257,7 @@ const LANDING_HIDDEN = hiddenAssets('e2e-settings-landing');
                         ]),
                     ),
                 });
-            },
+            }),
         );
     }
 
