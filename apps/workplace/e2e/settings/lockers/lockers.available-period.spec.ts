@@ -32,17 +32,17 @@ async function openLockerPicker(page: Page, audit: Audit, available_period: numb
     await form.locator('button[name="add-locker"]').click();
     const modal = page.locator('locker-select-modal');
     await expect(modal).toBeVisible();
+    // The drawer starts closed at this width. Its hidden class arrives a render
+    // after the modal, so a visibility check here can see it open for a moment.
     const filters = modal.locator('locker-filters');
-    if (!(await filters.isVisible().catch(() => false))) {
-        await modal
-            .locator('button')
-            .filter({
-                has: page.locator('icon', {
-                    hasText: /^\s*filter_list\s*$/,
-                }),
-            })
-            .click();
-    }
+    await modal
+        .locator('button')
+        .filter({
+            has: page.locator('icon', {
+                hasText: /^\s*filter_list\s*$/,
+            }),
+        })
+        .click();
     await expect(filters).toBeVisible();
     return filters;
 }

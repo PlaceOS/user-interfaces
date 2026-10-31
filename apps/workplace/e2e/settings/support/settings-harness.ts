@@ -1134,6 +1134,10 @@ export async function openCalendar(page: Page, root: Locator) {
  * is past the grid, move one month on: the right chevron (named
  * schedule-previous-month) is disabled once the grid passes `to`, so a later
  * day cannot be selectable and null is returned. Any other miss fails.
+ *
+ * The component moves to a new grid before the page renders it, so a cell is
+ * read only once the rendered day numbers match displayed_dates(). Otherwise
+ * the index can point at a cell of the previous month.
  */
 export async function dayCell(
     page: Page,
@@ -1148,25 +1152,49 @@ export async function dayCell(
         date.setHours(0, 0, 0, 0);
         return date.valueOf();
     }, offset);
+    // The target's index on the rendered grid, or null until the page shows
+    // the component's grid.
     const position = () =>
         picker.evaluate((element, id) => {
             const calendar = (window as DebugWindow).ng?.getComponent(
                 element,
             ) as { displayed_dates(): { id: number }[] } | undefined;
             if (!calendar) throw new Error('Calendar debug API required');
-            return calendar.displayed_dates().findIndex((day) => day.id === id);
+            const dates = calendar.displayed_dates();
+            const shown = [
+                ...element.querySelectorAll('button[name="schedule-set-date"]'),
+            ].map((cell) => parseInt(cell.textContent ?? '', 10));
+            const rendered =
+                shown.length === dates.length &&
+                dates.every(
+                    (day, i) => new Date(day.id).getDate() === shown[i],
+                );
+            return rendered ? dates.findIndex((day) => day.id === id) : null;
         }, target);
-    let index = await position();
+    // Waits for a rendered grid (and, with onGrid, one that holds the target).
+    const rendered = async (message: string, onGrid = false) => {
+        let index = -1;
+        await expect
+            .poll(
+                async () => {
+                    const at = await position();
+                    if (at !== null) index = at;
+                    return at !== null && (!onGrid || at >= 0);
+                },
+                { message },
+            )
+            .toBe(true);
+        return index;
+    };
+    let index = await rendered('the calendar grid is rendered');
     if (index < 0) {
         const next = picker.locator('button[name="schedule-previous-month"]');
         if (await next.isDisabled()) return null;
         await next.click();
-        await expect
-            .poll(position, {
-                message: offset + ' days ahead is on the next month grid',
-            })
-            .toBeGreaterThanOrEqual(0);
-        index = await position();
+        index = await rendered(
+            offset + ' days ahead is on the next month grid',
+            true,
+        );
     }
     return cells.nth(index);
 }

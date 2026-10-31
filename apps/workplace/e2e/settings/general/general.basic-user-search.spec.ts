@@ -82,6 +82,9 @@ test('basic_user_search true searches the PlaceOS user list for landing colleagu
     await expect(modal).toBeVisible();
     const input = modal.locator('input[matInput]');
     await expect(input).toBeEnabled();
+    // The modal renders before its first change detection, which runs
+    // ngOnInit and clears the search. ng-pristine is set in that pass.
+    await expect(input).toHaveClass(/\bng-pristine\b/);
     // ngModel -> setOptions -> 500ms debounce. Fill once so no partial
     // query can reach the provider-backed directory between keystrokes.
     await input.fill(QUERY);
