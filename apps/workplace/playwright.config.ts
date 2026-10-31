@@ -5,7 +5,7 @@ import { workspaceRoot } from '@nx/devkit';
 
 // env.ts self-loads e2e/.env before reading any E2E_* var, so importing it here
 // is enough to get .env applied.
-import { APP_URL, BACKEND_URL, WORKERS, assertLocalOnly } from '../../e2e/support/env';
+import { APP_URL, BACKEND_URL, WEBSERVER_TIMEOUT_MS, WORKERS, assertLocalOnly } from '../../e2e/support/env';
 
 // Fail fast, loudly, before a single browser launches, if anything points at a
 // backend that is not local. This suite creates and deletes real data.
@@ -13,6 +13,28 @@ assertLocalOnly(BACKEND_URL, APP_URL);
 
 const CI = !!process.env.CI;
 const PORT = new URL(APP_URL).port || '4214';
+
+// Settings specs built on the settings-harness browser-only fixtures
+// (browserOnlyTest, meetingTest, zoneSensorTest). They answer every request in
+// the browser, so they need no backend and no preflight.
+const BROWSER_ONLY_SETTINGS = [
+    'explore/explore.area-count-key',
+    'explore/explore.show-booking-qr',
+    'explore/explore.show-event-details',
+    'explore/explore.show-presence-indicators',
+    'explore/explore.show-zone-sensor-info',
+    'explore/explore.use-imperial-units',
+    'explore/explore.zone-polygons-and-labels',
+    'room-booking/room-booking.allow-attendee-internal-or-external',
+    'room-booking/room-booking.allow-international',
+    'room-booking/room-booking.breakdown',
+    'room-booking/room-booking.force-current-user-for-booking-rules',
+    'room-booking/room-booking.force-host',
+    'room-booking/room-booking.no-approval',
+    'room-booking/room-booking.no-space-resource',
+    'room-booking/room-booking.room-as-host',
+    'room-booking/room-booking.setup',
+].map((spec) => `**/settings/${spec}.spec.ts`);
 
 export default defineConfig({
     ...nxE2EPreset(__filename, { testDir: './e2e' }),
@@ -49,7 +71,7 @@ export default defineConfig({
         navigationTimeout: 45_000,
     },
     projects: [
-        // --- preflight: prove the stack is up, for `local` only -------------
+        // --- preflight: prove the stack is up, for `local` and `settings` ---
         // A setup project rather than `globalSetup`, which would also run for
         // `mock` and make a backend-free project need a backend.
         {
@@ -69,6 +91,24 @@ export default defineConfig({
             use: { ...devices['Desktop Chrome'] },
         },
 
+        // --- Workplace settings specs against the local backend ------------
+        {
+            name: 'settings',
+            testDir: './e2e/settings',
+            testIgnore: BROWSER_ONLY_SETTINGS,
+            dependencies: ['preflight'],
+            use: { ...devices['Desktop Chrome'] },
+        },
+
+        // --- Workplace settings specs that need no backend -----------------
+        // No preflight dependency, so these run without the local stack.
+        {
+            name: 'settings-browser',
+            testDir: './e2e/settings',
+            testMatch: BROWSER_ONLY_SETTINGS,
+            use: { ...devices['Desktop Chrome'] },
+        },
+
         // --- mock mode: no backend at all, fast render regression ----------
         // Kept deliberately. It costs no infrastructure and catches pure UI
         // breakage, so it stays as its own project rather than being replaced.
@@ -84,7 +124,7 @@ export default defineConfig({
         {
             name: 'mock',
             testDir: './e2e',
-            testIgnore: ['**/local/**'],
+            testIgnore: ['**/local/**', '**/settings/**'],
             use: { ...devices['Desktop Chrome'] },
         },
     ],
@@ -93,7 +133,7 @@ export default defineConfig({
         url: APP_URL,
         reuseExistingServer: !CI,
         cwd: workspaceRoot,
-        timeout: 180_000,
+        timeout: WEBSERVER_TIMEOUT_MS,
         // Point the dev server's API proxy at the local stack instead of its
         // default (the shared dev deployment). See config/proxy.conf.js.
         env: {

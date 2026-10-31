@@ -291,7 +291,7 @@
                 },
                 "allow_international": {
                     "type": "boolean",
-                    "description": "Whether international phone numbers are accepted for visitors"
+                    "description": "Whether an International checkbox is shown for each visitor"
                 },
                 "allow_visitor_internal_or_external": {
                     "type": "boolean",

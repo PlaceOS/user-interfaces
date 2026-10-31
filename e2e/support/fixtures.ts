@@ -12,6 +12,7 @@ import { test as base, expect, APIRequestContext, Page, request as pwRequest } f
 import * as path from 'path';
 import { APP_URL, AUTH_DIR, BACKEND_URL } from './env';
 import { mintForWorker } from './api';
+import { pauseBackground } from './background';
 
 interface WorkerFixtures {
     /** storageState path for the admin identity of THIS worker. */
@@ -28,6 +29,12 @@ interface TestFixtures {
 }
 
 export const test = base.extend<TestFixtures, WorkerFixtures>({
+    // Every page pauses the animated background (see background.ts).
+    context: async ({ context }, use) => {
+        await pauseBackground(context);
+        await use(context);
+    },
+
     // Default every test to the admin identity of its own worker. Specs whose
     // subject IS authentication opt out with `test.use({ storageState: undefined })`
     // and drive loginViaUI instead.
@@ -69,6 +76,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
             ignoreHTTPSErrors: true,
             baseURL: APP_URL,
         });
+        await pauseBackground(ctx);
         const page = await ctx.newPage();
         await use(page);
         await ctx.close();

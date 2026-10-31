@@ -22,8 +22,20 @@ export E2E_BACKEND_URL=https://localhost:9443
 bunx playwright test --config apps/workplace/playwright.config.ts                    # everything
 bunx playwright test --config apps/workplace/playwright.config.ts --project=local    # real backend
 bunx playwright test --config apps/workplace/playwright.config.ts --project=mock     # no backend
+bunx playwright test --config apps/workplace/playwright.config.ts --project=settings          # Workplace settings, real backend
+bunx playwright test --config apps/workplace/playwright.config.ts --project=settings-browser  # Workplace settings, no backend
 bunx playwright test --config apps/workplace/playwright.config.ts --ui               # watch it
 ```
+
+| Project | Specs | Needs the stack | CI (`e2e-advisory.yml`) |
+|---|---|---|---|
+| `local` | `apps/workplace/e2e/local/` | yes | every run |
+| `mock` | `apps/workplace/e2e/*.spec.ts` | no | every run |
+| `settings` | `apps/workplace/e2e/settings/`, except the browser-only ones | yes | nightly and "Run workflow" only |
+| `settings-browser` | the browser-only settings specs listed in `BROWSER_ONLY_SETTINGS` in the config | no | every run, on a GitHub-hosted runner |
+
+`local` and `settings` depend on `preflight`, which checks the stack is up. Add
+`--no-deps` to skip it.
 
 Playwright starts the Angular dev server itself (`nx serve workplace --port=4214`)
 and points its API proxy at the stack. Nothing reaches the network.
@@ -154,6 +166,8 @@ e2e/                          shared engine, all apps
     auth.ts                     headless PKCE mint -> storageState
     login.ts                    drives the REAL login form
     fixtures.ts                 worker-scoped auth fixtures — import test/expect from here
+    background.ts               pauses the animated page background in a browser context
+    teardown.ts                 tells teardown errors from app errors (closedByTeardown, jsonBody)
     api.ts                      engine/staff-api helpers + asset sweep
     flows.ts                    multi-step UI flows (bookDeskViaUI)
     visitor/                    visitor-invite coverage, kept out of the files above
@@ -182,13 +196,14 @@ e2e/                          shared engine, all apps
       fixtures.ts                 admin session, bearer, harness driver, zones
     repro/                      standalone reproducers for confirmed backend bugs
     preflight.ts                "is the stack up?" — fails in 1s, not 90
-    preflight.setup.ts          setup project — `local` depends on it, `mock` does not
+    preflight.setup.ts          setup project: `local` and `settings` depend on it
     seed.ts                     idempotent API-driven seeding
   .env.example                  copy to .env to override anything
 apps/workplace/
-  playwright.config.ts        projects: preflight, local, mock
+  playwright.config.ts        projects: preflight, local, settings, settings-browser, mock
   e2e/
     local/*.spec.ts             real-backend specs
+    settings/                   Workplace settings specs (`settings`, `settings-browser`)
     *.spec.ts                   mock-mode specs (no backend)
 ```
 
@@ -330,7 +345,8 @@ CI-specific choices worth knowing:
 
 | | |
 |---|---|
-| `E2E_WORKERS: 4` | The same as the local default. The runner also hosts ~10 containers, a dev server and the browsers, and four workers already use all of it: a trial with six took the same time, because each test ran about 50% slower. |
+| `E2E_WORKERS: 6` | Higher than the local default of 4. The runner also hosts ~10 containers, a dev server and the browsers. Before the specs paused the animated page background (`support/background.ts`), four workers used all the CPU and six were no faster. Now six workers run both test steps in about 19 minutes, against 23 minutes with four. Seeding reads the same value, so set it once for the job. |
+| `E2E_WEBSERVER_TIMEOUT_MS: '900000'` (settings-browser job only) | The config's webServer timeout, 180000 ms unless set. The GitHub-hosted runner starts `nx serve workplace` cold with no Nx cache, which can take longer than the default. |
 | No `pull_request` trigger | This repo is public and the runner is self-hosted, so a fork PR could run arbitrary code on an internal machine. Triggers are limited to ones requiring write access. Do not add it back without moving to `ubuntu-latest`. |
 | Reclaim step | A self-hosted machine is not a fresh VM; a previous aborted run can leave the stack up or port 4214 held. |
 | No `vm.max_map_count` bump | Needed on GitHub-hosted Linux, meaningless on macOS — the value lives inside Colima's VM, which already sets it to 1048576. Restore it if reverting to `ubuntu-latest`. |
@@ -398,4 +414,13 @@ failure that looked like something else entirely.
 - **Do not make a booking of TODAY for the user of another worker.** The home page
   shows the first booking a user has today, so the home specs delete every booking
   their user has today (`clearToday`). Book a later day.
+- **A context you create yourself calls `pauseBackground(context)`** before its
+  first page. The `context` fixture does it for you. The animated page background
+  costs headless Chromium about 5 CPU-s per page load, and on the CPU-bound CI
+  runner that is most of the run time.
+- **The app can still have requests in flight when a test ends.** A route handler
+  that calls `route.fetch()`, or a response body kept for later, then fails with a
+  closed-target error. Wrap such a handler in `ignoreClosed`, and read a kept body
+  with `jsonBody(response)`. The settings audits drop closed-target errors that
+  are recorded after their teardown starts.
 - `.auth/` and `.env` are gitignored — those tokens are impersonation-grade.

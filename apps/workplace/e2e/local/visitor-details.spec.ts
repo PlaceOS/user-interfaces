@@ -17,12 +17,11 @@
  * The pass number is behind `visitors.allow_pass_number`, off by default — the
  * classic "only breaks for the customers who switched it on" shape.
  *
- * ## Three tests, and one of them is `fixme`
+ * ## Three tests
  *
  * The pass number and the international tick were one test (VIS-20) while the
- * old form had both controls. The `visitor-flow-new` page has no control for
- * the tick, so the two are split: the pass number stays covered, and the tick
- * waits as `fixme`. See the note on that test.
+ * old form had both controls. They were split when the `visitor-flow-new` page
+ * lacked the tick; the page has it again, so each is now its own test.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import { deleteBooking, getBooking, uniqueTitle } from '../../../../e2e/support/api';
@@ -85,19 +84,12 @@ test.describe('visitor invite details', () => {
     });
 
     /**
-     * The other half of VIS-20. `fixme`, because the `visitor-flow-new` page
-     * has no control for the international tick.
-     *
-     * Measured with `visitors.allow_international` on: the page renders no
-     * `input[name$=".international"]` (count 0), and the invite it sends has
-     * `extension_data.international: false`. No file under `visitor-flow-new`
-     * reads the setting. The old form (`invite-visitor-form`) rendered the
-     * checkbox, but `/book/visitor` no longer opens that form.
-     *
-     * Written as it should pass once the page has the control. It fails today
-     * at `setCheckbox`, with "the checkbox is not on the page".
+     * The other half of VIS-20. With `visitors.allow_international` on,
+     * `visitor-flow-invites` shows a per-visitor international checkbox once a
+     * visitor is named; in single mode it is bound to the form's
+     * `international` field, so it renders as `input[name$=".international"]`.
      */
-    test.fixme('the international flag is stored with the invite', async ({
+    test('the international flag is stored with the invite', async ({
         staffPage,
         staffApi,
     }, testInfo) => {

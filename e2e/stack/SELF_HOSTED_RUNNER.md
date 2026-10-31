@@ -161,7 +161,7 @@ logs in front of you, Ctrl-C to stop.
 | **`setup-bun` with `no-cache`** | `bun.lock` follows the bun version that wrote it, so the runner has to match the version the other workflows pin; a machine-provisioned bun fell behind and failed `--frozen-lockfile` with `Unknown lockfile version`. It installs to `~/.bun/bin`, reuses that when the version matches, and uploads nothing. Bump `bun-version` here with the other workflows. |
 | **Reclaim step** | A self-hosted machine is not a fresh VM. A previous aborted run can leave the stack up or port 4214 held, and that failure looks nothing like its cause. |
 | **No `vm.max_map_count` bump** | Required on hosted Linux, meaningless here — the value lives in Colima's VM and is already high. Restore it if reverting to `ubuntu-latest`. |
-| **`E2E_WORKERS: 4`** | The same as the local default. The machine also hosts ~10 containers, a dev server and the browsers, and four workers already use all of it: a trial with six took the same time, because each test ran about 50% slower. |
+| **`E2E_WORKERS: 6`** | Higher than the local default of 4. The machine also hosts ~10 containers, a dev server and the browsers. Before the specs paused the animated page background (`e2e/support/background.ts`), four workers used all the CPU and six were no faster. Now six workers run both test steps in about 19 minutes, against 23 minutes with four. |
 | **No `pull_request` trigger** | This repo is **public**. A fork PR would run arbitrary code on a machine on an internal network. Every trigger requires write access. Do not add it back without moving to `ubuntu-latest` or making the repo private. |
 
 **Trade-off worth knowing:** dropping remote caching means runs are no longer hermetic
