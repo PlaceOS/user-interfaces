@@ -19,6 +19,7 @@
 import { type BrowserContext } from '@playwright/test';
 import { apiFor, currentUser, ENGINE_API } from '../../../../e2e/support/api';
 import { buildStorageState, mintToken } from '../../../../e2e/support/auth';
+import { pauseBackground } from '../../../../e2e/support/background';
 import { APP_URL, BACKEND_URL } from '../../../../e2e/support/env';
 import { test as base, expect } from '../../../../e2e/support/fixtures';
 import { SCHEDULE_DAYS, slotOn } from '../../../../e2e/support/bookings/bookings.env';
@@ -53,6 +54,7 @@ const test = base.extend({
             context = await browser.newContext({
                 storageState: buildStorageState(token, APP_URL),
             });
+            await pauseBackground(context);
             await use(await context.newPage());
         } finally {
             testInfo.setTimeout(testInfo.timeout + 30_000);

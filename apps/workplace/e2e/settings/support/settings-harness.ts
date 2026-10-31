@@ -15,6 +15,7 @@ import * as fs from 'fs';
 import { join } from 'node:path';
 import { mintForWorker } from '../../../../../e2e/support/api';
 import { clientId, redirectUriFor } from '../../../../../e2e/support/auth';
+import { pauseBackground } from '../../../../../e2e/support/background';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
 import {
     APP_URL,
@@ -2752,6 +2753,7 @@ export function landingSafetyTest(
                 const context = await browser.newContext({ storageState: auth, baseURL: APP_URL,
                     ignoreHTTPSErrors: true, timezoneId: LANDING_TIMEZONE, locale: 'en-AU',
                     viewport: { width: 1440, height: 1100 }, serviceWorkers: 'block' });
+                await pauseBackground(context);
                 await landingMonitors.get(safetyAudit)!(context);
                 // Additional isolated contexts retain the legacy API guard;
                 // the parent fixture guards the first page independently.
@@ -3254,6 +3256,7 @@ export async function migrationNewContext(
         ...options,
         serviceWorkers: 'block',
     });
+    await pauseBackground(context);
     await migrationActive.register(context);
     return context;
 }
@@ -3406,6 +3409,7 @@ export function browserOnlyTest<A extends BrowserAudit>(
                 timezoneId: 'Etc/UTC',
                 ignoreHTTPSErrors: true,
             });
+            await pauseBackground(context);
             let page: Page | undefined;
             let stopping = false;
             const pending = new Set<Promise<void>>();

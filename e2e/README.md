@@ -166,6 +166,7 @@ e2e/                          shared engine, all apps
     auth.ts                     headless PKCE mint -> storageState
     login.ts                    drives the REAL login form
     fixtures.ts                 worker-scoped auth fixtures — import test/expect from here
+    background.ts               pauses the animated page background in a browser context
     api.ts                      engine/staff-api helpers + asset sweep
     flows.ts                    multi-step UI flows (bookDeskViaUI)
     visitor/                    visitor-invite coverage, kept out of the files above
@@ -412,4 +413,8 @@ failure that looked like something else entirely.
 - **Do not make a booking of TODAY for the user of another worker.** The home page
   shows the first booking a user has today, so the home specs delete every booking
   their user has today (`clearToday`). Book a later day.
+- **A context you create yourself calls `pauseBackground(context)`** before its
+  first page. The `context` fixture does it for you. The animated page background
+  costs headless Chromium about 5 CPU-s per page load, and on the CPU-bound CI
+  runner that is most of the run time.
 - `.auth/` and `.env` are gitignored — those tokens are impersonation-grade.

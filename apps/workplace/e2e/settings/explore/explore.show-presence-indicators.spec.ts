@@ -64,6 +64,7 @@ import {
     syntheticExplore,
     syntheticOrgGets,
 } from '../support/settings-harness';
+import { pauseBackground } from '../../../../../e2e/support/background';
 type DebugWindow = Window & {
     ng?: { getComponent(element: Element): unknown };
     setting?: (key: string) => unknown;
@@ -129,6 +130,7 @@ const test = base.extend<{ staffPage: Page; batchAudit: NetworkAudit }>({
             serviceWorkers: 'block', timezoneId: 'Etc/UTC',
             ignoreHTTPSErrors: true, viewport: { width: 1440, height: 1000 },
         });
+        await pauseBackground(context);
         const audit = createAudit();
         try {
             const page = await context.newPage();

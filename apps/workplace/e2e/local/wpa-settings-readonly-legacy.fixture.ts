@@ -1,3 +1,4 @@
+import { pauseBackground } from '../../../../e2e/support/background';
 import { APP_URL, BACKEND_URL, staffEmail } from '../../../../e2e/support/env';
 import { expect, test } from '../../../../e2e/support/fixtures';
 
@@ -30,6 +31,7 @@ export const readOnlyTest = test.extend<{
             serviceWorkers: 'block',
             timezoneId: readOnlyTimezone,
         });
+        await pauseBackground(context);
         const blocked: string[] = [];
         type StaffIdentity = {
             email?: string;
