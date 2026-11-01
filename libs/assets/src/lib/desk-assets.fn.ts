@@ -88,17 +88,84 @@ export async function queryDeskAssetsForZones(
     return flatten(results);
 }
 
+/** Fields with a dedicated place on the asset or desk, everything else is kept in `other_data` */
+const DESK_ASSET_KEYS = new Set([
+    'id',
+    'parent_id',
+    'asset_type_id',
+    'purchase_order_id',
+    'zone_id',
+    'identifier',
+    'serial_number',
+    'other_data',
+    'barcode',
+    'name',
+    'client_ids',
+    'map_id',
+    'bookable',
+    'accessible',
+    'zones',
+    'place_groups',
+    'assigned_to',
+    'assigned_name',
+    'features',
+    'images',
+    'notes',
+    'security_system_groups',
+    'created_at',
+    'updated_at',
+    'zone',
+    'groups',
+    'security',
+    'qr_code',
+    'staff_name',
+    'toJSON',
+]);
+
+function isPlainValue(value: unknown) {
+    if (value == null) return false;
+    if (Array.isArray(value)) return value.every((i) => typeof i !== 'object');
+    return typeof value !== 'object' && typeof value !== 'function';
+}
+
 /** Convert a desk asset to the desk model used by booking and map views. */
 export function deskFromAsset(asset: PlaceAsset, zone?: DeskZone): Desk {
+    const other_data = asset.other_data || {};
     const security = asset.security_system_groups?.[0] || '';
     return new Desk({
+        // custom desk fields (tags, homebase, third party ids) live in `other_data`
+        ...other_data,
         ...asset,
         name: asset.identifier || asset.name,
-        map_id: asset.map_id || asset.id,
+        map_id: asset.map_id || other_data['map_id'] || asset.id,
         zone: new PlaceZone(zone || { id: asset.zone_id }),
         groups: asset.place_groups,
         security,
     });
+}
+
+/** Merge the desk's custom fields into the existing `other_data` */
+function deskOtherData(desk: Desk): Record<string, unknown> {
+    const other_data: Record<string, unknown> = {
+        ...(desk['other_data'] || {}),
+    };
+    for (const key of Object.keys(desk)) {
+        if (DESK_ASSET_KEYS.has(key) || key.startsWith('_')) continue;
+        const value = desk[key];
+        if (value === '' || (Array.isArray(value) && !value.length)) {
+            delete other_data[key];
+        } else if (isPlainValue(value)) {
+            other_data[key] = value;
+        }
+    }
+    return other_data;
+}
+
+/** Keep any additional security groups unless the primary group was changed */
+function deskSecurityGroups(desk: Desk): string[] {
+    if (!desk.security) return [];
+    const groups: string[] = desk['security_system_groups'] || [];
+    return groups[0] === desk.security ? groups : [desk.security];
 }
 
 /** Convert a desk model to the asset fields used by the assets API. */
@@ -123,7 +190,8 @@ export function deskToAsset(
         features: desk.features,
         images: desk.images,
         notes: desk['notes'] || '',
-        security_system_groups: desk.security ? [desk.security] : [],
+        security_system_groups: deskSecurityGroups(desk),
+        other_data: deskOtherData(desk) as Record<string, string>,
     };
 }
 

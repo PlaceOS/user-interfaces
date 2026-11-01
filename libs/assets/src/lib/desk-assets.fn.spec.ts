@@ -119,6 +119,80 @@ describe('[Desk Assets]', () => {
         });
     });
 
+    it('should expose custom desk fields from other_data and save them back', async () => {
+        const desks = await load_module();
+        const asset = new ts_client.PlaceAsset({
+            id: 'asset-1',
+            asset_type_id: 'type-1',
+            zone_id: 'level-1',
+            identifier: 'Desk 1',
+            map_id: 'desk-1',
+            security_system_groups: ['secure-desks', 'level-6'],
+            other_data: {
+                tags: ['quiet'],
+                homebase: 'engineering',
+                floorsense_id: 'fs-1234',
+            } as any,
+        });
+
+        const desk = desks.deskFromAsset(asset);
+        expect(desk.tags).toEqual(['quiet']);
+        expect(desk.homebase).toBe('engineering');
+        expect(desk['floorsense_id']).toBe('fs-1234');
+
+        // edits are merged into the existing other_data, unrelated keys survive
+        const edited = new (desk.constructor as any)({
+            ...desk,
+            tags: ['quiet', 'window'],
+            homebase: '',
+        });
+        const saved = desks.deskToAsset(edited, 'level-1');
+        expect(saved.other_data).toEqual({
+            tags: ['quiet', 'window'],
+            floorsense_id: 'fs-1234',
+        });
+        // additional security groups are kept while the primary is unchanged
+        expect(saved.security_system_groups).toEqual([
+            'secure-desks',
+            'level-6',
+        ]);
+
+        const moved = new (desk.constructor as any)({
+            ...desk,
+            security: 'other',
+        });
+        expect(
+            desks.deskToAsset(moved, 'level-1').security_system_groups,
+        ).toEqual(['other']);
+    });
+
+    it('should store custom fields of new desks in other_data', async () => {
+        const desks = await load_module();
+        const { Desk } = await import('@placeos/common');
+        const desk = new Desk({
+            id: 'desk-1',
+            name: 'Desk 1',
+            tags: ['quiet'],
+            floorsense_id: 'fs-1',
+        } as any);
+
+        const saved = desks.deskToAsset(desk, 'level-1');
+        expect(saved.id).toBeUndefined();
+        expect(saved.other_data).toEqual({
+            tags: ['quiet'],
+            floorsense_id: 'fs-1',
+        });
+    });
+
+    it('should fall back to other_data map_id for the map id', async () => {
+        const desks = await load_module();
+        const asset = new ts_client.PlaceAsset({
+            id: 'asset-1',
+            other_data: { map_id: 'desk-legacy' },
+        });
+        expect(desks.deskFromAsset(asset).map_id).toBe('desk-legacy');
+    });
+
     it('should save and delete desk assets', async () => {
         const desks = await load_module();
         vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
