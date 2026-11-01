@@ -509,7 +509,8 @@ export class DesksStateService extends AsyncHandler {
         // written with its own desks.
         const groups = new Map<string, Desk[]>();
         for (const desk of list) {
-            const zone = desk.zone?.id || fallback_zone;
+            // imported rows carry the level as `zone_id`
+            const zone = desk.zone?.id || desk['zone_id'] || fallback_zone;
             if (!zone) {
                 notifyError(i18n('APP.CONCIERGE.DESKS_SELECT_LEVEL'));
                 return;
@@ -519,8 +520,17 @@ export class DesksStateService extends AsyncHandler {
         for (const [zone, desks] of groups) {
             if (this._settings.get('app.desks.use_assets')) {
                 const asset_zones = this._deskAssetZones(zone);
+                const existing = (
+                    await queryDeskAssets(zone).catch(() => [])
+                ).map((asset) => deskFromAsset(asset));
                 await Promise.all(
-                    desks.map((desk) => saveDeskAsset(desk, zone, asset_zones)),
+                    desks.map((desk) =>
+                        saveDeskAsset(
+                            this._matchDeskAsset(desk, existing),
+                            zone,
+                            asset_zones,
+                        ),
+                    ),
                 );
                 continue;
             }
@@ -537,6 +547,28 @@ export class DesksStateService extends AsyncHandler {
             });
         }
         this._change.set(Date.now());
+    }
+
+    /**
+     * Desks without an asset type (imported rows, metadata era exports) update
+     * the desk asset with the same id or map id rather than creating a duplicate.
+     * Migrated desk assets keep the original desk id as their map id.
+     */
+    private _matchDeskAsset(desk: Desk, existing: Desk[]): Desk {
+        if (desk['asset_type_id']) return desk;
+        const map_id = desk.map_id || desk.id;
+        const match = existing.find(
+            (asset) => asset.id === desk.id || asset.map_id === map_id,
+        );
+        if (!match) return desk;
+        return new Desk({
+            ...match,
+            ...desk,
+            id: match.id,
+            map_id: match.map_id,
+            asset_type_id: match['asset_type_id'],
+            other_data: match['other_data'],
+        } as Partial<Desk>);
     }
 
     /** Remove one desk from the configured resource store. */
