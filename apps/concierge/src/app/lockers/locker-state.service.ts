@@ -33,6 +33,7 @@ import {
     updateBooking,
 } from '@placeos/bookings';
 import {
+    assetZones,
     AsyncHandler,
     Booking,
     getTimezoneDifferenceInHours,
@@ -79,6 +80,7 @@ const removeToken = (l: string, t: string) => l.replace(t, '');
 function lockerBankToAsset(
     bank: Partial<LockerBank>,
     zone_id: string,
+    zones: string[],
 ): Partial<PlaceAsset> {
     return {
         ...(bank.id ? { id: bank.id } : {}),
@@ -86,7 +88,7 @@ function lockerBankToAsset(
         map_id: bank.map_id || '',
         notes: (bank as any).notes || '',
         zone_id,
-        zones: bank.zones || [zone_id],
+        zones,
         tags: bank.tags || [],
         other_data: {
             name: bank.name || '',
@@ -101,13 +103,14 @@ function lockerBankToAsset(
 function lockerToAsset(
     locker: Partial<Locker>,
     zone_id: string,
+    zones: string[],
 ): Partial<PlaceAsset> {
     return {
         ...(locker.id ? { id: locker.id } : {}),
         identifier: locker.name || '',
         map_id: locker.map_id || '',
         zone_id,
-        zones: locker.bank?.zones || [],
+        zones,
         features: locker.features || [],
         bookable: locker.bookable !== false,
         parent_id: locker.bank_id || '',
@@ -620,7 +623,11 @@ export class LockerStateService extends AsyncHandler {
             const zone_id = state.metadata.level_id || this._org.building.id;
             const new_bank = { ...state.metadata, id: bank.id };
             const saved = await saveLockerBankAsset(
-                lockerBankToAsset(new_bank, zone_id),
+                lockerBankToAsset(
+                    new_bank,
+                    zone_id,
+                    assetZones(this._org, zone_id),
+                ),
             ).catch((e) => {
                 notifyError(`Failed to save locker bank. ${errorText(e)}`);
                 throw e;
@@ -639,7 +646,9 @@ export class LockerStateService extends AsyncHandler {
         await saveFromModal(ref, async (state) => {
             let saved: PlaceAsset;
             try {
-                const zone_id = bank.zones?.[0] || this._org.building.id;
+                // banks list every zone they are in, `level_id` is the bank's level
+                const zone_id =
+                    bank.level_id || bank.zones?.[0] || this._org.building.id;
                 const new_locker = {
                     ...state.metadata,
                     bank_id: bank.id,
@@ -649,7 +658,11 @@ export class LockerStateService extends AsyncHandler {
                 // Save the locker before clearing the old assignee's booking, so a
                 // failed save does not remove the booking.
                 saved = await saveLockerAsset(
-                    lockerToAsset(new_locker, zone_id),
+                    lockerToAsset(
+                        new_locker,
+                        zone_id,
+                        assetZones(this._org, zone_id),
+                    ),
                 );
                 if (
                     locker.assigned_to &&

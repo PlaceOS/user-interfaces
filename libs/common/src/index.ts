@@ -11,6 +11,7 @@ export * from './lib/locale-data';
 export * from './lib/locale.service';
 export * from './lib/map.interfaces';
 export * from './lib/mapspeople.service';
+export * from './lib/org/asset-zones';
 export * from './lib/org/building.utilities';
 export * from './lib/org/organisation.service';
 export * from './lib/org/organisation.utilities';

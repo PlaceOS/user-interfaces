@@ -488,7 +488,7 @@ describe('ParkingStateService', () => {
         );
     });
 
-    it('should not update zone fields when editing a parking space', async () => {
+    it('should keep the level but refresh the zones when editing a parking space', async () => {
         spectator.service.setOptions({ zones: ['lvl-selected'] });
         const original_space = {
             id: 'space-1',
@@ -523,8 +523,14 @@ describe('ParkingStateService', () => {
         expect(update_data).toEqual(
             expect.objectContaining({ id: 'space-1', bookable: false }),
         );
+        // the space stays on its level, the modal level is not applied
         expect(update_data).not.toHaveProperty('zone_id');
-        expect(update_data).not.toHaveProperty('zones');
+        expect(update_data.zones).toEqual([
+            'org-1',
+            'region-1',
+            'bld-1',
+            'lvl-original',
+        ]);
     });
 
     it('should set zone fields when creating a parking space', async () => {

@@ -29,6 +29,7 @@ import {
     updateBooking,
 } from '@placeos/bookings';
 import {
+    assetZones,
     AsyncHandler,
     Booking,
     BuildingLevel,
@@ -1152,18 +1153,7 @@ export class DesksStateService extends AsyncHandler {
 
     /** Build the complete zone path required for asset scope queries. */
     private _deskAssetZones(level_id: string) {
-        const level = this._org.levels?.find((item) => item.id === level_id);
-        const building =
-            this._org.buildings?.find((item) => item.id === level?.parent_id) ||
-            (this._org.building?.id === level?.parent_id
-                ? this._org.building
-                : undefined);
-        return unique([
-            this._org.organisation?.id,
-            building?.parent_id || this._org.region?.id,
-            building?.id || level?.parent_id,
-            level_id,
-        ]).filter((id) => !!id);
+        return assetZones(this._org, level_id);
     }
 
     private _createAssignedBooking(desk: Desk, zone?: string) {
