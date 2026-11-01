@@ -324,10 +324,12 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         resource_type: ReportResourceType,
         scope_id: string,
     ): Promise<Set<string>> {
+        // assets are queried by level, an asset's `zone_id` is always its level
+        const level_ids = levels.map((level) => level.id);
         switch (resource_type) {
             case 'desks': {
                 if (this._settings.get('app.desks.use_assets')) {
-                    const desks = await queryDeskAssetsForZones([scope_id]);
+                    const desks = await queryDeskAssetsForZones(level_ids);
                     return this._zonesForResources(
                         desks.filter((desk) => desk.bookable),
                     );
@@ -355,13 +357,13 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
                 return this._zonesForResources(spaces);
             }
             case 'parking': {
-                const spaces = await queryParkingSpacesForZones([scope_id]);
+                const spaces = await queryParkingSpacesForZones(level_ids);
                 return this._zonesForResources(spaces);
             }
             case 'lockers': {
                 const [banks, lockers] = await Promise.all([
-                    queryLockerBankAssetsForZones([scope_id]),
-                    queryLockerAssetsForZones([scope_id]),
+                    queryLockerBankAssetsForZones(level_ids),
+                    queryLockerAssetsForZones(level_ids),
                 ]);
                 const zones = new Set<string>();
                 const bookable_bank_ids = new Set(
@@ -384,6 +386,7 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     private _zonesForResources(resources: any[]) {
         const zones = new Set<string>();
         for (const resource of resources || []) {
+            if (resource.zone_id) zones.add(resource.zone_id);
             for (const zone of resource.zones || []) zones.add(zone);
         }
         return zones;

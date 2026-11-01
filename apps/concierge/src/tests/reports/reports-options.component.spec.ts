@@ -10,8 +10,11 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
+import * as ts_client from '@placeos/ts-client';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
 import { of } from 'rxjs';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('ReportsOptionsComponent', () => {
     let spectator: Spectator<ReportsOptionsComponent>;
@@ -142,6 +145,36 @@ describe('ReportsOptionsComponent', () => {
         spectator.component.setZones([]);
         const call = navigate.mock.calls.at(-1);
         expect(call[1].queryParams.zone_ids).toBeUndefined();
+    });
+
+    it('should find desk asset levels when reporting on a building', async () => {
+        settings_map['app.desks.use_assets'] = true;
+        const page = (data: any[]) =>
+            Promise.resolve({ data, total: data.length, next: () => null });
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+        );
+        // desk assets are on levels, `zone_id` never matches the building
+        vi.mocked(ts_client.queryAssets).mockImplementation(
+            (query: any) =>
+                page(
+                    query.zone_id === 'lvl-1'
+                        ? [{ id: 'asset-1', zone_id: 'lvl-1', bookable: true }]
+                        : [],
+                ) as any,
+        );
+
+        const zones = await (spectator.component as any)._requestResourceZones(
+            [{ id: 'lvl-1' }, { id: 'lvl-2' }],
+            'desks',
+            'bld-report-1',
+        );
+
+        expect([...zones]).toContain('lvl-1');
+        expect([...zones]).not.toContain('lvl-2');
     });
 
     it('should keep parking levels selectable when no spaces are returned', async () => {
