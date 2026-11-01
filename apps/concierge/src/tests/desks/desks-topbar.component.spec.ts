@@ -7,7 +7,7 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { OrganisationService } from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of, timer } from 'rxjs';
 
@@ -37,7 +37,10 @@ describe('DesksTopbarComponent', () => {
                 setFilters: vi.fn(),
                 approveDesk: vi.fn(),
                 rejectDesk: vi.fn(),
+                addDesks: vi.fn(),
+                editDesk: vi.fn(),
             }),
+            MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(OrganisationService, {
                 active_levels: signal([]),
                 initialised: signal(true),
@@ -61,6 +64,19 @@ describe('DesksTopbarComponent', () => {
         // approve/reject flow reaches the state service.
         vi.mocked(ts_client.get).mockResolvedValue({ id: 'bkn-123' } as any);
         spectator = createComponent();
+    });
+
+    it('should collect the details of a new desk asset before saving it', () => {
+        const desks = spectator.inject(DesksStateService);
+        vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+            (key: string) =>
+                key === 'app.desks.use_assets' ? true : undefined,
+        );
+
+        spectator.component.newDesk();
+
+        expect(desks.editDesk).toHaveBeenCalledWith();
+        expect(desks.addDesks).not.toHaveBeenCalled();
     });
 
     it('should handle zone_ids query param', async () => {

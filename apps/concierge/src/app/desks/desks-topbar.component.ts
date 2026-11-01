@@ -25,6 +25,7 @@ import {
     notifyInfo,
     OrganisationService,
     randomInt,
+    SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DateOptionsComponent } from '@placeos/form-fields';
@@ -177,6 +178,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
+    private _settings = inject(SettingsService);
 
     /** List of levels for the active building */
     public readonly all_levels = this._org.active_levels;
@@ -265,6 +267,11 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public newDesk() {
+        // desk assets are saved straight away, collect the details first
+        if (this._settings.get('app.desks.use_assets')) {
+            this._desks.editDesk();
+            return;
+        }
         const desk = new Desk({ id: `desk-${randomInt(999_999)}` });
         desk.staff_name = `[NEW_DESK]`;
         this._desks.addDesks([desk]);
