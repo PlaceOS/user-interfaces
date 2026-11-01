@@ -152,6 +152,43 @@ describe('ExploreDesksService', () => {
         expect(booking_service.confirmPost).toHaveBeenCalled();
     });
 
+    it('should match API bookings to desk assets with a separate map id', () => {
+        const service = spectator.service as any;
+        const desks = [
+            // a desk asset, bookings reference the asset id
+            new Desk({ id: 'asset-1', map_id: 'desk-1', bookable: true }),
+            new Desk({ id: 'asset-2', map_id: 'desk-2', bookable: true }),
+            // a metadata desk, bookings reference the map id
+            new Desk({ id: 'desk-3', bookable: true }),
+            new Desk({ id: 'asset-4', map_id: 'desk-4', bookable: true }),
+        ];
+
+        service._updateDeskStatuses(
+            desks,
+            ['asset-1', 'asset-2', 'desk-3'],
+            [],
+            ['asset-2'],
+            [],
+            [],
+        );
+
+        expect(service._statuses['desk-1']()).toBe('pending');
+        expect(service._statuses['desk-2']()).toBe('busy');
+        expect(service._statuses['desk-3']()).toBe('pending');
+        expect(service._statuses['desk-4']()).toBe('free');
+    });
+
+    it('should match AreaManagement map ids to desk assets', () => {
+        const service = spectator.service as any;
+        const desks = [
+            new Desk({ id: 'asset-1', map_id: 'desk-1', bookable: true }),
+        ];
+
+        service._updateDeskStatuses(desks, [], ['desk-1'], [], [], []);
+
+        expect(service._statuses['desk-1']()).toBe('busy');
+    });
+
     it('should give device features the AreaManagement system id', () => {
         const device = { location: 'wireless', mac: 'aa:bb', x: 1, y: 1 };
         const variable = vi.fn(() => ({
