@@ -79,6 +79,18 @@ export async function queryDeskAssets(zone_id: string): Promise<PlaceAsset[]> {
     return response.data;
 }
 
+/**
+ * Query the desk assets within a building or region. Desk assets list every
+ * zone they are in (org, region, building and level) in `zones`.
+ */
+export async function queryDeskAssetsInZone(
+    zone_id: string,
+): Promise<PlaceAsset[]> {
+    const type_id = await resolveDeskTypeId();
+    const response = await queryAllAssetPages({ zones: zone_id, type_id });
+    return response.data;
+}
+
 /** Query desk assets for multiple levels. */
 export async function queryDeskAssetsForZones(
     zone_ids: string[],

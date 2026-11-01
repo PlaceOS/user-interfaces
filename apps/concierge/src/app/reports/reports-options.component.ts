@@ -17,7 +17,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    queryDeskAssetsForZones,
+    queryDeskAssetsInZone,
     queryLockerAssetsForZones,
     queryLockerBankAssetsForZones,
     queryParkingSpacesForZones,
@@ -324,12 +324,12 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         resource_type: ReportResourceType,
         scope_id: string,
     ): Promise<Set<string>> {
-        // assets are queried by level, an asset's `zone_id` is always its level
+        // parking and locker assets are queried by level, `zone_id` is always the level
         const level_ids = levels.map((level) => level.id);
         switch (resource_type) {
             case 'desks': {
                 if (this._settings.get('app.desks.use_assets')) {
-                    const desks = await queryDeskAssetsForZones(level_ids);
+                    const desks = await queryDeskAssetsInZone(scope_id);
                     return this._zonesForResources(
                         desks.filter((desk) => desk.bookable),
                     );

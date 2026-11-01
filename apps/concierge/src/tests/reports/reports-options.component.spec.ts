@@ -157,12 +157,19 @@ describe('ReportsOptionsComponent', () => {
         vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
             page([{ id: 'type-1', name: '_DESKS_' }]) as any,
         );
-        // desk assets are on levels, `zone_id` never matches the building
+        // desk assets list their building in `zones`, `zone_id` is the level
         vi.mocked(ts_client.queryAssets).mockImplementation(
             (query: any) =>
                 page(
-                    query.zone_id === 'lvl-1'
-                        ? [{ id: 'asset-1', zone_id: 'lvl-1', bookable: true }]
+                    query.zones === 'bld-report-1'
+                        ? [
+                              {
+                                  id: 'asset-1',
+                                  zone_id: 'lvl-1',
+                                  zones: ['org-1', 'bld-report-1', 'lvl-1'],
+                                  bookable: true,
+                              },
+                          ]
                         : [],
                 ) as any,
         );
@@ -175,6 +182,8 @@ describe('ReportsOptionsComponent', () => {
 
         expect([...zones]).toContain('lvl-1');
         expect([...zones]).not.toContain('lvl-2');
+        // one query for the building rather than one per level
+        expect(ts_client.queryAssets).toHaveBeenCalledTimes(1);
     });
 
     it('should keep parking levels selectable when no spaces are returned', async () => {
