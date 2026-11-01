@@ -164,7 +164,11 @@ export class MapManagementService {
     public protectedIdSources(
         level: BuildingLevel,
     ): Record<string, ProtectedIdSource> {
-        return conciergeProtectedIdSources(level, this._org.organisation.id);
+        return conciergeProtectedIdSources(
+            level,
+            this._org.organisation.id,
+            !!this._settings.get('app.desks.use_assets'),
+        );
     }
 
     /**
