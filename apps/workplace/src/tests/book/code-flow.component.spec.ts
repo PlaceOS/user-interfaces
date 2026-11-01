@@ -5,7 +5,12 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
-import { setCurrentUser, SettingsService, StaffUser } from '@placeos/common';
+import {
+    OrganisationService,
+    setCurrentUser,
+    SettingsService,
+    StaffUser,
+} from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 
@@ -53,5 +58,43 @@ describe('BookCodeFlowComponent', () => {
             ['/book', 'code', 'error'],
             { queryParams: { type: 'wrong_resource', asset_id: 'desk-1' } },
         );
+    });
+
+    it('should check in to a desk asset booking from a code with the original desk id', async () => {
+        setCurrentUser(new StaffUser({ id: 'me', email: 'me@test.com' }));
+        vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+            (key: string) =>
+                key === 'app.desks.use_assets' ? true : undefined,
+        );
+        vi.spyOn(
+            spectator.inject(OrganisationService),
+            'levelsForBuilding',
+        ).mockReturnValue([{ id: 'level-1' }] as any);
+        const page = (data: any[]) =>
+            Promise.resolve({ data, total: data.length, next: () => null });
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+        );
+        vi.mocked(ts_client.queryAssets).mockReturnValue(
+            page([
+                { id: 'asset-1', zone_id: 'level-1', map_id: 'desk-1' },
+            ]) as any,
+        );
+        vi.mocked(ts_client.get).mockImplementation(
+            () => Promise.resolve([{ id: 'b-1', asset_id: 'asset-1' }]) as any,
+        );
+        vi.mocked(ts_client.post).mockResolvedValue({} as any);
+        const router = spectator.inject(Router);
+
+        await (spectator.component as any)._checkinBooking('desk-1');
+
+        expect(router.navigate).toHaveBeenCalledWith([
+            '/book',
+            'code',
+            'success',
+        ]);
     });
 });
