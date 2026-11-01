@@ -272,6 +272,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     host: currentUser(),
                     resource: {
                         id,
+                        map_id,
                         zones: [level?.parent_id, level?.id],
                     },
                 },
@@ -593,6 +594,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 host: currentUser(),
                 resource: {
                     id: asset_id,
+                    map_id: desk.map_id,
                     zones: [desk.zone?.parent_id, desk.zone?.id],
                 },
             },
