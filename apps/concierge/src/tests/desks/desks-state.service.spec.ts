@@ -468,6 +468,35 @@ describe('DesksStateService', () => {
         );
     });
 
+    it('should not add a desk asset with a map ID already used on the level', async () => {
+        settings_map['app.desks.use_assets'] = true;
+        vi.spyOn(spectator.service as any, '_levelDeskList').mockResolvedValue([
+            new Desk({
+                id: 'asset-1',
+                map_id: 'desk-dup',
+                asset_type_id: 'desk-type',
+            } as any),
+        ]);
+        (spectator.inject(MatDialog).open as any).mockReturnValue({
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: { id: 'desk-dup', name: 'New', zone_id: 'lvl-1' },
+                }),
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            close: vi.fn(),
+        });
+
+        await spectator.service.editDesk();
+
+        expect(ts_client_mod.addAsset).not.toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            'A desk with the ID "desk-dup" already exists.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
     it('should default a new desk to the first level when none is selected', async () => {
         const dialog_ref = {
             afterClosed: () => of(undefined),
@@ -613,6 +642,17 @@ describe('DesksStateService', () => {
         expect(spectator.service.bookings().map((_) => _.asset_name)).toEqual([
             'Desk One',
             'desk-2',
+        ]);
+
+        // desk assets keep the original desk id as their map id
+        desks.set([
+            new Desk({ id: 'asset-1', map_id: 'desk-1', name: 'Desk One' }),
+            new Desk({ id: 'asset-2', map_id: 'desk-2', name: 'Desk Two' }),
+        ]);
+
+        expect(spectator.service.bookings().map((_) => _.asset_name)).toEqual([
+            'Desk One',
+            'Desk Two',
         ]);
     });
 

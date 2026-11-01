@@ -309,11 +309,16 @@ export class DesksStateService extends AsyncHandler {
     );
     public readonly bookings = computed(() => {
         const desks = new Map(this.desks().map((desk) => [desk.id, desk]));
+        // bookings that predate desk assets reference the original desk id
+        const map_desks = new Map(
+            this.desks().map((desk) => [desk.map_id || desk.id, desk]),
+        );
         const bookings = this.paged_bookings().list;
         for (const booking of bookings) {
+            const desk =
+                desks.get(booking.asset_id) || map_desks.get(booking.asset_id);
             Object.assign(booking, {
-                asset_name:
-                    desks.get(booking.asset_id)?.name || booking.asset_id,
+                asset_name: desk?.name || booking.asset_id,
             });
         }
         return [...bookings];
@@ -620,9 +625,13 @@ export class DesksStateService extends AsyncHandler {
             use_assets,
         ).catch((e) => this._failDeskSave(ref, e));
         const desk_list = upsertDesk(original_desk_list, desk.id, new_desk);
-        // Saving would store two desks with the same ID on this level.
-        if (desk_list.filter((_) => _.id === new_desk.id).length > 1) {
-            notifyError(`A desk with the ID "${new_desk.id}" already exists.`);
+        // Saving would store two desks with the same ID on this level. Desk
+        // assets are identified by their map id, the asset id is generated.
+        const desk_key = (item: Desk) =>
+            use_assets ? item.map_id || item.id : item.id;
+        const new_key = desk_key(new_desk);
+        if (desk_list.filter((_) => desk_key(_) === new_key).length > 1) {
+            notifyError(`A desk with the ID "${new_key}" already exists.`);
             ref.componentInstance.loading.set(false);
             ref.close();
             return;
