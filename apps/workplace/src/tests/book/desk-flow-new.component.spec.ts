@@ -12,6 +12,7 @@ import {
     Booking,
     EMPTY_USER,
     OrganisationService,
+    SettingsService,
     setCurrentUser,
     StaffUser,
     User,
@@ -20,6 +21,9 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import {
     listChildMetadata,
+    queryAssetCategories,
+    queryAssets,
+    queryAssetTypes,
     querySystemsWithEmails,
     showSystem,
     authority,
@@ -301,6 +305,48 @@ describe('DeskFlowNewComponent', () => {
             }),
         ]);
         expect(model().asset_id).toBe('desk-456');
+    });
+
+    it('should resolve desk links with the original desk id to the desk asset', async () => {
+        resource_list = [];
+        const page = (data: any[]) =>
+            Promise.resolve({ data, total: data.length, next: () => null });
+        vi.mocked(queryAssetCategories).mockReturnValue(
+            page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+        );
+        vi.mocked(queryAssetTypes).mockReturnValue(
+            page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+        );
+        vi.mocked(queryAssets).mockImplementation(
+            (query: any) =>
+                page(
+                    query.zone_id === 'level-2'
+                        ? [
+                              {
+                                  id: 'asset-456',
+                                  asset_type_id: 'type-1',
+                                  zone_id: 'level-2',
+                                  identifier: 'Desk 456',
+                                  map_id: 'desk-456',
+                              },
+                          ]
+                        : [],
+                ) as any,
+        );
+        query_params = { asset_id: 'desk-456' };
+        const settings = TestBed.inject(SettingsService);
+        const get = settings.get.bind(settings);
+        vi.spyOn(settings, 'get').mockImplementation(((key: string) =>
+            key === 'app.desks.use_assets' ? true : get(key)) as any);
+        spectator = createComponent();
+
+        await spectator.component.ngOnInit();
+        await waitFor(() => model().asset_id === 'asset-456', 2000);
+
+        expect(model().asset_id).toBe('asset-456');
+        expect(model().resources).toEqual([
+            expect.objectContaining({ id: 'asset-456', name: 'Desk 456' }),
+        ]);
     });
 
     it('should select a nearby desk by resource id when no map id is available', async () => {
