@@ -1,3 +1,4 @@
+import { Desk } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -206,7 +207,6 @@ describe('[Desk Assets]', () => {
 
     it('should store custom fields of new desks in other_data', async () => {
         const desks = await load_module();
-        const { Desk } = await import('@placeos/common');
         const desk = new Desk({
             id: 'desk-1',
             name: 'Desk 1',
