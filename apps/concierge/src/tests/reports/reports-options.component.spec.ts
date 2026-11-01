@@ -186,6 +186,76 @@ describe('ReportsOptionsComponent', () => {
         expect(ts_client.queryAssets).toHaveBeenCalledTimes(1);
     });
 
+    it('should find parking and locker asset levels with one building query', async () => {
+        vi.mocked(ts_client.queryAssets).mockClear();
+        const page = (data: any[]) =>
+            Promise.resolve({ data, total: data.length, next: () => null });
+        const types = [
+            {
+                id: 'type-parking',
+                name: '_PARKING_SPACES_',
+                category_id: 'cat-parking',
+            },
+            {
+                id: 'type-banks',
+                name: '_LOCKER_BANKS_',
+                category_id: 'cat-lockers',
+            },
+            {
+                id: 'type-lockers',
+                name: '_LOCKERS_',
+                category_id: 'cat-lockers',
+            },
+        ];
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            page([
+                { id: 'cat-parking', name: '_PARKING_' },
+                { id: 'cat-lockers', name: '_LOCKERS_' },
+            ]) as any,
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            page(types) as any,
+        );
+        const zones = ['org-1', 'bld-report-1', 'lvl-1'];
+        vi.mocked(ts_client.queryAssets).mockImplementation((query: any) => {
+            if (query.zones !== 'bld-report-1') return page([]) as any;
+            switch (query.type_id) {
+                case 'type-parking':
+                    return page([
+                        { id: 'bay-1', zone_id: 'lvl-1', zones },
+                    ]) as any;
+                case 'type-banks':
+                    return page([
+                        { id: 'bank-1', zone_id: 'lvl-1', zones },
+                    ]) as any;
+                default:
+                    return page([
+                        { id: 'locker-1', parent_id: 'bank-1', bookable: true },
+                    ]) as any;
+            }
+        });
+        const levels = [{ id: 'lvl-1' }, { id: 'lvl-2' }];
+
+        const parking = await (
+            spectator.component as any
+        )._requestResourceZones(levels, 'parking', 'bld-report-1');
+        const lockers = await (
+            spectator.component as any
+        )._requestResourceZones(levels, 'lockers', 'bld-report-1');
+
+        expect([...parking]).toContain('lvl-1');
+        expect([...lockers]).toContain('lvl-1');
+        expect([...lockers]).not.toContain('lvl-2');
+        // one building query per asset type rather than one per level
+        const queries = vi
+            .mocked(ts_client.queryAssets)
+            .mock.calls.map(([query]: any[]) => query);
+        expect(
+            queries.filter((query) => query.zones === 'bld-report-1'),
+        ).toHaveLength(3);
+        expect(queries.some((query) => query.zone_id)).toBe(false);
+    });
+
     it('should keep parking levels selectable when no spaces are returned', async () => {
         vi.spyOn(
             spectator.component as any,

@@ -8,6 +8,7 @@ import {
 } from '@placeos/ts-client';
 import {
     findOldestByName,
+    queryAllAssetPages,
     saveAsset,
     saveAssetCategory,
     saveAssetType,
@@ -202,6 +203,18 @@ export async function queryParkingSpacesForZones(
         ),
     );
     return flatten<PlaceAsset>(results);
+}
+
+/**
+ * Query the parking spaces within a building or region. Parking assets list
+ * every zone they are in (org, region, building and level) in `zones`.
+ */
+export async function queryParkingSpacesInZone(
+    zone_id: string,
+): Promise<PlaceAsset[]> {
+    const type_id = await resolveParkingTypeId();
+    const response = await queryAllAssetPages({ zones: zone_id, type_id });
+    return response.data;
 }
 
 /** Save (create or update) a parking space asset */

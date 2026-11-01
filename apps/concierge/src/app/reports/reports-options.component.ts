@@ -18,9 +18,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     queryDeskAssetsInZone,
-    queryLockerAssetsForZones,
-    queryLockerBankAssetsForZones,
-    queryParkingSpacesForZones,
+    queryLockerAssetsInZone,
+    queryLockerBankAssetsInZone,
+    queryParkingSpacesInZone,
 } from '@placeos/assets';
 import {
     AsyncHandler,
@@ -324,8 +324,7 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         resource_type: ReportResourceType,
         scope_id: string,
     ): Promise<Set<string>> {
-        // parking and locker assets are queried by level, `zone_id` is always the level
-        const level_ids = levels.map((level) => level.id);
+        // assets list every zone they are in, so query by the building or region
         switch (resource_type) {
             case 'desks': {
                 if (this._settings.get('app.desks.use_assets')) {
@@ -357,13 +356,13 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
                 return this._zonesForResources(spaces);
             }
             case 'parking': {
-                const spaces = await queryParkingSpacesForZones(level_ids);
+                const spaces = await queryParkingSpacesInZone(scope_id);
                 return this._zonesForResources(spaces);
             }
             case 'lockers': {
                 const [banks, lockers] = await Promise.all([
-                    queryLockerBankAssetsForZones(level_ids),
-                    queryLockerAssetsForZones(level_ids),
+                    queryLockerBankAssetsInZone(scope_id),
+                    queryLockerAssetsInZone(scope_id),
                 ]);
                 const zones = new Set<string>();
                 const bookable_bank_ids = new Set(

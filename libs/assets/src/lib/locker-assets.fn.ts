@@ -8,6 +8,7 @@ import {
 } from '@placeos/ts-client';
 import {
     findOldestByName,
+    queryAllAssetPages,
     saveAsset,
     saveAssetCategory,
     saveAssetType,
@@ -130,6 +131,15 @@ export async function queryLockerBankAssetsForZones(
     return flatten<PlaceAsset>(results);
 }
 
+/** Query the locker banks within a building or region, by their `zones` */
+export async function queryLockerBankAssetsInZone(
+    zone_id: string,
+): Promise<PlaceAsset[]> {
+    const type_id = await resolveLockerBankTypeId();
+    const response = await queryAllAssetPages({ zones: zone_id, type_id });
+    return response.data;
+}
+
 export async function saveLockerBankAsset(
     bank: Partial<PlaceAsset>,
 ): Promise<PlaceAsset> {
@@ -160,6 +170,15 @@ export async function queryLockerAssetsForZones(
         ),
     );
     return flatten<PlaceAsset>(results);
+}
+
+/** Query the lockers within a building or region, by their `zones` */
+export async function queryLockerAssetsInZone(
+    zone_id: string,
+): Promise<PlaceAsset[]> {
+    const type_id = await resolveLockerTypeId();
+    const response = await queryAllAssetPages({ zones: zone_id, type_id });
+    return response.data;
 }
 
 export async function saveLockerAsset(
