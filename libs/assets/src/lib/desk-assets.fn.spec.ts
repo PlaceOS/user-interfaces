@@ -86,6 +86,44 @@ describe('[Desk Assets]', () => {
         ]);
     });
 
+    it('should retry resolving the desk type after a failure', async () => {
+        const desks = await load_module();
+        vi.mocked(ts_client.queryAssetCategories)
+            .mockReturnValueOnce(Promise.reject('offline') as any)
+            .mockReturnValue(response([{ id: 'cat-1', name: '_DESKS_' }]));
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            response([{ id: 'type-1', name: '_DESKS_' }]),
+        );
+
+        await expect(desks.resolveDeskTypeId()).rejects.toBe('offline');
+        expect(await desks.resolveDeskTypeId()).toBe('type-1');
+    });
+
+    it('should load every page of desk assets on a level', async () => {
+        const desks = await load_module();
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            response([{ id: 'cat-1', name: '_DESKS_' }]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            response([{ id: 'type-1', name: '_DESKS_' }]),
+        );
+        vi.mocked(ts_client.queryAssets).mockReturnValue(
+            Promise.resolve({
+                data: [{ id: 'asset-1' }],
+                total: 2,
+                next: () =>
+                    Promise.resolve({
+                        data: [{ id: 'asset-2' }],
+                        total: 2,
+                        next: () => null,
+                    }),
+            }) as any,
+        );
+
+        const assets = await desks.queryDeskAssets('level-1');
+        expect(assets.map((asset) => asset.id)).toEqual(['asset-1', 'asset-2']);
+    });
+
     it('should map asset fields to and from a desk', async () => {
         const desks = await load_module();
         const asset = new ts_client.PlaceAsset({

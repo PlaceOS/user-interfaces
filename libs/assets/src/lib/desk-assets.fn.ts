@@ -3,12 +3,12 @@ import {
     PlaceAsset,
     PlaceZone,
     queryAssetCategories,
-    queryAssets,
     queryAssetTypes,
     removeAsset,
 } from '@placeos/ts-client';
 import {
     findOldestByName,
+    queryAllAssetPages,
     saveAsset,
     saveAssetCategory,
     saveAssetType,
@@ -57,10 +57,17 @@ async function bootstrap_desk_type(): Promise<string> {
 export function resolveDeskTypeId(): Promise<string> {
     if (_desk_type_id) return Promise.resolve(_desk_type_id);
     if (!_desk_type_id_promise) {
-        _desk_type_id_promise = bootstrap_desk_type().then((id) => {
-            _desk_type_id = id;
-            return id;
-        });
+        _desk_type_id_promise = bootstrap_desk_type().then(
+            (id) => {
+                _desk_type_id = id;
+                return id;
+            },
+            (error) => {
+                // allow a later call to retry, e.g. after a network error
+                _desk_type_id_promise = null;
+                throw error;
+            },
+        );
     }
     return _desk_type_id_promise;
 }
@@ -68,7 +75,7 @@ export function resolveDeskTypeId(): Promise<string> {
 /** Query desk assets for one level. */
 export async function queryDeskAssets(zone_id: string): Promise<PlaceAsset[]> {
     const type_id = await resolveDeskTypeId();
-    const response = await queryAssets({ zone_id, type_id, limit: 500 });
+    const response = await queryAllAssetPages({ zone_id, type_id });
     return response.data;
 }
 
@@ -80,7 +87,7 @@ export async function queryDeskAssetsForZones(
     const type_id = await resolveDeskTypeId();
     const results = await Promise.all(
         zone_ids.map((zone_id) =>
-            queryAssets({ zone_id, type_id, limit: 500 }).then(
+            queryAllAssetPages({ zone_id, type_id }).then(
                 (response) => response.data,
             ),
         ),
