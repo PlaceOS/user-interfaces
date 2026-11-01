@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import {
     Building,
+    Desk,
     MapsPeopleService,
     Organisation,
     OrganisationService,
@@ -9,6 +10,7 @@ import {
 
 import {
     compareSearchResultsAscending,
+    deskSearchResult,
     ExploreSearchService,
     sortGlobalSearchResults,
 } from '../lib/explore-search.service';
@@ -50,6 +52,29 @@ describe('ExploreSearchService', () => {
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should locate desk assets by their map id', () => {
+        const result = deskSearchResult(
+            new Desk({
+                id: 'asset-1',
+                map_id: 'desk-6.06.1',
+                name: '6.06.01',
+                assigned_to: 'jane@place.tech',
+                zone: { id: 'level-6' } as any,
+            }),
+        );
+        expect(result).toEqual({
+            id: 'desk-6.06.1',
+            type: 'feature',
+            email: 'jane@place.tech',
+            description: 'desk-6.06.1',
+            name: '6.06.01',
+            zone: 'level-6',
+        });
+        expect(deskSearchResult(new Desk({ id: 'desk-1' })).name).toBe(
+            'desk-1',
+        );
     });
 
     it('should sort search results ascending by name', () => {
