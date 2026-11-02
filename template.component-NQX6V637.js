@@ -23,7 +23,7 @@ import {
   isDebugEnabled,
   recordHeartbeat,
   watchdogState
-} from "./chunk-EEF2TV7J.js";
+} from "./chunk-5MZQZRVR.js";
 import "./chunk-GDMFVFGQ.js";
 import {
   TranslatePipe
@@ -38,7 +38,7 @@ import {
   isBefore,
   setAutoReloadGate,
   updateCheckState
-} from "./chunk-LNOTASZM.js";
+} from "./chunk-DAMCZ56Q.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -771,7 +771,6 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
         this.details.set(msg.payload);
         this.schema.set(msg.payload?.config_schema);
         this._autoConfigure();
-        this._resendMissedMessages();
         break;
       case "ready":
         this._autoConfigure();
@@ -794,21 +793,6 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
     this.send("config", this.config());
     this._clearPlayTimer();
     this.timeout("auto-play", () => this._sendPlay(), this.play_delay());
-  }
-  /**
-   * The host can send `config` and `play` on the iframe `load` event. A
-   * plugin that adds its message listener after that event, such as one
-   * that starts its framework asynchronously, misses them and plays with
-   * its defaults. `loaded` tells that the plugin now listens, so send them
-   * again. Auto-play waits for `loaded` before it sends, so it is skipped.
-   */
-  _resendMissedMessages() {
-    if (this.auto_play() || !this.config())
-      return;
-    if (this.play())
-      this._sendPlay();
-    else
-      this.send("config", this.config());
   }
   _clearPlayTimer() {
     this.clearTimeout("auto-play");
@@ -9109,5 +9093,5 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
 export {
   SignageTemplateComponent
 };
-//# debugId=88d2cbd7-491a-5b00-aea5-fe0f69d10a22
-//# sourceMappingURL=template.component-6JMAV4VK.js.map
+//# debugId=1292e358-e834-536f-9ed2-e5a03c2bb106
+//# sourceMappingURL=template.component-NQX6V637.js.map
