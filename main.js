@@ -2,11 +2,11 @@ import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-BCYPNDZZ.js";
-import "./chunk-C7YQ7FLP.js";
+} from "./chunk-3MJSKMUR.js";
+import "./chunk-MKJJROTR.js";
 import {
   TranslatePipe
-} from "./chunk-IZ5V3236.js";
+} from "./chunk-EJHJWHXP.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -26,12 +26,13 @@ import {
   nativeDomainError,
   needsNativeDomain,
   provideServiceWorker,
+  reloadOnChunkLoadError,
   retryInitialisation,
   serviceWorkerUpdate,
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-WMA6HMO6.js";
+} from "./chunk-4WMEM2EF.js";
 import {
   AsyncHandler,
   Bp,
@@ -57,7 +58,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-PVXDZGBZ.js";
+} from "./chunk-YY5V2SKX.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -67,8 +68,9 @@ import {
   RouterLink,
   RouterOutlet,
   provideRouter,
-  withHashLocation
-} from "./chunk-LZJ3JZRL.js";
+  withHashLocation,
+  withNavigationErrorHandler
+} from "./chunk-TTMVHCFS.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -651,7 +653,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-M4PLLCOP.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-Q5CHBWLT.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -776,7 +778,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-M4PLLCOP.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-Q5CHBWLT.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -8879,11 +8881,11 @@ function mocksInit() {
 // apps/map-kiosk/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-UEZUWUEV.js").then((m) => m.ChatComponent)
+  import("./chat.component-F4TUINVG.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-WSE7S4DS.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-XD4H5O3P.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -8942,9 +8944,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-UEZUWUEV.js").then((m) => m.ChatComponent),
+    import("./chat.component-F4TUINVG.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-WSE7S4DS.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-XD4H5O3P.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -8989,22 +8991,22 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-CUB23W54.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-OMBZNT2D.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
-    loadComponent: () => import("./explore.route-VSAUVSVF.js").then((m) => m.ExploreComponent),
+    loadComponent: () => import("./explore.route-GCIUHVHV.js").then((m) => m.ExploreComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "desks",
-    loadComponent: () => import("./desk-booking.component-7AIQRVWF.js").then((m) => m.DeskBookingComponent),
+    loadComponent: () => import("./desk-booking.component-IBZNUHAE.js").then((m) => m.DeskBookingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "parking",
-    loadComponent: () => import("./parking.component-ONQXF25I.js").then((m) => m.ParkingComponent),
+    loadComponent: () => import("./parking.component-5A6WQALA.js").then((m) => m.ParkingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -9014,7 +9016,7 @@ var routes = [
 var appConfig = {
   providers: [
     provideZonelessChangeDetection(),
-    provideRouter(routes, withHashLocation()),
+    provideRouter(routes, withHashLocation(), withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error))),
     provideServiceWorker("ngsw-worker.js", {
       enabled: environment.production
     }),
@@ -9030,5 +9032,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=60ac1f3b-060e-51a0-8200-a3b448ce07d3
+//# debugId=987d51db-c836-527f-bb27-85d273d35c2c
 //# sourceMappingURL=main.js.map

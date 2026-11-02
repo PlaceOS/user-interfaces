@@ -62,12 +62,12 @@ import {
   vc,
   wi,
   withTimeout
-} from "./chunk-PVXDZGBZ.js";
+} from "./chunk-YY5V2SKX.js";
 import {
   ActivatedRoute,
   NavigationEnd,
   Router
-} from "./chunk-LZJ3JZRL.js";
+} from "./chunk-TTMVHCFS.js";
 import {
   ApplicationRef,
   BehaviorSubject,
@@ -668,15 +668,15 @@ async function lookupNativeDomainByEmail(email) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "7b19761",
-  "hash": "7b19761",
+  "raw": "2241b21",
+  "hash": "2241b21",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "7b19761",
+  "suffix": "2241b21",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1793653845675
+  "time": 1793661239441
 };
 
 // libs/common/src/lib/settings.ts
@@ -3474,7 +3474,7 @@ async function initSentry(dsn, router, rates = {}) {
   const replays_on_error = sampleRate(rates.replays_on_error, DEFAULT_REPLAYS_SAMPLE_RATE);
   const use_replay = replays_session > 0 || replays_on_error > 0;
   try {
-    const Sentry = await import("./sentry-sdk-VCIBTQKL.js");
+    const Sentry = await import("./sentry-sdk-DSKLTSKU.js");
     Sentry.init(__spreadProps(__spreadValues({
       dsn,
       release: VERSION.hash,
@@ -10436,6 +10436,64 @@ function centsToCurrency(cents) {
   return Math.round(cents) / 100;
 }
 
+// libs/common/src/lib/lazy-route-reload.ts
+var LAZY_ROUTE_RELOAD_KEY = "placeos.lazy_route_reload";
+var RELOAD_THROTTLE = 30 * 1e3;
+var LAZY_ROUTE_ERROR_PATTERNS = [
+  /ChunkLoadError/i,
+  /Loading chunk [\w-]+ failed/i,
+  /Failed to fetch dynamically imported module/i,
+  /Importing a module script failed/i,
+  /error loading dynamically imported module/i
+];
+function isLazyRouteLoadError(error) {
+  const message = getLazyRouteErrorMessage(error);
+  return LAZY_ROUTE_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+}
+function reloadOnChunkLoadError(error, context = {}) {
+  if (!isLazyRouteLoadError(error))
+    throw error;
+  const online = context.online ?? (typeof navigator !== "undefined" ? navigator.onLine : true);
+  if (!online)
+    throw error;
+  const storage = context.storage ?? sessionStorage;
+  const location_ref = context.location ?? location;
+  const now = context.now ?? Date.now();
+  const signature = `${location_ref.pathname}${location_ref.search}${location_ref.hash}:${getLazyRouteErrorMessage(error)}`;
+  const reload_state = parseReloadState(storage.getItem(LAZY_ROUTE_RELOAD_KEY));
+  if (reload_state?.signature === signature && now - reload_state.timestamp < RELOAD_THROTTLE) {
+    throw error;
+  }
+  storage.setItem(LAZY_ROUTE_RELOAD_KEY, JSON.stringify({ signature, timestamp: now }));
+  log("ROUTER", "Lazy route load failed. Reloading application...", error, "warn", true);
+  location_ref.reload();
+}
+function getLazyRouteErrorMessage(error) {
+  if (typeof error === "string")
+    return error;
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  if (error && typeof error === "object") {
+    const name = "name" in error ? `${error.name || ""}` : "";
+    const message = "message" in error ? `${error.message || ""}` : "";
+    return `${name}: ${message}`.trim();
+  }
+  return `${error || ""}`;
+}
+function parseReloadState(state) {
+  if (!state)
+    return null;
+  try {
+    const parsed_state = JSON.parse(state);
+    if (typeof parsed_state?.signature === "string" && typeof parsed_state?.timestamp === "number") {
+      return parsed_state;
+    }
+  } catch {
+  }
+  return null;
+}
+
 // libs/common/src/lib/recurrence.ts
 var WeekOfMonth;
 (function(WeekOfMonth2) {
@@ -11033,6 +11091,7 @@ export {
   toQueryString,
   MAP_FEATURE_DATA,
   ExternalCateringService,
+  reloadOnChunkLoadError,
   fromEventRecurrence,
   toBookingRecurrence,
   RemoteLoggingService,
@@ -11070,5 +11129,5 @@ export {
   Calendar,
   Desk
 };
-//# debugId=54e59b40-82d9-5cb6-b6b5-a649ee771740
-//# sourceMappingURL=chunk-WMA6HMO6.js.map
+//# debugId=4f91445c-1145-57d5-b66a-52c7f2c12b19
+//# sourceMappingURL=chunk-4WMEM2EF.js.map

@@ -4,7 +4,7 @@ import {
 import "./chunk-6J743VWG.js";
 import {
   TranslatePipe
-} from "./chunk-IZ5V3236.js";
+} from "./chunk-EJHJWHXP.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -16,7 +16,7 @@ import {
   currentUser,
   current_user,
   settingSignal
-} from "./chunk-WMA6HMO6.js";
+} from "./chunk-4WMEM2EF.js";
 import {
   AsyncHandler,
   IconComponent,
@@ -25,16 +25,18 @@ import {
   differenceInMinutes,
   et,
   format,
+  i18n,
   log,
+  notifyError,
   randomString
-} from "./chunk-PVXDZGBZ.js";
+} from "./chunk-YY5V2SKX.js";
 import "./chunk-76O3XVZN.js";
 import {
   MatRipple,
   MatRippleModule
 } from "./chunk-5MSK4FA4.js";
 import "./chunk-LSYCFMJO.js";
-import "./chunk-LZJ3JZRL.js";
+import "./chunk-TTMVHCFS.js";
 import {
   Component,
   Injectable,
@@ -2468,17 +2470,37 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._chat_id = "";
     this._chat_messages.set([]);
   }
+  /**
+   * Sends a message to the chat. Opens a new connection first if the chat
+   * has ended, for example after the idle timeout or `close()`.
+   * Returns `false` and shows an error if no chat system is set, so the
+   * caller can keep the message. An error also shows if the connection
+   * closes before it opens.
+   */
   sendMessage(message) {
     if (!message)
-      return;
-    this._onMessage({ chat_id: "", message, user_id: currentUser().id });
+      return false;
+    const current = this._socket;
+    if (!current || current.readyState >= WebSocket.CLOSING) {
+      this._cleanup(current);
+      this.startChat();
+    }
     const socket = this._socket;
-    if (socket?.readyState === WebSocket.CONNECTING) {
-      socket.addEventListener("open", () => socket.send(message), {
-        once: true
-      });
+    if (!socket) {
+      notifyError(i18n("APP.WORKPLACE.CHAT_SEND_FAILED"));
+      return false;
+    }
+    this._onMessage({ chat_id: "", message, user_id: currentUser().id });
+    if (socket.readyState === WebSocket.CONNECTING) {
+      const failed = () => notifyError(i18n("APP.WORKPLACE.CHAT_SEND_FAILED"));
+      socket.addEventListener("open", () => {
+        socket.removeEventListener("close", failed);
+        socket.send(message);
+      }, { once: true });
+      socket.addEventListener("close", failed, { once: true });
     } else
-      socket?.send(message);
+      socket.send(message);
+    return true;
   }
   _timeoutSocket(delay = 55 * 1e3) {
     this.timeout("socket", () => {
@@ -2583,14 +2605,7 @@ function ChatComponent_Conditional_0_Conditional_4_For_21_Conditional_2_Template
 }
 function ChatComponent_Conditional_0_Conditional_4_For_21_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 19);
-    \u0275\u0275listener("click", function ChatComponent_Conditional_0_Conditional_4_For_21_Template_div_click_0_listener() {
-      const message_r5 = \u0275\u0275restoreView(_r4).$implicit;
-      const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.show_time()[message_r5.id] = !ctx_r1.show_time()[message_r5.id]);
-    });
-    \u0275\u0275elementStart(1, "div", 20);
+    \u0275\u0275elementStart(0, "div", 19)(1, "div", 20);
     \u0275\u0275conditionalCreate(2, ChatComponent_Conditional_0_Conditional_4_For_21_Conditional_2_Template, 3, 3, "div", 21);
     \u0275\u0275elementStart(3, "div", 22);
     \u0275\u0275text(4);
@@ -2601,15 +2616,15 @@ function ChatComponent_Conditional_0_Conditional_4_For_21_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const message_r5 = ctx.$implicit;
+    const message_r4 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(3);
-    \u0275\u0275classProp("pr-4", message_r5.user_id !== ctx_r1.user().id)("pl-4", message_r5.user_id === ctx_r1.user().id)("items-left", message_r5.user_id !== ctx_r1.user().id)("items-end", message_r5.user_id === ctx_r1.user().id)("waiting-margin", ctx_r1.waiting());
+    \u0275\u0275classProp("pr-4", message_r4.user_id !== ctx_r1.user().id)("pl-4", message_r4.user_id === ctx_r1.user().id)("items-left", message_r4.user_id !== ctx_r1.user().id)("items-end", message_r4.user_id === ctx_r1.user().id)("waiting-margin", ctx_r1.waiting());
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(message_r5.user_id !== ctx_r1.user().id ? 2 : -1);
+    \u0275\u0275conditional(message_r4.user_id !== ctx_r1.user().id ? 2 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 13, message_r5.timestamp + ctx_r1.offset()), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 13, message_r4.timestamp + ctx_r1.offset()), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(7, 15, message_r5.content), \u0275\u0275sanitizeHtml);
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(7, 15, message_r4.content), \u0275\u0275sanitizeHtml);
   }
 }
 function ChatComponent_Conditional_0_Conditional_4_Conditional_22_Conditional_9_Template(rf, ctx) {
@@ -2624,12 +2639,12 @@ function ChatComponent_Conditional_0_Conditional_4_Conditional_22_Conditional_9_
 }
 function ChatComponent_Conditional_0_Conditional_4_Conditional_22_Template(rf, ctx) {
   if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
+    const _r5 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 14)(1, "button", 24);
     \u0275\u0275listener("click", function ChatComponent_Conditional_0_Conditional_4_Conditional_22_Template_button_click_1_listener() {
-      \u0275\u0275restoreView(_r6);
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.show_info.set(!ctx_r1.show_info));
+      return \u0275\u0275resetView(ctx_r1.show_info.set(!ctx_r1.show_info()));
     });
     \u0275\u0275elementStart(2, "div", 20)(3, "icon", 25);
     \u0275\u0275text(4);
@@ -2816,13 +2831,6 @@ var ChatComponent = class _ChatComponent extends AsyncHandler {
         []
       )
     );
-    this.show_time = signal(
-      {},
-      ...ngDevMode ? [{ debugName: "show_time" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this.offset = signal(
       0,
       ...ngDevMode ? [{ debugName: "offset" }] : (
@@ -2891,13 +2899,10 @@ var ChatComponent = class _ChatComponent extends AsyncHandler {
     this.height.set(Math.max(el.scrollHeight, 56));
   }
   sendMessage() {
-    if (!this.message)
+    if (!this.message())
       return;
-    if (!this._chat.connected) {
-      this._chat.startChat();
-      return this.timeout("send", () => this.sendMessage(), 100);
-    }
-    this._chat.sendMessage(this.message());
+    if (!this._chat.sendMessage(this.message()))
+      return;
     this.message.set("");
     this.height.set(56);
     setTimeout(() => this._input_el().nativeElement.focus(), 100);
@@ -2923,7 +2928,7 @@ var ChatComponent = class _ChatComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
       }
-    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [["container", ""], ["input", ""], [1, "absolute", "right-0", "bottom-0", "p-2"], ["icon", "", "default", "", "matRipple", "", 3, "click"], [1, "border-base-300", "bg-base-200", "absolute", "right-2", "bottom-2", "w-160", "max-w-[calc(100vw-1rem)]", "overflow-hidden", "rounded-xl", "border", "shadow-sm"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "items-center", "justify-between", "border-b", "p-2"], [1, "pl-4"], ["icon", "", "matRipple", "", 3, "click"], [1, "h-128", "max-h-[60vh]", "overflow-auto"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-8xl"], [1, "text-center", "text-xl"], [1, "border-base-300", "bg-base-100", "m-2", "rounded-sm", "p-4", "text-sm", "shadow-sm"], [1, "m-2", "flex", "flex-col", 3, "pr-4", "pl-4", "items-left", "items-end", "waiting-margin"], [1, "p-4"], [1, "border-neutral", "bg-base-100", "absolute", "right-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-2xl", "border", "p-1", 3, "bottom"], [1, "border-base-300", "bg-base-100", "outline-info", "flex", "max-h-40", "overflow-y-auto", "border-t", "focus-within:outline-solid"], [1, "w-1/2", "flex-1", "resize-none", "overflow-hidden", "p-4", "focus:outline-hidden", 3, "ngModelChange", "keyup.enter", "placeholder", "ngModel"], ["icon", "", "matRipple", "", 1, "mt-2", 3, "click", "disabled"], [1, "m-2", "flex", "flex-col", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-base-content", "px-2", "py-1", "text-sm", "opacity-60"], [1, "text-base-content", "px-2", "py-1", "text-xs", "opacity-40"], ["message", "", 1, "markdown", "selectable", "border-base-300", "bg-base-100", "rounded-sm", "p-4", "text-sm", "shadow-sm", 3, "innerHTML"], [1, "border-base-300", "bg-info", "text-info-content", "block", "w-full", "rounded-sm", "p-2", 3, "click"], [1, "text-2xl"], [1, "text-sm"], [1, "relative", "w-full", "overflow-hidden", "rounded-sm"], [1, "bg-base-100", "absolute", "inset-0", "opacity-10"], [1, "text-mono", "p-2", "text-left", "text-xs", "wrap-break-word", 3, "innerHTML"], [1, "border-neutral", "bg-base-100", "absolute", "right-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-2xl", "border", "p-1"], [1, "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "anim-delay-1", "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "anim-delay-2", "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "sr-only"]], template: function ChatComponent_Template(rf, ctx) {
+    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [["container", ""], ["input", ""], [1, "absolute", "right-0", "bottom-0", "p-2"], ["icon", "", "default", "", "matRipple", "", 3, "click"], [1, "border-base-300", "bg-base-200", "absolute", "right-2", "bottom-2", "w-160", "max-w-[calc(100vw-1rem)]", "overflow-hidden", "rounded-xl", "border", "shadow-sm"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "items-center", "justify-between", "border-b", "p-2"], [1, "pl-4"], ["icon", "", "matRipple", "", 3, "click"], [1, "h-128", "max-h-[60vh]", "overflow-auto"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-8xl"], [1, "text-center", "text-xl"], [1, "border-base-300", "bg-base-100", "m-2", "rounded-sm", "p-4", "text-sm", "shadow-sm"], [1, "m-2", "flex", "flex-col", 3, "pr-4", "pl-4", "items-left", "items-end", "waiting-margin"], [1, "p-4"], [1, "border-neutral", "bg-base-100", "absolute", "right-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-2xl", "border", "p-1", 3, "bottom"], [1, "border-base-300", "bg-base-100", "outline-info", "flex", "max-h-40", "overflow-y-auto", "border-t", "focus-within:outline-solid"], [1, "w-1/2", "flex-1", "resize-none", "overflow-hidden", "p-4", "focus:outline-hidden", 3, "ngModelChange", "keyup.enter", "placeholder", "ngModel"], ["icon", "", "matRipple", "", 1, "mt-2", 3, "click", "disabled"], [1, "m-2", "flex", "flex-col"], [1, "flex", "items-center", "space-x-2"], [1, "text-base-content", "px-2", "py-1", "text-sm", "opacity-60"], [1, "text-base-content", "px-2", "py-1", "text-xs", "opacity-40"], ["message", "", 1, "markdown", "selectable", "border-base-300", "bg-base-100", "rounded-sm", "p-4", "text-sm", "shadow-sm", 3, "innerHTML"], [1, "border-base-300", "bg-info", "text-info-content", "block", "w-full", "rounded-sm", "p-2", 3, "click"], [1, "text-2xl"], [1, "text-sm"], [1, "relative", "w-full", "overflow-hidden", "rounded-sm"], [1, "bg-base-100", "absolute", "inset-0", "opacity-10"], [1, "text-mono", "p-2", "text-left", "text-xs", "wrap-break-word", 3, "innerHTML"], [1, "border-neutral", "bg-base-100", "absolute", "right-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-2xl", "border", "p-1"], [1, "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "anim-delay-1", "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "anim-delay-2", "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "sr-only"]], template: function ChatComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275conditionalCreate(0, ChatComponent_Conditional_0_Template, 5, 1, "div", 2);
       }
@@ -3004,10 +3009,6 @@ var ChatComponent = class _ChatComponent extends AsyncHandler {
                                     [class.items-end]="
                                         message.user_id === user().id
                                     "
-                                    (click)="
-                                        show_time()[message.id] =
-                                            !show_time()[message.id]
-                                    "
                                     [class.waiting-margin]="waiting()"
                                 >
                                     <div class="flex items-center space-x-2">
@@ -3041,7 +3042,7 @@ var ChatComponent = class _ChatComponent extends AsyncHandler {
                                 <div class="p-4">
                                     <button
                                         class="border-base-300 bg-info text-info-content block w-full rounded-sm p-2"
-                                        (click)="show_info.set(!show_info)"
+                                        (click)="show_info.set(!show_info())"
                                     >
                                         <div
                                             class="flex items-center space-x-2"
@@ -3136,10 +3137,10 @@ var ChatComponent = class _ChatComponent extends AsyncHandler {
   }], () => [], { _input_el: [{ type: ViewChild, args: ["input", { isSignal: true }] }], _container_el: [{ type: ViewChild, args: ["container", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ChatComponent, { className: "ChatComponent", filePath: "libs/components/src/lib/chat/chat.component.ts", lineNumber: 230 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ChatComponent, { className: "ChatComponent", filePath: "libs/components/src/lib/chat/chat.component.ts", lineNumber: 226 });
 })();
 export {
   ChatComponent
 };
-//# debugId=bd73632e-6e30-5cd4-a38c-f63229a739cf
-//# sourceMappingURL=chat.component-UEZUWUEV.js.map
+//# debugId=77436e9b-aa5f-5591-b01c-8183bc67ef23
+//# sourceMappingURL=chat.component-F4TUINVG.js.map

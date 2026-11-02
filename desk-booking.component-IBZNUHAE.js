@@ -1,11 +1,11 @@
 import "./chunk-6J743VWG.js";
 import {
   SettingsService
-} from "./chunk-WMA6HMO6.js";
+} from "./chunk-4WMEM2EF.js";
 import {
   AsyncHandler,
   IconComponent
-} from "./chunk-PVXDZGBZ.js";
+} from "./chunk-YY5V2SKX.js";
 import "./chunk-76O3XVZN.js";
 import {
   MatRipple,
@@ -17,7 +17,7 @@ import {
   RouterLink,
   RouterLinkActive,
   RouterModule
-} from "./chunk-LZJ3JZRL.js";
+} from "./chunk-TTMVHCFS.js";
 import {
   Component,
   inject,
@@ -164,4 +164,4 @@ export {
   DeskBookingComponent
 };
 //# debugId=e5a7659f-d4ff-5fe4-b610-7099a91d0734
-//# sourceMappingURL=desk-booking.component-7AIQRVWF.js.map
+//# sourceMappingURL=desk-booking.component-IBZNUHAE.js.map

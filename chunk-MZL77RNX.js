@@ -12,11 +12,11 @@ import {
   SettingsToggleComponent,
   UniqueSelectionDispatcher,
   VirtualKeyboardComponent
-} from "./chunk-QYJMWX4A.js";
+} from "./chunk-CSZC2CLS.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-FVMU5TDL.js";
+} from "./chunk-SGDIAJQL.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -31,7 +31,7 @@ import {
 } from "./chunk-HNXE7CJM.js";
 import {
   CustomTooltipComponent
-} from "./chunk-7LO46D43.js";
+} from "./chunk-RKM4NON3.js";
 import {
   SanitizePipe
 } from "./chunk-FT5KKSK5.js";
@@ -49,7 +49,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-BCYPNDZZ.js";
+} from "./chunk-3MJSKMUR.js";
 import {
   FormField,
   disabled,
@@ -57,10 +57,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-C7YQ7FLP.js";
+} from "./chunk-MKJJROTR.js";
 import {
   TranslatePipe
-} from "./chunk-IZ5V3236.js";
+} from "./chunk-EJHJWHXP.js";
 import {
   AssetRequest,
   Booking,
@@ -121,7 +121,7 @@ import {
   userSignal,
   user_group_names,
   ɵNgNoValidate
-} from "./chunk-WMA6HMO6.js";
+} from "./chunk-4WMEM2EF.js";
 import {
   $,
   AsyncHandler,
@@ -191,7 +191,7 @@ import {
   unique,
   up,
   v
-} from "./chunk-PVXDZGBZ.js";
+} from "./chunk-YY5V2SKX.js";
 import {
   BasePortalOutlet,
   CdkPortalOutlet,
@@ -245,7 +245,7 @@ import {
 import {
   NavigationEnd,
   Router
-} from "./chunk-LZJ3JZRL.js";
+} from "./chunk-TTMVHCFS.js";
 import {
   AsyncPipe,
   ChangeDetectionStrategy,
@@ -11391,14 +11391,7 @@ function newCalendarEventFromBooking(booking) {
 }
 
 // libs/events/src/lib/event-form.service.ts
-var BOOKING_URLS = [
-  "book/rooms",
-  "book/spaces",
-  "book/meeting",
-  "schedule/view",
-  "confirm/success",
-  "upcoming"
-];
+var BOOKING_URLS = ["book/rooms", "book/spaces", "book/meeting"];
 var Tags;
 (function(Tags2) {
   Tags2["Availability"] = "AVAILABILITY";
@@ -18861,5 +18854,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=322fd48a-dd05-50fb-90b3-0c545445190d
-//# sourceMappingURL=chunk-MM4YR5YT.js.map
+//# debugId=bf7105e9-7fbf-5cbd-a3c9-596f983c5f62
+//# sourceMappingURL=chunk-MZL77RNX.js.map

@@ -5712,11 +5712,14 @@ function formatDuration2({ days, hours, minutes, seconds }, { zero } = {}) {
 function firstTruthyValueFrom(obs) {
   return obs ? lastValueFrom(obs.pipe(first((_) => !!_))) : Promise.resolve(null);
 }
-function withTimeout(promise, timeout_ms, message2 = "Operation timed out.") {
+function withTimeout(promise, timeout_ms, message2 = "Operation timed out.", on_timeout) {
   if (timeout_ms <= 0)
     return promise;
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(message2)), timeout_ms);
+    const timer = setTimeout(() => {
+      on_timeout?.();
+      reject(new Error(message2));
+    }, timeout_ms);
     promise.then((value) => {
       clearTimeout(timer);
       resolve(value);
@@ -6712,5 +6715,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=4879b176-2cef-5d50-9496-464bf7051114
-//# sourceMappingURL=chunk-PVXDZGBZ.js.map
+//# debugId=6a015475-d296-52a6-8b63-4f32aa61d858
+//# sourceMappingURL=chunk-YY5V2SKX.js.map
