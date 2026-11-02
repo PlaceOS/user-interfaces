@@ -199,6 +199,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     [range]="bookable_hours()"
+                                    [min_duration]="effective_min_duration()"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone"
                                 />
@@ -489,6 +490,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [range]="bookable_hours()"
+                                [min_duration]="effective_min_duration()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
                             />
@@ -638,6 +640,11 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
         () =>
             settingSignal('desks.custom_duration_options')() ||
             settingSignal('bookings.custom_duration_options', [] as number[])(),
+    );
+    /** Shortest length the duration field offers. The start-time field uses it
+     *  so that the last start leaves room for a booking before closing time. */
+    public readonly effective_min_duration = computed(() =>
+        Math.min(this.min_duration(), ...this.custom_duration_options()),
     );
     public readonly bookable_hours = computed<
         { start: number; end: number } | undefined

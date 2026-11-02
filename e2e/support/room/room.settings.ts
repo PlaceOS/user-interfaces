@@ -107,7 +107,8 @@ export const NO_APPROVAL = {
 };
 
 /**
- * Cap the meeting length and confine it to office hours.
+ * Cap the meeting length and confine it to office hours. The minimum length
+ * sets the last start time: a meeting must end by closing time.
  *
  * `app.events.*`, NOT `app.bookings.*`. The meeting form reads its limits from
  * the EVENT settings (`event-form.service.ts`: `app.events.max_duration`,
@@ -117,6 +118,7 @@ export const NO_APPROVAL = {
  * the first run of `room-times.spec.ts`.
  */
 export const LIMITED_HOURS = {
+    'app.events.min_duration': 30,
     'app.events.max_duration': 60,
     'app.events.bookable_hours': { start: 9, end: 17 },
 };

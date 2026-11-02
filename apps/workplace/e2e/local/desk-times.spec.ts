@@ -111,6 +111,7 @@ test.describe('desk booking times', () => {
     test('a maximum length and bookable hours limit what can be chosen', async ({
         staffPage,
     }) => {
+        const min = LIMITED_HOURS['app.bookings.min_duration'];
         const max = LIMITED_HOURS['app.bookings.max_duration'];
         const hours = LIMITED_HOURS['app.bookings.bookable_hours'];
 
@@ -145,10 +146,12 @@ test.describe('desk booking times', () => {
             `no start time before ${hours.start}:00 may be offered, got ` +
                 `${JSON.stringify(times)}`,
         ).toBeGreaterThanOrEqual(hours.start * 60);
+        // The last start must leave the minimum length before closing time.
+        // A start at closing time has no valid length (PPT-2872).
         expect(
             Math.max(...minutes),
-            `no start time after ${hours.end}:00 may be offered, got ` +
-                `${JSON.stringify(times)}`,
-        ).toBeLessThanOrEqual(hours.end * 60);
+            `no start time later than ${min} minutes before ${hours.end}:00 ` +
+                `may be offered, got ${JSON.stringify(times)}`,
+        ).toBeLessThanOrEqual(hours.end * 60 - min);
     });
 });

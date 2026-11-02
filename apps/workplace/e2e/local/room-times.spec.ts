@@ -40,6 +40,7 @@ const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
 const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
 
+const MIN_MINUTES = LIMITED_HOURS['app.events.min_duration'];
 const MAX_MINUTES = LIMITED_HOURS['app.events.max_duration'];
 const HOURS = LIMITED_HOURS['app.events.bookable_hours'];
 
@@ -147,9 +148,9 @@ test.describe('room booking times', () => {
         ).toBeGreaterThanOrEqual(HOURS.start * 60);
         expect(
             Math.max(...times.map(minutesOfDay)),
-            `nor after ${HOURS.end}:00 — an option outside the window is one a user can ` +
-                'pick and then be refused for',
-        ).toBeLessThanOrEqual(HOURS.end * 60);
+            `nor later than ${MIN_MINUTES} minutes before ${HOURS.end}:00 — a later ` +
+                'start leaves no meeting length that ends by closing time (PPT-2872)',
+        ).toBeLessThanOrEqual(HOURS.end * 60 - MIN_MINUTES);
     });
 
     /**
