@@ -23,8 +23,10 @@ export interface BookingRules {
 
 export interface BookableResource extends Record<string, any> {
     id: string;
-    /** Map element id, desk assets keep the original desk id here */
+    /** Map element id, usually also the original id of a migrated desk */
     map_id?: string;
+    /** Original desk id of a desk asset when it differs from the map id */
+    place_id?: string;
     zones?: string[];
     zone?: { id: string; name: string };
 }
@@ -186,9 +188,9 @@ export function checkRulesMatch(
     // rules saved before desks moved to assets reference the original desk id
     if (
         conditions.resource_ids &&
-        (conditions.resource_ids.includes(resource.id) ||
-            (resource.map_id &&
-                conditions.resource_ids.includes(resource.map_id)))
+        [resource.id, resource.map_id, resource.place_id].some(
+            (id) => id && conditions.resource_ids.includes(id),
+        )
     )
         matches += 1;
     if (

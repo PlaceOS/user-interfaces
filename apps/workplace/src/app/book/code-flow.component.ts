@@ -348,7 +348,8 @@ export class BookCodeFlowComponent
 
     /**
      * Codes printed before desks moved to assets hold the original desk id,
-     * which desk assets keep as their map id. Bookings reference the asset id.
+     * which desk assets keep as their `place_id` or map id. Bookings reference
+     * the asset id.
      * The booked desk can be in any building, so search the whole org.
      */
     private async _deskAssetId(code: string): Promise<string> {
