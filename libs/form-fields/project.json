@@ -12,7 +12,10 @@
             "outputs": ["{workspaceRoot}/coverage/libs/form-fields"],
             "options": {
                 "tsConfig": "libs/form-fields/tsconfig.spec.json",
-                "setupFiles": ["libs/form-fields/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "libs/form-fields/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "form-fields:test-build:development"

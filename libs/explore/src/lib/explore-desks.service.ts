@@ -257,11 +257,13 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         for (const { id, bookable, map_id } of desks) {
             const d_id = map_id || id;
             active_keys.add(d_id);
-            const is_used = in_use.some((i) => d_id === i);
-            const has_presence = presence.some((i) => d_id === i);
-            const has_signs = signs.some((i) => d_id === i);
+            // API bookings reference the desk asset id, AreaManagement uses the map id
+            const matches = (i: string) => i === d_id || i === id;
+            const is_used = in_use.some(matches);
+            const has_presence = presence.some(matches);
+            const has_signs = signs.some(matches);
             const is_checked_in =
-                checked_in.some((i) => d_id === i) ||
+                checked_in.some(matches) ||
                 (is_used && this._settings.get(`app.desks.auto_checkin`));
             const is_restricted = rulesForResource(
                 {
@@ -270,6 +272,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     host: currentUser(),
                     resource: {
                         id,
+                        map_id,
                         zones: [level?.parent_id, level?.id],
                     },
                 },
@@ -591,6 +594,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 host: currentUser(),
                 resource: {
                     id: asset_id,
+                    map_id: desk.map_id,
                     zones: [desk.zone?.parent_id, desk.zone?.id],
                 },
             },

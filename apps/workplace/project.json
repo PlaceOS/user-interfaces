@@ -160,7 +160,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/workplace"],
             "options": {
                 "tsConfig": "apps/workplace/tsconfig.spec.json",
-                "setupFiles": ["apps/workplace/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/workplace/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "workplace:test-build:development"

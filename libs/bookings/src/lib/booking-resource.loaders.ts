@@ -2,7 +2,7 @@ import { Desk, flatten, OrganisationService } from '@placeos/common';
 import { isMock, listChildMetadata } from '@placeos/ts-client';
 import {
     deskFromAsset,
-    queryDeskAssetsForZones,
+    queryDeskAssetsInZone,
 } from 'libs/assets/src/lib/desk-assets.fn';
 import { queryParkingSpacesForZones } from 'libs/assets/src/lib/parking-assets.fn';
 import type { BookingAsset } from './booking-form.types';
@@ -29,10 +29,10 @@ function childMetadata(zone_id: string, name: string) {
     );
 }
 
-/** Desk assets of the given levels. Shares in-flight requests */
-function deskAssets(level_ids: string[]) {
-    return shareInFlight(`desk-assets|${[...level_ids].sort().join(',')}`, () =>
-        queryDeskAssetsForZones(level_ids),
+/** Desk assets within a building or region. Shares in-flight requests */
+function deskAssets(zone_id: string) {
+    return shareInFlight(`desk-assets|${zone_id}`, () =>
+        queryDeskAssetsInZone(zone_id),
     );
 }
 
@@ -58,8 +58,9 @@ export async function loadDeskResources(
     org: OrganisationService,
     use_region: boolean,
 ): Promise<BookingAsset[]> {
-    const levels = use_region ? org.levelsForRegion() : org.levelsForBuilding();
-    const assets = await deskAssets(levels.map((level) => level.id));
+    const zone_id = use_region ? org.building?.parent_id : org.building?.id;
+    if (!zone_id) return [];
+    const assets = await deskAssets(zone_id);
     return assets.map((asset) =>
         deskFromAsset(asset, org.levelWithID([asset.zone_id])),
     ) as BookingAsset[];
@@ -117,21 +118,13 @@ export function assignedDeskBuilding(
     const key = `assigned-desk|${use_assets}|${email}|${building_ids.join(',')}`;
     return shareInFlight(key, async () => {
         if (use_assets) {
-            const ids = new Set(building_ids);
-            const levels = org.levels.filter((level) =>
-                ids.has(level.parent_id),
+            const lists = await Promise.all(
+                building_ids.map((id) => deskAssets(id).catch(() => [])),
             );
-            const desks = await deskAssets(
-                levels.map((level) => level.id),
-            ).catch(() => []);
-            const desk = desks.find(
-                (item) => item.assigned_to?.toLowerCase() === email,
+            const index = lists.findIndex((desks) =>
+                desks.some((item) => item.assigned_to?.toLowerCase() === email),
             );
-            if (!desk) return null;
-            return (
-                levels.find((level) => level.id === desk.zone_id)?.parent_id ||
-                null
-            );
+            return index >= 0 ? building_ids[index] : null;
         }
         const map_metadata = (meta) =>
             (meta?.metadata?.desks?.details instanceof Array

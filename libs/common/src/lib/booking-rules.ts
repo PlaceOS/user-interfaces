@@ -23,6 +23,8 @@ export interface BookingRules {
 
 export interface BookableResource extends Record<string, any> {
     id: string;
+    /** Map element id, desk assets keep the original desk id here */
+    map_id?: string;
     zones?: string[];
     zone?: { id: string; name: string };
 }
@@ -181,9 +183,12 @@ export function checkRulesMatch(
         matches += 1;
     if (conditions.max_length && conditions.max_length >= duration)
         matches += 1;
+    // rules saved before desks moved to assets reference the original desk id
     if (
         conditions.resource_ids &&
-        conditions.resource_ids.includes(resource.id)
+        (conditions.resource_ids.includes(resource.id) ||
+            (resource.map_id &&
+                conditions.resource_ids.includes(resource.map_id)))
     )
         matches += 1;
     if (

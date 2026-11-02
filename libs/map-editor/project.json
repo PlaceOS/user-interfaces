@@ -12,7 +12,10 @@
             "outputs": ["{workspaceRoot}/coverage/libs/map-editor"],
             "options": {
                 "tsConfig": "libs/map-editor/tsconfig.spec.json",
-                "setupFiles": ["libs/map-editor/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "libs/map-editor/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "map-editor:test-build:development"

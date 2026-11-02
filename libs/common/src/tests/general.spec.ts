@@ -88,6 +88,16 @@ describe('General Methods', () => {
             );
         });
 
+        it('should include columns that only later rows have', () => {
+            const csv = jsonToCsv([
+                { id: 'desk-1', name: 'Desk 1' },
+                { id: 'desk-2', floorsense_id: 'fs-2' },
+            ]);
+            expect(csv).toBe(
+                'id,name,floorsense_id\r\ndesk-1,Desk 1,\r\ndesk-2,,fs-2',
+            );
+        });
+
         it('should support tab-separated output', () => {
             const csv = jsonToCsv([{ name: 'Jane, Doe', role: 'Admin' }], '\t');
             expect(csv).toBe('name\trole\r\nJane, Doe\tAdmin');

@@ -1,4 +1,6 @@
 import {
+    deskFromAsset,
+    queryDeskAssets,
     queryLockerAssetsForZones,
     queryLockerBankAssetsForZones,
     queryParkingSpacesForZones,
@@ -34,9 +36,23 @@ function assetMapId(asset: PlaceAsset): string {
 export function conciergeProtectedIdSources(
     level: BuildingLevel,
     organisation_id: string,
+    use_desk_assets = false,
 ): Record<string, ProtectedIdSource> {
     return {
         desks: async () => {
+            if (use_desk_assets) {
+                const assets = await queryDeskAssets(level.id);
+                return assets
+                    .map((asset) => deskFromAsset(asset))
+                    .map(
+                        (desk): ProtectedId => ({
+                            id: desk.map_id,
+                            kind: 'desk',
+                            label: desk.name || desk.map_id,
+                        }),
+                    )
+                    .filter((entry) => !!entry.id);
+            }
             const metadata = await showMetadata(level.id, 'desks');
             const list = Array.isArray(metadata.details)
                 ? (metadata.details as DeskRecord[])

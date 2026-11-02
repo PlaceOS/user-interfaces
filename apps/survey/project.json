@@ -103,7 +103,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/survey"],
             "options": {
                 "tsConfig": "apps/survey/tsconfig.spec.json",
-                "setupFiles": ["apps/survey/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/survey/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "survey:test-build:development"

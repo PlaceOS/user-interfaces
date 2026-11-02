@@ -12,7 +12,10 @@
             "outputs": ["{workspaceRoot}/coverage/libs/components"],
             "options": {
                 "tsConfig": "libs/components/tsconfig.spec.json",
-                "setupFiles": ["libs/components/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "libs/components/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "components:test-build:development"

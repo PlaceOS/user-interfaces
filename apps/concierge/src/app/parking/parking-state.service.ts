@@ -41,6 +41,7 @@ import {
     updateBookingInstance,
 } from '@placeos/bookings';
 import {
+    assetZones,
     AsyncHandler,
     Booking,
     csvToJson,
@@ -498,7 +499,11 @@ export class ParkingStateService extends AsyncHandler {
             if (email && !users.has(email)) users.set(email, user);
         }
         let list = reset ? [] : this._bookings_state().list;
-        for (let page_count = 1; page_count <= MAX_BOOKING_PAGES; page_count++) {
+        for (
+            let page_count = 1;
+            page_count <= MAX_BOOKING_PAGES;
+            page_count++
+        ) {
             let failed = false;
             const resp = await Promise.resolve(fetch()).catch(() => {
                 failed = true;
@@ -731,17 +736,17 @@ export class ParkingStateService extends AsyncHandler {
                 return;
             }
             // New spaces get the same zones as spaces created in the modal.
-            const zones = unique([
-                this._org.organisation.id,
-                this._org.region?.id,
-                this._org.building?.id,
-                zone_id,
-            ]).filter((_) => !!_);
+            const zones = assetZones(this._org, zone_id);
             let success_count = 0;
             let error_count = 0;
             const saved_spaces: PlaceAsset[] = [];
+            const loaded_spaces = new Map(
+                this.spaces().map((space) => [space.id, space]),
+            );
             for (const row of rows) {
                 try {
+                    // updated spaces keep their level, refresh their zone path
+                    const existing = loaded_spaces.get(csvString(row.id));
                     const space_data: Partial<ParkingSpace> = {
                         ...(csvString(row.id) ? { id: csvString(row.id) } : {}),
                         identifier: csvString(row.identifier),
@@ -753,6 +758,9 @@ export class ParkingStateService extends AsyncHandler {
                         features: csvList(row.features),
                         notes: csvString(row.notes),
                         ...(!csvString(row.id) ? { zone_id, zones } : {}),
+                        ...(existing?.zone_id
+                            ? { zones: assetZones(this._org, existing.zone_id) }
+                            : {}),
                     };
                     if (space_data.assigned_to) {
                         await this._checkAssignedParkingLimit(
@@ -842,15 +850,10 @@ export class ParkingStateService extends AsyncHandler {
                 }
                 recreate = true;
             }
-            const zones = unique([
-                this._org.organisation.id,
-                this._org.region?.id,
-                this._org.building?.id,
-                selected_zone_id,
-            ]).filter((_) => !!_);
+            const zones = assetZones(this._org, selected_zone_id);
             const saved = await saveParkingSpace(
                 space.id
-                    ? asset_data
+                    ? { ...asset_data, zones }
                     : { ...asset_data, zone_id: selected_zone_id, zones },
             ).catch((e) => {
                 notifyError(

@@ -1439,6 +1439,35 @@ describe('BookingFormService', () => {
         expect(savedBookings().length).toBe(0);
     });
 
+    it('should point favourite desks saved with old desk ids at the desk assets', () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation((key: string) =>
+            key === 'favourite_desks'
+                ? ['desk-1', 'asset-2', 'desk-elsewhere']
+                : undefined,
+        );
+        const save = vi
+            .spyOn(settings, 'saveUserSetting')
+            .mockImplementation(() => undefined);
+
+        (spectator.service as any)._migrateFavouriteDesks([
+            { id: 'asset-1', map_id: 'desk-1' },
+            { id: 'asset-2', map_id: 'desk-2' },
+        ]);
+        expect(save).toHaveBeenCalledWith('favourite_desks', [
+            'asset-1',
+            'asset-2',
+            'desk-elsewhere',
+        ]);
+
+        // nothing is saved when the favourites already use asset ids
+        save.mockClear();
+        (spectator.service as any)._migrateFavouriteDesks([
+            { id: 'asset-2', map_id: 'desk-2' },
+        ]);
+        expect(save).not.toHaveBeenCalled();
+    });
+
     it('should not collapse overnight parking request duration to zero against parking bookable hours', () => {
         const get = spectator.inject(SettingsService).get as Mock;
         get.mockImplementation((key: string) => {

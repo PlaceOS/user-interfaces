@@ -198,6 +198,39 @@ describe('MapManagementService', () => {
         );
     });
 
+    it('protects desk asset map ids when desks use assets', async () => {
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.desks.use_assets' ? true : undefined,
+        );
+        const page = (data: any[]) =>
+            Promise.resolve({ data, total: data.length, next: () => null });
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+        );
+        vi.mocked(ts_client.queryAssets).mockReturnValue(
+            page([
+                {
+                    id: 'asset-1',
+                    zone_id: 'l1',
+                    identifier: 'Desk 1',
+                    map_id: 'desk-1',
+                },
+            ]) as any,
+        );
+
+        const sources = spectator.service.protectedIdSources({
+            id: 'l1',
+        } as any);
+
+        await expect(sources.desks()).resolves.toEqual([
+            { id: 'desk-1', kind: 'desk', label: 'Desk 1' },
+        ]);
+        expect(ts_client.showMetadata).not.toHaveBeenCalledWith('l1', 'desks');
+    });
+
     it('stores an AI snapshot as a file and answers with the upload id', async () => {
         const blob = new Blob(['png'], { type: 'image/png' });
         await expect(

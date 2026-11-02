@@ -2,12 +2,12 @@ import { flatten } from '@placeos/common';
 import {
     PlaceAsset,
     queryAssetCategories,
-    queryAssets,
     queryAssetTypes,
     removeAsset,
 } from '@placeos/ts-client';
 import {
     findOldestByName,
+    queryAllAssetPages,
     saveAsset,
     saveAssetCategory,
     saveAssetType,
@@ -113,7 +113,7 @@ export async function queryLockerBankAssets(
     zone_id: string,
 ): Promise<PlaceAsset[]> {
     const type_id = await resolveLockerBankTypeId();
-    const response = await queryAssets({ zone_id, type_id, limit: 500 });
+    const response = await queryAllAssetPages({ zone_id, type_id });
     return response.data;
 }
 
@@ -124,10 +124,19 @@ export async function queryLockerBankAssetsForZones(
     const type_id = await resolveLockerBankTypeId();
     const results = await Promise.all(
         zone_ids.map((zone_id) =>
-            queryAssets({ zone_id, type_id, limit: 500 }).then((_) => _.data),
+            queryAllAssetPages({ zone_id, type_id }).then((_) => _.data),
         ),
     );
     return flatten<PlaceAsset>(results);
+}
+
+/** Query the locker banks within a building or region, by their `zones` */
+export async function queryLockerBankAssetsInZone(
+    zone_id: string,
+): Promise<PlaceAsset[]> {
+    const type_id = await resolveLockerBankTypeId();
+    const response = await queryAllAssetPages({ zones: zone_id, type_id });
+    return response.data;
 }
 
 export async function saveLockerBankAsset(
@@ -145,7 +154,7 @@ export async function queryLockerAssets(
     zone_id: string,
 ): Promise<PlaceAsset[]> {
     const type_id = await resolveLockerTypeId();
-    const response = await queryAssets({ zone_id, type_id, limit: 500 });
+    const response = await queryAllAssetPages({ zone_id, type_id });
     return response.data;
 }
 
@@ -156,10 +165,19 @@ export async function queryLockerAssetsForZones(
     const type_id = await resolveLockerTypeId();
     const results = await Promise.all(
         zone_ids.map((zone_id) =>
-            queryAssets({ zone_id, type_id, limit: 500 }).then((_) => _.data),
+            queryAllAssetPages({ zone_id, type_id }).then((_) => _.data),
         ),
     );
     return flatten<PlaceAsset>(results);
+}
+
+/** Query the lockers within a building or region, by their `zones` */
+export async function queryLockerAssetsInZone(
+    zone_id: string,
+): Promise<PlaceAsset[]> {
+    const type_id = await resolveLockerTypeId();
+    const response = await queryAllAssetPages({ zones: zone_id, type_id });
+    return response.data;
 }
 
 export async function saveLockerAsset(

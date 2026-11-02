@@ -7,6 +7,7 @@ import * as ts_client from '@placeos/ts-client';
 import {
     assignedDeskBuilding,
     hasAssignedDesk,
+    loadDeskResources,
     loadMetadataResources,
 } from '../lib/booking-resource.loaders';
 
@@ -59,5 +60,70 @@ describe('booking resource loaders', () => {
         expect(await hasAssignedDesk(org, 'other@example.com', false)).toBe(
             false,
         );
+    });
+    describe('desk assets', () => {
+        const page = (data: any[]) =>
+            Promise.resolve({ data, total: data.length, next: () => null });
+        const asset_org = {
+            ...org,
+            levelWithID: vi.fn(([id]: string[]) => ({
+                id,
+                parent_id: 'bld-1',
+            })),
+        } as unknown as OrganisationService;
+
+        beforeEach(() => {
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+                page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+            );
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+                page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+            );
+            vi.mocked(ts_client.queryAssets).mockImplementation(
+                (query: any) =>
+                    page(
+                        query.zones === 'bld-2'
+                            ? [
+                                  {
+                                      id: 'asset-2',
+                                      zone_id: 'lvl-2',
+                                      identifier: 'Desk 2',
+                                      assigned_to: 'Me@Example.com',
+                                  },
+                              ]
+                            : query.zones === 'bld-1'
+                              ? [
+                                    {
+                                        id: 'asset-1',
+                                        zone_id: 'lvl-1',
+                                        identifier: 'Desk 1',
+                                    },
+                                ]
+                              : [],
+                    ) as any,
+            );
+        });
+
+        it('should load the desks of the building with one query', async () => {
+            const desks = await loadDeskResources(asset_org, false);
+
+            expect(desks.map((desk) => desk.id)).toEqual(['asset-1']);
+            expect(ts_client.queryAssets).toHaveBeenCalledTimes(1);
+            expect(ts_client.queryAssets).toHaveBeenCalledWith(
+                expect.objectContaining({ zones: 'bld-1', type_id: 'type-1' }),
+            );
+        });
+
+        it('should find the building of an assigned desk asset by building query', async () => {
+            expect(
+                await assignedDeskBuilding(asset_org, 'me@example.com', true),
+            ).toBe('bld-2');
+            expect(
+                vi
+                    .mocked(ts_client.queryAssets)
+                    .mock.calls.map(([query]: any[]) => query.zones)
+                    .sort(),
+            ).toEqual(['bld-1', 'bld-2']);
+        });
     });
 });

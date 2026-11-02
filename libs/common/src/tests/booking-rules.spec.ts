@@ -52,9 +52,9 @@ describe('addToDate', () => {
 
 describe('checkRulesMatch', () => {
     it('should match when there are no conditions', () => {
-        expect(
-            checkRulesMatch(details(), { conditions: null } as any),
-        ).toBe(true);
+        expect(checkRulesMatch(details(), { conditions: null } as any)).toBe(
+            true,
+        );
     });
 
     it('should require all conditions to match', () => {
@@ -68,9 +68,7 @@ describe('checkRulesMatch', () => {
         };
         expect(checkRulesMatch(details(), ruleset)).toBe(true);
         // resource matches but duration is below min_length
-        expect(checkRulesMatch(details({ duration: 15 }), ruleset)).toBe(
-            false,
-        );
+        expect(checkRulesMatch(details({ duration: 15 }), ruleset)).toBe(false);
     });
 
     it('should match resource ids', () => {
@@ -80,6 +78,21 @@ describe('checkRulesMatch', () => {
             conditions: { resource_ids: ['desk-2'] },
         };
         expect(checkRulesMatch(details(), ruleset)).toBe(false);
+    });
+
+    it('should match desk assets by the original desk id in their map id', () => {
+        const ruleset: BookingRuleset = {
+            zone: '*',
+            rules: {},
+            conditions: { resource_ids: ['desk-6.06.1'] },
+        };
+        const asset = (map_id?: string) =>
+            details({
+                resource: { id: 'asset-1', map_id, zones: ['zone-1'] },
+            });
+        expect(checkRulesMatch(asset('desk-6.06.1'), ruleset)).toBe(true);
+        expect(checkRulesMatch(asset('desk-other'), ruleset)).toBe(false);
+        expect(checkRulesMatch(asset(), ruleset)).toBe(false);
     });
 
     it('should match host groups', () => {
@@ -117,9 +130,7 @@ describe('checkRulesMatch', () => {
             conditions: { min_length: 30, max_length: 120 },
         };
         expect(checkRulesMatch(details({ duration: 60 }), ruleset)).toBe(true);
-        expect(checkRulesMatch(details({ duration: 15 }), ruleset)).toBe(
-            false,
-        );
+        expect(checkRulesMatch(details({ duration: 15 }), ruleset)).toBe(false);
         expect(checkRulesMatch(details({ duration: 240 }), ruleset)).toBe(
             false,
         );
@@ -148,9 +159,9 @@ describe('checkRulesMatch', () => {
             conditions: { is_period: [now - 1000, now + 1000] },
         };
         expect(checkRulesMatch(details({ date: now }), ruleset)).toBe(true);
-        expect(
-            checkRulesMatch(details({ date: now + 5000 }), ruleset),
-        ).toBe(false);
+        expect(checkRulesMatch(details({ date: now + 5000 }), ruleset)).toBe(
+            false,
+        );
     });
 
     it('should match locations against the resource name', () => {
@@ -185,9 +196,7 @@ describe('rulesForResource', () => {
 
     it('should match wildcard zone rulesets', () => {
         expect(
-            rulesForResource(details(), [
-                { ...hidden_ruleset, zone: '*' },
-            ]),
+            rulesForResource(details(), [{ ...hidden_ruleset, zone: '*' }]),
         ).toEqual(hidden_ruleset.rules);
     });
 

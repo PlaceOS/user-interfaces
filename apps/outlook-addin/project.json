@@ -125,7 +125,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/outlook-addin"],
             "options": {
                 "tsConfig": "apps/outlook-addin/tsconfig.spec.json",
-                "setupFiles": ["apps/outlook-addin/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/outlook-addin/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "outlook-addin:test-build:development"

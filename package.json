@@ -1,7 +1,7 @@
 {
     "name": "@placeos/user-interfaces",
     "version": "1.12.0",
-    "packageManager": "bun@1.3.11",
+    "packageManager": "bun@1.4.3",
     "sideEffects": [
         "**/user-state.ts"
     ],

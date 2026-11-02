@@ -2,12 +2,12 @@ import { flatten } from '@placeos/common';
 import {
     PlaceAsset,
     queryAssetCategories,
-    queryAssets,
     queryAssetTypes,
     removeAsset,
 } from '@placeos/ts-client';
 import {
     findOldestByName,
+    queryAllAssetPages,
     saveAsset,
     saveAssetCategory,
     saveAssetType,
@@ -83,10 +83,7 @@ async function ensure_hidden_category(name: string) {
         return category;
     } catch (error) {
         reset_hidden_categories_cache();
-        category = findOldestByName(
-            await query_hidden_categories(),
-            name,
-        );
+        category = findOldestByName(await query_hidden_categories(), name);
         if (category) return category;
         throw error;
     }
@@ -186,7 +183,7 @@ export async function queryParkingSpaces(
     zone_id: string,
 ): Promise<PlaceAsset[]> {
     const type_id = await resolveParkingTypeId();
-    const response = await queryAssets({ zone_id, type_id, limit: 500 });
+    const response = await queryAllAssetPages({ zone_id, type_id });
     return response.data;
 }
 
@@ -198,10 +195,22 @@ export async function queryParkingSpacesForZones(
     const type_id = await resolveParkingTypeId();
     const results = await Promise.all(
         zone_ids.map((zone_id) =>
-            queryAssets({ zone_id, type_id, limit: 500 }).then((_) => _.data),
+            queryAllAssetPages({ zone_id, type_id }).then((_) => _.data),
         ),
     );
     return flatten<PlaceAsset>(results);
+}
+
+/**
+ * Query the parking spaces within a building or region. Parking assets list
+ * every zone they are in (org, region, building and level) in `zones`.
+ */
+export async function queryParkingSpacesInZone(
+    zone_id: string,
+): Promise<PlaceAsset[]> {
+    const type_id = await resolveParkingTypeId();
+    const response = await queryAllAssetPages({ zones: zone_id, type_id });
+    return response.data;
 }
 
 /** Save (create or update) a parking space asset */
@@ -301,7 +310,7 @@ export async function queryParkingUsers(
     zone_id: string,
 ): Promise<ParkingUser[]> {
     const type_id = await resolveParkingUserTypeId();
-    const assets = await queryAssets({ zone_id, type_id, limit: 500 });
+    const assets = await queryAllAssetPages({ zone_id, type_id });
     return assets.data.map(toParkingUser);
 }
 
@@ -393,7 +402,7 @@ export async function queryParkingFleetVehicles(
     zone_id: string,
 ): Promise<ParkingFleetVehicle[]> {
     const type_id = await resolveParkingFleetTypeId();
-    const assets = await queryAssets({ zone_id, type_id, limit: 500 });
+    const assets = await queryAllAssetPages({ zone_id, type_id });
     return assets.data.map(toParkingFleetVehicle);
 }
 

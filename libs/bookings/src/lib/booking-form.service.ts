@@ -2665,11 +2665,36 @@ export class BookingFormService extends AsyncHandler {
     }
 
     /** Load desk resources from the assets API for the active scope. */
-    public loadDeskResources(): Promise<BookingAsset[]> {
-        return loadDeskResources(
+    public async loadDeskResources(): Promise<BookingAsset[]> {
+        const desks = await loadDeskResources(
             this._org,
             this._settings.get('app.use_region'),
         );
+        this._migrateFavouriteDesks(desks);
+        return desks;
+    }
+
+    /**
+     * Favourites saved before desks moved to assets reference the old desk id,
+     * which migrated desk assets keep as their map id. Point them at the asset.
+     */
+    private _migrateFavouriteDesks(desks: BookingAsset[]) {
+        const favourites =
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) || [];
+        if (!favourites.length) return;
+        const ids = new Set(desks.map((desk) => desk.id));
+        const asset_ids = new Map(
+            desks
+                .filter((desk) => desk.map_id && desk.map_id !== desk.id)
+                .map((desk) => [desk.map_id, desk.id]),
+        );
+        const updated = unique(
+            favourites.map((id) =>
+                ids.has(id) ? id : asset_ids.get(id) || id,
+            ),
+        );
+        if (updated.join() === favourites.join()) return;
+        this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, updated);
     }
 
     /** Load the resources of the given metadata `type`, e.g. `desks`. */

@@ -17,10 +17,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    queryDeskAssetsForZones,
-    queryLockerAssetsForZones,
-    queryLockerBankAssetsForZones,
-    queryParkingSpacesForZones,
+    queryDeskAssetsInZone,
+    queryLockerAssetsInZone,
+    queryLockerBankAssetsInZone,
+    queryParkingSpacesInZone,
 } from '@placeos/assets';
 import {
     AsyncHandler,
@@ -324,10 +324,11 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         resource_type: ReportResourceType,
         scope_id: string,
     ): Promise<Set<string>> {
+        // assets list every zone they are in, so query by the building or region
         switch (resource_type) {
             case 'desks': {
                 if (this._settings.get('app.desks.use_assets')) {
-                    const desks = await queryDeskAssetsForZones([scope_id]);
+                    const desks = await queryDeskAssetsInZone(scope_id);
                     return this._zonesForResources(
                         desks.filter((desk) => desk.bookable),
                     );
@@ -355,13 +356,13 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
                 return this._zonesForResources(spaces);
             }
             case 'parking': {
-                const spaces = await queryParkingSpacesForZones([scope_id]);
+                const spaces = await queryParkingSpacesInZone(scope_id);
                 return this._zonesForResources(spaces);
             }
             case 'lockers': {
                 const [banks, lockers] = await Promise.all([
-                    queryLockerBankAssetsForZones([scope_id]),
-                    queryLockerAssetsForZones([scope_id]),
+                    queryLockerBankAssetsInZone(scope_id),
+                    queryLockerAssetsInZone(scope_id),
                 ]);
                 const zones = new Set<string>();
                 const bookable_bank_ids = new Set(
@@ -384,6 +385,7 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     private _zonesForResources(resources: any[]) {
         const zones = new Set<string>();
         for (const resource of resources || []) {
+            if (resource.zone_id) zones.add(resource.zone_id);
             for (const zone of resource.zones || []) zones.add(zone);
         }
         return zones;

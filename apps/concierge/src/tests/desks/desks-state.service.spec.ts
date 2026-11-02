@@ -120,6 +120,9 @@ describe('DesksStateService', () => {
         vi.mocked(ts_client_mod.put).mockResolvedValue({} as any);
         vi.mocked(ts_client_mod.del).mockResolvedValue(undefined);
         vi.mocked(ts_client_mod.updateMetadata).mockResolvedValue({} as never);
+        vi.mocked(ts_client_mod.queryAssets).mockResolvedValue({
+            data: [],
+        } as any);
         vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
             details: [],
         } as never);
@@ -265,6 +268,65 @@ describe('DesksStateService', () => {
         expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
     });
 
+    it('should update existing desk assets when importing desks', async () => {
+        settings_map['app.desks.use_assets'] = true;
+        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
+            data: [{ id: 'desk-category', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
+            data: [{ id: 'desk-type', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client_mod.queryAssets).mockImplementation(
+            async (query: any) =>
+                ({
+                    data:
+                        query.zone_id === 'level-2'
+                            ? [
+                                  {
+                                      id: 'asset-9',
+                                      asset_type_id: 'desk-type',
+                                      zone_id: 'level-2',
+                                      identifier: 'Old Name',
+                                      map_id: 'desk-6.06.1',
+                                      other_data: { floorsense_id: 'fs-1' },
+                                  },
+                              ]
+                            : [],
+                }) as any,
+        );
+        vi.mocked(ts_client_mod.updateAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client_mod.addAsset).mockResolvedValue({} as any);
+        spectator.service.setFilters({ zones: ['level-1'] });
+
+        // a metadata era CSV row, identified by the original desk id
+        await spectator.service.addDesks([
+            new Desk({
+                id: 'desk-6.06.1',
+                name: 'New Name',
+                zone_id: 'level-2',
+            } as any),
+            new Desk({ id: 'desk-new', name: 'Brand New' }),
+        ]);
+
+        expect(ts_client_mod.updateAsset).toHaveBeenCalledTimes(1);
+        expect(ts_client_mod.updateAsset).toHaveBeenCalledWith(
+            'asset-9',
+            expect.objectContaining({
+                zone_id: 'level-2',
+                identifier: 'New Name',
+                map_id: 'desk-6.06.1',
+                other_data: expect.objectContaining({ floorsense_id: 'fs-1' }),
+            }),
+        );
+        // rows without a level of their own use the selected level
+        expect(ts_client_mod.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({
+                zone_id: 'level-1',
+                identifier: 'Brand New',
+            }),
+        );
+    });
+
     it('should open the booking history modal for a desk booking', () => {
         const booking = new Booking({ id: 'booking-1' });
 
@@ -399,6 +461,35 @@ describe('DesksStateService', () => {
         await spectator.service.editDesk();
 
         expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            'A desk with the ID "desk-dup" already exists.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
+    it('should not add a desk asset with a map ID already used on the level', async () => {
+        settings_map['app.desks.use_assets'] = true;
+        vi.spyOn(spectator.service as any, '_levelDeskList').mockResolvedValue([
+            new Desk({
+                id: 'asset-1',
+                map_id: 'desk-dup',
+                asset_type_id: 'desk-type',
+            } as any),
+        ]);
+        (spectator.inject(MatDialog).open as any).mockReturnValue({
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: { id: 'desk-dup', name: 'New', zone_id: 'lvl-1' },
+                }),
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            close: vi.fn(),
+        });
+
+        await spectator.service.editDesk();
+
+        expect(ts_client_mod.addAsset).not.toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(
             'A desk with the ID "desk-dup" already exists.',
             expect.anything(),
@@ -551,6 +642,17 @@ describe('DesksStateService', () => {
         expect(spectator.service.bookings().map((_) => _.asset_name)).toEqual([
             'Desk One',
             'desk-2',
+        ]);
+
+        // desk assets keep the original desk id as their map id
+        desks.set([
+            new Desk({ id: 'asset-1', map_id: 'desk-1', name: 'Desk One' }),
+            new Desk({ id: 'asset-2', map_id: 'desk-2', name: 'Desk Two' }),
+        ]);
+
+        expect(spectator.service.bookings().map((_) => _.asset_name)).toEqual([
+            'Desk One',
+            'Desk Two',
         ]);
     });
 

@@ -271,8 +271,10 @@ export function loadTextFileFromInputEvent(event: InputEvent) {
  */
 export function jsonToCsv(json: HashMap[], seperator = ',') {
     if (json instanceof Array && json.length > 0) {
-        const keys = Object.keys(json[0]);
-        const valid_keys = keys.filter((key) => key in json[0]);
+        // every column, rows can have different keys (e.g. custom desk fields)
+        const valid_keys = [
+            ...new Set(json.flatMap((item) => Object.keys(item || {}))),
+        ];
         const map_cell = (value: unknown) => {
             if (value === null || value === undefined) return '';
             if (typeof value === 'object') return JSON.stringify(value);

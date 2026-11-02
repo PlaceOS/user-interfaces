@@ -121,7 +121,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/visitor-kiosk"],
             "options": {
                 "tsConfig": "apps/visitor-kiosk/tsconfig.spec.json",
-                "setupFiles": ["apps/visitor-kiosk/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/visitor-kiosk/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "visitor-kiosk:test-build:development"

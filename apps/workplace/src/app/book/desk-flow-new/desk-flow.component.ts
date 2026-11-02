@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { deskFromAsset, queryDeskAssetsInZone } from '@placeos/assets';
 import {
     BookingAsset,
     BookingFlowView,
@@ -26,6 +27,7 @@ import {
     notifyError,
     notifySuccess,
     OrganisationService,
+    SettingsService,
     User,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -39,6 +41,14 @@ import {
 } from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
 import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
+
+/** Desk links use the desk asset id, or the original desk id kept as the map id */
+function deskMatchesLink(
+    desk: { id: string; map_id?: string },
+    asset_id: string,
+) {
+    return desk.id === asset_id || desk.map_id === asset_id;
+}
 
 @Component({
     selector: 'desk-flow-new',
@@ -152,6 +162,7 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
 export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
@@ -324,7 +335,9 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         const deadline = Date.now() + wait_ms;
         do {
             const resources = await this._booking_form.listResources();
-            const resource = resources.find((item) => item.id === asset_id);
+            const resource = resources.find((item) =>
+                deskMatchesLink(item, asset_id),
+            );
             if (resource) return resource;
             if (Date.now() >= deadline) break;
             await new Promise((resolve) => setTimeout(resolve, 50));
@@ -335,6 +348,9 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     private async _findDeskResourceFromBuildings(
         asset_id: string,
     ): Promise<BookingAsset | null> {
+        if (this._settings.get('app.desks.use_assets')) {
+            return this._findDeskAssetFromBuildings(asset_id);
+        }
         for (const building of this._org.buildings || []) {
             const data = await listChildMetadata(building.id, {
                 name: 'desks',
@@ -353,6 +369,27 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
             );
             const resource = resources.find((item) => item.id === asset_id);
             if (resource) return resource;
+        }
+        return null;
+    }
+
+    private async _findDeskAssetFromBuildings(
+        asset_id: string,
+    ): Promise<BookingAsset | null> {
+        for (const building of this._org.buildings || []) {
+            const levels = this._org.levelsForBuilding(building);
+            const assets = await queryDeskAssetsInZone(building.id).catch(
+                () => [],
+            );
+            const desk = assets
+                .map((asset) =>
+                    deskFromAsset(
+                        asset,
+                        levels.find((level) => level.id === asset.zone_id),
+                    ),
+                )
+                .find((item) => deskMatchesLink(item, asset_id));
+            if (desk) return desk as unknown as BookingAsset;
         }
         return null;
     }

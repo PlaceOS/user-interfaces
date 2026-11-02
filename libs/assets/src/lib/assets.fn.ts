@@ -127,7 +127,8 @@ export function saveAssetCategory(category: Partial<PlaceAssetCategory>) {
 const _GROUPS_CACHE = new Map<string, AssetGroup[]>();
 const REMOVE_QUERY_KEYS = ['period_start', 'period_end', 'type', 'rejected'];
 
-async function queryAllAssetPages(query: any = {}) {
+/** Query assets, following pagination until every page is loaded */
+export async function queryAllAssetPages(query: any = {}) {
     let response = await queryAssetsAPI({
         ...query,
         limit: query.limit || 500,

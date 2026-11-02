@@ -120,6 +120,7 @@
             "outputs": ["{workspaceRoot}/coverage/apps/map-studio"],
             "options": {
                 "tsConfig": "apps/map-studio/tsconfig.spec.json",
+                "setupFiles": ["libs/common/src/test-storage.ts"],
                 "watch": false
             },
             "configurations": {

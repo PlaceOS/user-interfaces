@@ -79,7 +79,7 @@ benefit on a headless box. **Colima** gives a normal `docker` + `docker compose`
 against a Lima VM, entirely from the CLI, startable over SSH.
 
 ```bash
-brew install colima docker docker-compose node@24
+brew install colima docker docker-compose node@26
 ```
 
 Bun is not provisioned here: the workflow installs the version pinned in its
