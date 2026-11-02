@@ -167,6 +167,7 @@ import { BookingFormService } from '../booking-form.service';
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone()"
                                 [range]="bookable_hours()"
+                                [min_duration]="60"
                             ></a-time-field>
                         </div>
                         <div class="w-1/3 flex-1">
