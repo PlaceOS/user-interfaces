@@ -1,0 +1,4 @@
+import{Pi as y}from"./chunk-BF3rhqXc.js";import{x as Ft}from"./chunk-CzR2ghd7.js";import{d as ee}from"./chunk-MgYmwTr8.js";import{t as re}from"./chunk-DMxmaupe.js";var s=async a=>{if(!a?.hasUnsavedChanges())return!0;let o=await re({title:Ft(`APP.CONCIERGE.UNSAVED_CHANGES_TITLE`),content:Ft(`APP.CONCIERGE.UNSAVED_CHANGES_MSG`),icon:{content:`warning`},confirm_text:Ft(`APP.CONCIERGE.UNSAVED_CHANGES_DISCARD`)},y(ee));return o.close(),o.reason===`done`};export{s as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="cf131990-8d36-5c96-8331-2791f8bf6f77")}catch(e){}}();
+//# debugId=cf131990-8d36-5c96-8331-2791f8bf6f77
+//# sourceMappingURL=chunk-DRUQIHCd2.js.map
