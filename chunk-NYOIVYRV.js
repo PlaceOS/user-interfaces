@@ -59,7 +59,7 @@ import {
   vc,
   wi,
   withTimeout
-} from "./chunk-JCG6PDHP.js";
+} from "./chunk-WBVCK2WZ.js";
 import {
   bindNativeAuthRedirects,
   clearNativeApiKey,
@@ -325,15 +325,15 @@ var ClipboardModule = class _ClipboardModule {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "1947249",
-  "hash": "1947249",
+  "raw": "0966141",
+  "hash": "0966141",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "1947249",
+  "suffix": "0966141",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1793351660931
+  "time": 1793584924722
 };
 
 // libs/common/src/lib/settings.ts
@@ -4802,5 +4802,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=0705c8bb-d60b-5f21-95e8-fb4ad017d52d
-//# sourceMappingURL=chunk-ESMQSUA7.js.map
+//# debugId=fde064d6-62b8-59b4-963c-bbccdcc25cd0
+//# sourceMappingURL=chunk-NYOIVYRV.js.map

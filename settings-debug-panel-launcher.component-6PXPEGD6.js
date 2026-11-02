@@ -7,7 +7,7 @@ import {
 import {
   AsyncHandler,
   HotkeysService
-} from "./chunk-JCG6PDHP.js";
+} from "./chunk-WBVCK2WZ.js";
 import {
   IconComponent
 } from "./chunk-IMN6BD62.js";
@@ -55,15 +55,15 @@ import "./chunk-KUGYOAP2.js";
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-X4Z5BZBS.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-XEOBRCLF.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-PQUTWPAF.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-U3T7OUN2.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-W7EJSNDM.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-EIMFAEF6.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -296,11 +296,11 @@ var SettingsDebugPanelLauncherComponent = _SettingsDebugPanelLauncherComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-X4Z5BZBS.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-XEOBRCLF.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-PQUTWPAF.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-U3T7OUN2.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-W7EJSNDM.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-EIMFAEF6.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -383,4 +383,4 @@ export {
   SettingsDebugPanelLauncherComponent
 };
 //# debugId=38b43e4a-a063-568e-a108-0b8dd0c44480
-//# sourceMappingURL=settings-debug-panel-launcher.component-EXVLDWFQ.js.map
+//# sourceMappingURL=settings-debug-panel-launcher.component-6PXPEGD6.js.map

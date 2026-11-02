@@ -13,7 +13,7 @@ import {
   MatProgressSpinnerModule,
   MatSelect,
   MatSelectModule
-} from "./chunk-FZE6YA2F.js";
+} from "./chunk-BKIHWSNQ.js";
 import {
   MatError,
   MatFormField,
@@ -38,7 +38,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-GWZIJJXG.js";
+} from "./chunk-UXTVI2AK.js";
 import {
   FormField,
   disabled,
@@ -49,7 +49,7 @@ import {
 } from "./chunk-Q5WEZXPA.js";
 import {
   TranslatePipe
-} from "./chunk-RKPG4KOQ.js";
+} from "./chunk-2ZCGQ4QP.js";
 import {
   AssetRequest,
   CalendarEvent,
@@ -84,7 +84,7 @@ import {
   settingSignal,
   toQueryString,
   user_group_names
-} from "./chunk-ESMQSUA7.js";
+} from "./chunk-NYOIVYRV.js";
 import {
   AsyncHandler,
   Cs,
@@ -153,7 +153,7 @@ import {
   unique,
   up,
   v
-} from "./chunk-JCG6PDHP.js";
+} from "./chunk-WBVCK2WZ.js";
 import {
   IconComponent,
   SafePipe
@@ -442,7 +442,7 @@ function checkRulesMatch({ date, duration, host, resource: resource2 }, ruleset)
     matches += 1;
   if (conditions.max_length && conditions.max_length >= duration)
     matches += 1;
-  if (conditions.resource_ids && conditions.resource_ids.includes(resource2.id))
+  if (conditions.resource_ids && (conditions.resource_ids.includes(resource2.id) || resource2.map_id && conditions.resource_ids.includes(resource2.map_id)))
     matches += 1;
   if (conditions.tags && conditions.tags.every((tag) => (resource2.tags || []).find((t) => t === tag)))
     matches += 1;
@@ -4645,13 +4645,16 @@ async function queryAssetCategories(query = {}) {
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
+var MAX_ASSET_PAGES = 100;
 async function queryAllAssetPages(query = {}) {
   let response = await Xl(__spreadProps(__spreadValues({}, query), {
     limit: query.limit || 500
   }));
   let total = response.total;
   const data = [...response.data];
-  while (typeof response.next === "function") {
+  for (let page = 1; page < MAX_ASSET_PAGES; page++) {
+    if (typeof response.next !== "function")
+      break;
     const next = response.next();
     if (!next)
       break;
@@ -10918,5 +10921,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=1ed03dbb-db34-5ce5-8b3b-7625d3fbe3af
-//# sourceMappingURL=chunk-SZKRKZU3.js.map
+//# debugId=346dcafe-cc75-5475-ad35-936337fe1cc5
+//# sourceMappingURL=chunk-ICPYIJNZ.js.map
