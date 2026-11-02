@@ -5331,11 +5331,14 @@ function capitalizeFirstLetter(word) {
 function firstTruthyValueFrom(obs) {
   return obs ? lastValueFrom(obs.pipe(first((_) => !!_))) : Promise.resolve(null);
 }
-function withTimeout(promise, timeout_ms, message2 = "Operation timed out.") {
+function withTimeout(promise, timeout_ms, message2 = "Operation timed out.", on_timeout) {
   if (timeout_ms <= 0)
     return promise;
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(message2)), timeout_ms);
+    const timer = setTimeout(() => {
+      on_timeout == null ? void 0 : on_timeout();
+      reject(new Error(message2));
+    }, timeout_ms);
     promise.then((value) => {
       clearTimeout(timer);
       resolve(value);
@@ -5588,5 +5591,5 @@ export {
   errorMessage,
   HotkeysService
 };
-//# debugId=e4e5e21d-725e-5ad7-838d-da082c5c2701
-//# sourceMappingURL=chunk-KRQ52ZSK.js.map
+//# debugId=43a39eab-5e9f-55e6-97af-e5fe0aca6582
+//# sourceMappingURL=chunk-BCYNCRVN.js.map

@@ -1,8 +1,8 @@
-import "./chunk-62AXIBFP.js";
+import "./chunk-7SL6K33A.js";
 import "./chunk-BDIFYFS3.js";
 import {
   TranslatePipe
-} from "./chunk-V64A5RRZ.js";
+} from "./chunk-PYDA4ORG.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -27,7 +27,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-J3AGSDPF.js";
+} from "./chunk-IK55RWBP.js";
 import "./chunk-LRCUCP3C.js";
 import {
   AsyncHandler,
@@ -53,7 +53,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-KRQ52ZSK.js";
+} from "./chunk-BCYNCRVN.js";
 import {
   IconComponent
 } from "./chunk-OV3B4QBR.js";
@@ -66,8 +66,9 @@ import {
   RouterLink,
   RouterOutlet,
   provideRouter,
-  withHashLocation
-} from "./chunk-H574HJHJ.js";
+  withHashLocation,
+  withNavigationErrorHandler
+} from "./chunk-MWDAS43A.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -164,6 +165,64 @@ function subMonths(date, amount, options) {
 // node_modules/date-fns/subMinutes.js
 function subMinutes(date, amount, options) {
   return addMinutes(date, -amount, options);
+}
+
+// libs/common/src/lib/lazy-route-reload.ts
+var LAZY_ROUTE_RELOAD_KEY = "placeos.lazy_route_reload";
+var RELOAD_THROTTLE = 30 * 1e3;
+var LAZY_ROUTE_ERROR_PATTERNS = [
+  /ChunkLoadError/i,
+  /Loading chunk [\w-]+ failed/i,
+  /Failed to fetch dynamically imported module/i,
+  /Importing a module script failed/i,
+  /error loading dynamically imported module/i
+];
+function isLazyRouteLoadError(error) {
+  const message = getLazyRouteErrorMessage(error);
+  return LAZY_ROUTE_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+}
+function reloadOnChunkLoadError(error, context = {}) {
+  if (!isLazyRouteLoadError(error))
+    throw error;
+  const online = context.online ?? (typeof navigator !== "undefined" ? navigator.onLine : true);
+  if (!online)
+    throw error;
+  const storage = context.storage ?? sessionStorage;
+  const location_ref = context.location ?? location;
+  const now = context.now ?? Date.now();
+  const signature = `${location_ref.pathname}${location_ref.search}${location_ref.hash}:${getLazyRouteErrorMessage(error)}`;
+  const reload_state = parseReloadState(storage.getItem(LAZY_ROUTE_RELOAD_KEY));
+  if ((reload_state == null ? void 0 : reload_state.signature) === signature && now - reload_state.timestamp < RELOAD_THROTTLE) {
+    throw error;
+  }
+  storage.setItem(LAZY_ROUTE_RELOAD_KEY, JSON.stringify({ signature, timestamp: now }));
+  log("ROUTER", "Lazy route load failed. Reloading application...", error, "warn", true);
+  location_ref.reload();
+}
+function getLazyRouteErrorMessage(error) {
+  if (typeof error === "string")
+    return error;
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  if (error && typeof error === "object") {
+    const name = "name" in error ? `${error.name || ""}` : "";
+    const message = "message" in error ? `${error.message || ""}` : "";
+    return `${name}: ${message}`.trim();
+  }
+  return `${error || ""}`;
+}
+function parseReloadState(state) {
+  if (!state)
+    return null;
+  try {
+    const parsed_state = JSON.parse(state);
+    if (typeof (parsed_state == null ? void 0 : parsed_state.signature) === "string" && typeof (parsed_state == null ? void 0 : parsed_state.timestamp) === "number") {
+      return parsed_state;
+    }
+  } catch {
+  }
+  return null;
 }
 
 // libs/users/src/lib/user.utilities.ts
@@ -8981,7 +9040,7 @@ function mocksInit() {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-CJL4XACR.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-BEHI4FT7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -9020,7 +9079,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-CJL4XACR.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-BEHI4FT7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9073,22 +9132,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-ZQXBJRTM.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-VQWDAGLL.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-NAYSH7J2.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-X7RGCZYI.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-7MN4DR63.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-B3IBCK3Y.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-RRFU6QOX.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-MEBNDZAK.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -9096,7 +9155,7 @@ var routes = [
 bootstrapApplication(AppComponent, {
   providers: [
     provideZonelessChangeDetection(),
-    provideRouter(routes, withHashLocation()),
+    provideRouter(routes, withHashLocation(), withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error))),
     provideServiceWorker("ngsw-worker.js", {
       enabled: !isDevMode() && environment.service_worker,
       registrationStrategy: "registerWhenStable:30000"
@@ -9107,5 +9166,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=6ab168a0-2cda-5f22-8066-e1f316b9bb98
+//# debugId=a04de99d-7770-5c7b-907c-d33253f3c70b
 //# sourceMappingURL=main.js.map

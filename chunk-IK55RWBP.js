@@ -85,12 +85,12 @@ import {
   vc,
   wi,
   withTimeout
-} from "./chunk-KRQ52ZSK.js";
+} from "./chunk-BCYNCRVN.js";
 import {
   ActivatedRoute,
   NavigationEnd,
   Router
-} from "./chunk-H574HJHJ.js";
+} from "./chunk-MWDAS43A.js";
 import {
   ApplicationRef,
   BehaviorSubject,
@@ -2114,15 +2114,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "7b19761",
-  "hash": "7b19761",
+  "raw": "2241b21",
+  "hash": "2241b21",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "7b19761",
+  "suffix": "2241b21",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1793653852304
+  "time": 1793661243775
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -2567,7 +2567,7 @@ async function initSentry(dsn, router, rates = {}) {
   const replays_on_error = sampleRate(rates.replays_on_error, DEFAULT_REPLAYS_SAMPLE_RATE);
   const use_replay = replays_session > 0 || replays_on_error > 0;
   try {
-    const Sentry = await import("./sentry-sdk-ON6Y24LL.js");
+    const Sentry = await import("./sentry-sdk-RE7UJH4W.js");
     Sentry.init(__spreadProps(__spreadValues({
       dsn,
       release: VERSION.hash,
@@ -4741,5 +4741,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=05354c64-f577-59a7-be17-7735acb4f066
-//# sourceMappingURL=chunk-J3AGSDPF.js.map
+//# debugId=488d8cb3-c0a7-5a65-9333-55965d9d132c
+//# sourceMappingURL=chunk-IK55RWBP.js.map

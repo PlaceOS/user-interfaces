@@ -1,10 +1,10 @@
 import {
   ICON_MAP,
   NextMeetingComponent
-} from "./chunk-TO5S3XCO.js";
+} from "./chunk-OEZAK6NJ.js";
 import {
   VideoCallPageComponent
-} from "./chunk-TBJ6GFUG.js";
+} from "./chunk-5F2DJZ4D.js";
 import {
   AuthenticatedImageDirective,
   BindingDirective,
@@ -26,7 +26,7 @@ import {
   parse,
   selectCamera,
   zoomCamera
-} from "./chunk-47GDTWXC.js";
+} from "./chunk-24UJAD5B.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule,
@@ -41,22 +41,22 @@ import {
   MatInputModule
 } from "./chunk-BIODXGJY.js";
 import "./chunk-MCJJZCLS.js";
-import "./chunk-I35KROQ3.js";
+import "./chunk-TY5U2U2I.js";
 import {
   MatOption
 } from "./chunk-NNDEFQIE.js";
 import "./chunk-VQJLU6YC.js";
-import "./chunk-62AXIBFP.js";
+import "./chunk-7SL6K33A.js";
 import "./chunk-BDIFYFS3.js";
 import {
   TranslatePipe
-} from "./chunk-V64A5RRZ.js";
+} from "./chunk-PYDA4ORG.js";
 import {
   OrganisationService,
   SettingsService,
   currentUser,
   themedLogo
-} from "./chunk-J3AGSDPF.js";
+} from "./chunk-IK55RWBP.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -73,7 +73,7 @@ import {
   notifyError,
   randomInt,
   randomString
-} from "./chunk-KRQ52ZSK.js";
+} from "./chunk-BCYNCRVN.js";
 import {
   IconComponent
 } from "./chunk-OV3B4QBR.js";
@@ -89,7 +89,7 @@ import {
   Router,
   RouterLink,
   RouterModule
-} from "./chunk-H574HJHJ.js";
+} from "./chunk-MWDAS43A.js";
 import {
   Component,
   DestroyRef,
@@ -263,17 +263,37 @@ var _ChatService = class _ChatService extends AsyncHandler {
     this._chat_id = "";
     this._chat_messages.set([]);
   }
+  /**
+   * Sends a message to the chat. Opens a new connection first if the chat
+   * has ended, for example after the idle timeout or `close()`.
+   * Returns `false` and shows an error if no chat system is set, so the
+   * caller can keep the message. An error also shows if the connection
+   * closes before it opens.
+   */
   sendMessage(message) {
     if (!message)
-      return;
-    this._onMessage({ chat_id: "", message, user_id: currentUser().id });
+      return false;
+    const current = this._socket;
+    if (!current || current.readyState >= WebSocket.CLOSING) {
+      this._cleanup(current);
+      this.startChat();
+    }
     const socket = this._socket;
-    if ((socket == null ? void 0 : socket.readyState) === WebSocket.CONNECTING) {
-      socket.addEventListener("open", () => socket.send(message), {
-        once: true
-      });
+    if (!socket) {
+      notifyError(i18n("APP.WORKPLACE.CHAT_SEND_FAILED"));
+      return false;
+    }
+    this._onMessage({ chat_id: "", message, user_id: currentUser().id });
+    if (socket.readyState === WebSocket.CONNECTING) {
+      const failed = () => notifyError(i18n("APP.WORKPLACE.CHAT_SEND_FAILED"));
+      socket.addEventListener("open", () => {
+        socket.removeEventListener("close", failed);
+        socket.send(message);
+      }, { once: true });
+      socket.addEventListener("close", failed, { once: true });
     } else
-      socket == null ? void 0 : socket.send(message);
+      socket.send(message);
+    return true;
   }
   _timeoutSocket(delay = 55 * 1e3) {
     this.timeout("socket", () => {
@@ -4084,5 +4104,5 @@ var ControlTabbedViewComponent = _ControlTabbedViewComponent;
 export {
   ControlTabbedViewComponent
 };
-//# debugId=0aec2d1c-40c3-5c31-bc09-4cfcc9c41aa8
-//# sourceMappingURL=tabbed-view.component-7MN4DR63.js.map
+//# debugId=9adcfe5c-2ef7-5166-a704-0dd61dbbed7f
+//# sourceMappingURL=tabbed-view.component-B3IBCK3Y.js.map
