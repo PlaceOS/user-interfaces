@@ -26,7 +26,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-OQC6YRGJ.js";
+} from "./chunk-DRYTHWES.js";
 import {
   AsyncHandler,
   Bp,
@@ -8989,11 +8989,11 @@ function mocksInit() {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-IMT2OGO4.js").then((m) => m.ChatComponent)
+  import("./chat.component-JEHZHG5G.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-HW5QTKXT.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-OJ6ON2PM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9053,9 +9053,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-IMT2OGO4.js").then((m) => m.ChatComponent),
+    import("./chat.component-JEHZHG5G.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-HW5QTKXT.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-OJ6ON2PM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9097,12 +9097,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-TL2PLKUY.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-74RTKAMQ.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-I4S2XHO3.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-CDVTY7VS.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }

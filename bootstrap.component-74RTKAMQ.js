@@ -29,7 +29,7 @@ import {
   OrganisationService,
   Space,
   VERSION
-} from "./chunk-OQC6YRGJ.js";
+} from "./chunk-DRYTHWES.js";
 import {
   LocaleService,
   Ra
@@ -3455,4 +3455,4 @@ export {
   BootstrapComponent
 };
 //# debugId=7eeb0e78-a4ca-50ca-ab44-621fad25f203
-//# sourceMappingURL=bootstrap.component-TL2PLKUY.js.map
+//# sourceMappingURL=bootstrap.component-74RTKAMQ.js.map
