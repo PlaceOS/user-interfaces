@@ -14,6 +14,7 @@ import {
     deskFromAsset,
     queryDeskAssets,
     queryDeskAssetsForZones,
+    queryDeskAssetsInZone,
     saveDeskAsset,
 } from '@placeos/assets';
 import {
@@ -192,17 +193,19 @@ export class DesksStateService extends AsyncHandler {
             try {
                 const zones = this._getActiveZones(params.zones);
                 if (params.use_assets) {
-                    const level_ids =
-                        zones.length && !params.zones.includes('All')
-                            ? zones
-                            : this._currentLevelList().map((level) => level.id);
                     const levels = new Map(
                         this._currentLevelList().map((level) => [
                             level.id,
                             level,
                         ]),
                     );
-                    const assets = await queryDeskAssetsForZones(level_ids);
+                    // all levels are one query for the building or region
+                    const assets =
+                        zones.length && !params.zones.includes('All')
+                            ? await queryDeskAssetsForZones(zones)
+                            : await queryDeskAssetsInZone(
+                                  this._currentScopeId(),
+                              );
                     return assets
                         .map((asset) =>
                             deskFromAsset(asset, levels.get(asset.zone_id)),
@@ -953,7 +956,7 @@ export class DesksStateService extends AsyncHandler {
         const email = user_email.toLowerCase();
         const levels = this._currentLevelList();
         const desks = this._settings.get('app.desks.use_assets')
-            ? await queryDeskAssetsForZones(levels.map((level) => level.id))
+            ? await queryDeskAssetsInZone(this._currentScopeId())
             : (
                   await Promise.all(
                       levels.map((level) =>
@@ -1248,6 +1251,13 @@ export class DesksStateService extends AsyncHandler {
             (zone) =>
                 !this._all_zones_keys.includes(zone) && level_ids.has(zone),
         );
+    }
+
+    /** The building, or region with `use_region`, that the level list covers */
+    private _currentScopeId(): string {
+        return this._settings.get('app.use_region')
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
     }
 
     private _currentLevelList(): BuildingLevel[] {

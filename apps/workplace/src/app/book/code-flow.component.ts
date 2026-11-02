@@ -10,7 +10,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { queryDeskAssetsForZones } from '@placeos/assets';
+import { queryDeskAssetsInZone } from '@placeos/assets';
 import {
     BookingFormService,
     queryBookings,
@@ -348,10 +348,9 @@ export class BookCodeFlowComponent
      */
     private async _deskAssetId(code: string): Promise<string> {
         if (!this._settings.get('app.desks.use_assets')) return code;
-        const levels = this._org.levelsForBuilding();
-        const assets = await queryDeskAssetsForZones(
-            levels.map((level) => level.id),
-        ).catch(() => []);
+        const building_id = this._org.building?.id;
+        if (!building_id) return code;
+        const assets = await queryDeskAssetsInZone(building_id).catch(() => []);
         const asset = assets.find(
             (item) =>
                 item.id === code ||

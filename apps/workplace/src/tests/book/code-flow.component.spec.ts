@@ -68,8 +68,9 @@ describe('BookCodeFlowComponent', () => {
         );
         vi.spyOn(
             spectator.inject(OrganisationService),
-            'levelsForBuilding',
-        ).mockReturnValue([{ id: 'level-1' }] as any);
+            'building',
+            'get',
+        ).mockReturnValue({ id: 'bld-1' } as any);
         const page = (data: any[]) =>
             Promise.resolve({ data, total: data.length, next: () => null });
         vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
@@ -78,10 +79,20 @@ describe('BookCodeFlowComponent', () => {
         vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
             page([{ id: 'type-1', name: '_DESKS_' }]) as any,
         );
-        vi.mocked(ts_client.queryAssets).mockReturnValue(
-            page([
-                { id: 'asset-1', zone_id: 'level-1', map_id: 'desk-1' },
-            ]) as any,
+        // desk assets are found by building
+        vi.mocked(ts_client.queryAssets).mockImplementation(
+            (query: any) =>
+                page(
+                    query.zones === 'bld-1'
+                        ? [
+                              {
+                                  id: 'asset-1',
+                                  zone_id: 'level-1',
+                                  map_id: 'desk-1',
+                              },
+                          ]
+                        : [],
+                ) as any,
         );
         vi.mocked(ts_client.get).mockImplementation(
             () => Promise.resolve([{ id: 'b-1', asset_id: 'asset-1' }]) as any,

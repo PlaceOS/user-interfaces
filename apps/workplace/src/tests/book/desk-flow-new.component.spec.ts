@@ -1,34 +1,34 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { ActivatedRoute, Router } from '@angular/router';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
-    BookingFormValue,
     BookingFormService,
+    BookingFormValue,
     generateBookingForm,
 } from '@placeos/bookings';
 import {
     Booking,
     EMPTY_USER,
     OrganisationService,
-    SettingsService,
     setCurrentUser,
+    SettingsService,
     StaffUser,
     User,
 } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 import {
+    authority,
     listChildMetadata,
     queryAssetCategories,
     queryAssets,
     queryAssetTypes,
     querySystemsWithEmails,
     showSystem,
-    authority,
 } from '@placeos/ts-client';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
+import { MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 import { DeskFlowNewComponent } from '../../app/book/desk-flow-new/desk-flow.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -231,9 +231,11 @@ describe('DeskFlowNewComponent', () => {
         expect(spectator.inject(OrganisationService).find).toHaveBeenCalledWith(
             'building-1',
         );
-        expect(spectator.inject(OrganisationService).active_building()).toEqual({
-            id: 'building-1',
-        });
+        expect(spectator.inject(OrganisationService).active_building()).toEqual(
+            {
+                id: 'building-1',
+            },
+        );
         expect(model().resources).toEqual([desk_resource]);
         expect(model().asset_id).toBe('desk-123');
     });
@@ -294,9 +296,11 @@ describe('DeskFlowNewComponent', () => {
         await spectator.component.ngOnInit();
         await waitFor(() => model().asset_id === 'desk-456');
 
-        expect(spectator.inject(OrganisationService).active_building()).toEqual({
-            id: 'building-2',
-        });
+        expect(spectator.inject(OrganisationService).active_building()).toEqual(
+            {
+                id: 'building-2',
+            },
+        );
         expect(model().resources).toEqual([
             expect.objectContaining({
                 id: 'desk-456',
@@ -320,7 +324,7 @@ describe('DeskFlowNewComponent', () => {
         vi.mocked(queryAssets).mockImplementation(
             (query: any) =>
                 page(
-                    query.zone_id === 'level-2'
+                    query.zones === 'building-2'
                         ? [
                               {
                                   id: 'asset-456',
@@ -357,12 +361,10 @@ describe('DeskFlowNewComponent', () => {
             zone: { id: 'level-1', parent_id: 'building-1' },
         };
         vi.mocked(authority).mockReturnValue({} as any);
-        const fetch_spy = vi
-            .spyOn(globalThis, 'fetch')
-            .mockResolvedValue({
-                ok: true,
-                text: () => Promise.resolve('<svg viewBox="0 0 100 100"></svg>'),
-            } as any);
+        const fetch_spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+            ok: true,
+            text: () => Promise.resolve('<svg viewBox="0 0 100 100"></svg>'),
+        } as any);
         resource_list = [desk_without_map_id];
         query_params = {};
 

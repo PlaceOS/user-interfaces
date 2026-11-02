@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { deskFromAsset, queryDeskAssetsForZones } from '@placeos/assets';
+import { deskFromAsset, queryDeskAssetsInZone } from '@placeos/assets';
 import {
     BookingAsset,
     BookingFlowView,
@@ -378,9 +378,9 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     ): Promise<BookingAsset | null> {
         for (const building of this._org.buildings || []) {
             const levels = this._org.levelsForBuilding(building);
-            const assets = await queryDeskAssetsForZones(
-                levels.map((level) => level.id),
-            ).catch(() => []);
+            const assets = await queryDeskAssetsInZone(building.id).catch(
+                () => [],
+            );
             const desk = assets
                 .map((asset) =>
                     deskFromAsset(

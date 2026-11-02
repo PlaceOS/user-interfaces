@@ -34,7 +34,7 @@ import {
 } from '@placeos/ts-client';
 import {
     deskFromAsset,
-    queryDeskAssetsForZones,
+    queryDeskAssetsInZone,
 } from 'libs/assets/src/lib/desk-assets.fn';
 
 import { toQueryString } from '@placeos/common';
@@ -302,7 +302,7 @@ export class ExploreSearchService {
         loader: ({ params: bld }) => {
             if (this._settings.get('app.desks.use_assets')) {
                 const levels = this._org.levelsForBuilding(bld);
-                return queryDeskAssetsForZones(levels.map((level) => level.id))
+                return queryDeskAssetsInZone(bld.id)
                     .then((assets) =>
                         assets.map((asset) =>
                             deskFromAsset(
