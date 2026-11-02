@@ -50,6 +50,10 @@ import {
     type ScheduleItem,
 } from '../schedules/signage-schedule.util';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
+import type {
+    MediaSelectModalComponent,
+    MediaSelectModalData,
+} from '../shared/media-select-modal.component';
 import { PagedList } from '../shared/paged-list';
 import { byName } from '../shared/paged-search';
 import type { PlaylistRequestApprovalModalResult } from '../shared/playlist-request-approval-modal.component';
@@ -1154,6 +1158,41 @@ export class SignagePlaylistService {
         } catch {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_ADD_PLAYLIST_ITEMS'));
         }
+    }
+
+    /**
+     * Pick media from the library and add it to the end of a playlist.
+     * @returns Whether media was added
+     */
+    public async pickMediaForPlaylist(playlist: SignagePlaylist) {
+        if (
+            !playlist?.id ||
+            !this._context.requirePermission(
+                this._context.can_update(),
+                'SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS',
+            )
+        )
+            return false;
+        const { MediaSelectModalComponent: modal } =
+            await import('../shared/media-select-modal.component');
+        const ref = this._dialog.open<
+            MediaSelectModalComponent,
+            MediaSelectModalData,
+            SignageMedia[]
+        >(modal, {
+            data: {
+                multiple: true,
+                heading: 'SIGNAGE_MANAGER.ADD_MEDIA_TITLE',
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const media = await dialogClosed(ref);
+        if (!media?.length) return false;
+        return this.addMediaItemsToPlaylist(
+            playlist.id,
+            media.map(({ id }) => id),
+            media,
+        );
     }
 
     /**

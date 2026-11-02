@@ -330,7 +330,9 @@ function persistNextPlaySort(sorted: boolean) {
                             [class.hover:bg-base-200]="!sort_by_next_play()"
                             [class.bg-base-content]="sort_by_next_play()"
                             [class.text-base-100]="sort_by_next_play()"
-                            [class.hover:bg-base-content/80]="sort_by_next_play()"
+                            [class.hover:bg-base-content/80]="
+                                sort_by_next_play()
+                            "
                             matRipple
                             [attr.aria-pressed]="sort_by_next_play()"
                             [matTooltip]="
@@ -626,6 +628,19 @@ function persistNextPlaySort(sorted: boolean) {
                 >
                     <icon class="text-6xl">queue_music</icon>
                     <p>{{ 'SIGNAGE_MANAGER.NO_PLAYLIST_ITEMS' | translate }}</p>
+                    @if (can_update()) {
+                        <button
+                            btn
+                            type="button"
+                            matRipple
+                            class="inverse"
+                            (click)="addMedia()"
+                        >
+                            {{
+                                'SIGNAGE_MANAGER.ADD_MEDIA_TOOLTIP' | translate
+                            }}
+                        </button>
+                    }
                 </div>
             }
             @if (selected_count() > 0) {
@@ -852,6 +867,11 @@ export class PlaylistItemsComponent {
     public readonly selected_count = computed(
         () => this.selected_items().length,
     );
+
+    public addMedia() {
+        const playlist = this.selected_playlist();
+        if (playlist) this._playlist_service.pickMediaForPlaylist(playlist);
+    }
 
     public selectItem(item: SignageMedia, index: number) {
         this._playlist_service.selected_playlist_item.set(item);
