@@ -170,21 +170,6 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
         );
     });
 
-    it('should skip parent metadata when parent is same as org', async () => {
-        (ts_client.showMetadata as any).mockClear();
-        // Override the zone to have parent_id === org id
-        (spectator.component as any).zone = {
-            ...mock_zone,
-            parent_id: 'org-1',
-        };
-        (spectator.component as any)._data = {
-            zone: { ...mock_zone, parent_id: 'org-1' },
-        };
-        await spectator.component.ngOnInit();
-        // Should only call for org and zone (not parent separately)
-        expect(ts_client.showMetadata).toHaveBeenCalledTimes(2);
-    });
-
     it('should compare organisation settings against application defaults', async () => {
         (ts_client.showMetadata as any).mockClear();
         (ts_client.showMetadata as any).mockResolvedValueOnce({
@@ -314,22 +299,5 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
     it('should set default visitor max duration', () => {
         const visitors = spectator.component.model().visitors;
         expect(visitors.max_duration).toBe(180);
-    });
-
-    it('should set edited_by on save', async () => {
-        await spectator.component.ngOnInit();
-        await spectator.component.save();
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
-                details: expect.objectContaining({
-                    edited_by: expect.objectContaining({
-                        id: 'user-1',
-                        name: 'Test User',
-                        email: 'test@example.com',
-                    }),
-                }),
-            }),
-        );
     });
 });

@@ -1,6 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
@@ -8,7 +7,6 @@ import { setNotifyOutlet } from '@placeos/common';
 
 import { BuildingListComponent } from '../../app/building-manager/building-list.component';
 import { BuildingManagementService } from '../../app/building-manager/building-management.service';
-import { WorkplaceSettingsFormModalComponent } from '../../app/ui/app-settings/workplace-settings-form-modal.component';
 
 describe('BuildingListComponent', () => {
     let spectator: Spectator<BuildingListComponent>;
@@ -23,7 +21,6 @@ describe('BuildingListComponent', () => {
         providers: [
             MockProvider(BuildingManagementService, {}),
             MockProvider(Clipboard, {}),
-            MockProvider(MatDialog, { open: vi.fn() }),
         ],
     });
 
@@ -46,7 +43,6 @@ describe('BuildingListComponent', () => {
             providers: [
                 { provide: BuildingManagementService, useValue: manager },
                 { provide: Clipboard, useValue: { copy } },
-                { provide: MatDialog, useValue: { open: vi.fn() } },
             ],
         });
     });
@@ -84,14 +80,5 @@ describe('BuildingListComponent', () => {
         expect(manager.setInduction).toHaveBeenCalledWith(row);
         expect(manager.setSupportIssueTypes).toHaveBeenCalledWith(row);
         expect(manager.removeBuilding).toHaveBeenCalledWith(row);
-    });
-
-    it('should open the workplace settings modal for the selected zone', async () => {
-        const zone = { id: 'b1' };
-        await spectator.component.editWorkplaceSettings(zone);
-        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
-            WorkplaceSettingsFormModalComponent,
-            { data: { zone } },
-        );
     });
 });

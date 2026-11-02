@@ -29,6 +29,7 @@ import {
 } from '@placeos/components';
 import { UserDetails, UserLabelComponent } from '@placeos/users';
 import { ParkingStateService } from '../parking/parking-state.service';
+import { appMetadataKey } from '../ui/app-settings/app-settings.utilities';
 import { showVisitorFlag } from './visitor-flags';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -945,10 +946,10 @@ export class GuestListingComponent extends AsyncHandler {
     }
 
     private async _loadVisitorKioskConfig(bld: any) {
-        const visitor_kiosk_app =
-            this._settings.get('app.visitor_kiosk_metadata_key') ||
-            this._settings.get('app.visitor_kiosk_app') ||
-            'visitor-kiosk_app';
+        const visitor_kiosk_app = appMetadataKey(
+            this._settings,
+            'visitor-kiosk',
+        );
         const metadata: any = await showMetadata(bld.id, visitor_kiosk_app);
         const org_metadata: any = await showMetadata(
             this._org.organisation.id,

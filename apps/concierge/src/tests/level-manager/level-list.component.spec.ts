@@ -87,7 +87,7 @@ describe('LevelListComponent', () => {
     });
 
     it('should open the booking panel settings modal for the level', async () => {
-        const level = { id: 'lvl-1' };
+        const level = { id: 'lvl-1', name: 'Level 1' };
         await spectator.component.editBookingPanelSettings(level);
         expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
             BookingPanelSettingsModalComponent,

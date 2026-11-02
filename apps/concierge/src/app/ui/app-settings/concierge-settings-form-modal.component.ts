@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, min } from '@angular/forms/signals';
 import {
@@ -7,14 +7,12 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import {
-    buildCurrencyOptions,
-    currentUser,
     notifyError,
     notifySuccess,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
+import { PlaceZone } from '@placeos/ts-client';
 
 import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
 import { format } from 'date-fns';
@@ -23,7 +21,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { VERSION } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     IconComponent,
@@ -34,11 +31,16 @@ import { errorText } from '../modal-actions';
 import {
     applyAppSettings,
     applyBookingFallbacks,
-    appSettingOverrides,
+    appMetadataKey,
     AppSettings,
+    appSettingsHeading,
+    AppSettingsLayers,
+    loadLayeredAppSettings,
     LOCKER_BOOKING_FALLBACKS,
     mergeAppSettings,
+    saveAppSettings,
 } from './app-settings.utilities';
+import { SettingsCurrencySelectComponent } from './settings-currency-select.component';
 import {
     AVAILABLE_PERIOD_EXTENDED_OPTIONS,
     AVAILABLE_PERIOD_SHORT_OPTIONS,
@@ -52,13 +54,14 @@ import {
     MAX_DURATION_FULL_OPTIONS,
     WEEK_START_OPTIONS,
 } from './settings-option.constants';
+import { SettingsSelectComponent } from './settings-select.component';
 import { UploadButtonComponent } from './upload-button.component';
 
 @Component({
     selector: 'concierge-settings-form-modal',
     template: `
         <fullscreen-modal-shell
-            [heading]="heading()"
+            [heading]="heading"
             [loading]="loading()"
             (confirm)="save()"
         >
@@ -403,77 +406,18 @@ import { UploadButtonComponent } from './upload-button.component';
                             />
                         </mat-form-field>
                     </div>
-                    <div>
-                        <label
-                            for="concierge-settings-form-modal-week-start"
-                            id="concierge-settings-form-modal-week-start-label"
-                            >Week Start</label
-                        >
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                aria-labelledby="concierge-settings-form-modal-week-start-label"
-                                [formField]="form.week_start"
-                                placeholder="Sunday"
-                            >
-                                @for (opt of WEEK_START; track opt.value) {
-                                    <mat-option [value]="opt.value">{{
-                                        opt.label
-                                    }}</mat-option>
-                                }
-                            </mat-select>
-                            <mat-hint>
-                                Day of the week to show initially on various
-                                calendars
-                            </mat-hint>
-                        </mat-form-field>
-                    </div>
-                    <div>
-                        <label
-                            for="concierge-settings-form-modal-currency"
-                            id="concierge-settings-form-modal-currency-label"
-                            >Currency</label
-                        >
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                aria-labelledby="concierge-settings-form-modal-currency-label"
-                                [formField]="form.currency"
-                                placeholder="Select currency code"
-                                (openedChange)="
-                                    onCurrencySelectStateChange($event)
-                                "
-                            >
-                                <mat-option disabled class="!h-auto !py-2">
-                                    <input
-                                        matInput
-                                        placeholder="Search currency code or name"
-                                        [ngModel]="currency_filter()"
-                                        (ngModelChange)="
-                                            updateCurrencyFilter($event)
-                                        "
-                                        [ngModelOptions]="{ standalone: true }"
-                                        (click)="$event.stopPropagation()"
-                                        (keydown)="$event.stopPropagation()"
-                                    />
-                                </mat-option>
-                                @for (
-                                    option of filtered_currency_options();
-                                    track option.code
-                                ) {
-                                    <mat-option [value]="option.code">
-                                        {{ option.display_name }}
-                                    </mat-option>
-                                }
-                                @if (!filtered_currency_options().length) {
-                                    <mat-option disabled>
-                                        No currencies match your search
-                                    </mat-option>
-                                }
-                            </mat-select>
-                            <mat-hint>
-                                ISO 4217 currency code for pricing
-                            </mat-hint>
-                        </mat-form-field>
-                    </div>
+                    <settings-select
+                        field_id="concierge-settings-form-modal-week-start"
+                        label="Week Start"
+                        [field]="form.week_start"
+                        [options]="WEEK_START"
+                        placeholder="Sunday"
+                        hint="Day of the week to show initially on various calendars"
+                    />
+                    <settings-currency-select
+                        field_id="concierge-settings-form-modal-currency"
+                        [field]="form.currency"
+                    />
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
                             label="Use 24 hour time"
@@ -534,284 +478,78 @@ import { UploadButtonComponent } from './upload-button.component';
                             [class.open]="shown_group() === 'spaces'"
                         >
                             <div class="content px-4 pt-4 pb-2">
-                                <div class="flex-1">
-                                    <label
-                                        for="concierge-settings-form-modal-day-timeline-view"
-                                        id="concierge-settings-form-modal-day-timeline-view-label"
-                                    >
-                                        Day Timeline Default View
-                                    </label>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <mat-select
-                                            aria-labelledby="concierge-settings-form-modal-day-timeline-view-label"
-                                            [formField]="
-                                                form.events.day_timeline_view
-                                            "
-                                        >
-                                            @for (
-                                                opt of DAY_TIMELINE_VIEW;
-                                                track opt.value
-                                            ) {
-                                                <mat-option
-                                                    [value]="opt.value"
-                                                    >{{ opt.label }}</mat-option
-                                                >
-                                            }
-                                        </mat-select>
-                                        <mat-hint>
-                                            Default day timeline layout for room
-                                            bookings
-                                        </mat-hint>
-                                    </mat-form-field>
+                                <settings-select
+                                    class="flex-1"
+                                    field_id="concierge-settings-form-modal-day-timeline-view"
+                                    label="Day Timeline Default View"
+                                    [field]="form.events.day_timeline_view"
+                                    [options]="DAY_TIMELINE_VIEW"
+                                    hint="Default day timeline layout for room bookings"
+                                />
+                                <div class="flex items-center space-x-4">
+                                    <settings-select
+                                        class="flex-1"
+                                        field_id="concierge-settings-form-modal-block-start"
+                                        label="Block Start Time"
+                                        [field]="form.events.block_start"
+                                        [options]="BLOCK_START"
+                                        placeholder="12AM (Midnight)"
+                                        hint="Start time of dayview blocks"
+                                    />
+                                    <settings-select
+                                        class="flex-1"
+                                        field_id="concierge-settings-form-modal-block-end"
+                                        label="Block End Time"
+                                        [field]="form.events.block_end"
+                                        [options]="BLOCK_END"
+                                        placeholder="12AM (Midnight)"
+                                        hint="End time of dayview blocks"
+                                    />
                                 </div>
                                 <div class="flex items-center space-x-4">
-                                    <div class="flex-1">
-                                        <label
-                                            for="concierge-settings-form-modal-block-start"
-                                            id="concierge-settings-form-modal-block-start-label"
-                                            >Block Start Time</label
-                                        >
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-block-start-label"
-                                                [formField]="
-                                                    form.events.block_start
-                                                "
-                                                placeholder="12AM (Midnight)"
-                                            >
-                                                @for (
-                                                    opt of BLOCK_START;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                            <mat-hint>
-                                                Start time of dayview blocks
-                                            </mat-hint>
-                                        </mat-form-field>
-                                    </div>
-                                    <div class="flex-1">
-                                        <label
-                                            for="concierge-settings-form-modal-block-end"
-                                            id="concierge-settings-form-modal-block-end-label"
-                                            >Block End Time</label
-                                        >
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-block-end-label"
-                                                [formField]="
-                                                    form.events.block_end
-                                                "
-                                                placeholder="12AM (Midnight)"
-                                            >
-                                                @for (
-                                                    opt of BLOCK_END;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                            <mat-hint>
-                                                End time of dayview blocks
-                                            </mat-hint>
-                                        </mat-form-field>
-                                    </div>
+                                    <settings-select
+                                        class="flex-1"
+                                        field_id="concierge-settings-form-modal-block-height"
+                                        label="Block Height"
+                                        [field]="form.events.block_height"
+                                        [options]="BLOCK_HEIGHT"
+                                        hint="Height of 1 hour in dayview"
+                                    />
+                                    <settings-select
+                                        class="flex-1"
+                                        field_id="concierge-settings-form-modal-max-duration"
+                                        label="Max Duration"
+                                        [field]="form.events.max_duration"
+                                        [options]="MAX_DURATION_FULL"
+                                        hint="Max duration for single day bookings"
+                                    />
                                 </div>
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex-1">
-                                        <label
-                                            for="concierge-settings-form-modal-block-height"
-                                            id="concierge-settings-form-modal-block-height-label"
-                                        >
-                                            Block Height
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-block-height-label"
-                                                [formField]="
-                                                    form.events.block_height
-                                                "
-                                            >
-                                                @for (
-                                                    opt of BLOCK_HEIGHT;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                            <mat-hint>
-                                                Height of 1 hour in dayview
-                                            </mat-hint>
-                                        </mat-form-field>
-                                    </div>
-                                    <div class="flex-1">
-                                        <label
-                                            for="concierge-settings-form-modal-max-duration"
-                                            id="concierge-settings-form-modal-max-duration-label"
-                                        >
-                                            Max Duration
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-max-duration-label"
-                                                [formField]="
-                                                    form.events.max_duration
-                                                "
-                                            >
-                                                @for (
-                                                    opt of MAX_DURATION_FULL;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                            <mat-hint>
-                                                Max duration for single day
-                                                bookings
-                                            </mat-hint>
-                                        </mat-form-field>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label
-                                        for="concierge-settings-form-modal-available-period"
-                                        id="concierge-settings-form-modal-available-period-label"
-                                    >
-                                        Available Period
-                                    </label>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <mat-select
-                                            aria-labelledby="concierge-settings-form-modal-available-period-label"
-                                            [formField]="
-                                                form.events.available_period
-                                            "
-                                            placeholder="No limit"
-                                        >
-                                            <mat-option [value]="null"
-                                                >No limit</mat-option
-                                            >
-                                            @for (
-                                                opt of AVAILABLE_PERIOD_SHORT;
-                                                track opt.value
-                                            ) {
-                                                <mat-option
-                                                    [value]="opt.value"
-                                                    >{{ opt.label }}</mat-option
-                                                >
-                                            }
-                                        </mat-select>
-                                        <mat-hint>
-                                            Number of days ahead users can
-                                            create group events
-                                        </mat-hint>
-                                    </mat-form-field>
-                                </div>
+                                <settings-select
+                                    field_id="concierge-settings-form-modal-available-period"
+                                    label="Available Period"
+                                    [field]="form.events.available_period"
+                                    [options]="AVAILABLE_PERIOD_SHORT"
+                                    placeholder="No limit"
+                                    null_option="No limit"
+                                    hint="Number of days ahead users can create group events"
+                                />
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-events-bookable-start"
-                                            id="concierge-settings-form-modal-events-bookable-start-label"
-                                        >
-                                            Bookable Start
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-events-bookable-start-label"
-                                                [formField]="
-                                                    form.events.bookable_hours
-                                                        .start
-                                                "
-                                            >
-                                                @for (
-                                                    opt of BOOKABLE_HOUR_START;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-events-bookable-end"
-                                            id="concierge-settings-form-modal-events-bookable-end-label"
-                                        >
-                                            Bookable End
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-events-bookable-end-label"
-                                                [formField]="
-                                                    form.events.bookable_hours
-                                                        .end
-                                                "
-                                            >
-                                                @for (
-                                                    opt of BOOKABLE_HOUR_END;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-events-bookable-start"
+                                        label="Bookable Start"
+                                        [field]="
+                                            form.events.bookable_hours.start
+                                        "
+                                        [options]="BOOKABLE_HOUR_START"
+                                    />
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-events-bookable-end"
+                                        label="Bookable End"
+                                        [field]="form.events.bookable_hours.end"
+                                        [options]="BOOKABLE_HOUR_END"
+                                    />
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
@@ -899,72 +637,22 @@ import { UploadButtonComponent } from './upload-button.component';
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-events-all-day-start"
-                                            id="concierge-settings-form-modal-events-all-day-start-label"
-                                        >
-                                            All Day Start
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-events-all-day-start-label"
-                                                [formField]="
-                                                    form.events.all_day_period
-                                                        .start
-                                                "
-                                                placeholder="None"
-                                            >
-                                                @for (
-                                                    opt of BLOCK_START;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-events-all-day-end"
-                                            id="concierge-settings-form-modal-events-all-day-end-label"
-                                        >
-                                            All Day End
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-events-all-day-end-label"
-                                                [formField]="
-                                                    form.events.all_day_period
-                                                        .end
-                                                "
-                                                placeholder="None"
-                                            >
-                                                @for (
-                                                    opt of BLOCK_END;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-events-all-day-start"
+                                        label="All Day Start"
+                                        [field]="
+                                            form.events.all_day_period.start
+                                        "
+                                        [options]="BLOCK_START"
+                                        placeholder="None"
+                                    />
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-events-all-day-end"
+                                        label="All Day End"
+                                        [field]="form.events.all_day_period.end"
+                                        [options]="BLOCK_END"
+                                        placeholder="None"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -1062,72 +750,24 @@ import { UploadButtonComponent } from './upload-button.component';
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-visitors-bookable-start"
-                                            id="concierge-settings-form-modal-visitors-bookable-start-label"
-                                        >
-                                            Bookable Start
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-visitors-bookable-start-label"
-                                                [formField]="
-                                                    form.visitors.bookable_hours
-                                                        .start
-                                                "
-                                                placeholder="None"
-                                            >
-                                                @for (
-                                                    opt of BOOKABLE_HOUR_START;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-visitors-bookable-end"
-                                            id="concierge-settings-form-modal-visitors-bookable-end-label"
-                                        >
-                                            Bookable End
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-visitors-bookable-end-label"
-                                                [formField]="
-                                                    form.visitors.bookable_hours
-                                                        .end
-                                                "
-                                                placeholder="None"
-                                            >
-                                                @for (
-                                                    opt of BOOKABLE_HOUR_END;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-visitors-bookable-start"
+                                        label="Bookable Start"
+                                        [field]="
+                                            form.visitors.bookable_hours.start
+                                        "
+                                        [options]="BOOKABLE_HOUR_START"
+                                        placeholder="None"
+                                    />
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-visitors-bookable-end"
+                                        label="Bookable End"
+                                        [field]="
+                                            form.visitors.bookable_hours.end
+                                        "
+                                        [options]="BOOKABLE_HOUR_END"
+                                        placeholder="None"
+                                    />
                                 </div>
                                 <label
                                     for="concierge-settings-form-modal-hide-fields"
@@ -1278,144 +918,41 @@ import { UploadButtonComponent } from './upload-button.component';
                             [class.open]="shown_group() === 'bookings'"
                         >
                             <div class="content px-4 pt-4 pb-2">
-                                <div>
-                                    <label
-                                        for="concierge-settings-form-modal-available-period-2"
-                                        id="concierge-settings-form-modal-available-period-2-label"
-                                    >
-                                        Available Period
-                                    </label>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <mat-select
-                                            aria-labelledby="concierge-settings-form-modal-available-period-2-label"
-                                            [formField]="
-                                                form.bookings.available_period
-                                            "
-                                            placeholder="Not set"
-                                        >
-                                            <mat-option [value]="null"
-                                                >Not set</mat-option
-                                            >
-                                            @for (
-                                                opt of AVAILABLE_PERIOD_EXTENDED;
-                                                track opt.value
-                                            ) {
-                                                <mat-option
-                                                    [value]="opt.value"
-                                                    >{{ opt.label }}</mat-option
-                                                >
-                                            }
-                                        </mat-select>
-                                        <mat-hint>
-                                            Number of days ahead the user is
-                                            able to book. Parking and lockers
-                                            use this when their own period is
-                                            not set
-                                        </mat-hint>
-                                    </mat-form-field>
-                                </div>
-                                <div>
-                                    <label
-                                        for="concierge-settings-form-modal-max-duration-2"
-                                        id="concierge-settings-form-modal-max-duration-2-label"
-                                    >
-                                        Max Duration
-                                    </label>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <mat-select
-                                            aria-labelledby="concierge-settings-form-modal-max-duration-2-label"
-                                            [formField]="
-                                                form.bookings.max_duration
-                                            "
-                                        >
-                                            @for (
-                                                opt of MAX_DURATION_FULL;
-                                                track opt.value
-                                            ) {
-                                                <mat-option
-                                                    [value]="opt.value"
-                                                    >{{ opt.label }}</mat-option
-                                                >
-                                            }
-                                        </mat-select>
-                                        <mat-hint>
-                                            Max duration for single day bookings
-                                        </mat-hint>
-                                    </mat-form-field>
-                                </div>
+                                <settings-select
+                                    field_id="concierge-settings-form-modal-available-period-2"
+                                    label="Available Period"
+                                    [field]="form.bookings.available_period"
+                                    [options]="AVAILABLE_PERIOD_EXTENDED"
+                                    placeholder="Not set"
+                                    null_option="Not set"
+                                    hint="Number of days ahead the user is able to book. Parking and lockers use this when their own period is not set"
+                                />
+                                <settings-select
+                                    field_id="concierge-settings-form-modal-max-duration-2"
+                                    label="Max Duration"
+                                    [field]="form.bookings.max_duration"
+                                    [options]="MAX_DURATION_FULL"
+                                    hint="Max duration for single day bookings"
+                                />
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-bookings-bookable-start"
-                                            id="concierge-settings-form-modal-bookings-bookable-start-label"
-                                        >
-                                            Bookable Start
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-bookings-bookable-start-label"
-                                                [formField]="
-                                                    form.bookings.bookable_hours
-                                                        .start
-                                                "
-                                            >
-                                                @for (
-                                                    opt of BOOKABLE_HOUR_START;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-bookings-bookable-end"
-                                            id="concierge-settings-form-modal-bookings-bookable-end-label"
-                                        >
-                                            Bookable End
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-bookings-bookable-end-label"
-                                                [formField]="
-                                                    form.bookings.bookable_hours
-                                                        .end
-                                                "
-                                            >
-                                                @for (
-                                                    opt of BOOKABLE_HOUR_END;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-bookings-bookable-start"
+                                        label="Bookable Start"
+                                        [field]="
+                                            form.bookings.bookable_hours.start
+                                        "
+                                        [options]="BOOKABLE_HOUR_START"
+                                    />
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-bookings-bookable-end"
+                                        label="Bookable End"
+                                        [field]="
+                                            form.bookings.bookable_hours.end
+                                        "
+                                        [options]="BOOKABLE_HOUR_END"
+                                    />
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
@@ -1434,70 +971,22 @@ import { UploadButtonComponent } from './upload-button.component';
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-bookings-all-day-start"
-                                            id="concierge-settings-form-modal-bookings-all-day-start-label"
-                                        >
-                                            All Day Start
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-bookings-all-day-start-label"
-                                                [formField]="
-                                                    form.bookings.all_day_period
-                                                        .start
-                                                "
-                                            >
-                                                @for (
-                                                    opt of BLOCK_START;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-bookings-all-day-end"
-                                            id="concierge-settings-form-modal-bookings-all-day-end-label"
-                                        >
-                                            All Day End
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-bookings-all-day-end-label"
-                                                [formField]="
-                                                    form.bookings.all_day_period
-                                                        .end
-                                                "
-                                            >
-                                                @for (
-                                                    opt of BLOCK_END;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-bookings-all-day-start"
+                                        label="All Day Start"
+                                        [field]="
+                                            form.bookings.all_day_period.start
+                                        "
+                                        [options]="BLOCK_START"
+                                    />
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-bookings-all-day-end"
+                                        label="All Day End"
+                                        [field]="
+                                            form.bookings.all_day_period.end
+                                        "
+                                        [options]="BLOCK_END"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -1536,71 +1025,20 @@ import { UploadButtonComponent } from './upload-button.component';
                             [class.open]="shown_group() === 'parking'"
                         >
                             <div class="content px-4 pt-4 pb-2">
-                                <div>
-                                    <label
-                                        for="concierge-settings-form-modal-available-period-3"
-                                        id="concierge-settings-form-modal-available-period-3-label"
-                                    >
-                                        Available Period
-                                    </label>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <mat-select
-                                            aria-labelledby="concierge-settings-form-modal-available-period-3-label"
-                                            [formField]="
-                                                form.parking.available_period
-                                            "
-                                        >
-                                            @for (
-                                                opt of AVAILABLE_PERIOD_EXTENDED;
-                                                track opt.value
-                                            ) {
-                                                <mat-option
-                                                    [value]="opt.value"
-                                                    >{{ opt.label }}</mat-option
-                                                >
-                                            }
-                                        </mat-select>
-                                        <mat-hint>
-                                            Number of days ahead the user is
-                                            able to book
-                                        </mat-hint>
-                                    </mat-form-field>
-                                </div>
-                                <div>
-                                    <label
-                                        for="concierge-settings-form-modal-max-duration-3"
-                                        id="concierge-settings-form-modal-max-duration-3-label"
-                                    >
-                                        Max Duration
-                                    </label>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <mat-select
-                                            aria-labelledby="concierge-settings-form-modal-max-duration-3-label"
-                                            [formField]="
-                                                form.parking.max_duration
-                                            "
-                                        >
-                                            @for (
-                                                opt of MAX_DURATION_FULL;
-                                                track opt.value
-                                            ) {
-                                                <mat-option
-                                                    [value]="opt.value"
-                                                    >{{ opt.label }}</mat-option
-                                                >
-                                            }
-                                        </mat-select>
-                                        <mat-hint>
-                                            Max duration for single day bookings
-                                        </mat-hint>
-                                    </mat-form-field>
-                                </div>
+                                <settings-select
+                                    field_id="concierge-settings-form-modal-available-period-3"
+                                    label="Available Period"
+                                    [field]="form.parking.available_period"
+                                    [options]="AVAILABLE_PERIOD_EXTENDED"
+                                    hint="Number of days ahead the user is able to book"
+                                />
+                                <settings-select
+                                    field_id="concierge-settings-form-modal-max-duration-3"
+                                    label="Max Duration"
+                                    [field]="form.parking.max_duration"
+                                    [options]="MAX_DURATION_FULL"
+                                    hint="Max duration for single day bookings"
+                                />
                                 <div>
                                     <label
                                         for="concierge-settings-form-modal-parking-max-assigned-count"
@@ -1629,70 +1067,22 @@ import { UploadButtonComponent } from './upload-button.component';
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-parking-bookable-start"
-                                            id="concierge-settings-form-modal-parking-bookable-start-label"
-                                        >
-                                            Bookable Start
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-parking-bookable-start-label"
-                                                [formField]="
-                                                    form.parking.bookable_hours
-                                                        .start
-                                                "
-                                            >
-                                                @for (
-                                                    opt of BOOKABLE_HOUR_START;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-parking-bookable-end"
-                                            id="concierge-settings-form-modal-parking-bookable-end-label"
-                                        >
-                                            Bookable End
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-parking-bookable-end-label"
-                                                [formField]="
-                                                    form.parking.bookable_hours
-                                                        .end
-                                                "
-                                            >
-                                                @for (
-                                                    opt of BOOKABLE_HOUR_END;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-parking-bookable-start"
+                                        label="Bookable Start"
+                                        [field]="
+                                            form.parking.bookable_hours.start
+                                        "
+                                        [options]="BOOKABLE_HOUR_START"
+                                    />
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-parking-bookable-end"
+                                        label="Bookable End"
+                                        [field]="
+                                            form.parking.bookable_hours.end
+                                        "
+                                        [options]="BOOKABLE_HOUR_END"
+                                    />
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
@@ -1812,135 +1202,38 @@ import { UploadButtonComponent } from './upload-button.component';
                             [class.open]="shown_group() === 'lockers'"
                         >
                             <div class="content px-4 pt-4 pb-2">
-                                <div>
-                                    <label
-                                        for="concierge-settings-form-modal-available-period-4"
-                                        id="concierge-settings-form-modal-available-period-4-label"
-                                    >
-                                        Available Period
-                                    </label>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <mat-select
-                                            aria-labelledby="concierge-settings-form-modal-available-period-4-label"
-                                            [formField]="
-                                                form.lockers.available_period
-                                            "
-                                        >
-                                            @for (
-                                                opt of AVAILABLE_PERIOD_EXTENDED;
-                                                track opt.value
-                                            ) {
-                                                <mat-option
-                                                    [value]="opt.value"
-                                                    >{{ opt.label }}</mat-option
-                                                >
-                                            }
-                                        </mat-select>
-                                        <mat-hint>
-                                            Number of days ahead the user is
-                                            able to book
-                                        </mat-hint>
-                                    </mat-form-field>
-                                </div>
-                                <div>
-                                    <label
-                                        for="concierge-settings-form-modal-max-duration-4"
-                                        id="concierge-settings-form-modal-max-duration-4-label"
-                                    >
-                                        Max Duration
-                                    </label>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <mat-select
-                                            aria-labelledby="concierge-settings-form-modal-max-duration-4-label"
-                                            [formField]="
-                                                form.lockers.max_duration
-                                            "
-                                        >
-                                            @for (
-                                                opt of MAX_DURATION_FULL;
-                                                track opt.value
-                                            ) {
-                                                <mat-option
-                                                    [value]="opt.value"
-                                                    >{{ opt.label }}</mat-option
-                                                >
-                                            }
-                                        </mat-select>
-                                    </mat-form-field>
-                                </div>
+                                <settings-select
+                                    field_id="concierge-settings-form-modal-available-period-4"
+                                    label="Available Period"
+                                    [field]="form.lockers.available_period"
+                                    [options]="AVAILABLE_PERIOD_EXTENDED"
+                                    hint="Number of days ahead the user is able to book"
+                                />
+                                <settings-select
+                                    field_id="concierge-settings-form-modal-max-duration-4"
+                                    label="Max Duration"
+                                    [field]="form.lockers.max_duration"
+                                    [options]="MAX_DURATION_FULL"
+                                />
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                 >
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-lockers-bookable-start"
-                                            id="concierge-settings-form-modal-lockers-bookable-start-label"
-                                        >
-                                            Bookable Start
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-lockers-bookable-start-label"
-                                                [formField]="
-                                                    form.lockers.bookable_hours
-                                                        .start
-                                                "
-                                            >
-                                                @for (
-                                                    opt of BOOKABLE_HOUR_START;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
-                                    <div>
-                                        <label
-                                            for="concierge-settings-form-modal-lockers-bookable-end"
-                                            id="concierge-settings-form-modal-lockers-bookable-end-label"
-                                        >
-                                            Bookable End
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
-                                        >
-                                            <mat-select
-                                                aria-labelledby="concierge-settings-form-modal-lockers-bookable-end-label"
-                                                [formField]="
-                                                    form.lockers.bookable_hours
-                                                        .end
-                                                "
-                                            >
-                                                @for (
-                                                    opt of BOOKABLE_HOUR_END;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-lockers-bookable-start"
+                                        label="Bookable Start"
+                                        [field]="
+                                            form.lockers.bookable_hours.start
+                                        "
+                                        [options]="BOOKABLE_HOUR_START"
+                                    />
+                                    <settings-select
+                                        field_id="concierge-settings-form-modal-lockers-bookable-end"
+                                        label="Bookable End"
+                                        [field]="
+                                            form.lockers.bookable_hours.end
+                                        "
+                                        [options]="BOOKABLE_HOUR_END"
+                                    />
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
@@ -1998,6 +1291,8 @@ import { UploadButtonComponent } from './upload-button.component';
         MatInputModule,
         FormsModule,
         UploadButtonComponent,
+        SettingsSelectComponent,
+        SettingsCurrencySelectComponent,
     ],
 })
 export class ConciergeSettingsFormModalComponent implements OnInit {
@@ -2009,11 +1304,14 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public existing_settings: Record<string, any> = {};
-    public old_settings: Record<string, any> = {};
+    private _layers: AppSettingsLayers = { inherited: {}, stored: {} };
     /** Form values right after loading, used to find user changes on save. */
-    public initial_settings: AppSettings = {};
+    private _initial: AppSettings = {};
     public readonly zone = this._data.zone;
+    public readonly heading = appSettingsHeading(
+        'Concierge Settings',
+        this.zone,
+    );
     public readonly AVAILABLE_PERIOD_SHORT = AVAILABLE_PERIOD_SHORT_OPTIONS;
     public readonly AVAILABLE_PERIOD_EXTENDED =
         AVAILABLE_PERIOD_EXTENDED_OPTIONS;
@@ -2026,22 +1324,9 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
     public readonly BLOCK_HEIGHT = BLOCK_HEIGHT_OPTIONS;
     public readonly DAY_TIMELINE_VIEW = DAY_TIMELINE_VIEW_OPTIONS;
     public readonly BANNER_TYPE = BANNER_TYPE_OPTIONS;
-    public readonly heading = signal('');
     public readonly loading = signal('');
     public readonly shown_group = signal('');
-    public readonly currency_filter = signal('');
-    public readonly currency_options = buildCurrencyOptions();
-    public readonly filtered_currency_options = computed(() => {
-        const filter_text = this.currency_filter().trim().toLowerCase();
-        if (!filter_text) return this.currency_options;
-        return this.currency_options.filter((option) =>
-            option.search_text.includes(filter_text),
-        );
-    });
-    public readonly settings_key =
-        this._settings.get('app.concierge_metadata_key') ||
-        this._settings.get('app.concierge_app') ||
-        'concierge_app';
+    public readonly settings_key = appMetadataKey(this._settings, 'concierge');
 
     public readonly model = signal({
         logo_light: '',
@@ -2179,39 +1464,27 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        const zone = this._data.zone;
         this.loading.set('Loading existing settings...');
-        this.heading.set(
-            `Concierge Settings <div class="font-mono text-xs px-2 py-1 rounded bg-base-300 ml-2">${this.zone.display_name || this.zone.name || 'Organisation'}</div>`,
-        );
         try {
-            const org_id = this._org.organisation.id;
-            const org_metadata =
-                zone.id !== org_id ? await this._getMetadata(org_id) : {};
-            const parent_metadata =
-                zone.id !== org_id &&
-                !!zone.parent_id &&
-                org_id !== zone.parent_id
-                    ? await this._getMetadata(zone.parent_id)
-                    : {};
-            const metadata = await this._getMetadata(zone.id);
-            this.existing_settings = mergeAppSettings(
+            this._layers = await loadLayeredAppSettings(
+                this.zone,
+                this._org.organisation.id,
+                this.settings_key,
                 DEFAULT_SETTINGS.app,
-                org_metadata,
-                parent_metadata,
             );
-            this._patchModel(this.existing_settings);
-            this._patchModel(metadata || {});
+            const { inherited, stored } = this._layers;
             this.model.update((model) =>
                 applyBookingFallbacks(
-                    model,
-                    mergeAppSettings(this.existing_settings, metadata),
+                    applyAppSettings(
+                        applyAppSettings(model, inherited),
+                        stored,
+                    ),
+                    mergeAppSettings(inherited, stored),
                     'lockers',
                     LOCKER_BOOKING_FALLBACKS,
                 ),
             );
-            this.old_settings = metadata;
-            this.initial_settings = this.model();
+            this._initial = this.model();
         } catch (e) {
             // Saving defaults over settings that failed to load would lose
             // them, so close instead.
@@ -2226,48 +1499,17 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         this.shown_group.update((shown) => (group === shown ? '' : group));
     }
 
-    public updateCurrencyFilter(value: string) {
-        this.currency_filter.set((value || '').trim());
-    }
-
-    public onCurrencySelectStateChange(is_open: boolean) {
-        if (!is_open) {
-            this.currency_filter.set('');
-        }
-    }
-
     public async save() {
         this.loading.set('Saving settings...');
-        const zone = this._data.zone;
-        const working_settings = mergeAppSettings(
-            this.old_settings,
-            this.model(),
-        );
-        const new_settings = appSettingOverrides(
-            working_settings,
-            this.existing_settings,
-            this.initial_settings,
-            this.old_settings,
-        );
-
-        const user = currentUser();
-        new_settings.edited_by = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            domain: location.hostname,
-            role: user.groups.includes('placeos_admin')
-                ? 'Admin'
-                : user.groups.includes('placeos_support')
-                  ? 'Support'
-                  : 'User',
-        };
         try {
-            await updateMetadata(zone.id, {
-                name: `${this.settings_key}`,
-                details: new_settings,
-                description: `[${VERSION.hash}|C] Concierge Application Settings`,
-            });
+            await saveAppSettings(
+                this.zone.id,
+                this.settings_key,
+                'Concierge',
+                this._layers,
+                this._initial,
+                this.model(),
+            );
         } catch (e) {
             console.error(e);
             this.loading.set('');
@@ -2279,14 +1521,5 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         this.loading.set('');
         notifySuccess('Successfully saved concierge app settings');
         this._dialog_ref.close();
-    }
-
-    private _patchModel(patch: Record<string, unknown>) {
-        this.model.update((model) => applyAppSettings(model, patch));
-    }
-
-    private async _getMetadata(id) {
-        const metadata = await showMetadata(id, this.settings_key);
-        return (metadata.details || {}) as Record<string, unknown>;
     }
 }

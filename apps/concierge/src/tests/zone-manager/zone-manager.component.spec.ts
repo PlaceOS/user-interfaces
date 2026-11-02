@@ -1,6 +1,5 @@
 import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { convertToParamMap, ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -10,7 +9,6 @@ import { ZoneManagerComponent } from '../../app/zone-manager/zone-manager.compon
 import { BuildingManagementService } from '../../app/building-manager/building-management.service';
 import { LevelManagementService } from '../../app/level-manager/level-management.service';
 import { RegionManagementService } from '../../app/region-manager/region-management.service';
-import { WorkplaceSettingsFormModalComponent } from '../../app/ui/app-settings/workplace-settings-form-modal.component';
 
 describe('ZoneManagerComponent', () => {
     let spectator: Spectator<ZoneManagerComponent>;
@@ -29,7 +27,6 @@ describe('ZoneManagerComponent', () => {
             MockProvider(RegionManagementService, {}),
             MockProvider(BuildingManagementService, {}),
             MockProvider(LevelManagementService, {}),
-            MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(OrganisationService, {}),
             MockProvider(ActivatedRoute, {}),
             MockProvider(Router, {}),
@@ -47,7 +44,6 @@ describe('ZoneManagerComponent', () => {
                 { provide: RegionManagementService, useValue: region_service },
                 { provide: BuildingManagementService, useValue: building_service },
                 { provide: LevelManagementService, useValue: level_service },
-                { provide: MatDialog, useValue: { open: vi.fn() } },
                 {
                     provide: OrganisationService,
                     useValue: {
@@ -110,13 +106,5 @@ describe('ZoneManagerComponent', () => {
         query_param_map = of(convertToParamMap({ tab: 'not-a-tab' }));
         await spectator.component.ngOnInit();
         expect(spectator.component.selected_tab()).toBe(1);
-    });
-
-    it('should open the organisation workplace settings modal', async () => {
-        await spectator.component.editWorkplaceSettings();
-        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
-            WorkplaceSettingsFormModalComponent,
-            { data: { zone: { id: 'org-1' } } },
-        );
     });
 });

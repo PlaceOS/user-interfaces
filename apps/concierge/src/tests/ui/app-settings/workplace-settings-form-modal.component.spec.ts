@@ -200,18 +200,6 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         expect(spectator.component.shown_group()).toBe('desks');
     });
 
-    it('should update currency filter', () => {
-        expect(spectator.component.currency_filter()).toBe('');
-        spectator.component.updateCurrencyFilter('USD');
-        expect(spectator.component.currency_filter()).toBe('USD');
-    });
-
-    it('should clear currency filter when select closes', () => {
-        spectator.component.updateCurrencyFilter('EUR');
-        spectator.component.onCurrencySelectStateChange(false);
-        expect(spectator.component.currency_filter()).toBe('');
-    });
-
     it('should load settings on init', async () => {
         await spectator.component.ngOnInit();
         expect(ts_client.showMetadata).toHaveBeenCalled();
@@ -370,66 +358,5 @@ describe('WorkplaceSettingsFormModalComponent', () => {
     it('should generate date string', () => {
         expect(spectator.component.date_string).toBeTruthy();
         expect(typeof spectator.component.date_string).toBe('string');
-    });
-
-    it('should set edited_by with admin role', async () => {
-        await spectator.component.ngOnInit();
-        await spectator.component.save();
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
-                details: expect.objectContaining({
-                    edited_by: expect.objectContaining({
-                        role: 'Admin',
-                    }),
-                }),
-            }),
-        );
-    });
-
-    it('should set edited_by with Support role for support users', async () => {
-        setCurrentUser(
-            new StaffUser({
-                id: 'user-2',
-                name: 'Support User',
-                email: 'support@example.com',
-                groups: ['placeos_support'],
-            }),
-        );
-        await spectator.component.ngOnInit();
-        await spectator.component.save();
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
-                details: expect.objectContaining({
-                    edited_by: expect.objectContaining({
-                        role: 'Support',
-                    }),
-                }),
-            }),
-        );
-    });
-
-    it('should set edited_by with User role for regular users', async () => {
-        setCurrentUser(
-            new StaffUser({
-                id: 'user-3',
-                name: 'Regular User',
-                email: 'user@example.com',
-                groups: [],
-            }),
-        );
-        await spectator.component.ngOnInit();
-        await spectator.component.save();
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
-                details: expect.objectContaining({
-                    edited_by: expect.objectContaining({
-                        role: 'User',
-                    }),
-                }),
-            }),
-        );
     });
 });
