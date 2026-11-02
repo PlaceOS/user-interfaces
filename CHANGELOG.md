@@ -318,6 +318,7 @@ All notable changes to this project will be documented in this file.
 - Hide the parking space name in all booking cards (PPT-2863)
 - Respect desks.allow_time_changes in the new desk flow
 - Explicit desks/parking can_book_for_others false now overrides bookings
+- Room and desk start times stop before closing time
 
 ### Features
 
