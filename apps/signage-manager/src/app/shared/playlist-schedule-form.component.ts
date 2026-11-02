@@ -16,12 +16,24 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
+    cronDaySlots,
+    cronParts,
+    DEFAULT_PLAY_PERIOD_MINUTES,
+    doesCronMatchDay,
     formatTimeInTimezone,
     getTimeInTimezone,
     getTimezoneOffsetString,
+    hasPlayableScheduleMask,
     i18n,
+    isCronMonthlyWeekday,
+    isPlayOnceSchedule,
+    isValidScheduleMask,
     LOCAL_TIMEZONE,
     LocaleService,
+    parseCronNumber,
+    parseCronWeekdays,
+    parseCronWeeksOfMonth,
+    parsePlayAtLocal,
     setTimeInTimezone,
     settingSignal,
 } from '@placeos/common';
@@ -37,33 +49,18 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { SignagePlaylist } from '@placeos/ts-client';
+import { SignagePlaylist, SignagePlaylistSchedule } from '@placeos/ts-client';
 import { endOfDay, fromUnixTime, getUnixTime, startOfDay } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
-import {
-    cronDaySlots,
-    cronParts,
-    doesCronMatchDay,
-    isCronMonthlyWeekday,
-    nextCronDates,
-    parseCronNumber,
-    parseCronWeekdays,
-    parseCronWeeksOfMonth,
-} from '../signage-cron.util';
+import { nextCronDates } from '../signage-cron.util';
 import {
     createScheduleMaskFilter,
-    DEFAULT_PLAY_PERIOD_MINUTES,
     formatPlayAtLocal,
     formatPlayDateTime,
     formatPlayDateTimeRange,
-    hasPlayableScheduleMask,
-    isPlayOnceSchedule,
-    isValidScheduleMask,
     ordinal,
     parseCronMonthDays,
-    parsePlayAtLocal,
     playlistScheduleExpiryLabel,
-    type PlaylistSchedule,
 } from '../signage-playlist.util';
 
 export type PlaylistScheduleType = 'play_at' | 'play_cron';
@@ -307,14 +304,14 @@ function buildRecurringCron(value: {
     return `${minute} ${hour} * * *`;
 }
 
-function playlistPlayPeriod(schedule: Partial<PlaylistSchedule>) {
+function playlistPlayPeriod(schedule: Partial<SignagePlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
         ? Math.max(0, schedule.play_period)
         : DEFAULT_PLAY_PERIOD_MINUTES;
 }
 
 function scheduleTypeFor(
-    schedule: Partial<PlaylistSchedule>,
+    schedule: Partial<SignagePlaylistSchedule>,
 ): PlaylistScheduleType {
     return isPlayOnceSchedule(schedule) ? 'play_at' : 'play_cron';
 }
@@ -448,7 +445,7 @@ function maskOccurrenceDates(
 }
 
 export function createPlaylistScheduleModel(
-    schedule?: Partial<PlaylistSchedule>,
+    schedule?: Partial<SignagePlaylistSchedule>,
 ): PlaylistScheduleFormModel {
     const source = schedule || {};
     const recurring_schedule = parseRecurringCron(source.play_cron);
@@ -460,7 +457,7 @@ export function createPlaylistScheduleModel(
         // Local play times use the browser timezone for the wall-clock value.
         play_at: source.play_at
             ? fromUnixTime(source.play_at).getTime()
-            : (parsePlayAtLocal(source.play_at_local)?.getTime() ?? Date.now()),
+            : (parsePlayAtLocal(source.play_at_local) ?? Date.now()),
         play_at_exact: !!source.play_at,
         play_takeover: !!source.play_takeover,
         play_cron: source.play_cron || DEFAULT_RECURRING_CRON,
@@ -526,7 +523,7 @@ export const playlistScheduleSchema = schema<PlaylistScheduleFormModel>(
 
 export function playlistSchedulePayload(
     value: PlaylistScheduleFormModel,
-): PlaylistSchedule {
+): SignagePlaylistSchedule {
     return value.schedule_type === 'play_at'
         ? {
               play_at:

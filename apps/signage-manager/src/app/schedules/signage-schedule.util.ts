@@ -1,5 +1,11 @@
-import { i18n } from '@placeos/common';
-import { SignagePlaylist } from '@placeos/ts-client';
+import {
+    cronDaySlots,
+    cronParts,
+    doesCronMatchDay,
+    i18n,
+    isPlayOnceSchedule,
+} from '@placeos/common';
+import { SignagePlaylist, SignagePlaylistSchedule } from '@placeos/ts-client';
 import {
     addDays,
     differenceInCalendarDays,
@@ -8,14 +14,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import {
-    cronDaySlots,
-    cronParts,
-    doesCronMatchDay,
-} from '../signage-cron.util';
-import {
     createScheduleMaskFilter,
-    isPlayOnceSchedule,
-    type PlaylistSchedule,
     playOnceStart,
 } from '../signage-playlist.util';
 
@@ -91,7 +90,7 @@ export interface ScheduleItem {
 }
 
 /** Schedule of a playlist with no schedules */
-const ALL_DAY_SCHEDULE: Partial<PlaylistSchedule> = {
+const ALL_DAY_SCHEDULE: Partial<SignagePlaylistSchedule> = {
     play_cron: '0 0 * * *',
     play_period: MINUTES_PER_DAY,
 };
@@ -103,7 +102,7 @@ const ALL_DAY_SCHEDULE: Partial<PlaylistSchedule> = {
  */
 export function playlistSchedules(
     playlist: Pick<SignagePlaylist, 'schedules'>,
-): Partial<PlaylistSchedule>[] {
+): Partial<SignagePlaylistSchedule>[] {
     return playlist.schedules?.length ? playlist.schedules : [ALL_DAY_SCHEDULE];
 }
 
@@ -114,7 +113,7 @@ export function hasTakeoverSchedule(playlist: SignagePlaylist) {
     );
 }
 
-function playPeriodMinutes(schedule: Partial<PlaylistSchedule>) {
+function playPeriodMinutes(schedule: Partial<SignagePlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
         ? Math.max(0, schedule.play_period || 0)
         : DEFAULT_PLAYLIST_DURATION;
@@ -177,7 +176,7 @@ function playedRun(
     day: Date,
     starts_at: Date,
     duration: number,
-    schedule: Partial<PlaylistSchedule>,
+    schedule: Partial<SignagePlaylistSchedule>,
     playlist: Pick<SignagePlaylist, 'valid_from' | 'valid_until'>,
 ) {
     const time = starts_at.getTime();
@@ -208,7 +207,7 @@ function playedRun(
 
 /** Start times of a schedule on a day, before the dates and mask apply */
 function scheduleStarts(
-    schedule: Partial<PlaylistSchedule>,
+    schedule: Partial<SignagePlaylistSchedule>,
     slots: readonly number[],
     parts: readonly string[] | null,
     day: Date,

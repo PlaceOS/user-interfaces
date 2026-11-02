@@ -3,7 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { i18n } from '@placeos/common';
+import { computeTemplateLayout, i18n } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -24,7 +24,6 @@ import {
     SignageTemplateMappingTarget,
 } from '../signage-template-mapping';
 import { SignageTemplateService } from '../templates/signage-template.service';
-import { computeTemplateLayoutRects } from '../templates/template-layout.util';
 import { SignageZoneService } from '../zones/signage-zone.service';
 
 export type TemplateMappingTargetType = 'display' | 'zone';
@@ -372,15 +371,16 @@ export class TemplateMappingsComponent {
                 ]),
         );
         return this.mappings().map((mapping) => {
-            const layouts = mapping.template_details.layouts || [];
-            const rects = computeTemplateLayoutRects(layouts);
+            const { items } = computeTemplateLayout(
+                mapping.template_details.layouts || [],
+            );
             return {
                 mapping,
                 zone_name: zone_names.get(mapping.zone_id) || mapping.zone_id,
-                layout_items: layouts.map((layout, index) => ({
+                layout_items: items.map(({ layout, rect }, index) => ({
                     index,
                     plugin_id: layout.plugin_id,
-                    ...rects[index],
+                    ...rect,
                 })),
             };
         });

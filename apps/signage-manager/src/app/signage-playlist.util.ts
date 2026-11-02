@@ -1,4 +1,17 @@
 import {
+    cronDaySlots,
+    cronParts,
+    DEFAULT_PLAY_PERIOD_MINUTES,
+    doesCronMatchDay,
+    hasPlayableScheduleMask,
+    isCronMonthlyWeekday,
+    isPlayOnceSchedule,
+    mediaAnimation,
+    parseCronNumber,
+    parseCronWeekdays,
+    parsePlayAtLocal,
+} from '@placeos/common';
+import {
     MediaAnimation,
     SignageMedia,
     type SignagePlaylistItemSchedule,
@@ -6,59 +19,7 @@ import {
 } from '@placeos/ts-client';
 import { format, formatDistance, fromUnixTime, getUnixTime } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
-import {
-    cronDaySlots,
-    cronParts,
-    doesCronMatchDay,
-    isCronMonthlyWeekday,
-    nextCronDates,
-    parseCronNumber,
-    parseCronWeekdays,
-} from './signage-cron.util';
-
-/**
- * Schedule fields that are not in the ts-client type yet.
- * valid_from uses Unix seconds. Zero or omitted means no start limit.
- */
-export type PlaylistSchedule = SignagePlaylistSchedule & {
-    readonly valid_from?: number;
-    /** Up to 128 binary characters, first occurrence first. Empty disables the mask. */
-    readonly mask?: string;
-    /**
-     * One-off play time as a wall-clock time with no offset, e.g.
-     * "2027-01-01T00:00:00". Each display plays it in its own timezone.
-     * Do not set it with `play_at`.
-     */
-    readonly play_at_local?: string;
-};
-
-const PLAY_AT_LOCAL_PATTERN =
-    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/;
-
-/** Whether the schedule plays once at `play_at` or `play_at_local`. */
-export function isPlayOnceSchedule(schedule: Partial<PlaylistSchedule>) {
-    return !!schedule.play_at || !!schedule.play_at_local;
-}
-
-/**
- * Parse a `play_at_local` value as a wall-clock time in the viewer's timezone.
- * Returns null when the value is not an ISO 8601 date time with no offset.
- */
-export function parsePlayAtLocal(value: string | null | undefined) {
-    const match = PLAY_AT_LOCAL_PATTERN.exec(value || '');
-    if (!match) return null;
-    const [year, month, day, hours, minutes, seconds] = match
-        .slice(1)
-        .map(Number);
-    const date = new Date(year, month - 1, day, hours, minutes, seconds);
-    // Reject values such as February 30 or 00:60 that roll over.
-    return date.getDate() === day &&
-        date.getMonth() === month - 1 &&
-        minutes < 60 &&
-        seconds < 60
-        ? date
-        : null;
-}
+import { nextCronDates } from './signage-cron.util';
 
 /** Format a date as a `play_at_local` value in the viewer's timezone. */
 export function formatPlayAtLocal(date: Date | number) {
@@ -66,7 +27,7 @@ export function formatPlayAtLocal(date: Date | number) {
 }
 
 /** Play once start time for labels. Local times note the display timezone. */
-function playOnceLabel(schedule: Partial<PlaylistSchedule>) {
+function playOnceLabel(schedule: Partial<SignagePlaylistSchedule>) {
     const start = playOnceStart(schedule)?.toLocaleString() ?? '';
     return schedule.play_at ? start : `${start} display local time`;
 }
@@ -75,13 +36,12 @@ function playOnceLabel(schedule: Partial<PlaylistSchedule>) {
  * Start of a play once schedule, or null for a recurring schedule.
  * The viewer's timezone resolves `play_at_local` values.
  */
-export function playOnceStart(schedule: Partial<PlaylistSchedule>) {
+export function playOnceStart(schedule: Partial<SignagePlaylistSchedule>) {
     if (schedule.play_at) return fromUnixTime(schedule.play_at);
-    return parsePlayAtLocal(schedule.play_at_local);
+    const local_time = parsePlayAtLocal(schedule.play_at_local);
+    return local_time === null ? null : new Date(local_time);
 }
 
-/** Play period of a schedule that does not set one: the whole day */
-export const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const WEEKDAY_NAMES = [
     'Sunday',
     'Monday',
@@ -91,22 +51,6 @@ const WEEKDAY_NAMES = [
     'Friday',
     'Saturday',
 ];
-
-/**
- * Animation as a `MediaAnimation` value. The API accepts animation names
- * but stores and returns the index of the name in `MediaAnimation`, e.g.
- * 2 for `cross_fade`. Names are kept as they are.
- * @returns The default animation for an index out of range or no value
- */
-export function mediaAnimation(
-    value: MediaAnimation | number | null | undefined,
-): MediaAnimation {
-    if (typeof value !== 'number') return value || MediaAnimation.Default;
-    const animations = Object.values(MediaAnimation);
-    return Number.isInteger(value) && value >= 0 && value < animations.length
-        ? animations[value]
-        : MediaAnimation.Default;
-}
 
 /**
  * Default animation of a playlist that ts-client loaded. The API returns
@@ -345,7 +289,7 @@ function humanizeCronSchedule(cron: string, duration_minutes: number) {
     return `Custom schedule (${cron})`;
 }
 
-function schedulePeriod(schedule: Partial<PlaylistSchedule>) {
+function schedulePeriod(schedule: Partial<SignagePlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
         ? schedule.play_period || 0
         : DEFAULT_PLAY_PERIOD_MINUTES;
@@ -377,7 +321,7 @@ export function playlistLoopDuration(
 }
 
 export function playlistScheduleExpiryLabel(
-    schedule: Partial<PlaylistSchedule>,
+    schedule: Partial<SignagePlaylistSchedule>,
     now = Date.now(),
 ) {
     if (!schedule.valid_until) return '';
@@ -389,7 +333,7 @@ export function playlistScheduleExpiryLabel(
 }
 
 export function playlistScheduleExpiryTooltip(
-    schedule: Partial<PlaylistSchedule>,
+    schedule: Partial<SignagePlaylistSchedule>,
 ) {
     return schedule.valid_until
         ? fromUnixTime(schedule.valid_until).toLocaleString()
@@ -403,7 +347,7 @@ export function playlistScheduleExpiryTooltip(
 export function playlistExpiredAt(
     playlist: {
         valid_until?: number;
-        schedules?: readonly Partial<PlaylistSchedule>[];
+        schedules?: readonly Partial<SignagePlaylistSchedule>[];
     },
     now = Date.now(),
 ) {
@@ -421,7 +365,11 @@ export function playlistExpiredAt(
 
 /** Status badge of a playlist in a list. Null when it needs no badge. */
 export type PlaylistStatus =
-    'expired' | 'pending' | 'awaiting_approval' | 'awaiting_review' | null;
+    | 'expired'
+    | 'pending'
+    | 'awaiting_approval'
+    | 'awaiting_review'
+    | null;
 
 /**
  * Status of a playlist for list badges. Expiry uses `playlistExpiredAt`, so
@@ -435,7 +383,7 @@ export function playlistStatus(
         id: string;
         valid_from?: number;
         valid_until?: number;
-        schedules?: readonly Partial<PlaylistSchedule>[];
+        schedules?: readonly Partial<SignagePlaylistSchedule>[];
     },
     approvals: Record<string, boolean>,
     requests: Record<string, boolean>,
@@ -449,7 +397,9 @@ export function playlistStatus(
     return requests[playlist.id] ? 'awaiting_review' : 'awaiting_approval';
 }
 
-export function playlistScheduleLabel(schedule: Partial<PlaylistSchedule>) {
+export function playlistScheduleLabel(
+    schedule: Partial<SignagePlaylistSchedule>,
+) {
     const period = schedulePeriod(schedule);
     const expiry = playlistScheduleExpiryLabel(schedule);
     const suffix = [
@@ -471,29 +421,13 @@ export function playlistScheduleLabel(schedule: Partial<PlaylistSchedule>) {
     }`;
 }
 
-/** Validate an active mask without changing leading zeros or whitespace. */
-export function isValidScheduleMask(mask: string) {
-    return mask.length > 0 && mask.length <= 128 && !/[^01]/.test(mask);
-}
-
-/** Whether the mask can select any instances in its repeat cycle. */
-export function hasPlayableScheduleMask(schedule: Partial<PlaylistSchedule>) {
-    const mask = schedule.mask || '';
-    return (
-        !mask ||
-        (isValidScheduleMask(mask) &&
-            !!schedule.valid_from &&
-            mask.includes('1'))
-    );
-}
-
 /**
  * Count cron instances from valid_from, before applying the repeating mask.
  * Cache complete days so successive preview times do not recount the past.
  * Call this filter only for timestamps that match the schedule.
  */
 export function createScheduleMaskFilter(
-    schedule: Partial<PlaylistSchedule>,
+    schedule: Partial<SignagePlaylistSchedule>,
     timezone?: string,
 ): (date: Date) => boolean {
     const mask = schedule.mask || '';
@@ -501,7 +435,6 @@ export function createScheduleMaskFilter(
     if (!size) return () => true;
     if (!hasPlayableScheduleMask(schedule)) return () => false;
     const anchor = schedule.valid_from * 1000;
-    if (!Number.isFinite(new Date(anchor).getTime())) return () => false;
     if (isPlayOnceSchedule(schedule))
         return (date) => date.getTime() >= anchor && mask[0] === '1';
     const parts = cronParts(schedule.play_cron || '0 0 * * *');
@@ -631,7 +564,7 @@ interface PlaySession {
 
 /** Next plays of one schedule, inside its validity window and mask. */
 function nextSchedulePlays(
-    schedule: Partial<PlaylistSchedule>,
+    schedule: Partial<SignagePlaylistSchedule>,
     count: number,
     now: number,
 ): PlaySession[] {
@@ -664,7 +597,7 @@ function nextSchedulePlays(
  * is under way plays at `now`. Null when no play is left.
  */
 export function playlistNextPlayTime(
-    schedules: Partial<PlaylistSchedule>[],
+    schedules: Partial<SignagePlaylistSchedule>[],
     now = Date.now(),
 ): number | null {
     let next = Infinity;
@@ -682,7 +615,7 @@ export function playlistNextPlayTime(
 
 /** Time ranges of the next plays of all the schedules, earliest first. */
 export function playlistNextPlayLabels(
-    schedules: Partial<PlaylistSchedule>[],
+    schedules: Partial<SignagePlaylistSchedule>[],
     count = 5,
     now = Date.now(),
 ) {
@@ -695,7 +628,7 @@ export function playlistNextPlayLabels(
 
 /** Time ranges of the next plays of one schedule. */
 export function playlistScheduleNextPlayLabels(
-    schedule: Partial<PlaylistSchedule>,
+    schedule: Partial<SignagePlaylistSchedule>,
     count = 5,
 ) {
     return playlistNextPlayLabels([schedule], count);

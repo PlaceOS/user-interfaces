@@ -1,7 +1,12 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import {
     AsyncHandler,
+    DEFAULT_PLAY_PERIOD_MINUTES,
+    hasPlayableScheduleMask,
+    isPlayOnceSchedule,
+    mediaAnimation,
     MINUTES,
+    parsePlayAtLocal,
     randomInt,
     scoped_log,
     SECONDS,
@@ -17,18 +22,17 @@ import {
     showSignage,
     SignageMedia,
     SignagePlaylist,
+    SignagePlaylistSchedule,
     SignagePlugin,
     SignageTemplateMapping,
 } from '@placeos/ts-client';
 import {
     getLastCronRunTimestampInRange,
     getNextCronRunTimestampInRange,
-    hasPlayableScheduleMask,
 } from './cron-helpers';
 import { MediaCacheService } from './media-cache.service';
 import {
     isMediaValid,
-    mediaAnimation,
     mockTimeState,
     time,
     validateMedia,
@@ -68,17 +72,8 @@ interface SignageMetrics {
  */
 type ScheduleKind = 'background' | 'takeover' | 'single-pass';
 
-interface PlaylistSchedule {
-    readonly play_cron?: string;
-    readonly play_period?: number;
-    readonly play_at?: number;
-    /** Wall-clock play once time with no offset, e.g. "2027-01-01T00:00:00" */
-    readonly play_at_local?: string;
-    readonly play_takeover?: boolean;
-    readonly valid_until?: number;
-    readonly valid_from?: number;
-    readonly mask?: string;
-}
+/** A playlist schedule from the API, which can omit any field */
+type PlaylistSchedule = Partial<SignagePlaylistSchedule>;
 
 interface ActivePlaylistSchedule {
     playlist: SignagePlaylist;
@@ -127,7 +122,6 @@ const METRIC_TYPES: readonly (keyof SignageMetrics)[] = [
     'media_counts',
 ];
 
-const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
 /** How far ahead media for a not-yet-active scheduled playlist is downloaded */
 const MEDIA_CACHE_LOOK_AHEAD_SECONDS = 24 * 60 * 60;
@@ -231,38 +225,14 @@ function parsePlayAtTimestamp(value: number) {
     return value * 1000;
 }
 
-const PLAY_AT_LOCAL_PATTERN =
-    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/;
-
 /**
- * Parse a `play_at_local` value in the display's timezone. Returns 0 when
- * the value is not an ISO 8601 date time with no offset.
+ * Start of a play once schedule in milliseconds; 0 when not valid. The
+ * display's timezone resolves `play_at_local` values.
  */
-function parsePlayAtLocalTimestamp(value = '') {
-    const match = PLAY_AT_LOCAL_PATTERN.exec(value);
-    if (!match) return 0;
-    const [year, month, day, hours, minutes, seconds] = match
-        .slice(1)
-        .map(Number);
-    const date = new Date(year, month - 1, day, hours, minutes, seconds);
-    // Reject values such as February 30 or 00:60 that roll over.
-    return date.getDate() === day &&
-        date.getMonth() === month - 1 &&
-        minutes < 60 &&
-        seconds < 60
-        ? date.getTime()
-        : 0;
-}
-
-function isPlayOnceSchedule(schedule: PlaylistSchedule) {
-    return !!schedule.play_at || !!schedule.play_at_local;
-}
-
-/** Start of a play once schedule in milliseconds; 0 when not valid */
 function playOnceTimestamp(schedule: PlaylistSchedule) {
     return schedule.play_at
         ? parsePlayAtTimestamp(schedule.play_at)
-        : parsePlayAtLocalTimestamp(schedule.play_at_local);
+        : (parsePlayAtLocal(schedule.play_at_local) ?? 0);
 }
 
 function parseValidUntilTimestamp(value: number | undefined) {

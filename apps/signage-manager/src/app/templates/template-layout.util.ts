@@ -1,30 +1,12 @@
 import {
+    TEMPLATE_EDGE_BAR_HEIGHT_PC,
+    TEMPLATE_FLOATING_POSITION_PC,
+    TEMPLATE_SIDEBAR_WIDTH_PC,
+} from '@placeos/common';
+import {
     SignageTemplateLayout,
     SignageTemplateLayoutPosition,
 } from '@placeos/ts-client';
-
-/** Rectangle within the preview frame, all values are percentages (0-100) */
-export interface TemplateLayoutRect {
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-}
-
-/**
- * The API stores `x_pos`/`y_pos` as ratios from 0 to 1. For edge panels they
- * are the panel's size on the relevant axis. For floating panels they are the
- * top-left corner, with the panel filling the frame from there.
- *
- * These defaults must stay in step with the player
- * (`apps/signage/src/app/template-layout.ts`), so the preview shows what
- * screens show and saving does not move a panel.
- */
-export const EDGE_BAR_HEIGHT_PC = 15;
-export const SIDEBAR_WIDTH_PC = 20;
-// A floating panel with no position fills the frame
-export const FLOATING_DEFAULT_X_PC = 0;
-export const FLOATING_DEFAULT_Y_PC = 0;
 
 export const LAYOUT_POSITIONS: SignageTemplateLayoutPosition[] = [
     'top',
@@ -58,6 +40,12 @@ export function layoutPositionLabel(position: SignageTemplateLayoutPosition) {
     return POSITION_LABELS[position] || position;
 }
 
+/*
+ * The player shares the layout defaults and maths in
+ * `libs/common/src/lib/signage/template.ts`, so the preview shows what
+ * screens show and saving does not move a panel.
+ */
+
 const clamp = (value: number, min: number, max: number) =>
     Math.min(Math.max(value, min), Math.max(min, max));
 
@@ -78,10 +66,10 @@ export function layoutAxisPercentage(
 ) {
     const percentage = layoutRatioToPercentage(layout[axis]);
     if (percentage !== null) return Math.round(percentage * 100) / 100;
-    if (layout.position === 'floating') {
-        return axis === 'x_pos' ? FLOATING_DEFAULT_X_PC : FLOATING_DEFAULT_Y_PC;
-    }
-    return axis === 'x_pos' ? SIDEBAR_WIDTH_PC : EDGE_BAR_HEIGHT_PC;
+    if (layout.position === 'floating') return TEMPLATE_FLOATING_POSITION_PC;
+    return axis === 'x_pos'
+        ? TEMPLATE_SIDEBAR_WIDTH_PC
+        : TEMPLATE_EDGE_BAR_HEIGHT_PC;
 }
 
 /** Position axes that have an effect for the given layout position. */
@@ -119,24 +107,26 @@ export function applyLayoutPositionDefaults(
             return {
                 ...layout,
                 y_pos:
-                    layout.y_pos ?? layoutPercentageToRatio(EDGE_BAR_HEIGHT_PC),
+                    layout.y_pos ??
+                    layoutPercentageToRatio(TEMPLATE_EDGE_BAR_HEIGHT_PC),
             };
         case 'left':
         case 'right':
             return {
                 ...layout,
                 x_pos:
-                    layout.x_pos ?? layoutPercentageToRatio(SIDEBAR_WIDTH_PC),
+                    layout.x_pos ??
+                    layoutPercentageToRatio(TEMPLATE_SIDEBAR_WIDTH_PC),
             };
         case 'floating':
             return {
                 ...layout,
                 x_pos:
                     layout.x_pos ??
-                    layoutPercentageToRatio(FLOATING_DEFAULT_X_PC),
+                    layoutPercentageToRatio(TEMPLATE_FLOATING_POSITION_PC),
                 y_pos:
                     layout.y_pos ??
-                    layoutPercentageToRatio(FLOATING_DEFAULT_Y_PC),
+                    layoutPercentageToRatio(TEMPLATE_FLOATING_POSITION_PC),
             };
     }
 }
@@ -153,85 +143,4 @@ export function layoutPositionValid(layout: SignageTemplateLayout) {
     return [x_pos, y_pos].every(
         (value) => value === undefined || (value > 0 && value < 1),
     );
-}
-
-/**
- * Resolve each layout item to a rectangle in the preview frame. Items are
- * placed in array order, each edge panel consuming space from the remaining
- * unclaimed area — e.g. a bottom panel inserted first spans the full frame
- * width, while one inserted after a sidebar spans the width left over by it.
- * Edge panels read `x_pos`/`y_pos` as their size on the axis they consume.
- * Floating panels read them as their top-left corner, overlay the frame from
- * there to the bottom-right, and don't consume space from following items.
- */
-export function computeTemplateLayoutRects(
-    layouts: SignageTemplateLayout[],
-): TemplateLayoutRect[] {
-    const rem = { left: 0, top: 0, width: 100, height: 100 };
-    return layouts.map((layout) => {
-        switch (layout.position) {
-            case 'top': {
-                const height = Math.min(
-                    layoutRatioToPercentage(layout.y_pos) ?? EDGE_BAR_HEIGHT_PC,
-                    rem.height,
-                );
-                const rect = { ...rem, height };
-                rem.top += height;
-                rem.height -= height;
-                return rect;
-            }
-            case 'bottom': {
-                const height = Math.min(
-                    layoutRatioToPercentage(layout.y_pos) ?? EDGE_BAR_HEIGHT_PC,
-                    rem.height,
-                );
-                const rect = {
-                    ...rem,
-                    top: rem.top + rem.height - height,
-                    height,
-                };
-                rem.height -= height;
-                return rect;
-            }
-            case 'left': {
-                const width = Math.min(
-                    layoutRatioToPercentage(layout.x_pos) ?? SIDEBAR_WIDTH_PC,
-                    rem.width,
-                );
-                const rect = { ...rem, width };
-                rem.left += width;
-                rem.width -= width;
-                return rect;
-            }
-            case 'right': {
-                const width = Math.min(
-                    layoutRatioToPercentage(layout.x_pos) ?? SIDEBAR_WIDTH_PC,
-                    rem.width,
-                );
-                const rect = {
-                    ...rem,
-                    left: rem.left + rem.width - width,
-                    width,
-                };
-                rem.width -= width;
-                return rect;
-            }
-            case 'floating':
-            default: {
-                const left = clamp(
-                    layoutRatioToPercentage(layout.x_pos) ??
-                        FLOATING_DEFAULT_X_PC,
-                    0,
-                    100,
-                );
-                const top = clamp(
-                    layoutRatioToPercentage(layout.y_pos) ??
-                        FLOATING_DEFAULT_Y_PC,
-                    0,
-                    100,
-                );
-                return { left, top, width: 100 - left, height: 100 - top };
-            }
-        }
-    });
 }

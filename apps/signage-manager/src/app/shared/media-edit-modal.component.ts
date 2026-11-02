@@ -28,6 +28,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import {
     HotkeysService,
     i18n,
+    mediaAnimation,
     notifyError,
     notifySuccess,
     UploadPermissions,
@@ -53,7 +54,6 @@ import {
     SignagePlugin,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { mediaAnimation } from '../media/media-view.util';
 import {
     getVideoContainer,
     isSupportedImageFile,

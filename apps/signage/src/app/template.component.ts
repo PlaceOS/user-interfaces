@@ -1,7 +1,15 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, log } from '@placeos/common';
+import {
+    AsyncHandler,
+    computeTemplateLayout,
+    log,
+    mediaAnimation,
+    SIGNAGE_PREVIEW_LAYOUTS_MESSAGE,
+    SIGNAGE_PREVIEW_READY_MESSAGE,
+    TemplateLayoutRect,
+} from '@placeos/common';
 import { PluginConfigPayload, PluginEmbedComponent } from '@placeos/components';
 import {
     MediaAnimation,
@@ -16,18 +24,12 @@ import {
 } from '@placeos/ts-client';
 import { isDebugEnabled } from './debug-state';
 import { MediaCacheService } from './media-cache.service';
-import { mediaAnimation } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { SignagePanelComponent } from './signage.component';
 import { SignageService } from './signage.service';
-import { computeTemplateLayout, TemplateLayoutRect } from './template-layout';
 import { MediaPlayerItem } from './types';
 
 const STORE_DISPLAY_KEY = 'PlaceOS.SIGNAGE.display';
-/** Message type the signage manager posts with unsaved layouts to preview */
-const PREVIEW_LAYOUTS_MESSAGE = 'signage:template-layouts';
-/** Message type posted to the signage manager to request its unsaved layouts */
-const PREVIEW_READY_MESSAGE = 'signage:template-preview-ready';
 /** First delay before a failed template load is tried again */
 const RETRY_BASE_MS = 15_000;
 /** Longest delay between template load retries */
@@ -261,7 +263,8 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     private readonly _preview_message_handler = (event: MessageEvent) => {
         if (window.parent === window || event?.source !== window.parent) return;
         const data = event?.data;
-        if (!this.debug() || data?.type !== PREVIEW_LAYOUTS_MESSAGE) return;
+        if (!this.debug() || data?.type !== SIGNAGE_PREVIEW_LAYOUTS_MESSAGE)
+            return;
         this._preview_layouts.set(
             Array.isArray(data.layouts) ? data.layouts : null,
         );
@@ -275,7 +278,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
      */
     private _requestPreviewLayouts() {
         if (!this.debug() || window.parent === window) return;
-        window.parent.postMessage({ type: PREVIEW_READY_MESSAGE }, '*');
+        window.parent.postMessage({ type: SIGNAGE_PREVIEW_READY_MESSAGE }, '*');
     }
 
     private _bootstrapTemplate(template_id: string) {

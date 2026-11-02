@@ -12,7 +12,13 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { parseWebUrl, settingSignal } from '@placeos/common';
+import {
+    computeTemplateLayout,
+    parseWebUrl,
+    settingSignal,
+    SIGNAGE_PREVIEW_LAYOUTS_MESSAGE,
+    SIGNAGE_PREVIEW_READY_MESSAGE,
+} from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     SafePipe,
@@ -26,7 +32,6 @@ import { pluginName } from '../signage-plugin.util';
 import { SignageTemplateService } from './signage-template.service';
 import {
     applyLayoutPositionDefaults,
-    computeTemplateLayoutRects,
     layoutPositionLabel,
 } from './template-layout.util';
 
@@ -35,11 +40,6 @@ interface AspectRatioOption {
     label: string;
     ratio: number;
 }
-
-/** Message type the signage player accepts to preview unsaved layouts */
-const PREVIEW_LAYOUTS_MESSAGE = 'signage:template-layouts';
-/** Message type the signage player posts to request the unsaved layouts */
-const PREVIEW_READY_MESSAGE = 'signage:template-preview-ready';
 
 const ASPECT_RATIOS: AspectRatioOption[] = [
     { id: '16:9', label: '16:9', ratio: 16 / 9 },
@@ -292,7 +292,7 @@ export class TemplatePreviewComponent {
     private readonly _preview_ready_handler = (event: MessageEvent) => {
         const frame = this._live_frame()?.nativeElement;
         if (
-            event.data?.type !== PREVIEW_READY_MESSAGE ||
+            event.data?.type !== SIGNAGE_PREVIEW_READY_MESSAGE ||
             !frame?.contentWindow ||
             event.source !== frame.contentWindow
         )
@@ -307,14 +307,9 @@ export class TemplatePreviewComponent {
         );
     }
 
-    public readonly layout_rects = computed(() => {
-        const layouts = this._layouts();
-        const rects = computeTemplateLayoutRects(layouts);
-        return layouts.map((layout, index) => ({
-            layout,
-            rect: rects[index],
-        }));
-    });
+    public readonly layout_rects = computed(
+        () => computeTemplateLayout(this._layouts()).items,
+    );
 
     public readonly background_url = computed(() => {
         const background_id =
@@ -356,7 +351,7 @@ export class TemplatePreviewComponent {
         if (!frame?.contentWindow || !target) return;
         frame.contentWindow.postMessage(
             {
-                type: PREVIEW_LAYOUTS_MESSAGE,
+                type: SIGNAGE_PREVIEW_LAYOUTS_MESSAGE,
                 layouts: this._layouts().map(applyLayoutPositionDefaults),
             },
             target.origin,

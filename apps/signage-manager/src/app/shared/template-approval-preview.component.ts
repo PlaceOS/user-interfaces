@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
+import { computeTemplateLayout, TemplateLayoutRect } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -13,11 +14,9 @@ import {
 import { SignagePluginService } from '../signage-plugin.service';
 import { pluginName } from '../signage-plugin.util';
 import {
-    computeTemplateLayoutRects,
     layoutAxisPercentage,
     layoutPositionAxes,
     layoutPositionLabel,
-    TemplateLayoutRect,
 } from '../templates/template-layout.util';
 import {
     signageTemplateFieldChanges,
@@ -510,9 +509,9 @@ export class TemplateApprovalPreviewComponent {
         other: SignageTemplate | null,
         current: boolean,
     ): TemplateVersionPreview {
-        const rects = computeTemplateLayoutRects(template.layouts);
-        const layouts = template.layouts.map((layout, index) =>
-            this.layoutPreview(layout, index, rects[index], other, current),
+        const layouts = computeTemplateLayout(template.layouts).items.map(
+            ({ layout, rect }, index) =>
+                this.layoutPreview(layout, index, rect, other, current),
         );
         const other_tags = other?.tags || [];
         return {

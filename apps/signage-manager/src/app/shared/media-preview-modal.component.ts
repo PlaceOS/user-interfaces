@@ -6,6 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
+import { mediaAnimation } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -22,7 +23,6 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { mediaAnimation } from '../media/media-view.util';
 import { SignageMediaService } from '../media/signage-media.service';
 import {
     playlistMediaThumbnailUrl,
