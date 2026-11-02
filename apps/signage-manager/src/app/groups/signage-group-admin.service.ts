@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
+import { type ConfirmModalData, openConfirmModal } from '@placeos/components';
 import {
     addGroup,
     addGroupUser,
@@ -35,6 +35,7 @@ import {
     updateGroupUser,
     updateGroupZone,
 } from '@placeos/ts-client';
+import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import {
     groupHierarchy,
@@ -425,7 +426,7 @@ export class SignageGroupAdminService {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_GROUP'));
             return;
         }
-        const result = await openConfirmModal(
+        const removed = await this._confirmGroupRemove(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_GROUP_TITLE'),
                 content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
@@ -433,13 +434,7 @@ export class SignageGroupAdminService {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
-        );
-        if (result.reason !== 'done') return;
-        const removed = await this._saveGroupChange(
-            removeGroup(group.id)
-                .then(() => true)
-                .finally(() => result.close()),
+            () => removeGroup(group.id),
             'SIGNAGE_MANAGER.SVC_ERR_REMOVE_GROUP',
             'SIGNAGE_MANAGER.SVC_GROUP_REMOVED',
         );
@@ -508,7 +503,7 @@ export class SignageGroupAdminService {
      * remove themselves, as they can lose access to the group. */
     public async removeManagedGroupUser(item: PlaceGroupUser) {
         if (!this._context.canManageSignageGroup(item.group_id)) return;
-        const result = await openConfirmModal(
+        await this._confirmGroupRemove(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_USER_TITLE'),
                 content: this._isCurrentUser(item.user_id)
@@ -518,13 +513,7 @@ export class SignageGroupAdminService {
                       }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
-        );
-        if (result.reason !== 'done') return;
-        await this._saveGroupChange(
-            removeGroupUser(item.user_id, item.group_id).finally(() =>
-                result.close(),
-            ),
+            () => removeGroupUser(item.user_id, item.group_id),
             'SIGNAGE_MANAGER.SVC_ERR_REMOVE_USER',
             'SIGNAGE_MANAGER.SVC_USER_REMOVED',
         );
@@ -566,7 +555,7 @@ export class SignageGroupAdminService {
 
     public async removeManagedGroupZone(item: PlaceGroupZone) {
         if (!this._context.canManageSignageGroup(item.group_id)) return;
-        const result = await openConfirmModal(
+        await this._confirmGroupRemove(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_ZONE_TITLE'),
                 content: i18n('SIGNAGE_MANAGER.SVC_REMOVE_NAMED_FROM_GROUP', {
@@ -574,16 +563,31 @@ export class SignageGroupAdminService {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
-        );
-        if (result.reason !== 'done') return;
-        await this._saveGroupChange(
-            removeGroupZone(item.group_id, item.zone_id).finally(() =>
-                result.close(),
-            ),
+            () => removeGroupZone(item.group_id, item.zone_id),
             'SIGNAGE_MANAGER.SVC_ERR_REMOVE_ZONE',
             'SIGNAGE_MANAGER.SVC_ZONE_REMOVED',
         );
+    }
+
+    /**
+     * Ask to confirm a group remove, run it, then reload the group lists.
+     * @returns Whether the remove was confirmed and succeeded
+     */
+    private async _confirmGroupRemove(
+        confirm: ConfirmModalData,
+        action: () => Promise<unknown>,
+        error_key: string,
+        success_key: string,
+    ) {
+        const removed = await confirmThenRun(this._dialog, confirm, {
+            loading_key: 'SIGNAGE_MANAGER.SVC_REMOVING',
+            error_key,
+            action,
+        });
+        if (!removed) return false;
+        this._context.reloadSignageGroups();
+        notifySuccess(i18n(success_key));
+        return true;
     }
 
     /**

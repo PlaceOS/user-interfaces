@@ -60,7 +60,7 @@
                             "with": "apps/caterer-ui/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/caterer-ui/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -98,7 +98,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": "apps/caterer-ui/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 }
             }
         },
@@ -123,7 +123,8 @@
                 "tsConfig": "apps/caterer-ui/tsconfig.spec.json",
                 "setupFiles": [
                     "libs/common/src/test-storage.ts",
-                    "apps/caterer-ui/src/test-setup.ts"
+                    "shared/test-setup-base.ts",
+                    "shared/test-setup.ts"
                 ],
                 "isolate": true,
                 "watch": false,

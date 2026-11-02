@@ -11,6 +11,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import {
     i18n,
+    mapWithLimit,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -21,11 +22,10 @@ import {
     UploadPermissions,
     UploadsService,
 } from '@placeos/common';
-import { loadAuthenticatedImage, openConfirmModal } from '@placeos/components';
+import { loadAuthenticatedImage } from '@placeos/components';
 import {
     addSignageMedia,
     apiEndpoint,
-    del,
     post,
     type QueryResponse,
     querySignageMedia,
@@ -39,15 +39,21 @@ import {
     updateSignageMedia,
 } from '@placeos/ts-client';
 import type { ImageGenModalData } from '../image-gen/image-gen-modal.component';
+import { removeSignageUpload } from '../image-gen/image-gen.fn';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import type {
     BulkMediaUploadItem,
     BulkMediaUploadModalData,
 } from '../shared/bulk-media-upload-modal.component';
+import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import type { MediaEditChanges } from '../shared/media-edit-modal.component';
-import type { MediaTagModalResult } from '../shared/media-tag-modal.component';
+import type {
+    MediaTagModalData,
+    MediaTagModalResult,
+} from '../shared/media-tag-modal.component';
 import { PagedList } from '../shared/paged-list';
+import { storedSignal } from '../shared/stored-signal';
 import { SignageContextService } from '../signage-context.service';
 import {
     listSignageMediaTagCounts,
@@ -64,6 +70,7 @@ import {
 } from '../signage-media-upload.util';
 import { SignagePluginService } from '../signage-plugin.service';
 import { dialogClosed, PAGE_SIZE, searchParam } from '../signage-service.util';
+import { uploadUrl } from '../signage-url.util';
 import {
     convertImageToWebp,
     dataURLtoFile,
@@ -88,26 +95,18 @@ const MEDIA_CONCURRENCY = 4;
  * `Promise.allSettled`, one failure does not stop the others, and the results
  * keep the order of `items`.
  */
-async function settleEach<T, R>(items: T[], task: (item: T) => Promise<R>) {
-    const results: PromiseSettledResult<R>[] = new Array(items.length);
-    let next = 0;
-    const worker = async () => {
-        // Each pass takes a new index, so this ends after `items.length` passes
-        while (next < items.length) {
-            const index = next++;
+function settleEach<T, R>(items: T[], task: (item: T) => Promise<R>) {
+    return mapWithLimit(
+        items,
+        MEDIA_CONCURRENCY,
+        async (item): Promise<PromiseSettledResult<R>> => {
             try {
-                results[index] = {
-                    status: 'fulfilled',
-                    value: await task(items[index]),
-                };
+                return { status: 'fulfilled', value: await task(item) };
             } catch (reason) {
-                results[index] = { status: 'rejected', reason };
+                return { status: 'rejected', reason };
             }
-        }
-    };
-    const workers = Math.min(MEDIA_CONCURRENCY, items.length);
-    await Promise.all(Array.from({ length: workers }, worker));
-    return results;
+        },
+    );
 }
 
 /** First three names, then a count of the others, such as "a, b, c +2" */
@@ -136,9 +135,9 @@ function screenshotPageURL(url: string) {
     return page?.protocol === 'https:' ? page.href : '';
 }
 
-/** Absolute URL that serves an upload */
-function uploadUrl(upload_id: string) {
-    return `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
+/** Absolute URL that serves an upload, to store in a media record */
+function absoluteUploadUrl(upload_id: string) {
+    return `${location.origin}${uploadUrl(upload_id)}`;
 }
 
 /**
@@ -196,25 +195,6 @@ interface SignageUploadOptions {
 const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
 type MediaViewMode = 'grid' | 'list' | 'folder';
 
-function loadMediaViewMode(): MediaViewMode {
-    if (typeof localStorage === 'undefined') return 'grid';
-    try {
-        const stored = localStorage.getItem(SIGNAGE_VIEW_MODE_STORAGE_KEY);
-        return stored === 'list' || stored === 'folder' ? stored : 'grid';
-    } catch {
-        return 'grid';
-    }
-}
-
-function persistMediaViewMode(mode: MediaViewMode) {
-    if (typeof localStorage === 'undefined') return;
-    try {
-        localStorage.setItem(SIGNAGE_VIEW_MODE_STORAGE_KEY, mode);
-    } catch {
-        // Local storage can be unavailable in private browsing or restricted embeds.
-    }
-}
-
 /**
  * Signage media library: paging, tags, uploads and thumbnails, and
  * generated images
@@ -244,8 +224,11 @@ export class SignageMediaService {
     );
 
     public readonly search_term = signal('');
-    public readonly media_view_mode =
-        signal<MediaViewMode>(loadMediaViewMode());
+    public readonly media_view_mode = storedSignal<MediaViewMode>(
+        SIGNAGE_VIEW_MODE_STORAGE_KEY,
+        (stored) =>
+            stored === 'list' || stored === 'folder' ? stored : 'grid',
+    );
 
     // --- Media (paged incrementally as the user scrolls) ---
     // Searching is done by the backend so results are paged like the full
@@ -603,7 +586,7 @@ export class SignageMediaService {
             orientation: 'landscape',
             ...media_item,
             media_id: upload_id,
-            media_uri: uploadUrl(upload_id),
+            media_uri: absoluteUploadUrl(upload_id),
             media_type: 'image',
             thumbnail_id,
         });
@@ -893,7 +876,7 @@ export class SignageMediaService {
             ...media_item,
             name: media_item.name || upload_file.name,
             media_id,
-            media_uri: uploadUrl(media_id),
+            media_uri: absoluteUploadUrl(media_id),
             media_type,
             orientation: is_landscape ? 'landscape' : 'portrait',
             thumbnail_id,
@@ -990,50 +973,6 @@ export class SignageMediaService {
         }
     }
 
-    public async removeMedia(item: SignageMedia) {
-        if (!item?.id) return;
-        if (
-            !this._context.requirePermission(
-                this._context.can_delete(),
-                'SIGNAGE_MANAGER.SVC_NO_DELETE_MEDIA',
-            )
-        )
-            return;
-        const playlists = await this._playlistsUsingMedia([item.id]);
-        const result = await openConfirmModal(
-            {
-                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_MEDIA_TITLE'),
-                content: this._withMediaUsage(
-                    i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED_PLAIN', {
-                        name: item.name,
-                    }),
-                    playlists,
-                ),
-                icon: { content: 'delete' },
-            },
-            this._dialog,
-        );
-        if (result.reason !== 'done') return;
-        result.loading(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVING'));
-        try {
-            await removeSignageMedia(
-                item.id,
-                this._context.groupQueryParams({}),
-            );
-        } catch {
-            result.close();
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_MEDIA'));
-            return;
-        }
-        this._removeMediaFromList([item.id]);
-        await this._removeDeletedMediaFromPlaylists(
-            [item.id],
-            playlists.map(({ id }) => id),
-        );
-        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
-        result.close();
-    }
-
     /**
      * Take deleted media out of the playlists that held it. The media is
      * already gone, so a failure here only warns.
@@ -1052,9 +991,37 @@ export class SignageMediaService {
         }
     }
 
+    public async removeMedia(item: SignageMedia) {
+        if (!item?.id) return false;
+        return this._removeMediaItems(
+            [item],
+            i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED_PLAIN', { name: item.name }),
+        );
+    }
+
     public async removeMediaItems(items: SignageMedia[]) {
         const media_items = items.filter((item) => !!item?.id);
         if (!media_items.length) return false;
+        return this._removeMediaItems(
+            media_items,
+            i18n(
+                'SIGNAGE_MANAGER.SVC_DELETE_SELECTED_MEDIA',
+                { count: media_items.length },
+                media_items.length,
+            ),
+        );
+    }
+
+    /**
+     * Delete media after the user confirms, and take it out of the
+     * playlists that held it.
+     * @param content Text of the confirm modal, before the playlist usage
+     * @returns Whether every item was deleted
+     */
+    private async _removeMediaItems(
+        media_items: SignageMedia[],
+        content: string,
+    ) {
         if (
             !this._context.requirePermission(
                 this._context.can_delete(),
@@ -1064,44 +1031,44 @@ export class SignageMediaService {
             return false;
         const media_ids = media_items.map((item) => item.id);
         const playlists = await this._playlistsUsingMedia(media_ids);
-        const result = await openConfirmModal(
+        const removed = await confirmThenRun(
+            this._dialog,
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_MEDIA_TITLE'),
                 content: this._withMediaUsage(
-                    i18n(
-                        'SIGNAGE_MANAGER.SVC_DELETE_SELECTED_MEDIA',
-                        { count: media_items.length },
-                        media_items.length,
-                    ),
+                    content,
                     playlists,
                     media_items.length,
                 ),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading_key: 'SIGNAGE_MANAGER.SVC_MEDIA_REMOVING',
+                error_key: 'SIGNAGE_MANAGER.SVC_ERR_REMOVE_MEDIA',
+                action: async () => {
+                    const results = await settleEach(media_ids, (id) =>
+                        removeSignageMedia(
+                            id,
+                            this._context.groupQueryParams({}),
+                        ),
+                    );
+                    const removed_ids = media_ids.filter(
+                        (_, index) => results[index].status === 'fulfilled',
+                    );
+                    if (removed_ids.length) {
+                        this._removeMediaFromList(removed_ids);
+                        await this._removeDeletedMediaFromPlaylists(
+                            removed_ids,
+                            playlists.map(({ id }) => id),
+                        );
+                    }
+                    if (removed_ids.length < media_ids.length) {
+                        throw new Error('Some media was not deleted');
+                    }
+                },
+            },
         );
-        if (result.reason !== 'done') return false;
-        result.loading(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVING'));
-        const results = await Promise.allSettled(
-            media_ids.map((id) =>
-                removeSignageMedia(id, this._context.groupQueryParams({})),
-            ),
-        );
-        const removed_ids = media_ids.filter(
-            (_, index) => results[index].status === 'fulfilled',
-        );
-        if (removed_ids.length) {
-            this._removeMediaFromList(removed_ids);
-            await this._removeDeletedMediaFromPlaylists(
-                removed_ids,
-                playlists.map(({ id }) => id),
-            );
-        }
-        result.close();
-        if (removed_ids.length < media_ids.length) {
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_MEDIA'));
-            return false;
-        }
+        if (!removed) return false;
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
         return true;
     }
@@ -1134,8 +1101,8 @@ export class SignageMediaService {
             id: item.id,
             tags: [...new Set([...(item.tags || []), ...tags])],
         }));
-        const results = await Promise.allSettled(
-            changes.map(({ id, tags }) => updateSignageMedia(id, { tags })),
+        const results = await settleEach(changes, ({ id, tags }) =>
+            updateSignageMedia(id, { tags }),
         );
         // Show the new tags on the items that saved, in place
         const saved = new Map(
@@ -1172,68 +1139,32 @@ export class SignageMediaService {
     }
 
     public async renameMediaTag(tag: string, count: number) {
-        if (!tag) return false;
-        if (
-            !this._context.requirePermission(
-                this._context.can_update_media_tags(),
-                'SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA',
-            )
-        )
-            return false;
-        const { MediaTagModalComponent } =
-            await import('../shared/media-tag-modal.component');
-        const ref = this._dialog.open(MediaTagModalComponent, {
-            data: {
-                action: 'rename',
-                tag,
-                count,
-                can_delete_media: false,
-            },
-            width: 'min(28rem, calc(100vw - 2rem))',
+        const result = await this._openMediaTagModal({
+            action: 'rename',
+            tag,
+            count,
+            can_delete_media: false,
         });
-        const result = await dialogClosed<MediaTagModalResult>(ref);
         if (result?.action !== 'rename') return false;
-        try {
-            const group_id = this._context.api_group_id();
-            await renameSignageMediaTag({
-                current_tag: tag,
-                new_tag: result.new_tag,
-                ...(group_id ? { group_id } : {}),
-            });
-        } catch (error) {
-            notifyError(
-                i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_ERROR', {
-                    error: error instanceof Error ? error.message : `${error}`,
+        const group_id = this._context.api_group_id();
+        return this._saveMediaTagChange(
+            () =>
+                renameSignageMediaTag({
+                    current_tag: tag,
+                    new_tag: result.new_tag,
+                    ...(group_id ? { group_id } : {}),
                 }),
-            );
-            return false;
-        }
-        this._context.changed();
-        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_RENAMED'));
-        return true;
+            'SIGNAGE_MANAGER.SVC_MEDIA_TAG_RENAMED',
+        );
     }
 
     public async removeMediaTag(tag: string, count: number) {
-        if (!tag) return false;
-        if (
-            !this._context.requirePermission(
-                this._context.can_update_media_tags(),
-                'SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA',
-            )
-        )
-            return false;
-        const { MediaTagModalComponent } =
-            await import('../shared/media-tag-modal.component');
-        const ref = this._dialog.open(MediaTagModalComponent, {
-            data: {
-                action: 'remove',
-                tag,
-                count,
-                can_delete_media: this._context.can_delete_tagged_media(),
-            },
-            width: 'min(28rem, calc(100vw - 2rem))',
+        const result = await this._openMediaTagModal({
+            action: 'remove',
+            tag,
+            count,
+            can_delete_media: this._context.can_delete_tagged_media(),
         });
-        const result = await dialogClosed<MediaTagModalResult>(ref);
         if (result?.action !== 'remove') return false;
         if (
             result.remove_media &&
@@ -1243,13 +1174,51 @@ export class SignageMediaService {
             )
         )
             return false;
+        const group_id = this._context.api_group_id();
+        return this._saveMediaTagChange(
+            () =>
+                removeSignageMediaTag({
+                    tag,
+                    ...(result.remove_media ? { remove_media: true } : {}),
+                    ...(group_id ? { group_id } : {}),
+                }),
+            'SIGNAGE_MANAGER.SVC_MEDIA_TAG_REMOVED',
+        );
+    }
+
+    /**
+     * Ask how to change a media tag. Warns and gives undefined when the user
+     * cannot change tags.
+     */
+    private async _openMediaTagModal(data: MediaTagModalData) {
+        if (!data.tag) return undefined;
+        if (
+            !this._context.requirePermission(
+                this._context.can_update_media_tags(),
+                'SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA',
+            )
+        )
+            return undefined;
+        const { MediaTagModalComponent } =
+            await import('../shared/media-tag-modal.component');
+        const ref = this._dialog.open(MediaTagModalComponent, {
+            data,
+            width: 'min(28rem, calc(100vw - 2rem))',
+        });
+        return dialogClosed<MediaTagModalResult>(ref);
+    }
+
+    /**
+     * Save a media tag change and reload the lists. Shows the error of the
+     * request when it fails.
+     * @returns Whether the change was saved
+     */
+    private async _saveMediaTagChange(
+        request: () => Promise<unknown>,
+        success_key: string,
+    ) {
         try {
-            const group_id = this._context.api_group_id();
-            await removeSignageMediaTag({
-                tag,
-                ...(result.remove_media ? { remove_media: true } : {}),
-                ...(group_id ? { group_id } : {}),
-            });
+            await request();
         } catch (error) {
             notifyError(
                 i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_ERROR', {
@@ -1259,7 +1228,7 @@ export class SignageMediaService {
             return false;
         }
         this._context.changed();
-        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_REMOVED'));
+        notifySuccess(i18n(success_key));
         return true;
     }
 
@@ -1267,7 +1236,6 @@ export class SignageMediaService {
         const { PlaylistSelectModalComponent } =
             await import('../shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
-            data: { media_id },
             panelClass: 'mobile-fullscreen',
         });
         const playlist_id = await dialogClosed(ref);
@@ -1283,7 +1251,6 @@ export class SignageMediaService {
         const { PlaylistSelectModalComponent } =
             await import('../shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
-            data: { media_ids },
             panelClass: 'mobile-fullscreen',
         });
         const playlist_id = await dialogClosed(ref);
@@ -1308,7 +1275,7 @@ export class SignageMediaService {
     /** Read an upload, with the auth the uploads route needs */
     private async _fetchUpload(upload_id: string) {
         const source = await loadAuthenticatedImage(
-            uploadUrl(upload_id),
+            absoluteUploadUrl(upload_id),
             '/api/engine/v2/uploads',
         );
         return (await fetch(source)).blob();
@@ -1348,9 +1315,7 @@ export class SignageMediaService {
             return '';
         } finally {
             if (screenshot_id) {
-                del(
-                    `${apiEndpoint()}/uploads/${encodeURIComponent(screenshot_id)}`,
-                ).catch(() => undefined);
+                removeSignageUpload(screenshot_id).catch(() => undefined);
             }
         }
     }
@@ -1381,9 +1346,5 @@ export class SignageMediaService {
                 'app.media_allow_extended_video_codecs',
             ),
         };
-    }
-
-    constructor() {
-        effect(() => persistMediaViewMode(this.media_view_mode()));
     }
 }

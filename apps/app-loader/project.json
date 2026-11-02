@@ -93,7 +93,7 @@
                 "tsConfig": "apps/app-loader/tsconfig.spec.json",
                 "setupFiles": [
                     "libs/common/src/test-storage.ts",
-                    "apps/app-loader/src/test-setup.ts"
+                    "shared/test-setup-base.ts"
                 ],
                 "isolate": true,
                 "watch": false,

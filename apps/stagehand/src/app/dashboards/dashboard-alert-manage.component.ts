@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    DestroyRef,
     inject,
     OnInit,
     signal,
@@ -24,13 +25,14 @@ import {
     addAlert,
     TriggerComparison,
     TriggerConditions,
-    TriggerTimeCondition,
     updateAlert,
 } from '@placeos/ts-client';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { AlertConditionModalComponent } from './alert-conditions-modal.component';
 import { DashboardsService } from './dashboards.service';
 import { SystemSearchFieldComponent } from './system-search-field.component';
@@ -220,42 +222,6 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                         | translate
                                 "
                             ></simple-table>
-                            <!-- <simple-table
-                                class="block w-full min-w-lg text-sm"
-                                [data]="
-                                    model().conditions?.time_dependents || []
-                                "
-                                [columns]="[
-                                    {
-                                        key: 'time',
-                                        name:
-                                            'TRIGGERS.FIELD_TIME_DEPS'
-                                            | translate,
-                                        content: time_dep_template,
-                                    },
-                                    {
-                                        key: 'actions',
-                                        name: ' ',
-                                        size: '6rem',
-                                        sortable: false,
-                                        content: actions_template,
-                                    },
-                                ]"
-                                [sortable]="true"
-                                [empty_message]="
-                                    'TRIGGERS.CONDITION_TIME_EMPTY' | translate
-                                "
-                            ></simple-table> -->
-                            <ng-template #time_dep_template let-row="row">
-                                <div
-                                    class="mono flex items-center space-x-2 p-4 text-sm"
-                                >
-                                    {{ row.type === 'at' ? 'At time' : 'CRON' }}
-                                    {{
-                                        row.type === 'at' ? row.time : row.cron
-                                    }}
-                                </div>
-                            </ng-template>
                             <ng-template #comparison_template let-row="row">
                                 <div
                                     class="mono flex items-center space-x-4 p-4 text-xs"
@@ -344,6 +310,7 @@ export class DashboardAlertManageComponent
     implements OnInit
 {
     private _service = inject(DashboardsService);
+    private readonly _destroy_ref = inject(DestroyRef);
     private _dialog = inject(MatDialog);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
@@ -375,43 +342,44 @@ export class DashboardAlertManageComponent
         required(p.name);
     });
 
-    public ngOnInit() {
+    public async ngOnInit() {
         const id = this._route.snapshot.paramMap.get('id');
         const alert_id = this._route.snapshot.paramMap.get('alert_id');
-        if (id) {
-            this._service.setDashboard(id);
-            this.model.update((m) => ({ ...m, alert_dashboard_id: id }));
-        }
         if (alert_id) this.setAlert(alert_id);
-        this.timeout('redirect', () => {
-            if (!this.dashboard()) this._router.navigate(['/dashboards']);
-        });
+        if (id) {
+            this.model.update((m) => ({ ...m, alert_dashboard_id: id }));
+            await this._service.setDashboard(id);
+        }
+        // The user can leave while the dashboard loads
+        if (this._destroy_ref.destroyed) return;
+        if (!id || this.dashboard()?.id !== id) {
+            this._router.navigate(['/dashboards']);
+        }
     }
+
+    /** Set when the alert did not load, so save cannot change another one */
+    private readonly _load_failed = signal(false);
 
     public async setAlert(id: string) {
-        await this._service.setAlert(id);
+        const loaded = await this._service.setAlert(id);
+        this._load_failed.set(!loaded);
         const dash = this._service.alert();
-        if (dash) this.model.update((m) => ({ ...m, ...dash }));
+        if (loaded && dash) this.model.update((m) => ({ ...m, ...dash }));
     }
 
-    public removeCondition(
-        condition: TriggerComparison | TriggerTimeCondition = null,
-    ) {
+    public removeCondition(condition: TriggerComparison = null) {
         const old_conditions = this.model().conditions;
+        // Keep time dependents that saved alerts can still have
         const new_conditions: TriggerConditions = {
+            ...old_conditions,
             comparisons: old_conditions.comparisons.filter(
-                (_) => _ !== condition,
-            ),
-            time_dependents: old_conditions.time_dependents.filter(
                 (_) => _ !== condition,
             ),
         };
         this.model.update((m) => ({ ...m, conditions: new_conditions }));
     }
 
-    public async editCondition(
-        condition: TriggerComparison | TriggerTimeCondition = null,
-    ) {
+    public async editCondition(condition: TriggerComparison = null) {
         const system = this.template_system();
         if (!system) return;
         const ref = this._dialog.open(AlertConditionModalComponent, {
@@ -436,6 +404,9 @@ export class DashboardAlertManageComponent
 
     public async save() {
         if (this.loading()) return;
+        if (this._load_failed()) {
+            return notifyError('The alert did not load. Reload the page.');
+        }
         this.form().markAsTouched();
         if (!this.form().valid()) {
             return notifyError(
@@ -449,7 +420,7 @@ export class DashboardAlertManageComponent
         }
         const dashboard = this._service.dashboard();
         if (!dashboard) return;
-        this.loading.set(i18n('STAGEHAND.DASHBOARD_ALERTS_LOADING'));
+        this.loading.set(i18n('COMMON.SAVING'));
         // The model holds the loaded alert, so a new alert takes nothing
         // from one opened before it
         const new_alert = {

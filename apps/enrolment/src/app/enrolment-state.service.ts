@@ -1,6 +1,6 @@
 import { Injectable, computed, resource, signal } from '@angular/core';
 import { email, form, required, validate } from '@angular/forms/signals';
-import { CalendarEvent, patchSignalModel } from '@placeos/common';
+import { CalendarEvent, parseJWT, patchSignalModel } from '@placeos/common';
 import { checkinEventGuest, showEvent } from '@placeos/events';
 import { setToken } from '@placeos/ts-client';
 import { showGuest, updateGuest } from '@placeos/users';
@@ -18,20 +18,6 @@ export interface EnrolmentFormValue {
     attachments: any[];
     vaccination_proof: any;
     accepted_terms_conditions: boolean;
-}
-
-export function parseJWT(token: string) {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-        atob(base64)
-            .split('')
-            .map((c) => {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            })
-            .join(''),
-    );
-    return JSON.parse(jsonPayload);
 }
 
 @Injectable({
@@ -111,21 +97,34 @@ export class EnrolmentStateService {
         this._loading.set('');
     }
 
+    /** Saves edited details, then checks the guest in. Failures show the error view. */
     public async checkin() {
         if (this.form().dirty()) await this.updateGuest();
+        if (this._error()) return;
         this._loading.set('Checking you in...');
-        await checkinEventGuest(this._event_id(), this._guest_id(), true);
-        this._view.set('complete');
-        this._loading.set('');
+        try {
+            await checkinEventGuest(this._event_id(), this._guest_id(), true);
+            this._view.set('complete');
+        } catch {
+            this.setError('checkin');
+        } finally {
+            this._loading.set('');
+        }
     }
 
+    /** Saves the guest's edited details. A failure shows the error view. */
     public async updateGuest() {
         this.form().markAsTouched();
         if (!this.form().valid()) return;
         this._loading.set('Updating your details...');
         const details = this._guest.value();
-        await updateGuest(details.id, { ...details, ...this.model() });
-        this._loading.set('');
+        try {
+            await updateGuest(details.id, { ...details, ...this.model() });
+        } catch {
+            this.setError('update');
+        } finally {
+            this._loading.set('');
+        }
     }
 
     public handleUserToken(token: string) {

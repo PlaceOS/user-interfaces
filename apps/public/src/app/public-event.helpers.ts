@@ -1,4 +1,32 @@
+import type { ParamMap, Params } from '@angular/router';
 import type { PublicEvent } from './public-events.service';
+
+/** Query params that pick the events source and the event */
+const ROUTING_QUERY_PARAMS = [
+    'system_id',
+    'system',
+    'id',
+    'event_id',
+    'direct_event',
+];
+
+/** Events source id from the `system_id`, `system` or `id` query param */
+export function querySystemId(query: ParamMap) {
+    return (
+        query.get('system_id') || query.get('system') || query.get('id') || ''
+    );
+}
+
+/**
+ * Query params to keep when moving between the guest details and events
+ * pages. The params that pick the source and the event are left out, as
+ * each page sets them again.
+ */
+export function preservedQueryParams(query: Params): Params {
+    const params = { ...query };
+    for (const key of ROUTING_QUERY_PARAMS) delete params[key];
+    return params;
+}
 
 export function eventId(event: PublicEvent) {
     return `${

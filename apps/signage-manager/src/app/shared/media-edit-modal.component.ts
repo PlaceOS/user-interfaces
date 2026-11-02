@@ -1,7 +1,6 @@
 import {
     Component,
     computed,
-    DestroyRef,
     effect,
     inject,
     OnDestroy,
@@ -15,19 +14,15 @@ import {
     submit,
     validate,
 } from '@angular/forms/signals';
-import {
-    MAT_DIALOG_DATA,
-    MatDialog,
-    MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import {
-    HotkeysService,
     i18n,
+    mediaAnimation,
     notifyError,
     notifySuccess,
     UploadPermissions,
@@ -53,7 +48,6 @@ import {
     SignagePlugin,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { mediaAnimation } from '../media/media-view.util';
 import {
     getVideoContainer,
     isSupportedImageFile,
@@ -71,6 +65,8 @@ import {
     normaliseWebPageUrl,
     webPageFrameUrl,
 } from '../signage-url.util';
+import { ANIMATION_OPTIONS } from './media-labels.util';
+import { saveHotkey } from './save-hotkey';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 /** Media fields the modal saves. `thumbnail_image` is a picked image as a
@@ -105,33 +101,6 @@ export interface MediaEditModalData {
     onEdit: (id: string, data: MediaEditChanges) => Promise<void>;
     preview: (item: SignageMedia) => void;
 }
-
-/** Animations the user can pick, with their label keys */
-const ANIMATION_OPTIONS: { value: MediaAnimation; label: string }[] = [
-    { value: MediaAnimation.Default, label: 'COMMON.DEFAULT' },
-    { value: MediaAnimation.Cut, label: 'SIGNAGE_MANAGER.ANIM_CUT' },
-    {
-        value: MediaAnimation.CrossFade,
-        label: 'SIGNAGE_MANAGER.ANIM_CROSS_FADE',
-    },
-    { value: MediaAnimation.SlideTop, label: 'SIGNAGE_MANAGER.ANIM_SLIDE_TOP' },
-    {
-        value: MediaAnimation.SlideLeft,
-        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT',
-    },
-    {
-        value: MediaAnimation.SlideRight,
-        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT',
-    },
-    {
-        value: MediaAnimation.SlideBottom,
-        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM',
-    },
-];
-
-/** Focus targets where a plain key press belongs to the control, not a hotkey */
-const HOTKEY_BLOCKING_FOCUS =
-    'select, mat-select, [role="combobox"], [role="listbox"], [role="option"], [role="menu"], [role="menuitem"]';
 
 interface MediaEditFormModel {
     name: string;
@@ -607,7 +576,6 @@ export class MediaEditModalComponent implements OnDestroy {
     private _data = inject<MediaEditModalData>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<MediaEditModalComponent>>(MatDialogRef);
-    private readonly _dialog = inject(MatDialog);
 
     private readonly _schema_form = viewChild(SchemaFormComponent);
 
@@ -744,10 +712,7 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     constructor() {
-        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () => {
-            if (this._canUseSaveHotkey()) this.saveMedia();
-        });
-        inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
+        saveHotkey(this._dialog_ref, () => this.saveMedia());
         if (this.media_type === 'webpage') {
             this.preview_url.set(
                 webPageFrameUrl(this.item.media_uri || this.item.media_url),
@@ -784,16 +749,6 @@ export class MediaEditModalComponent implements OnDestroy {
                 },
             }));
         });
-    }
-
-    /**
-     * The save hotkey is a plain key, so it only acts while this modal is the
-     * top-most dialog and focus is not on a control that takes key presses.
-     */
-    private _canUseSaveHotkey() {
-        const dialogs = this._dialog.openDialogs;
-        if (dialogs[dialogs.length - 1] !== this._dialog_ref) return false;
-        return !document.activeElement?.closest(HOTKEY_BLOCKING_FOCUS);
     }
 
     private _resolvePluginSchema(): Record<string, unknown> | null {

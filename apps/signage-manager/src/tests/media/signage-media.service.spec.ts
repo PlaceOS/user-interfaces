@@ -589,6 +589,7 @@ describe('SignageMediaService', () => {
                 expect.stringMatching(
                     new RegExp(`/uploads/screenshot-${screenshot_count}$`),
                 ),
+                { response_type: 'void' },
             );
         });
 
@@ -650,6 +651,7 @@ describe('SignageMediaService', () => {
                 expect.stringMatching(
                     new RegExp(`/uploads/screenshot-${screenshot_count}$`),
                 ),
+                { response_type: 'void' },
             );
             expect(addSignageMedia).toHaveBeenCalledWith(
                 expect.not.objectContaining({

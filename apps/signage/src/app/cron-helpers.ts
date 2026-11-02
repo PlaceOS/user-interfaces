@@ -1,146 +1,29 @@
-function matchesCronPart(value: number, cron_part: string): boolean {
-    if (cron_part === '*') return true;
-    if (cron_part.includes(',')) {
-        return cron_part
-            .split(',')
-            .some((item) => matchesCronPart(value, item));
-    }
-    if (cron_part.includes('/')) {
-        const [base, step] = cron_part.split('/');
-        const step_value = Number(step);
-        if (!step_value) return false;
-        if (base === '*') return value % step_value === 0;
-        if (base.includes('-')) {
-            const [start, end] = base.split('-').map(Number);
-            if (value < start || value > end) return false;
-            return (value - start) % step_value === 0;
-        }
-        return value % step_value === 0 && matchesCronPart(value, base);
-    }
-    if (cron_part.includes('-')) {
-        const [start, end] = cron_part.split('-').map(Number);
-        return value >= start && value <= end;
-    }
-    return Number(cron_part) === value;
-}
+import {
+    cronDaySlots,
+    cronParts,
+    doesCronMatchDay,
+    hasPlayableScheduleMask,
+    matchesCronPart,
+    type ScheduleMask,
+} from '@placeos/common';
 
-function cronNumber(value: string, min: number, max: number) {
-    if (!/^\d+$/.test(value || '')) return null;
-    const number_value = Number(value);
-    return number_value >= min && number_value <= max ? number_value : null;
-}
-
-function parseCronWeekdays(value: string) {
-    if (!value?.trim() || value === '*') return [];
-    const days = new Set<number>();
-    for (const part of value.split(',')) {
-        if (part.includes('-')) {
-            const [start, end] = part
-                .split('-')
-                .map((_) => cronNumber(_, 0, 6));
-            if (start === null || end === null || start > end) return [];
-            for (let day = start; day <= end; day++) days.add(day);
-        } else {
-            const day = cronNumber(part, 0, 6);
-            if (day === null) return [];
-            days.add(day);
-        }
-    }
-    return [...days];
-}
-
-function parseCronWeekOfMonthRange(value: string) {
-    const match = /^(\d+)-(\d+)$/.exec(value || '');
-    if (!match) return null;
-    const start = Number(match[1]);
-    const end = Number(match[2]);
-    if (start === 29 && end === 31) return 5;
-    if ((start - 1) % 7 !== 0 || end !== start + 6) return null;
-    const week = (start - 1) / 7 + 1;
-    return week >= 1 && week <= 4 ? week : null;
-}
-
-function parseCronWeeksOfMonth(value: string) {
-    if (!value?.trim() || value === '*') return [];
-    const weeks = new Set<number>();
-    for (const part of value.split(',')) {
-        const week = parseCronWeekOfMonthRange(part);
-        if (week === null) return [];
-        weeks.add(week);
-    }
-    return [...weeks];
-}
-
-function isCronMonthlyWeekday(
-    day_of_month_part: string,
-    day_of_week_part: string,
-) {
+/** Whether all five cron fields match the local date and time */
+function doesCronMatchDate(parts: readonly string[], date: Date) {
     return (
-        !!parseCronWeeksOfMonth(day_of_month_part).length &&
-        !!parseCronWeekdays(day_of_week_part).length
+        matchesCronPart(date.getMinutes(), parts[0]) &&
+        matchesCronPart(date.getHours(), parts[1]) &&
+        doesCronMatchDay(parts, date)
     );
 }
 
-function doesCronMatchDate(cron_parts: string[], date: Date) {
-    const [
-        minute_part,
-        hour_part,
-        day_of_month_part,
-        month_part,
-        day_of_week_part,
-    ] = cron_parts;
-    if (!matchesCronPart(date.getMinutes(), minute_part)) return false;
-    if (!matchesCronPart(date.getHours(), hour_part)) return false;
-    if (!matchesCronPart(date.getMonth() + 1, month_part)) return false;
-    const day_of_month_matches = matchesCronPart(
-        date.getDate(),
-        day_of_month_part,
-    );
-    const day_of_week_matches = matchesCronPart(
-        date.getDay(),
-        day_of_week_part,
-    );
-    if (day_of_month_part === '*' && day_of_week_part === '*') return true;
-    if (day_of_month_part !== '*' && day_of_week_part === '*') {
-        return day_of_month_matches;
-    }
-    if (day_of_month_part === '*' && day_of_week_part !== '*') {
-        return day_of_week_matches;
-    }
-    if (isCronMonthlyWeekday(day_of_month_part, day_of_week_part)) {
-        return day_of_month_matches && day_of_week_matches;
-    }
-    return day_of_month_matches || day_of_week_matches;
-}
-
-function cronParts(cron_string: string) {
-    const parts = cron_string.trim().split(/\s+/);
-    if (parts.length !== 5) {
-        throw new Error('Invalid CRON string: Must have 5 parts.');
-    }
+/**
+ * The five fields of a cron.
+ * @throws An error when the cron does not have five fields
+ */
+function requireCronParts(cron_string: string) {
+    const parts = cronParts(cron_string);
+    if (!parts) throw new Error('Invalid CRON string: Must have 5 parts.');
     return parts;
-}
-
-/** Schedule start is in Unix seconds; mask characters repeat by cron occurrence. */
-export interface ScheduleMask {
-    readonly valid_from?: number;
-    readonly mask?: string;
-}
-
-/** Whether a schedule can have an enabled occurrence. */
-export function hasPlayableScheduleMask({
-    mask = '',
-    valid_from,
-}: ScheduleMask) {
-    return (
-        !mask ||
-        (mask.length <= 128 &&
-            !/[^01]/.test(mask) &&
-            mask.includes('1') &&
-            Number.isFinite(valid_from) &&
-            valid_from > 0 &&
-            Number.isFinite(new Date(valid_from * 1000).getTime()))
-    );
 }
 
 const MASK_FILTER_CACHE = new Map<string, (date: Date) => boolean>();
@@ -154,22 +37,14 @@ export function createScheduleMaskFilter(cron: string, schedule: ScheduleMask) {
     const key = JSON.stringify([cron, mask, valid_from]);
     const cached = MASK_FILTER_CACHE.get(key);
     if (cached) return cached;
-    const parts = cronParts(cron);
-    const slots: number[] = [];
-    for (let hour = 0; hour < 24; hour++) {
-        if (!matchesCronPart(hour, parts[1])) continue;
-        for (let minute = 0; minute < 60; minute++) {
-            if (matchesCronPart(minute, parts[0]))
-                slots.push(hour * 60 + minute);
-        }
-    }
-    const calendar_parts = cronDayParts(parts);
+    const parts = requireCronParts(cron);
+    const slots = cronDaySlots(parts);
     const first_day = new Date(anchor);
     first_day.setHours(0, 0, 0, 0);
     const month_totals = new Map<number, number[]>();
     const countBefore = (day: Date, before: number) => {
         if (!slots.length || day.getTime() + 2 * 86_400_000 < anchor) return 0;
-        if (!doesCronMatchDate(calendar_parts, day)) return 0;
+        if (!doesCronMatchDay(parts, day)) return 0;
         const next_day = new Date(day);
         next_day.setDate(next_day.getDate() + 1);
         if (next_day.getTime() <= anchor) return 0;
@@ -265,24 +140,8 @@ function isFirstLocalOccurrence(date: Date) {
 }
 
 /** Whether a cron runs at `date`, a whole minute, in local time */
-function isCronRun(cron_parts: string[], date: Date) {
+function isCronRun(cron_parts: readonly string[], date: Date) {
     return doesCronMatchDate(cron_parts, date) && isFirstLocalOccurrence(date);
-}
-
-/** Whether a cron can run at some time of day; `61 * * * *` never can */
-function hasCronTimeOfDay([minute_part, hour_part]: string[]) {
-    for (let hour = 0; hour < 24; hour++) {
-        if (!matchesCronPart(hour, hour_part)) continue;
-        for (let minute = 0; minute < 60; minute++) {
-            if (matchesCronPart(minute, minute_part)) return true;
-        }
-    }
-    return false;
-}
-
-/** Cron fields that match any time on the days the cron runs */
-function cronDayParts(cron_parts: string[]) {
-    return ['*', '*', ...cron_parts.slice(2)];
 }
 
 /** Start of the local day `offset_days` from the day of `date` */
@@ -351,24 +210,24 @@ export function getNextCronRunTimestampInRange(
     now = Date.now(),
     schedule: ScheduleMask = {},
 ): number | null {
-    const parts = cronParts(cron_string);
+    const parts = requireCronParts(cron_string);
     if (!hasPlayableScheduleMask(schedule)) return null;
     const allows = createScheduleMaskFilter(cron_string, schedule);
     const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
     const key = `next|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
     return cachedCronLookup(key, now, search_limit_in_seconds, () => {
+        // `61 * * * *` never runs at any time of day
+        if (!cronDaySlots(parts).length) return null;
         // Steps in UTC, not local time: a local step resolves the hour that
         // repeats when the clocks go back to its first occurrence, which
         // would move the search an hour into the past.
-        if (!hasCronTimeOfDay(parts)) return null;
-        const day_parts = cronDayParts(parts);
         const limit = now + searchLimitMs(search_limit_in_seconds);
         const start = Math.floor(now / MINUTE_MS) * MINUTE_MS + MINUTE_MS;
         const current_date = new Date(start);
         // Every step moves forwards, by a minute or to the next day
         for (let time = start; time <= limit; ) {
             current_date.setTime(time);
-            if (!doesCronMatchDate(day_parts, current_date)) {
+            if (!doesCronMatchDay(parts, current_date)) {
                 time = localDayStart(current_date, 1);
                 continue;
             }
@@ -403,22 +262,21 @@ export function getLastCronRunTimestampInRange(
     now = Date.now(),
     schedule: ScheduleMask = {},
 ): number | null {
-    const parts = cronParts(cron_string);
+    const parts = requireCronParts(cron_string);
     if (!hasPlayableScheduleMask(schedule)) return null;
     const allows = createScheduleMaskFilter(cron_string, schedule);
     const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
     const key = `last|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
     return cachedCronLookup(key, now, search_limit_in_seconds, () => {
+        if (!cronDaySlots(parts).length) return null;
         // Steps in UTC for the same reason as the forwards search.
-        if (!hasCronTimeOfDay(parts)) return null;
-        const day_parts = cronDayParts(parts);
         const limit = now - searchLimitMs(search_limit_in_seconds);
         const start = Math.floor(now / MINUTE_MS) * MINUTE_MS;
         const current_date = new Date(start);
         // Every step moves backwards, by a minute or to the day before
         for (let time = start; time >= limit; ) {
             current_date.setTime(time);
-            if (!doesCronMatchDate(day_parts, current_date)) {
+            if (!doesCronMatchDay(parts, current_date)) {
                 time = localDayStart(current_date) - MINUTE_MS;
                 continue;
             }

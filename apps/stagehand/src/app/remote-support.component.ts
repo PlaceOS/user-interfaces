@@ -6,20 +6,19 @@ import {
     inject,
     OnInit,
     signal,
+    WritableSignal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
     CalendarEvent,
-    OrganisationService,
     randomInt,
     settingSignal,
     Space,
@@ -32,436 +31,324 @@ import {
     SimpleTableComponent,
     ViewportVisibilityComponent,
 } from '@placeos/components';
-import { startOfMonth } from 'date-fns';
 import { CameraSnapshotModalComponent } from './camera-snapshot-modal.component';
 import { Alert } from './dashboards/broker-alerts';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SupportService } from './support.service';
-import { SidebarComponent } from './ui/sidebar.component';
+import { backofficeLink } from './ui/sidebar.component';
+import { StagehandPageComponent } from './ui/stagehand-page.component';
 
 @Component({
     selector: 'stagehand-remote-support',
     template: `
-        <div class="bg-base-200 absolute inset-0 flex">
-            <sidebar />
-            <div class="flex w-px flex-1 flex-col">
-                <header
-                    class="border-base-400 bg-base-100 flex h-18 w-full items-center justify-between p-4"
+        <stagehand-page heading="AV Systems Remote Support">
+            <div
+                class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2"
+            >
+                <div
+                    class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-lg border px-4 py-2 shadow-sm"
                 >
-                    <h1 class="text-2xl font-bold">
-                        AV Systems Remote Support
-                    </h1>
-                </header>
-                <main
-                    id="stagehand-page-content"
-                    class="w-full flex-1 overflow-auto"
+                    <icon class="text-info mb-5 text-3xl">sensors</icon>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-medium">Total Rooms</h3>
+                        <div class="stagehand-muted text-sm">
+                            Total room count with devices
+                        </div>
+                    </div>
+                    <div class="px-2 text-4xl font-bold">
+                        {{ zone_rooms()?.length || '0' }}
+                    </div>
+                </div>
+                <div
+                    class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-lg border p-4 shadow-sm"
                 >
-                    <div
-                        class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2"
+                    <icon class="text-error text-3xl">warning</icon>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-medium">Active Alerts</h3>
+                    </div>
+                    <div class="px-2 text-4xl font-bold">
+                        {{ room_alerts().length }}
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-start space-x-4 px-4">
+                <div class="flex-1">
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript bg-base-100 w-full"
                     >
+                        <icon matPrefix class="relative -left-2 text-2xl"
+                            >search</icon
+                        >
+                        <input
+                            id="remote-support-search"
+                            matInput
+                            aria-label="Search rooms"
+                            [(ngModel)]="search_term"
+                            placeholder="Search rooms..."
+                        />
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript bg-base-100"
+                    >
+                        <mat-select
+                            id="remote-support-state"
+                            aria-label="Room state"
+                            placeholder="All Rooms"
+                            [(ngModel)]="state"
+                        >
+                            <mat-option>All Rooms</mat-option>
+                            <mat-option value="in_use">In Use</mat-option>
+                            <mat-option value="available">Available</mat-option>
+                            <mat-option value="issues">Has Issues</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="overflow-auto p-4">
+                @for (space of room_list(); track space.id) {
+                    <i
+                        binding
+                        class="hidden"
+                        (modelChange)="setStatus(space, $event)"
+                        [sys]="space.id"
+                        mod="Bookings"
+                        bind="status"
+                    ></i>
+                }
+                <simple-table
+                    class="bg-base-100 block w-full min-w-5xl overflow-hidden text-sm"
+                    [data]="filtered_rooms()"
+                    [columns]="[
+                        {
+                            key: 'actions',
+                            name: ' ',
+                            content: actions_template,
+                            size: '6rem',
+                        },
+                        {
+                            key: 'display_name',
+                            name: 'Room',
+                        },
+                        {
+                            key: 'available',
+                            name: 'Schedule',
+                            content: status_template,
+                            size: '8rem',
+                        },
+                        {
+                            key: 'current_event',
+                            name: is_eduction()
+                                ? 'Current Class'
+                                : 'Current Event',
+                            content: event_template,
+                        },
+                        {
+                            key: 'next_event',
+                            name: is_eduction() ? 'Next Class' : 'Next Event',
+                            content: event_template,
+                        },
+                        {
+                            key: 'camera',
+                            name: 'Feed',
+                            content: feed_template,
+                            size: '5rem',
+                        },
+                        {
+                            key: 'issues',
+                            name: 'Alerts',
+                            sort_fn: alert_sort,
+                            content: issue_template,
+                        },
+                    ]"
+                    [sortable]="true"
+                    [empty_message]="
+                        loading()
+                            ? 'Loading rooms...'
+                            : room_list().length
+                              ? 'No rooms match the current filters'
+                              : 'No rooms able to be remotely supported'
+                    "
+                ></simple-table>
+                <ng-template #status_template let-space="row">
+                    <i
+                        binding
+                        (modelChange)="setCurrentBooking(space, $event)"
+                        [sys]="space.id"
+                        mod="Bookings"
+                        bind="current_booking"
+                    ></i>
+                    <i
+                        binding
+                        (modelChange)="setNextBooking(space, $event)"
+                        [sys]="space.id"
+                        mod="Bookings"
+                        bind="next_booking"
+                    ></i>
+                    <div class="flex items-center space-x-2 p-4">
                         <div
-                            class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-lg border px-4 py-2 shadow-sm"
-                        >
-                            <icon class="text-info mb-5 text-3xl">sensors</icon>
-                            <div class="flex-1">
-                                <h3 class="text-xl font-medium">Total Rooms</h3>
-                                <div class="stagehand-muted text-sm">
-                                    Total room count with devices
-                                </div>
-                            </div>
-                            <div class="px-2 text-4xl font-bold">
-                                {{ zone_rooms()?.length || '0' }}
-                            </div>
-                        </div>
-                        <div
-                            class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-lg border p-4 shadow-sm"
-                        >
-                            <icon class="text-error text-3xl">warning</icon>
-                            <div class="flex-1">
-                                <h3 class="text-xl font-medium">
-                                    Active Alerts
-                                </h3>
-                            </div>
-                            <div class="px-2 text-4xl font-bold">
-                                {{ room_alerts().length }}
-                            </div>
-                        </div>
-                        <!-- <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm"
-                        >
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-xl font-medium">
-                                    System Uptime
-                                </h3>
-                                <icon class="text-3xl text-success"
-                                    >show_chart</icon
-                                >
-                            </div>
-                            <div class="text-4xl font-bold">99.9%</div>
-                            <div class="text-sm opacity-40">Last 30 days</div>
-                        </div> -->
-                    </div>
-                    <div class="flex items-start space-x-4 px-4">
-                        <div class="flex-1">
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript bg-base-100 w-full"
-                            >
-                                <icon
-                                    matPrefix
-                                    class="relative -left-2 text-2xl"
-                                    >search</icon
-                                >
-                                <input
-                                    id="remote-support-search"
-                                    matInput
-                                    aria-label="Search rooms"
-                                    [(ngModel)]="search_term"
-                                    placeholder="Search rooms..."
-                                />
-                            </mat-form-field>
-                        </div>
-                        <div>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript bg-base-100"
-                            >
-                                <mat-select
-                                    id="remote-support-state"
-                                    aria-label="Room state"
-                                    placeholder="All Rooms"
-                                    [(ngModel)]="state"
-                                >
-                                    <mat-option>All Rooms</mat-option>
-                                    <mat-option value="in_use"
-                                        >In Use</mat-option
-                                    >
-                                    <mat-option value="available"
-                                        >Available</mat-option
-                                    >
-                                    <mat-option value="issues"
-                                        >Has Issues</mat-option
-                                    >
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                    </div>
-                    <div class="overflow-auto p-4">
-                        @for (space of room_list(); track space.id) {
-                            <i
-                                binding
-                                class="hidden"
-                                (modelChange)="setStatus(space, $event)"
-                                [sys]="space.id"
-                                mod="Bookings"
-                                bind="status"
-                            ></i>
-                        }
-                        <simple-table
-                            class="bg-base-100 block w-full min-w-5xl overflow-hidden text-sm"
-                            [data]="filtered_rooms()"
-                            [columns]="[
-                                {
-                                    key: 'actions',
-                                    name: ' ',
-                                    content: actions_template,
-                                    size: '6rem',
-                                },
-                                {
-                                    key: 'display_name',
-                                    name: 'Room',
-                                },
-                                {
-                                    key: 'available',
-                                    name: 'Schedule',
-                                    content: status_template,
-                                    size: '8rem',
-                                },
-                                {
-                                    key: 'current_event',
-                                    name: is_eduction()
-                                        ? 'Current Class'
-                                        : 'Current Event',
-                                    content: event_template,
-                                },
-                                {
-                                    key: 'next_event',
-                                    name: is_eduction()
-                                        ? 'Next Class'
-                                        : 'Next Event',
-                                    content: event_template,
-                                },
-                                {
-                                    key: 'camera',
-                                    name: 'Feed',
-                                    content: feed_template,
-                                    size: '5rem',
-                                },
-                                {
-                                    key: 'issues',
-                                    name: 'Alerts',
-                                    sort_fn: alert_sort,
-                                    content: issue_template,
-                                },
-                            ]"
-                            [sortable]="true"
-                            [empty_message]="
-                                loading()
-                                    ? 'Loading rooms...'
-                                    : room_list().length
-                                      ? 'No rooms match the current filters'
-                                      : 'No rooms able to be remotely supported'
+                            class="h-3 w-3 rounded-full"
+                            aria-hidden="true"
+                            [class.bg-error]="status()[space.id] === 'busy'"
+                            [class.bg-warning]="
+                                status()[space.id] !== 'busy' &&
+                                status()[space.id] !== 'free'
                             "
-                        ></simple-table>
-                        <ng-template #status_template let-space="row">
-                            <i
-                                binding
-                                (modelChange)="setCurrentBooking(space, $event)"
-                                [sys]="space.id"
-                                mod="Bookings"
-                                bind="current_booking"
-                            ></i>
-                            <i
-                                binding
-                                (modelChange)="setNextBooking(space, $event)"
-                                [sys]="space.id"
-                                mod="Bookings"
-                                bind="next_booking"
-                            ></i>
-                            <div class="flex items-center space-x-2 p-4">
-                                <div
-                                    class="h-3 w-3 rounded-full"
-                                    aria-hidden="true"
-                                    [class.bg-error]="
-                                        status()[space.id] === 'busy'
-                                    "
-                                    [class.bg-warning]="
-                                        status()[space.id] !== 'busy' &&
-                                        status()[space.id] !== 'free'
-                                    "
-                                    [class.bg-success]="
-                                        status()[space.id] === 'free'
-                                    "
-                                ></div>
-                                <div>
-                                    {{
-                                        status()[space.id] === 'free'
-                                            ? 'Available'
-                                            : status()[space.id] === 'busy'
-                                              ? 'In Use'
-                                              : status()[space.id] === 'pending'
-                                                ? 'Pending'
-                                                : 'No status'
-                                    }}
-                                </div>
+                            [class.bg-success]="status()[space.id] === 'free'"
+                        ></div>
+                        <div>
+                            {{
+                                status()[space.id] === 'free'
+                                    ? 'Available'
+                                    : status()[space.id] === 'busy'
+                                      ? 'In Use'
+                                      : status()[space.id] === 'pending'
+                                        ? 'Pending'
+                                        : 'No status'
+                            }}
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template #event_template let-key="key" let-space="row">
+                    @let events = key === 'current_event' ? current() : next();
+                    <div class="p-4">
+                        @if (events[space.id]) {
+                            <div>{{ events[space.id].title }}</div>
+                            <div class="stagehand-subtle text-xs">
+                                {{
+                                    events[space.id].event_start * 1000
+                                        | date: 'shortTime'
+                                }}
+                                &ndash;
+                                {{
+                                    events[space.id].event_end * 1000
+                                        | date: 'shortTime'
+                                }}
                             </div>
-                        </ng-template>
-                        <ng-template
-                            #event_template
-                            let-key="key"
-                            let-space="row"
+                        } @else {
+                            <span class="stagehand-subtle">None</span>
+                        }
+                    </div>
+                </ng-template>
+                <ng-template #feed_template let-space="row">
+                    @let feed_url = cameraSnapshotFeed(space);
+                    @if (feed_url) {
+                        <button
+                            snap
+                            type="button"
+                            matRipple
+                            class="border-base-300 bg-base-300 hover:border-info relative m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm border hover:border-2"
+                            (click)="openCameraSnapshot(space)"
+                            (mouseenter)="setHovering(true)"
+                            (mouseleave)="setHovering(false)"
+                            [attr.aria-label]="
+                                'View camera feed for ' +
+                                (space.display_name || space.name)
+                            "
+                            matTooltip="View Camera Feed"
                         >
-                            @let events =
-                                key === 'current_event' ? current() : next();
-                            <div class="p-4">
-                                @if (events[space.id]) {
-                                    <div>{{ events[space.id].title }}</div>
-                                    <div class="stagehand-subtle text-xs">
-                                        {{
-                                            events[space.id].event_start * 1000
-                                                | date: 'shortTime'
-                                        }}
-                                        &ndash;
-                                        {{
-                                            events[space.id].event_end * 1000
-                                                | date: 'shortTime'
-                                        }}
-                                    </div>
-                                } @else {
-                                    <span class="stagehand-subtle">None</span>
-                                }
-                            </div>
-                        </ng-template>
-                        <ng-template #mics_template let-data="data">
-                            <div class="flex flex-wrap p-2">
-                                @for (
-                                    mic of data;
-                                    let idx = $index;
-                                    track idx
-                                ) {
-                                    <div
-                                        class="bg-info-light m-1 flex items-center rounded-sm px-2 py-1"
-                                    >
-                                        <icon
-                                            class="mr-1 text-2xl"
-                                            className="material-symbols-outlined"
-                                            >{{ mic.icon || 'mic' }}</icon
-                                        >
-                                        <div
-                                            class="relative top-1 flex flex-col items-center"
-                                        >
-                                            <div class="text-xs">
-                                                {{ mic.value }}%
-                                            </div>
-                                            <icon
-                                                className="material-symbols-outlined"
-                                                class="-mt-2 text-2xl"
-                                                [class.text-success]="
-                                                    mic.value > 50
-                                                "
-                                                [class.text-warning]="
-                                                    mic.value > 20 &&
-                                                    mic.value <= 50
-                                                "
-                                                [class.text-error]="
-                                                    mic.value <= 20
-                                                "
-                                            >
-                                                @if (mic.value > 75) {
-                                                    battery_full_alt
-                                                } @else if (mic.value > 50) {
-                                                    battery_horiz_075
-                                                } @else if (mic.value > 25) {
-                                                    battery_horiz_050
-                                                } @else if (mic.value > 10) {
-                                                    battery_low
-                                                } @else {
-                                                    battery_very_low
-                                                }
-                                            </icon>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        </ng-template>
-                        <ng-template #feed_template let-space="row">
-                            @let feed_url = cameraSnapshotFeed(space);
-                            @if (feed_url) {
-                                <button
-                                    snap
-                                    type="button"
-                                    matRipple
-                                    class="border-base-300 bg-base-300 hover:border-info relative m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm border hover:border-2"
-                                    (click)="openCameraSnapshot(space)"
-                                    (mouseenter)="setHovering(true)"
-                                    (mouseleave)="setHovering(false)"
-                                    [attr.aria-label]="
-                                        'View camera feed for ' +
+                            <div viewport-only class="h-full w-full">
+                                <img
+                                    auth
+                                    [source]="snapshotUrl(feed_url)"
+                                    class="h-full w-full object-cover"
+                                    [alt]="
+                                        'Camera feed for ' +
                                         (space.display_name || space.name)
                                     "
-                                    matTooltip="View Camera Feed"
-                                >
-                                    <div viewport-only class="h-full w-full">
-                                        <img
-                                            auth
-                                            [source]="snapshotUrl(feed_url)"
-                                            class="h-full w-full object-cover"
-                                            [alt]="
-                                                'Camera feed for ' +
-                                                (space.display_name ||
-                                                    space.name)
-                                            "
-                                        />
-                                    </div>
-                                    <div class="absolute top-0 right-0">
-                                        <icon class="text-2xl text-white"
-                                            >expand_content</icon
-                                        >
-                                    </div>
-                                </button>
-                            } @else {
-                                <div
-                                    class="border-base-300 bg-base-300 m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm border"
-                                >
-                                    <icon class="text-3xl opacity-30"
-                                        >hide_image</icon
-                                    >
-                                </div>
-                            }
-                        </ng-template>
-                        <ng-template #issue_template let-data="data">
-                            @if (data?.length) {
-                                @let issue = data[0];
-                                <div class="flex items-center space-x-2 p-4">
-                                    <icon
-                                        className="material-symbols-outlined"
-                                        class="text-2xl"
-                                        [class.text-error]="
-                                            issue.severity === 'critical'
-                                        "
-                                        [class.text-warning]="
-                                            issue.severity !== 'critical'
-                                        "
-                                        >{{
-                                            issue.severity === 'critical'
-                                                ? 'warning'
-                                                : 'error'
-                                        }}</icon
-                                    >
-                                    <div class="flex flex-col">
-                                        <div>{{ issue.subject }}</div>
-                                        @if (data.length > 1) {
-                                            <div
-                                                class="stagehand-subtle text-xs"
-                                            >
-                                                +{{ data.length - 1 }} more
-                                                issues
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            } @else {
-                                <div class="stagehand-subtle p-4">
-                                    No issues
-                                </div>
-                            }
-                        </ng-template>
-                        <ng-template #actions_template let-row="row">
-                            <div class="flex space-x-2 p-2">
-                                <a
-                                    icon
-                                    matRipple
-                                    [attr.aria-label]="
-                                        'Manage room ' +
-                                        (row.display_name || row.name)
-                                    "
-                                    [href]="
-                                        (backoffice_link() || '/backoffice/') +
-                                        '#/systems/' +
-                                        row.id +
-                                        '/modules'
-                                    "
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    matTooltip="Manage Room"
-                                    class="rounded-sm"
-                                >
-                                    <icon class="text-2xl">build</icon>
-                                </a>
-                                <a
-                                    icon
-                                    matRipple
-                                    [attr.aria-label]="
-                                        'Control room ' +
-                                        (row.display_name || row.name)
-                                    "
-                                    [href]="
-                                        row.support_url ||
-                                        service_link() + '#/tabbed/' + row.id
-                                    "
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    matTooltip="Control Room"
-                                    class="rounded-sm"
-                                >
-                                    <icon class="text-2xl">devices</icon>
-                                </a>
+                                />
                             </div>
-                        </ng-template>
+                            <div class="absolute top-0 right-0">
+                                <icon class="text-2xl text-white"
+                                    >expand_content</icon
+                                >
+                            </div>
+                        </button>
+                    } @else {
+                        <div
+                            class="border-base-300 bg-base-300 m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm border"
+                        >
+                            <icon class="text-3xl opacity-30">hide_image</icon>
+                        </div>
+                    }
+                </ng-template>
+                <ng-template #issue_template let-data="data">
+                    @if (data?.length) {
+                        @let issue = data[0];
+                        <div class="flex items-center space-x-2 p-4">
+                            <icon
+                                className="material-symbols-outlined"
+                                class="text-2xl"
+                                [class.text-error]="
+                                    issue.severity === 'critical'
+                                "
+                                [class.text-warning]="
+                                    issue.severity !== 'critical'
+                                "
+                                >{{
+                                    issue.severity === 'critical'
+                                        ? 'warning'
+                                        : 'error'
+                                }}</icon
+                            >
+                            <div class="flex flex-col">
+                                <div>{{ issue.subject }}</div>
+                                @if (data.length > 1) {
+                                    <div class="stagehand-subtle text-xs">
+                                        +{{ data.length - 1 }} more issues
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    } @else {
+                        <div class="stagehand-subtle p-4">No issues</div>
+                    }
+                </ng-template>
+                <ng-template #actions_template let-row="row">
+                    <div class="flex space-x-2 p-2">
+                        <a
+                            icon
+                            matRipple
+                            [attr.aria-label]="
+                                'Manage room ' + (row.display_name || row.name)
+                            "
+                            [href]="
+                                (backoffice_link() || '/backoffice/') +
+                                '#/systems/' +
+                                row.id +
+                                '/modules'
+                            "
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            matTooltip="Manage Room"
+                            class="rounded-sm"
+                        >
+                            <icon class="text-2xl">build</icon>
+                        </a>
+                        <a
+                            icon
+                            matRipple
+                            [attr.aria-label]="
+                                'Control room ' + (row.display_name || row.name)
+                            "
+                            [href]="
+                                row.support_url ||
+                                service_link() + '#/tabbed/' + row.id
+                            "
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            matTooltip="Control Room"
+                            class="rounded-sm"
+                        >
+                            <icon class="text-2xl">devices</icon>
+                        </a>
                     </div>
-                </main>
+                </ng-template>
             </div>
-        </div>
+        </stagehand-page>
     `,
     styles: [
         `
@@ -481,14 +368,13 @@ import { SidebarComponent } from './ui/sidebar.component';
     imports: [
         CommonModule,
         MatRippleModule,
-        MatMenuModule,
         IconComponent,
         BindingDirective,
         SimpleTableComponent,
         MatFormFieldModule,
         MatSelectModule,
         MatInputModule,
-        SidebarComponent,
+        StagehandPageComponent,
         FormsModule,
         MatTooltipModule,
         ViewportVisibilityComponent,
@@ -498,7 +384,6 @@ import { SidebarComponent } from './ui/sidebar.component';
 export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     private readonly _dashboard = inject(DashboardsService);
     private readonly _support = inject(SupportService);
-    private readonly _org = inject(OrganisationService);
     private readonly _router = inject(Router);
     private readonly _route = inject(ActivatedRoute);
     private readonly _dialog = inject(MatDialog);
@@ -510,11 +395,6 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public readonly alerts = this._dashboard.dashboard_alerts;
     public readonly alert_sort = (a: unknown[], b: unknown[]) =>
         (a?.length || 0) - (b?.length || 0);
-    public readonly critical_alerts = computed(
-        () =>
-            this.room_alerts().filter((alert) => alert.severity === 'critical')
-                .length,
-    );
 
     public readonly search_term = signal('');
     public readonly status = signal<Record<string, string>>({});
@@ -524,8 +404,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     private _query_checks = effect(() => {
         const search = this.search_term();
         const state = this.state();
-        const region = this._dashboard.region_id();
-        const building = this._dashboard.building_id();
+        const location_params = this._dashboard.location_query_params();
         const initialized = this._initialized();
 
         // Skip until after we've loaded from query params
@@ -536,10 +415,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         const query_params: Record<string, string | undefined> = {
             search: search || undefined,
             state: state || undefined,
-            // Use 'all' to represent all regions selected, actual region id otherwise
-            region: region || 'all',
-            // Use 'all' to represent all buildings when region is selected
-            building: region ? building || 'all' : undefined,
+            ...location_params,
         };
 
         this._router.navigate([], {
@@ -560,11 +436,6 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
                 (!bld_id && rm.zones.includes(r_id)),
         );
     });
-    public readonly new_rooms = computed(() =>
-        this.room_list().filter(
-            (rm) => rm.created_at * 1000 > startOfMonth(Date.now()).valueOf(),
-        ),
-    );
     public readonly room_data = computed(() => {
         // alerts by room, so each room doesn't scan every alert
         const issues = new Map<string, Alert[]>();
@@ -585,10 +456,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         );
         return alerts;
     });
-    public readonly backoffice_link = settingSignal(
-        'backoffice_link',
-        `${location.origin}/backoffice/`,
-    );
+    public readonly backoffice_link = backofficeLink();
     public readonly service_link = settingSignal(
         'service_link',
         `${location.origin}/control/`,
@@ -685,35 +553,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         if (query_params['state']) {
             this.state.set(query_params['state']);
         }
-        // Handle region query param - 'all' means all regions, otherwise specific region id
-        const region_param = query_params['region'];
-        const building_param = query_params['building'];
-        if (region_param === 'all') {
-            // Explicitly set to all regions via dashboard service
-            this._dashboard.setRegionFromParams('', '');
-        } else if (region_param) {
-            const region = this._org.regions.find((r) => r.id === region_param);
-            if (region) {
-                this._org.region = region;
-                // Handle building param - 'all' means all buildings, otherwise specific building id
-                const building_id =
-                    building_param === 'all' ? '' : building_param || '';
-                // Set via dashboard service to prevent constructor overwrite
-                this._dashboard.setRegionFromParams(region.id, building_id);
-
-                // Only apply building to org if specific building is set (not 'all')
-                if (building_param && building_param !== 'all') {
-                    const building = this._org.buildings.find(
-                        (b) => b.id === building_param,
-                    );
-                    if (building) {
-                        this._org.building = building;
-                    }
-                }
-            }
-        }
-        // Note: If no region param exists, we don't call setRegionFromParams
-        // so the constructor can set defaults from org service
+        this._dashboard.applyLocationParams(query_params);
 
         // Enable effect after loading from query params
         this._initialized.set(true);
@@ -727,30 +567,29 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     });
 
     public setCurrentBooking(space: Space, event: CalendarEvent) {
-        const current = this.current();
-        if (!event && current[space.id]) {
-            // a new object, so the signal sees the booking end
-            const { [space.id]: _, ...rest } = current;
-            this.current.set(rest);
-            return;
-        }
-        // Only update if the event actually changed
-        if (JSON.stringify(current[space.id]) !== JSON.stringify(event)) {
-            this.current.update((old) => ({ ...old, [space.id]: event }));
-        }
+        this._setBooking(this.current, space, event);
     }
 
     public setNextBooking(space: Space, event: CalendarEvent) {
-        const current = this.next();
+        this._setBooking(this.next, space, event);
+    }
+
+    /** Sets the room's booking in `bookings`, or removes it when there is none */
+    private _setBooking(
+        bookings: WritableSignal<Record<string, CalendarEvent>>,
+        space: Space,
+        event: CalendarEvent,
+    ) {
+        const current = bookings();
         if (!event && current[space.id]) {
             // a new object, so the signal sees the booking end
             const { [space.id]: _, ...rest } = current;
-            this.next.set(rest);
+            bookings.set(rest);
             return;
         }
         // Only update if the event actually changed
         if (JSON.stringify(current[space.id]) !== JSON.stringify(event)) {
-            this.next.update((old) => ({ ...old, [space.id]: event }));
+            bookings.update((old) => ({ ...old, [space.id]: event }));
         }
     }
 

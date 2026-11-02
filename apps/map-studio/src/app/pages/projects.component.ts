@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
+import { errorMessage } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 
 import { lastUpdated, StoreService } from '../data/store.service';
@@ -282,7 +283,7 @@ export class ProjectsComponent {
         try {
             this.projects.set(await this._store.listProjects());
         } catch (error) {
-            this.error.set(this._message(error, 'Failed to load projects'));
+            this.error.set(errorMessage(error) || 'Failed to load projects');
         } finally {
             this.loading.set(false);
         }
@@ -305,7 +306,7 @@ export class ProjectsComponent {
             );
             await this._router.navigate(['/project', project.id]);
         } catch (error) {
-            this.error.set(this._message(error, 'Failed to create project'));
+            this.error.set(errorMessage(error) || 'Failed to create project');
         } finally {
             this.creating.set(false);
         }
@@ -326,11 +327,7 @@ export class ProjectsComponent {
                 list.filter((p) => p.id !== project.id),
             );
         } catch (error) {
-            this.error.set(this._message(error, 'Failed to delete project'));
+            this.error.set(errorMessage(error) || 'Failed to delete project');
         }
-    }
-
-    private _message(error: unknown, fallback: string) {
-        return error instanceof Error ? error.message : fallback;
     }
 }

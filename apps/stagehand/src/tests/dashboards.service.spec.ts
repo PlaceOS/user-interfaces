@@ -5,12 +5,11 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import { OrganisationService } from '@placeos/common';
+import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
-import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 
 import { DashboardsService } from '../app/dashboards/dashboards.service';
 import { AlertNotificationService } from '../app/push-notification.service';
@@ -164,6 +163,60 @@ describe('DashboardsService', () => {
         });
     });
 
+    describe('applyLocationParams', () => {
+        it('should select every region for "all"', () => {
+            spectator.service.region_id.set('region-1');
+            spectator.service.building_id.set('building-1');
+            spectator.service.applyLocationParams({ region: 'all' });
+            expect(spectator.service.region_id()).toBe('');
+            expect(spectator.service.building_id()).toBe('');
+        });
+
+        it('should apply a known region and building to the org', () => {
+            const region = { id: 'region-1' };
+            const building = { id: 'building-1' };
+            const injected: any = spectator.inject(OrganisationService);
+            injected.regions = [region];
+            injected.buildings = [building];
+            spectator.service.applyLocationParams({
+                region: 'region-1',
+                building: 'building-1',
+            });
+            expect(injected.region).toBe(region);
+            expect(injected.building).toBe(building);
+            expect(spectator.service.region_id()).toBe('region-1');
+            expect(spectator.service.building_id()).toBe('building-1');
+        });
+
+        it('should ignore an unknown region', () => {
+            const injected: any = spectator.inject(OrganisationService);
+            injected.regions = [];
+            spectator.service.applyLocationParams({ region: 'region-x' });
+            expect(spectator.service.region_id()).toBe('');
+        });
+    });
+
+    describe('location_query_params', () => {
+        it('should write "all" for no region and keep building unset', () => {
+            expect(spectator.service.location_query_params()).toEqual({
+                region: 'all',
+                building: undefined,
+            });
+        });
+
+        it('should write "all" buildings for a region with no building', () => {
+            spectator.service.region_id.set('region-1');
+            expect(spectator.service.location_query_params()).toEqual({
+                region: 'region-1',
+                building: 'all',
+            });
+            spectator.service.building_id.set('building-1');
+            expect(spectator.service.location_query_params().building).toBe(
+                'building-1',
+            );
+        });
+    });
+
     describe('setAlert', () => {
         it('should load the alert and clear the loading flag', async () => {
             const alert = { id: 'alert-1', name: 'Alert One' };
@@ -206,6 +259,17 @@ describe('DashboardsService', () => {
                 'dash-1',
             );
             expect(spectator.service.alerts_list()).toEqual([{ id: 'a1' }]);
+        });
+
+        it('should clear the loading flag and report a failed load', async () => {
+            vi.mocked(ts_client.showAlertDashboard).mockRejectedValue(
+                new Error('offline'),
+            );
+
+            await spectator.service.setDashboard('dash-1');
+
+            expect(spectator.service.loading()).not.toContain('DASHBOARD');
+            expect(notify_open).toHaveBeenCalled();
         });
     });
 

@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     current_user,
     currentUser,
+    firstTruthyValueFrom,
     markInitialisationComplete,
     SettingsService,
     setupPlace,
@@ -9,7 +10,6 @@ import {
     withTimeout,
 } from '@placeos/common';
 import { authority, queryApplications, setAPI_Key } from '@placeos/ts-client';
-import { first, lastValueFrom } from 'rxjs';
 
 import {
     appInitial,
@@ -51,7 +51,9 @@ import {
                         <p>No applications configured for this domain.</p>
                     </div>
                 } @else {
-                    <div class="app-grid">
+                    <div
+                        class="app-grid grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-3"
+                    >
                         @for (app of applications(); track app.id) {
                             <a
                                 class="border-base-300 bg-base-200 text-base-content hover:border-primary focus-visible:border-primary flex flex-col items-center gap-3 rounded-xl border p-4 text-center no-underline transition hover:-translate-y-0.5 hover:shadow-md focus-visible:shadow-md focus-visible:outline-none"
@@ -72,7 +74,11 @@ import {
                                         <span>{{ appInitial(app.name) }}</span>
                                     }
                                 </div>
-                                <div class="app-name">{{ app.name }}</div>
+                                <div
+                                    class="app-name line-clamp-2 text-center text-base/[1.35] font-semibold wrap-break-word"
+                                >
+                                    {{ app.name }}
+                                </div>
                             </a>
                         }
                     </div>
@@ -80,7 +86,7 @@ import {
             </section>
         </main>
     `,
-    styles: [],
+    host: { class: 'block min-h-full' },
     providers: [SettingsService],
 })
 export class AppComponent implements OnInit {
@@ -97,16 +103,14 @@ export class AppComponent implements OnInit {
         const api_key = params.get('x-api-key');
         if (api_key) setAPI_Key(api_key);
         try {
-            await lastValueFrom(
-                this._settings.initialised.pipe(first((_) => _)),
-            );
+            await firstTruthyValueFrom(this._settings.initialised);
             const settings = { ...(this._settings.get('composer') || {}) };
             settings.mock =
                 !!this._settings.get('mock') ||
                 location.origin.includes('demo.place.tech');
             await setupPlace(settings).finally(storeApiKeyFromUrl);
             await withTimeout(
-                lastValueFrom(current_user.pipe(first((_) => !!_))),
+                firstTruthyValueFrom(current_user),
                 30_000,
                 'Current user loading timed out.',
             );

@@ -666,15 +666,23 @@ export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
         : Promise.resolve(null);
 }
 
-/** Reject a promise if it does not settle within the specified time. */
+/**
+ * Reject a promise if it does not settle within the specified time.
+ * `on_timeout` runs before the rejection, so the caller can abandon the work
+ * that the promise waits on (for example, abort a fetch).
+ */
 export function withTimeout<T>(
     promise: Promise<T>,
     timeout_ms: number,
     message = 'Operation timed out.',
+    on_timeout?: () => void,
 ): Promise<T> {
     if (timeout_ms <= 0) return promise;
     return new Promise<T>((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error(message)), timeout_ms);
+        const timer = setTimeout(() => {
+            on_timeout?.();
+            reject(new Error(message));
+        }, timeout_ms);
         promise.then(
             (value) => {
                 clearTimeout(timer);

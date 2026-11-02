@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
     applyEach,
     applyWhen,
@@ -13,12 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
-import {
-    HotkeysService,
-    i18n,
-    notifyError,
-    notifySuccess,
-} from '@placeos/common';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     MediaDurationPipe,
@@ -26,14 +21,10 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
-import {
-    addSignagePlaylist,
-    MediaAnimation,
-    SignagePlaylist,
-    updateSignagePlaylist,
-} from '@placeos/ts-client';
+import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { playlistAnimation } from '../signage-playlist.util';
+import { ANIMATION_OPTIONS } from './media-labels.util';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
@@ -41,14 +32,18 @@ import {
     playlistSchedulePayload,
     playlistSchedules,
     playlistScheduleSchema,
+    ScheduleList,
 } from './playlist-schedule-form.component';
+import { saveHotkey } from './save-hotkey';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 export interface PlaylistEditModalData {
     playlist: SignagePlaylist;
     /** Signage group the playlist is being viewed from */
     group_id?: string;
+    /** Saves a new playlist. Set when the modal opens without a playlist ID. */
     onAdd?: (data: Partial<SignagePlaylist>) => Promise<SignagePlaylist>;
+    /** Saves an existing playlist. Set when the playlist has an ID. */
     onEdit?: (
         id: string,
         data: Partial<SignagePlaylist>,
@@ -56,33 +51,6 @@ export interface PlaylistEditModalData {
     /** Runs before an existing playlist is saved. Return false to stop the save. */
     beforeSave?: (data: Partial<SignagePlaylist>) => Promise<boolean>;
 }
-
-/** Focus targets where a plain key press belongs to the control, not a hotkey */
-const HOTKEY_BLOCKING_FOCUS =
-    'select, mat-select, [role="combobox"], [role="listbox"], [role="option"], [role="menu"], [role="menuitem"]';
-
-/** Animations the user can pick, with their label keys */
-const ANIMATION_OPTIONS: { value: MediaAnimation; label: string }[] = [
-    { value: MediaAnimation.Default, label: 'COMMON.DEFAULT' },
-    { value: MediaAnimation.Cut, label: 'SIGNAGE_MANAGER.ANIM_CUT' },
-    {
-        value: MediaAnimation.CrossFade,
-        label: 'SIGNAGE_MANAGER.ANIM_CROSS_FADE',
-    },
-    { value: MediaAnimation.SlideTop, label: 'SIGNAGE_MANAGER.ANIM_SLIDE_TOP' },
-    {
-        value: MediaAnimation.SlideLeft,
-        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT',
-    },
-    {
-        value: MediaAnimation.SlideRight,
-        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT',
-    },
-    {
-        value: MediaAnimation.SlideBottom,
-        label: 'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM',
-    },
-];
 
 export interface PlaylistEditFormModel {
     name: string;
@@ -306,16 +274,18 @@ export interface PlaylistEditFormModel {
                                 <playlist-schedule-form
                                     [schedule]="schedule"
                                     [index]="index"
-                                    [open]="isScheduleOpen(index)"
+                                    [open]="schedule_list.isOpen(index)"
                                     [can_remove]="model().schedules.length > 1"
-                                    (toggle)="openSchedule(index)"
-                                    (remove)="removeSchedule($event, index)"
+                                    (toggle)="schedule_list.toggle(index)"
+                                    (remove)="
+                                        schedule_list.remove($event, index)
+                                    "
                                 />
                             }
                             <button
                                 type="button"
                                 class="border-primary text-primary hover:bg-primary/10 rounded border px-3 py-2 text-sm font-medium"
-                                (click)="addSchedule()"
+                                (click)="schedule_list.add()"
                             >
                                 {{ 'SIGNAGE_MANAGER.ADD_SCHEDULE' | translate }}
                             </button>
@@ -354,7 +324,6 @@ export class PlaylistEditModalComponent {
 
     public readonly loading = signal(false);
     public readonly animation_options = ANIMATION_OPTIONS;
-    public readonly active_schedule_index = signal<number | null>(0);
     public readonly playlist = this._data.playlist;
     public readonly group_id = this._data.group_id || '';
     /** Default animation when the modal opened */
@@ -378,6 +347,7 @@ export class PlaylistEditModalComponent {
             ? this.playlist.valid_until * 1000
             : null,
     });
+    public readonly schedule_list = new ScheduleList(this.model);
     public readonly form = form(this.model, (path) => {
         required(path.name);
         minLength(path.schedules, 1);
@@ -391,51 +361,10 @@ export class PlaylistEditModalComponent {
     });
 
     constructor() {
-        // The save hotkey is a plain key, so a select or list that has focus
-        // keeps it, e.g. to jump to an option such as "Square"
-        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () => {
-            if (!document.activeElement?.closest(HOTKEY_BLOCKING_FOCUS)) {
-                this.savePlaylist();
-            }
-        });
-        inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
+        saveHotkey(this._dialog_ref, () => this.savePlaylist());
         if (!this.model().distribution && !this.model().schedules.length) {
-            this.addSchedule();
+            this.schedule_list.add();
         }
-    }
-
-    public addSchedule() {
-        this.model.update((model) => ({
-            ...model,
-            schedules: [...model.schedules, createPlaylistScheduleModel()],
-        }));
-        this.active_schedule_index.set(this.model().schedules.length - 1);
-    }
-
-    public removeSchedule(event: Event, index: number) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (this.model().schedules.length <= 1) return;
-        this.model.update((model) => ({
-            ...model,
-            schedules: model.schedules.filter((_, item_index) => {
-                return item_index !== index;
-            }),
-        }));
-        this.active_schedule_index.update((active_index) => {
-            if (active_index === index) return null;
-            return active_index > index ? active_index - 1 : active_index;
-        });
-    }
-
-    public openSchedule(index: number) {
-        this.active_schedule_index.update((active_index) =>
-            active_index === index ? null : index,
-        );
-    }
-
-    public isScheduleOpen(index: number) {
-        return this.active_schedule_index() === index;
     }
 
     public async savePlaylist() {
@@ -485,13 +414,9 @@ export class PlaylistEditModalComponent {
             try {
                 let result: SignagePlaylist;
                 if (this.playlist.id) {
-                    result = this._data.onEdit
-                        ? await this._data.onEdit(this.playlist.id, data)
-                        : await updateSignagePlaylist(this.playlist.id, data);
+                    result = await this._data.onEdit(this.playlist.id, data);
                 } else {
-                    result = this._data.onAdd
-                        ? await this._data.onAdd(data)
-                        : await addSignagePlaylist(data);
+                    result = await this._data.onAdd(data);
                 }
                 this._dialog_ref.disableClose = false;
                 this._dialog_ref.close(result);

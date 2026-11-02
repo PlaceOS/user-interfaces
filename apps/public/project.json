@@ -77,7 +77,8 @@
                 "tsConfig": "apps/public/tsconfig.spec.json",
                 "setupFiles": [
                     "libs/common/src/test-storage.ts",
-                    "apps/public/src/test-setup.ts"
+                    "shared/test-setup-base.ts",
+                    "shared/test-setup.ts"
                 ],
                 "isolate": true,
                 "watch": false,

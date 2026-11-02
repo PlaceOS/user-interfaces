@@ -1,7 +1,9 @@
 import {
     invert,
     multiply,
+    pointsIn,
     sanitiseTree,
+    transformBBox,
     translation,
 } from '@placeos/map-editor';
 import { MapObjectType, ObjectGeometry } from './types';
@@ -137,17 +139,6 @@ function parseNumber(value: string | null): number | undefined {
     return isNaN(num) ? undefined : num;
 }
 
-function parsePoints(points: string): { x: number; y: number }[] {
-    const parts = points.trim().split(/[\s,]+/);
-    const parsed: { x: number; y: number }[] = [];
-    for (let i = 0; i < parts.length - 1; i += 2) {
-        const x = parseFloat(parts[i]);
-        const y = parseFloat(parts[i + 1]);
-        if (!isNaN(x) && !isNaN(y)) parsed.push({ x, y });
-    }
-    return parsed;
-}
-
 function extractGeometry(el: Element): ObjectGeometry {
     switch (el.tagName.toLowerCase()) {
         case 'rect':
@@ -181,7 +172,7 @@ function extractGeometry(el: Element): ObjectGeometry {
             const points = el.getAttribute('points');
             return {
                 type: 'polygon',
-                points: points ? parsePoints(points) : [],
+                points: pointsIn(points).map(([x, y]) => ({ x, y })),
             };
         }
         case 'path':
@@ -379,25 +370,13 @@ export function analyzeSvg(svg_content: string): SvgAnalysis {
                         f: pm.f,
                     };
                 if (matrix && (box.width || box.height)) {
-                    const corners = [
-                        [box.x, box.y],
-                        [box.x + box.width, box.y],
-                        [box.x, box.y + box.height],
-                        [box.x + box.width, box.y + box.height],
-                    ];
-                    const xs = corners.map(
-                        ([x, y]) => matrix.a * x + matrix.c * y + matrix.e,
-                    );
-                    const ys = corners.map(
-                        ([x, y]) => matrix.b * x + matrix.d * y + matrix.f,
-                    );
-                    geometry = {
-                        type: 'rect',
-                        x: Math.min(...xs),
-                        y: Math.min(...ys),
-                        width: Math.max(...xs) - Math.min(...xs),
-                        height: Math.max(...ys) - Math.min(...ys),
-                    };
+                    const [x, y, width, height] = transformBBox(matrix, [
+                        box.x,
+                        box.y,
+                        box.width,
+                        box.height,
+                    ]);
+                    geometry = { type: 'rect', x, y, width, height };
                 }
             } catch {
                 /* Non-rendering SVG nodes have no bounding box. */

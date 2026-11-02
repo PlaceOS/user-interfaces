@@ -19,6 +19,7 @@ import {
     OrganisationService,
     SettingsService,
     Space,
+    themedLogo,
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -75,12 +76,7 @@ export interface TimetableColumn {
                 topbar
                 class="border-base-300 bg-base-100 relative z-20 flex h-16 w-full items-center border-b p-2 shadow-sm"
             >
-                <img
-                    auth
-                    class="h-10"
-                    alt="Logo"
-                    [source]="logo()?.src || logo()"
-                />
+                <img auth class="h-10" alt="Logo" [source]="logo()" />
                 <div class="flex-1"></div>
                 @if (page_count() > 1) {
                     <div pages class="mr-4 flex items-center gap-1">
@@ -370,15 +366,7 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
         return ((current_hour - this.offset()) / this.length()) * 100;
     });
 
-    public readonly logo = computed(() => {
-        // Recompute the logo whenever the active building changes.
-        this._org.active_building();
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    });
+    public readonly logo = themedLogo();
 
     constructor() {
         super();

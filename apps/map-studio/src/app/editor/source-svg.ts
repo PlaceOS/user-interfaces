@@ -7,6 +7,7 @@ import {
     sanitiseTree,
 } from '@placeos/map-editor';
 import { MapObject, ObjectGeometry } from '../data/types';
+import { objectBounds } from './geometry';
 
 export function importedObject(object: MapObject): boolean {
     return object.metadata?.['source'] === 'svg-import';
@@ -39,34 +40,6 @@ function selectorPattern(id: string, selector_only = false) {
     );
 }
 
-function bounds(geometry: ObjectGeometry) {
-    if (geometry.points?.length) {
-        const xs = geometry.points.map((p) => p.x);
-        const ys = geometry.points.map((p) => p.y);
-        return {
-            x: Math.min(...xs),
-            y: Math.min(...ys),
-            width: Math.max(...xs) - Math.min(...xs),
-            height: Math.max(...ys) - Math.min(...ys),
-        };
-    }
-    if (geometry.type === 'circle') {
-        const r = geometry.r || 0;
-        return {
-            x: (geometry.x || 0) - r,
-            y: (geometry.y || 0) - r,
-            width: r * 2,
-            height: r * 2,
-        };
-    }
-    return {
-        x: geometry.x || 0,
-        y: geometry.y || 0,
-        width: geometry.width || 0,
-        height: geometry.height || 0,
-    };
-}
-
 function patchObject(element: Element, object: MapObject) {
     const metadata = object.metadata || {};
     const original = metadata['originalGeometry'] as ObjectGeometry | undefined;
@@ -74,8 +47,8 @@ function patchObject(element: Element, object: MapObject) {
         original &&
         JSON.stringify(original) !== JSON.stringify(object.geometry)
     ) {
-        const before = bounds(original);
-        const after = bounds(object.geometry);
+        const before = objectBounds(original);
+        const after = objectBounds(object.geometry);
         const sx = before.width ? after.width / before.width : 1;
         const sy = before.height ? after.height / before.height : 1;
         let delta: Matrix = {

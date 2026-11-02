@@ -161,28 +161,28 @@ describe('PlaylistItemScheduleModalComponent', () => {
         const component = await createComponent();
 
         expect(component.model().schedules.length).toBe(1);
-        expect(component.isScheduleOpen(0)).toBe(true);
+        expect(component.schedule_list.isOpen(0)).toBe(true);
     });
 
     it('adds a schedule and focuses the new entry', async () => {
         const component = await createComponent();
 
-        component.addSchedule();
+        component.schedule_list.add();
 
         expect(component.model().schedules.length).toBe(2);
-        expect(component.isScheduleOpen(1)).toBe(true);
-        expect(component.isScheduleOpen(0)).toBe(false);
+        expect(component.schedule_list.isOpen(1)).toBe(true);
+        expect(component.schedule_list.isOpen(0)).toBe(false);
     });
 
     it('removes a schedule but keeps at least one', async () => {
         const component = await createComponent();
         const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
-        component.addSchedule();
+        component.schedule_list.add();
 
-        component.removeSchedule(event as any, 1);
+        component.schedule_list.remove(event as any, 1);
         expect(component.model().schedules.length).toBe(1);
 
-        component.removeSchedule(event as any, 0);
+        component.schedule_list.remove(event as any, 0);
         expect(component.model().schedules.length).toBe(1);
         expect(event.preventDefault).toHaveBeenCalled();
     });
@@ -204,9 +204,9 @@ describe('PlaylistItemScheduleModalComponent', () => {
                 .queryAll(By.directive(ScheduleFormStubComponent))
                 .map(({ componentInstance }) => componentInstance);
         const [, second, third] = forms();
-        component.openSchedule(2);
+        component.schedule_list.toggle(2);
 
-        component.removeSchedule(
+        component.schedule_list.remove(
             { preventDefault() {}, stopPropagation() {} } as Event,
             0,
         );
@@ -214,17 +214,17 @@ describe('PlaylistItemScheduleModalComponent', () => {
 
         expect(forms()[0]).toBe(second);
         expect(forms()[1]).toBe(third);
-        expect(component.isScheduleOpen(1)).toBe(true);
+        expect(component.schedule_list.isOpen(1)).toBe(true);
     });
 
     it('collapses an open schedule when toggled again', async () => {
         const component = await createComponent();
 
-        component.openSchedule(0);
-        expect(component.isScheduleOpen(0)).toBe(false);
+        component.schedule_list.toggle(0);
+        expect(component.schedule_list.isOpen(0)).toBe(false);
 
-        component.openSchedule(0);
-        expect(component.isScheduleOpen(0)).toBe(true);
+        component.schedule_list.toggle(0);
+        expect(component.schedule_list.isOpen(0)).toBe(true);
     });
 
     it('requires a start and preserves an item mask on save', async () => {

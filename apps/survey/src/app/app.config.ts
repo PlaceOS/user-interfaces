@@ -1,13 +1,24 @@
 import {
     ApplicationConfig,
+    inject,
     LOCALE_ID,
+    provideAppInitializer,
     provideBrowserGlobalErrorListeners,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideRouter, Route, withHashLocation } from '@angular/router';
+import {
+    provideRouter,
+    Route,
+    withHashLocation,
+    withNavigationErrorHandler,
+} from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
-import { LocaleService } from '@placeos/common';
+import {
+    LocaleService,
+    registerActiveLocale,
+    reloadOnChunkLoadError,
+} from '@placeos/common';
 import { environment } from '../environments/environment';
 import { NotFoundComponent } from './not-found.component';
 
@@ -41,7 +52,14 @@ export const appConfig: ApplicationConfig = {
             enabled: environment.production,
         }),
         provideZonelessChangeDetection(),
-        provideRouter(appRoutes, withHashLocation()),
+        provideAppInitializer(() =>
+            registerActiveLocale(inject(LocaleService).locale),
+        ),
+        provideRouter(
+            appRoutes,
+            withHashLocation(),
+            withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error)),
+        ),
         {
             provide: LOCALE_ID,
             deps: [LocaleService],

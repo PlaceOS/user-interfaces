@@ -17,6 +17,7 @@ import { SignagePlugin } from '@placeos/ts-client';
 import { ImageGenService } from '../image-gen/image-gen.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
+import { MEDIA_TYPE_LABELS } from '../shared/media-labels.util';
 import { SignageContextService } from '../signage-context.service';
 import { SignagePluginService } from '../signage-plugin.service';
 import { normaliseWebPageUrl } from '../signage-url.util';
@@ -27,7 +28,6 @@ import {
     MEDIA_TYPE_FILTERS,
     type MediaExpiryFilter,
     type MediaSort,
-    type MediaTypeFilter,
     type MediaViewOptions,
 } from './media-view.util';
 import { SignageMediaService } from './signage-media.service';
@@ -46,7 +46,9 @@ import { SignageMediaService } from './signage-media.service';
                     <div class="text-sm opacity-60">
                         {{
                             'COMMON.ITEM_COUNT'
-                                | translate: { count: total_count() }
+                                | translate
+                                    : { count: total_count() }
+                                    : total_count()
                         }}
                     </div>
                     <group-breadcrumbs />
@@ -448,12 +450,7 @@ export class MediaListHeaderComponent {
         expiry: 'SIGNAGE_MANAGER.MEDIA_SORT_EXPIRY',
     };
     // Same labels as the type badge on media cards
-    public readonly type_labels: Record<MediaTypeFilter, string> = {
-        image: 'COMMON.IMAGE',
-        video: 'COMMON.VIDEO',
-        webpage: 'COMMON.WEBPAGE',
-        plugin: 'SIGNAGE_MANAGER.TYPE_PLUGIN',
-    };
+    public readonly type_labels = MEDIA_TYPE_LABELS;
     public readonly expiry_labels: Record<MediaExpiryFilter, string> = {
         expiring: 'SIGNAGE_MANAGER.MEDIA_FILTER_EXPIRING',
         expired: 'SIGNAGE_MANAGER.STATUS_EXPIRED',

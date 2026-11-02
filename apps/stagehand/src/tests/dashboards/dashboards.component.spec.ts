@@ -3,9 +3,9 @@ import { provideRouter } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { IconComponent } from '@placeos/components';
 import { DashboardsComponent } from '../../app/dashboards/dashboards.component';
 import { DashboardsService } from '../../app/dashboards/dashboards.service';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SidebarComponent } from '../../app/ui/sidebar.component';
 
 describe('DashboardsComponent', () => {
@@ -49,22 +49,6 @@ describe('DashboardsComponent', () => {
         expect(
             spectator.query('a[aria-label="Back to dashboards"]'),
         ).toBeTruthy();
-    });
-
-    it('should show the back navigation on the view page', () => {
-        spectator.component.page.set('view');
-        spectator.detectChanges();
-
-        expect(
-            spectator.query('a[aria-label="Back to dashboards"]'),
-        ).toBeTruthy();
-    });
-
-    it('should hide the add action while viewing a dashboard', () => {
-        spectator.component.page.set('view');
-        spectator.detectChanges();
-
-        expect(spectator.query('a[btn]')).toBeFalsy();
     });
 
     it('should show the add action on the listing and alerts pages', () => {

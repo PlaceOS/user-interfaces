@@ -10,19 +10,17 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
+import { LocaleService } from '@placeos/common';
 import {
     IconComponent,
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
-import {
-    MediaAnimation,
-    PlaceSystem,
-    PlaceZone,
-    SignagePlaylist,
-} from '@placeos/ts-client';
+import { PlaceSystem, PlaceZone, SignagePlaylist } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { playlistSchedules } from '../schedules/signage-schedule.util';
+import { animationLabel } from '../shared/media-labels.util';
+import { scheduleSummary } from '../shared/schedule-summary.util';
 import { SignageSharedWithComponent } from '../shared/signage-shared-with.component';
 import { SignageContextService } from '../signage-context.service';
 import { SignageInventoryService } from '../signage-inventory.service';
@@ -30,7 +28,6 @@ import {
     playlistAnimation,
     playlistNextPlayLabels,
     playlistScheduleExpiryTooltip,
-    playlistScheduleLabel,
 } from '../signage-playlist.util';
 import { SignageZoneService } from '../zones/signage-zone.service';
 import { SignagePlaylistService } from './signage-playlist.service';
@@ -621,6 +618,7 @@ import { SignagePlaylistService } from './signage-playlist.service';
 })
 export class PlaylistItemDetailsComponent {
     private readonly _context = inject(SignageContextService);
+    private readonly _locale = inject(LocaleService);
     private readonly _display_service = inject(SignageDisplayService);
     private readonly _inventory_service = inject(SignageInventoryService);
     private readonly _playlist_service = inject(SignagePlaylistService);
@@ -680,23 +678,7 @@ export class PlaylistItemDetailsComponent {
 
     public readonly animation_label = computed(() => {
         const pl = this.playlist();
-        if (!pl) return 'COMMON.DEFAULT';
-        switch (playlistAnimation(pl)) {
-            case MediaAnimation.Cut:
-                return 'SIGNAGE_MANAGER.ANIM_CUT';
-            case MediaAnimation.CrossFade:
-                return 'SIGNAGE_MANAGER.ANIM_CROSS_FADE';
-            case MediaAnimation.SlideTop:
-                return 'SIGNAGE_MANAGER.ANIM_SLIDE_TOP';
-            case MediaAnimation.SlideLeft:
-                return 'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT';
-            case MediaAnimation.SlideRight:
-                return 'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT';
-            case MediaAnimation.SlideBottom:
-                return 'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM';
-            default:
-                return 'COMMON.DEFAULT';
-        }
+        return pl ? animationLabel(playlistAnimation(pl)) : 'COMMON.DEFAULT';
     });
 
     public readonly valid_from = computed(() => {
@@ -715,7 +697,7 @@ export class PlaylistItemDetailsComponent {
         const pl = this.playlist();
         if (!pl || pl.distribution) return [];
         return playlistSchedules(pl).map((schedule) =>
-            playlistScheduleLabel(schedule),
+            scheduleSummary(schedule, this._locale.locale),
         );
     });
 

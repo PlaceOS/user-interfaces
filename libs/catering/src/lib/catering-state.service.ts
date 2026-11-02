@@ -20,6 +20,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    responseErrorMessage,
     unique,
     user_group_names,
 } from '@placeos/common';
@@ -33,12 +34,14 @@ import {
     CateringItemOptionModalData,
 } from './catering-option-modal.component';
 import { CateringOption } from './catering.interfaces';
+import { ChargeCodeListModalComponent } from './charge-code-list-modal.component';
 
 import {
     AttachedResourceConfigModalComponent,
     AttachedResourceConfigModalData,
     AttachedResourceRuleset,
 } from 'libs/components/src/lib/attached-resource-config-modal.component';
+import { AvailableRoomsStateModalComponent } from 'libs/components/src/lib/available-rooms-state-modal.component';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 
 export interface CateringSettings {
@@ -411,6 +414,39 @@ export class CateringStateService extends AsyncHandler {
             }),
         );
         ref.close();
+    }
+
+    /**
+     * Open the room availability modal. Each change the user makes saves
+     * the rooms that cannot order catering to the catering settings.
+     */
+    public setRoomAvailability() {
+        const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
+            data: {
+                type: 'Catering',
+                disabled_rooms: this.availability(),
+            },
+        });
+        this.subscription(
+            'room-availability',
+            ref.componentInstance.change.subscribe(async (list) => {
+                try {
+                    await this.saveSettings({ disabled_rooms: list });
+                    notifySuccess('Room availability settings saved');
+                } catch (e) {
+                    const detail =
+                        (await responseErrorMessage(e)) || 'Unknown error';
+                    notifyError(`Failed to save room availability. ${detail}`);
+                } finally {
+                    ref.componentInstance.loading.set(false);
+                }
+            }),
+        );
+    }
+
+    /** Open the modal that edits the charge codes of the building */
+    public setChargeCodes() {
+        this._dialog.open(ChargeCodeListModalComponent);
     }
 
     public async saveSettings(settings: CateringSettings) {

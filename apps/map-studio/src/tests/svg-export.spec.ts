@@ -1,9 +1,10 @@
 import { MapObject } from '../app/data/types';
+import { isBookable } from '../app/editor/availability';
 import {
-    bookableObjects,
     buildSvg,
     preflightChecks,
     sequentialIdRange,
+    validateObjects,
 } from '../app/editor/svg-export';
 
 const object = (partial: Partial<MapObject>): MapObject => ({
@@ -90,7 +91,25 @@ describe('preflightChecks', () => {
             object({ id: 'c', object_type: 'zone' }),
             object({ id: 'd', object_type: 'decorative' }),
         ];
-        expect(bookableObjects(objects).map((o) => o.id)).toEqual(['a', 'b']);
+        expect(objects.filter(isBookable).map((o) => o.id)).toEqual(['a', 'b']);
+    });
+});
+
+describe('validateObjects', () => {
+    it('reports missing labels, empty geometry and duplicate svg ids', () => {
+        const messages = validateObjects([
+            object({ id: 'a', svg_id: 'dupe', label: 'A' }),
+            object({ id: 'b', svg_id: 'dupe', label: 'B' }),
+            { ...object({ id: 'c', svg_id: 'c' }), label: '', geometry: {} as never },
+        ]).map((issue) => issue.message);
+
+        expect(messages.filter((m) => m.includes('has no label'))).toHaveLength(1);
+        expect(
+            messages.filter((m) => m.includes('has empty geometry')),
+        ).toHaveLength(1);
+        expect(
+            messages.filter((m) => m.includes('Duplicate svg_id')),
+        ).toHaveLength(2);
     });
 });
 

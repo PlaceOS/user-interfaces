@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 
+import { loadImage } from './load-image';
 import { PlaceOSService } from './placeos.service';
 import { StoreService } from './store.service';
 
@@ -140,22 +141,6 @@ async function prepareImage(source: Blob): Promise<{
         ),
     );
     return { base64: await blobBase64(jpeg), width, height };
-}
-
-function loadImage(source: Blob): Promise<HTMLImageElement> {
-    const url = URL.createObjectURL(source);
-    return new Promise((resolve, reject) => {
-        const image = new Image();
-        image.onload = () => {
-            URL.revokeObjectURL(url);
-            resolve(image);
-        };
-        image.onerror = () => {
-            URL.revokeObjectURL(url);
-            reject(new Error('Could not read source image'));
-        };
-        image.src = url;
-    });
 }
 
 function drawCoordinateGrid(

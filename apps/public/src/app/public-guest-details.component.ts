@@ -10,6 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest } from 'rxjs';
+import { preservedQueryParams, querySystemId } from './public-event.helpers';
 import { GuestDetails, PublicEventsService } from './public-events.service';
 import { PublicPageShellComponent } from './public-page-shell.component';
 
@@ -28,6 +29,7 @@ const EMAIL_PATTERN =
     template: `
         <placeos-public-page-shell
             [logo]="service.logo_url()"
+            [configured]="!!source_id()"
             description="Enter your details once to continue to the public events list."
         >
             @if (service.error()) {
@@ -38,20 +40,7 @@ const EMAIL_PATTERN =
                 </div>
             }
 
-            @if (!source_id()) {
-                <section
-                    class="border-base-300 bg-base-100/95 w-full rounded-xl border p-5 shadow-md backdrop-blur"
-                >
-                    <h2 class="text-xl font-medium">
-                        Public events are not configured yet
-                    </h2>
-                    <p class="mt-2 max-w-3xl text-sm opacity-70">
-                        Configure a default public events source in the
-                        authority settings, or provide one with the shared event
-                        link.
-                    </p>
-                </section>
-            } @else {
+            @if (source_id()) {
                 <section
                     class="border-base-300 bg-base-100/95 mx-auto w-full max-w-xl space-y-4 rounded-xl border p-5 shadow-md backdrop-blur"
                 >
@@ -147,18 +136,12 @@ export class PublicGuestDetailsComponent implements OnInit {
     public readonly direct_event_link = signal(false);
 
     public async ngOnInit() {
-        await this.service
-            .init()
-            .catch((err) =>
-                this.service.error.set(
-                    err instanceof Error ? err.message : `${err}`,
-                ),
-            );
+        await this.service.init();
         combineLatest([this._route.paramMap, this._route.queryParamMap])
             .pipe(takeUntilDestroyed(this._destroy_ref))
             .subscribe(([params, query]) => {
                 this.source_id.set(
-                    this._querySourceId(query) ||
+                    querySystemId(query) ||
                         params.get('system_id') ||
                         this.service.default_system_id(),
                 );
@@ -191,34 +174,16 @@ export class PublicGuestDetailsComponent implements OnInit {
               ]
             : ['/events', this.source_id()];
         this._router.navigate(route, {
-            queryParams: this._preservedQueryParams(),
+            queryParams: preservedQueryParams(this._route.snapshot.queryParams),
         });
-    }
-
-    private _querySourceId(params: { get: (key: string) => string | null }) {
-        return (
-            params.get('system_id') ||
-            params.get('system') ||
-            params.get('id') ||
-            ''
-        );
-    }
-
-    private _preservedQueryParams() {
-        const params = { ...this._route.snapshot.queryParams };
-        delete params['system_id'];
-        delete params['system'];
-        delete params['id'];
-        delete params['event_id'];
-        delete params['direct_event'];
-        return params;
     }
 
     public submit() {
         if (!this.guest_valid()) return;
+        // The service shows the error, and the visitor stays on this page
         this.continueAsGuest(
             { name: this.guest_name(), email: this.guest_email() },
             this.remember(),
-        );
+        ).catch(() => undefined);
     }
 }

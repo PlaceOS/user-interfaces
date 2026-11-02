@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -9,7 +9,6 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
-    HotkeysService,
     i18n,
     notifyError,
     notifySuccess,
@@ -32,6 +31,7 @@ import {
     MediaSelectModalComponent,
     MediaSelectModalData,
 } from './media-select-modal.component';
+import { saveHotkey } from './save-hotkey';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 export interface TemplateEditModalData {
@@ -253,10 +253,7 @@ export class TemplateEditModalComponent {
     });
 
     constructor() {
-        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () => {
-            if (this._canUseSaveHotkey()) this.saveTemplate();
-        });
-        inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
+        saveHotkey(this._dialog_ref, () => this.saveTemplate());
     }
 
     public async selectBackground() {
@@ -314,16 +311,5 @@ export class TemplateEditModalComponent {
                 notifyError(i18n('SIGNAGE_MANAGER.TEMPLATE_SAVE_ERROR'));
             }
         });
-    }
-
-    /**
-     * Whether the "S" hotkey may save. Ignored while another dialog (e.g. the
-     * background picker) is on top, or while focus is in a select or list.
-     */
-    private _canUseSaveHotkey() {
-        if (this._dialog.openDialogs.at(-1) !== this._dialog_ref) return false;
-        return !document.activeElement?.closest(
-            'select, [role="combobox"], [role="listbox"], [role="option"]',
-        );
     }
 }

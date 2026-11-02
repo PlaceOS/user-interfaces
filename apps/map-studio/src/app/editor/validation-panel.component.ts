@@ -1,10 +1,13 @@
 import { Component, computed, inject, output, signal } from '@angular/core';
 import { IconComponent } from '@placeos/components';
 
-import { StoreService } from '../data/store.service';
 import { MapObject, ValidationIssue } from '../data/types';
 import { EditorStateService } from './editor-state.service';
-import { PreflightCheck, preflightChecks } from './svg-export';
+import {
+    PreflightCheck,
+    preflightChecks,
+    validateObjects,
+} from './svg-export';
 
 @Component({
     selector: 'map-studio-validation-panel',
@@ -17,20 +20,13 @@ import { PreflightCheck, preflightChecks } from './svg-export';
                 <button
                     btn
                     class="min-h-0! px-2! py-1! text-xs"
-                    [disabled]="running()"
                     (click)="run()"
                 >
-                    {{ running() ? 'Running...' : 'Run' }}
+                    Run
                 </button>
             </div>
 
-            @if (error(); as message) {
-                <div class="bg-error-light text-error px-3 py-2 text-xs">
-                    {{ message }}
-                </div>
-            }
-
-            @if (has_run() && !running()) {
+            @if (has_run()) {
                 <div
                     class="border-base-300 flex gap-3 border-b px-3 py-2 text-xs"
                 >
@@ -58,11 +54,11 @@ import { PreflightCheck, preflightChecks } from './svg-export';
             }
 
             <div class="flex-1 overflow-y-auto">
-                @if (!has_run() && !running()) {
+                @if (!has_run()) {
                     <p class="text-base-content/60 p-6 text-center text-xs">
                         Run the checks to find problems before you publish.
                     </p>
-                } @else if (stale() && !running()) {
+                } @else if (stale()) {
                     <p
                         class="bg-warning-light border-base-300 border-b px-3 py-2 text-xs"
                     >
@@ -73,8 +69,7 @@ import { PreflightCheck, preflightChecks } from './svg-export';
                     !stale() &&
                     has_run() &&
                     !issues().length &&
-                    !failed_checks().length &&
-                    !running()
+                    !failed_checks().length
                 ) {
                     <div class="text-success p-6 text-center text-xs">
                         <icon class="mx-auto mb-2 text-3xl" aria-hidden="true">
@@ -130,7 +125,6 @@ import { PreflightCheck, preflightChecks } from './svg-export';
     imports: [IconComponent],
 })
 export class ValidationPanelComponent {
-    private readonly _store = inject(StoreService);
     public readonly state = inject(EditorStateService);
 
     /** Emitted when an issue is picked, so the editor can show the object */
@@ -138,9 +132,7 @@ export class ValidationPanelComponent {
 
     public readonly issues = signal<ValidationIssue[]>([]);
     public readonly checks = signal<PreflightCheck[]>([]);
-    public readonly running = signal(false);
     public readonly has_run = signal(false);
-    public readonly error = signal('');
 
     /** Objects the last run checked, to tell when the results are out of date */
     private readonly _checked = signal<readonly MapObject[] | null>(null);
@@ -161,24 +153,14 @@ export class ValidationPanelComponent {
     public readonly warningCount = () =>
         this.issues().filter((i) => i.type === 'warning').length;
 
-    public async run() {
-        const floorplan = this.state.floorplan();
-        if (!floorplan) return;
-        this.running.set(true);
-        this.error.set('');
-        try {
-            const objects = this.state.objects();
-            this.issues.set(await this._store.validateFloorplan(floorplan.id));
-            this.checks.set(preflightChecks(objects));
-            this._checked.set(objects);
-            this.has_run.set(true);
-        } catch (error) {
-            this.error.set(
-                error instanceof Error ? error.message : 'Validation failed',
-            );
-        } finally {
-            this.running.set(false);
-        }
+    /** Checks the objects in the editor, so the results match what is shown */
+    public run() {
+        if (!this.state.floorplan()) return;
+        const objects = this.state.objects();
+        this.issues.set(validateObjects(objects));
+        this.checks.set(preflightChecks(objects));
+        this._checked.set(objects);
+        this.has_run.set(true);
     }
 
     /** Objects by id, so each issue finds its object without a scan */

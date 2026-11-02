@@ -84,7 +84,7 @@
                 "tsConfig": "apps/redirect/tsconfig.spec.json",
                 "setupFiles": [
                     "libs/common/src/test-storage.ts",
-                    "apps/redirect/src/test-setup.ts"
+                    "shared/test-setup-base.ts"
                 ],
                 "isolate": true,
                 "watch": false,

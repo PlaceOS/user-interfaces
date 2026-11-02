@@ -409,6 +409,42 @@ describe('SignagePlaylistService', () => {
         );
     });
 
+    it('restores the approved media after the user confirms the undo', async () => {
+        const service = createService();
+        const refresh = vi.spyOn(service, 'refreshPlaylist');
+        confirmNextDialog();
+        vi.mocked(updateSignagePlaylistMedia).mockResolvedValue({} as never);
+
+        const undone = await service.undoPlaylistChanges(
+            new SignagePlaylist({ id: 'pl-1', name: 'Lobby' }),
+            new SignagePlaylistMedia({ items: ['media-1'] }),
+        );
+
+        expect(undone).toBe(true);
+        expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('pl-1', [
+            'media-1',
+        ]);
+        expect(refresh).toHaveBeenCalledWith('pl-1');
+        expect(dialog.open.mock.results[0].value.close).toHaveBeenCalled();
+    });
+
+    it('keeps the playlist media when the user cancels the undo', async () => {
+        const service = createService();
+        dialog.open.mockReturnValue({
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            afterClosed: () => of(undefined),
+            close: vi.fn(),
+        });
+
+        const undone = await service.undoPlaylistChanges(
+            new SignagePlaylist({ id: 'pl-1', name: 'Lobby' }),
+            new SignagePlaylistMedia({ items: ['media-1'] }),
+        );
+
+        expect(undone).toBe(false);
+        expect(updateSignagePlaylistMedia).not.toHaveBeenCalled();
+    });
+
     it('closes the confirm modal and restores the items when removing them fails', async () => {
         const service = createService();
         showPlaylistMedia(service, 'playlist-1', {

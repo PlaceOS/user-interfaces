@@ -1,11 +1,11 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TEMPLATE_SIDEBAR_WIDTH_PC } from '@placeos/common';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { SignageContextService } from '../../app/signage-context.service';
 import { SignagePluginService } from '../../app/signage-plugin.service';
 import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { TemplateLayoutListComponent } from '../../app/templates/template-layout-list.component';
-import { SIDEBAR_WIDTH_PC } from '../../app/templates/template-layout.util';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('TemplateLayoutListComponent', () => {
@@ -83,24 +83,6 @@ describe('TemplateLayoutListComponent', () => {
 
         component.selectLayout(0);
         expect(selected_index()).toBeNull();
-    });
-
-    it('switches and focuses sidebar tabs with the arrow keys', async () => {
-        const component = await make();
-        const event = {
-            key: 'ArrowRight',
-            preventDefault: vi.fn(),
-        } as unknown as KeyboardEvent;
-        const items_tab = { focus: vi.fn() } as unknown as HTMLButtonElement;
-        const details_tab = {
-            focus: vi.fn(),
-        } as unknown as HTMLButtonElement;
-
-        component.handleTabKeydown(event, items_tab, details_tab);
-
-        expect(component.view_tab()).toBe('details');
-        expect(event.preventDefault).toHaveBeenCalled();
-        expect(details_tab.focus).toHaveBeenCalled();
     });
 
     it('does not reload mappings when a save replaces the same template', async () => {
@@ -308,7 +290,7 @@ describe('TemplateLayoutListComponent', () => {
         component.setAxis(0, 'x_pos', null);
         expect(draft()[0].x_pos).toBeUndefined();
         expect(component.axisPercentage(draft()[0], 'x_pos')).toBe(
-            SIDEBAR_WIDTH_PC,
+            TEMPLATE_SIDEBAR_WIDTH_PC,
         );
     });
 

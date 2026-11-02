@@ -1,4 +1,3 @@
-import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, ErrorHandler, inject, OnInit } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
@@ -11,9 +10,7 @@ import {
     initialisationFailure,
     initSentryFromSettings,
     lazySnackbar,
-    log,
     markInitialisationComplete,
-    OrganisationService,
     retryInitialisation,
     setAppName,
     setNotifyOutlet,
@@ -29,7 +26,6 @@ import {
     ServiceWorkerUpdateCardComponent,
 } from '@placeos/components';
 
-import * as MOCKS from '@placeos/mocks';
 import { PlaceAuthority, token } from '@placeos/ts-client';
 @Component({
     selector: 'app-root',
@@ -80,10 +76,8 @@ import { PlaceAuthority, token } from '@placeos/ts-client';
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
-    private _org = inject(OrganisationService);
     private _cache = inject(SwUpdate);
     private _snackbar = lazySnackbar();
-    private _clipboard = inject(Clipboard);
     /** Reports startup failures to the console and Sentry */
     private _error_handler = inject(ErrorHandler);
     public readonly initialisation_error = initialisationFailure();
@@ -99,7 +93,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        log('APP', 'MOCKS:', MOCKS);
         setNotifyOutlet(this._snackbar);
         // Listen for service worker events before any async setup so update
         // notifications emitted during initialisation are not missed.

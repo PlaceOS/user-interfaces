@@ -221,13 +221,9 @@ export class FooterMenuComponent extends AsyncHandler {
     // Derive settings-based state as computeds so they stay consistent within a
     // change detection pass. Writing these from an effect created the menu
     // views late, throwing NG0100 (ExpressionChangedAfterItHasBeenChecked).
-    public readonly dark_mode = computed(() => {
-        this._org.active_building();
-        return (
-            this._settings.get('app.allow_dark_mode') &&
-            this._settings.theme === 'dark'
-        );
-    });
+    public readonly dark_mode = computed(
+        () => this._settings.theme_signal() === 'dark',
+    );
     /** Features of the user, limited by `app.feature_groups` like the top menu */
     public readonly features = landingFeatures();
     public readonly default_page = computed<string>(() => {

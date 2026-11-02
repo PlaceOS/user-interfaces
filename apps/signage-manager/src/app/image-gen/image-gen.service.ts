@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import {
     AsyncHandler,
+    errorStatus,
     i18n,
     notifyError,
     notifyInfo,
@@ -10,6 +11,7 @@ import { loadAuthenticatedImage } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 
 import { flipLightness, inkIsLight } from '../branding/logo-variant';
+import { uploadUrl } from '../signage-url.util';
 import {
     cancelSignageImageGenJob,
     claimSignageImageGenImage,
@@ -28,7 +30,7 @@ import {
     ImageGenJob,
     ImageGenLogoSlot,
 } from './image-gen.types';
-import { errorStatus, UserFacingError } from './image-gen.util';
+import { UserFacingError } from './image-gen.util';
 
 const FINAL_STATES = ['done', 'failed', 'cancelled'];
 
@@ -208,9 +210,7 @@ export class ImageGenService extends AsyncHandler {
             throw new UserFacingError(
                 i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'),
             );
-        const url = await this.loadImage(
-            `/api/engine/v2/uploads/${encodeURIComponent(source_id)}/url`,
-        );
+        const url = await this.loadImage(uploadUrl(source_id));
         const upload_id = await this._flip(url, target);
         return this.saveBrandKit({
             [logoKey(target)]: upload_id,

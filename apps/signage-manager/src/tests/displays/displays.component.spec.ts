@@ -8,6 +8,7 @@ import { PlaceSystem, show } from '@placeos/ts-client';
 import { DisplaysSectionComponent } from '../../app/displays/displays.component';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SectionTabsComponent } from '../../app/shared/section-tabs.component';
 import { SignageContextService } from '../../app/signage-context.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -66,7 +67,10 @@ describe('DisplaysSectionComponent', () => {
         })
             .overrideComponent(DisplaysSectionComponent, {
                 set: render_template
-                    ? { imports: [TranslatePipe], schemas: [NO_ERRORS_SCHEMA] }
+                    ? {
+                          imports: [TranslatePipe, SectionTabsComponent],
+                          schemas: [NO_ERRORS_SCHEMA],
+                      }
                     : { template: '' },
             })
             .compileComponents();

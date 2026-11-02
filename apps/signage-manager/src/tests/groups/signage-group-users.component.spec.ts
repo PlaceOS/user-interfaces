@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
+import { SignageGroupMembersComponent } from '../../app/groups/signage-group-members.component';
 import { SignageGroupPermissionsModalComponent } from '../../app/groups/signage-group-permissions-modal.component';
 import { SignageGroupUserSelectModalComponent } from '../../app/groups/signage-group-user-select-modal.component';
 import { SignageGroupUsersComponent } from '../../app/groups/signage-group-users.component';
@@ -72,7 +73,7 @@ describe('SignageGroupUsersComponent', () => {
                 { provide: SignageGroupAdminService, useValue: service_stub },
                 { provide: MatDialog, useValue: dialog },
             ],
-        }).overrideComponent(SignageGroupUsersComponent, {
+        }).overrideComponent(SignageGroupMembersComponent, {
             set: {
                 imports: [
                     MatProgressSpinnerModule,

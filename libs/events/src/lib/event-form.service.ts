@@ -83,14 +83,7 @@ import {
     newCalendarEventFromBooking,
 } from './utilities';
 
-const BOOKING_URLS = [
-    'book/rooms',
-    'book/spaces',
-    'book/meeting',
-    'schedule/view',
-    'confirm/success',
-    'upcoming',
-];
+const BOOKING_URLS = ['book/rooms', 'book/spaces', 'book/meeting'];
 
 enum Tags {
     Availability = 'AVAILABILITY',
