@@ -894,6 +894,7 @@
             "CHAT_ASSISTANT": "アシスタント",
             "CHAT_WAITING": "返信を待っています...",
             "CHAT_MESSAGE_PLACEHOLDER": "新しいメッセージ...",
+            "CHAT_SEND_FAILED": "メッセージを送信できません。アシスタントは利用できません。",
             "DEAL_COUNT_1": "{{ count }} Offer",
             "DEAL_COUNT": "{{ count }} Offers",
             "SORT_BY_DATE_DESC": "日付順（新しい順）",
