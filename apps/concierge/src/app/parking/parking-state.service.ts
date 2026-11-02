@@ -740,8 +740,13 @@ export class ParkingStateService extends AsyncHandler {
             let success_count = 0;
             let error_count = 0;
             const saved_spaces: PlaceAsset[] = [];
+            const loaded_spaces = new Map(
+                this.spaces().map((space) => [space.id, space]),
+            );
             for (const row of rows) {
                 try {
+                    // updated spaces keep their level, refresh their zone path
+                    const existing = loaded_spaces.get(csvString(row.id));
                     const space_data: Partial<ParkingSpace> = {
                         ...(csvString(row.id) ? { id: csvString(row.id) } : {}),
                         identifier: csvString(row.identifier),
@@ -753,6 +758,9 @@ export class ParkingStateService extends AsyncHandler {
                         features: csvList(row.features),
                         notes: csvString(row.notes),
                         ...(!csvString(row.id) ? { zone_id, zones } : {}),
+                        ...(existing?.zone_id
+                            ? { zones: assetZones(this._org, existing.zone_id) }
+                            : {}),
                     };
                     if (space_data.assigned_to) {
                         await this._checkAssignedParkingLimit(

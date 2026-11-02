@@ -1436,6 +1436,29 @@ describe('ParkingStateService', () => {
         );
     });
 
+    it('should refresh the zones of spaces updated by CSV', async () => {
+        Object.defineProperty(spectator.service, 'spaces', {
+            value: () => [{ id: 'space-1', zone_id: 'lvl-1' }],
+            configurable: true,
+        });
+        const csv = 'id,identifier,bookable\n' + 'space-1,A1,true';
+        const file = new File([csv], 'spaces.csv', { type: 'text/csv' });
+        const event = {
+            target: { files: [file], value: '' },
+        } as unknown as InputEvent;
+
+        await spectator.service.uploadSpacesCSV(event);
+
+        const update = vi.mocked(ts_client.updateAsset).mock.calls[0][1];
+        expect(update).toEqual(
+            expect.objectContaining({
+                id: 'space-1',
+                zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
+            }),
+        );
+        expect(update).not.toHaveProperty('zone_id');
+    });
+
     it('should upload numeric parking space identifiers as strings', async () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
