@@ -12,12 +12,14 @@ import {
     Routes,
     withComponentInputBinding,
     withHashLocation,
+    withNavigationErrorHandler,
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import {
     LazySentryErrorHandler,
     LocaleService,
     registerActiveLocale,
+    reloadOnChunkLoadError,
 } from '@placeos/common';
 import {
     AuthorisedUserGuard,
@@ -165,6 +167,7 @@ export const APP_CONFIG: ApplicationConfig = {
             APP_ROUTES,
             withHashLocation(),
             withComponentInputBinding(),
+            withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error)),
         ),
         {
             provide: ErrorHandler,

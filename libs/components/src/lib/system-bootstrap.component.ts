@@ -75,7 +75,7 @@ import { TranslatePipe } from './translate.pipe';
                 </header>
                 @if (!loading() || loading() === 'search') {
                     <p class="description py-4">
-                        {{ 'COMMON.BOOTSTRAP_DESCRIPTION' | translate }}
+                        {{ description() | translate }}
                     </p>
                     <mat-form-field appearance="outline">
                         <mat-label>{{
@@ -203,6 +203,8 @@ export class SystemBootstrapComponent implements OnInit {
     public readonly store_key = input.required<string>();
     /** Translation key of the application title in the header */
     public readonly heading = input.required<string>();
+    /** Translation key of the text above the search box */
+    public readonly description = input('COMMON.BOOTSTRAP_DESCRIPTION');
     /** Translation key of the submit button label */
     public readonly submit_label = input('COMMON.BOOTSTRAP_SUBMIT');
     /** Router commands to open the application for a system ID */

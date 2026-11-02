@@ -10,7 +10,6 @@ import {
     initialisationFailure,
     initSentryFromSettings,
     lazySnackbar,
-    log,
     markInitialisationComplete,
     retryInitialisation,
     setAppName,
@@ -27,7 +26,6 @@ import {
     ServiceWorkerUpdateCardComponent,
 } from '@placeos/components';
 
-import * as MOCKS from '@placeos/mocks';
 import { PlaceAuthority, token } from '@placeos/ts-client';
 @Component({
     selector: 'app-root',
@@ -95,7 +93,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        log('APP', 'MOCKS:', MOCKS);
         setNotifyOutlet(this._snackbar);
         // Listen for service worker events before any async setup so update
         // notifications emitted during initialisation are not missed.

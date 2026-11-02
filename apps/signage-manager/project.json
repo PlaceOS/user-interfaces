@@ -65,7 +65,7 @@
                             "with": "apps/signage-manager/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/signage-manager/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -103,7 +103,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": "apps/signage-manager/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 }
             }
         },

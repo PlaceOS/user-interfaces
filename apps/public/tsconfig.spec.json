@@ -12,7 +12,7 @@
         "noImplicitReturns": false,
         "noFallthroughCasesInSwitch": false
     },
-    "files": ["src/test-setup.ts"],
+    "files": ["../../shared/test-setup-base.ts", "../../shared/test-setup.ts"],
     "include": ["**/*.spec.ts", "**/*.d.ts"],
     "angularCompilerOptions": {
         "extendedDiagnostics": {

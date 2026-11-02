@@ -157,7 +157,8 @@
                 "tsConfig": "apps/booking-panel/tsconfig.spec.json",
                 "setupFiles": [
                     "libs/common/src/test-storage.ts",
-                    "apps/booking-panel/src/test-setup.ts"
+                    "shared/test-setup-base.ts",
+                    "shared/test-setup.ts"
                 ],
                 "isolate": true,
                 "watch": false,

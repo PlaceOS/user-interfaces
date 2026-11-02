@@ -3,7 +3,12 @@ import {
     ErrorHandler,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideRouter, Routes, withHashLocation } from '@angular/router';
+import {
+    provideRouter,
+    Routes,
+    withHashLocation,
+    withNavigationErrorHandler,
+} from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
 import {
@@ -11,7 +16,10 @@ import {
     UnauthorisedComponent,
 } from '@placeos/components';
 
-import { LazySentryErrorHandler } from '@placeos/common';
+import {
+    LazySentryErrorHandler,
+    reloadOnChunkLoadError,
+} from '@placeos/common';
 import { environment } from '../environments/environment';
 
 const routes: Routes = [
@@ -30,7 +38,11 @@ const routes: Routes = [
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
-        provideRouter(routes, withHashLocation()),
+        provideRouter(
+            routes,
+            withHashLocation(),
+            withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error)),
+        ),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,
             // Register the ServiceWorker as soon as the app is stable
