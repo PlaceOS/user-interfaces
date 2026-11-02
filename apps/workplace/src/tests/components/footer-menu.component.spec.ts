@@ -18,13 +18,14 @@ import { MockPipe, MockProvider } from 'ng-mocks';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 
 describe('FooterMenuComponent', () => {
+    const theme = signal('light');
     let spectator: SpectatorRouting<FooterMenuComponent>;
     const createComponent = createRoutingFactory({
         component: FooterMenuComponent,
         providers: [
             MockProvider(SettingsService, {
                 get: vi.fn(),
-                theme: 'light',
+                theme_signal: theme,
             }),
             MockProvider(OrganisationService, {
                 active_building: signal(new Building()),
@@ -51,6 +52,7 @@ describe('FooterMenuComponent', () => {
     beforeEach(() => {
         features.set([]);
         feature_groups.set({});
+        theme.set('light');
         setCurrentUser(new StaffUser({ id: 'me', groups: ['staff'] }));
         spectator = createComponent();
         setSettings({});
@@ -119,16 +121,13 @@ describe('FooterMenuComponent', () => {
         expect('[name="footer-nav-explore"]').toExist();
     });
 
-    it('resolves dark mode from the allow_dark_mode setting and active theme', () => {
-        setSettings({ 'app.allow_dark_mode': true });
-        (spectator.inject(SettingsService) as any).theme = 'dark';
+    it('resolves dark mode from the active theme', () => {
+        theme.set('dark');
         expect(spectator.component.dark_mode()).toBe(true);
     });
 
     it('reports light mode when the theme is not dark', () => {
-        setSettings({ 'app.allow_dark_mode': true });
-        (spectator.inject(SettingsService) as any).theme = 'light';
-        expect(spectator.component.dark_mode()).toBeFalsy();
+        expect(spectator.component.dark_mode()).toBe(false);
     });
 
     it('falls back to the landing route when no default route is configured', () => {

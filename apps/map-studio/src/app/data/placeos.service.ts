@@ -21,6 +21,24 @@ const HANDOFF_MIN_DELAY_MS = 30 * 1000;
 const PAGE_SIZE = 100;
 const PAGE_LIMIT = 50;
 
+/**
+ * Copy of `floorplan` without the fields that only this browser keeps: IDs,
+ * the PlaceOS level link, the source file details and the creation time.
+ * Used for floorplan metadata sent to or read from PlaceOS.
+ */
+export function withoutLocalFields(
+    floorplan: Partial<Floorplan> = {},
+): Partial<Floorplan> {
+    const data = { ...floorplan };
+    delete data.id;
+    delete data.project_id;
+    delete data.level_zone_id;
+    delete data.source_image_path;
+    delete data.source_type;
+    delete data.created_at;
+    return data;
+}
+
 function withDeadline<T>(promise: Promise<T>, message: string): Promise<T> {
     return new Promise<T>((resolve, reject) => {
         const timer = setTimeout(
@@ -372,13 +390,7 @@ export class PlaceOSService {
         level_id: string,
         floorplan: Floorplan,
     ): Promise<string> {
-        const details: Partial<Floorplan> = { ...floorplan };
-        delete details.id;
-        delete details.project_id;
-        delete details.level_zone_id;
-        delete details.source_image_path;
-        delete details.source_type;
-        delete details.created_at;
+        const details = withoutLocalFields(floorplan);
         // Imports keep the same SVG, often megabytes, in both fields. Send it
         // once; reimport only reads svg_output when there is no svg_source.
         if (details.svg_output === details.svg_source)

@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, errorMessage } from '@placeos/common';
 
 import type { DetectedRoom } from '../data/floorplan-ai.service';
 import { PlaceOSService } from '../data/placeos.service';
@@ -309,7 +309,7 @@ export class EditorStateService extends AsyncHandler {
             await this.load(this._floorplan_id);
             await this.save();
         } catch (error) {
-            this._error.set(this._message(error, 'Failed to reimport SVG'));
+            this._error.set(errorMessage(error) || 'Failed to reimport SVG');
         } finally {
             this._loading.set(false);
         }
@@ -449,7 +449,7 @@ export class EditorStateService extends AsyncHandler {
             await this._loadImage(floorplan_id);
             if (imported_svg) await this.save();
         } catch (error) {
-            this._error.set(this._message(error, 'Failed to load floorplan'));
+            this._error.set(errorMessage(error) || 'Failed to load floorplan');
         } finally {
             this._loading.set(false);
         }
@@ -524,7 +524,7 @@ export class EditorStateService extends AsyncHandler {
             );
             await this._loadImage(this._floorplan_id);
         } catch (error) {
-            this._error.set(this._message(error, 'Upload failed'));
+            this._error.set(errorMessage(error) || 'Upload failed');
         }
     }
 
@@ -1293,13 +1293,9 @@ export class EditorStateService extends AsyncHandler {
             if (this._change_count === change) this._dirty.set(false);
             this._error.set('');
         } catch (error) {
-            this._error.set(this._message(error, 'Failed to save'));
+            this._error.set(errorMessage(error) || 'Failed to save');
         } finally {
             this._saving.set(false);
         }
-    }
-
-    private _message(error: unknown, fallback: string) {
-        return error instanceof Error ? error.message : fallback;
     }
 }

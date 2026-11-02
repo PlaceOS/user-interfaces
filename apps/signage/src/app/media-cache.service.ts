@@ -5,6 +5,7 @@ import {
     randomString,
     scoped_log,
     SECONDS,
+    withTimeout,
 } from '@placeos/common';
 import { apiKey, token } from '@placeos/ts-client';
 // `Subject`/`firstValueFrom` are kept for `on_change`: awaiting a cache item's
@@ -180,34 +181,6 @@ function cacheOwners(item: CacheItem | StoredCacheRecord) {
 
 function delay(ms: number) {
     return new Promise<void>((resolve) => setTimeout(resolve, ms));
-}
-
-/**
- * Rejects if `promise` has not settled within `timeout_ms`. `on_timeout` lets
- * the caller abandon whatever the promise was waiting on.
- */
-function withTimeout<T>(
-    promise: Promise<T>,
-    timeout_ms: number,
-    message: string,
-    on_timeout?: () => void,
-) {
-    return new Promise<T>((resolve, reject) => {
-        const timer = setTimeout(() => {
-            on_timeout?.();
-            reject(new Error(message));
-        }, timeout_ms);
-        promise.then(
-            (value) => {
-                clearTimeout(timer);
-                resolve(value);
-            },
-            (error) => {
-                clearTimeout(timer);
-                reject(error);
-            },
-        );
-    });
 }
 
 /**

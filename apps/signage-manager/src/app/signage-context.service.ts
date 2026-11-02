@@ -11,7 +11,9 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    errorStatus,
     i18n,
+    mapWithLimit,
     notifyError,
     notifySuccess,
     notifyWarn,
@@ -32,7 +34,6 @@ import {
     shareSignageTemplates,
     showGroupFeatures,
 } from '@placeos/ts-client';
-import { errorStatus } from './image-gen/image-gen.util';
 import { decodeEntityNames } from './shared/decode-entity-names.util';
 import { byName } from './shared/paged-search';
 import {
@@ -83,6 +84,8 @@ const SIGNAGE_GROUP_FIELDS = [
 
 // Upper bound on group index pages, 10,000 groups at 200 per page.
 const MAX_GROUP_PAGES = 50;
+/** Most group list queries `groupsHolding` sends at the same time */
+const GROUP_QUERY_CONCURRENCY = 4;
 
 // Flags that allow no feature and no plugin
 const NO_GROUP_FEATURES: SignageGroupFeatures = {
@@ -694,14 +697,15 @@ export class SignageContextService {
             ({ group }) => group.id === this.api_group_id(),
         );
         if (selected_group) return [selected_group];
-        const matches = await Promise.all(
-            groups.map(({ group }) =>
+        const matches = await mapWithLimit(
+            groups,
+            GROUP_QUERY_CONCURRENCY,
+            ({ group }) =>
                 query(group.id).then(
                     (result) =>
                         (result.data || []).some(({ id }) => id === item_id),
                     () => false,
                 ),
-            ),
         );
         return groups.filter((_, index) => matches[index]);
     }

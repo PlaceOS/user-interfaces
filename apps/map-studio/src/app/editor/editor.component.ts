@@ -10,6 +10,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { errorMessage } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 
 import type { DetectedRoom } from '../data/floorplan-ai.service';
@@ -1222,7 +1223,7 @@ export class EditorComponent {
             );
         } catch (error) {
             this._toasts.show(
-                this._errorMessage(error, 'Outline detection failed'),
+                errorMessage(error) || 'Outline detection failed',
                 'error',
             );
         } finally {
@@ -1255,7 +1256,7 @@ export class EditorComponent {
             );
         } catch (error) {
             this._toasts.show(
-                this._errorMessage(error, 'Room detection failed'),
+                errorMessage(error) || 'Room detection failed',
                 'error',
             );
         } finally {
@@ -1300,10 +1301,6 @@ export class EditorComponent {
                 return sum + point.x * next.y - next.x * point.y;
             }, 0) / 2,
         );
-    }
-
-    private _errorMessage(error: unknown, fallback: string) {
-        return error instanceof Error ? error.message : fallback;
     }
 
     /** The multi-selection when it holds the selected object, else the selected object */

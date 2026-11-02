@@ -15,6 +15,7 @@ import {
     jsonToCsv,
     mapWithLimit,
     markUserDateChange,
+    parseJWT,
     removeUrlParam,
     responseErrorMessage,
     setupFormTimeSync,
@@ -69,6 +70,47 @@ describe('General Methods', () => {
 
             await assertion;
             vi.useRealTimers();
+        });
+
+        it('should call on_timeout before it rejects', async () => {
+            vi.useFakeTimers();
+            const on_timeout = vi.fn();
+            const result = withTimeout(
+                new Promise(() => undefined),
+                1000,
+                'Timed out.',
+                on_timeout,
+            );
+            const assertion = expect(result).rejects.toThrow('Timed out.');
+
+            await vi.advanceTimersByTimeAsync(1000);
+
+            await assertion;
+            expect(on_timeout).toHaveBeenCalledTimes(1);
+            vi.useRealTimers();
+        });
+    });
+
+    describe('parseJWT', () => {
+        /** JWT-shaped token with a base64url payload */
+        const token = (payload: Record<string, unknown>) =>
+            `header.${btoa(JSON.stringify(payload))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')}.signature`;
+
+        it('should decode the payload segment of a token', () => {
+            expect(parseJWT(token({ exp: 42, u: { e: 'a@b.com' } }))).toEqual({
+                exp: 42,
+                u: { e: 'a@b.com' },
+            });
+        });
+
+        it('should decode base64url-specific characters', () => {
+            // '>>>' and '???' encode to base64 containing '+' and '/', which the
+            // base64url variant replaces with '-' and '_'
+            const payload = { note: '>>>???' };
+            expect(token(payload)).toMatch(/[-_]/);
+            expect(parseJWT(token(payload))).toEqual(payload);
         });
     });
 

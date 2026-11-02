@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import {
     AsyncHandler,
+    errorStatus,
     i18n,
     notifyError,
     notifyInfo,
@@ -28,7 +29,7 @@ import {
     ImageGenJob,
     ImageGenLogoSlot,
 } from './image-gen.types';
-import { errorStatus, UserFacingError } from './image-gen.util';
+import { UserFacingError } from './image-gen.util';
 
 const FINAL_STATES = ['done', 'failed', 'cancelled'];
 

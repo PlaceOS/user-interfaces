@@ -11,6 +11,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import {
     i18n,
+    mapWithLimit,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -88,26 +89,18 @@ const MEDIA_CONCURRENCY = 4;
  * `Promise.allSettled`, one failure does not stop the others, and the results
  * keep the order of `items`.
  */
-async function settleEach<T, R>(items: T[], task: (item: T) => Promise<R>) {
-    const results: PromiseSettledResult<R>[] = new Array(items.length);
-    let next = 0;
-    const worker = async () => {
-        // Each pass takes a new index, so this ends after `items.length` passes
-        while (next < items.length) {
-            const index = next++;
+function settleEach<T, R>(items: T[], task: (item: T) => Promise<R>) {
+    return mapWithLimit(
+        items,
+        MEDIA_CONCURRENCY,
+        async (item): Promise<PromiseSettledResult<R>> => {
             try {
-                results[index] = {
-                    status: 'fulfilled',
-                    value: await task(items[index]),
-                };
+                return { status: 'fulfilled', value: await task(item) };
             } catch (reason) {
-                results[index] = { status: 'rejected', reason };
+                return { status: 'rejected', reason };
             }
-        }
-    };
-    const workers = Math.min(MEDIA_CONCURRENCY, items.length);
-    await Promise.all(Array.from({ length: workers }, worker));
-    return results;
+        },
+    );
 }
 
 /** First three names, then a count of the others, such as "a, b, c +2" */
@@ -1082,10 +1075,8 @@ export class SignageMediaService {
         );
         if (result.reason !== 'done') return false;
         result.loading(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVING'));
-        const results = await Promise.allSettled(
-            media_ids.map((id) =>
-                removeSignageMedia(id, this._context.groupQueryParams({})),
-            ),
+        const results = await settleEach(media_ids, (id) =>
+            removeSignageMedia(id, this._context.groupQueryParams({})),
         );
         const removed_ids = media_ids.filter(
             (_, index) => results[index].status === 'fulfilled',
@@ -1134,8 +1125,8 @@ export class SignageMediaService {
             id: item.id,
             tags: [...new Set([...(item.tags || []), ...tags])],
         }));
-        const results = await Promise.allSettled(
-            changes.map(({ id, tags }) => updateSignageMedia(id, { tags })),
+        const results = await settleEach(changes, ({ id, tags }) =>
+            updateSignageMedia(id, { tags }),
         );
         // Show the new tags on the items that saved, in place
         const saved = new Map(

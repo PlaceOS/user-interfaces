@@ -6,10 +6,7 @@ import {
 import { getUnixTime } from 'date-fns';
 
 import * as ts_client from '@placeos/ts-client';
-import {
-    EnrolmentStateService,
-    parseJWT,
-} from '../app/enrolment-state.service';
+import { EnrolmentStateService } from '../app/enrolment-state.service';
 
 // Assert at the `@placeos/ts-client` boundary. `showGuest`/`showEvent`/
 // `checkinEventGuest`/`updateGuest` are workspace functions that run for real
@@ -98,22 +95,6 @@ describe('EnrolmentStateService', () => {
     it('should not load anything until a token is handled', async () => {
         await settle();
         expect(ts_client.get).not.toHaveBeenCalled();
-    });
-
-    describe('parseJWT', () => {
-        it('should decode the payload segment of a token', () => {
-            expect(
-                parseJWT(userToken({ exp: 42, u: { e: 'a@b.com' } })),
-            ).toEqual({ exp: 42, u: { e: 'a@b.com' } });
-        });
-
-        it('should decode base64url-specific characters', () => {
-            // '>>>' and '???' encode to base64 containing '+' and '/', which the
-            // base64url variant replaces with '-' and '_'
-            const payload = { note: '>>>???' };
-            expect(userToken(payload)).toMatch(/[-_]/);
-            expect(parseJWT(userToken(payload))).toEqual(payload);
-        });
     });
 
     describe('handleUserToken', () => {

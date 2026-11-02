@@ -1,6 +1,6 @@
 import { Injectable, computed, resource, signal } from '@angular/core';
 import { email, form, required, validate } from '@angular/forms/signals';
-import { CalendarEvent, patchSignalModel } from '@placeos/common';
+import { CalendarEvent, parseJWT, patchSignalModel } from '@placeos/common';
 import { checkinEventGuest, showEvent } from '@placeos/events';
 import { setToken } from '@placeos/ts-client';
 import { showGuest, updateGuest } from '@placeos/users';
@@ -18,20 +18,6 @@ export interface EnrolmentFormValue {
     attachments: any[];
     vaccination_proof: any;
     accepted_terms_conditions: boolean;
-}
-
-export function parseJWT(token: string) {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-        atob(base64)
-            .split('')
-            .map((c) => {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            })
-            .join(''),
-    );
-    return JSON.parse(jsonPayload);
 }
 
 @Injectable({

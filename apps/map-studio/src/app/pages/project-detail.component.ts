@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { errorMessage } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 
 import { StoreService } from '../data/store.service';
@@ -495,7 +496,7 @@ export class ProjectDetailComponent {
             this.project.set(project);
             await this._loadPreviews(project.floorplans ?? []);
         } catch (error) {
-            this.error.set(this._message(error, 'Failed to load project'));
+            this.error.set(errorMessage(error) || 'Failed to load project');
         } finally {
             this.loading.set(false);
         }
@@ -537,7 +538,7 @@ export class ProjectDetailComponent {
                 if (save_error) this.error.set(save_error);
             }
         } catch (error) {
-            this.error.set(this._message(error, 'Failed to rename'));
+            this.error.set(errorMessage(error) || 'Failed to rename');
         }
     }
 
@@ -566,7 +567,7 @@ export class ProjectDetailComponent {
             }
             if (save_error) this.error.set(save_error);
         } catch (error) {
-            this.error.set(this._message(error, 'Failed to reorder floors'));
+            this.error.set(errorMessage(error) || 'Failed to reorder floors');
         } finally {
             this.reordering.set(false);
         }
@@ -586,7 +587,7 @@ export class ProjectDetailComponent {
             this.floor_name.set('');
             this.show_form.set(false);
         } catch (error) {
-            this.error.set(this._message(error, 'Failed to add floor'));
+            this.error.set(errorMessage(error) || 'Failed to add floor');
         } finally {
             this.creating.set(false);
         }
@@ -607,7 +608,7 @@ export class ProjectDetailComponent {
                 floorplans: this.floorplans().filter((f) => f.id !== floor.id),
             });
         } catch (error) {
-            this.error.set(this._message(error, 'Failed to delete floor'));
+            this.error.set(errorMessage(error) || 'Failed to delete floor');
         }
     }
 
@@ -653,9 +654,5 @@ export class ProjectDetailComponent {
 
     private _revokePreviews(previews: Record<string, string>) {
         for (const url of Object.values(previews)) URL.revokeObjectURL(url);
-    }
-
-    private _message(error: unknown, fallback: string) {
-        return error instanceof Error ? error.message : fallback;
     }
 }

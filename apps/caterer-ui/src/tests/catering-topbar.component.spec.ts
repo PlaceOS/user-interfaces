@@ -1,6 +1,5 @@
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
@@ -13,12 +12,9 @@ import {
     CateringOrderAlertsService,
     CateringOrdersService,
     CateringStateService,
-    ChargeCodeListModalComponent,
 } from '@placeos/catering';
 import { OrganisationService, settingSignal } from '@placeos/common';
-import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
-import { Subject } from 'rxjs';
 
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { CateringTopbarComponent } from '../app/catering-topbar.component';
@@ -37,12 +33,12 @@ class OrdersServiceStub {
 
 class StateServiceStub {
     public readonly caterers = signal<string[]>([]);
-    public readonly availability = signal<string[]>(['room-1']);
     public zone = '';
     public addItem = vi.fn();
     public editConfig = vi.fn();
     public importMenu = vi.fn();
-    public saveSettings = vi.fn().mockResolvedValue(undefined);
+    public setRoomAvailability = vi.fn();
+    public setChargeCodes = vi.fn();
 }
 
 class OrgServiceStub {
@@ -61,8 +57,6 @@ describe('CateringTopbarComponent', () => {
     let orders: OrdersServiceStub;
     let state: StateServiceStub;
     let org: OrgServiceStub;
-    let dialog: { open: ReturnType<typeof vi.fn> };
-    let dialog_ref: any;
 
     const create_component = createRoutingFactory({
         component: CateringTopbarComponent,
@@ -77,20 +71,12 @@ describe('CateringTopbarComponent', () => {
                 useValue: { enabled: signal(false), setEnabled: vi.fn() },
             },
             { provide: CateringDocketsService, useValue: { print: vi.fn() } },
-            { provide: MatDialog, useFactory: () => dialog },
         ],
     });
 
     beforeEach(() => {
         vi.clearAllMocks();
         settingSignal('use_region', false).set(false);
-        dialog_ref = {
-            componentInstance: {
-                change: new Subject<unknown>(),
-                loading: signal(true),
-            },
-        };
-        dialog = { open: vi.fn().mockReturnValue(dialog_ref) };
         spectator = create_component();
         orders = spectator.inject(CateringOrdersService) as any;
         state = spectator.inject(CateringStateService) as any;
@@ -188,10 +174,14 @@ describe('CateringTopbarComponent', () => {
         spectator.component.addItem();
         spectator.component.editConfig();
         spectator.component.importMenu();
+        spectator.component.setRoomAvailability();
+        spectator.component.setChargeCodes();
 
         expect(state.addItem).toHaveBeenCalledTimes(1);
         expect(state.editConfig).toHaveBeenCalledTimes(1);
         expect(state.importMenu).toHaveBeenCalledTimes(1);
+        expect(state.setRoomAvailability).toHaveBeenCalledTimes(1);
+        expect(state.setChargeCodes).toHaveBeenCalledTimes(1);
     });
 
     it('should choose levels for the building when not using regions', () => {
@@ -207,48 +197,6 @@ describe('CateringTopbarComponent', () => {
         spectator.detectChanges();
         spectator.component.levels();
         expect(org.levelsForRegion).toHaveBeenCalledWith(org.active_region());
-    });
-
-    it('should open the charge codes modal', () => {
-        spectator.component.setChargeCodes();
-        expect(dialog.open).toHaveBeenCalledWith(ChargeCodeListModalComponent);
-    });
-
-    it('should open the room availability modal and save selected rooms', async () => {
-        await spectator.component.setRoomAvailability();
-
-        expect(dialog.open).toHaveBeenCalledWith(
-            AvailableRoomsStateModalComponent,
-            expect.objectContaining({
-                data: expect.objectContaining({
-                    type: 'Catering',
-                    disabled_rooms: ['room-1'],
-                }),
-            }),
-        );
-
-        dialog_ref.componentInstance.change.next(['room-2']);
-        // The change handler awaits saveSettings().catch() before clearing the
-        // loading flag, so flush all pending microtasks before asserting.
-        await new Promise((r) => setTimeout(r, 0));
-
-        expect(state.saveSettings).toHaveBeenCalledWith({
-            disabled_rooms: ['room-2'],
-        });
-        expect(dialog_ref.componentInstance.loading()).toBe(false);
-    });
-
-    it('should stop loading when room availability cannot be saved', async () => {
-        state.saveSettings.mockRejectedValueOnce(new Error('save failed'));
-        await spectator.component.setRoomAvailability();
-
-        dialog_ref.componentInstance.change.next(['room-2']);
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        expect(state.saveSettings).toHaveBeenCalledWith({
-            disabled_rooms: ['room-2'],
-        });
-        expect(dialog_ref.componentInstance.loading()).toBe(false);
     });
 
     it('should render a back-to-home link and the page title', () => {
@@ -307,7 +255,6 @@ describe('CateringTopbarComponent with filters in the URL', () => {
                 useValue: { enabled: signal(false), setEnabled: vi.fn() },
             },
             { provide: CateringDocketsService, useValue: { print: vi.fn() } },
-            { provide: MatDialog, useValue: {} },
         ],
     });
 

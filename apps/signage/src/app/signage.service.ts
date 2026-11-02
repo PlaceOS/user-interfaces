@@ -11,6 +11,7 @@ import {
     scoped_log,
     SECONDS,
     shuffleArray,
+    withTimeout,
 } from '@placeos/common';
 import {
     apiEndpoint,
@@ -648,26 +649,6 @@ export class SignageService extends AsyncHandler {
         this._poll();
     }
 
-    /** Rejects if `promise` has not settled within `timeout_ms` */
-    private _withTimeout<T>(promise: Promise<T>, timeout_ms: number) {
-        return new Promise<T>((resolve, reject) => {
-            const timer = setTimeout(
-                () => reject(new Error('Display request timed out')),
-                timeout_ms,
-            );
-            promise.then(
-                (value) => {
-                    clearTimeout(timer);
-                    resolve(value);
-                },
-                (error) => {
-                    clearTimeout(timer);
-                    reject(error);
-                },
-            );
-        });
-    }
-
     /**
      * Re-fetch the active display details and refresh derived player state.
      * Returns whether the backend answered.
@@ -692,9 +673,10 @@ export class SignageService extends AsyncHandler {
         // full would otherwise rewrite the same payload once a minute.
         if (payload.id === id) this._saveOfflineDisplay(id, payload_json);
         const display = this._parseDisplay(payload);
-        display.plugins = await this._withTimeout(
+        display.plugins = await withTimeout(
             this._resolveDisplayPlugins(display),
             DISPLAY_FETCH_TIMEOUT_MS,
+            'Display plugin request timed out',
         ).catch((e) => {
             log.warn('Failed to resolve display plugins.', e);
             return display.plugins || [];
@@ -757,9 +739,10 @@ export class SignageService extends AsyncHandler {
         let payload: DisplayPayload | null = null;
         let validators: DisplayValidators | null = null;
         try {
-            const response = await this._withTimeout(
+            const response = await withTimeout(
                 showSignage(id, query_params, request_options),
                 DISPLAY_FETCH_TIMEOUT_MS,
+                'Display request timed out',
             );
             if (isDisplayPayload(response)) {
                 payload = response;

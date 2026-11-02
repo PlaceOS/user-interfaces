@@ -1,8 +1,9 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { mapWithLimit } from '@placeos/common';
 
 import { DbService } from './db';
 import type { PlaceOSZone } from './placeos.service';
-import { PlaceOSService } from './placeos.service';
+import { PlaceOSService, withoutLocalFields } from './placeos.service';
 import { analyzeSvg, SvgAnalysis } from './svg-import';
 import { makeThumbnail } from './thumbnail';
 import {
@@ -23,17 +24,6 @@ const SYNC_CONCURRENCY = 6;
 
 /** Progress of the background import of PlaceOS buildings and levels */
 export type PlaceOSSyncState = 'idle' | 'syncing' | 'done' | 'error';
-
-function localFloorplanData(metadata: Partial<Floorplan> = {}) {
-    const saved = { ...metadata };
-    delete saved.id;
-    delete saved.project_id;
-    delete saved.level_zone_id;
-    delete saved.source_image_path;
-    delete saved.source_type;
-    delete saved.created_at;
-    return saved;
-}
 
 const key = {
     project: (id: string) => `project:${id}`,
@@ -282,7 +272,7 @@ export class StoreService {
             version: 1,
             created_at: now(),
             updated_at: now(),
-            ...localFloorplanData(metadata),
+            ...withoutLocalFields(metadata),
         };
         await this._db.write({
             put: [
@@ -354,26 +344,23 @@ export class StoreService {
                     building_lists.flat().map((zone) => [zone.id, zone]),
                 );
                 const zones = [...zones_by_id.values()];
-                const buildings: {
-                    zone: ZoneReference;
-                    levels: ZoneReference[];
-                }[] = [];
-                // A few buildings at a time, so large deployments do not flood the API
-                for (let i = 0; i < zones.length; i += SYNC_CONCURRENCY) {
-                    buildings.push(
-                        ...(await Promise.all(
-                            zones
-                                .slice(i, i + SYNC_CONCURRENCY)
-                                .map(async (zone) => ({
-                                    zone,
-                                    levels: await this._placeos.getZones(
-                                        'level',
-                                        zone.id,
-                                    ),
-                                })),
-                        )),
-                    );
-                }
+                // A few buildings at a time, so large deployments do not flood
+                // the API. A failed level query fails the sync once the
+                // other queries end.
+                const failures: unknown[] = [];
+                const buildings = await mapWithLimit(
+                    zones,
+                    SYNC_CONCURRENCY,
+                    (zone) =>
+                        this._placeos.getZones('level', zone.id).then(
+                            (levels) => ({ zone, levels }),
+                            (error: unknown) => {
+                                failures.push(error);
+                                return { zone, levels: [] };
+                            },
+                        ),
+                );
+                if (failures.length) throw failures[0];
                 await this.syncPlaceOSZones(buildings);
             }
             this._placeos_sync.set('done');
@@ -413,28 +400,26 @@ export class StoreService {
                 ([, level]) =>
                     !existing_levels.has(level.id) && !deleted.has(level.id),
             );
-            // Fetch metadata a few levels at a time rather than one by one
-            for (let i = 0; i < missing.length; i += SYNC_CONCURRENCY) {
-                const batch = missing.slice(i, i + SYNC_CONCURRENCY);
-                const metadata = await Promise.all(
-                    batch.map(([, level]) =>
-                        this._placeos
-                            .getFloorplanMetadata(level.id)
-                            .catch(() => null),
-                    ),
+            // Fetch metadata a few levels at a time, then add the floors in order
+            const metadata = await mapWithLimit(
+                missing,
+                SYNC_CONCURRENCY,
+                ([, level]) =>
+                    this._placeos
+                        .getFloorplanMetadata(level.id)
+                        .catch(() => null),
+            );
+            for (const [index, [floor_index, level]] of missing.entries()) {
+                if (existing_levels.has(level.id)) continue;
+                const floorplan = await this.addFloorplan(
+                    project.id,
+                    level.display_name || level.name || level.id,
+                    floor_index,
+                    level.id,
+                    metadata[index] ?? undefined,
                 );
-                for (const [index, [floor_index, level]] of batch.entries()) {
-                    if (existing_levels.has(level.id)) continue;
-                    const floorplan = await this.addFloorplan(
-                        project.id,
-                        level.display_name || level.name || level.id,
-                        floor_index,
-                        level.id,
-                        metadata[index] ?? undefined,
-                    );
-                    project.floorplans?.push(floorplan);
-                    existing_levels.add(level.id);
-                }
+                project.floorplans?.push(floorplan);
+                existing_levels.add(level.id);
             }
         }
         this.zone_sync_version.update((version) => version + 1);
@@ -478,7 +463,7 @@ export class StoreService {
         const floorplan = await this.getFloorplan(id);
         const updated = {
             ...floorplan,
-            ...localFloorplanData(metadata),
+            ...withoutLocalFields(metadata),
             id,
         };
         await this._db.write({

@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     current_user,
     currentUser,
+    firstTruthyValueFrom,
     markInitialisationComplete,
     SettingsService,
     setupPlace,
@@ -9,7 +10,6 @@ import {
     withTimeout,
 } from '@placeos/common';
 import { authority, queryApplications, setAPI_Key } from '@placeos/ts-client';
-import { first, lastValueFrom } from 'rxjs';
 
 import {
     appInitial,
@@ -103,16 +103,14 @@ export class AppComponent implements OnInit {
         const api_key = params.get('x-api-key');
         if (api_key) setAPI_Key(api_key);
         try {
-            await lastValueFrom(
-                this._settings.initialised.pipe(first((_) => _)),
-            );
+            await firstTruthyValueFrom(this._settings.initialised);
             const settings = { ...(this._settings.get('composer') || {}) };
             settings.mock =
                 !!this._settings.get('mock') ||
                 location.origin.includes('demo.place.tech');
             await setupPlace(settings).finally(storeApiKeyFromUrl);
             await withTimeout(
-                lastValueFrom(current_user.pipe(first((_) => !!_))),
+                firstTruthyValueFrom(current_user),
                 30_000,
                 'Current user loading timed out.',
             );

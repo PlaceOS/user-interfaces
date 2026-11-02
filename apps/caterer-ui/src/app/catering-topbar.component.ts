@@ -2,22 +2,18 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 
-import { MatDialog } from '@angular/material/dialog';
 import {
     CateringDocketsService,
     CateringOrderAlertsService,
     CateringOrderFilters,
     CateringOrdersService,
     CateringStateService,
-    ChargeCodeListModalComponent,
     ordersToCsvRows,
 } from '@placeos/catering';
 import {
     AsyncHandler,
     downloadFile,
     jsonToCsv,
-    notifyError,
-    notifySuccess,
     settingSignal,
 } from '@placeos/common';
 import { format } from 'date-fns';
@@ -30,7 +26,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganisationService } from '@placeos/common';
 import {
-    AvailableRoomsStateModalComponent,
     BuildingPipe,
     IconComponent,
     TranslatePipe,
@@ -117,24 +112,19 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                     </mat-select>
                 </mat-form-field>
             }
+            <div class="w-2 flex-1"></div>
             @if (page() === 'menu') {
-                <div class="w-2 flex-1"></div>
-            }
-            @if (
-                page() === 'menu' &&
-                (!zones()[0] || zones()[0] === building()?.id)
-            ) {
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="'CATERING.MENU_ADD' | translate"
-                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
-                    (click)="addItem()"
-                >
-                    <icon class="text-2xl">add</icon>
-                </button>
-            }
-            @if (page() === 'menu') {
+                @if (!zones()[0] || zones()[0] === building()?.id) {
+                    <button
+                        icon
+                        matRipple
+                        [matTooltip]="'CATERING.MENU_ADD' | translate"
+                        class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
+                        (click)="addItem()"
+                    >
+                        <icon class="text-2xl">add</icon>
+                    </button>
+                }
                 <button
                     icon
                     matRipple
@@ -144,8 +134,6 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                 >
                     <icon class="text-2xl">menu_book</icon>
                 </button>
-            }
-            @if (page() === 'menu') {
                 <button
                     icon
                     matRipple
@@ -155,8 +143,6 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                 >
                     <icon class="text-2xl">cloud_upload</icon>
                 </button>
-            }
-            @if (page() === 'menu') {
                 <button
                     icon
                     matRipple
@@ -166,8 +152,6 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                 >
                     <icon class="text-2xl">event_available</icon>
                 </button>
-            }
-            @if (page() === 'menu') {
                 <button
                     icon
                     matRipple
@@ -177,11 +161,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                 >
                     <icon class="text-2xl">payments</icon>
                 </button>
-            }
-            @if (page() !== 'menu') {
-                <div class="w-2 flex-1"></div>
-            }
-            @if (page() !== 'menu') {
+            } @else {
                 <date-options (dateChange)="setDate($event)"></date-options>
             }
             @if (page() === 'orders') {
@@ -277,7 +257,6 @@ export class CateringTopbarComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
-    private _dialog = inject(MatDialog);
     private _dockets = inject(CateringDocketsService);
     private _alerts = inject(CateringOrderAlertsService);
 
@@ -293,12 +272,7 @@ export class CateringTopbarComponent extends AsyncHandler {
     /** List of selected levels */
     public readonly zones = signal<string[]>([]);
     /** Currently active page */
-    public readonly page = computed(
-        () =>
-            (this._param_map().has('view')
-                ? this._param_map().get('view')
-                : '') || '',
-    );
+    public readonly page = computed(() => this._param_map().get('view') || '');
     public readonly filters = this._orders.order_filters;
     /** Number of orders in the list */
     public readonly order_count = computed(
@@ -343,6 +317,9 @@ export class CateringTopbarComponent extends AsyncHandler {
     public readonly addItem = () => this._catering.addItem();
     public readonly editConfig = () => this._catering.editConfig();
     public readonly importMenu = () => this._catering.importMenu();
+    public readonly setRoomAvailability = () =>
+        this._catering.setRoomAvailability();
+    public readonly setChargeCodes = () => this._catering.setChargeCodes();
     public readonly setCaterer = (caterer: string) => {
         this._orders.filters = { ...this._orders.filters, caterer };
         this._setQueryParams({ caterer: caterer || null });
@@ -378,34 +355,6 @@ export class CateringTopbarComponent extends AsyncHandler {
                 if (building) this._org.building = building;
             }
         });
-    }
-
-    public async setRoomAvailability() {
-        const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
-            data: {
-                type: 'Catering',
-                disabled_rooms: this._catering.availability(),
-            },
-        });
-        this.subscription(
-            'room-availability',
-            ref.componentInstance.change.subscribe(async (list) => {
-                try {
-                    await this._catering.saveSettings({
-                        disabled_rooms: list,
-                    });
-                    notifySuccess('Room availability settings saved');
-                } catch {
-                    notifyError('Unable to save room availability settings');
-                } finally {
-                    ref.componentInstance.loading.set(false);
-                }
-            }),
-        );
-    }
-
-    public setChargeCodes() {
-        this._dialog.open(ChargeCodeListModalComponent);
     }
 
     public toggleSummary() {

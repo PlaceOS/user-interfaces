@@ -1,4 +1,5 @@
 import { Component, computed, inject, output, signal } from '@angular/core';
+import { errorMessage } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 
 import { StoreService } from '../data/store.service';
@@ -173,9 +174,7 @@ export class ValidationPanelComponent {
             this._checked.set(objects);
             this.has_run.set(true);
         } catch (error) {
-            this.error.set(
-                error instanceof Error ? error.message : 'Validation failed',
-            );
+            this.error.set(errorMessage(error) || 'Validation failed');
         } finally {
             this.running.set(false);
         }
