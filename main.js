@@ -1,6 +1,6 @@
 import {
   TranslatePipe
-} from "./chunk-CXKWHMUY.js";
+} from "./chunk-GPNJG4QG.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -21,7 +21,7 @@ import {
   serviceWorkerUpdate,
   settingSignal,
   user_groups_loaded
-} from "./chunk-DXMSSRQN.js";
+} from "./chunk-Z7B7JWBR.js";
 import {
   AsyncHandler,
   J,
@@ -31,7 +31,7 @@ import {
   log,
   oo,
   ro
-} from "./chunk-DS3URTL4.js";
+} from "./chunk-SOMSZKVF.js";
 import {
   IconComponent
 } from "./chunk-XESPAINI.js";
@@ -1146,11 +1146,11 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-Z2TZ6FMH.js").then((m) => m.ChatComponent)
+  import("./chat.component-WN2EES6D.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-3H3QZBKX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-7XNBUXCE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -1209,9 +1209,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-Z2TZ6FMH.js").then((m) => m.ChatComponent),
+    import("./chat.component-WN2EES6D.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-3H3QZBKX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-7XNBUXCE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -1253,12 +1253,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-QWQ7274D.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-2GZZJ2FY.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-6MJWE6TB.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-2X3I2OA6.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
