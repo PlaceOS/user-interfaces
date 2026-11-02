@@ -1,6 +1,6 @@
 import {
   RemoteLoggingService
-} from "./chunk-RZMSJND6.js";
+} from "./chunk-FE3NASZA.js";
 import {
   generateQRCode
 } from "./chunk-U4IEQFFG.js";
@@ -23,7 +23,7 @@ import {
   timelineNow,
   timelineSlot,
   timelineStart
-} from "./chunk-IYRDGPGL.js";
+} from "./chunk-YWDGDJOE.js";
 import "./chunk-MA37NEPF.js";
 import {
   AnnounceDirective
@@ -32,14 +32,14 @@ import "./chunk-OCGKT4ZN.js";
 import "./chunk-DDJT5QIN.js";
 import "./chunk-L4NHQOZX.js";
 import "./chunk-RP3WHZSJ.js";
-import "./chunk-AC5UMEOL.js";
+import "./chunk-CHKTCGAJ.js";
 import {
   TranslatePipe
 } from "./chunk-BQL2HBWO.js";
 import "./chunk-UVDCZIYW.js";
 import {
   VERSION
-} from "./chunk-D6JMQ4XE.js";
+} from "./chunk-42H33VI2.js";
 import {
   AsyncHandler,
   notifyError,
@@ -2155,4 +2155,4 @@ export {
   PanelViewComponent
 };
 //# debugId=6bf5e83b-55ef-5c79-8a6d-9e4eb09388df
-//# sourceMappingURL=panel-view.component-CDYARYBO.js.map
+//# sourceMappingURL=panel-view.component-QK3IRR2U.js.map

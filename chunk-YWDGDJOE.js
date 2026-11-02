@@ -38,7 +38,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-AC5UMEOL.js";
+} from "./chunk-CHKTCGAJ.js";
 import {
   TranslatePipe
 } from "./chunk-BQL2HBWO.js";
@@ -83,7 +83,7 @@ import {
   settingSignal,
   toQueryString,
   user_group_names
-} from "./chunk-D6JMQ4XE.js";
+} from "./chunk-42H33VI2.js";
 import {
   AsyncHandler,
   Cs,
@@ -1954,13 +1954,16 @@ async function queryAssets(query = {}) {
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
+var MAX_ASSET_PAGES = 100;
 async function queryAllAssetPages(query = {}) {
   let response = await Xl(__spreadProps(__spreadValues({}, query), {
     limit: query.limit || 500
   }));
   let total = response.total;
   const data = [...response.data];
-  while (typeof response.next === "function") {
+  for (let page = 1; page < MAX_ASSET_PAGES; page++) {
+    if (typeof response.next !== "function")
+      break;
     const next = response.next();
     if (!next)
       break;
@@ -8582,5 +8585,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=b7e445f9-7014-5512-a2b8-4f751460ef4a
-//# sourceMappingURL=chunk-IYRDGPGL.js.map
+//# debugId=7cd50e33-7984-50cc-b4d2-ea1e5dcc10ba
+//# sourceMappingURL=chunk-YWDGDJOE.js.map
