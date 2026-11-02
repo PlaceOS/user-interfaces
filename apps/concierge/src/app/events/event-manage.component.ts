@@ -3,7 +3,6 @@ import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,7 +27,6 @@ import {
     notifyError,
     unique,
 } from '@placeos/common';
-import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -49,6 +47,7 @@ import {
 } from '@placeos/form-fields';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import { errorText } from '../ui/modal-actions';
+import { TimezoneFieldComponent } from '../ui/timezone-field.component';
 import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
 import { EventStateService } from './event-state.service';
 
@@ -272,37 +271,10 @@ const EMPTY = [];
                                 </div>
                             </div>
                         }
-                        <div class="flex flex-col">
-                            <label for="event-manage-display-name">
-                                {{ 'COMMON.TIMEZONE' | translate }}
-                            </label>
-                            <mat-form-field appearance="outline">
-                                <icon matPrefix class="text-2xl"> search </icon>
-                                <input
-                                    id="event-manage-display-name"
-                                    matInput
-                                    [formField]="form.timezone"
-                                    [placeholder]="
-                                        'COMMON.TIMEZONE' | translate
-                                    "
-                                    [matAutocomplete]="auto"
-                                />
-                            </mat-form-field>
-                            <mat-autocomplete #auto="matAutocomplete">
-                                @for (tz of filtered_timezones(); track tz) {
-                                    <mat-option [value]="tz">
-                                        {{ tz }}
-                                    </mat-option>
-                                }
-                                @if (!filtered_timezones().length) {
-                                    <mat-option [disabled]="true">
-                                        {{
-                                            'COMMON.TIMEZONE_EMPTY' | translate
-                                        }}
-                                    </mat-option>
-                                }
-                            </mat-autocomplete>
-                        </div>
+                        <timezone-field
+                            field_id="event-manage-display-name"
+                            [field]="form.timezone"
+                        />
                         <!-- END DATE TIME -->
                         <div class="bg-base-200 h-px w-full"></div>
                         <h3 class="py-4 text-2xl font-medium">
@@ -559,7 +531,7 @@ const EMPTY = [];
         MatSelectModule,
         MatInputModule,
         MatChipsModule,
-        MatAutocompleteModule,
+        TimezoneFieldComponent,
         FormsModule,
         FormField,
         SettingsToggleComponent,
@@ -595,12 +567,6 @@ export class EventManageComponent
     public readonly tag_list = computed(
         () => this._form_value()?.tags || EMPTY,
     );
-    public readonly filtered_timezones = computed(() => {
-        const timezone = this._form_value()?.timezone || '';
-        return TIMEZONES_IANA.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase()),
-        );
-    });
     public readonly start_date = computed(() => this._form_value()?.date);
 
     public get max_duration() {

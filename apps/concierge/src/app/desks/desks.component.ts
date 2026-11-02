@@ -48,7 +48,12 @@ import { showMetadata } from '@placeos/ts-client';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
-import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
+import {
+    loadPersistedZones,
+    persistZones,
+    sameZones,
+    zoneScopeId,
+} from '../ui/zone-persistence';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
 import { DesksStateService } from './desks-state.service';
@@ -423,7 +428,11 @@ export class DesksComponent extends AsyncHandler implements OnInit {
               ? 'desks'
               : '';
         if (persistence_view) {
-            persistZones(persistence_view, this._persistScopeId(), clean_zones);
+            persistZones(
+                persistence_view,
+                zoneScopeId(this._org, this.use_region),
+                clean_zones,
+            );
         }
     };
 
@@ -556,29 +565,13 @@ export class DesksComponent extends AsyncHandler implements OnInit {
         if (!next_zones.length && persistence_view) {
             const persisted = loadPersistedZones(
                 persistence_view,
-                this._persistScopeId(),
+                zoneScopeId(this._org, this.use_region),
             ).filter((zone) => levels.find((lvl) => lvl.id === zone));
             if (persisted.length) {
                 next_zones = persisted;
             }
         }
-        if (this._sameZones(current_zones, next_zones)) return;
+        if (sameZones(current_zones, next_zones)) return;
         this.updateZones(next_zones);
-    }
-
-    private _sameZones(
-        current_zones: string[] = [],
-        next_zones: string[] = [],
-    ) {
-        return (
-            current_zones.length === next_zones.length &&
-            current_zones.every((zone, index) => zone === next_zones[index])
-        );
-    }
-
-    private _persistScopeId() {
-        return this.use_region
-            ? this._org.region?.id || ''
-            : this._org.building?.id || '';
     }
 }

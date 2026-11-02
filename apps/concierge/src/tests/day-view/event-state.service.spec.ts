@@ -5,7 +5,7 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import { SpacesService } from '@placeos/events';
+import { EventDetailsModalComponent, SpacesService } from '@placeos/events';
 import {
     endOfDay,
     endOfMonth,
@@ -19,6 +19,7 @@ import { EventsStateService } from '../../app/day-view/events-state.service';
 
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
+import { Subject } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -217,6 +218,39 @@ describe('EventsStateService', () => {
             'booking',
             'booking',
         ]);
+    });
+
+    it('should open booking details and pass removal to the caller', () => {
+        const dialog = spectator.inject(MatDialog);
+        const ref = {
+            componentInstance: {
+                hide_edit: signal(false),
+                action: new Subject<string>(),
+            },
+        };
+        vi.mocked(dialog.open).mockReturnValue(ref as any);
+        const remove = vi.fn();
+        const event = new CalendarEvent({ id: 'booking' });
+
+        spectator.service.viewEvent(event, remove);
+
+        expect(dialog.open).toHaveBeenCalledWith(EventDetailsModalComponent, {
+            data: expect.objectContaining({ event }),
+        });
+        const data = vi.mocked(dialog.open).mock.calls[0][1].data as {
+            remove_fn: (event: CalendarEvent) => void;
+        };
+        data.remove_fn(event);
+        expect(remove).toHaveBeenCalledWith(event);
+    });
+
+    it('should not open details for system events', () => {
+        const dialog = spectator.inject(MatDialog);
+        spectator.service.viewEvent(
+            { is_system_event: true } as CalendarEvent,
+            vi.fn(),
+        );
+        expect(dialog.open).not.toHaveBeenCalled();
     });
 
     it('should load building events when no levels are selected', async () => {

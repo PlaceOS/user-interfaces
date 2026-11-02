@@ -28,7 +28,11 @@ import {
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { errorText } from '../ui/modal-actions';
 import { SearchbarComponent } from '../ui/searchbar.component';
-import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
+import {
+    loadPersistedZones,
+    persistZones,
+    zoneScopeId,
+} from '../ui/zone-persistence';
 
 @Component({
     selector: 'catering-topbar',
@@ -242,7 +246,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         this._catering.zone = zones[0];
         persistZones(
             this.page() === 'menu' ? 'catering-menu' : 'catering-orders',
-            this._persistScopeId(),
+            zoneScopeId(this._org, this.use_region),
             zones,
         );
     };
@@ -298,7 +302,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                 if (page_changed) {
                     const zones = loadPersistedZones(
                         page === 'menu' ? 'catering-menu' : 'catering-orders',
-                        this._persistScopeId(),
+                        zoneScopeId(this._org, this.use_region),
                     ).filter((zone) =>
                         this.levels().find((level) => level.id === zone),
                     );
@@ -310,12 +314,6 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         this.caterers.set(this._catering.caterers() || []);
         this._catering.zone =
             (this.filters()?.zones || [])[0] || this._org.building?.id;
-    }
-
-    private _persistScopeId() {
-        return this.use_region
-            ? this._org.region?.id || ''
-            : this._org.building?.id || '';
     }
 
     public async setRoomAvailability() {

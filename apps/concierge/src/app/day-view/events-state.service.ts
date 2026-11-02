@@ -28,6 +28,8 @@ import {
 } from '@placeos/common';
 import {
     CalendarEventList,
+    EventDetailsModalComponent,
+    SetupBreakdownModalComponent,
     declineEvent,
     queryEventListOrThrow,
     requestSpacesForZone,
@@ -493,6 +495,38 @@ export class EventsStateService extends AsyncHandler {
         ]);
         if (details?.reason !== 'done') return;
         this.replace(details.metadata);
+    }
+
+    /**
+     * Open the details modal for a booking. `remove` runs when the user
+     * removes the booking from the modal. Ignores system events.
+     */
+    public viewEvent(
+        event: CalendarEvent,
+        remove: (event: CalendarEvent) => unknown,
+    ) {
+        if (event.is_system_event) return;
+        const ref = this._dialog.open(EventDetailsModalComponent, {
+            data: {
+                event,
+                edit_fn: (e: CalendarEvent) => this.newBooking(e),
+                remove_fn: (e: CalendarEvent) => remove(e),
+            },
+        });
+        ref.componentInstance.hide_edit.set(
+            !this._settings.get('app.events.allow_edit'),
+        );
+        this.subscription(
+            'actions',
+            ref.componentInstance.action.subscribe(async (action) => {
+                if (!action.includes('breakdown')) return;
+                const ref = this._dialog.open(SetupBreakdownModalComponent, {
+                    data: event,
+                });
+                const data = await nextValueFrom(ref.afterClosed());
+                if (data) this.replace(data);
+            }),
+        );
     }
 
     public async removeBooking(event: CalendarEvent, series = false) {

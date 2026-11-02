@@ -9,6 +9,7 @@ import { AsyncHandler, Identity, OrganisationService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { EventsStateService } from '../day-view/events-state.service';
 import { SearchbarComponent } from '../ui/searchbar.component';
+import { sameZones } from '../ui/zone-persistence';
 
 @Component({
     selector: 'facilities-topbar',
@@ -142,7 +143,7 @@ export class FacilitiesTopbarComponent extends AsyncHandler implements OnInit {
             if (!zones.length) {
                 zones.push(levels[0].id);
             }
-            if (this._same_zones(zones, this.zones())) return;
+            if (sameZones(zones, this.zones())) return;
             this.updateZones(zones);
         });
     }
@@ -151,12 +152,5 @@ export class FacilitiesTopbarComponent extends AsyncHandler implements OnInit {
         await this._org.waitUntilInitialised();
         this._ready.set(true);
         this.updateTypes(this.type_list());
-    }
-
-    private _same_zones(left: string[], right: string[]) {
-        return (
-            left.length === right.length &&
-            left.every((zone, index) => zone === right[index])
-        );
     }
 }

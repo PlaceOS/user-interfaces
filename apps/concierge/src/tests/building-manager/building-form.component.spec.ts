@@ -76,15 +76,6 @@ describe('BuildingFormComponent', () => {
         expect(model.location).toBe('123 St');
     });
 
-    it('should filter the timezone list by the current model timezone', () => {
-        spectator.component.model.update((m) => ({ ...m, timezone: 'sydney' }));
-        const filtered = spectator.component.filtered_timezones();
-        expect(filtered.length).toBeGreaterThan(0);
-        expect(filtered.every((_) => _.toLowerCase().includes('sydney'))).toBe(
-            true,
-        );
-    });
-
     it('should block saving and notify when required fields are missing', async () => {
         spectator.component.model.update((m) => ({ ...m, display_name: '' }));
 

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, SettingsService, currentUser } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ParkingStateService } from './parking-state.service';
@@ -156,10 +156,6 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
         'bookings' | 'fleet' | 'list' | 'map' | 'requests' | 'spaces' | 'users'
     >('list');
 
-    public get show_requests() {
-        return !!this._settings.get('app.parking.show_requests');
-    }
-
     public get hide_users_and_vehicles() {
         return !!this._settings.get('app.parking.hide_users_and_vehicles');
     }
@@ -178,26 +174,8 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
         );
     }
 
-    public get is_admin() {
-        const groups = currentUser().groups || [];
-        const admin_group = this._settings.get('app.admin_group') || 'admin';
-        return (
-            groups.includes(admin_group) ||
-            groups.includes('placeos_admin') ||
-            groups.includes('placeos_support')
-        );
-    }
-
     public get can_view_requests() {
-        if (!this.show_requests) return false;
-        const feature_groups = this._settings.get('app.feature_groups') || {};
-        const request_groups = feature_groups['parking-requests'] || [];
-        const groups = currentUser().groups || [];
-        return (
-            this.is_admin ||
-            !request_groups.length ||
-            groups.some((grp) => request_groups.includes(grp))
-        );
+        return this._state.can_view_requests;
     }
 
     public ngOnInit() {

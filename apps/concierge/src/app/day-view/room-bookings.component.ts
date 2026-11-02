@@ -36,7 +36,11 @@ import {
 import { requestSpacesForZone } from '@placeos/events';
 import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
-import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
+import {
+    loadPersistedZones,
+    persistZones,
+    zoneScopeId,
+} from '../ui/zone-persistence';
 import { EventsStateService } from './events-state.service';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 import { RoomBookingsListComponent } from './room-bookings-list.component';
@@ -382,7 +386,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                     // without an explicit URL filter. Empty means "all levels".
                     const persisted = loadPersistedZones(
                         'room-bookings',
-                        this._persistScopeId(),
+                        zoneScopeId(this._org, !!this.use_region),
                     ).filter((zone) => levels.find((lvl) => lvl.id === zone));
                     if (persisted.length) {
                         this.updateZones(persisted);
@@ -404,7 +408,11 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
             queryParamsHandling: 'merge',
         });
         this._state.setZones(zone_ids);
-        persistZones('room-bookings', this._persistScopeId(), zone_ids);
+        persistZones(
+            'room-bookings',
+            zoneScopeId(this._org, !!this.use_region),
+            zone_ids,
+        );
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
     public readonly setPeriod = (p) => {
@@ -478,12 +486,6 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-    }
-
-    private _persistScopeId() {
-        return this.use_region
-            ? this._org.region?.id || ''
-            : this._org.building?.id || '';
     }
 
     public setFilter(id: string, value: boolean) {
