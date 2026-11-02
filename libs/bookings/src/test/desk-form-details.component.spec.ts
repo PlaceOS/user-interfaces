@@ -1,11 +1,11 @@
 import { NO_ERRORS_SCHEMA, signal, SimpleChange } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
-import { NewDeskFormDetailsComponent } from '../../../app/book/desk-flow/desk-form-details.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { BookingFormService } from '../lib/booking-form.service';
+import { NewDeskFormDetailsComponent } from '../lib/desk-form-details.component';
 
 describe('NewDeskFormDetailsComponent', () => {
     let spectator: Spectator<NewDeskFormDetailsComponent>;

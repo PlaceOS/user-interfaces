@@ -23,13 +23,6 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    bookedResourceList,
-    BookingForm,
-    BookingFormValue,
-    ParkingService,
-    queryBookings,
-} from '@placeos/bookings';
-import {
     AsyncHandler,
     currentUser,
     getFormTimeSyncHandle,
@@ -43,12 +36,13 @@ import {
     UploadsService,
     user_group_names,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import {
-    DateFieldComponent,
-    UserSearchFieldComponent,
-} from '@placeos/form-fields';
 import { isMock } from '@placeos/ts-client';
+import { FullscreenEmbedComponent } from 'libs/components/src/lib/fullscreen-embed.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import {
     addDays,
     addMinutes,
@@ -57,8 +51,9 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
-import { FullscreenEmbedComponent } from '../../components/fullscreen-embed.component';
+import { BookingForm, BookingFormValue } from './booking-form.model';
+import { bookedResourceList, queryBookings } from './bookings.fn';
+import { ParkingService } from './parking.service';
 
 interface ParkingRequestShiftOption {
     id: string;

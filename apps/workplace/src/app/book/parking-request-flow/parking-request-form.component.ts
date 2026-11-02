@@ -4,7 +4,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { Router } from '@angular/router';
-import { BookingFormService, ParkingService } from '@placeos/bookings';
+import {
+    BookingFormService,
+    ParkingRequestFormDetailsComponent,
+    ParkingService,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
@@ -24,7 +28,6 @@ import {
 } from '@placeos/components';
 import { roundToNearestMinutes, startOfDay } from 'date-fns';
 import { notifyInvalidBookingFields } from '../booking-invalid-fields';
-import { ParkingRequestFormDetailsComponent } from './parking-request-form-details.component';
 
 @Component({
     selector: 'parking-request-form',

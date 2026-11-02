@@ -14,14 +14,6 @@ import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { AssetListFieldComponent } from '@placeos/assets';
-import {
-    BookingForm,
-    BookingFormService,
-    BookingFormValue,
-    DeskListFieldComponent,
-    requiresLocker,
-} from '@placeos/bookings';
 import {
     AsyncHandler,
     BookingRecurrence,
@@ -31,16 +23,23 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import {
-    DateFieldComponent,
-    DurationFieldComponent,
-    RecurrenceFieldComponent,
-    TimeFieldComponent,
-    UserListFieldComponent,
-    UserSearchFieldComponent,
-} from '@placeos/form-fields';
+import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { RecurrenceFieldComponent } from 'libs/form-fields/src/lib/recurrence-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { addDays, endOfDay } from 'date-fns';
+import {
+    BookingForm,
+    BookingFormValue,
+    requiresLocker,
+} from './booking-form.model';
+import { BookingFormService } from './booking-form.service';
+import { DeskListFieldComponent } from './desk-list-field.component';
 
 @Component({
     selector: 'desk-form-details',

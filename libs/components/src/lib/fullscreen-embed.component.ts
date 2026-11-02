@@ -1,7 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
+import { IconComponent } from './icon.component';
+import { SafePipe } from './safe.pipe';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'fullscreen-embed',

@@ -12,6 +12,7 @@ export * from './lib/chat/chat.component';
 export * from './lib/confirm-modal.component';
 export * from './lib/custom-tooltip.component';
 export * from './lib/dynamic-map.component';
+export * from './lib/fullscreen-embed.component';
 export * from './lib/fullscreen-modal-shell.component';
 export * from './lib/global-banner.component';
 export * from './lib/global-loading.component';

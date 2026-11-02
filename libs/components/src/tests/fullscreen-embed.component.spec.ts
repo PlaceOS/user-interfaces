@@ -1,9 +1,10 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { IconComponent, SafePipe } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
-import { FullscreenEmbedComponent } from '../../app/components/fullscreen-embed.component';
+import { FullscreenEmbedComponent } from '../lib/fullscreen-embed.component';
+import { IconComponent } from '../lib/icon.component';
+import { SafePipe } from '../lib/safe.pipe';
 
 describe('FullscreenEmbedComponent', () => {
     let spectator: Spectator<FullscreenEmbedComponent>;

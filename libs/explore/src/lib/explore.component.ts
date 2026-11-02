@@ -4,6 +4,7 @@ import {
     effect,
     HostListener,
     inject,
+    input,
     OnInit,
     signal,
     untracked,
@@ -29,27 +30,25 @@ import {
     themedLogo,
     User,
 } from '@placeos/common';
-import {
-    AuthenticatedImageDirective,
-    CustomTooltipComponent,
-    DynamicMapComponent,
-    IconComponent,
-    MapPinComponent,
-    MapRadiusComponent,
-    VirtualKeyboardComponent,
-} from '@placeos/components';
-import { SpacePipe, SpacesService } from '@placeos/events';
-import {
-    ExploreDesksService,
-    ExploreParkingService,
-    ExploreSearchComponent,
-    ExploreSpacesService,
-    ExploreStateService,
-    ExploreZonesService,
-} from '@placeos/explore';
 import { getModule } from '@placeos/ts-client';
-import { MapLocation, showStaff } from '@placeos/users';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { DynamicMapComponent } from 'libs/components/src/lib/dynamic-map.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
+import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { SpacesService } from 'libs/events/src/lib/spaces.service';
+import { MapLocation } from 'libs/users/src/lib/location.class';
+import { showStaff } from 'libs/users/src/lib/staff.fn';
 import { AccessibilityControlsComponent } from './accessibility-controls.component';
+import { ExploreDesksService } from './explore-desks.service';
+import { ExploreParkingService } from './explore-parking.service';
+import { ExploreSearchComponent } from './explore-search.component';
+import { ExploreSpacesService } from './explore-spaces.service';
+import { ExploreStateService } from './explore-state.service';
+import { ExploreZonesService } from './explore-zones.service';
 
 @Component({
     selector: '[app-explore]',
@@ -310,6 +309,11 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _space_pipe = inject(SpacePipe);
 
+    /**
+     * Whether this view resets the kiosk after `reset_delay` seconds with no
+     * user action. Set to `false` when the app has its own idle reset.
+     */
+    public readonly reset_when_idle = input(true);
     /** Number of seconds after a user action to reset the kiosk state. `0` turns the reset off. */
     public reset_delay = 180;
     public readonly show_levels = signal(true);
@@ -557,9 +561,13 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         });
     }
 
-    /** Restart the reset timer. A `reset_delay` of `0` or less turns the reset off. */
+    /**
+     * Restart the reset timer. A `reset_delay` of `0` or less, or a
+     * `reset_when_idle` of `false`, turns the reset off.
+     */
     private _restartReset() {
-        if (!(this.reset_delay > 0)) return this.clearTimeout('reset');
+        if (!this.reset_when_idle() || !(this.reset_delay > 0))
+            return this.clearTimeout('reset');
         this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
     }
 

@@ -1,10 +1,10 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MatDialog } from '@angular/material/dialog';
 import { settingSignal } from '@placeos/common';
+import { FullscreenEmbedComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 
 import { VirtualConciergeButtonComponent } from '../../app/components/virtual-concierge-button.component';
-import { FullscreenEmbedComponent } from '../../app/components/fullscreen-embed.component';
 import { SidebarEmbedComponent } from '../../app/components/sidebar-embed.component';
 
 describe('VirtualConciergeButtonComponent', () => {

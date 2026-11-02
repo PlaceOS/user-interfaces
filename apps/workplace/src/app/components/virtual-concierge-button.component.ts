@@ -2,8 +2,11 @@ import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { settingSignal } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import { FullscreenEmbedComponent } from './fullscreen-embed.component';
+import {
+    FullscreenEmbedComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SidebarEmbedComponent } from './sidebar-embed.component';
 
 @Component({

@@ -2,12 +2,6 @@ import { Injector, signal, WritableSignal } from '@angular/core';
 import { ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
-    BookingForm,
-    BookingFormValue,
-    generateBookingForm,
-    ParkingService,
-} from '@placeos/bookings';
-import {
     OrganisationService,
     setCurrentUser,
     SettingsService,
@@ -15,7 +9,13 @@ import {
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
-import { ParkingRequestFormDetailsComponent } from '../../app/book/parking-request-flow/parking-request-form-details.component';
+import {
+    BookingForm,
+    BookingFormValue,
+    generateBookingForm,
+} from '../lib/booking-form.model';
+import { ParkingRequestFormDetailsComponent } from '../lib/parking-request-form-details.component';
+import { ParkingService } from '../lib/parking.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 

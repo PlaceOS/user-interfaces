@@ -1,6 +1,9 @@
 import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { BookingFormService } from '@placeos/bookings';
+import {
+    BookingFormService,
+    NewDeskFormDetailsComponent,
+} from '@placeos/bookings';
 import {
     DialogEvent,
     i18n,
@@ -11,8 +14,6 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-
-import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-flow/desk-form-details.component';
 
 @Component({
     selector: 'desk-book-modal',

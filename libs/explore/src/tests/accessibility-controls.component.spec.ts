@@ -5,7 +5,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockModule, MockProvider } from 'ng-mocks';
 
-import { AccessibilityControlsComponent } from '../app/accessibility-controls.component';
+import { AccessibilityControlsComponent } from '../lib/accessibility-controls.component';
 
 const setting_signals: Record<string, ReturnType<typeof signal>> = {
     allow_dark_mode: signal<unknown>(false),

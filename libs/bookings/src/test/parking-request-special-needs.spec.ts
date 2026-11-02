@@ -1,10 +1,11 @@
 import { Injector, signal } from '@angular/core';
 import { ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { generateBookingForm, ParkingService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { ParkingRequestFormDetailsComponent } from '../../../app/book/parking-request-flow/parking-request-form-details.component';
+import { generateBookingForm } from '../lib/booking-form.model';
+import { ParkingRequestFormDetailsComponent } from '../lib/parking-request-form-details.component';
+import { ParkingService } from '../lib/parking.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
