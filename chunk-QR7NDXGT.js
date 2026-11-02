@@ -2135,15 +2135,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "2241b21",
-  "hash": "2241b21",
+  "raw": "1e60633",
+  "hash": "1e60633",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2241b21",
+  "suffix": "1e60633",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1793661241248
+  "time": 1793661561812
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -11111,5 +11111,5 @@ export {
   Calendar,
   Desk
 };
-//# debugId=c0d2c6f1-e31c-5d05-aa2b-dcff9be160e1
-//# sourceMappingURL=chunk-VVZYEMD4.js.map
+//# debugId=fc04359a-65fe-5ea8-8dc1-2417096f7d21
+//# sourceMappingURL=chunk-QR7NDXGT.js.map

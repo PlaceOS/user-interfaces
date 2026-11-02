@@ -3,8 +3,8 @@ import {
   setHours,
   setInternalUserDomain,
   subDays
-} from "./chunk-CLTOQZ4P.js";
-import "./chunk-LQ4NHTI2.js";
+} from "./chunk-2QD4CLIH.js";
+import "./chunk-YFNY2CK6.js";
 import {
   TranslatePipe
 } from "./chunk-TFCYUZR4.js";
@@ -37,7 +37,7 @@ import {
   setupPlace,
   userSignal,
   user_groups_loaded
-} from "./chunk-VVZYEMD4.js";
+} from "./chunk-QR7NDXGT.js";
 import {
   AsyncHandler,
   Bp,
@@ -522,7 +522,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-QXPSUXKR.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-WOLUCCVN.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -647,7 +647,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-QXPSUXKR.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-WOLUCCVN.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -8789,7 +8789,7 @@ async function authority() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-26FVCLEX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-MRZLGDY3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -8999,7 +8999,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-26FVCLEX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-MRZLGDY3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9037,7 +9037,7 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-WEOI23AV.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-DMRW7LNW.js").then((m) => m.CalendarPaneComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
