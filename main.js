@@ -4,7 +4,7 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-DAGR3VNS.js";
+} from "./chunk-37BT42CH.js";
 import "./chunk-PG7GF24S.js";
 import {
   TranslatePipe
@@ -33,7 +33,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-YBHMTAWR.js";
+} from "./chunk-H5ZORTWE.js";
 import {
   AsyncHandler,
   Bp,
@@ -8680,11 +8680,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-X6PIDDJ7.js").then((m) => m.ChatComponent)
+  import("./chat.component-X7WQJECK.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-EDTRPQIM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-A43DZWNQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -8745,9 +8745,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-X6PIDDJ7.js").then((m) => m.ChatComponent),
+    import("./chat.component-X7WQJECK.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-EDTRPQIM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-A43DZWNQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -8787,7 +8787,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-ZIHOSOZ3.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-WW7YXJ5F.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",

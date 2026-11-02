@@ -5,7 +5,7 @@ import {
   OrganisationService,
   SettingsService,
   Space
-} from "./chunk-YBHMTAWR.js";
+} from "./chunk-H5ZORTWE.js";
 import {
   Ia,
   Ra,
@@ -783,4 +783,4 @@ export {
   CateringOrderDocketsComponent
 };
 //# debugId=ee66b26c-0190-5c6b-895b-377ac6c45bba
-//# sourceMappingURL=chunk-DAGR3VNS.js.map
+//# sourceMappingURL=chunk-37BT42CH.js.map
