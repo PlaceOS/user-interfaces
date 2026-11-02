@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - Correct the Sentry trace settings
 - Report startup errors to Sentry
 - Remove check-in tokens from Sentry events
+- Use current IANA names in the time zone list
 
 #### Concierge
 
@@ -156,10 +157,22 @@ All notable changes to this project will be documented in this file.
 
 ### Refactor
 
+#### Common
+
+- Build the time zone list from the browser
+
 #### Concierge
 
 - Update parking report graphs and metrics to be more useful
 - Remove signage management section
+
+#### Libs
+
+- Remove unused components, pipes and upload permission wiring
+- Remove unused code from common, users and payments
+- Share one helper for toggling favourites
+- Share the zone rules loader and app version details
+- Add provideValueAccessor for form field providers
 
 ## [2610.2] - 2026-10-08
 
