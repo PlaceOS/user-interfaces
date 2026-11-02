@@ -1,15 +1,14 @@
-import { Component, computed, effect, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { SettingsService } from '@placeos/common';
+import { themedLogo } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
 
-import { OrganisationService } from '@placeos/common';
 import { ControlStateService } from '../control-state.service';
 import { ControlStatusBarComponent } from '../status-bar.component';
 import { TopbarHeaderComponent } from '../topbar-header.component';
@@ -51,12 +50,7 @@ import { TabOutletComponent } from './tab-outlet.component';
                     class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center space-y-2 p-16"
                 >
                     <div class="absolute top-4 left-4 z-0">
-                        <img
-                            auth
-                            class="h-10"
-                            alt="Logo"
-                            [source]="logo()?.src || logo()"
-                        />
+                        <img auth class="h-10" alt="Logo" [source]="logo()" />
                     </div>
                     <icon
                         aria-hidden="true"
@@ -103,8 +97,6 @@ export class ControlTabbedViewComponent {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _state = inject(ControlStateService);
-    private _settings = inject(SettingsService);
-    private _org = inject(OrganisationService);
 
     private readonly _param_map = toSignal(this._route.paramMap, {
         initialValue: this._route.snapshot.paramMap,
@@ -118,14 +110,7 @@ export class ControlTabbedViewComponent {
 
     public readonly id = this._state.system_id;
 
-    public readonly logo = computed(() => {
-        this._org.active_building();
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    });
+    public readonly logo = themedLogo();
 
     constructor() {
         effect(() => {

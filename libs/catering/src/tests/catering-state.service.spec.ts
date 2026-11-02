@@ -2,13 +2,16 @@ import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
 import { Building, CateringItem, OrganisationService } from '@placeos/common';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { AvailableRoomsStateModalComponent } from 'libs/components/src/lib/available-rooms-state-modal.component';
 
 import { CateringStateService } from '../lib/catering-state.service';
+import { ChargeCodeListModalComponent } from '../lib/charge-code-list-modal.component';
 
 // The `@placeos/assets` catering fns run for real; only the ts-client API
 // layer beneath them (asset/type/category queries + mutations) is stubbed.
@@ -170,6 +173,78 @@ describe('CateringStateService', () => {
             name: 'catering_config',
             details: [{}],
             description: 'Catering menu config for bld-1',
+        });
+    });
+
+    it('should open the charge codes modal', () => {
+        spectator.service.setChargeCodes();
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            ChargeCodeListModalComponent,
+        );
+    });
+
+    describe('setRoomAvailability', () => {
+        const change = new Subject<string[]>();
+        const loading = signal(true);
+        // The change handler awaits the save before it clears the loading flag
+        const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+        const notify_open = vi.fn(() => ({
+            onAction: () => of(),
+            dismiss: vi.fn(),
+        }));
+
+        beforeEach(() => {
+            loading.set(true);
+            setNotifyOutlet({ open: notify_open } as any, true);
+            (spectator.inject(MatDialog).open as any).mockReturnValue({
+                componentInstance: { change, loading },
+            });
+        });
+
+        afterEach(() => setNotifyOutlet(null, true));
+
+        it('should open the modal and save the selected rooms', async () => {
+            spectator.service.setRoomAvailability();
+            expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+                AvailableRoomsStateModalComponent,
+                { data: { type: 'Catering', disabled_rooms: [] } },
+            );
+
+            change.next(['room-2']);
+            await settle();
+
+            expect(ts_client.updateMetadata).toHaveBeenCalledWith(
+                'bld-1',
+                expect.objectContaining({
+                    name: 'catering-settings',
+                    details: expect.objectContaining({
+                        disabled_rooms: ['room-2'],
+                    }),
+                }),
+            );
+            expect(notify_open).toHaveBeenCalledWith(
+                'Room availability settings saved',
+                'OK',
+                expect.objectContaining({ panelClass: ['success'] }),
+            );
+            expect(loading()).toBe(false);
+        });
+
+        it('should show the error and stop loading when the save fails', async () => {
+            vi.mocked(ts_client.updateMetadata).mockRejectedValueOnce(
+                new Error('save failed'),
+            );
+            spectator.service.setRoomAvailability();
+
+            change.next(['room-2']);
+            await settle();
+
+            expect(notify_open).toHaveBeenCalledWith(
+                'Failed to save room availability. save failed',
+                'OK',
+                expect.objectContaining({ panelClass: ['error'] }),
+            );
+            expect(loading()).toBe(false);
         });
     });
 

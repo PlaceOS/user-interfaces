@@ -19,7 +19,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { i18n } from '@placeos/common';
+import { i18n, LocaleService } from '@placeos/common';
 import {
     IconComponent,
     LoadErrorComponent,
@@ -33,36 +33,19 @@ import {
 } from '@placeos/ts-client';
 import { MediaPreviewService } from '../media/media-preview.service';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
+import { scheduleSummary } from '../shared/schedule-summary.util';
+import { storedSignal } from '../shared/stored-signal';
 import { SignageContextService } from '../signage-context.service';
 import {
     playlistLoopDuration,
     playlistNextPlayTime,
     playlistScheduleExpiryTooltip,
-    playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
 } from '../signage-playlist.util';
 import { PlaylistActionsComponent } from './playlist-actions.component';
 import { SignagePlaylistService } from './signage-playlist.service';
 
 const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
-
-function loadNextPlaySort() {
-    if (typeof localStorage === 'undefined') return false;
-    try {
-        return localStorage.getItem(NEXT_PLAY_SORT_STORAGE_KEY) === 'true';
-    } catch {
-        return false;
-    }
-}
-
-function persistNextPlaySort(sorted: boolean) {
-    if (typeof localStorage === 'undefined') return;
-    try {
-        localStorage.setItem(NEXT_PLAY_SORT_STORAGE_KEY, `${sorted}`);
-    } catch {
-        // Local storage can be unavailable in private browsing or restricted embeds.
-    }
-}
 
 @Component({
     selector: 'playlist-items',
@@ -763,6 +746,7 @@ function persistNextPlaySort(sorted: boolean) {
 })
 export class PlaylistItemsComponent {
     private readonly _context = inject(SignageContextService);
+    private readonly _locale = inject(LocaleService);
     private readonly _media_preview = inject(MediaPreviewService);
     private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _injector = inject(Injector);
@@ -793,7 +777,10 @@ export class PlaylistItemsComponent {
      * Shows distribution items by when they next play. Only changes the view.
      * Kept in the browser, so distribution playlists open sorted once chosen.
      */
-    public readonly sort_by_next_play = signal(loadNextPlaySort());
+    public readonly sort_by_next_play = storedSignal(
+        NEXT_PLAY_SORT_STORAGE_KEY,
+        (stored) => stored === 'true',
+    );
     /**
      * Time the next plays are counted from. Set when the sort is turned on
      * and when the playlist or its schedules change, so rows do not move
@@ -917,10 +904,11 @@ export class PlaylistItemsComponent {
 
     public toggleNextPlaySort() {
         this.sort_by_next_play.update((sorted) => !sorted);
-        persistNextPlaySort(this.sort_by_next_play());
     }
 
-    public scheduleLabel = playlistScheduleLabel;
+    public scheduleLabel(schedule: Partial<SignagePlaylistSchedule>) {
+        return scheduleSummary(schedule, this._locale.locale);
+    }
 
     /** Next plays tooltip of each item schedule. Updates when the schedules change. */
     public readonly schedule_tooltips = computed(

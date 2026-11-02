@@ -13,7 +13,6 @@ import {
     approveSignagePlaylist,
     SignageMedia,
     SignagePlaylist,
-    updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
 import { MediaPreviewService } from '../media/media-preview.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
@@ -171,33 +170,15 @@ export class PlaylistApproveModalComponent {
             playlistMediaItems(playlist),
         );
 
+    /** Restore the last approved version. The service asks the user to confirm. */
     public async undoChanges() {
-        if (!this.can_update()) {
-            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'));
-            return;
-        }
         const [, previous_version] = this.playlist_versions();
-        if (!previous_version?.items) return;
-        this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
-        this._dialog_ref.disableClose = true;
-        try {
-            await updateSignagePlaylistMedia(
-                this._data.playlist.id,
-                previous_version.items,
-            );
-            this._playlist_service.setPlaylistApprovalStatus(
-                this._data.playlist.id,
-                false,
-            );
-            notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERTED'));
-            this._dialog_ref.close(true);
-            this._playlist_service.refreshPlaylist(this._data.playlist.id);
-        } catch {
-            notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR'));
-        } finally {
-            this.loading.set('');
-            this._dialog_ref.disableClose = false;
-        }
+        if (!previous_version) return;
+        const undone = await this._playlist_service.undoPlaylistChanges(
+            this._data.playlist,
+            previous_version,
+        );
+        if (undone) this._dialog_ref.close(true);
     }
 
     /**

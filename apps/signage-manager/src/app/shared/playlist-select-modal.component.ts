@@ -1,117 +1,54 @@
 import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IconComponent } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
-import { IntersectDirective } from './intersect.directive';
 import { byName, PagedSearch } from './paged-search';
+import {
+    PickerItemDirective,
+    PickerModalComponent,
+} from './picker-modal.component';
 
 @Component({
     selector: 'playlist-select-modal',
     template: `
-        <header
-            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+        <picker-modal
+            heading="SIGNAGE_MANAGER.ADD_TO_PLAYLIST"
+            close_label="SIGNAGE_MANAGER.CLOSE_ADD_PLAYLIST"
+            search_label="SIGNAGE_MANAGER.SEARCH_PLAYLISTS"
+            empty_icon="playlist_play"
+            empty_label="SIGNAGE_MANAGER.NO_PLAYLISTS"
+            [list]="list"
         >
-            <h2 class="px-2 text-xl font-medium">
-                {{ 'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate }}
-            </h2>
-            <button
-                icon
-                type="button"
-                matRipple
-                mat-dialog-close
-                [attr.aria-label]="
-                    'SIGNAGE_MANAGER.CLOSE_ADD_PLAYLIST' | translate
-                "
-            >
-                <icon>close</icon>
-            </button>
-        </header>
-        <main
-            class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
-        >
-            <mat-form-field
-                appearance="outline"
-                class="no-subscript bg-base-100 sticky top-0 z-10 w-full"
-            >
-                <input
-                    matInput
-                    [(ngModel)]="list.search"
-                    [placeholder]="
-                        'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
-                    "
-                    [attr.aria-label]="
-                        'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
-                    "
-                />
-            </mat-form-field>
-            @if (list.items().length > 0) {
-                @for (playlist of list.items(); track playlist.id) {
-                    <button
-                        type="button"
-                        matRipple
-                        class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center space-x-2 rounded-sm border p-2 text-left"
-                        [mat-dialog-close]="playlist.id"
-                    >
-                        <icon class="text-base-content/60 shrink-0 text-2xl"
-                            >playlist_play</icon
-                        >
-                        <div class="min-w-0 flex-1">
-                            <div class="truncate">
-                                {{ playlist.name }}
-                            </div>
-                            @if (playlist.description) {
-                                <div
-                                    class="text-base-content/70 truncate text-xs"
-                                >
-                                    {{ playlist.description }}
-                                </div>
-                            }
-                        </div>
-                    </button>
-                }
-                @if (list.has_more()) {
-                    <div
-                        class="h-px w-full"
-                        intersect
-                        (intersect)="list.loadMore()"
-                    ></div>
-                }
-            } @else if (list.loading()) {
-                <div
-                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center rounded-lg p-16"
+            <ng-template [pickerItem]="list" let-playlist>
+                <button
+                    type="button"
+                    matRipple
+                    class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center space-x-2 rounded-sm border p-2 text-left"
+                    [mat-dialog-close]="playlist.id"
                 >
-                    <div class="text-base-content/70">
-                        {{ 'COMMON.LOADING' | translate }}
-                    </div>
-                </div>
-            } @else {
-                <div
-                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
-                >
-                    <icon class="text-base-content/70 text-8xl"
+                    <icon class="text-base-content/60 shrink-0 text-2xl"
                         >playlist_play</icon
                     >
-                    <div class="text-base-content/70">
-                        {{ 'SIGNAGE_MANAGER.NO_PLAYLISTS' | translate }}
+                    <div class="min-w-0 flex-1">
+                        <div class="truncate">{{ playlist.name }}</div>
+                        @if (playlist.description) {
+                            <div class="text-base-content/70 truncate text-xs">
+                                {{ playlist.description }}
+                            </div>
+                        }
                     </div>
-                </div>
-            }
-        </main>
+                </button>
+            </ng-template>
+        </picker-modal>
     `,
     imports: [
-        FormsModule,
         MatRippleModule,
         MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
         IconComponent,
-        TranslatePipe,
-        IntersectDirective,
+        PickerModalComponent,
+        PickerItemDirective,
     ],
 })
 export class PlaylistSelectModalComponent {

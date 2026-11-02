@@ -143,8 +143,7 @@ export class YourBookingsPage {
      * clock problem.
      *
      * Driving the sidebar calendar is the only stable way to move the view —
-     * there is no date in the URL, and `schedule-mobile-calendar` is `sm:hidden`
-     * so it does not exist at the desktop viewport the suite runs at.
+     * there is no date in the URL.
      *
      * Resolve the date from the displayed month and its rendered day-1 position.
      * Recalculate after loading, since selecting an adjacent-month day can

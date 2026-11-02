@@ -48,13 +48,16 @@ describe('BookLockerFlowSuccessComponent', () => {
         spectator = createComponent();
     });
 
-    it('should populate calendar links on init', () => {
+    it('should set the calendar event to the booking on init', () => {
         spectator.component.ngOnInit();
-        // The real link builders run (they are pure string builders), so assert
-        // each surfaces a truthy link rather than a stubbed URL.
-        expect(spectator.component.outlook_link()).toBeTruthy();
-        expect(spectator.component.google_link()).toContain('google.com');
-        expect(spectator.component.ical_link()).toContain('text/calendar');
+        expect(spectator.component.cal_event()).toBe(last_success);
+    });
+
+    it('should show the calendar links when enabled by settings', () => {
+        settings['app.lockers.show_calendar_links'] = true;
+        spectator.component.ngOnInit();
+        spectator.detectChanges();
+        expect(spectator.query('a[name="locker-outlook-link"]')).toExist();
     });
 
     it('should build the location from building and level', () => {

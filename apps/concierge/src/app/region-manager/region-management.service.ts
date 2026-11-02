@@ -59,17 +59,6 @@ export class RegionManagementService {
         });
     }
 
-    public async editRegionMetadata(region: PlaceZone = new PlaceZone()) {
-        const { AppSettingsModalComponent } =
-            await import('../ui/app-settings-modal.component');
-        const ref = this._dialog.open(AppSettingsModalComponent, {
-            data: { zone: region },
-        });
-        ref.afterClosed().subscribe((data) => {
-            if (data) setTimeout(() => location.reload(), 300);
-        });
-    }
-
     public async removeRegion(region: Region) {
         const removed = await confirmAction(
             this._dialog,

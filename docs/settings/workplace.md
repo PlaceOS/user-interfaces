@@ -501,7 +501,6 @@ A button for the virtual concierge shows on the schedule, team schedule, explore
 | `virtual_concierge.icon` | string | – | URL of the image for the button. A default icon shows when this is empty. |
 | `virtual_concierge.display` | string | `"fullscreen"` | How the embed opens: `fullscreen` or `sidebar`. |
 | `virtual_concierge.side` | string | `"left"` | Side of the screen for the sidebar: `left` or `right`. |
-| `virtual_concierge.prompts` | string[] | three example prompts | Suggested prompts for the virtual concierge UI. |
 
 ```json
 {

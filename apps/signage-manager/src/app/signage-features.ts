@@ -1,5 +1,4 @@
-import { i18n } from '@placeos/common';
-import { errorStatus } from './image-gen/image-gen.util';
+import { errorStatus, i18n } from '@placeos/common';
 
 /**
  * Features the `app.features` setting can turn on. Groups can only narrow

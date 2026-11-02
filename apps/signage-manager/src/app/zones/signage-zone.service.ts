@@ -1,14 +1,12 @@
 import {
     computed,
     debounced,
-    effect,
     inject,
     Injectable,
     linkedSignal,
     type Resource,
     resource,
     signal,
-    untracked,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -17,7 +15,6 @@ import {
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import {
     addZone as createZone,
     removeZone as deleteZone,
@@ -30,7 +27,9 @@ import {
 } from '@placeos/ts-client';
 import { displayZoneIds, type ZoneNode } from '../displays/display-zones.util';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
+import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
+import { PlaylistAssignments } from '../shared/playlist-assignments';
 import { SignageContextService } from '../signage-context.service';
 import { dialogClosed, mergeItems } from '../signage-service.util';
 import type { ZoneEditFormModel } from './zone-edit-modal.component';
@@ -57,15 +56,6 @@ export class SignageZoneService {
     private readonly _playlist_service = inject(SignagePlaylistService);
 
     private readonly _zone_overrides = signal<Record<string, PlaceZone>>({});
-
-    // Local edits only bridge the gap until the lists reload. Drop them when
-    // the group or data changes, so a stale copy never hides newer server data
-    // or sends an old version with the next patch.
-    private readonly _clear_overrides = effect(() => {
-        this._context.api_group_id();
-        this._context.data_change();
-        untracked(() => this._zone_overrides.set({}));
-    });
 
     /** Search reachable zones, or the direct children of a selected parent. */
     public querySelectableZones(
@@ -252,6 +242,18 @@ export class SignageZoneService {
         source: this._context.group_switch,
         computation: () => null,
     });
+    private readonly _assignments = new PlaylistAssignments<PlaceZone>({
+        context: this._context,
+        playlist_service: this._playlist_service,
+        dialog: this._dialog,
+        overrides: this._zone_overrides,
+        selected: this.selected_zone,
+        target: 'zone_id',
+        already_assigned_key: 'SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE',
+        add_error_key: 'SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR',
+        save_playlists: (zone, playlists) =>
+            updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
+    });
     // Cleared when the selected zone changes, as the search is within it
     public readonly zone_search_term = linkedSignal({
         source: () => this.selected_zone()?.id,
@@ -300,31 +302,11 @@ export class SignageZoneService {
         );
     }
 
-    /**
-     * Keep a saved zone until the lists reload.
-     * @returns The zone with its names decoded, to use for selection
-     */
-    private _cacheZone(zone: PlaceZone) {
-        const item = decodeEntityNames(zone);
-        if (!item?.id) return item;
-        this._zone_overrides.update((state) => ({
-            ...state,
-            [item.id]: item,
-        }));
-        return item;
-    }
-
     public async addPlaylistToZone(zone: PlaceZone) {
-        if (!this._canAssign()) return;
-        const { PlaylistSelectModalComponent } =
-            await import('../shared/playlist-select-modal.component');
-        const ref = this._dialog.open(PlaylistSelectModalComponent, {
-            data: { zone_id: zone.id },
-            panelClass: 'mobile-fullscreen',
-        });
-        const playlist_id = await dialogClosed<string>(ref);
+        if (!this._assignments.canAssign()) return;
+        const playlist_id = await this._assignments.pickPlaylist();
         if (!playlist_id) return;
-        const updated = await this._addZonePlaylist(
+        const updated = await this._assignments.add(
             zone,
             { playlist_id },
             'SIGNAGE_MANAGER.SVC_PLAYLIST_ADDED_ZONE',
@@ -333,7 +315,7 @@ export class SignageZoneService {
     }
 
     public async removePlaylistFromZone(zone: PlaceZone, playlist_id: string) {
-        const updated = await this._removeZonePlaylist(
+        const updated = await this._assignments.remove(
             zone,
             playlist_id,
             'SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_ZONE',
@@ -342,11 +324,10 @@ export class SignageZoneService {
     }
 
     public async addZoneToPlaylist(playlist: SignagePlaylist) {
-        if (!this._canAssign()) return;
+        if (!this._assignments.canAssign()) return;
         const { ZoneSelectModalComponent } =
             await import('../shared/zone-select-modal.component');
         const ref = this._dialog.open(ZoneSelectModalComponent, {
-            data: { playlist_id: playlist.id },
             panelClass: 'mobile-fullscreen',
         });
         const zone_id = await dialogClosed<string>(ref);
@@ -360,104 +341,24 @@ export class SignageZoneService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR'));
             return;
         }
-        const updated = await this._addZonePlaylist(
+        const updated = await this._assignments.add(
             zone,
             { playlist_id: playlist.id, playlist },
             'SIGNAGE_MANAGER.SVC_ZONE_ADDED_PLAYLIST',
         );
-        this._updateSelection(updated);
+        this._assignments.updateSelection(updated);
     }
 
     public async removeZoneFromPlaylist(
         playlist: SignagePlaylist,
         zone: PlaceZone,
     ) {
-        const updated = await this._removeZonePlaylist(
+        const updated = await this._assignments.remove(
             zone,
             playlist.id,
             'SIGNAGE_MANAGER.SVC_ZONE_REMOVED_PLAYLIST',
         );
-        this._updateSelection(updated);
-    }
-
-    private _canAssign() {
-        return this._context.requirePermission(
-            this._context.can_update(),
-            'SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS',
-        );
-    }
-
-    /** Show a saved zone in place of the selected zone, when it is that zone */
-    private _updateSelection(zone: PlaceZone | null) {
-        if (zone && this.selected_zone()?.id === zone.id) {
-            this.selected_zone.set(zone);
-        }
-    }
-
-    /**
-     * Add a playlist to a zone, after a check for takeover conflicts.
-     * @returns The saved zone, or null when nothing was saved
-     */
-    private async _addZonePlaylist(
-        zone: PlaceZone,
-        change: { playlist_id: string; playlist?: SignagePlaylist },
-        success_key: string,
-    ) {
-        if (zone.playlists?.includes(change.playlist_id)) {
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE'));
-            return null;
-        }
-        const confirmed = await this._playlist_service.confirmTakeoverChange({
-            ...change,
-            zone_id: zone.id,
-        });
-        if (!confirmed) return null;
-        return this._saveZonePlaylists(
-            zone,
-            [...(zone.playlists || []), change.playlist_id],
-            success_key,
-        );
-    }
-
-    /**
-     * Take a playlist off a zone.
-     * @returns The saved zone, or null when nothing was saved
-     */
-    private async _removeZonePlaylist(
-        zone: PlaceZone,
-        playlist_id: string,
-        success_key: string,
-    ) {
-        if (!this._canAssign()) return null;
-        return this._saveZonePlaylists(
-            zone,
-            (zone.playlists || []).filter((id) => id !== playlist_id),
-            success_key,
-        );
-    }
-
-    /**
-     * Save the playlists of a zone and keep the result until the lists reload.
-     * @returns The saved zone, or null after showing an error when it fails
-     */
-    private async _saveZonePlaylists(
-        zone: PlaceZone,
-        playlists: string[],
-        success_key: string,
-    ) {
-        const updated = await updateZone(
-            zone.id,
-            { playlists, version: zone.version },
-            'patch',
-        ).catch(() => null);
-        if (!updated) {
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR'));
-            return null;
-        }
-        const saved = this._cacheZone(updated);
-        this._context.changed();
-        notifySuccess(i18n(success_key));
-        return saved;
+        this._assignments.updateSelection(updated);
     }
 
     public async addZone() {
@@ -534,7 +435,7 @@ export class SignageZoneService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_SAVE_ERROR'));
             return null;
         }
-        const saved = this._cacheZone(result);
+        const saved = this._assignments.cache(result);
         this.zone_tree_children_cache.set({});
         this.selected_zone.set(saved);
         this._context.changed();
@@ -563,7 +464,8 @@ export class SignageZoneService {
     public async removeZone(zone: PlaceZone) {
         if (!zone?.id || !zone.tags?.includes('signage')) return false;
         if (!this._canManageZones()) return false;
-        const result = await openConfirmModal(
+        const removed = await confirmThenRun(
+            this._dialog,
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_SIGNAGE_ZONE_TITLE'),
                 content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
@@ -571,18 +473,13 @@ export class SignageZoneService {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading_key: 'SIGNAGE_MANAGER.SVC_REMOVING',
+                error_key: 'SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_REMOVE_ERROR',
+                action: () => deleteZone(zone.id),
+            },
         );
-        if (result.reason !== 'done') return false;
-        const removed = await deleteZone(zone.id).then(
-            () => true,
-            () => false,
-        );
-        result.close();
-        if (!removed) {
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_REMOVE_ERROR'));
-            return false;
-        }
+        if (!removed) return false;
         this._zone_overrides.update((overrides) => {
             const next = { ...overrides };
             delete next[zone.id];

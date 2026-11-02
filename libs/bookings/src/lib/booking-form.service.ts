@@ -75,6 +75,7 @@ import type {
 } from './booking-form.types';
 import {
     groupName,
+    isGroupBooking,
     mapGroupMembers,
     mapGroupMembersFromBookings,
     mapGroupMembersFromExtension,
@@ -2024,6 +2025,25 @@ export class BookingFormService extends AsyncHandler {
             booking.extension_data?.group_members || [],
             is_visitor,
         );
+    }
+
+    /**
+     * Set the `group` and `members` options when the user edits a group
+     * booking. Does nothing for other bookings. The members are empty when
+     * they fail to load, so the save fails. It does not save the booking of
+     * the organiser only. Pass `isCancelled` to skip the update when the
+     * caller has gone.
+     */
+    public async restoreGroupMembers(
+        booking: Booking,
+        isCancelled: () => boolean = () => false,
+    ) {
+        if (!booking?.id || !isGroupBooking(booking)) return;
+        const members = await this.loadGroupMembersForBooking(booking).catch(
+            (): User[] => [],
+        );
+        if (isCancelled()) return;
+        this.setOptions({ group: true, members });
     }
 
     public async editFormForGroup(

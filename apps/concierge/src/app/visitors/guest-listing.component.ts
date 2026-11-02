@@ -29,6 +29,7 @@ import {
 } from '@placeos/components';
 import { UserDetails, UserLabelComponent } from '@placeos/users';
 import { ParkingStateService } from '../parking/parking-state.service';
+import { appMetadataKey } from '../ui/app-settings/app-settings.utilities';
 import { showVisitorFlag } from './visitor-flags';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -915,12 +916,6 @@ export class GuestListingComponent extends AsyncHandler {
         return now >= start && now <= end;
     }
 
-    public get logo() {
-        return this._settings.theme === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
-    }
-
     public printVisitorPass(item: Booking) {
         this.qr_code.set(generateQRCode(item.asset_id));
         this.printing.set(item.id);
@@ -941,15 +936,6 @@ export class GuestListingComponent extends AsyncHandler {
         this.timeout('print', () => window.print());
     }
 
-    public inducted(item: Booking) {
-        if (item.checked_in) return true;
-        return item.induction == 'declined'
-            ? false
-            : item.induction == 'accepted'
-              ? true
-              : null;
-    }
-
     constructor() {
         super();
         effect(() => {
@@ -960,10 +946,10 @@ export class GuestListingComponent extends AsyncHandler {
     }
 
     private async _loadVisitorKioskConfig(bld: any) {
-        const visitor_kiosk_app =
-            this._settings.get('app.visitor_kiosk_metadata_key') ||
-            this._settings.get('app.visitor_kiosk_app') ||
-            'visitor-kiosk_app';
+        const visitor_kiosk_app = appMetadataKey(
+            this._settings,
+            'visitor-kiosk',
+        );
         const metadata: any = await showMetadata(bld.id, visitor_kiosk_app);
         const org_metadata: any = await showMetadata(
             this._org.organisation.id,

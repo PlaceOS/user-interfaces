@@ -1,6 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
@@ -8,7 +7,6 @@ import { setNotifyOutlet } from '@placeos/common';
 
 import { RegionListComponent } from '../../app/region-manager/region-list.component';
 import { RegionManagementService } from '../../app/region-manager/region-management.service';
-import { ConciergeSettingsFormModalComponent } from '../../app/ui/app-settings/concierge-settings-form-modal.component';
 
 describe('RegionListComponent', () => {
     let spectator: Spectator<RegionListComponent>;
@@ -23,7 +21,6 @@ describe('RegionListComponent', () => {
         providers: [
             MockProvider(RegionManagementService, {}),
             MockProvider(Clipboard, {}),
-            MockProvider(MatDialog, { open: vi.fn() }),
         ],
     });
 
@@ -43,7 +40,6 @@ describe('RegionListComponent', () => {
             providers: [
                 { provide: RegionManagementService, useValue: manager },
                 { provide: Clipboard, useValue: { copy } },
-                { provide: MatDialog, useValue: { open: vi.fn() } },
             ],
         });
     });
@@ -74,14 +70,5 @@ describe('RegionListComponent', () => {
         copy.mockReturnValue(false);
         spectator.component.copyToClipboard('r1');
         expect(notify_open).not.toHaveBeenCalled();
-    });
-
-    it('should open the concierge settings modal for the selected zone', async () => {
-        const zone = { id: 'r1' };
-        await spectator.component.editConciergeSettings(zone);
-        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
-            ConciergeSettingsFormModalComponent,
-            { data: { zone } },
-        );
     });
 });

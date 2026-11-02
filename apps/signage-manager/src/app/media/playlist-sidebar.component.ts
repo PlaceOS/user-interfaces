@@ -15,6 +15,7 @@ import {
 import { SignageMedia, SignagePlaylist } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { IntersectDirective } from '../shared/intersect.directive';
+import { PlaylistStatusBadgeComponent } from '../shared/playlist-status-badge.component';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
 import { SignageContextService } from '../signage-context.service';
 import { playlistStatus } from '../signage-playlist.util';
@@ -102,57 +103,13 @@ import { playlistStatus } from '../signage-playlist.util';
                                         class="flex flex-wrap gap-1 text-[0.625rem]"
                                     >
                                         @if (!playlist.enabled) {
-                                            <span
-                                                class="bg-base-200 shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
-                                            >
-                                                {{
-                                                    'COMMON.DISABLED'
-                                                        | translate
-                                                }}
-                                            </span>
+                                            <playlist-status-badge
+                                                status="disabled"
+                                            />
                                         }
-                                        @switch (getStatus(playlist)) {
-                                            @case ('expired') {
-                                                <span
-                                                    class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
-                                                >
-                                                    {{
-                                                        'SIGNAGE_MANAGER.STATUS_EXPIRED'
-                                                            | translate
-                                                    }}
-                                                </span>
-                                            }
-                                            @case ('pending') {
-                                                <span
-                                                    class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
-                                                >
-                                                    {{
-                                                        'COMMON.PENDING'
-                                                            | translate
-                                                    }}
-                                                </span>
-                                            }
-                                            @case ('awaiting_review') {
-                                                <span
-                                                    class="bg-base-300 shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
-                                                >
-                                                    {{
-                                                        'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW'
-                                                            | translate
-                                                    }}
-                                                </span>
-                                            }
-                                            @case ('awaiting_approval') {
-                                                <span
-                                                    class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
-                                                >
-                                                    {{
-                                                        'COMMON.APPROVAL_REQUIRED'
-                                                            | translate
-                                                    }}
-                                                </span>
-                                            }
-                                        }
+                                        <playlist-status-badge
+                                            [status]="getStatus(playlist)"
+                                        />
                                     </div>
                                     @if (playlist.description) {
                                         <div
@@ -222,6 +179,7 @@ import { playlistStatus } from '../signage-playlist.util';
         `,
     ],
     imports: [
+        PlaylistStatusBadgeComponent,
         DragDropModule,
         FormsModule,
         MatFormFieldModule,

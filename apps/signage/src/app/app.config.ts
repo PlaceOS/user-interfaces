@@ -6,35 +6,23 @@ import {
     provideAppInitializer,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideRouter, withHashLocation } from '@angular/router';
+import {
+    provideRouter,
+    withHashLocation,
+    withNavigationErrorHandler,
+} from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import {
+    errorMessage,
     LazySentryErrorHandler,
     LocaleService,
     registerActiveLocale,
+    reloadOnChunkLoadError,
 } from '@placeos/common';
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { recordFatalError } from './watchdog';
-
-/**
- * Readable text for a thrown value. Errors are not always `Error` instances -
- * HTTP failures and API client rejections are plain objects - so any string
- * `message` is used before falling back to the value itself.
- */
-function errorMessage(error: unknown): string {
-    if (
-        typeof error === 'object' &&
-        error !== null &&
-        'message' in error &&
-        typeof error.message === 'string' &&
-        error.message
-    ) {
-        return error.message;
-    }
-    return String(error);
-}
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -42,7 +30,11 @@ export const appConfig: ApplicationConfig = {
         provideAppInitializer(() =>
             registerActiveLocale(inject(LocaleService).locale),
         ),
-        provideRouter(routes, withHashLocation()),
+        provideRouter(
+            routes,
+            withHashLocation(),
+            withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error)),
+        ),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,
         }),
@@ -54,7 +46,7 @@ export const appConfig: ApplicationConfig = {
                 const handler = new LazySentryErrorHandler();
                 return {
                     handleError: (error: unknown) => {
-                        recordFatalError(errorMessage(error));
+                        recordFatalError(errorMessage(error) || String(error));
                         handler.handleError(error);
                     },
                 };

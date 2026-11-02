@@ -1,12 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PlaceOS_Service, SettingsService } from '@placeos/common';
+import { PlaceOS_Service, setMocks, SettingsService } from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
 } from '@placeos/components';
 import { ChatComponent } from '@placeos/components/chat';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
+import { mocksInit } from '@placeos/mocks';
 
 @Component({
     selector: 'app-root',
@@ -53,6 +54,7 @@ export class AppComponent implements OnInit {
     public readonly has_chat = this._settings.signal('chat.enabled', false);
 
     public ngOnInit(): void {
+        setMocks(mocksInit);
         this._placeos.init();
     }
 }

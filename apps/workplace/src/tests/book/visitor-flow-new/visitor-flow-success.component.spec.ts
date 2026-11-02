@@ -1,5 +1,8 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { Router } from '@angular/router';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
     Booking,
@@ -95,22 +98,17 @@ describe('VisitorFlowSuccessComponent', () => {
         expect(spectator.component.building()).toEqual(buildings[0]);
     });
 
-    it('builds calendar links once a booking is loaded', async () => {
+    it('builds the calendar event once a booking is loaded', async () => {
         await spectator.component.ngOnInit();
         expect(spectator.component.cal_event()).toBeTruthy();
         expect(spectator.component.cal_event().attendees).toContain(
             'visitor@external.com',
         );
-        expect(spectator.component.outlook_link()).toContain('http');
-        expect(spectator.component.google_link()).toContain('http');
-        expect(spectator.component.ical_link()).toContain('data:text/calendar');
+        expect(spectator.component.cal_event().location).toBe('The Annex');
     });
 
-    it('produces no calendar links when no booking is loaded', () => {
+    it('has no calendar event when no booking is loaded', () => {
         expect(spectator.component.cal_event()).toBeNull();
-        expect(spectator.component.outlook_link()).toBe('');
-        expect(spectator.component.google_link()).toBe('');
-        expect(spectator.component.ical_link()).toBe('');
     });
 
     it('reports single-visitor mode when one visitor was invited', async () => {

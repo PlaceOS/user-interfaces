@@ -208,14 +208,17 @@ describe('EmailTemplatesStateService', () => {
     it('should not write templates when the zone list cannot be read', async () => {
         (ts_client.showMetadata as any).mockRejectedValue('offline');
 
-        await expect(
-            spectator.service.removeTemplate({
-                id: 'drop',
-                zone_id: 'bld-1',
-            } as EmailTemplate),
-        ).rejects.toBe('offline');
+        await spectator.service.removeTemplate({
+            id: 'drop',
+            zone_id: 'bld-1',
+        } as EmailTemplate);
 
         expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 
     it('should keep the template when removal is cancelled', async () => {

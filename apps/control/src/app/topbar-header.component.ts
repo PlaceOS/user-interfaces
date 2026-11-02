@@ -1,12 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import {
-    AsyncHandler,
-    i18n,
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+import { AsyncHandler, i18n, themedLogo } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     CustomTooltipComponent,
@@ -55,7 +50,7 @@ enum TOOLTIP {
                 class="h-8 select-none sm:h-12"
                 alt="Logo"
                 draggable="false"
-                [source]="logo()?.src || logo()"
+                [source]="logo()"
                 (pointerdown)="startHold()"
                 (pointerup)="cancelHold()"
                 (pointerleave)="cancelHold()"
@@ -156,10 +151,8 @@ enum TOOLTIP {
     ],
 })
 export class TopbarHeaderComponent extends AsyncHandler {
-    private _settings = inject(SettingsService);
     private _state = inject(ControlStateService);
     private _call = inject(VideoCallStateService);
-    private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _action_ref: MatDialogRef<ActionModalComponent> | null = null;
 
@@ -324,14 +317,7 @@ export class TopbarHeaderComponent extends AsyncHandler {
         super.ngOnDestroy();
     }
 
-    public readonly logo = computed(() => {
-        this._org.active_building();
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    });
+    public readonly logo = themedLogo();
 
     private readonly _can_change_room = this._state.canChangeRoom();
 

@@ -1,9 +1,6 @@
 import { signal } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService } from '@placeos/common';
-import { AuthenticatedImageDirective } from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
 
 import { LockersReportChartsComponent } from 'apps/concierge/src/app/reports/lockers/lockers-report-charts.component';
@@ -14,14 +11,13 @@ import { LockersReportComponent } from 'apps/concierge/src/app/reports/lockers/l
 import { LockersReportService } from 'apps/concierge/src/app/reports/lockers/lockers-report.service';
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
-import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
+import { MockComponent } from 'ng-mocks';
 
 describe('LockersReportComponent', () => {
     let spectator: Spectator<LockersReportComponent>;
     let query_params: BehaviorSubject<unknown>;
     let bookings: ReturnType<typeof signal<unknown>>;
     let loading: ReturnType<typeof signal<string>>;
-    let active_building: ReturnType<typeof signal<unknown>>;
     let set_options: unknown;
     let generate_report: unknown;
     let download_report: unknown;
@@ -35,10 +31,7 @@ describe('LockersReportComponent', () => {
             MockComponent(LockersReportOverallComponent),
             MockComponent(LockersReportDailyUsageComponent),
             MockComponent(LockersReportListComponent),
-            MockDirective(AuthenticatedImageDirective),
         ],
-        imports: [MatProgressSpinnerModule],
-        providers: [MockProvider(SettingsService, {})],
     });
 
     beforeEach(() => {
@@ -51,7 +44,6 @@ describe('LockersReportComponent', () => {
         );
         bookings = signal([]);
         loading = signal('');
-        active_building = signal({ id: 'building-1' });
         set_options = vi.fn();
         generate_report = vi.fn();
         download_report = vi.fn();
@@ -68,20 +60,6 @@ describe('LockersReportComponent', () => {
                     },
                 },
                 {
-                    provide: SettingsService,
-                    useValue: {
-                        theme: 'dark',
-                        get: vi.fn((key: string) => {
-                            if (key === 'app.logo_light')
-                                return { src: 'light-logo.svg' };
-                            if (key === 'app.logo_dark')
-                                return { src: 'dark-logo.svg' };
-                            return undefined;
-                        }),
-                    },
-                },
-                { provide: OrganisationService, useValue: { active_building } },
-                {
                     provide: ActivatedRoute,
                     useValue: { queryParamMap: query_params },
                 },
@@ -90,16 +68,20 @@ describe('LockersReportComponent', () => {
     });
 
     it('should apply query params to report options', () => {
-        expect(set_options).toHaveBeenCalledWith({ start: 100 });
-        expect(set_options).toHaveBeenCalledWith({ end: 200 });
         expect(set_options).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
             zones: ['level-1', 'level-2'],
         });
     });
 
     it('should clear zones when query params omit them', () => {
         query_params.next(convertToParamMap({ start: '100', end: '200' }));
-        expect(set_options).toHaveBeenCalledWith({ zones: [] });
+        expect(set_options).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
+            zones: [],
+        });
     });
 
     it('should expose the booking count from the service', () => {
@@ -113,9 +95,5 @@ describe('LockersReportComponent', () => {
         spectator.component.downloadReport();
         expect(generate_report).toHaveBeenCalled();
         expect(download_report).toHaveBeenCalled();
-    });
-
-    it('should select the dark logo when the theme is dark', () => {
-        expect(spectator.component.logo()).toEqual({ src: 'dark-logo.svg' });
     });
 });

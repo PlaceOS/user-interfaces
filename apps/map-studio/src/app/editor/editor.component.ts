@@ -10,12 +10,14 @@ import {
     viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { errorMessage } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 
 import type { DetectedRoom } from '../data/floorplan-ai.service';
 import { FloorplanAiService } from '../data/floorplan-ai.service';
 import { MapObject } from '../data/types';
 import { AssetPickerComponent } from './asset-picker.component';
+import { isBookable } from './availability';
 import { AvailabilityPanelComponent } from './availability-panel.component';
 import { CanvasComponent } from './canvas.component';
 import {
@@ -950,8 +952,7 @@ export class EditorComponent {
             .objects()
             .filter(
                 (object) =>
-                    (object.object_type === 'room' ||
-                        object.object_type === 'desk') &&
+                    isBookable(object) &&
                     object.label?.toLowerCase().includes(query),
             )
             .slice(0, 8);
@@ -1222,7 +1223,7 @@ export class EditorComponent {
             );
         } catch (error) {
             this._toasts.show(
-                this._errorMessage(error, 'Outline detection failed'),
+                errorMessage(error) || 'Outline detection failed',
                 'error',
             );
         } finally {
@@ -1255,7 +1256,7 @@ export class EditorComponent {
             );
         } catch (error) {
             this._toasts.show(
-                this._errorMessage(error, 'Room detection failed'),
+                errorMessage(error) || 'Room detection failed',
                 'error',
             );
         } finally {
@@ -1300,10 +1301,6 @@ export class EditorComponent {
                 return sum + point.x * next.y - next.x * point.y;
             }, 0) / 2,
         );
-    }
-
-    private _errorMessage(error: unknown, fallback: string) {
-        return error instanceof Error ? error.message : fallback;
     }
 
     /** The multi-selection when it holds the selected object, else the selected object */

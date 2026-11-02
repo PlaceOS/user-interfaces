@@ -36,7 +36,6 @@ import {
     rejectBookingInstance,
     removeBooking as removeBookingApi,
     saveBooking,
-    setBookingCheckedIn,
     updateBooking,
     updateBookingInstance,
 } from '@placeos/bookings';
@@ -612,6 +611,28 @@ export class ParkingStateService extends AsyncHandler {
         );
     }
 
+    /**
+     * Whether the current user can see parking requests. Needs the
+     * `app.parking.show_requests` setting. Admins can always see them. Other
+     * users must be in a `parking-requests` feature group, when that list
+     * has groups.
+     */
+    public get can_view_requests(): boolean {
+        if (!this._settings.get('app.parking.show_requests')) return false;
+        const feature_groups = this._settings.get('app.feature_groups') || {};
+        const request_groups: string[] =
+            feature_groups['parking-requests'] || [];
+        const admin_group = this._settings.get('app.admin_group') || 'admin';
+        const groups = currentUser()?.groups || [];
+        return (
+            groups.includes(admin_group) ||
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support') ||
+            !request_groups.length ||
+            groups.some((grp) => request_groups.includes(grp))
+        );
+    }
+
     public filterEventList(list: Booking[], filter_type: ParkingRequestFilter) {
         const show_requests = !!this._settings.get('app.parking.show_requests');
         const visible_list = show_requests
@@ -1093,31 +1114,6 @@ export class ParkingStateService extends AsyncHandler {
                 if (id) this._reloadResources();
             });
         });
-    }
-
-    public async setBookingCheckinState(booking: Booking, state = true) {
-        const promise = setBookingCheckedIn(booking, state).catch((_) => ({
-            state: 'failed',
-            error: _,
-        }));
-        const success = await promise;
-        success.state === 'failed'
-            ? notifyError(
-                  i18n(
-                      state
-                          ? 'APP.CONCIERGE.PARKING_CHECKIN_ERROR'
-                          : 'APP.CONCIERGE.PARKING_CHECKOUT_ERROR',
-                      { error: success.error },
-                  ),
-              )
-            : notifySuccess(
-                  i18n(
-                      state
-                          ? 'APP.CONCIERGE.PARKING_CHECKIN_SUCCESS'
-                          : 'APP.CONCIERGE.PARKING_CHECKOUT_SUCCESS',
-                  ),
-              );
-        if (success.state !== 'failed') this._reloadResources();
     }
 
     public async approveBooking(booking: Booking, series = false) {

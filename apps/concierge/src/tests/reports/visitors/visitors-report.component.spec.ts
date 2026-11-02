@@ -1,12 +1,9 @@
 import { signal } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
-import { OrganisationService, SettingsService } from '@placeos/common';
-import { AuthenticatedImageDirective } from '@placeos/components';
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
 import { VisitorReportDailyUsageComponent } from 'apps/concierge/src/app/reports/visitors/visitor-report-daily-usage.component';
@@ -32,9 +29,7 @@ describe('VisitorsReportComponent', () => {
             MockComponent(VisitorReportOverallComponent),
             MockComponent(VisitorReportDailyUsageComponent),
             MockComponent(VisitorReportListComponent),
-            MockDirective(AuthenticatedImageDirective),
         ],
-        imports: [MatProgressSpinnerModule],
         providers: [
             MockProvider(VisitorsReportService, {
                 bookings: signal<any[]>([]),
@@ -43,10 +38,6 @@ describe('VisitorsReportComponent', () => {
                 generateReport: vi.fn(),
                 downloadReport: vi.fn(),
             }),
-            MockProvider(SettingsService, { theme: 'light', get: vi.fn() }),
-            MockProvider(OrganisationService, {
-                active_building: signal({ id: 'building-1' }),
-            } as any),
             MockProvider(ActivatedRoute, {
                 queryParamMap: new BehaviorSubject(convertToParamMap({})),
             }),
@@ -79,17 +70,6 @@ describe('VisitorsReportComponent', () => {
                     },
                 },
                 {
-                    provide: SettingsService,
-                    useValue: {
-                        theme: 'light',
-                        get: vi.fn((key: string) =>
-                            key === 'app.logo_light'
-                                ? { src: 'light.svg' }
-                                : undefined,
-                        ),
-                    },
-                },
-                {
                     provide: ActivatedRoute,
                     useValue: { queryParamMap: query_params },
                 },
@@ -98,16 +78,20 @@ describe('VisitorsReportComponent', () => {
     });
 
     it('should apply query params to the report options', () => {
-        expect(set_options).toHaveBeenCalledWith({ start: 100 });
-        expect(set_options).toHaveBeenCalledWith({ end: 200 });
         expect(set_options).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
             zones: ['lvl-1', 'lvl-2'],
         });
     });
 
     it('should clear zones when the query params omit them', () => {
         query_params.next(convertToParamMap({ start: '100', end: '200' }));
-        expect(set_options).toHaveBeenCalledWith({ zones: [] });
+        expect(set_options).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
+            zones: [],
+        });
     });
 
     it('should expose the booking count and has_data flag', () => {
@@ -116,10 +100,6 @@ describe('VisitorsReportComponent', () => {
         bookings.set([{ asset_id: 'a' }]);
         expect(spectator.component.total_count()).toBe(1);
         expect(spectator.component.has_data()).toBe(true);
-    });
-
-    it('should select the light logo by default', () => {
-        expect(spectator.component.logo()).toEqual({ src: 'light.svg' });
     });
 
     it('should delegate generate and download to the report service', () => {

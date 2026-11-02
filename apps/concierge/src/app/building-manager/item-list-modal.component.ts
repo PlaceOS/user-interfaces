@@ -10,6 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService, notifyError } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { appMetadataKey } from '../ui/app-settings/app-settings.utilities';
 
 @Component({
     selector: 'item-list-modal',
@@ -98,12 +99,8 @@ export class ItemListModalComponent implements OnInit {
     public identify = (index: number, _item: unknown) => index;
 
     public async ngOnInit() {
-        const metadata_key =
-            this._settings.get('app.workplace_metadata_key') || 'workplace_app';
-        const concierge_key =
-            this._settings.get('app.concierge_metadata_key') ||
-            this._settings.get('app.concierge_app') ||
-            'concierge_app';
+        const metadata_key = appMetadataKey(this._settings, 'workplace');
+        const concierge_key = appMetadataKey(this._settings, 'concierge');
         // Save writes the list to both apps, so load from either. Otherwise
         // a list that only exists for concierge is replaced on save.
         const [workplace, concierge]: any[] = await Promise.all([
@@ -133,12 +130,8 @@ export class ItemListModalComponent implements OnInit {
     }
 
     public async save() {
-        const metadata_key =
-            this._settings.get('app.workplace_metadata_key') || 'workplace_app';
-        const concierge_key =
-            this._settings.get('app.concierge_metadata_key') ||
-            this._settings.get('app.concierge_app') ||
-            'concierge_app';
+        const metadata_key = appMetadataKey(this._settings, 'workplace');
+        const concierge_key = appMetadataKey(this._settings, 'concierge');
         this.loading.set(true);
         const items = this.item_list().filter((_) => _);
         try {

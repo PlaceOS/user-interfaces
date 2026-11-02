@@ -20,8 +20,6 @@ export class DealsService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _changed = signal(0);
 
-    public readonly loading = signal(false);
-
     private readonly _deals = resource({
         params: () => ({
             building: this._org.active_building()?.id,
@@ -30,12 +28,10 @@ export class DealsService extends AsyncHandler {
         defaultValue: [] as Deal[],
         loader: async ({ params }) => {
             if (!params.building) return [];
-            this.loading.set(true);
             const metadata = await showMetadata(
                 params.building,
                 'deals-n-offers',
             ).catch(() => ({ details: [] }));
-            this.loading.set(false);
             return metadata?.details instanceof Array ? metadata.details : [];
         },
     });

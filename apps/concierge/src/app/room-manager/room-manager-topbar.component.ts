@@ -138,19 +138,8 @@ export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
 
     public readonly newRoom = () => this._manager.editRoom();
 
-    public get building() {
-        return this._org.building;
-    }
-
     public get use_region() {
         return !!this._settings.get('app.use_region');
-    }
-
-    public get root_zone() {
-        return (
-            (this.use_region ? this._org.region.id : '') ||
-            this._org.building.id
-        );
     }
 
     public manageRestrictions() {

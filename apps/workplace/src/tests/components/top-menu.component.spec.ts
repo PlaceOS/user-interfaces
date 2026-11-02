@@ -1,7 +1,20 @@
 import {
     hasActiveTopMenuFeature,
     hasLoadedTopMenuSettings,
+    topMenuFeatureForUrl,
 } from '../../app/components/top-menu.component';
+
+describe('topMenuFeatureForUrl', () => {
+    it('leaves the meeting flow open, so Explore bookings reach success', () => {
+        expect(
+            topMenuFeatureForUrl('/book/meeting/success', '/landing'),
+        ).toBe('');
+    });
+
+    it('reports home for the default page', () => {
+        expect(topMenuFeatureForUrl('/landing', '/landing')).toBe('home');
+    });
+});
 
 describe('hasActiveTopMenuFeature', () => {
     it('allows parking requests when parking is enabled', () => {

@@ -32,7 +32,8 @@ import {
 } from '@placeos/form-fields';
 import { endOfDay, isSameDay, startOfDay } from 'date-fns';
 import {
-    isBookingForOtherUser,
+    bookingTypeCounts,
+    SCHEDULE_FILTER_TYPES,
     ScheduleOptions,
     ScheduleStateService,
 } from './schedule-state.service';
@@ -193,6 +194,8 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly toggleBookingsForOthers = () =>
         this._state.toggleBookingsForOthers();
+    public readonly hasFeature = (feature: string[]) =>
+        this._state.hasFeature(feature);
     public readonly setDate = (d) => this._state.setDate(d);
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
     public readonly view = input<'day' | 'week' | 'list'>('day');
@@ -202,60 +205,9 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     public readonly week_date = this._state.week_date;
     public readonly week_options = this._state.week_options;
 
-    public readonly feature_list = [
-        { type: 'desk', feat: 'desks', icon: 'desk', name: 'RESOURCE.DESKS' },
-        {
-            type: 'event',
-            feat: 'spaces',
-            icon: 'meeting_room',
-            name: 'RESOURCE.MEETINGS',
-        },
-        {
-            type: 'parking',
-            feat: ['parking', 'parking-requests'],
-            icon: 'drive_eta',
-            name: 'RESOURCE.PARKING',
-        },
-        {
-            type: 'visitor',
-            feat: 'visitor-invite',
-            icon: 'people',
-            name: 'RESOURCE.VISITORS',
-        },
-        {
-            type: 'locker',
-            feat: 'lockers',
-            icon: 'lock',
-            name: 'RESOURCE.LOCKERS',
-        },
-        {
-            type: 'group-event',
-            feat: 'group-events',
-            icon: 'event_available',
-            name: 'RESOURCE.EVENTS',
-        },
-    ];
+    public readonly feature_list = SCHEDULE_FILTER_TYPES;
 
-    public readonly counts = computed(() => {
-        const mapping: Record<string, number> = {};
-        const bkn_list = this.bookings() || [];
-        for (const bkn of bkn_list) {
-            if (bkn instanceof CalendarEvent) {
-                const type = bkn.extension_data?.shared_event
-                    ? 'group-event'
-                    : 'event';
-                mapping[type] = (mapping[type] || 0) + 1;
-            } else {
-                const type = bkn.booking_type;
-                mapping[type] = (mapping[type] || 0) + 1;
-                if (isBookingForOtherUser(bkn)) {
-                    mapping['bookings-for-others'] =
-                        (mapping['bookings-for-others'] || 0) + 1;
-                }
-            }
-        }
-        return mapping;
-    });
+    public readonly counts = computed(() => bookingTypeCounts(this.bookings()));
 
     public get period() {
         const current_view = this.view();
@@ -285,14 +237,6 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
         this._state.setOptions(options);
     }
 
-    public hasFeature(feature: string | string[]) {
-        const features = this._settings.get('app.features') || [];
-        if (Array.isArray(feature)) {
-            return feature.some((f) => features.includes(f));
-        }
-        return features.includes(feature);
-    }
-
     public get offset_weekday() {
         return this._settings.get('app.week_start') || 0;
     }
@@ -306,14 +250,15 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
             const bld = this._org.active_building();
             if (!bld) return;
             const timeout = setTimeout(() => {
-                this._state.setTypeDefaults(bld.id, {
-                    event: this.hasFeature('spaces'),
-                    desk: this.hasFeature('desks'),
-                    parking: this.hasFeature(['parking', 'parking-requests']),
-                    visitor: this.hasFeature('visitor-invite'),
-                    locker: this.hasFeature('lockers'),
-                    'group-event': this.hasFeature('group-events'),
-                });
+                this._state.setTypeDefaults(
+                    bld.id,
+                    Object.fromEntries(
+                        SCHEDULE_FILTER_TYPES.map((item) => [
+                            item.type,
+                            this.hasFeature(item.feat),
+                        ]),
+                    ),
+                );
             }, 1000);
             onCleanup(() => clearTimeout(timeout));
         });

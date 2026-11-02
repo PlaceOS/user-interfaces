@@ -94,6 +94,20 @@ function stubFetch(authority_ok: boolean) {
             };
         }
         if (url.includes('/zones?')) return { ok: true, json: async () => [] };
+        if (url.includes('/systems?')) {
+            // One full page, then a short one
+            const offset = Number(
+                new URL(url, 'http://x').searchParams.get('offset'),
+            );
+            const size = offset < 100 ? 100 : 20;
+            return {
+                ok: true,
+                json: async () =>
+                    Array.from({ length: size }, (_, i) => ({
+                        id: `sys-${offset + i}`,
+                    })),
+            };
+        }
         if (url.includes('/LLM_1/chat'))
             return {
                 ok: true,
@@ -272,7 +286,9 @@ describe('PlaceOSService', () => {
         await expect(service.getActiveOrganisation()).resolves.toEqual({
             id: 'org-2',
         });
-        await expect(service.getLevelSvg('level-1')).resolves.toContain('<svg');
+        await expect(service.getLevelMap('level-1')).resolves.toMatchObject({
+            svg: expect.stringContaining('<svg'),
+        });
 
         const [, options] = calls.find(([url]) =>
             url.endsWith('/maps/level-1.svg'),
@@ -286,7 +302,9 @@ describe('PlaceOSService', () => {
         const calls = stubFetch(true);
         await service.init();
 
-        await expect(service.getLevelSvg('level-2')).resolves.toContain('<svg');
+        await expect(service.getLevelMap('level-2')).resolves.toMatchObject({
+            svg: expect.stringContaining('<svg'),
+        });
 
         const [url, options] = calls[calls.length - 1];
         expect(url).toBe('http://other.example/map.svg');
@@ -341,6 +359,18 @@ describe('PlaceOSService', () => {
         expect(
             calls.filter(([url]) => url.includes('tags=level')),
         ).toHaveLength(3);
+    });
+
+    it('reads every page of systems', async () => {
+        const calls = stubFetch(true);
+        await service.init();
+
+        const systems = await service.getSystems('level-1');
+
+        expect(systems).toHaveLength(120);
+        expect(calls.filter(([url]) => url.includes('/systems?'))).toHaveLength(
+            2,
+        );
     });
 
     it('sends an imported SVG once, not as both source and output', async () => {

@@ -6,8 +6,6 @@ import { SignageDisplayService } from '../../app/displays/signage-display.servic
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../../app/signage-context.service';
 
-const NOW_S = Math.floor(Date.now() / 1000);
-
 describe('DisplayContentComponent', () => {
     const selected_display = signal<unknown>(null);
     const playlists = signal<unknown[]>([]);
@@ -114,40 +112,6 @@ describe('DisplayContentComponent', () => {
         expect(component.display_zones()).toEqual([]);
     });
 
-    it('marks playlists past their valid_until window as expired', async () => {
-        const component = await make();
-        expect(
-            component.getStatus({
-                id: 'p1',
-                valid_until: NOW_S - 3600,
-            } as any),
-        ).toBe('expired');
-    });
-
-    it('marks playlists before their valid_from window as pending', async () => {
-        const component = await make();
-        expect(
-            component.getStatus({
-                id: 'p1',
-                valid_from: NOW_S + 3600,
-            } as any),
-        ).toBe('pending');
-    });
-
-    it('marks unapproved playlists as awaiting approval', async () => {
-        playlist_approval_status.set({ p1: false });
-        const component = await make();
-        expect(component.getStatus({ id: 'p1' } as any)).toBe(
-            'awaiting_approval',
-        );
-    });
-
-    it('returns no status for an approved, in-window playlist', async () => {
-        playlist_approval_status.set({ p1: true });
-        const component = await make();
-        expect(component.getStatus({ id: 'p1' } as any)).toBeNull();
-    });
-
     it('adds a playlist to the selected display via the service', async () => {
         const display = { id: 'd1', playlists: [] };
         selected_display.set(display);
@@ -158,19 +122,13 @@ describe('DisplayContentComponent', () => {
         expect(add_playlist).toHaveBeenCalledWith(display);
     });
 
-    it('removes a playlist from the display and stops the click event', async () => {
+    it('removes a playlist from the display via the service', async () => {
         const display = { id: 'd1', playlists: ['p1'] };
         selected_display.set(display);
         const component = await make();
-        const event = {
-            preventDefault: vi.fn(),
-            stopPropagation: vi.fn(),
-        };
 
-        component.removePlaylist(event as any, 'p1');
+        component.removePlaylist('p1');
 
-        expect(event.preventDefault).toHaveBeenCalled();
-        expect(event.stopPropagation).toHaveBeenCalled();
         expect(remove_playlist).toHaveBeenCalledWith(display, 'p1');
     });
 

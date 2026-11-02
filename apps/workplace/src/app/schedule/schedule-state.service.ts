@@ -93,6 +93,70 @@ export function isBookingForOtherUser(
     );
 }
 
+/**
+ * Booking types that the schedule filters list, in display order. `feat`
+ * lists the app features that enable the type. Pass it to
+ * `ScheduleStateService.hasFeature`.
+ */
+export const SCHEDULE_FILTER_TYPES = [
+    { type: 'desk', feat: ['desks'], icon: 'desk', name: 'RESOURCE.DESKS' },
+    {
+        type: 'event',
+        feat: ['spaces'],
+        icon: 'meeting_room',
+        name: 'RESOURCE.MEETINGS',
+    },
+    {
+        type: 'parking',
+        feat: ['parking', 'parking-requests'],
+        icon: 'drive_eta',
+        name: 'RESOURCE.PARKING',
+    },
+    {
+        type: 'visitor',
+        feat: ['visitor-invite'],
+        icon: 'people',
+        name: 'RESOURCE.VISITORS',
+    },
+    {
+        type: 'locker',
+        feat: ['lockers'],
+        icon: 'lock',
+        name: 'RESOURCE.LOCKERS',
+    },
+    {
+        type: 'group-event',
+        feat: ['group-events'],
+        icon: 'event_available',
+        name: 'RESOURCE.EVENTS',
+    },
+];
+
+/**
+ * Number of items in `bookings` for each filter type. Events count as
+ * `group-event` when shared, else `event`. The `bookings-for-others` key
+ * counts bookings that the user made for another person.
+ */
+export function bookingTypeCounts(bookings: (Booking | CalendarEvent)[]) {
+    const mapping: Record<string, number> = {};
+    for (const bkn of bookings || []) {
+        if (bkn instanceof CalendarEvent) {
+            const type = bkn.extension_data?.shared_event
+                ? 'group-event'
+                : 'event';
+            mapping[type] = (mapping[type] || 0) + 1;
+        } else {
+            const type = bkn.booking_type;
+            mapping[type] = (mapping[type] || 0) + 1;
+            if (isBookingForOtherUser(bkn)) {
+                mapping['bookings-for-others'] =
+                    (mapping['bookings-for-others'] || 0) + 1;
+            }
+        }
+    }
+    return mapping;
+}
+
 /** Locale keys of the status labels in the day and week views */
 export const SCHEDULE_STATUS_LABELS = {
     approved: 'COMMON.APPROVED',
@@ -285,12 +349,12 @@ export class ScheduleStateService extends AsyncHandler {
     });
 
     public readonly driver_events = computed(() => {
-        if (!this._hasFeature('spaces')) return [];
+        if (!this.hasFeature('spaces')) return [];
         this._requestNetwork();
         return this._filterUserEvents(this._user_bookings());
     });
     public readonly ws_events = computed(() => {
-        if (!this._hasFeature('spaces')) return [];
+        if (!this.hasFeature('spaces')) return [];
         this._requestNetwork();
         return this._filterUserEvents(this._space_bookings());
     });
@@ -335,7 +399,7 @@ export class ScheduleStateService extends AsyncHandler {
         return this._parking_bookings();
     });
     public readonly group_events = computed(() =>
-        this._hasFeature('group-events')
+        this.hasFeature('group-events')
             ? this.raw_events().filter((_) => _.extension_data?.shared_event)
             : [],
     );
@@ -450,10 +514,12 @@ export class ScheduleStateService extends AsyncHandler {
         this._checkCancel();
     }
 
-    private _hasFeature(feature: string) {
-        return (this._settings.get<string[]>('app.features') || []).includes(
-            feature,
-        );
+    /** True when `app.features` has the feature, or any feature in a list */
+    public hasFeature(feature: string | string[]) {
+        const features = this._settings.get<string[]>('app.features') || [];
+        return Array.isArray(feature)
+            ? feature.some((f) => features.includes(f))
+            : features.includes(feature);
     }
 
     /** Whether the selected event sources include `source` */
@@ -462,22 +528,22 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     private _canLoadEvents() {
-        return this._hasFeature('spaces') || this._hasFeature('group-events');
+        return this.hasFeature('spaces') || this.hasFeature('group-events');
     }
 
     private _canLoadBookingType(type: BookingType) {
         switch (type) {
             case 'desk':
-                return this._hasFeature('desks');
+                return this.hasFeature('desks');
             case 'parking':
                 return (
-                    this._hasFeature('parking') ||
-                    this._hasFeature('parking-requests')
+                    this.hasFeature('parking') ||
+                    this.hasFeature('parking-requests')
                 );
             case 'visitor':
-                return this._hasFeature('visitor-invite');
+                return this.hasFeature('visitor-invite');
             case 'locker':
-                return this._hasFeature('lockers');
+                return this.hasFeature('lockers');
             default:
                 return true;
         }
@@ -605,7 +671,7 @@ export class ScheduleStateService extends AsyncHandler {
                 const bld = this._org.active_building();
                 if (
                     !this._usesSource('ws') ||
-                    !this._hasFeature('spaces') ||
+                    !this.hasFeature('spaces') ||
                     !this._requests_ready() ||
                     !bld?.id
                 ) {
@@ -662,7 +728,7 @@ export class ScheduleStateService extends AsyncHandler {
                 const query = this._query_params_debounced.value();
                 if (
                     !this._usesSource('driver') ||
-                    !this._hasFeature('spaces') ||
+                    !this.hasFeature('spaces') ||
                     !query ||
                     !bld?.id
                 ) {

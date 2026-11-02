@@ -1,6 +1,5 @@
 import {
     Component,
-    computed,
     effect,
     inject,
     input,
@@ -10,7 +9,6 @@ import {
     untracked,
 } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -23,9 +21,9 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { TIMEZONES_IANA } from '@placeos/common/timezones';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { TranslatePipe } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
+import { TimezoneFieldComponent } from '../ui/timezone-field.component';
 
 @Component({
     selector: 'building-form',
@@ -70,31 +68,10 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         />
                     </mat-form-field>
                 </div>
-                <div class="flex flex-col">
-                    <label for="building-form-display-name-2">{{
-                        'COMMON.TIMEZONE' | translate
-                    }}</label>
-                    <mat-form-field appearance="outline">
-                        <icon matPrefix class="text-2xl">search</icon>
-                        <input
-                            id="building-form-display-name-2"
-                            matInput
-                            [formField]="form.timezone"
-                            [placeholder]="'COMMON.TIMEZONE' | translate"
-                            [matAutocomplete]="auto"
-                        />
-                    </mat-form-field>
-                    <mat-autocomplete #auto="matAutocomplete">
-                        @for (tz of filtered_timezones(); track tz) {
-                            <mat-option [value]="tz">{{ tz }}</mat-option>
-                        }
-                        @if (!timezones.length) {
-                            <mat-option [disabled]="true">
-                                {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
-                            </mat-option>
-                        }
-                    </mat-autocomplete>
-                </div>
+                <timezone-field
+                    field_id="building-form-display-name-2"
+                    [field]="form.timezone"
+                />
                 <div class="flex flex-col">
                     <label for="building-form-address">
                         {{ 'COMMON.LOCATION' | translate }}
@@ -113,10 +90,9 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
     styles: [``],
     imports: [
         TranslatePipe,
-        IconComponent,
+        TimezoneFieldComponent,
         FormField,
         MatFormFieldModule,
-        MatAutocompleteModule,
         MatSelectModule,
         MatInputModule,
     ],
@@ -131,7 +107,6 @@ export class BuildingFormComponent extends AsyncHandler {
     public readonly loadingChange = output<boolean>();
     public readonly done = output<any>();
 
-    public readonly timezones = TIMEZONES_IANA;
     public readonly region_list = this._org.region_list;
 
     public readonly model = signal({
@@ -145,11 +120,6 @@ export class BuildingFormComponent extends AsyncHandler {
     public readonly form = form(this.model, (p) => {
         required(p.parent_id);
         required(p.display_name);
-    });
-
-    public readonly filtered_timezones = computed(() => {
-        const timezone = (this.model().timezone || '').toLowerCase();
-        return this.timezones.filter((_) => _.toLowerCase().includes(timezone));
     });
 
     public get default_parent() {

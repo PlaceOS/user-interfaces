@@ -4,6 +4,7 @@ import { AsyncHandler } from '@placeos/common';
 
 import { PlaceOSService, PlaceOSSystem } from '../data/placeos.service';
 import { AvailabilityState, MapObject } from '../data/types';
+import { isBookable } from '../editor/availability';
 
 const ROOM_STATES: AvailabilityState[] = [
     'free',
@@ -113,11 +114,7 @@ export class AvailabilityPollingService extends AsyncHandler {
             }
             const states: Record<string, AvailabilityState> = {};
             for (const object of this._objects) {
-                if (
-                    object.object_type !== 'room' &&
-                    object.object_type !== 'desk'
-                )
-                    continue;
+                if (!isBookable(object)) continue;
                 const system = by_map_id.get(object.svg_id || object.id);
                 const room = object.object_type === 'room';
                 states[object.id] =

@@ -26,21 +26,8 @@ describe('LockerListComponent', () => {
         clipboard = { copy: vi.fn(() => true) };
         state = {
             filtered_banks: signal([]),
-            filtered_lockers: signal([
-                { id: 'l1', assigned_to: 'a@x.com' },
-                { id: 'l2', assigned_to: 'b@x.com' },
-                { id: 'l3', assigned_to: 'c@x.com' },
-                { id: 'l4', assigned_to: '' },
-                { id: 'l5', assigned_to: '' },
-            ]),
-            filters: signal({}),
             loading: signal(''),
             search: signal(''),
-            bookings: signal([
-                { asset_id: 'l2', user_email: 'b@x.com', status: 'approved' },
-                { asset_id: 'l3', user_email: 'd@x.com', status: 'approved' },
-                { asset_id: 'l4', user_email: 'e@x.com', status: 'approved' },
-            ]),
             has_driver: true,
             editLocker: vi.fn(),
             editLockerBank: vi.fn(),
@@ -67,27 +54,6 @@ describe('LockerListComponent', () => {
     it('should copy the provided value to the clipboard', () => {
         spectator.component.copyToClipboard('locker-id');
         expect(clipboard.copy).toHaveBeenCalledWith('locker-id');
-    });
-
-    it('should classify locker occupancy statuses', () => {
-        const status = spectator.component.locker_status();
-        expect(status['l1']).toBe('assigned_free');
-        expect(status['l2']).toBe('assigned_busy');
-        expect(status['l3']).toBe('reuse_busy');
-        expect(status['l4']).toBe('busy');
-        expect(status['l5']).toBe('free');
-    });
-
-    it('should map statuses to their tooltip keys', () => {
-        expect(spectator.component.statusTooltip('assigned_busy')).toBe(
-            'APP.CONCIERGE.LOCKERS_STATUS_ASSIGNED_BUSY',
-        );
-        expect(spectator.component.statusTooltip('busy')).toBe(
-            'APP.CONCIERGE.LOCKERS_STATUS_BUSY',
-        );
-        expect(spectator.component.statusTooltip('anything-else')).toBe(
-            'APP.CONCIERGE.LOCKERS_STATUS_FREE',
-        );
     });
 
     it('should release lockers via the state service with force flag', () => {

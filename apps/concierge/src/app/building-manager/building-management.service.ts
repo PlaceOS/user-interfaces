@@ -68,17 +68,6 @@ export class BuildingManagementService {
         });
     }
 
-    public async editBuildingMetadata(zone: PlaceZone = new PlaceZone()) {
-        const { AppSettingsModalComponent } =
-            await import('../ui/app-settings-modal.component');
-        const ref = this._dialog.open(AppSettingsModalComponent, {
-            data: { zone },
-        });
-        ref.afterClosed().subscribe((data) => {
-            if (data) setTimeout(() => location.reload(), 300);
-        });
-    }
-
     public async setAutoRelease(building: PlaceZone) {
         if (!building?.id) return;
         // Loads on demand, so the zone screens do not download its YAML parser

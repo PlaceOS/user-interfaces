@@ -21,6 +21,7 @@ import {
     userSignal,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { FEATURE_MENU_ITEMS } from './menu-items';
 
 export interface TopMenuEmbedItem {
     id: string;
@@ -56,6 +57,23 @@ const TOP_MENU_FEATURE_ALIASES: Record<string, string[]> = {
 export function hasActiveTopMenuFeature(type: string, features: string[]) {
     const feature_names = TOP_MENU_FEATURE_ALIASES[type] || [type];
     return feature_names.some((_) => features.includes(_));
+}
+
+/**
+ * Feature of the page at `url`, so the top menu can leave pages of features
+ * that are off. `home` for the default page and an empty string for pages
+ * that no feature controls. The meeting flow is not mapped: rooms booked from
+ * Explore open its success page without the `spaces` feature.
+ */
+export function topMenuFeatureForUrl(url: string, default_page: string) {
+    if (url.includes(default_page)) return 'home';
+    if (url.includes('book/desk')) return 'desks';
+    if (url.includes('book/locker')) return 'lockers';
+    if (url.includes('book/parking-request')) return 'parking-requests';
+    if (url.includes('book/parking')) return 'parking';
+    if (url.includes('explore')) return 'explore';
+    if (url.includes('schedule')) return 'schedule';
+    return '';
 }
 
 export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
@@ -315,19 +333,9 @@ export class TopMenuComponent {
 
     private readonly url = signal(this._router.url);
 
-    public readonly type = computed(() => {
-        const url = this.url();
-        const default_page = this.default_page();
-        if (url.includes(default_page)) return 'home';
-        if (url.includes('book/spaces')) return 'spaces';
-        if (url.includes('book/desk')) return 'desks';
-        if (url.includes('book/locker')) return 'lockers';
-        if (url.includes('book/parking-request')) return 'parking-requests';
-        if (url.includes('book/parking')) return 'parking';
-        if (url.includes('explore')) return 'explore';
-        if (url.includes('schedule')) return 'schedule';
-        return '';
-    });
+    public readonly type = computed(() =>
+        topMenuFeatureForUrl(this.url(), this.default_page()),
+    );
 
     public readonly routes = computed<TopMenuRoute[]>(() => [
         {
@@ -336,78 +344,12 @@ export class TopMenuComponent {
             icon: 'home',
             name: i18n('APP.WORKPLACE.MENU_HOME'),
         },
-        {
-            id: 'desks',
-            route: '/book/desk',
-            icon: 'desk',
-            name: i18n('APP.WORKPLACE.MENU_DESKS'),
-        },
-        {
-            id: 'spaces',
-            route: '/book/meeting',
-            icon: 'meeting_room',
-            name: i18n('APP.WORKPLACE.MENU_ROOMS'),
-        },
-        {
-            id: 'lockers',
-            route: '/book/locker',
-            icon: 'lock',
-            name: i18n('APP.WORKPLACE.MENU_LOCKERS'),
-        },
-        {
-            id: 'parking',
-            route: '/book/parking',
-            icon: 'directions_car',
-            name: i18n('APP.WORKPLACE.MENU_PARKING'),
-        },
-        {
-            id: 'parking-requests',
-            route: '/book/parking-request',
-            icon: 'local_parking',
-            name: i18n('APP.WORKPLACE.MENU_PARKING_REQUESTS'),
-        },
-        {
-            id: 'visitor-invite',
-            route: '/book/visitor',
-            icon: 'person',
-            name: i18n('APP.WORKPLACE.MENU_VISITORS'),
-        },
-        {
-            id: 'explore',
-            route: '/explore',
-            icon: 'place',
-            name: i18n('APP.WORKPLACE.MENU_EXPLORE'),
-        },
-        {
-            id: 'schedule',
-            route: '/your-bookings',
-            icon: 'event',
-            name: i18n('APP.WORKPLACE.MENU_SCHEDULE'),
-        },
-        {
-            id: 'control',
-            route: '/control',
-            icon: 'remote_gen',
-            name: i18n('APP.WORKPLACE.MENU_CONTROL'),
-        },
-        {
-            id: 'group-events',
-            route: '/group-events',
-            icon: 'local_activity',
-            name: i18n('APP.WORKPLACE.MENU_EVENTS'),
-        },
-        {
-            id: 'deals-n-offers',
-            route: '/deals-n-offers',
-            icon: 'confirmation_number',
-            name: i18n('APP.WORKPLACE.MENU_DEALS'),
-        },
-        {
-            id: 'team-schedule',
-            route: '/team-schedule',
-            icon: 'groups',
-            name: i18n('APP.WORKPLACE.MENU_TEAM_SCHEDULE'),
-        },
+        ...FEATURE_MENU_ITEMS.map((item) => ({
+            id: item.id,
+            route: item.route,
+            icon: item.icon,
+            name: i18n(item.name),
+        })),
         ...this.menu_embeds()
             .filter((item) => item?.id && item?.name && item?.url)
             .map((item) => ({

@@ -6,7 +6,6 @@ import {
     approveSignagePlaylist,
     listSignagePlaylistMediaRevisions,
     SignagePlaylistMedia,
-    updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
 import { MediaPreviewService } from '../../app/media/media-preview.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
@@ -34,8 +33,8 @@ describe('PlaylistApproveModalComponent', () => {
         previewMedia: vi.fn(),
     };
     const playlist_service = {
-        refreshPlaylist: vi.fn(),
         setPlaylistApprovalStatus: vi.fn(),
+        undoPlaylistChanges: vi.fn(),
     };
 
     beforeEach(async () => {
@@ -43,8 +42,7 @@ describe('PlaylistApproveModalComponent', () => {
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         context.can_update.set(true);
-        playlist_service.refreshPlaylist.mockReset();
-        (updateSignagePlaylistMedia as any).mockResolvedValue({});
+        playlist_service.undoPlaylistChanges.mockResolvedValue(true);
         (listSignagePlaylistMediaRevisions as any).mockResolvedValue([
             {
                 id: 'current-version',
@@ -178,37 +176,22 @@ describe('PlaylistApproveModalComponent', () => {
         expect(button_text).not.toContain('Undo Changes');
     });
 
-    it('does not undo changes when user does not have update permissions', async () => {
-        context.can_update.set(false);
+    it('restores the approved version through the service', async () => {
         const fixture = TestBed.createComponent(PlaylistApproveModalComponent);
         const component = fixture.componentInstance;
-
-        await component.undoChanges();
-
-        expect(updateSignagePlaylistMedia).not.toHaveBeenCalled();
-        expect(notify_open).toHaveBeenCalledWith(
-            'You cannot update playlists in this group.',
-            expect.anything(),
-            expect.objectContaining({ panelClass: ['warn'] }),
-        );
-    });
-
-    it('refreshes selected playlist data after undoing changes', async () => {
-        const fixture = TestBed.createComponent(PlaylistApproveModalComponent);
-        const component = fixture.componentInstance;
+        const previous = { id: 'previous-version', items: ['media-2'] };
         (component as any).playlist_versions = () => [
             { id: 'current-version', items: ['media-1'] },
-            { id: 'previous-version', items: ['media-2'] },
+            previous,
         ];
 
         await component.undoChanges();
 
-        expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('playlist-1', [
-            'media-2',
-        ]);
-        expect(playlist_service.refreshPlaylist).toHaveBeenCalledWith(
-            'playlist-1',
+        expect(playlist_service.undoPlaylistChanges).toHaveBeenCalledWith(
+            { id: 'playlist-1' },
+            previous,
         );
+        expect(dialog_ref.close).toHaveBeenCalledWith(true);
     });
 
     it('blocks approval and shows an error when the versions fail to load', async () => {
@@ -252,9 +235,10 @@ describe('PlaylistApproveModalComponent', () => {
 
         await component.undoChanges();
 
-        expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('playlist-1', [
-            'media-1',
-        ]);
+        expect(playlist_service.undoPlaylistChanges).toHaveBeenCalledWith(
+            { id: 'playlist-1' },
+            expect.objectContaining({ id: 'approved', items: ['media-1'] }),
+        );
     });
 
     it('shows fallback icons in preview lists', async () => {

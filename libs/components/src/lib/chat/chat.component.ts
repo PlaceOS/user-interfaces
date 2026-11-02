@@ -82,10 +82,6 @@ import { ChatService } from './chat.service';
                                     [class.items-end]="
                                         message.user_id === user().id
                                     "
-                                    (click)="
-                                        show_time()[message.id] =
-                                            !show_time()[message.id]
-                                    "
                                     [class.waiting-margin]="waiting()"
                                 >
                                     <div class="flex items-center space-x-2">
@@ -119,7 +115,7 @@ import { ChatService } from './chat.service';
                                 <div class="p-4">
                                     <button
                                         class="border-base-300 bg-info text-info-content block w-full rounded-sm p-2"
-                                        (click)="show_info.set(!show_info)"
+                                        (click)="show_info.set(!show_info())"
                                     >
                                         <div
                                             class="flex items-center space-x-2"
@@ -235,7 +231,6 @@ export class ChatComponent extends AsyncHandler implements OnInit {
     public readonly show_info = signal(false);
     public readonly message = signal('');
     public readonly user = signal<User>(new User());
-    public readonly show_time = signal<Record<string, boolean>>({});
     public readonly offset = signal(0);
     public readonly height = signal(56);
     public readonly can_show = settingSignal('chat.enabled', false);
@@ -301,12 +296,9 @@ export class ChatComponent extends AsyncHandler implements OnInit {
     }
 
     public sendMessage() {
-        if (!this.message) return;
-        if (!this._chat.connected) {
-            this._chat.startChat();
-            return this.timeout('send', () => this.sendMessage(), 100);
-        }
-        this._chat.sendMessage(this.message());
+        if (!this.message()) return;
+        // Keep the text in the input if the chat cannot connect
+        if (!this._chat.sendMessage(this.message())) return;
         this.message.set('');
         this.height.set(56);
         setTimeout(() => this._input_el().nativeElement.focus(), 100);

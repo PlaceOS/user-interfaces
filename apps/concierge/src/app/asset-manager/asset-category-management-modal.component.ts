@@ -1,10 +1,6 @@
 import { Component, EventEmitter, Signal, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import {
-    MAT_DIALOG_DATA,
-    MatDialogModule,
-    MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AssetCategory } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -97,10 +93,6 @@ export class AssetCategoryManagementModalComponent {
         list: Signal<AssetCategory[]>;
         edit: (i?) => any;
     }>(MAT_DIALOG_DATA);
-    private _dialog_ref =
-        inject<MatDialogRef<AssetCategoryManagementModalComponent>>(
-            MatDialogRef,
-        );
 
     public readonly changed = new EventEmitter();
     public readonly list = this._data.list;

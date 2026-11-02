@@ -21,14 +21,17 @@ import {
     Space,
     User,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AnnounceDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     DurationFieldComponent,
     TimeFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { getModule } from '@placeos/ts-client';
-import { AnnounceDirective } from '../announce.directive';
 
 export interface BookingModalData extends HashMap {
     title?: string;

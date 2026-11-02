@@ -53,7 +53,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                         <div
                                             name="img"
                                             class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
-                                            [style.background-image]="'url(assets/menus.jpg)'"
+                                            [style.background-image]="'url(assets/img/menus.jpg)'"
                                         >
                                             <div
                                                 class="bg-neutral absolute inset-0 z-0 opacity-60"
@@ -76,7 +76,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                         <div
                                             name="img"
                                             class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
-                                            [style.background-image]="'url(assets/orders.jpg)'"
+                                            [style.background-image]="'url(assets/img/orders.jpg)'"
                                         >
                                             <div
                                                 class="bg-neutral absolute inset-0 z-0 opacity-60"

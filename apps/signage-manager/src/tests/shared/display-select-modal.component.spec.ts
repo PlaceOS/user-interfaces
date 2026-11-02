@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { DisplaySelectModalComponent } from '../../app/shared/display-select-modal.component';
 
@@ -22,10 +21,7 @@ describe('DisplaySelectModalComponent', () => {
         );
         await TestBed.configureTestingModule({
             imports: [DisplaySelectModalComponent],
-            providers: [
-                { provide: MAT_DIALOG_DATA, useValue: { zone_id: 'zone-1' } },
-                { provide: SignageDisplayService, useValue: service },
-            ],
+            providers: [{ provide: SignageDisplayService, useValue: service }],
         })
             .overrideComponent(DisplaySelectModalComponent, {
                 set: { template: '', imports: [] },
@@ -39,9 +35,9 @@ describe('DisplaySelectModalComponent', () => {
         await flush();
 
         expect(queryDisplays).toHaveBeenCalledWith('');
-        expect(
-            fixture.componentInstance.list.items().map((_) => _.id),
-        ).toEqual(['d2', 'd1']);
+        expect(fixture.componentInstance.list.items().map((_) => _.id)).toEqual(
+            ['d2', 'd1'],
+        );
     });
 });
 
@@ -55,7 +51,6 @@ describe('DisplaySelectModalComponent errors', () => {
         await TestBed.configureTestingModule({
             imports: [DisplaySelectModalComponent],
             providers: [
-                { provide: MAT_DIALOG_DATA, useValue: {} },
                 { provide: SignageDisplayService, useValue: { queryDisplays } },
             ],
         }).compileComponents();
@@ -77,9 +72,8 @@ describe('DisplaySelectModalComponent errors', () => {
         fixture.detectChanges();
 
         const element: HTMLElement = fixture.nativeElement;
-        const retry = element.querySelector<HTMLButtonElement>(
-            'load-error button',
-        );
+        const retry =
+            element.querySelector<HTMLButtonElement>('load-error button');
         expect(retry).toBeTruthy();
 
         retry?.click();

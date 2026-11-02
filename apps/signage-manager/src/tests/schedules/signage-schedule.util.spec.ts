@@ -1,4 +1,4 @@
-import { SignagePlaylist } from '@placeos/ts-client';
+import { SignagePlaylist, SignagePlaylistSchedule } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
 import {
     buildDayTimelineBlocks,
@@ -7,7 +7,6 @@ import {
     buildZoneScheduleAssignments,
     hasTakeoverSchedule,
 } from '../../app/schedules/signage-schedule.util';
-import { type PlaylistSchedule } from '../../app/signage-playlist.util';
 
 describe('signage-schedule.util', () => {
     it('applies the repeating mask before adding timeline blocks', () => {
@@ -28,7 +27,7 @@ describe('signage-schedule.util', () => {
                                 play_takeover: false,
                                 valid_from: days[0].getTime() / 1000,
                                 mask: '10',
-                            } as PlaylistSchedule,
+                            } as SignagePlaylistSchedule,
                         ],
                     }),
                 },
@@ -140,7 +139,7 @@ describe('signage-schedule.util', () => {
                 { play_cron: '0 9 * * *' },
                 { play_at: timestamp },
             ]) {
-                const schedule: PlaylistSchedule = {
+                const schedule: SignagePlaylistSchedule = {
                     play_cron: '0 9 * * *',
                     ...timing,
                     play_period: 30,
@@ -286,7 +285,7 @@ describe('signage-schedule.util', () => {
         const day = new Date(2026, 2, 2);
         const at = (hours: number) => getUnixTime(new Date(2026, 2, 2, hours));
         const blocksOf = (
-            schedule: Partial<PlaylistSchedule>,
+            schedule: Partial<SignagePlaylistSchedule>,
             dates: { valid_from?: number; valid_until?: number } = {},
         ) =>
             buildScheduleBlocks(

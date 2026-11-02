@@ -4,11 +4,8 @@ import {
     effect,
     inject,
     input,
-    model,
-    OnChanges,
     OnInit,
     signal,
-    SimpleChanges,
     viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, FormsModule } from '@angular/forms';
@@ -20,25 +17,20 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, provideValueAccessor } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { inGroupScope } from '../support-groups';
 import { SupportGroupsService } from '../support-groups.service';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
     selector: 'system-search-field',
     template: `
-        <div
-            class="item-search-field flex max-h-full flex-col"
-            form-field
-            [class.disabled]="disabled()"
-        >
+        <div class="item-search-field flex max-h-full flex-col" form-field>
             <mat-form-field appearance="outline" class="no-subscript">
                 <input
                     matInput
                     name="item-search"
                     #input
                     [(ngModel)]="search_str"
-                    [disabled]="disabled()"
                     [attr.aria-label]="
                         placeholder()
                             ? placeholder()
@@ -52,7 +44,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                               '...'
                     "
                     [matAutocomplete]="auto"
-                    [matAutocompleteDisabled]="display_list()"
                     (focus)="search_str.set(' ')"
                     (blur)="resetSearchString()"
                 />
@@ -65,45 +56,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     </div>
                 }
             </mat-form-field>
-            @if (display_list()) {
-                @if (item_list()?.length) {
-                    <div class="h-[50vh] flex-1 space-y-2 overflow-auto">
-                        @for (option of item_list(); track option) {
-                            <button
-                                matRipple
-                                type="button"
-                                (click)="setValue(option)"
-                                class="hover:bg-base-200 w-full rounded-sm px-4 py-2 text-left"
-                            >
-                                <div class="leading-tight">
-                                    <ng-container
-                                        *ngTemplateOutlet="
-                                            item_option;
-                                            context: { option: option }
-                                        "
-                                    ></ng-container>
-                                </div>
-                            </button>
-                        }
-                    </div>
-                } @else {
-                    <div
-                        class="stagehand-subtle flex min-h-48 flex-col items-center justify-center p-8"
-                    >
-                        <p class="text-sm">
-                            {{
-                                search_str()?.length
-                                    ? 'No matching ' +
-                                      (name() || 'item') +
-                                      ' for search string'
-                                    : 'No ' +
-                                      (name() || 'items') +
-                                      ' available to search'
-                            }}
-                        </p>
-                    </div>
-                }
-            }
             <mat-autocomplete #auto="matAutocomplete">
                 @for (option of item_list(); track option.id) {
                     <!-- onSelectionChange also fires for keyboard selection -->
@@ -146,10 +98,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 width: 100%;
             }
 
-            .disabled {
-                color: rgba(0, 0, 0, 0.35);
-            }
-
             .name {
                 display: flex;
                 align-items: center;
@@ -179,20 +127,13 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 })
 export class SystemSearchFieldComponent
     extends AsyncHandler
-    implements OnInit, OnChanges, ControlValueAccessor
+    implements OnInit, ControlValueAccessor
 {
-    private _changed = signal(0);
     private _last_query = '';
     /** Name of the items being query'd */
     public readonly name = input<string>(undefined);
     /** Placeholder to display on the form input */
     public readonly placeholder = input<string>(undefined);
-    /** Limit available options to these */
-    public readonly options = input<PlaceSystem[]>(undefined);
-    /** Whether the form field should be disabled */
-    public readonly disabled = input<boolean>(false);
-    public readonly display_list = input<boolean>(false);
-    public readonly clear_on_select = input<boolean>(false);
     /** Function for filtering out options */
     public readonly exclude = input<
         (_: PlaceSystem, search: string) => boolean
@@ -202,10 +143,8 @@ export class SystemSearchFieldComponent
             (v.email || '').toLowerCase().indexOf(search) < 0 &&
             (v.description || '').toLowerCase().indexOf(search) < 0,
     );
-    /** Minimum number of characters needed to start a server query */
-    public readonly min_length = input(0, { alias: 'minLength' });
     /** Whether item list is loading */
-    public readonly loading = model<boolean>(false);
+    public readonly loading = signal(false);
     private _groups = inject(SupportGroupsService);
     /** Service used for searching items. By default, the systems of the
      * selected support group. */
@@ -236,18 +175,11 @@ export class SystemSearchFieldComponent
     private readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
 
-    public get items() {
-        const options = this.options();
-        return options?.length ? options : this.item_list();
-    }
-
     /** Map of item names to their IDs */
     public readonly item_name = signal<Record<string, string>>({});
 
     private readonly _search_query = effect(() => {
         const query = this.search_str();
-        this.options();
-        this._changed();
         this.timeout('search', () => this._loadSearchResults(query), 400);
     });
 
@@ -257,22 +189,11 @@ export class SystemSearchFieldComponent
         });
     }
 
-    public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.options) this._changed.set(Date.now());
-    }
-
     private async _loadSearchResults(query: string) {
-        if (query === this._last_query && !this.options()?.length) return;
+        if (query === this._last_query) return;
         this._last_query = query;
         this.loading.set(true);
-        const options = this.options();
-        const min_length = this.min_length();
-        const raw_list =
-            options && options.length > 0
-                ? options
-                : !min_length || query.length >= min_length
-                  ? await this.query_fn()(query).catch(() => [])
-                  : [];
+        const raw_list = await this.query_fn()(query).catch(() => []);
         if (query !== this.search_str()) return;
         const search = this.search_str().toLowerCase();
         const exclude = this.exclude();
@@ -291,10 +212,7 @@ export class SystemSearchFieldComponent
         this.timeout(
             'value',
             () => {
-                if (this.clear_on_select()) {
-                    this.active_item.set(null);
-                    this.search_str.set('');
-                } else if (this.active_item()) {
+                if (this.active_item()) {
                     this.search_str.set(
                         this.active_item().name || this.search_str(),
                     );
@@ -349,7 +267,7 @@ export class SystemSearchFieldComponent
 
     private _updateNameMap() {
         const map = {};
-        const list = this.items || [];
+        const list = this.item_list();
         for (const item of list) {
             // shown as text, so a name can't add markup to the page
             map[item.id] =

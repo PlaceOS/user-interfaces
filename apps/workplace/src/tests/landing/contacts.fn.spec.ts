@@ -1,7 +1,7 @@
 vi.mock('@placeos/ts-client', { spy: true });
 
 import { showMetadata, showUser } from '@placeos/ts-client';
-import { loadContacts, mapWithLimit } from '../../app/landing/contacts.fn';
+import { loadContacts } from '../../app/landing/contacts.fn';
 
 describe('loadContacts', () => {
     beforeEach(() => {
@@ -56,21 +56,5 @@ describe('loadContacts', () => {
             'a@example.com',
             'b@example.com',
         ]);
-    });
-});
-
-describe('mapWithLimit', () => {
-    it('should keep the order and limit the calls in progress', async () => {
-        let running = 0;
-        let peak = 0;
-        const result = await mapWithLimit([5, 1, 4, 2, 3], 2, async (delay) => {
-            peak = Math.max(peak, ++running);
-            await new Promise((resolve) => setTimeout(resolve, delay));
-            running--;
-            return delay * 10;
-        });
-
-        expect(result).toEqual([50, 10, 40, 20, 30]);
-        expect(peak).toBe(2);
     });
 });

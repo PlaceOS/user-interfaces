@@ -3,12 +3,12 @@ import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { TriggerConditionOperator } from '@placeos/ts-client';
 
-import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
 import { queryModules, systemModuleState } from '@placeos/ts-client';
 
+import { setNotifyOutlet } from '@placeos/common';
 import {
     AlertConditionComparisonFormComponent,
     calculateModuleIndex,

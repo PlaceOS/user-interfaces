@@ -25,9 +25,12 @@ import {
     parseJWT,
     settingSignal,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AnnounceDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { getGuestCateringItem, setGuestCateringItem } from '@placeos/users';
-import { AnnounceDirective } from '../components/announce.directive';
 import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 import { parseTokenFromUrl } from './token-from-url';

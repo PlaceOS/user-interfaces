@@ -34,6 +34,7 @@ import { brandEditingOn, canEditBrandKit } from '../branding/brand-access';
 import { SignageMediaService } from '../media/signage-media.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { SignageContextService } from '../signage-context.service';
+import { uploadUrl } from '../signage-url.util';
 import {
     ImageGenLayerControlsComponent,
     newTextBlock,
@@ -723,7 +724,7 @@ export class ImageGenModalComponent implements OnDestroy {
     /** the image being changed, so the brief is not written blind */
     public readonly source_url = computed(() => {
         const id = this._data.source_upload_id;
-        return id ? `/api/engine/v2/uploads/${encodeURIComponent(id)}/url` : '';
+        return id ? uploadUrl(id) : '';
     });
     public readonly has_logo = computed(
         () => !!this._image_gen.capabilities()?.logo_layer,
@@ -768,9 +769,7 @@ export class ImageGenModalComponent implements OnDestroy {
                     job_id: id,
                     index,
                     upload_id: image.upload_id,
-                    url:
-                        image.url ||
-                        `/api/engine/v2/uploads/${encodeURIComponent(image.upload_id)}/url`,
+                    url: image.url || uploadUrl(image.upload_id),
                     width: image.width,
                     height: image.height,
                     version,
@@ -1174,9 +1173,7 @@ export class ImageGenModalComponent implements OnDestroy {
             // briefly empty
             if (media.thumbnail_id) {
                 await this._image_gen
-                    .loadImage(
-                        `/api/engine/v2/uploads/${media.thumbnail_id}/url`,
-                    )
+                    .loadImage(uploadUrl(media.thumbnail_id))
                     .catch(() => '');
             }
             this._dialog_ref.close(media);
@@ -1291,9 +1288,7 @@ export class ImageGenModalComponent implements OnDestroy {
 
     private _readUpload(id?: string) {
         if (!id) return Promise.resolve('');
-        return this._image_gen
-            .loadImage(`/api/engine/v2/uploads/${encodeURIComponent(id)}/url`)
-            .catch(() => '');
+        return this._image_gen.loadImage(uploadUrl(id)).catch(() => '');
     }
 
     private _name() {

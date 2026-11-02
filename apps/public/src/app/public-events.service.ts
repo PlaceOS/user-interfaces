@@ -111,12 +111,17 @@ export class PublicEventsService {
         setStorage(this._rememberedGuestDetails() ? 'local' : 'session');
     }
 
+    /** Loads the PlaceOS authority once. A failure shows in `error`. */
     public async init() {
         if (this.authority()) return;
-        const resp = await fetch('/auth/authority');
-        if (!resp.ok) throw new Error('Unable to load PlaceOS authority.');
-        this.authority.set((await resp.json()) as PlaceAuthority);
-        this._addRecaptcha(this._recaptcha_key());
+        try {
+            const resp = await fetch('/auth/authority');
+            if (!resp.ok) throw new Error('Unable to load PlaceOS authority.');
+            this.authority.set((await resp.json()) as PlaceAuthority);
+            this._addRecaptcha(this._recaptcha_key());
+        } catch (err) {
+            this.error.set(this._message(err));
+        }
     }
 
     public async requestGuestAccess(
@@ -148,9 +153,9 @@ export class PublicEventsService {
 
     public async loadEvents(system_id: string) {
         this.error.set('');
-        await this._ensureGuestAccess(system_id);
-        this.loading.set('Loading public events...');
         try {
+            await this._ensureGuestAccess(system_id);
+            this.loading.set('Loading public events...');
             const events = await listPublicEvents(system_id, {
                 limit: 100,
             } satisfies PublicEventQueryOptions);

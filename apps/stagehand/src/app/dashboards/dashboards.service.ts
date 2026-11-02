@@ -1,4 +1,11 @@
-import { effect, inject, Injectable, signal, untracked } from '@angular/core';
+import {
+    computed,
+    effect,
+    inject,
+    Injectable,
+    signal,
+    untracked,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -83,6 +90,19 @@ export class DashboardsService extends AsyncHandler {
     );
     public readonly dashboard_alerts = signal<Alert[]>([]);
 
+    /**
+     * Region and building query params that keep the URL in step with the
+     * selection. 'all' stands for every region, or every building of the
+     * selected region.
+     */
+    public readonly location_query_params = computed(() => {
+        const region = this.region_id();
+        return {
+            region: region || 'all',
+            building: region ? this.building_id() || 'all' : undefined,
+        };
+    });
+
     constructor() {
         super();
 
@@ -148,22 +168,9 @@ export class DashboardsService extends AsyncHandler {
     /** Initialize region/building from URL query params */
     private _initFromQueryParams() {
         // Use query string captured at construction time to avoid reading
-        // params injected by the _query_sync effect in AlertsComponent
+        // params the pages write back to the URL
         const params = new URLSearchParams(this._initial_query_string);
-
-        const region_param = params.get('region');
-        const building_param = params.get('building');
-
-        if (region_param) {
-            this._region_set_from_params = true;
-            // 'all' means empty string (all regions/buildings)
-            this.region_id.set(region_param === 'all' ? '' : region_param);
-            if (building_param) {
-                this.building_id.set(
-                    building_param === 'all' ? '' : building_param,
-                );
-            }
-        }
+        this.applyLocationParams(Object.fromEntries(params));
     }
 
     /** Set region from query params, preventing constructor from overwriting */
@@ -175,31 +182,86 @@ export class DashboardsService extends AsyncHandler {
         }
     }
 
-    public async setAlert(id: string) {
-        this.loading.update((l) => [...l, 'ALERT']);
-        const alert = await showAlert(id);
-        this.alert.set(alert);
-        this.loading.update((l) => l.filter((i) => i !== 'ALERT'));
+    /**
+     * Applies the `region` and `building` URL query params. 'all' selects
+     * every region, or every building of the region. A region id applies only
+     * when it is a known region; it then also becomes the org region, and a
+     * known building id the org building. With no region param nothing
+     * changes, so the org selection stays the default.
+     */
+    public applyLocationParams(params: { region?: string; building?: string }) {
+        const { region: region_param, building: building_param } = params;
+        if (!region_param) return;
+        if (region_param === 'all') return this.setRegionFromParams('', '');
+        const region = this._org.regions.find((r) => r.id === region_param);
+        if (!region) return;
+        this._org.region = region;
+        const building_id =
+            building_param === 'all' ? '' : building_param || '';
+        this.setRegionFromParams(region.id, building_id);
+        if (!building_id) return;
+        const building = this._org.buildings.find((b) => b.id === building_id);
+        if (building) this._org.building = building;
     }
 
+    /**
+     * Shows `key` in `loading` while `task` runs. A failed task is logged
+     * and reported, and the key is always removed.
+     * Resolves true when the task succeeded.
+     */
+    private async _whileLoading(
+        key: string,
+        error: string,
+        task: () => Promise<void>,
+    ): Promise<boolean> {
+        this.loading.update((l) => [...l, key]);
+        try {
+            await task();
+            return true;
+        } catch (e) {
+            log('ALERTS', error, e, 'warn');
+            notifyError(error);
+            return false;
+        } finally {
+            this.loading.update((l) => l.filter((i) => i !== key));
+        }
+    }
+
+    /** Load the alert. Resolves true when it loaded. */
+    public async setAlert(id: string) {
+        return this._whileLoading(
+            'ALERT',
+            'Failed to load the alert.',
+            async () => this.alert.set(await showAlert(id)),
+        );
+    }
+
+    /** Load the dashboard. Resolves true when it loaded or was cleared. */
     public async setDashboard(id: string) {
         if (!id) {
             this.dashboard.set(null);
             this.alerts_list.set([]);
-            return;
+            return true;
         }
-        this.loading.update((l) => [...l, 'DASHBOARD']);
-        const dashboard = await showAlertDashboard(id);
-        this.dashboard.set(dashboard);
-        this.loadDashboardAlerts();
-        this.loading.update((l) => l.filter((i) => i !== 'DASHBOARD'));
+        return this._whileLoading(
+            'DASHBOARD',
+            'Failed to load the dashboard.',
+            async () => {
+                this.dashboard.set(await showAlertDashboard(id));
+                this.loadDashboardAlerts();
+            },
+        );
     }
 
     public async loadDashboards() {
-        this.loading.update((l) => [...l, 'DASHBOARD_LIST']);
-        const alerts = await queryAlertDashboards({ limit: 100 });
-        this.dashboard_list.set(alerts.data);
-        this.loading.update((l) => l.filter((i) => i !== 'DASHBOARD_LIST'));
+        await this._whileLoading(
+            'DASHBOARD_LIST',
+            'Failed to load the dashboards.',
+            async () => {
+                const alerts = await queryAlertDashboards({ limit: 100 });
+                this.dashboard_list.set(alerts.data);
+            },
+        );
     }
 
     public async removeDashboard(dashboard: PlaceAlertDashboard) {
@@ -259,16 +321,20 @@ export class DashboardsService extends AsyncHandler {
     async loadDashboardAlerts(id = '') {
         const dashboard = this.dashboard();
         if (!dashboard && !id) return;
-        this.loading.update((l) => [...l, 'ALERT_LIST']);
-        const alerts = await listDashboardAlerts(id || dashboard.id);
-        if (!id) this.alerts_list.set(alerts.data);
-        else {
-            this.dashboard_alert_map.update((m) => ({
-                ...m,
-                [id]: alerts.data,
-            }));
-        }
-        this.loading.update((l) => l.filter((i) => i !== 'ALERT_LIST'));
+        await this._whileLoading(
+            'ALERT_LIST',
+            'Failed to load the dashboard alerts.',
+            async () => {
+                const alerts = await listDashboardAlerts(id || dashboard.id);
+                if (!id) this.alerts_list.set(alerts.data);
+                else {
+                    this.dashboard_alert_map.update((m) => ({
+                        ...m,
+                        [id]: alerts.data,
+                    }));
+                }
+            },
+        );
     }
 
     public async listenForDashboardAlerts(force = false) {

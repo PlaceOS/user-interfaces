@@ -124,10 +124,6 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
         return building?.display_name || building?.name || '';
     }
 
-    public get last_success() {
-        return this._state.last_success;
-    }
-
     public async ngOnInit() {
         this._parking.loadBookings();
         await this._org.waitUntilInitialised();

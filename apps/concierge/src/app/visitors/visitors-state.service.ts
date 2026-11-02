@@ -222,7 +222,8 @@ export class VisitorsStateService extends AsyncHandler {
     }
 
     public async approveVisitor(item: Booking) {
-        const details = await openConfirmModal(
+        const done = await confirmAction(
+            this._dialog,
             {
                 title: 'Approve Visitor',
                 content: `Approve attendance of ${
@@ -230,24 +231,20 @@ export class VisitorsStateService extends AsyncHandler {
                 } to their meeting?`,
                 icon: { content: 'event_available' },
             },
-            this._dialog,
+            {
+                loading: 'Updating guest details',
+                action: () => approveBooking(item.id),
+                error: (e) => `Error approving visitor: ${errorText(e)}`,
+            },
         );
-        if (details.reason !== 'done') return details.close();
-        details.loading('Updating guest details');
-        await approveBooking(item.id).catch((e) => {
-            notifyError(
-                `Error approving visitor: ${e.message || e.error || e}`,
-            );
-            details.close();
-            throw e;
-        });
+        if (!done) return;
         notifySuccess(`Successfully approved visitor`);
         this.poll();
-        details.close();
     }
 
     public async declineVisitor(item: Booking) {
-        const details = await openConfirmModal(
+        const done = await confirmAction(
+            this._dialog,
             {
                 title: 'Decline Visitor',
                 content: `Decline attendance of ${
@@ -255,20 +252,15 @@ export class VisitorsStateService extends AsyncHandler {
                 } to their meeting?`,
                 icon: { content: 'event_busy' },
             },
-            this._dialog,
+            {
+                loading: 'Updating guest details',
+                action: () => rejectBooking(item.id),
+                error: (e) => `Error declining visitor: ${errorText(e)}`,
+            },
         );
-        if (details.reason !== 'done') return details.close();
-        details.loading('Updating guest details');
-        await rejectBooking(item.id).catch((e) => {
-            notifyError(
-                `Error declining visitor: ${e.message || e.error || e}`,
-            );
-            details.close();
-            throw e;
-        });
+        if (!done) return;
         notifySuccess(`Successfully declined visitor`);
         this.poll();
-        details.close();
     }
 
     public async requestInduction(item: Booking) {

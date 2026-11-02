@@ -10,14 +10,13 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import {
     PlaceMetadata,
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
-import { errorText } from '../ui/modal-actions';
+import { confirmAction, errorText } from '../ui/modal-actions';
 
 export interface EmailTemplate {
     id: string;
@@ -218,7 +217,8 @@ export class EmailTemplatesStateService extends AsyncHandler {
     }
 
     public async removeTemplate(template: EmailTemplate) {
-        const ref = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_TITLE'),
                 content: i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_MSG', {
@@ -227,24 +227,19 @@ export class EmailTemplatesStateService extends AsyncHandler {
                 icon: { content: 'delete_forever' },
                 confirm_text: i18n('COMMON.REMOVE'),
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_LOADING'),
+                action: () =>
+                    this._writeZoneTemplates(template.zone_id, (list) =>
+                        list.filter((_) => _.id !== template.id),
+                    ),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
+            },
         );
-        if (ref.reason !== 'done') return ref.close();
-        ref.loading(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_LOADING'));
-        try {
-            await this._writeZoneTemplates(template.zone_id, (list) =>
-                list.filter((_) => _.id !== template.id),
-            );
-        } catch (e) {
-            notifyError(
-                i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_ERROR', {
-                    error: errorText(e),
-                }),
-            );
-            throw e;
-        } finally {
-            ref.close();
-        }
+        if (!removed) return;
         notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_SUCCESS'));
         this.timeout('changed', () => this._change.set(Date.now()));
     }

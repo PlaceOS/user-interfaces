@@ -127,7 +127,9 @@ describe('TemplateMappingsComponent', () => {
         );
         expect(zone_link?.textContent).toContain('First floor');
         expect(zone_link?.textContent).not.toContain('zone-1');
-        expect(fixture.nativeElement.textContent).toContain('Weekdays at');
+        expect(fixture.nativeElement.textContent).toContain(
+            'Starts every weekday at',
+        );
         expect(fixture.nativeElement.textContent).toContain('for 30 minutes');
         expect(fixture.nativeElement.querySelectorAll('button').length).toBe(2);
         expect(fixture.nativeElement.querySelector('button[error]')).toBeNull();

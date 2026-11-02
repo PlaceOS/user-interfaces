@@ -46,18 +46,6 @@ export type FloorplanCanvas = Pick<
 /** Floorplan without its canvas, as listings load it */
 export type FloorplanSummary = Omit<Floorplan, keyof FloorplanCanvas>;
 
-export interface FloorplanVersion {
-    id: string;
-    floorplan_id: string;
-    version: number;
-    canvas_state: EditorState;
-    svg_source?: string | null;
-    svg_source_ids?: string[];
-    svg_output: string | null;
-    note: string | null;
-    created_at: string;
-}
-
 export type MapObjectType =
     | 'room'
     | 'desk'

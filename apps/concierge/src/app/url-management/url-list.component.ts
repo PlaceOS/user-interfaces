@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { SettingsService, ShortURL } from '@placeos/common';
+import { ShortURL } from '@placeos/common';
 import {
     CustomTooltipComponent,
     IconComponent,
@@ -167,7 +167,6 @@ import { UrlManagementService } from './url-management.service';
 })
 export class UrlListComponent {
     private _manager = inject(UrlManagementService);
-    private _settings = inject(SettingsService);
 
     public readonly features = this._manager.url_list;
     public readonly qr_codes = this._manager.qr_codes;
@@ -176,11 +175,6 @@ export class UrlListComponent {
     public readonly remove = (region) => this._manager.removeURL(region);
     public readonly loadQrCode = (item: ShortURL) =>
         this._manager.loadQrCode(item);
-
-    public get kiosk_url() {
-        const path = this._settings.get('app.kiosk_url_path') || '/map-kiosk';
-        return `${window.location.origin}${path}`;
-    }
 
     public print() {
         window.print();

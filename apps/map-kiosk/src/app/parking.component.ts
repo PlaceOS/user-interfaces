@@ -11,12 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import {
-    log,
-    OrganisationService,
-    Point,
-    SettingsService,
-} from '@placeos/common';
+import { log, OrganisationService, Point } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 
@@ -81,7 +76,6 @@ export class ParkingComponent implements OnInit {
     private _dialog = inject(MatDialog);
     private _router = inject(Router);
     private _spaces = inject(SpacesService);
-    private _settings = inject(SettingsService);
 
     /** Signal of the current route query parameters */
     private readonly _query_params = toSignal(this._route.queryParamMap);
@@ -114,8 +108,6 @@ export class ParkingComponent implements OnInit {
     /** Signal for the available parking spaces */
     public readonly available_spaces = this._parking.available_spaces;
 
-    public reset_delay = 180;
-
     public readonly counts = computed(() => {
         const spaces = this.active_spaces();
         const available = this.available_spaces();
@@ -137,8 +129,6 @@ export class ParkingComponent implements OnInit {
         while (!this._spaces.initialised()) {
             await new Promise((resolve) => setTimeout(resolve, 100));
         }
-        this.reset_delay =
-            this._settings.get('app.inactivity_timeout_secs') || 180;
         this.resetKiosk(false);
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';

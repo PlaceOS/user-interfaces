@@ -132,7 +132,7 @@ describe('VisitorsReportService', () => {
         await settle();
         await spectator.service.downloadReport();
         expect(downloads.filename).toMatch(
-            /^report\+assets\+2026-04-06-2026-04-07\.tsv$/,
+            /^report\+visitors\+2026-04-06-2026-04-07\.tsv$/,
         );
     });
 

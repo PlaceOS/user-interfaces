@@ -142,7 +142,7 @@ describe('LockersReportService', () => {
         spectator.service.setOptions({ start: day_1, end: day_1 });
 
         await spectator.service.downloadReport();
-        expect(downloads.filename).toMatch(/^report\+assets\+2026-04-06\.tsv$/);
+        expect(downloads.filename).toMatch(/^report\+lockers\+2026-04-06\.tsv$/);
     });
 
     it('should count available lockers per zone', async () => {

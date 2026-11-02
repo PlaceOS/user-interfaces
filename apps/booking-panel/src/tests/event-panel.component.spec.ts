@@ -16,7 +16,6 @@ describe('EventPanelComponent', () => {
     const space = signal<unknown>(null);
     const settings = signal<unknown>({});
     const state_setting = vi.fn();
-    const theme = signal('light');
     const settings_get = vi.fn((_key: string): unknown => undefined);
 
     const createComponent = createRoutingFactory({
@@ -38,7 +37,6 @@ describe('EventPanelComponent', () => {
             MockProvider(SettingsService, {
                 get: settings_get as SettingsService['get'],
                 overrideCssVariable: vi.fn(),
-                theme_signal: theme,
             }),
             MockProvider(OrganisationService, {
                 active_building: signal(null),
@@ -54,21 +52,12 @@ describe('EventPanelComponent', () => {
         settings.set({});
         state_setting.mockReset();
         state_setting.mockReturnValue(undefined);
-        theme.set('light');
         settings_get.mockImplementation(() => undefined);
         spectator = createComponent();
     });
 
     it('should create the component', () => {
         expect(spectator.component).toBeTruthy();
-    });
-
-    it('should use the dark logo in the dark theme', () => {
-        settings_get.mockImplementation((key: string) =>
-            key === 'app.logo_dark' ? 'dark.svg' : 'light.svg',
-        );
-        theme.set('dark');
-        expect(spectator.component.logo()).toBe('dark.svg');
     });
 
     it('should display the space name in the header', () => {

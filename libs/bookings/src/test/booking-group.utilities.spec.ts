@@ -1,8 +1,32 @@
 import { Booking, User } from '@placeos/common';
 import {
+    isGroupBooking,
     mapGroupMembersFromBookings,
     visitorMemberPatch,
 } from '../lib/booking-group.utilities';
+
+describe('isGroupBooking', () => {
+    it('is true for a parent, a group reference or group members', () => {
+        expect(isGroupBooking(new Booking({ parent_id: 'bkn-1' }))).toBe(true);
+        expect(
+            isGroupBooking(new Booking({ extension_data: { group: 'grp-1' } })),
+        ).toBe(true);
+        expect(
+            isGroupBooking(
+                new Booking({
+                    extension_data: {
+                        group_members: [{ email: 'adam@place.tech' }],
+                    },
+                }),
+            ),
+        ).toBe(true);
+    });
+
+    it('is false for a lone booking or no booking', () => {
+        expect(isGroupBooking(new Booking({ id: 'bkn-1' }))).toBe(false);
+        expect(isGroupBooking(null)).toBe(false);
+    });
+});
 
 describe('mapGroupMembersFromBookings', () => {
     it('keeps the international flag of each visitor', () => {

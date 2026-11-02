@@ -5,7 +5,10 @@ import {
 } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
+import {
+    BookingFormService,
+    NewDeskFormDetailsComponent,
+} from '@placeos/bookings';
 import {
     getInvalidSignalFields,
     i18n,
@@ -15,7 +18,6 @@ import {
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
 import { NewDeskFlowConfirmComponent } from './desk-flow-confirm.component';
-import { NewDeskFormDetailsComponent } from './desk-form-details.component';
 
 @Component({
     selector: 'desk-flow-form',

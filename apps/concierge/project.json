@@ -65,7 +65,7 @@
                             "with": "apps/concierge/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/concierge/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -103,7 +103,7 @@
                             "maximumError": "16kb"
                         }
                     ],
-                    "serviceWorker": "apps/concierge/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 }
             }
         },

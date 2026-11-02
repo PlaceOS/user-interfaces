@@ -13,7 +13,12 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { i18n, LocaleService, SettingsService } from '@placeos/common';
+import {
+    i18n,
+    LocaleService,
+    SettingsService,
+    themedLogo,
+} from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -47,7 +52,7 @@ class NavScrollState {
                 class="bg-base-100/80 mx-auto flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl shadow-xl"
                 [routerLink]="['/']"
             >
-                @if (logo_src; as logo) {
+                @if (logo_src(); as logo) {
                     <img
                         auth
                         class="max-h-18 max-w-18 object-contain"
@@ -240,6 +245,7 @@ export class NavSidebarComponent {
     );
 
     public readonly nav_items = injectNavItems();
+    public readonly logo_src = themedLogo();
     private readonly _scroller = viewChild<ElementRef<HTMLElement>>('scroller');
     private readonly _scroll_content =
         viewChild<ElementRef<HTMLElement>>('scroll_content');
@@ -355,14 +361,5 @@ export class NavSidebarComponent {
         this._locale.setLocale(code);
         localStorage.setItem('PLACEOS.locale', code);
         setTimeout(() => location.reload(), 300);
-    }
-
-    public get logo_src(): string {
-        const logo = this._settings.get<string | { src?: string }>(
-            this._settings.theme === 'dark'
-                ? 'app.logo_dark'
-                : 'app.logo_light',
-        );
-        return typeof logo === 'string' ? logo : logo?.src || '';
     }
 }

@@ -16,7 +16,6 @@ import {
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import {
     PlaceSystem,
     PlaceZone,
@@ -27,8 +26,10 @@ import {
     SignagePlaylist,
 } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
+import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import { PagedList } from '../shared/paged-list';
+import { PlaylistAssignments } from '../shared/playlist-assignments';
 import { SignageContextService } from '../signage-context.service';
 import {
     dialogClosed,
@@ -143,15 +144,6 @@ export class SignageDisplayService {
         });
     });
 
-    // Local edits only bridge the gap until the lists reload. Drop them when
-    // the group or data changes, so a stale copy never hides newer server data
-    // or sends an old version with the next patch.
-    private readonly _clear_overrides = effect(() => {
-        this._context.api_group_id();
-        this._context.data_change();
-        untracked(() => this._display_overrides.set({}));
-    });
-
     /**
      * Paged queries for the picker modals, which search on their own without
      * disturbing the lists behind them. Null when the user may not query.
@@ -185,6 +177,22 @@ export class SignageDisplayService {
             computation: () => null,
         },
     );
+
+    private readonly _assignments = new PlaylistAssignments<PlaceSystem>({
+        context: this._context,
+        playlist_service: this._playlist_service,
+        dialog: this._dialog,
+        overrides: this._display_overrides,
+        selected: this.selected_display,
+        target: 'display_id',
+        already_assigned_key: 'SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY',
+        add_error_key: 'SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR',
+        save_playlists: (display, playlists) =>
+            updateSignageDisplay(display.id, {
+                playlists,
+                version: display.version,
+            }),
+    });
 
     // The listing itself, which is whatever page(s) of the (possibly
     // searched) query have been loaded so far. Local edits are applied over
@@ -305,20 +313,6 @@ export class SignageDisplayService {
         () => !!this._selected_display_template_mappings.error(),
     );
 
-    /**
-     * Keep a saved display until the lists reload.
-     * @returns The display with its names decoded, to use for selection
-     */
-    private _cacheDisplay(display: PlaceSystem) {
-        const item = decodeEntityNames(display);
-        if (!item?.id) return item;
-        this._display_overrides.update((state) => ({
-            ...state,
-            [item.id]: item,
-        }));
-        return item;
-    }
-
     private _addDisplayToList(display: PlaceSystem) {
         const item = decodeEntityNames(display);
         if (!item?.id) return item;
@@ -330,7 +324,7 @@ export class SignageDisplayService {
             ...cache,
             [item.id]: item,
         }));
-        return this._cacheDisplay(item);
+        return this._assignments.cache(item);
     }
 
     private _removeDisplayFromList(display_id: string) {
@@ -421,7 +415,14 @@ export class SignageDisplayService {
             )
         )
             return false;
-        const result = await openConfirmModal(
+        const used_elsewhere = !!(
+            display.map_id ||
+            display.email ||
+            display.modules.length ||
+            display.module_list.length
+        );
+        const removed = await confirmThenRun(
+            this._dialog,
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_DISPLAY_TITLE'),
                 content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
@@ -429,27 +430,16 @@ export class SignageDisplayService {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading_key: 'SIGNAGE_MANAGER.SVC_REMOVING',
+                error_key: 'SIGNAGE_MANAGER.SVC_DISPLAY_REMOVE_ERROR',
+                action: () =>
+                    used_elsewhere
+                        ? updateSignageDisplay(display.id, { signage: false })
+                        : removeSystem(display.id),
+            },
         );
-        if (result.reason !== 'done') return false;
-        const used_elsewhere = !!(
-            display.map_id ||
-            display.email ||
-            display.modules.length ||
-            display.module_list.length
-        );
-        const request: Promise<unknown> = used_elsewhere
-            ? updateSignageDisplay(display.id, { signage: false })
-            : removeSystem(display.id);
-        const removed = await request.then(
-            () => true,
-            () => false,
-        );
-        result.close();
-        if (!removed) {
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_REMOVE_ERROR'));
-            return false;
-        }
+        if (!removed) return false;
         this._removeDisplayFromList(display.id);
         if (this.selected_display()?.id === display.id) {
             this.selected_display.set(null);
@@ -481,16 +471,9 @@ export class SignageDisplayService {
     }
 
     public async addDisplayToZone(zone: PlaceZone) {
-        if (!this._canAssign()) return;
-        const { DisplaySelectModalComponent } =
-            await import('../shared/display-select-modal.component');
-        const ref = this._dialog.open(DisplaySelectModalComponent, {
-            data: { zone_id: zone.id },
-            panelClass: 'mobile-fullscreen',
-        });
-        const display_id = await dialogClosed<string>(ref);
-        if (!display_id) return;
-        const display = await this._findDisplay(display_id);
+        if (!this._assignments.canAssign()) return;
+        const display = await this._pickDisplay();
+        if (display === undefined) return;
         if (!display) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR'));
             return;
@@ -500,24 +483,23 @@ export class SignageDisplayService {
             return;
         }
         const zone_ids = await this._zone_service.zoneIdsWithAncestors([zone]);
-        await this._saveDisplay(
-            display,
-            { zones: [...new Set([...(display.zones || []), ...zone_ids])] },
+        await this._assignments.save(
+            () =>
+                updateSignageDisplay(display.id, {
+                    zones: [
+                        ...new Set([...(display.zones || []), ...zone_ids]),
+                    ],
+                    version: display.version,
+                }),
             'SIGNAGE_MANAGER.SVC_DISPLAY_ADDED_ZONE',
         );
     }
 
     public async addPlaylistToDisplay(display: PlaceSystem) {
-        if (!this._canAssign()) return;
-        const { PlaylistSelectModalComponent } =
-            await import('../shared/playlist-select-modal.component');
-        const ref = this._dialog.open(PlaylistSelectModalComponent, {
-            data: { display_id: display.id },
-            panelClass: 'mobile-fullscreen',
-        });
-        const playlist_id = await dialogClosed<string>(ref);
+        if (!this._assignments.canAssign()) return;
+        const playlist_id = await this._assignments.pickPlaylist();
         if (!playlist_id) return;
-        const updated = await this._addDisplayPlaylist(
+        const updated = await this._assignments.add(
             display,
             { playlist_id },
             'SIGNAGE_MANAGER.SVC_PLAYLIST_ADDED_DISPLAY',
@@ -526,45 +508,38 @@ export class SignageDisplayService {
     }
 
     public async addDisplayToPlaylist(playlist: SignagePlaylist) {
-        if (!this._canAssign()) return;
-        const { DisplaySelectModalComponent } =
-            await import('../shared/display-select-modal.component');
-        const ref = this._dialog.open(DisplaySelectModalComponent, {
-            data: { playlist_id: playlist.id },
-            panelClass: 'mobile-fullscreen',
-        });
-        const display_id = await dialogClosed<string>(ref);
-        if (!display_id) return;
-        const display = await this._findDisplay(display_id);
+        if (!this._assignments.canAssign()) return;
+        const display = await this._pickDisplay();
+        if (display === undefined) return;
         if (!display) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR'));
             return;
         }
-        const updated = await this._addDisplayPlaylist(
+        const updated = await this._assignments.add(
             display,
             { playlist_id: playlist.id, playlist },
             'SIGNAGE_MANAGER.SVC_DISPLAY_ADDED_PLAYLIST',
         );
-        this._updateSelection(updated);
+        this._assignments.updateSelection(updated);
     }
 
     public async removeDisplayFromPlaylist(
         playlist: SignagePlaylist,
         display: PlaceSystem,
     ) {
-        const updated = await this._removeDisplayPlaylist(
+        const updated = await this._assignments.remove(
             display,
             playlist.id,
             'SIGNAGE_MANAGER.SVC_DISPLAY_REMOVED_PLAYLIST',
         );
-        this._updateSelection(updated);
+        this._assignments.updateSelection(updated);
     }
 
     public async removePlaylistFromDisplay(
         display: PlaceSystem,
         playlist_id: string,
     ) {
-        const updated = await this._removeDisplayPlaylist(
+        const updated = await this._assignments.remove(
             display,
             playlist_id,
             'SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_DISPLAY',
@@ -572,103 +547,24 @@ export class SignageDisplayService {
         if (updated) this.selected_display.set(updated);
     }
 
-    private _canAssign() {
-        return this._context.requirePermission(
-            this._context.can_update(),
-            'SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS',
-        );
-    }
-
     /**
-     * A display from the loaded list, or read by ID. The pickers search the
-     * backend, so the choice may be a display the list never loaded.
+     * Let the user pick a display. The picker searches the backend, so the
+     * choice may be a display the list never loaded.
+     * @returns The display, null when it cannot be read, or undefined when
+     * the picker was closed
      */
-    private async _findDisplay(display_id: string) {
+    private async _pickDisplay() {
+        const { DisplaySelectModalComponent } =
+            await import('../shared/display-select-modal.component');
+        const ref = this._dialog.open(DisplaySelectModalComponent, {
+            panelClass: 'mobile-fullscreen',
+        });
+        const display_id = await dialogClosed<string>(ref);
+        if (!display_id) return undefined;
         return (
             this.displays().find(({ id }) => id === display_id) ||
             showSignageDisplay(display_id).catch(() => null)
         );
-    }
-
-    /** Show a saved display in place of the selected display, when it is
-     * that display */
-    private _updateSelection(display: PlaceSystem | null) {
-        if (display && this.selected_display()?.id === display.id) {
-            this.selected_display.set(display);
-        }
-    }
-
-    /**
-     * Add a playlist to a display, after a check for takeover conflicts.
-     * @returns The saved display, or null when nothing was saved
-     */
-    private async _addDisplayPlaylist(
-        display: PlaceSystem,
-        change: { playlist_id: string; playlist?: SignagePlaylist },
-        success_key: string,
-    ) {
-        if (display.playlists?.includes(change.playlist_id)) {
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
-            return null;
-        }
-        const confirmed = await this._playlist_service.confirmTakeoverChange({
-            ...change,
-            display_id: display.id,
-        });
-        if (!confirmed) return null;
-        return this._saveDisplay(
-            display,
-            { playlists: [...(display.playlists || []), change.playlist_id] },
-            success_key,
-            'SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR',
-        );
-    }
-
-    /**
-     * Take a playlist off a display.
-     * @returns The saved display, or null when nothing was saved
-     */
-    private async _removeDisplayPlaylist(
-        display: PlaceSystem,
-        playlist_id: string,
-        success_key: string,
-    ) {
-        if (!this._canAssign()) return null;
-        return this._saveDisplay(
-            display,
-            {
-                playlists: (display.playlists || []).filter(
-                    (id) => id !== playlist_id,
-                ),
-            },
-            success_key,
-        );
-    }
-
-    /**
-     * Save the playlists or zones of a display and keep the result until the
-     * lists reload.
-     * @param error_key Translation key of the error to show when it fails
-     * @returns The saved display, or null after showing an error when it fails
-     */
-    private async _saveDisplay(
-        display: PlaceSystem,
-        data: Pick<Partial<PlaceSystem>, 'playlists' | 'zones'>,
-        success_key: string,
-        error_key = 'SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR',
-    ) {
-        const updated = await updateSignageDisplay(display.id, {
-            ...data,
-            version: display.version,
-        }).catch(() => null);
-        if (!updated) {
-            notifyError(i18n(error_key));
-            return null;
-        }
-        const saved = this._cacheDisplay(updated);
-        this._context.changed();
-        notifySuccess(i18n(success_key));
-        return saved;
     }
 
     constructor() {

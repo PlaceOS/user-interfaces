@@ -18,7 +18,7 @@ export const routes: Routes = [
     {
         path: 'explore',
         loadComponent: () =>
-            import('./explore.component').then((m) => m.ExploreComponent),
+            import('./explore.route').then((m) => m.ExploreComponent),
         canActivate: [AuthorisedUserGuard],
     },
     {

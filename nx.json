@@ -137,7 +137,8 @@
             "{workspaceRoot}/angular.json",
             "{workspaceRoot}/tsconfig.base.json",
             "{workspaceRoot}/tslint.json",
-            "{workspaceRoot}/nx.json"
+            "{workspaceRoot}/nx.json",
+            "{workspaceRoot}/shared/ngsw-config.json"
         ],
         "production": [
             "default",

@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
     BookingFlowView,
     BookingFormService,
+    isGroupBooking,
     mapGroupMembersFromBookings,
     recentVisitorEntry,
     toVisitorInternalOrExternal,
@@ -37,17 +38,17 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
         @if (view() !== 'success') {
             <div
                 cdkScrollable
-                class="relative z-0 h-full w-full overflow-auto bg-base-200"
+                class="bg-base-200 relative z-0 h-full w-full overflow-auto"
             >
                 <div
                     class="mx-auto flex min-h-full w-[80rem] max-w-full flex-col px-4 pt-4"
                 >
                     <visitor-flow-recent />
                     <div
-                        class="mb-4 flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                        class="border-base-300 bg-base-100 mb-4 flex w-full flex-col overflow-hidden rounded-xl border"
                     >
                         <div
-                            class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                            class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
                         >
                             <icon>info</icon>
                             <div>
@@ -56,17 +57,20 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
                         </div>
                         <visitor-flow-details />
                         <div
-                            class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                            class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
                         >
                             <icon>info</icon>
                             <div>
-                                {{ 'BOOKINGS.VISITOR_DETAILS_HEADER' | translate }}
+                                {{
+                                    'BOOKINGS.VISITOR_DETAILS_HEADER'
+                                        | translate
+                                }}
                             </div>
                         </div>
                         <visitor-flow-invites />
                     </div>
                     <div
-                        class="sticky bottom-0 z-20 mt-auto flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
+                        class="border-base-300 bg-base-100 sticky bottom-0 z-20 mt-auto flex justify-between rounded-t-xl border-x border-t p-3"
                     >
                         <div></div>
                         <button
@@ -190,13 +194,8 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         const value = this._model();
         if (!value.id) return;
         const booking = this._booking_form.booking;
-        const is_group =
-            !!booking?.parent_id ||
-            !!booking?.group ||
-            !!booking?.extension_data?.group_members?.length;
-        if (!is_group) return;
-        const siblings =
-            await this._booking_form.loadGroupSiblings(booking);
+        if (!isGroupBooking(booking)) return;
+        const siblings = await this._booking_form.loadGroupSiblings(booking);
         if (!siblings?.length) return;
         this._existing_siblings = siblings;
         const visitors = mapGroupMembersFromBookings(siblings, true);
@@ -374,10 +373,9 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         if (value.id) {
             let existing_siblings = this._existing_siblings;
             if (!existing_siblings.length) {
-                existing_siblings =
-                    await this._booking_form.loadGroupSiblings(
-                        new Booking(value as any),
-                    );
+                existing_siblings = await this._booking_form.loadGroupSiblings(
+                    new Booking(value as any),
+                );
             }
             if (!existing_siblings.length) {
                 existing_siblings = [new Booking(value as any)];

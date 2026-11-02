@@ -1,9 +1,4 @@
-import {
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,17 +6,25 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import {
     OrganisationService,
     SettingsService,
     settingSignal,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { firstValueFrom } from 'rxjs';
 import { DashboardsService } from '../dashboards/dashboards.service';
-import { SupportGroupsService } from '../support-groups.service';
 import { PushNotificationSettingsComponent } from '../push-notification-settings.component';
 import { AlertNotificationService } from '../push-notification.service';
+import { SupportGroupsService } from '../support-groups.service';
+
+/**
+ * Signal of the backoffice URL from the `backoffice_link` setting. Call it
+ * after the settings load, for example in a component field.
+ */
+export function backofficeLink() {
+    return settingSignal('backoffice_link', `${location.origin}/backoffice/`);
+}
 
 /** Start collapsed on narrow screens, so the sidebar does not cover the page */
 const COMPACT_SIGNAL = signal(
@@ -135,10 +138,8 @@ const COMPACT_SIGNAL = signal(
                                     }}</mat-option>
                                     @for (region of r_list; track region.id) {
                                         <mat-option [value]="region.id">{{
-                                                region.display_name ||
-                                                    region.name
-                                            }}</mat-option
-                                        >
+                                            region.display_name || region.name
+                                        }}</mat-option>
                                     }
                                 </mat-select>
                             </mat-form-field>
@@ -167,9 +168,8 @@ const COMPACT_SIGNAL = signal(
                                     }}</mat-option>
                                     @for (bld of bld_list; track bld.id) {
                                         <mat-option [value]="bld.id">{{
-                                                bld.display_name || bld.name
-                                            }}</mat-option
-                                        >
+                                            bld.display_name || bld.name
+                                        }}</mat-option>
                                     }
                                 </mat-select>
                             </mat-form-field>
@@ -178,82 +178,20 @@ const COMPACT_SIGNAL = signal(
                 }
             }
             <div class="mt-2 flex-1 space-y-1 overflow-auto">
-                <a
-                    matRipple
-                    class="hover:bg-base-100/10 relative flex w-full items-center space-x-4 p-2"
-                    routerLinkActive="bg-secondary-focus!"
-                    ariaCurrentWhenActive="page"
-                    aria-label="Alerts"
-                    [routerLink]="['/alerts']"
-                    [matTooltip]="is_compact() ? 'Alerts' : ''"
-                    matTooltipPosition="right"
-                >
-                    <icon class="ml-0! text-3xl">notifications</icon>
-                    @if (!is_compact()) {
-                        <span class="truncate">Alerts</span>
-                    }
-                </a>
-                <a
-                    matRipple
-                    class="hover:bg-base-100/10 relative flex w-full items-center space-x-4 p-2"
-                    routerLinkActive="bg-secondary-focus!"
-                    ariaCurrentWhenActive="page"
-                    aria-label="Remote support"
-                    [routerLink]="['/remote-support']"
-                    [matTooltip]="is_compact() ? 'Remote Support' : ''"
-                    matTooltipPosition="right"
-                >
-                    <icon class="ml-0! text-3xl">wifi</icon>
-                    @if (!is_compact()) {
-                        <span class="truncate">Remote Support</span>
-                    }
-                </a>
-                @if (analytics_pages()?.length > 0) {
+                @for (link of nav_links(); track link.route) {
                     <a
                         matRipple
                         class="hover:bg-base-100/10 relative flex w-full items-center space-x-4 p-2"
                         routerLinkActive="bg-secondary-focus!"
                         ariaCurrentWhenActive="page"
-                        aria-label="Analytics"
-                        [routerLink]="['/analytics']"
-                        [matTooltip]="is_compact() ? 'Analytics' : ''"
+                        [attr.aria-label]="link.aria_label"
+                        [routerLink]="[link.route]"
+                        [matTooltip]="is_compact() ? link.name : ''"
                         matTooltipPosition="right"
                     >
-                        <icon class="ml-0! text-3xl">show_chart</icon>
+                        <icon class="ml-0! text-3xl">{{ link.icon }}</icon>
                         @if (!is_compact()) {
-                            <span class="truncate">Analytics</span>
-                        }
-                    </a>
-                }
-                <a
-                    matRipple
-                    class="hover:bg-base-100/10 relative flex w-full items-center space-x-4 p-2"
-                    routerLinkActive="bg-secondary-focus!"
-                    ariaCurrentWhenActive="page"
-                    aria-label="Manage dashboards"
-                    [routerLink]="['/dashboards']"
-                    [matTooltip]="is_compact() ? 'Manage Dashboards' : ''"
-                    matTooltipPosition="right"
-                >
-                    <icon class="ml-0! text-3xl">dashboard</icon>
-                    @if (!is_compact()) {
-                        <span class="truncate">Manage Dashboards</span>
-                    }
-                </a>
-                @if (show_recorder_view()) {
-                    <a
-                        matRipple
-                        class="hover:bg-base-100/10 relative flex w-full items-center space-x-4 p-2"
-                        routerLinkActive="bg-secondary-focus!"
-                        ariaCurrentWhenActive="page"
-                        aria-label="Recorder streams"
-                        [routerLink]="['/recorder-grid']"
-                        [matTooltip]="is_compact() ? 'Recorder Streams' : ''"
-                        matTooltipPosition="right"
-                    >
-                        <icon class="ml-0! text-3xl">stream</icon>
-                        @if (!is_compact()) {
-                            <span class="truncate">Recorder Streams</span>
+                            <span class="truncate">{{ link.name }}</span>
                         }
                     </a>
                 }
@@ -404,15 +342,53 @@ export class SidebarComponent {
     public readonly can_change_dark_mode = computed(
         () => !!this._allow_dark_mode(),
     );
-    public readonly backoffice_link = settingSignal(
-        'backoffice_link',
-        `${location.origin}/backoffice/`,
-    );
+    public readonly backoffice_link = backofficeLink();
     public readonly show_recorder_view = settingSignal(
         'show_recorder_view',
         false,
     );
     public readonly analytics_pages = settingSignal('analytics_pages', []);
+    /** Page links, without the optional pages that are turned off */
+    public readonly nav_links = computed(() => [
+        {
+            route: '/alerts',
+            name: 'Alerts',
+            aria_label: 'Alerts',
+            icon: 'notifications',
+        },
+        {
+            route: '/remote-support',
+            name: 'Remote Support',
+            aria_label: 'Remote support',
+            icon: 'wifi',
+        },
+        ...(this.analytics_pages()?.length > 0
+            ? [
+                  {
+                      route: '/analytics',
+                      name: 'Analytics',
+                      aria_label: 'Analytics',
+                      icon: 'show_chart',
+                  },
+              ]
+            : []),
+        {
+            route: '/dashboards',
+            name: 'Manage Dashboards',
+            aria_label: 'Manage dashboards',
+            icon: 'dashboard',
+        },
+        ...(this.show_recorder_view()
+            ? [
+                  {
+                      route: '/recorder-grid',
+                      name: 'Recorder Streams',
+                      aria_label: 'Recorder streams',
+                      icon: 'stream',
+                  },
+              ]
+            : []),
+    ]);
     public readonly region = this._dash.region_id;
     public readonly building = this._dash.building_id;
 

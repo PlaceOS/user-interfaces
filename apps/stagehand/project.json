@@ -61,7 +61,7 @@
                             "with": "apps/stagehand/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/stagehand/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "sourceMap": {
@@ -96,7 +96,7 @@
                         }
                     ],
                     "outputHashing": "all",
-                    "serviceWorker": "apps/stagehand/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "development": {
                     "optimization": false,
@@ -135,7 +135,8 @@
                 "tsConfig": "apps/stagehand/tsconfig.spec.json",
                 "setupFiles": [
                     "libs/common/src/test-storage.ts",
-                    "apps/stagehand/src/test-setup.ts"
+                    "shared/test-setup-base.ts",
+                    "shared/test-setup.ts"
                 ],
                 "isolate": true,
                 "watch": false,

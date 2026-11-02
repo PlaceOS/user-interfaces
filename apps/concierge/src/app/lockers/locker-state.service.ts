@@ -40,7 +40,6 @@ import {
     i18n,
     nextValueFrom,
     notifyError,
-    notifyInfo,
     notifySuccess,
     OrganisationService,
     RecurrenceDays,
@@ -71,7 +70,6 @@ import { ViewLockerBankModalComponent } from './view-locker-bank-modal.component
 export interface LockerFilters {
     date?: number;
     zones?: string[];
-    show_map?: boolean;
 }
 
 const addToken = (l: string, t: string) => l.replace(t, '') + t;
@@ -140,7 +138,6 @@ export class LockerStateService extends AsyncHandler {
 
     private _search = signal('');
     private _filters = signal<LockerFilters>({});
-    private _locker_bookings: Booking[] = [];
     private _loading = signal<string>('');
     private _change = signal(0);
     /** List of available locker levels for the current building, parking-only levels last */
@@ -844,7 +841,7 @@ export class LockerStateService extends AsyncHandler {
                 i18n(
                     state
                         ? 'BOOKINGS.CHECK_IN_ERROR'
-                        : 'BOOKINGS_CHECK_OUT_ERROR',
+                        : 'BOOKINGS.CHECK_OUT_ERROR',
                 ),
             );
             throw status.error;
@@ -853,7 +850,7 @@ export class LockerStateService extends AsyncHandler {
             i18n(
                 state
                     ? 'BOOKINGS.CHECK_IN_SUCCESS'
-                    : 'BOOKINGS_CHECK_OUT_SUCCESS',
+                    : 'BOOKINGS.CHECK_OUT_SUCCESS',
             ),
         );
     }
@@ -890,18 +887,6 @@ export class LockerStateService extends AsyncHandler {
         this.refresh();
     }
 
-    public async giveAccess(locker: Booking) {
-        const success = await saveBooking(
-            new Booking({ ...locker, access: true }),
-        ).catch((_) => 'failed');
-        if (success === 'failed')
-            return notifyError('Error giving building access booking host');
-        notifySuccess(
-            `Successfully gave building access to ${locker.user_name} for locker booking.`,
-        );
-        this._locker_bookings = [...this._locker_bookings, success] as any;
-    }
-
     /**
      * Approve or reject several bookings. Asks before it rejects.
      * @returns `false` if the user cancelled
@@ -916,35 +901,6 @@ export class LockerStateService extends AsyncHandler {
         if (failed === null) return false;
         this.refresh();
         return true;
-    }
-
-    public async rejectAllLockers() {
-        const list = this._locker_bookings || [];
-        if (list.length <= 0)
-            return notifyInfo('No lockers to reject for the selected date');
-        const resp = await openConfirmModal(
-            {
-                title: i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_TITLE'),
-                content: i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_MSG'),
-                icon: {
-                    type: 'icon',
-                    class: 'material-symbols-rounded',
-                    content: 'delete',
-                },
-            },
-            this._dialog,
-        );
-        if (resp.reason !== 'done') return;
-        resp.loading(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_LOADING'));
-        await Promise.all(list.map((locker) => rejectBooking(locker.id))).catch(
-            (e) => {
-                notifyError(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_ERROR'));
-                throw e;
-            },
-        );
-        notifySuccess(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_SUCCESS'));
-        resp.close();
-        this.refresh();
     }
 
     private async _clearAssignedBooking(resource: Locker) {

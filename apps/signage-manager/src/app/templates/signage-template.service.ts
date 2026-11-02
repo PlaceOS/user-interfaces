@@ -16,12 +16,10 @@ import {
     notifyWarn,
     OrganisationService,
 } from '@placeos/common';
-import { ConfirmModalComponent, openConfirmModal } from '@placeos/components';
 import {
     addSignageTemplate,
     addSignageTemplateMapping,
     listSignageTemplateApprovers,
-    PlaceCurrentGroup,
     query,
     querySignageTemplates,
     removeSignageTemplate,
@@ -36,6 +34,7 @@ import {
     updateSignageTemplate,
     updateSignageTemplateMapping,
 } from '@placeos/ts-client';
+import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import { PagedList } from '../shared/paged-list';
 import { byName } from '../shared/paged-search';
@@ -387,7 +386,8 @@ export class SignageTemplateService {
             )
         )
             return false;
-        const result = await openConfirmModal(
+        const removed = await confirmThenRun(
+            this._dialog,
             {
                 title: i18n(
                     'SIGNAGE_MANAGER.SVC_REMOVE_TEMPLATE_MAPPING_TITLE',
@@ -398,22 +398,16 @@ export class SignageTemplateService {
                 ),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading_key: 'SIGNAGE_MANAGER.SVC_REMOVING',
+                error_key: 'SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVE_ERROR',
+                action: () => removeSignageTemplateMapping(mapping.id),
+            },
         );
-        if (result.reason !== 'done') return false;
-        try {
-            await removeSignageTemplateMapping(mapping.id);
-            this.template_mappings_revision.update((value) => value + 1);
-            result.close();
-            notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVED'));
-            return true;
-        } catch {
-            result.close();
-            notifyError(
-                i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVE_ERROR'),
-            );
-            return false;
-        }
+        if (!removed) return false;
+        this.template_mappings_revision.update((value) => value + 1);
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVED'));
+        return true;
     }
 
     public async approveTemplate(template: SignageTemplate) {
@@ -436,56 +430,42 @@ export class SignageTemplateService {
     public async requestTemplateApproval(template: SignageTemplate) {
         if (!template?.id || this.template_approval_request_loading()) return;
         if (this._templateLayoutUnsaved(template)) return;
-        if (this._context.can_approve()) {
-            await this.approveTemplate(template);
-            return;
-        }
-        let approvers: SignageTemplateApprover[] = [];
-        let group: PlaceCurrentGroup | null = null;
-        this.template_approval_request_loading.set(true);
-        try {
-            [group] = await this._context.groupsHolding(
-                template.id,
-                (group_id) => querySignageTemplates({ group_id, limit: 500 }),
-            );
-            if (!group) {
-                notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_TEMPLATE'));
-                return;
-            }
-            approvers =
-                ((await listSignageTemplateApprovers(
-                    group.group.id,
-                )) as SignageTemplateApprover[]) || [];
-        } catch {
-            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_TEMPLATE_APPROVERS'));
-        } finally {
-            this.template_approval_request_loading.set(false);
-        }
-        if (!group) return;
-        const { TemplateRequestApprovalModalComponent } =
-            await import('../shared/template-request-approval-modal.component');
-        const ref = this._dialog.open(TemplateRequestApprovalModalComponent, {
-            data: { template, approvers },
-            panelClass: 'mobile-fullscreen',
+        await this._context.requestApproval({
+            item_id: template.id,
+            loading: this.template_approval_request_loading,
+            approve: () => this.approveTemplate(template),
+            query: (group_id) =>
+                querySignageTemplates({ group_id, limit: 500 }),
+            list_approvers: (group_id) =>
+                listSignageTemplateApprovers(group_id) as Promise<
+                    SignageTemplateApprover[]
+                >,
+            pick: async (approvers) => {
+                const { TemplateRequestApprovalModalComponent } =
+                    await import('../shared/template-request-approval-modal.component');
+                const ref = this._dialog.open(
+                    TemplateRequestApprovalModalComponent,
+                    {
+                        data: { template, approvers },
+                        panelClass: 'mobile-fullscreen',
+                    },
+                );
+                return dialogClosed<TemplateRequestApprovalModalResult>(ref);
+            },
+            request: (group_id, message, approver_id) =>
+                requestApprovalSignageTemplate(
+                    template.id,
+                    group_id,
+                    message,
+                    approver_id,
+                ),
+            requested: () =>
+                this.setTemplateApprovalStatus(template.id, false, true),
+            no_groups_key: 'SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_TEMPLATE',
+            no_approvers_key: 'SIGNAGE_MANAGER.SVC_NO_TEMPLATE_APPROVERS',
+            error_key: 'SIGNAGE_MANAGER.SVC_TEMPLATE_APPROVAL_REQUEST_ERROR',
+            success_key: 'SIGNAGE_MANAGER.SVC_TEMPLATE_APPROVAL_REQUESTED',
         });
-        const result: TemplateRequestApprovalModalResult | undefined =
-            await dialogClosed(ref);
-        if (!result) return;
-        try {
-            await requestApprovalSignageTemplate(
-                template.id,
-                group.group.id,
-                result.message || '',
-                result.approver_id || '',
-            );
-        } catch {
-            notifyError(
-                i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_APPROVAL_REQUEST_ERROR'),
-            );
-            return;
-        }
-        this.setTemplateApprovalStatus(template.id, false, true);
-        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_APPROVAL_REQUESTED'));
     }
 
     /**
@@ -501,7 +481,8 @@ export class SignageTemplateService {
             )
         )
             return false;
-        const result = await openConfirmModal(
+        const removed = await confirmThenRun(
+            this._dialog,
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_TEMPLATE_TITLE'),
                 content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
@@ -509,19 +490,17 @@ export class SignageTemplateService {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading_key: 'SIGNAGE_MANAGER.SVC_REMOVING',
+                error_key: 'SIGNAGE_MANAGER.SVC_TEMPLATE_REMOVE_ERROR',
+                action: () =>
+                    removeSignageTemplate(
+                        template.id,
+                        this._context.groupQueryParams({}),
+                    ),
+            },
         );
-        if (result.reason !== 'done') return false;
-        try {
-            await removeSignageTemplate(
-                template.id,
-                this._context.groupQueryParams({}),
-            );
-        } catch {
-            result.close();
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_REMOVE_ERROR'));
-            return false;
-        }
+        if (!removed) return false;
         this._releaseDraft(template.id);
         // The reload keeps the loaded rows on screen, so drop this one now
         this._template_list.update((items) =>
@@ -534,7 +513,6 @@ export class SignageTemplateService {
         }
         this._context.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_REMOVED'));
-        result.close();
         return true;
     }
 
@@ -632,7 +610,8 @@ export class SignageTemplateService {
             )
         )
             return false;
-        const result = await openConfirmModal(
+        const undone = await confirmThenRun(
+            this._dialog,
             {
                 title: i18n('SIGNAGE_MANAGER.UNDO_CHANGES'),
                 content: i18n('SIGNAGE_MANAGER.TEMPLATE_REVERT_CONFIRM', {
@@ -641,24 +620,13 @@ export class SignageTemplateService {
                 confirm_text: i18n('SIGNAGE_MANAGER.UNDO_CHANGES'),
                 icon: { content: 'undo' },
             },
-            this._dialog,
+            {
+                loading_key: 'SIGNAGE_MANAGER.UNDOING_CHANGES',
+                error_key: 'SIGNAGE_MANAGER.TEMPLATE_REVERT_ERROR',
+                action: () => removeSignageTemplateDraft(template_id),
+            },
         );
-        if (result.reason !== 'done') return false;
-        result.loading(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
-        // Keep the confirmation open until the draft is gone. Closing it
-        // would not stop the request.
-        const confirm_ref = this._dialog.openDialogs.at(-1);
-        if (confirm_ref?.componentInstance instanceof ConfirmModalComponent) {
-            confirm_ref.disableClose = true;
-        }
-        try {
-            await removeSignageTemplateDraft(template_id);
-        } catch {
-            notifyError(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERT_ERROR'));
-            return false;
-        } finally {
-            result.close();
-        }
+        if (!undone) return false;
         this.updateCachedTemplate(previous_version);
         notifySuccess(i18n('SIGNAGE_MANAGER.TEMPLATE_REVERTED'));
         this._context.changed();

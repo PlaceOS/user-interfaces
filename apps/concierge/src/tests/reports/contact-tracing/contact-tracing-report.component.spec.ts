@@ -3,7 +3,7 @@ import { signal, WritableSignal } from '@angular/core';
 import { MockComponent, MockDirective, MockPipe } from 'ng-mocks';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     SimpleTableComponent,
@@ -21,7 +21,6 @@ describe('ContactTracingReportComponent', () => {
     let options: WritableSignal<unknown>;
     let events: WritableSignal<unknown[]>;
     let settings_map: Record<string, unknown>;
-    let theme: string;
     const createComponent = createComponentFactory({
         component: ContactTracingReportComponent,
         declarations: [
@@ -41,15 +40,8 @@ describe('ContactTracingReportComponent', () => {
                 provide: SettingsService,
                 useValue: {
                     get: (key: string) => settings_map[key],
-                    get theme() {
-                        return theme;
-                    },
                     time_format: 'h:mm a',
                 },
-            },
-            {
-                provide: OrganisationService,
-                useValue: { active_building: signal({ id: 'bld-1' }) },
             },
         ],
         imports: [MatProgressSpinnerModule],
@@ -59,11 +51,7 @@ describe('ContactTracingReportComponent', () => {
         loading = signal('');
         options = signal({ start: 0, end: 0 });
         events = signal([]);
-        theme = 'light';
-        settings_map = {
-            'app.logo_light': { src: 'light.png' },
-            'app.logo_dark': { src: 'dark.png' },
-        };
+        settings_map = {};
         spectator = createComponent();
     });
 
@@ -87,15 +75,6 @@ describe('ContactTracingReportComponent', () => {
         spectator.detectChanges();
         expect(spectator.query('mat-spinner')).toBeTruthy();
         expect(spectator.query('simple-table')).toBeFalsy();
-    });
-
-    it('should pick the logo matching the active theme', () => {
-        expect(spectator.component.logo()).toEqual({ src: 'light.png' });
-        theme = 'dark';
-        (spectator.inject(OrganisationService).active_building as any).set({
-            id: 'bld-2',
-        });
-        expect(spectator.component.logo()).toEqual({ src: 'dark.png' });
     });
 
     it('should format durations as hours and minutes', () => {

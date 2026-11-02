@@ -1,6 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { Component } from '@angular/core';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { FacilitiesMapComponent } from './facilities-map.component';
 import { FacilitiesStatusComponent } from './facilities-status.component';
@@ -44,22 +42,4 @@ import { FacilitiesTopbarComponent } from './facilities-topbar.component';
         FacilitiesStatusComponent,
     ],
 })
-export class FacilitiesComponent extends AsyncHandler {
-    private _router = inject(Router);
-
-    private readonly _url = signal<unknown>(null);
-
-    public readonly path = computed(() => {
-        this._url();
-        const parts = this._router.url.split('/');
-        return parts[parts.length - 1].split('?')[0];
-    });
-
-    constructor() {
-        super();
-        this.subscription(
-            'router',
-            this._router.events.subscribe((event) => this._url.set(event)),
-        );
-    }
-}
+export class FacilitiesComponent {}

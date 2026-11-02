@@ -191,12 +191,6 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
         );
     }
 
-    public get logo() {
-        return this._settings.theme === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
-    }
-
     public get allow_printing_label() {
         return this._settings.get('app.allow_printing_label') !== false;
     }

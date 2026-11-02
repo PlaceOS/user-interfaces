@@ -25,19 +25,18 @@ import {
     currentUser,
     errorMessage,
     flatten,
-    getInvalidSignalFields,
     i18n,
     isEmptyUser,
     notifyError,
     notifySuccess,
     OrganisationService,
     SettingsService,
-    User,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 import { listChildMetadata } from '@placeos/ts-client';
 import { set } from 'date-fns';
+import { notifyInvalidBookingFields } from '../booking-invalid-fields';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import {
     DeskFlowDetailsComponent,
@@ -169,16 +168,6 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
 
     public readonly form_value = this._booking_form.model;
 
-    public readonly has_title = computed(
-        () => !!this.form_value()?.title?.trim(),
-    );
-
-    public readonly has_item = computed(
-        () =>
-            !!this.form_value()?.resources &&
-            this.form_value()?.resources.length > 0,
-    );
-
     public readonly is_edit_mode = computed(() => !!this.form_value()?.id);
     /** Booking type selected in the details step */
     public readonly active_form = signal<DeskFormType>('single');
@@ -283,20 +272,11 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
      * part of a group, so that a save updates every member.
      */
     private async _loadGroupMembers() {
-        const booking = this._booking_form.booking;
-        if (!this._booking_form.model().id || !booking?.id) return;
-        const is_group =
-            !!booking.parent_id ||
-            !!booking.group ||
-            !!booking.extension_data?.group_members?.length;
-        if (!is_group) return;
-        // With no members the save fails with an error. It does not save
-        // the booking of the organiser only.
-        const members = await this._booking_form
-            .loadGroupMembersForBooking(booking)
-            .catch((): User[] => []);
-        if (this._destroyed) return;
-        this._booking_form.setOptions({ group: true, members });
+        if (!this._booking_form.model().id) return;
+        await this._booking_form.restoreGroupMembers(
+            this._booking_form.booking,
+            () => this._destroyed,
+        );
     }
 
     /**
@@ -464,17 +444,11 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                     asset_id: resources[0].id,
                 }));
             }
-            this._booking_form.form().markAsTouched();
             if (!this._booking_form.form().valid()) {
-                return notifyError(
-                    i18n('FORM.INVALID_FIELDS', {
-                        field_list: getInvalidSignalFields(
-                            this._booking_form.form,
-                            this._booking_form.model,
-                        )
-                            .join(', ')
-                            .replace('asset_id', i18n('RESOURCE.DESK')),
-                    }),
+                return notifyInvalidBookingFields(
+                    this._booking_form.form,
+                    this._booking_form.model,
+                    'RESOURCE.DESK',
                 );
             }
             await this._postBooking();

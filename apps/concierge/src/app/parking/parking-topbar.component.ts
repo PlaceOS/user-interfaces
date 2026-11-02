@@ -11,7 +11,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import {
     AsyncHandler,
-    currentUser,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -31,7 +30,12 @@ import {
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
-import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
+import {
+    loadPersistedZones,
+    persistZones,
+    sameZones,
+    zoneScopeId,
+} from '../ui/zone-persistence';
 import {
     ParkingRequestFilter,
     ParkingStateService,
@@ -503,11 +507,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         const zone_param = zones.length ? zones.join(',') : null;
         const query_zone_param = this._query_params().get('zone_ids') || null;
         const query_matches = zone_param === query_zone_param;
-        const selected_zones_match = this._sameZones(zones, this.zones());
-        const option_zones_match = this._sameZones(
-            zones,
-            this.options().zones || [],
-        );
+        const selected_zones_match = sameZones(zones, this.zones());
+        const option_zones_match = sameZones(zones, this.options().zones || []);
         if (query_matches && selected_zones_match && option_zones_match) {
             return;
         }
@@ -525,7 +526,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         if (!selector_inactive) {
             persistZones(
                 this.section() === 'manage' ? 'parking-manage' : 'parking',
-                this._persistScopeId(),
+                zoneScopeId(this._org, this.use_region),
                 zones,
             );
         }
@@ -574,18 +575,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public get can_view_requests() {
-        if (!this._settings.get('app.parking.show_requests')) return false;
-        const feature_groups = this._settings.get('app.feature_groups') || {};
-        const request_groups = feature_groups['parking-requests'] || [];
-        const admin_group = this._settings.get('app.admin_group') || 'admin';
-        const groups = currentUser()?.groups || [];
-        return (
-            groups.includes(admin_group) ||
-            groups.includes('placeos_admin') ||
-            groups.includes('placeos_support') ||
-            !request_groups.length ||
-            groups.some((grp) => request_groups.includes(grp))
-        );
+        return this._state.can_view_requests;
     }
 
     public manageRestrictions() {
@@ -662,10 +652,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 // selection means all levels.
                 zones = loadPersistedZones(
                     this.section() === 'manage' ? 'parking-manage' : 'parking',
-                    this._persistScopeId(),
+                    zoneScopeId(this._org, this.use_region),
                 ).filter((zone) => levels.find((lvl) => lvl.id === zone));
             }
-            if (this._sameZones(zones, this.zones())) return;
+            if (sameZones(zones, this.zones())) return;
             this.updateZones(zones);
         });
         effect(() => {
@@ -683,22 +673,16 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             if (has_valid_zone) return;
             const persisted = loadPersistedZones(
                 'parking',
-                this._persistScopeId(),
+                zoneScopeId(this._org, this.use_region),
             ).filter((zone) => levels.find((lvl) => lvl.id === zone));
             this.updateZones([persisted[0] || levels[0].id]);
         });
     }
 
-    private _persistScopeId() {
-        return this.use_region
-            ? this._org.region?.id || ''
-            : this._org.building?.id || '';
-    }
-
     private _applyQueryZones(zones: string[]) {
         if (
-            this._sameZones(zones, this.zones()) &&
-            this._sameZones(zones, this.options().zones || [])
+            sameZones(zones, this.zones()) &&
+            sameZones(zones, this.options().zones || [])
         ) {
             return;
         }
@@ -775,16 +759,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         }
         if (section_changed) this.zones.set([]);
         this._previous_route_key = route_key;
-        if (current_view === 'bookings') {
-            this.setRequestFilter('bookings');
-        } else if (current_view === 'requests' && this.can_view_requests) {
-            this.setRequestFilter('requests');
-        }
-        if (
-            this.section() === 'events' &&
-            (!this.can_view_requests ||
-                !this._settings.get('app.parking.show_requests'))
-        ) {
+        // ParkingComponent maps the bookings and requests routes to a filter.
+        if (this.section() === 'events' && !this.can_view_requests) {
             this.setRequestFilter('bookings');
         }
         if (
@@ -803,12 +779,5 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         ) {
             this.updateZones([]);
         }
-    }
-
-    private _sameZones(first: string[], second: string[]) {
-        return (
-            first.length === second.length &&
-            first.every((zone, index) => zone === second[index])
-        );
     }
 }

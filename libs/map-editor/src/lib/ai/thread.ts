@@ -1,11 +1,11 @@
 import { computed, signal, Signal, WritableSignal } from '@angular/core';
+import { errorStatus } from 'libs/common/src/lib/api';
 import { MapIndex } from '../map-index';
 import { OpKind } from '../ops';
 import { annotationCandidates } from './annotations';
 import {
     cancelMapAIJob,
     errorMessage,
-    errorStatus,
     isFinalJob,
     mapAICapabilities,
     MapAiTransport,

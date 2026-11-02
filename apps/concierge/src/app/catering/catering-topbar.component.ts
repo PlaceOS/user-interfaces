@@ -3,32 +3,27 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    CateringOrdersService,
-    CateringStateService,
-    ChargeCodeListModalComponent,
-} from '@placeos/catering';
+import { CateringOrdersService, CateringStateService } from '@placeos/catering';
 import {
     AsyncHandler,
-    notifyError,
-    notifySuccess,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import {
-    AvailableRoomsStateModalComponent,
     BuildingPipe,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { DateOptionsComponent } from '@placeos/form-fields';
-import { errorText } from '../ui/modal-actions';
 import { SearchbarComponent } from '../ui/searchbar.component';
-import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
+import {
+    loadPersistedZones,
+    persistZones,
+    zoneScopeId,
+} from '../ui/zone-persistence';
 
 @Component({
     selector: 'catering-topbar',
@@ -204,7 +199,6 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
-    private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
     /** List of selected levels */
@@ -242,7 +236,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         this._catering.zone = zones[0];
         persistZones(
             this.page() === 'menu' ? 'catering-menu' : 'catering-orders',
-            this._persistScopeId(),
+            zoneScopeId(this._org, this.use_region),
             zones,
         );
     };
@@ -250,6 +244,9 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     public readonly addItem = () => this._catering.addItem();
     public readonly editConfig = () => this._catering.editConfig();
     public readonly importMenu = () => this._catering.importMenu();
+    public readonly setRoomAvailability = () =>
+        this._catering.setRoomAvailability();
+    public readonly setChargeCodes = () => this._catering.setChargeCodes();
 
     public get building() {
         return this._org.building;
@@ -298,7 +295,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                 if (page_changed) {
                     const zones = loadPersistedZones(
                         page === 'menu' ? 'catering-menu' : 'catering-orders',
-                        this._persistScopeId(),
+                        zoneScopeId(this._org, this.use_region),
                     ).filter((zone) =>
                         this.levels().find((level) => level.id === zone),
                     );
@@ -310,39 +307,5 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         this.caterers.set(this._catering.caterers() || []);
         this._catering.zone =
             (this.filters()?.zones || [])[0] || this._org.building?.id;
-    }
-
-    private _persistScopeId() {
-        return this.use_region
-            ? this._org.region?.id || ''
-            : this._org.building?.id || '';
-    }
-
-    public async setRoomAvailability() {
-        const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
-            data: {
-                type: 'Catering',
-                disabled_rooms: this._catering.availability(),
-            },
-        });
-        this.subscription(
-            'room-availability',
-            ref.componentInstance.change.subscribe(async (list) => {
-                try {
-                    await this._catering.saveSettings({ disabled_rooms: list });
-                    notifySuccess('Room availability settings saved');
-                } catch (e) {
-                    notifyError(
-                        `Failed to save room availability. ${errorText(e)}`,
-                    );
-                } finally {
-                    ref.componentInstance.loading.set(false);
-                }
-            }),
-        );
-    }
-
-    public setChargeCodes() {
-        this._dialog.open(ChargeCodeListModalComponent);
     }
 }

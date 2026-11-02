@@ -18,7 +18,6 @@ import {
     IconComponent,
     SanitizePipe,
 } from '@placeos/components';
-import { TopbarHeaderComponent } from '../app/components/topbar-header.component';
 import { WelcomeComponent } from '../app/welcome.component';
 
 describe('WelcomeComponent', () => {
@@ -33,7 +32,6 @@ describe('WelcomeComponent', () => {
         ],
         imports: [MockModule(MatMenuModule)],
         declarations: [
-            MockComponent(TopbarHeaderComponent),
             MockComponent(IconComponent),
             MockPipe(SanitizePipe),
             MockDirective(AuthenticatedImageDirective),

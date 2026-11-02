@@ -666,15 +666,23 @@ export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
         : Promise.resolve(null);
 }
 
-/** Reject a promise if it does not settle within the specified time. */
+/**
+ * Reject a promise if it does not settle within the specified time.
+ * `on_timeout` runs before the rejection, so the caller can abandon the work
+ * that the promise waits on (for example, abort a fetch).
+ */
 export function withTimeout<T>(
     promise: Promise<T>,
     timeout_ms: number,
     message = 'Operation timed out.',
+    on_timeout?: () => void,
 ): Promise<T> {
     if (timeout_ms <= 0) return promise;
     return new Promise<T>((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error(message)), timeout_ms);
+        const timer = setTimeout(() => {
+            on_timeout?.();
+            reject(new Error(message));
+        }, timeout_ms);
         promise.then(
             (value) => {
                 clearTimeout(timer);
@@ -686,6 +694,28 @@ export function withTimeout<T>(
             },
         );
     });
+}
+
+/**
+ * Map `items` with `fn`, with at most `limit` calls in progress at one time.
+ * The results have the order of `items`. `fn` must not reject.
+ */
+export async function mapWithLimit<T, R>(
+    items: readonly T[],
+    limit: number,
+    fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+    const results = new Array<R>(items.length);
+    let next = 0;
+    const worker = async () => {
+        while (next < items.length) {
+            const index = next++;
+            results[index] = await fn(items[index]);
+        }
+    };
+    const count = Math.max(1, Math.min(limit, items.length));
+    await Promise.all(Array.from({ length: count }, worker));
+    return results;
 }
 
 export interface BookableHoursRange {

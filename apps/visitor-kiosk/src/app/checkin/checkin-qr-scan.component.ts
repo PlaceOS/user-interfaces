@@ -23,11 +23,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
+    AnnounceDirective,
     IconComponent,
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
-import { AnnounceDirective } from '../components/announce.directive';
 import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 

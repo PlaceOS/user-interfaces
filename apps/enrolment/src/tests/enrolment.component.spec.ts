@@ -4,8 +4,8 @@ import {
     DeferBlockState,
 } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { settingSignal, SettingsService } from '@placeos/common';
 import { getUnixTime } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
@@ -31,8 +31,7 @@ function userToken() {
 
 function param_map(params: Record<string, string>): unknown {
     return {
-        has: (key: string) =>
-            Object.prototype.hasOwnProperty.call(params, key),
+        has: (key: string) => Object.prototype.hasOwnProperty.call(params, key),
         get: (key: string) => (key in params ? params[key] : null),
         getAll: (key: string) => (key in params ? [params[key]] : []),
         get keys() {
@@ -46,21 +45,14 @@ describe('EnrolmentComponent', () => {
     let state: EnrolmentStateService;
     let params: BehaviorSubject<unknown>;
     let query_params: BehaviorSubject<unknown>;
-    let settings_map: Record<string, any>;
-    let theme: string;
+    const theme = signal('light');
 
     const createComponent = createComponentFactory({
         component: EnrolmentComponent,
         providers: [
             MockProvider(SettingsService, {
-                get: vi.fn((key: string) => settings_map[key]),
                 signal: vi.fn(() => signal(false)),
-                get theme() {
-                    return theme;
-                },
-            } as any),
-            MockProvider(OrganisationService, {
-                active_building: signal({ id: 'bld-1' }),
+                theme_signal: theme,
             } as any),
             {
                 provide: ActivatedRoute,
@@ -83,11 +75,9 @@ describe('EnrolmentComponent', () => {
 
     beforeEach(() => {
         vi.useFakeTimers();
-        theme = 'light';
-        settings_map = {
-            'app.logo_dark': { src: 'assets/logo-dark.svg' },
-            'app.logo_light': { src: 'assets/logo-light.svg' },
-        };
+        theme.set('light');
+        settingSignal('logo_dark').set({ src: 'assets/logo-dark.svg' });
+        settingSignal('logo_light').set('assets/logo-light.svg');
         params = new BehaviorSubject(param_map({}));
         query_params = new BehaviorSubject(param_map({}));
         (ts_client.get as any).mockReset();
@@ -182,8 +172,7 @@ describe('EnrolmentComponent', () => {
         });
 
         it('should use the light logo for the dark theme', () => {
-            theme = 'dark';
-            spectator = createComponent();
+            theme.set('dark');
             spectator.detectChanges();
 
             expect(spectator.query('img')?.getAttribute('src')).toBe(

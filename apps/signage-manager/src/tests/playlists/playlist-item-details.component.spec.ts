@@ -215,7 +215,7 @@ describe('PlaylistItemDetailsComponent', () => {
         const component = await make();
         const labels = component.schedule_labels();
         expect(labels.length).toBe(1);
-        expect(labels[0]).toContain('Every day at');
+        expect(labels[0]).toContain('Starts every day at');
         expect(labels[0]).toContain('for 3 hours');
         expect(labels[0]).toContain(' · until ');
         expect(component.schedule_expiry_tooltips()).toEqual([
@@ -264,7 +264,7 @@ describe('PlaylistItemDetailsComponent', () => {
             schedules: [{ play_cron: '0 9 * * *', valid_from, mask: '10' }],
         });
         const component = await make();
-        expect(component.schedule_labels()[0]).toContain('mask 10');
+        expect(component.schedule_labels()[0]).toContain('Mask 10');
 
         // A mask that skips every occurrence never plays
         selected_playlist.set({

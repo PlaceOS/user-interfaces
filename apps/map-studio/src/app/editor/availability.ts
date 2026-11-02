@@ -1,4 +1,20 @@
-import { AvailabilityState } from '../data/types';
+import { AvailabilityState, MapObject } from '../data/types';
+
+/** Whether PlaceOS can bind a booking to the object: rooms and desks */
+export const isBookable = (object: Pick<MapObject, 'object_type'>) =>
+    object.object_type === 'room' || object.object_type === 'desk';
+
+/**
+ * Converts a `#rrggbb` colour into rgba() at the given opacity. A missing `#`
+ * is allowed, and a part that is not hex reads as 0.
+ */
+export function toFillOpacity(hex: string, opacity: number): string {
+    const clean = hex.replace('#', '').slice(0, 6);
+    const r = parseInt(clean.slice(0, 2), 16) || 0;
+    const g = parseInt(clean.slice(2, 4), 16) || 0;
+    const b = parseInt(clean.slice(4, 6), 16) || 0;
+    return `rgba(${r},${g},${b},${opacity})`;
+}
 
 /** Colour each availability state paints objects in preview mode */
 export const STATE_COLORS: Record<AvailabilityState, string> = {

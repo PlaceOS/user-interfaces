@@ -70,16 +70,6 @@ describe('RegionModalComponent', () => {
         expect(spectator.component.model().timezone).toBe('Europe/London');
     });
 
-    it('should filter timezones by the current model timezone', () => {
-        spectator = buildRegion(null)();
-        spectator.component.model.update((m) => ({ ...m, timezone: 'london' }));
-        const filtered = spectator.component.filtered_timezones();
-        expect(filtered.length).toBeGreaterThan(0);
-        expect(filtered.every((_) => _.toLowerCase().includes('london'))).toBe(
-            true,
-        );
-    });
-
     it('should block saving and notify when the display name is missing', async () => {
         spectator = buildRegion(null)();
 

@@ -3,8 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
 import { OrganisationService, i18n, notifySuccess } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
-import { AnnounceDirective } from '../components/announce.directive';
+import { AnnounceDirective, TranslatePipe } from '@placeos/components';
 import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 

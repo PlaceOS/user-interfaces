@@ -9,6 +9,8 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { openAppSettings } from '../ui/app-settings/app-settings-menu.component';
+import { AppSettingsZone } from '../ui/app-settings/app-settings.utilities';
 import { LevelManagementService } from './level-management.service';
 
 @Component({
@@ -161,11 +163,6 @@ export class LevelListComponent {
         if (success) notifySuccess(i18n('APP.CONCIERGE.LEVELS_COPIED_ID'));
     };
 
-    public async editBookingPanelSettings(level) {
-        const { BookingPanelSettingsModalComponent } =
-            await import('../ui/app-settings/booking-panel-settings-modal.component');
-        this._dialog.open(BookingPanelSettingsModalComponent, {
-            data: { zone: level },
-        });
-    }
+    public readonly editBookingPanelSettings = (level: AppSettingsZone) =>
+        openAppSettings(this._dialog, 'booking-panel', level);
 }

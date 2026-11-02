@@ -5,10 +5,10 @@ import { MatSliderModule } from '@angular/material/slider';
 import {
     BindingDirective,
     IconComponent,
+    MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
 import { ControlStateService } from './control-state.service';
-import { DurationPipe } from './ui/duration.pipe';
 
 @Component({
     selector: 'control-status-bar',
@@ -118,13 +118,13 @@ import { DurationPipe } from './ui/duration.pipe';
                 </div>
                 <div class="h-12 p-2">
                     <label>{{ 'APP.CONTROL.REMAINING' | translate }}</label>
-                    <div class="">{{ rec_remaining | duration }}</div>
+                    <div class="">{{ rec_remaining | mediaDuration }}</div>
                 </div>
                 <div class="h-12 p-2">
                     <label>{{
                         'APP.CONTROL.NEXT_RECORDING' | translate
                     }}</label>
-                    <div class="">{{ rec_next | duration }}</div>
+                    <div class="">{{ rec_next | mediaDuration }}</div>
                 </div>
             </div>
         }
@@ -181,7 +181,7 @@ import { DurationPipe } from './ui/duration.pipe';
         FormsModule,
         MatRippleModule,
         IconComponent,
-        DurationPipe,
+        MediaDurationPipe,
         TranslatePipe,
     ],
 })

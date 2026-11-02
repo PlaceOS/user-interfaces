@@ -8,10 +8,13 @@ import {
     resource,
     signal,
     untracked,
+    type WritableSignal,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    errorStatus,
     i18n,
+    mapWithLimit,
     notifyError,
     notifySuccess,
     notifyWarn,
@@ -32,9 +35,9 @@ import {
     shareSignageTemplates,
     showGroupFeatures,
 } from '@placeos/ts-client';
-import { errorStatus } from './image-gen/image-gen.util';
 import { decodeEntityNames } from './shared/decode-entity-names.util';
 import { byName } from './shared/paged-search';
+import { storedSignal } from './shared/stored-signal';
 import {
     effectiveFeatures,
     SIGNAGE_FEATURE_IDS,
@@ -64,6 +67,37 @@ const SIGNAGE_SHARE_CONFIG = {
 } as const;
 
 const SIGNAGE_GROUP_STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
+/** Choice made in an approval request modal */
+export interface ApprovalRequestChoice {
+    approver_id: string;
+    message: string;
+}
+
+/** Parts of an approval request that differ between playlists and templates */
+export interface ApprovalRequestFlow<A> {
+    item_id: string;
+    /** Set while the groups and approvers load */
+    loading: WritableSignal<boolean>;
+    /** Approve at once, for users who can approve */
+    approve: () => Promise<unknown>;
+    /** Query of the item type in one group, to find the groups that hold it */
+    query: (group_id: string) => Promise<{ data?: { id: string }[] }>;
+    list_approvers: (group_id: string) => Promise<A[]>;
+    /** Let the user pick an approver. Undefined when cancelled. */
+    pick: (approvers: A[]) => Promise<ApprovalRequestChoice | undefined>;
+    request: (
+        group_id: string,
+        message: string,
+        approver_id: string,
+    ) => Promise<unknown>;
+    /** Mark the item as waiting for approval */
+    requested: () => void;
+    no_groups_key: string;
+    no_approvers_key: string;
+    error_key: string;
+    success_key: string;
+}
+
 /** Signage flags of a group, with the ID of the group they were read for */
 interface LoadedGroupFeatures {
     group_id: string;
@@ -83,6 +117,8 @@ const SIGNAGE_GROUP_FIELDS = [
 
 // Upper bound on group index pages, 10,000 groups at 200 per page.
 const MAX_GROUP_PAGES = 50;
+/** Most group list queries `groupsHolding` sends at the same time */
+const GROUP_QUERY_CONCURRENCY = 4;
 
 // Flags that allow no feature and no plugin
 const NO_GROUP_FEATURES: SignageGroupFeatures = {
@@ -100,29 +136,6 @@ export enum SignageGroupPermission {
     Approve = 1 << 5,
     Manage = 1 << 6,
     Share = 1 << 7,
-}
-
-function loadSelectedGroupId() {
-    if (typeof localStorage === 'undefined') return '';
-    try {
-        return localStorage.getItem(SIGNAGE_GROUP_STORAGE_KEY) || '';
-    } catch {
-        // Local storage can be unavailable in private browsing or restricted embeds.
-        return '';
-    }
-}
-
-function persistSelectedGroupId(group_id: string) {
-    if (typeof localStorage === 'undefined') return;
-    try {
-        if (group_id) {
-            localStorage.setItem(SIGNAGE_GROUP_STORAGE_KEY, group_id);
-        } else {
-            localStorage.removeItem(SIGNAGE_GROUP_STORAGE_KEY);
-        }
-    } catch {
-        // Ignore persistence failures; the selector can still default safely.
-    }
 }
 
 /** Groups with their names decoded, sorted by name */
@@ -206,8 +219,10 @@ export class SignageContextService {
     private readonly _org = inject(OrganisationService);
     private readonly _settings = inject(SettingsService);
     private readonly _dialog = inject(MatDialog);
-    private readonly _change = signal(Date.now());
-    private readonly _groups_change = signal(Date.now());
+    // Counters, not timestamps: two saves in the same millisecond must still
+    // change the value
+    private readonly _change = signal(0);
+    private readonly _groups_change = signal(0);
 
     /** Whether the navigation offers a group selector. Hiding it leaves the
      * section header breadcrumbs as the way to change group. */
@@ -241,7 +256,12 @@ export class SignageContextService {
             status === 'resolved' || status === 'local' || status === 'error'
         );
     });
-    public readonly selected_group_id = signal(loadSelectedGroupId());
+    /** Stored, so the app opens in the last group. "All groups" stores none. */
+    public readonly selected_group_id = storedSignal(
+        SIGNAGE_GROUP_STORAGE_KEY,
+        (stored) => stored || '',
+        { serialise: (group_id) => group_id || null },
+    );
     /**
      * Changes each time the user switches group. Services keep their
      * selected item in a `linkedSignal` of it, so a switch clears them.
@@ -296,7 +316,7 @@ export class SignageContextService {
     public readonly signage_groups_failed = signal(false);
     /** Load the signage groups again, after a save or a failed request */
     public reloadSignageGroups() {
-        this._groups_change.set(Date.now());
+        this._groups_change.update((count) => count + 1);
     }
     // Keeps the groups while a save reloads them, or when the reload fails,
     // so the selected group and its permissions stay. A new user starts empty.
@@ -533,8 +553,6 @@ export class SignageContextService {
                 this.can_manage_all_groups() ? '' : groups[0].group.id,
             );
         });
-
-        effect(() => persistSelectedGroupId(this.selected_group_id()));
     }
 
     /** Whether the organisation has loaded and the lists can be queried */
@@ -544,7 +562,7 @@ export class SignageContextService {
 
     /** Mark signage data as saved, so the lists reload */
     public changed() {
-        this._change.set(Date.now());
+        this._change.update((count) => count + 1);
     }
 
     public canManageSignageGroup(group_id = '') {
@@ -694,16 +712,59 @@ export class SignageContextService {
             ({ group }) => group.id === this.api_group_id(),
         );
         if (selected_group) return [selected_group];
-        const matches = await Promise.all(
-            groups.map(({ group }) =>
+        const matches = await mapWithLimit(
+            groups,
+            GROUP_QUERY_CONCURRENCY,
+            ({ group }) =>
                 query(group.id).then(
                     (result) =>
                         (result.data || []).some(({ id }) => id === item_id),
                     () => false,
                 ),
-            ),
         );
         return groups.filter((_, index) => matches[index]);
+    }
+
+    /**
+     * Ask a group approver to approve an item. Users who can approve
+     * approve it at once instead. Shows warnings and errors on failure.
+     */
+    public async requestApproval<A>(flow: ApprovalRequestFlow<A>) {
+        if (flow.loading()) return;
+        if (this.can_approve()) {
+            await flow.approve();
+            return;
+        }
+        let approvers: A[] = [];
+        let group: PlaceCurrentGroup | undefined;
+        flow.loading.set(true);
+        try {
+            [group] = await this.groupsHolding(flow.item_id, flow.query);
+            if (!group) {
+                notifyWarn(i18n(flow.no_groups_key));
+                return;
+            }
+            approvers = (await flow.list_approvers(group.group.id)) || [];
+        } catch {
+            notifyWarn(i18n(flow.no_approvers_key));
+        } finally {
+            flow.loading.set(false);
+        }
+        if (!group) return;
+        const choice = await flow.pick(approvers);
+        if (!choice) return;
+        try {
+            await flow.request(
+                group.group.id,
+                choice.message || '',
+                choice.approver_id || '',
+            );
+        } catch {
+            notifyError(i18n(flow.error_key));
+            return;
+        }
+        flow.requested();
+        notifySuccess(i18n(flow.success_key));
     }
 
     /** Let the user pick a group from the group select modal */

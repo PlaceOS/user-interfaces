@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
 import { MatRippleModule } from '@angular/material/core';
+import { Router } from '@angular/router';
+import { BookingFormService } from '@placeos/bookings';
 import {
     Booking,
     OrganisationService,
@@ -9,24 +10,15 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
-import {
-    IconComponent,
-    SanitizePipe,
-    TranslatePipe,
-} from '@placeos/components';
-import {
-    CalEvent,
-    generateCalendarFileLink,
-    generateGoogleCalendarLink,
-    generateMicrosoftCalendarLink,
-} from '@placeos/events';
-import { BookingFormService } from '@placeos/bookings';
+import { TranslatePipe } from '@placeos/components';
+import { CalEvent } from '@placeos/events';
+import { BookingCalendarLinksComponent } from '../booking-calendar-links.component';
 
 @Component({
     selector: 'visitor-flow-success',
     template: `
         <div
-            class="flex h-full w-full flex-col items-center justify-center bg-base-100 text-center"
+            class="bg-base-100 flex h-full w-full flex-col items-center justify-center text-center"
         >
             <div
                 class="z-0 m-8 h-1/2 w-full max-w-[32rem] flex-1 space-y-2 overflow-auto"
@@ -59,60 +51,22 @@ import { BookingFormService } from '@placeos/bookings';
                                           building()?.display_name ||
                                           building()?.name,
                                       date:
-                                          last_success()?.date | date: 'mediumDate',
+                                          last_success()?.date
+                                          | date: 'mediumDate',
                                       time:
-                                          last_success()?.date | date: time_format,
+                                          last_success()?.date
+                                          | date: time_format,
                                   }
                     }}
                 </p>
                 @if (show_links()) {
-                    <div
-                        class="relative flex flex-col items-center space-y-4 p-4"
-                    >
-                        <a
-                            btn
-                            matRipple
-                            name="visitor-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                            [href]="outlook_link() | sanitize: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <img src="assets/icons/outlook.svg" class="w-6" />
-                            <span>{{
-                                'BOOKINGS.LINK_OUTLOOK' | translate
-                            }}</span>
-                        </a>
-                        <a
-                            btn
-                            matRipple
-                            name="visitor-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                            [href]="google_link() | sanitize: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <img src="assets/icons/gcal.svg" class="w-6" />
-                            <span>{{
-                                'BOOKINGS.LINK_GOOGLE' | translate
-                            }}</span>
-                        </a>
-                        <a
-                            btn
-                            matRipple
-                            name="visitor-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
-                            [href]="ical_link() | sanitize: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <icon class="text-xl">download</icon>
-                            <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
-                        </a>
-                    </div>
+                    <booking-calendar-links
+                        prefix="visitor"
+                        [event]="cal_event()"
+                    />
                 }
             </div>
-            <div class="z-10 w-full border-t border-base-200 bg-base-100 p-2">
+            <div class="border-base-200 bg-base-100 z-10 w-full border-t p-2">
                 <div
                     class="mx-auto flex w-full max-w-[32rem] items-center space-x-2"
                 >
@@ -146,10 +100,9 @@ import { BookingFormService } from '@placeos/bookings';
     ],
     imports: [
         MatRippleModule,
-        IconComponent,
         TranslatePipe,
         DatePipe,
-        SanitizePipe,
+        BookingCalendarLinksComponent,
     ],
 })
 export class VisitorFlowSuccessComponent implements OnInit {
@@ -186,24 +139,11 @@ export class VisitorFlowSuccessComponent implements OnInit {
             }),
             attendees: this.last_success().attendees.map((_) => _.email),
             body: this.last_success().description,
-            location:
-                this.building()?.display_name || this.building()?.name,
+            location: this.building()?.display_name || this.building()?.name,
         };
         event.attendees.push(this.last_success().asset_id);
         return event;
     });
-
-    public readonly outlook_link = computed(() =>
-        this.cal_event() ? generateMicrosoftCalendarLink(this.cal_event()) : '',
-    );
-
-    public readonly google_link = computed(() =>
-        this.cal_event() ? generateGoogleCalendarLink(this.cal_event()) : '',
-    );
-
-    public readonly ical_link = computed(() =>
-        this.cal_event() ? generateCalendarFileLink(this.cal_event()) : '',
-    );
 
     public get time_format() {
         return this._settings.time_format;

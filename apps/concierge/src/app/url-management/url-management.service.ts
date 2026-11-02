@@ -5,13 +5,12 @@ import {
     deleteShortURL,
     getShortUrlQRCode,
     i18n,
-    notifyError,
     notifySuccess,
     OrganisationService,
     ShortURL,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import { queryAllShortURLs } from '../query-all-pages';
+import { confirmAction, errorText } from '../ui/modal-actions';
 import { ShortUrlModalComponent } from './url-modal.component';
 
 export interface UrlListOptions {
@@ -58,7 +57,8 @@ export class UrlManagementService extends AsyncHandler {
     }
 
     public async removeURL(url: ShortURL) {
-        const ref = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.URLS_REMOVE_TITLE'),
                 content: i18n('APP.CONCIERGE.URLS_REMOVE_MSG', {
@@ -67,21 +67,17 @@ export class UrlManagementService extends AsyncHandler {
                 icon: { content: 'delete_forever' },
                 confirm_text: i18n('COMMON.REMOVE'),
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.URLS_REMOVE_LOADING'),
+                action: () => deleteShortURL(url.id),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.URLS_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
+            },
         );
-        if (ref.reason !== 'done') return ref.close();
-        ref.loading(i18n('APP.CONCIERGE.URLS_REMOVE_LOADING'));
-        await deleteShortURL(url.id).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.URLS_REMOVE_ERROR', {
-                    error: e.message || e,
-                }),
-            );
-            ref.close();
-            throw e;
-        });
+        if (!removed) return;
         notifySuccess(i18n('APP.CONCIERGE.URLS_REMOVE_SUCCESS'));
-        ref.close();
         this._change.set(Date.now());
     }
 

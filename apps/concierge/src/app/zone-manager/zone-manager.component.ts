@@ -1,6 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -13,6 +12,7 @@ import { LevelListComponent } from '../level-manager/level-list.component';
 import { LevelManagementService } from '../level-manager/level-management.service';
 import { RegionListComponent } from '../region-manager/region-list.component';
 import { RegionManagementService } from '../region-manager/region-management.service';
+import { AppSettingsMenuComponent } from '../ui/app-settings/app-settings-menu.component';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 
 @Component({
@@ -32,7 +32,7 @@ import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
                             <button
                                 icon default
                                 matRipple
-                                [matMenuTriggerFor]="app_settings_menu"
+                                [matMenuTriggerFor]="app_settings_menu.menu()"
                                 [matTooltip]="'Organisation App Settings'"
                                 [attr.aria-label]="'Organisation App Settings'"
                             >
@@ -81,52 +81,7 @@ import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
                         ></level-list>
                     }
                 </div>
-                <mat-menu #app_settings_menu="matMenu">
-                    <button mat-menu-item (click)="editWorkplaceSettings()">
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-xl">meeting_room</icon>
-                            <div>
-                                {{
-                                    'APP.CONCIERGE.APP_SETTINGS_WORKPLACE'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                    </button>
-                    <button mat-menu-item (click)="editConciergeSettings()">
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-xl">support_agent</icon>
-                            <div>
-                                {{
-                                    'APP.CONCIERGE.APP_SETTINGS_CONCIERGE'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                    </button>
-                    <button mat-menu-item (click)="editBookingPanelSettings()">
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-xl">event_busy</icon>
-                            <div>
-                                {{
-                                    'APP.CONCIERGE.APP_SETTINGS_BOOKING_PANEL'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                    </button>
-                    <button mat-menu-item (click)="editVisitorKioskSettings()">
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-xl">qr_code</icon>
-                            <div>
-                                {{
-                                    'APP.CONCIERGE.APP_SETTINGS_VISITOR_KIOSK'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
-                    </button>
-                </mat-menu>
+                <app-settings-menu #app_settings_menu [zone]="organisation" />
             </main>
         </div>
     `,
@@ -152,13 +107,13 @@ import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
         RegionListComponent,
         BuildingListComponent,
         LevelListComponent,
+        AppSettingsMenuComponent,
     ],
 })
 export class ZoneManagerComponent extends AsyncHandler implements OnInit {
     private readonly _region_service = inject(RegionManagementService);
     private readonly _building_service = inject(BuildingManagementService);
     private readonly _level_service = inject(LevelManagementService);
-    private readonly _dialog = inject(MatDialog);
     private readonly _org = inject(OrganisationService);
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
@@ -166,6 +121,11 @@ export class ZoneManagerComponent extends AsyncHandler implements OnInit {
     public readonly selected_tab = signal(0);
 
     private readonly TAB_NAMES = ['regions', 'buildings', 'levels'];
+
+    /** Organisation zone for the organisation App Settings menu. */
+    public get organisation() {
+        return this._org.organisation;
+    }
 
     public readonly addButtonText = computed(() => {
         const tab_index = this.selected_tab();
@@ -211,37 +171,5 @@ export class ZoneManagerComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-    }
-
-    public async editWorkplaceSettings() {
-        const { WorkplaceSettingsFormModalComponent } =
-            await import('../ui/app-settings/workplace-settings-form-modal.component');
-        this._dialog.open(WorkplaceSettingsFormModalComponent, {
-            data: { zone: this._org.organisation },
-        });
-    }
-
-    public async editConciergeSettings() {
-        const { ConciergeSettingsFormModalComponent } =
-            await import('../ui/app-settings/concierge-settings-form-modal.component');
-        this._dialog.open(ConciergeSettingsFormModalComponent, {
-            data: { zone: this._org.organisation },
-        });
-    }
-
-    public async editBookingPanelSettings() {
-        const { BookingPanelSettingsModalComponent } =
-            await import('../ui/app-settings/booking-panel-settings-modal.component');
-        this._dialog.open(BookingPanelSettingsModalComponent, {
-            data: { zone: this._org.organisation },
-        });
-    }
-
-    public async editVisitorKioskSettings() {
-        const { VisitorKioskSettingsFormModalComponent } =
-            await import('../ui/app-settings/visitor-kiosk-settings-form-modal.component');
-        this._dialog.open(VisitorKioskSettingsFormModalComponent, {
-            data: { zone: this._org.organisation },
-        });
     }
 }

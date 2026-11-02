@@ -9,6 +9,8 @@ import {
     Booking,
     OrganisationService,
     SettingsService,
+    StaffUser,
+    setCurrentUser,
     setNotifyOutlet,
     setTimeInTimezone,
 } from '@placeos/common';
@@ -175,6 +177,7 @@ describe('ParkingStateService', () => {
 
     afterEach(() => {
         setNotifyOutlet(null, true);
+        setCurrentUser(new StaffUser({}));
         vi.restoreAllMocks();
     });
 
@@ -805,6 +808,29 @@ describe('ParkingStateService', () => {
         expect(
             spectator.service.filterEventList([request], 'requests'),
         ).toEqual([request]);
+    });
+
+    it('should hide parking requests from users outside the request groups', () => {
+        settings_map['app.parking.show_requests'] = true;
+        settings_map['app.feature_groups'] = {
+            'parking-requests': ['parking-team'],
+        };
+        setCurrentUser(new StaffUser({ groups: ['staff'] }));
+        expect(spectator.service.can_view_requests).toBe(false);
+
+        setCurrentUser(new StaffUser({ groups: ['parking-team'] }));
+        expect(spectator.service.can_view_requests).toBe(true);
+    });
+
+    it('should show parking requests to admins only when requests are enabled', () => {
+        settings_map['app.feature_groups'] = {
+            'parking-requests': ['parking-team'],
+        };
+        setCurrentUser(new StaffUser({ groups: ['admin'] }));
+        expect(spectator.service.can_view_requests).toBe(false);
+
+        settings_map['app.parking.show_requests'] = true;
+        expect(spectator.service.can_view_requests).toBe(true);
     });
 
     it('should fall back to request filtering when waitlist display is disabled', () => {

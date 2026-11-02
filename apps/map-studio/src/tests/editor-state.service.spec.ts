@@ -80,6 +80,29 @@ describe('EditorStateService', () => {
         expect(editor.error()).toBe('');
     });
 
+    it('stores an uploaded image size so the kiosk uses the same canvas', async () => {
+        // jsdom decodes no images; report a fixed natural size instead
+        vi.stubGlobal(
+            'Image',
+            class {
+                public naturalWidth = 1600;
+                public naturalHeight = 900;
+                public onload: (() => void) | null = null;
+                public set src(_: string) {
+                    queueMicrotask(() => this.onload?.());
+                }
+            },
+        );
+        vi.spyOn(store, 'getSourceImageUrl').mockResolvedValue('blob:plan');
+
+        await editor.uploadSourceImage(new File(['png'], 'plan.png'));
+
+        const saved = await store.getFloorplan(floorplan_id);
+        expect([saved.canvas_width, saved.canvas_height]).toEqual([1600, 900]);
+        expect(editor.canvas_width()).toBe(1600);
+        vi.unstubAllGlobals();
+    });
+
     it('requires confirmation before replacing a legacy SVG draft', async () => {
         await store.updateFloorplan(floorplan_id, {
             source_type: 'svg-import',
@@ -624,5 +647,52 @@ describe('CanvasComponent furniture art', () => {
         const markup = art('"/><img src=x onerror=alert(1)>');
         expect(markup).not.toContain('onerror');
         expect(markup).toContain('#333');
+    });
+});
+
+describe('CanvasComponent rotate handle', () => {
+    it('turns a rotated shape by the angle the pointer moves', async () => {
+        TestBed.configureTestingModule({
+            providers: [
+                provideZonelessChangeDetection(),
+                { provide: DbService, useClass: MapDbService },
+                EditorStateService,
+            ],
+        });
+        const store = TestBed.inject(StoreService);
+        const editor = TestBed.inject(EditorStateService);
+        const floorplan = await store.addFloorplan('p1', 'Level 1');
+        await store.createObject(floorplan.id, {
+            label: 'Room 1',
+            object_type: 'room',
+            layer: 'rooms',
+            geometry: {
+                type: 'rect',
+                x: 0,
+                y: 0,
+                width: 100,
+                height: 100,
+                rotation: 90,
+            },
+        });
+        await editor.load(floorplan.id);
+        const fixture = TestBed.createComponent(CanvasComponent);
+        await fixture.whenStable();
+        // jsdom lays nothing out; map client pixels 1:1 onto canvas units
+        const svg: SVGSVGElement = fixture.nativeElement.querySelector('svg');
+        svg.getBoundingClientRect = () =>
+            ({ left: 0, top: 0, width: 1000, height: 1000 }) as DOMRect;
+        Object.defineProperty(svg, 'viewBox', {
+            value: { baseVal: { width: 1000 } },
+        });
+        const canvas = fixture.componentInstance;
+        const at = (type: string, clientX: number, clientY: number) =>
+            new MouseEvent(type, { button: 0, clientX, clientY });
+
+        // At 90° the handle sits right of the center (50, 50), not above it
+        canvas.startRotate(at('mousedown', 150, 50), editor.objects()[0]);
+        canvas.onMouseMove(at('mousemove', 50, 150));
+
+        expect(editor.objects()[0].geometry.rotation).toBe(180);
     });
 });

@@ -3,18 +3,14 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { OrganisationService, SettingsService } from '@placeos/common';
 import {
-    IconComponent,
-    SafePipe,
-    SanitizePipe,
-    TranslatePipe,
-} from '@placeos/components';
-import {
-    generateCalendarFileLink,
-    generateGoogleCalendarLink,
-    generateMicrosoftCalendarLink,
-} from '@placeos/events';
+    getTimezoneOffsetString,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { CalEvent } from '@placeos/events';
+import { BookingCalendarLinksComponent } from '../booking-calendar-links.component';
 
 @Component({
     selector: 'parking-request-success',
@@ -37,63 +33,24 @@ import {
                             | translate
                                 : {
                                       date:
-                                          last_event.date | date: 'mediumDate',
+                                          last_event.date
+                                          | date: 'mediumDate' : tz,
                                       time:
                                           (last_event.date
-                                              | date: time_format) +
+                                              | date: time_format : tz) +
                                           ' - ' +
                                           (last_event.date +
                                               last_event.duration * 60 * 1000
-                                              | date: time_format),
+                                              | date: time_format : tz),
                                   }
                     }}
                 </p>
                 <img class="h-80" src="assets/icons/parking-success.svg" />
                 @if (show_links) {
-                    <div
-                        class="relative flex flex-col items-center space-y-4 p-4"
-                    >
-                        <a
-                            btn
-                            matRipple
-                            name="parking-request-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="outlook_link() | sanitize: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <img src="assets/icons/outlook.svg" class="w-6" />
-                            <span>{{
-                                'BOOKINGS.LINK_OUTLOOK' | translate
-                            }}</span>
-                        </a>
-                        <a
-                            btn
-                            matRipple
-                            name="parking-request-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="google_link() | sanitize: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <img src="assets/icons/gcal.svg" class="w-6" />
-                            <span>{{
-                                'BOOKINGS.LINK_GOOGLE' | translate
-                            }}</span>
-                        </a>
-                        <a
-                            btn
-                            matRipple
-                            name="parking-request-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="ical_link() | safe: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <icon class="text-xl">download</icon>
-                            <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
-                        </a>
-                    </div>
+                    <booking-calendar-links
+                        prefix="parking-request"
+                        [event]="cal_event()"
+                    />
                 }
             </main>
             <footer
@@ -111,9 +68,7 @@ import {
         RouterModule,
         TranslatePipe,
         MatRippleModule,
-        SafePipe,
-        SanitizePipe,
-        IconComponent,
+        BookingCalendarLinksComponent,
     ],
 })
 export class ParkingRequestSuccessComponent implements OnInit {
@@ -121,9 +76,8 @@ export class ParkingRequestSuccessComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public outlook_link = signal('');
-    public google_link = signal('');
-    public ical_link = signal('');
+    /** Booking that the calendar links add */
+    public readonly cal_event = signal<CalEvent | null>(null);
 
     public get location() {
         if (!this.last_event) return 'Unknown';
@@ -141,6 +95,13 @@ export class ParkingRequestSuccessComponent implements OnInit {
         return this._settings.time_format;
     }
 
+    /** Offset of the timezone that the booking was made in */
+    public get tz() {
+        const event = this.last_event;
+        if (!event?.timezone) return '';
+        return getTimezoneOffsetString(event.timezone, new Date(event.date));
+    }
+
     public get show_links() {
         return this._settings.get('app.parking.show_calendar_links');
     }
@@ -150,8 +111,6 @@ export class ParkingRequestSuccessComponent implements OnInit {
             ...this.last_event,
             location: `${this.location}`,
         };
-        this.outlook_link.set(generateMicrosoftCalendarLink(event));
-        this.google_link.set(generateGoogleCalendarLink(event));
-        this.ical_link.set(generateCalendarFileLink(event));
+        this.cal_event.set(event);
     }
 }

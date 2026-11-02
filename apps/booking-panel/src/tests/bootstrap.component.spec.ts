@@ -4,29 +4,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockModule, MockProvider } from 'ng-mocks';
 
-import { signal } from '@angular/core';
-import { OrganisationService, SettingsService } from '@placeos/common';
-import { SpacesService } from '@placeos/events';
+import { SettingsService } from '@placeos/common';
+import { SystemBootstrapComponent } from '@placeos/components';
 import { BootstrapComponent } from '../app/bootstrap.component';
 
 describe('BootstrapComponent', () => {
     let spectator: SpectatorRouting<BootstrapComponent>;
     const createComponent = createRoutingFactory({
         component: BootstrapComponent,
-        providers: [
-            MockProvider(SpacesService, {
-                initialised: signal(true),
-                space_list: [{ id: '1', name: 'Space 1' }],
-            } as any),
-            MockProvider(SettingsService, { get: vi.fn() }),
-            MockProvider(OrganisationService, {
-                organisation: { id: 'org-123', name: 'Test Org' },
-                initialised: signal(true),
-            } as any),
-        ],
+        providers: [MockProvider(SettingsService, { get: vi.fn() })],
         imports: [
             FormsModule,
             MockModule(MatAutocompleteModule),
@@ -36,65 +28,34 @@ describe('BootstrapComponent', () => {
         ],
     });
 
-    beforeEach(() => {
-        spectator = createComponent();
-    });
+    const submit = (system_id: string) => {
+        const bootstrap = spectator.query(SystemBootstrapComponent);
+        bootstrap.system_id.set(system_id);
+        bootstrap.bootstrap();
+    };
 
     afterEach(() => {
         localStorage.clear();
     });
 
-    it('should create the bootstrap', () => {
-        expect(spectator.component).toBeTruthy();
+    it('should save the system and route to the panel on submit', () => {
+        spectator = createComponent();
+        submit('sys-B0');
+        expect(localStorage.getItem('PLACEOS.BOOKINGS.system')).toBe('sys-B0');
+        expect(localStorage.getItem('PLACEOS.Bookings.event')).toBeNull();
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith(
+            ['panel', 'sys-B0'],
+            { queryParamsHandling: 'preserve' },
+        );
     });
 
-    it('should stop loading when spaces have loaded', () => {
-        spectator.detectChanges();
-        expect('[load]').not.toExist();
-        expect('mat-spinner').not.toExist();
-        expect('p.description').toExist();
-    });
-
-    it('should not allow for submit when no system is set', () => {
-        spectator.detectChanges();
-        expect('[load]').not.toExist();
-        expect('mat-spinner').not.toExist();
-        expect('p.description').toExist();
-        const button: HTMLButtonElement = spectator.query('button');
-        expect(button).toBeTruthy();
-        // expect(button.disabled).toBeTruthy();
-        spectator.component.system_id.set('sys-B0');
-        spectator.detectChanges();
-        expect(button.disabled).toBeFalsy();
-    });
-
-    it('should route to the panel on submit', () => {
-        spectator.component.system_id.set('sys-B0');
-        spectator.detectChanges();
-        expect(spectator.query('button[disabled]')).toBeFalsy();
-        spectator.click('button');
-        spectator.detectChanges();
-        const router = spectator.inject(Router);
-        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], {
-            queryParamsHandling: 'preserve',
-        });
-    });
-
-    it('should auto bootstrap if there is a system query parameter', () => {
-        spectator.setRouteQueryParam('system_id', 'sys-B0');
-        spectator.component.ngOnInit();
-        spectator.detectChanges();
-        const router = spectator.inject(Router);
-        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], {
-            queryParamsHandling: 'preserve',
-        });
-    });
-
-    it('should clear bootstrap if there is a clear query parameter', () => {
-        localStorage.setItem('PLACEOS.BOOKINGS.system', 'sys-B0');
-        spectator.setRouteQueryParam('clear', 'true');
-        spectator.component.ngOnInit();
-        spectator.detectChanges();
-        expect(localStorage.getItem('PLACEOS.BOOKINGS.system')).toBeFalsy();
+    it('should route to the events view and save the flag with ?event', () => {
+        spectator = createComponent({ queryParams: { event: 'true' } });
+        submit('sys-B0');
+        expect(localStorage.getItem('PLACEOS.Bookings.event')).toBe('true');
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith(
+            ['events', 'sys-B0'],
+            { queryParamsHandling: 'preserve' },
+        );
     });
 });

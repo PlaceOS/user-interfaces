@@ -1,14 +1,8 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    computed,
-    inject,
-    input,
-    ViewEncapsulation,
-} from '@angular/core';
+import { Component, computed, input, ViewEncapsulation } from '@angular/core';
 import { User } from '@placeos/common';
 
-import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { themedLogo } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -71,7 +65,7 @@ export interface UserDetails extends User {
                     class="h-[3em] object-contain"
                     [style.max-width]="landscape() ? '8em' : ''"
                     alt="Logo"
-                    [src]="logo()?.src || logo()"
+                    [src]="logo()"
                 />
                 @let level = user().zones | level;
                 @if (level) {
@@ -139,21 +133,12 @@ export interface UserDetails extends User {
     ],
 })
 export class UserLabelComponent {
-    private _settings = inject(SettingsService);
-    private readonly _theme = this._settings.theme_signal;
-    private readonly _logo_dark = this._settings.signal('logo_dark', null);
-    private readonly _logo_light = this._settings.signal('logo_light', null);
-
     public readonly user = input<UserDetails>({} as any);
     public readonly width = input<number>(25);
     public readonly height = input<number>(15);
     public readonly landscape = computed(() => this.width() > this.height());
 
-    public readonly logo = computed(() => {
-        const logo =
-            this._theme() === 'dark' ? this._logo_dark() : this._logo_light();
-        return typeof logo === 'function' ? logo() : logo;
-    });
+    public readonly logo = themedLogo();
 
     print() {
         console.log('Printing user label...');
