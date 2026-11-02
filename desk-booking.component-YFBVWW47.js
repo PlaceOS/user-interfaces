@@ -1,7 +1,7 @@
 import "./chunk-IZQAUNXP.js";
 import {
   SettingsService
-} from "./chunk-WMLPDJKK.js";
+} from "./chunk-K2N7QYFE.js";
 import {
   AsyncHandler,
   IconComponent
@@ -165,4 +165,4 @@ export {
   DeskBookingComponent
 };
 //# debugId=49ceceb8-a97c-525b-8bb0-3da4fbcc0176
-//# sourceMappingURL=desk-booking.component-CDODRVE2.js.map
+//# sourceMappingURL=desk-booking.component-YFBVWW47.js.map

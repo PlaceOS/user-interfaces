@@ -57,7 +57,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-WK5EFI5X.js";
+} from "./chunk-VJLBWQNJ.js";
 import {
   TranslatePipe
 } from "./chunk-TOXHM7B2.js";
@@ -128,7 +128,7 @@ import {
   toVisitorInternalOrExternal,
   userSignal,
   user_group_names
-} from "./chunk-WMLPDJKK.js";
+} from "./chunk-K2N7QYFE.js";
 import {
   $,
   AsyncHandler,
@@ -3706,13 +3706,16 @@ function saveAssetCategory(category) {
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
+var MAX_ASSET_PAGES = 100;
 async function queryAllAssetPages(query = {}) {
   let response = await Xl(__spreadProps(__spreadValues({}, query), {
     limit: query.limit || 500
   }));
   let total = response.total;
   const data = [...response.data];
-  while (typeof response.next === "function") {
+  for (let page = 1; page < MAX_ASSET_PAGES; page++) {
+    if (typeof response.next !== "function")
+      break;
     const next = response.next();
     if (!next)
       break;
@@ -12258,9 +12261,16 @@ async function queryDeskAssets(zone_id) {
   return response.data;
 }
 async function queryDeskAssetsInZone(zone_id) {
+  if (!zone_id)
+    return [];
   const type_id = await resolveDeskTypeId();
   const response = await queryAllAssetPages({ zones: zone_id, type_id });
   return response.data;
+}
+function findDeskByLegacyId(desks, id) {
+  if (!id)
+    return void 0;
+  return desks.find((desk) => desk.id === id) || desks.find((desk) => desk.map_id === id);
 }
 function deskFromAsset(asset, zone) {
   const other_data = asset.other_data || {};
@@ -16377,9 +16387,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const favourites = this._settings.get(SETTING_KEYS.FAVORITE_DESKS) || [];
     if (!favourites.length)
       return;
-    const ids = new Set(desks.map((desk) => desk.id));
-    const asset_ids = new Map(desks.filter((desk) => desk.map_id && desk.map_id !== desk.id).map((desk) => [desk.map_id, desk.id]));
-    const updated = unique(favourites.map((id) => ids.has(id) ? id : asset_ids.get(id) || id));
+    const updated = unique(favourites.map((id) => findDeskByLegacyId(desks, id)?.id || id));
     if (updated.join() === favourites.join())
       return;
     this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, updated);
@@ -17246,5 +17254,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=d6eb6464-af7b-5aa7-aeea-f810e6512beb
-//# sourceMappingURL=chunk-E5O4JOIQ.js.map
+//# debugId=88eff5ae-7e64-50af-82d0-2d374039a7e4
+//# sourceMappingURL=chunk-FKTY2A6O.js.map

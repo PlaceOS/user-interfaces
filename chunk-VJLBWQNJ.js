@@ -1,7 +1,7 @@
 import {
   OrganisationService,
   Space
-} from "./chunk-WMLPDJKK.js";
+} from "./chunk-K2N7QYFE.js";
 import {
   Ia,
   Ra,
@@ -239,4 +239,4 @@ export {
   generateMockSpace
 };
 //# debugId=d97ec9a2-536b-5311-b8d6-48c98b495be5
-//# sourceMappingURL=chunk-WK5EFI5X.js.map
+//# sourceMappingURL=chunk-VJLBWQNJ.js.map

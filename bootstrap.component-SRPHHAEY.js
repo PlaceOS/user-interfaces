@@ -33,7 +33,7 @@ import {
 import {
   OrganisationService,
   VERSION
-} from "./chunk-WMLPDJKK.js";
+} from "./chunk-K2N7QYFE.js";
 import {
   AsyncHandler,
   IconComponent
@@ -1304,4 +1304,4 @@ export {
   BootstrapComponent
 };
 //# debugId=bb615101-6fce-5cf1-8421-ea4f873dcc27
-//# sourceMappingURL=bootstrap.component-Y67QWJZR.js.map
+//# sourceMappingURL=bootstrap.component-SRPHHAEY.js.map

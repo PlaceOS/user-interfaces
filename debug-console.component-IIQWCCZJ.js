@@ -19,7 +19,7 @@ import {
   OrganisationService,
   RemoteLoggingService,
   SettingsService
-} from "./chunk-WMLPDJKK.js";
+} from "./chunk-K2N7QYFE.js";
 import {
   AsyncHandler,
   HotkeysService,
@@ -641,4 +641,4 @@ export {
   DebugConsoleComponent
 };
 //# debugId=47f8b041-2426-5423-8a26-2f92902921c2
-//# sourceMappingURL=debug-console.component-KAR7TNMM.js.map
+//# sourceMappingURL=debug-console.component-IIQWCCZJ.js.map
