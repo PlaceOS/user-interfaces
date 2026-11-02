@@ -186,6 +186,7 @@ All notable changes to this project will be documented in this file.
 - Update e2e specs for the UX audit changes
 - Let explicit desk and parking allow_all_day override bookings
 - Hide the parking space name in all booking cards (PPT-2863)
+- Room and desk start times stop before closing time
 
 ### Features
 
