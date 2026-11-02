@@ -1,99 +1,91 @@
 import {
   CateringOrderDocketsComponent,
-  MatMenu,
-  MatMenuItem,
-  MatMenuModule,
-  MatMenuTrigger,
   MatProgressBar,
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-JCMFQ3ZE.js";
-import "./chunk-2ORIRUQS.js";
+} from "./chunk-DAGR3VNS.js";
+import "./chunk-PG7GF24S.js";
 import {
   TranslatePipe
-} from "./chunk-6UU4CXOR.js";
+} from "./chunk-ECLQOWFF.js";
 import {
-  AsyncHandler,
-  Bp,
   GroupPermission,
-  HotkeysService,
-  J,
   LazySentryErrorHandler,
-  Mt,
-  Or,
   OrganisationService,
   PlaceOS_Service,
   SettingsService,
-  addDays,
-  addMinutes,
   addMonths,
   autoConfirmNativeDomain,
-  capitalizeFirstLetter,
   current_user,
-  differenceInMinutes,
-  eo,
-  firstTruthyValueFrom,
   firstValueWhere,
-  fo,
   getLoadingMessage,
   getUnixTime,
   hasPermission,
   initialisationComplete,
   initialisationFailure,
   isBefore,
-  log,
   nativeDomainError,
   needsNativeDomain,
-  oo,
-  padLength,
-  predictableRandomInt,
   provideServiceWorker,
-  randomInt,
-  randomString,
   retryInitialisation,
-  ro,
   serviceWorkerUpdate,
   setMocks,
   settingSignal,
+  user_groups_loaded
+} from "./chunk-YBHMTAWR.js";
+import {
+  AsyncHandler,
+  Bp,
+  J,
+  Mt,
+  Or,
+  addDays,
+  addMinutes,
+  capitalizeFirstLetter,
+  differenceInMinutes,
+  eo,
+  firstTruthyValueFrom,
+  fo,
+  log,
+  oo,
+  padLength,
+  predictableRandomInt,
+  randomInt,
+  randomString,
+  ro,
   startOfDay,
   timePeriodsIntersect,
   toDate,
-  unique,
-  user_groups_loaded
-} from "./chunk-7AN7DZT4.js";
+  unique
+} from "./chunk-2U5HCLE7.js";
+import "./chunk-V422PTFT.js";
 import {
   IconComponent
-} from "./chunk-YWE57PEN.js";
-import "./chunk-Z4UPMGWH.js";
-import "./chunk-XZIQ5D2O.js";
+} from "./chunk-ZLFKABV2.js";
+import "./chunk-MBXOS2BB.js";
 import {
   Router,
   RouterLink,
   RouterOutlet,
   provideRouter,
-  withHashLocation
-} from "./chunk-BMGI2NID.js";
+  withHashLocation,
+  withNavigationErrorHandler
+} from "./chunk-D6WQTN6Q.js";
 import {
   Component,
-  DOCUMENT,
   ErrorHandler,
   Injectable,
   Injector,
-  Input,
-  ViewChild,
   bootstrapApplication,
   computed,
   effect,
   enableProdMode,
-  forwardRef,
   inject,
-  input,
   provideZonelessChangeDetection,
   setClassMetadata,
   setClassMetadataAsync,
   signal,
-  viewChild,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵadvance,
@@ -102,6 +94,7 @@ import {
   ɵɵconditional,
   ɵɵconditionalCreate,
   ɵɵdefer,
+  ɵɵdeferOnIdle,
   ɵɵdeferOnImmediate,
   ɵɵdeferWhen,
   ɵɵdefineComponent,
@@ -118,17 +111,13 @@ import {
   ɵɵpipeBind1,
   ɵɵproperty,
   ɵɵpureFunction0,
-  ɵɵqueryAdvance,
-  ɵɵreference,
   ɵɵresetView,
-  ɵɵresolveDocument,
   ɵɵrestoreView,
   ɵɵstyleProp,
   ɵɵtext,
   ɵɵtextInterpolate,
-  ɵɵtextInterpolate1,
-  ɵɵviewQuerySignal
-} from "./chunk-V6DDVWVD.js";
+  ɵɵtextInterpolate1
+} from "./chunk-2FGFQ4N5.js";
 import {
   __spreadProps,
   __spreadValues
@@ -156,6 +145,64 @@ function subMonths(date, amount, options) {
 // node_modules/date-fns/subMinutes.js
 function subMinutes(date, amount, options) {
   return addMinutes(date, -amount, options);
+}
+
+// libs/common/src/lib/lazy-route-reload.ts
+var LAZY_ROUTE_RELOAD_KEY = "placeos.lazy_route_reload";
+var RELOAD_THROTTLE = 30 * 1e3;
+var LAZY_ROUTE_ERROR_PATTERNS = [
+  /ChunkLoadError/i,
+  /Loading chunk [\w-]+ failed/i,
+  /Failed to fetch dynamically imported module/i,
+  /Importing a module script failed/i,
+  /error loading dynamically imported module/i
+];
+function isLazyRouteLoadError(error) {
+  const message = getLazyRouteErrorMessage(error);
+  return LAZY_ROUTE_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+}
+function reloadOnChunkLoadError(error, context = {}) {
+  if (!isLazyRouteLoadError(error))
+    throw error;
+  const online = context.online ?? (typeof navigator !== "undefined" ? navigator.onLine : true);
+  if (!online)
+    throw error;
+  const storage = context.storage ?? sessionStorage;
+  const location_ref = context.location ?? location;
+  const now = context.now ?? Date.now();
+  const signature = `${location_ref.pathname}${location_ref.search}${location_ref.hash}:${getLazyRouteErrorMessage(error)}`;
+  const reload_state = parseReloadState(storage.getItem(LAZY_ROUTE_RELOAD_KEY));
+  if (reload_state?.signature === signature && now - reload_state.timestamp < RELOAD_THROTTLE) {
+    throw error;
+  }
+  storage.setItem(LAZY_ROUTE_RELOAD_KEY, JSON.stringify({ signature, timestamp: now }));
+  log("ROUTER", "Lazy route load failed. Reloading application...", error, "warn", true);
+  location_ref.reload();
+}
+function getLazyRouteErrorMessage(error) {
+  if (typeof error === "string")
+    return error;
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  if (error && typeof error === "object") {
+    const name = "name" in error ? `${error.name || ""}` : "";
+    const message = "message" in error ? `${error.message || ""}` : "";
+    return `${name}: ${message}`.trim();
+  }
+  return `${error || ""}`;
+}
+function parseReloadState(state) {
+  if (!state)
+    return null;
+  try {
+    const parsed_state = JSON.parse(state);
+    if (typeof parsed_state?.signature === "string" && typeof parsed_state?.timestamp === "number") {
+      return parsed_state;
+    }
+  } catch {
+  }
+  return null;
 }
 
 // libs/components/src/lib/global-banner.component.ts
@@ -405,7 +452,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-TN265ZMR.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-4OKARL73.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -530,7 +577,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-TN265ZMR.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-4OKARL73.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -736,336 +783,6 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 158 });
-})();
-
-// libs/components/src/lib/settings-debug-panel-launcher.component.ts
-var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
-  /* @ts-ignore */
-  import("./settings-debug-panel.component-FMLBWU3P.js").then((m) => m.SettingsDebugPanelComponent)
-];
-var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
-  /* @ts-ignore */
-  import("./binding-debug-panel.component-OD53OBW4.js").then((m) => m.BindingDebugPanelComponent)
-];
-var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
-  /* @ts-ignore */
-  import("./debug-console.component-I77OWJUI.js").then((m) => m.DebugConsoleComponent)
-];
-function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "settings-debug-panel", 8);
-    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template_settings_debug_panel_showChange_0_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r3 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r3.panel.set(null));
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("show", true)("schema", ctx_r3.schema());
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_24_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template, 1, 2, "settings-debug-panel", 7);
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r3.panel() === "settings" ? 0 : -1);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "binding-debug-panel", 10);
-    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template_binding_debug_panel_showChange_0_listener() {
-      \u0275\u0275restoreView(_r5);
-      const ctx_r3 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r3.panel.set(null));
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275property("show", true)("hotkeysEnabled", false);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_27_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template, 1, 2, "binding-debug-panel", 9);
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r3.panel() === "bindings" ? 0 : -1);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "debug-console", 10);
-    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template_debug_console_showChange_0_listener() {
-      \u0275\u0275restoreView(_r6);
-      const ctx_r3 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r3.panel.set(null));
-    });
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275property("show", true)("hotkeysEnabled", false);
-  }
-}
-function SettingsDebugPanelLauncherComponent_Defer_30_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template, 1, 2, "debug-console", 9);
-  }
-  if (rf & 2) {
-    const ctx_r3 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r3.panel() === "console" ? 0 : -1);
-  }
-}
-var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherComponent extends AsyncHandler {
-  constructor() {
-    super(...arguments);
-    this._hotkey = inject(HotkeysService);
-    this._document = inject(DOCUMENT);
-    this._menu_trigger = viewChild.required(
-      MatMenuTrigger,
-      ...ngDevMode ? [{ debugName: "_menu_trigger" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.loadSchema = input(
-      ...ngDevMode ? [void 0, { debugName: "loadSchema" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.schema = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "schema" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.panel = signal(
-      null,
-      ...ngDevMode ? [{ debugName: "panel" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-  }
-  ngOnInit() {
-    const shortcuts = [
-      ["settings", ["Control", "Alt", "Shift", "KeyS"]],
-      ["bindings", ["Control", "Alt", "Shift", "KeyB"]],
-      ["console", ["Control", "Backquote"]]
-    ];
-    for (const [panel, keys] of shortcuts) {
-      this.subscription(panel, this._hotkey.listen(keys, () => {
-        if (this.panel() === panel)
-          this.panel.set(null);
-        else
-          this.openPanel(panel);
-      }));
-    }
-  }
-  /** Observe the corner without placing a pointer target over app controls. */
-  onContextMenu(event) {
-    const height = this._document.documentElement.clientHeight;
-    if (event.clientX < 0 || event.clientX > 32 || event.clientY < height - 32 || event.clientY > height)
-      return;
-    this.openMenu(event, this._menu_trigger());
-  }
-  openMenu(event, trigger) {
-    event.preventDefault();
-    trigger.openMenu();
-  }
-  openPanel(panel) {
-    this.panel.set(panel);
-    if (panel === "settings") {
-      this._schema_request ??= this.loadSettingsSchema();
-    }
-  }
-  async loadSettingsSchema() {
-    try {
-      this.schema.set(await this.loadSchema()?.() ?? null);
-    } catch {
-      this.schema.set(null);
-    }
-  }
-  static {
-    this.\u0275fac = /* @__PURE__ */ (() => {
-      let \u0275SettingsDebugPanelLauncherComponent_BaseFactory;
-      return function SettingsDebugPanelLauncherComponent_Factory(__ngFactoryType__) {
-        return (\u0275SettingsDebugPanelLauncherComponent_BaseFactory || (\u0275SettingsDebugPanelLauncherComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SettingsDebugPanelLauncherComponent)))(__ngFactoryType__ || _SettingsDebugPanelLauncherComponent);
-      };
-    })();
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelLauncherComponent, selectors: [["settings-debug-panel-launcher"]], viewQuery: function SettingsDebugPanelLauncherComponent_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._menu_trigger, MatMenuTrigger, 5);
-      }
-      if (rf & 2) {
-        \u0275\u0275queryAdvance();
-      }
-    }, hostBindings: function SettingsDebugPanelLauncherComponent_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("contextmenu", function SettingsDebugPanelLauncherComponent_contextmenu_HostBindingHandler($event) {
-          return ctx.onContextMenu($event);
-        }, \u0275\u0275resolveDocument);
-      }
-    }, inputs: { loadSchema: [1, "loadSchema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 33, vars: 4, consts: [["menu_trigger", "matMenuTrigger"], ["debug_menu", "matMenu"], ["type", "button", "aria-label", "Open debugging tools", 1, "absolute", "bottom-0", "left-0", "z-999", "h-px", "w-px", 3, "contextmenu", "matMenuTriggerFor"], ["yPosition", "above"], [1, "flex", "w-64", "items-center", "justify-center", "pb-2", "text-sm", "opacity-60"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "gap-2"], [3, "show", "schema"], [3, "showChange", "show", "schema"], [3, "show", "hotkeysEnabled"], [3, "showChange", "show", "hotkeysEnabled"]], template: function SettingsDebugPanelLauncherComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        const _r1 = \u0275\u0275getCurrentView();
-        \u0275\u0275elementStart(0, "button", 2, 0);
-        \u0275\u0275listener("contextmenu", function SettingsDebugPanelLauncherComponent_Template_button_contextmenu_0_listener($event) {
-          \u0275\u0275restoreView(_r1);
-          const menu_trigger_r2 = \u0275\u0275reference(1);
-          return \u0275\u0275resetView(ctx.openMenu($event, menu_trigger_r2));
-        });
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(2, "mat-menu", 3, 1)(4, "div", 4);
-        \u0275\u0275text(5, " Debugging Panels ");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(6, "button", 5);
-        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_6_listener() {
-          return ctx.openPanel("settings");
-        });
-        \u0275\u0275elementStart(7, "div", 6)(8, "icon");
-        \u0275\u0275text(9, "discover_tune");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(10, "div");
-        \u0275\u0275text(11, "Settings");
-        \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(12, "button", 5);
-        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_12_listener() {
-          return ctx.openPanel("bindings");
-        });
-        \u0275\u0275elementStart(13, "div", 6)(14, "icon");
-        \u0275\u0275text(15, "linked_services");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(16, "div");
-        \u0275\u0275text(17, "Driver bindings");
-        \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(18, "button", 5);
-        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_18_listener() {
-          return ctx.openPanel("console");
-        });
-        \u0275\u0275elementStart(19, "div", 6)(20, "icon");
-        \u0275\u0275text(21, "terminal_2");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(22, "div");
-        \u0275\u0275text(23, "Console");
-        \u0275\u0275elementEnd()()()();
-        \u0275\u0275domTemplate(24, SettingsDebugPanelLauncherComponent_Defer_24_Template, 1, 1);
-        \u0275\u0275defer(25, 24, SettingsDebugPanelLauncherComponent_Defer_25_DepsFn);
-        \u0275\u0275domTemplate(27, SettingsDebugPanelLauncherComponent_Defer_27_Template, 1, 1);
-        \u0275\u0275defer(28, 27, SettingsDebugPanelLauncherComponent_Defer_28_DepsFn);
-        \u0275\u0275domTemplate(30, SettingsDebugPanelLauncherComponent_Defer_30_Template, 1, 1);
-        \u0275\u0275defer(31, 30, SettingsDebugPanelLauncherComponent_Defer_31_DepsFn);
-      }
-      if (rf & 2) {
-        const debug_menu_r7 = \u0275\u0275reference(3);
-        \u0275\u0275property("matMenuTriggerFor", debug_menu_r7);
-        \u0275\u0275advance(25);
-        \u0275\u0275deferWhen(ctx.panel() === "settings");
-        \u0275\u0275advance(3);
-        \u0275\u0275deferWhen(ctx.panel() === "bindings");
-        \u0275\u0275advance(3);
-        \u0275\u0275deferWhen(ctx.panel() === "console");
-      }
-    }, dependencies: [MatMenuModule, MatMenu, MatMenuItem, MatMenuTrigger, IconComponent], encapsulation: 2 });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
-    /* @ts-ignore */
-    import("./settings-debug-panel.component-FMLBWU3P.js").then((m) => m.SettingsDebugPanelComponent),
-    /* @ts-ignore */
-    import("./binding-debug-panel.component-OD53OBW4.js").then((m) => m.BindingDebugPanelComponent),
-    /* @ts-ignore */
-    import("./debug-console.component-I77OWJUI.js").then((m) => m.DebugConsoleComponent)
-  ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
-    setClassMetadata(SettingsDebugPanelLauncherComponent, [{
-      type: Component,
-      args: [{ selector: "settings-debug-panel-launcher", host: { "(document:contextmenu)": "onContextMenu($event)" }, imports: [
-        MatMenuModule,
-        SettingsDebugPanelComponent,
-        BindingDebugPanelComponent,
-        DebugConsoleComponent,
-        IconComponent
-      ], template: `
-        <button
-            type="button"
-            class="absolute bottom-0 left-0 z-999 h-px w-px"
-            aria-label="Open debugging tools"
-            [matMenuTriggerFor]="debug_menu"
-            #menu_trigger="matMenuTrigger"
-            (contextmenu)="openMenu($event, menu_trigger)"
-        >
-        </button>
-        <mat-menu #debug_menu="matMenu" yPosition="above">
-            <div
-                class="flex w-64 items-center justify-center pb-2 text-sm opacity-60"
-            >
-                Debugging Panels
-            </div>
-            <button mat-menu-item (click)="openPanel('settings')">
-                <div class="flex items-center gap-2">
-                    <icon>discover_tune</icon>
-                    <div>Settings</div>
-                </div>
-            </button>
-            <button mat-menu-item (click)="openPanel('bindings')">
-                <div class="flex items-center gap-2">
-                    <icon>linked_services</icon>
-                    <div>Driver bindings</div>
-                </div>
-            </button>
-            <button mat-menu-item (click)="openPanel('console')">
-                <div class="flex items-center gap-2">
-                    <icon>terminal_2</icon>
-                    <div>Console</div>
-                </div>
-            </button>
-        </mat-menu>
-        @defer (when panel() === 'settings') {
-            @if (panel() === 'settings') {
-                <settings-debug-panel
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [schema]="schema()"
-                />
-            }
-        }
-        @defer (when panel() === 'bindings') {
-            @if (panel() === 'bindings') {
-                <binding-debug-panel
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [hotkeysEnabled]="false"
-                />
-            }
-        }
-        @defer (when panel() === 'console') {
-            @if (panel() === 'console') {
-                <debug-console
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [hotkeysEnabled]="false"
-                />
-            }
-        }
-    ` }]
-    }], null, { _menu_trigger: [{ type: ViewChild, args: [forwardRef(() => MatMenuTrigger), { isSignal: true }] }], loadSchema: [{ type: Input, args: [{ isSignal: true, alias: "loadSchema", required: false }] }] });
-  });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelLauncherComponent, { className: "SettingsDebugPanelLauncherComponent", filePath: "libs/components/src/lib/settings-debug-panel-launcher.component.ts", lineNumber: 97 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -7569,27 +7286,27 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
    * be interacting with an audio DSP to add a microphone feed to an output zone, or
    * connecting a USB HID input device with a specific output.
    **/
-  $route(input2, output) {
-    if (this.inputs.includes(input2) && this.outputs.includes(output)) {
-      this.$updateState(input2, {
+  $route(input, output) {
+    if (this.inputs.includes(input) && this.outputs.includes(output)) {
+      this.$updateState(input, {
         routes: unique([
-          ...this.input_list[input2].routes || [],
+          ...this.input_list[input].routes || [],
           output
         ])
       });
       this.$updateState(output, {
-        source: input2,
-        following: input2
+        source: input,
+        following: input
       });
     }
   }
   /** Connect a signal source to every output */
-  $route_all(input2) {
-    this.outputs.forEach((output) => this.$route(input2, output));
+  $route_all(input) {
+    this.outputs.forEach((output) => this.$route(input, output));
   }
   /** Set the input that the panel shows controls for */
-  $selected_input(input2) {
-    this.selected_input = input2;
+  $selected_input(input) {
+    this.selected_input = input;
   }
   /**
    * Remove a signal source from a signal output.
@@ -7597,12 +7314,12 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
    * (mixed audio zone, or display capable of compositing multiple video sources).
    **/
   $unroute(output) {
-    const input2 = this.output_list[output]?.source;
-    if (!input2)
+    const input = this.output_list[output]?.source;
+    if (!input)
       return;
-    if (this.input_list[input2]) {
-      this.$updateState(input2, {
-        routes: (this.input_list[input2].routes || []).filter((_) => _ !== output)
+    if (this.input_list[input]) {
+      this.$updateState(input, {
+        routes: (this.input_list[input].routes || []).filter((_) => _ !== output)
       });
     }
     this.$updateState(output, { source: "", following: "" });
@@ -8963,11 +8680,24 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-SRLYVNYC.js").then((m) => m.ChatComponent)
+  import("./chat.component-X6PIDDJ7.js").then((m) => m.ChatComponent)
+];
+var AppComponent_Defer_9_DepsFn = () => [
+  /* @ts-ignore */
+  import("./settings-debug-panel-launcher.component-EDTRPQIM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "global-chat");
+  }
+}
+function AppComponent_Defer_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "settings-debug-panel-launcher", 2);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("loadSchema", ctx_r0.load_settings_schema);
   }
 }
 var AppComponent = class _AppComponent {
@@ -8986,7 +8716,7 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 9, vars: 2, consts: [[1, "print:hidden"], [1, "relative", "h-1/2", "w-full", "flex-1", "print:hidden"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 11, vars: 1, consts: [[1, "print:hidden"], [1, "relative", "h-1/2", "w-full", "flex-1", "print:hidden"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner", 0);
         \u0275\u0275elementStart(1, "div", 1);
@@ -8995,19 +8725,19 @@ var AppComponent = class _AppComponent {
         \u0275\u0275element(3, "catering-order-dockets");
         \u0275\u0275domTemplate(4, AppComponent_Defer_4_Template, 1, 0);
         \u0275\u0275defer(5, 4, AppComponent_Defer_5_DepsFn);
-        \u0275\u0275element(7, "global-loading")(8, "settings-debug-panel-launcher", 2);
+        \u0275\u0275element(7, "global-loading");
+        \u0275\u0275domTemplate(8, AppComponent_Defer_8_Template, 1, 1);
+        \u0275\u0275defer(9, 8, AppComponent_Defer_9_DepsFn);
+        \u0275\u0275deferOnIdle();
       }
       if (rf & 2) {
         \u0275\u0275advance(5);
         \u0275\u0275deferWhen(ctx.has_chat());
-        \u0275\u0275advance(3);
-        \u0275\u0275property("loadSchema", ctx.load_settings_schema);
       }
     }, dependencies: [
       RouterOutlet,
       GlobalBannerComponent,
       GlobalLoadingComponent,
-      SettingsDebugPanelLauncherComponent,
       CateringOrderDocketsComponent
     ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
   }
@@ -9015,8 +8745,10 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-SRLYVNYC.js").then((m) => m.ChatComponent)
-  ], (ChatComponent) => {
+    import("./chat.component-X6PIDDJ7.js").then((m) => m.ChatComponent),
+    /* @ts-ignore */
+    import("./settings-debug-panel-launcher.component-EDTRPQIM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
       args: [{ selector: "app-root", imports: [
@@ -9036,13 +8768,17 @@ var AppComponent = class _AppComponent {
             <global-chat />
         }
         <global-loading />
-        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
+        @defer (on idle) {
+            <settings-debug-panel-launcher
+                [loadSchema]="load_settings_schema"
+            />
+        }
     `, styles: ["/* angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/caterer-ui/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
     }], null, null);
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/caterer-ui/src/app/app.component.ts", lineNumber: 46 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/caterer-ui/src/app/app.component.ts", lineNumber: 50 });
 })();
 
 // apps/caterer-ui/src/environments/environment.ts
@@ -9051,7 +8787,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-XCX5IIBI.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-ZIHOSOZ3.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -9074,7 +8810,7 @@ var routes = [
 var appConfig = {
   providers: [
     provideZonelessChangeDetection(),
-    provideRouter(routes, withHashLocation()),
+    provideRouter(routes, withHashLocation(), withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error))),
     provideServiceWorker("ngsw-worker.js", {
       enabled: environment.production
     }),
@@ -9090,5 +8826,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=05d6ada5-1cd6-5970-a411-a749673742aa
+//# debugId=dbef2e8d-c890-557c-994b-8fccd271fc34
 //# sourceMappingURL=main.js.map
