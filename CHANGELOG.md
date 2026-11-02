@@ -42,6 +42,7 @@ All notable changes to this project will be documented in this file.
 - Hide the parking space in the booking card location (PPT-2858)
 - Lock locker date and time when disabled_date_select is set
 - Locker picker no longer errors while lockers load
+- Booking type timezone settings override the generic setting
 
 #### Catering
 
@@ -58,6 +59,7 @@ All notable changes to this project will be documented in this file.
 - Correct the Sentry trace settings
 - Report startup errors to Sentry
 - Remove check-in tokens from Sentry events
+- Use current IANA names in the time zone list
 
 #### Components
 
@@ -119,6 +121,10 @@ All notable changes to this project will be documented in this file.
 #### Deps
 
 - Update Sentry to 11 and keep its data collection unchanged
+
+#### Desks
+
+- Keep desk data on CSV import and find desks across the org
 
 #### Events
 
@@ -322,6 +328,7 @@ All notable changes to this project will be documented in this file.
 - Hide the parking space name in all booking cards (PPT-2863)
 - Respect desks.allow_time_changes in the new desk flow
 - Explicit desks/parking can_book_for_others false now overrides bookings
+- Room and desk start times stop before closing time
 
 ### Features
 
@@ -461,6 +468,7 @@ All notable changes to this project will be documented in this file.
 #### Assets
 
 - Share the hidden asset category and type lookup
+- Share the desk asset lookup by legacy id
 
 #### Common
 
@@ -470,6 +478,8 @@ All notable changes to this project will be documented in this file.
 
 - Update parking report graphs and metrics to be more useful
 - Remove signage management section
+- Remove the unused desks topbar
+- Share the desk CSV import
 
 #### Desks
 
