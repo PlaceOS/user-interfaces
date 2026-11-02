@@ -525,13 +525,13 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                         'KIOSK.orientation',
                         `${active_rotation.id}`,
                     );
-                }
+                } else localStorage.removeItem('KIOSK.orientation');
                 if (active_location) {
                     localStorage.setItem(
                         'KIOSK.location',
                         `${active_location.id}`,
                     );
-                }
+                } else localStorage.removeItem('KIOSK.location');
             }
             this.navigateToStartupRoute();
         }
@@ -596,6 +596,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             localStorage.removeItem('KIOSK.building');
             localStorage.removeItem('KIOSK.level');
             localStorage.removeItem('KIOSK.orientation');
+            localStorage.removeItem('KIOSK.location');
         }
         if (query_params.level) {
             const level = this._org.levelWithID([query_params.level]);

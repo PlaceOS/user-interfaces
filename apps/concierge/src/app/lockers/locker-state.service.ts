@@ -841,7 +841,7 @@ export class LockerStateService extends AsyncHandler {
                 i18n(
                     state
                         ? 'BOOKINGS.CHECK_IN_ERROR'
-                        : 'BOOKINGS_CHECK_OUT_ERROR',
+                        : 'BOOKINGS.CHECK_OUT_ERROR',
                 ),
             );
             throw status.error;
@@ -850,7 +850,7 @@ export class LockerStateService extends AsyncHandler {
             i18n(
                 state
                     ? 'BOOKINGS.CHECK_IN_SUCCESS'
-                    : 'BOOKINGS_CHECK_OUT_SUCCESS',
+                    : 'BOOKINGS.CHECK_OUT_SUCCESS',
             ),
         );
     }

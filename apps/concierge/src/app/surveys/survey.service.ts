@@ -1,7 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { notifySuccess, OrganisationService } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import {
     queryAnswers,
     querySurveys,
@@ -9,6 +8,7 @@ import {
     Survey,
     SurveyAnswer,
 } from '@placeos/ts-client';
+import { confirmAction, errorText } from '../ui/modal-actions';
 
 /** Most answer requests that run at the same time */
 const ANSWER_REQUEST_LIMIT = 6;
@@ -86,23 +86,21 @@ export class SurveyService {
         this.building.set(id);
     }
 
-    public async removeSurvey(survey: Survey, confirm = true) {
-        if (confirm) {
-            const result = await openConfirmModal(
-                {
-                    title: 'Remove Survey',
-                    content: 'Are you sure you want to remove this survey?',
-                    icon: { content: 'warning' },
-                },
-                this._dialog,
-            );
-            if (result.reason !== 'done') return;
-            result.loading('Removing survey...');
-            await removeSurvey(`${survey.id}`);
-            result.close();
-        } else {
-            await removeSurvey(`${survey.id}`);
-        }
+    public async removeSurvey(survey: Survey) {
+        const removed = await confirmAction(
+            this._dialog,
+            {
+                title: 'Remove Survey',
+                content: 'Are you sure you want to remove this survey?',
+                icon: { content: 'warning' },
+            },
+            {
+                loading: 'Removing survey...',
+                action: () => removeSurvey(`${survey.id}`),
+                error: (e) => `Failed to remove survey. ${errorText(e)}`,
+            },
+        );
+        if (!removed) return;
         notifySuccess('Successfully removed survey.');
         this._load(LoadType.SURVEYS);
     }

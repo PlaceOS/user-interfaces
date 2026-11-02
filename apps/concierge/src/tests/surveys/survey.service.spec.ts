@@ -89,6 +89,23 @@ describe('SurveyService', () => {
         );
     });
 
+    it('should close the dialog and show the error when removal fails', async () => {
+        const ref = makeConfirmRef('done');
+        dialog_open.mockReturnValue(ref);
+        vi.mocked(ts_client.removeSurvey).mockRejectedValueOnce(
+            new Error('Server down'),
+        );
+
+        await spectator.service.removeSurvey(new Survey({ id: 7 }));
+
+        expect(ref.close).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.stringContaining('Server down'),
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
     it('should not remove a survey when confirmation is cancelled', async () => {
         dialog_open.mockReturnValue(makeConfirmRef('cancel'));
 

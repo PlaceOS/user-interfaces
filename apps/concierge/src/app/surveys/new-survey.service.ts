@@ -8,13 +8,13 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { notifySuccess } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import {
     removeQuestion,
     showSurvey,
     Survey,
     SurveyQuestion,
 } from '@placeos/ts-client';
+import { confirmAction, errorText } from '../ui/modal-actions';
 import { QuestionModalComponent } from './question-modal.component';
 import { queryAllSurveyQuestions } from '../query-all-pages';
 
@@ -99,24 +99,23 @@ export class NewSurveyService {
         });
     }
 
-    public async removeQuestion(question: SurveyQuestion, confirm = true) {
-        if (confirm) {
-            const result = await openConfirmModal(
-                {
-                    title: 'Remove Survey Question',
-                    content:
-                        'Are you sure you want to remove this survey question?',
-                    icon: { content: 'warning' },
-                },
-                this._dialog,
-            );
-            if (result.reason !== 'done') return;
-            result.loading('Removing survey question...');
-            await removeQuestion(`${question.id}`);
-            result.close();
-        } else {
-            await removeQuestion(`${question.id}`);
-        }
+    public async removeQuestion(question: SurveyQuestion) {
+        const removed = await confirmAction(
+            this._dialog,
+            {
+                title: 'Remove Survey Question',
+                content:
+                    'Are you sure you want to remove this survey question?',
+                icon: { content: 'warning' },
+            },
+            {
+                loading: 'Removing survey question...',
+                action: () => removeQuestion(`${question.id}`),
+                error: (e) =>
+                    `Failed to remove survey question. ${errorText(e)}`,
+            },
+        );
+        if (!removed) return;
         notifySuccess('Successfully removed survey question.');
         this._change.update((v) => v + 1);
     }

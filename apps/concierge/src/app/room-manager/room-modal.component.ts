@@ -394,7 +394,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                                 {{ tz }}
                             </mat-option>
                         }
-                        @if (!timezones().length) {
+                        @if (!filtered_timezones().length) {
                             <mat-option [disabled]="true">
                                 {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
                             </mat-option>

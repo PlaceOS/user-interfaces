@@ -88,7 +88,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         @for (tz of filtered_timezones(); track tz) {
                             <mat-option [value]="tz">{{ tz }}</mat-option>
                         }
-                        @if (!timezones.length) {
+                        @if (!filtered_timezones().length) {
                             <mat-option [disabled]="true">
                                 {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
                             </mat-option>

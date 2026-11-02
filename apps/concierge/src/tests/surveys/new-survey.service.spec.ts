@@ -2,7 +2,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
 import { NewSurveyService } from '../../app/surveys/new-survey.service';
@@ -52,11 +52,14 @@ describe('NewSurveyService', () => {
         });
     });
 
-    it('should remove a question without confirmation when requested', async () => {
-        await spectator.service.removeQuestion(
-            new SurveyQuestion({ id: 5 }),
-            false,
-        );
+    it('should remove a question after confirmation and notify', async () => {
+        dialog_open.mockReturnValue({
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            afterClosed: () => of({ reason: 'done' }),
+            close: vi.fn(),
+        });
+
+        await spectator.service.removeQuestion(new SurveyQuestion({ id: 5 }));
 
         expect(ts_client.removeQuestion).toHaveBeenCalledWith('5');
         expect(notify_open).toHaveBeenCalledWith(

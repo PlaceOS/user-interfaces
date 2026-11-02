@@ -3,7 +3,11 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    getTimezoneOffsetString,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import {
     IconComponent,
     SafePipe,
@@ -37,14 +41,15 @@ import {
                             | translate
                                 : {
                                       date:
-                                          last_event.date | date: 'mediumDate',
+                                          last_event.date
+                                          | date: 'mediumDate' : tz,
                                       time:
                                           (last_event.date
-                                              | date: time_format) +
+                                              | date: time_format : tz) +
                                           ' - ' +
                                           (last_event.date +
                                               last_event.duration * 60 * 1000
-                                              | date: time_format),
+                                              | date: time_format : tz),
                                   }
                     }}
                 </p>
@@ -139,6 +144,13 @@ export class ParkingRequestSuccessComponent implements OnInit {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    /** Offset of the timezone that the booking was made in */
+    public get tz() {
+        const event = this.last_event;
+        if (!event?.timezone) return '';
+        return getTimezoneOffsetString(event.timezone, new Date(event.date));
     }
 
     public get show_links() {
