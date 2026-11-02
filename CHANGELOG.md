@@ -141,6 +141,10 @@ All notable changes to this project will be documented in this file.
 
 - List every page of a day's bookings on Your Bookings
 
+#### Signage
+
+- Resend plugin config when a plugin reports loaded
+
 #### Signage-manager
 
 - Report Angular errors to Sentry
@@ -243,6 +247,7 @@ All notable changes to this project will be documented in this file.
 
 - Add display management PPT-2673
 - Sort distribution playlist items by next play
+- Add media to a playlist from the playlist view
 
 #### Visitor-kiosk
 
