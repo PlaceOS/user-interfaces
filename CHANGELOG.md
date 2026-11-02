@@ -163,6 +163,10 @@ All notable changes to this project will be documented in this file.
 - Fix broken editor, list, and filter workflows
 - Stop leaking data through system names, logs and the analytics frame
 
+#### Test
+
+- Destroy testing module after each app spec
+
 #### Users
 
 - PROJ-1630 add an attendee from Find Availability only once
