@@ -1,4 +1,3 @@
-import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, ErrorHandler, inject, OnInit } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
@@ -13,7 +12,6 @@ import {
     lazySnackbar,
     log,
     markInitialisationComplete,
-    OrganisationService,
     retryInitialisation,
     setAppName,
     setNotifyOutlet,
@@ -80,10 +78,8 @@ import { PlaceAuthority, token } from '@placeos/ts-client';
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
-    private _org = inject(OrganisationService);
     private _cache = inject(SwUpdate);
     private _snackbar = lazySnackbar();
-    private _clipboard = inject(Clipboard);
     /** Reports startup failures to the console and Sentry */
     private _error_handler = inject(ErrorHandler);
     public readonly initialisation_error = initialisationFailure();

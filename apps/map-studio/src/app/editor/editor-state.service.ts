@@ -17,7 +17,6 @@ import { cycleState, defaultStateFor, getStatesForType } from './availability';
 import {
     AMENITY_ICONS,
     DESK_LAYOUTS,
-    EditorMode,
     FURNITURE_ASSETS,
     TYPE_COLORS,
     Tool,
@@ -146,14 +145,12 @@ export class EditorStateService extends AsyncHandler {
     private readonly _selected_id = signal<string | null>(null);
     private readonly _active_tool = signal<Tool>('select');
     private readonly _active_layer_id = signal('rooms');
-    private readonly _mode = signal<EditorMode>('design');
     private readonly _zoom = signal(1);
     private readonly _grid_enabled = signal(true);
     private readonly _snap_enabled = signal(true);
     private readonly _grid_size = signal(20);
     private readonly _dirty = signal(false);
     private readonly _saving = signal(false);
-    private readonly _last_saved = signal<Date | null>(null);
     private readonly _loading = signal(true);
     private readonly _error = signal('');
     private readonly _project_name = signal('');
@@ -191,21 +188,18 @@ export class EditorStateService extends AsyncHandler {
     public readonly selected_id = this._selected_id.asReadonly();
     public readonly active_tool = this._active_tool.asReadonly();
     public readonly active_layer_id = this._active_layer_id.asReadonly();
-    public readonly mode = this._mode.asReadonly();
     public readonly zoom = this._zoom.asReadonly();
     public readonly grid_enabled = this._grid_enabled.asReadonly();
     public readonly snap_enabled = this._snap_enabled.asReadonly();
     public readonly grid_size = this._grid_size.asReadonly();
     public readonly dirty = this._dirty.asReadonly();
     public readonly saving = this._saving.asReadonly();
-    public readonly last_saved = this._last_saved.asReadonly();
     public readonly loading = this._loading.asReadonly();
     public readonly error = this._error.asReadonly();
     public readonly server_save_error =
         this._store.server_save_error.asReadonly();
     public readonly project_name = this._project_name.asReadonly();
     public readonly image_url = this._image_url.asReadonly();
-    public readonly image_dims = this._image_dims.asReadonly();
     public readonly place_size = this._place_size.asReadonly();
     public readonly can_undo = this._can_undo.asReadonly();
     public readonly can_redo = this._can_redo.asReadonly();
@@ -540,18 +534,10 @@ export class EditorStateService extends AsyncHandler {
         this._active_tool.set(tool);
     }
 
-    public setMode(mode: EditorMode) {
-        this._mode.set(mode);
-    }
-
     public setActiveLayer(id: string) {
         this._active_layer_id.set(id);
         const size = PLACE_SIZES[id];
         if (size) this._place_size.set(size);
-    }
-
-    public setPlaceSize(width: number, height: number) {
-        this._place_size.set({ width, height });
     }
 
     public select(id: string | null) {
@@ -1305,32 +1291,12 @@ export class EditorStateService extends AsyncHandler {
             await this._store.saveCanvasState(this._floorplan_id, state);
             // Edits made while writing stay pending for the next save
             if (this._change_count === change) this._dirty.set(false);
-            this._last_saved.set(new Date());
             this._error.set('');
         } catch (error) {
             this._error.set(this._message(error, 'Failed to save'));
         } finally {
             this._saving.set(false);
         }
-    }
-
-    public async exportCsv() {
-        const csv = await this._store.exportObjectsCsv(this._floorplan_id);
-        const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `objects-${this._floorplan_id}.csv`;
-        link.click();
-        URL.revokeObjectURL(url);
-    }
-
-    public async importCsv(file: File) {
-        await this._store.importObjectsCsv(
-            this._floorplan_id,
-            await file.text(),
-        );
-        this._objects.set(await this._store.listObjects(this._floorplan_id));
-        this.markDirty();
     }
 
     private _message(error: unknown, fallback: string) {

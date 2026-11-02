@@ -97,7 +97,6 @@ describe('AlertsComponent', () => {
         ]);
         expect(spectator.component.critical_alerts()).toBe(1);
         expect(spectator.component.warning_alerts()).toBe(1);
-        expect(spectator.component.info_alerts()).toBe(2);
         expect(spectator.component.open_alerts()).toBe(3);
     });
 

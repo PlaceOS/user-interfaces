@@ -12,7 +12,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,7 +31,6 @@ import {
     SimpleTableComponent,
     ViewportVisibilityComponent,
 } from '@placeos/components';
-import { startOfMonth } from 'date-fns';
 import { CameraSnapshotModalComponent } from './camera-snapshot-modal.component';
 import { Alert } from './dashboards/broker-alerts';
 import { DashboardsService } from './dashboards/dashboards.service';
@@ -86,20 +84,6 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 {{ room_alerts().length }}
                             </div>
                         </div>
-                        <!-- <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm"
-                        >
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-xl font-medium">
-                                    System Uptime
-                                </h3>
-                                <icon class="text-3xl text-success"
-                                    >show_chart</icon
-                                >
-                            </div>
-                            <div class="text-4xl font-bold">99.9%</div>
-                            <div class="text-sm opacity-40">Last 30 days</div>
-                        </div> -->
                     </div>
                     <div class="flex items-start space-x-4 px-4">
                         <div class="flex-1">
@@ -282,58 +266,6 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 }
                             </div>
                         </ng-template>
-                        <ng-template #mics_template let-data="data">
-                            <div class="flex flex-wrap p-2">
-                                @for (
-                                    mic of data;
-                                    let idx = $index;
-                                    track idx
-                                ) {
-                                    <div
-                                        class="bg-info-light m-1 flex items-center rounded-sm px-2 py-1"
-                                    >
-                                        <icon
-                                            class="mr-1 text-2xl"
-                                            className="material-symbols-outlined"
-                                            >{{ mic.icon || 'mic' }}</icon
-                                        >
-                                        <div
-                                            class="relative top-1 flex flex-col items-center"
-                                        >
-                                            <div class="text-xs">
-                                                {{ mic.value }}%
-                                            </div>
-                                            <icon
-                                                className="material-symbols-outlined"
-                                                class="-mt-2 text-2xl"
-                                                [class.text-success]="
-                                                    mic.value > 50
-                                                "
-                                                [class.text-warning]="
-                                                    mic.value > 20 &&
-                                                    mic.value <= 50
-                                                "
-                                                [class.text-error]="
-                                                    mic.value <= 20
-                                                "
-                                            >
-                                                @if (mic.value > 75) {
-                                                    battery_full_alt
-                                                } @else if (mic.value > 50) {
-                                                    battery_horiz_075
-                                                } @else if (mic.value > 25) {
-                                                    battery_horiz_050
-                                                } @else if (mic.value > 10) {
-                                                    battery_low
-                                                } @else {
-                                                    battery_very_low
-                                                }
-                                            </icon>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        </ng-template>
                         <ng-template #feed_template let-space="row">
                             @let feed_url = cameraSnapshotFeed(space);
                             @if (feed_url) {
@@ -481,7 +413,6 @@ import { SidebarComponent } from './ui/sidebar.component';
     imports: [
         CommonModule,
         MatRippleModule,
-        MatMenuModule,
         IconComponent,
         BindingDirective,
         SimpleTableComponent,
@@ -510,11 +441,6 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public readonly alerts = this._dashboard.dashboard_alerts;
     public readonly alert_sort = (a: unknown[], b: unknown[]) =>
         (a?.length || 0) - (b?.length || 0);
-    public readonly critical_alerts = computed(
-        () =>
-            this.room_alerts().filter((alert) => alert.severity === 'critical')
-                .length,
-    );
 
     public readonly search_term = signal('');
     public readonly status = signal<Record<string, string>>({});
@@ -560,11 +486,6 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
                 (!bld_id && rm.zones.includes(r_id)),
         );
     });
-    public readonly new_rooms = computed(() =>
-        this.room_list().filter(
-            (rm) => rm.created_at * 1000 > startOfMonth(Date.now()).valueOf(),
-        ),
-    );
     public readonly room_data = computed(() => {
         // alerts by room, so each room doesn't scan every alert
         const issues = new Map<string, Alert[]>();

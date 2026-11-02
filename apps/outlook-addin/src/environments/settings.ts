@@ -1,11 +1,3 @@
-/**
- * BOOKING FLOW SETTINGS
- */
-const events: any = {
-    multiple_spaces: false,
-    can_book_for_others: false,
-    has_catering: true,
-};
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
 \*===========================*/
@@ -50,7 +42,6 @@ const app: any = {
         'help',
         'schedule',
     ],
-    events,
     space_display,
     explore,
     desks: {

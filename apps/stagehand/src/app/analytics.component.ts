@@ -1,9 +1,7 @@
-import { Component, inject, linkedSignal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, linkedSignal } from '@angular/core';
 import { AsyncHandler, settingSignal } from '@placeos/common';
 
 import { FormsModule } from '@angular/forms';
-import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
@@ -77,7 +75,6 @@ interface AnalyticsPage {
     `,
     styles: [``],
     imports: [
-        MatRippleModule,
         TranslatePipe,
         SafePipe,
         IconComponent,
@@ -85,13 +82,9 @@ interface AnalyticsPage {
         MatSelectModule,
         FormsModule,
         SidebarComponent,
-        FormsModule,
     ],
 })
 export class AnalyticsComponent extends AsyncHandler {
-    private _route = inject(ActivatedRoute);
-    private _router = inject(Router);
-
     public readonly analytics_pages = settingSignal<AnalyticsPage[]>(
         'analytics_pages',
         [],

@@ -1,10 +1,7 @@
 import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import {
-    TriggerConditionOperator,
-    TriggerTimeConditionType,
-} from '@placeos/ts-client';
+import { TriggerConditionOperator } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
 import {
@@ -16,21 +13,9 @@ import {
 describe('generateTriggerConditionForm', () => {
     it('should default to a compare condition with an empty status variable', () => {
         const value = generateTriggerConditionForm();
-        expect(value.condition_type).toBe('compare');
         expect(value.operator).toBe(TriggerConditionOperator.EQ);
         expect(value.left).toEqual({ mod: '', status: '', keys: [] });
         expect(value.right).toBe('');
-    });
-
-    it('should detect a time condition from the condition type', () => {
-        const value = generateTriggerConditionForm({
-            type: TriggerTimeConditionType.AT,
-            time: 10,
-        });
-        expect(value.condition_type).toBe('time');
-        expect(value.time_type).toBe(TriggerTimeConditionType.AT);
-        // stored seconds are converted to milliseconds
-        expect(value.time).toBe(10000);
     });
 
     it('should preserve an existing comparison condition', () => {
@@ -39,7 +24,6 @@ describe('generateTriggerConditionForm', () => {
             operator: TriggerConditionOperator.NEQ,
             right: true,
         });
-        expect(value.condition_type).toBe('compare');
         expect(value.left).toEqual({
             mod: 'Display_1',
             status: 'power',
@@ -149,7 +133,6 @@ describe('AlertConditionModalComponent', () => {
         spectator = build({ system: {}, alert });
         spectator.component.model.set({
             ...spectator.component.model(),
-            condition_type: 'compare',
             left: '"connected"',
             operator: TriggerConditionOperator.EQ,
             right: 'false',
@@ -178,7 +161,6 @@ describe('AlertConditionModalComponent', () => {
         spectator = build({ system: {}, alert, condition: existing });
         spectator.component.model.set({
             ...spectator.component.model(),
-            condition_type: 'compare',
             left: '"connected"',
             operator: TriggerConditionOperator.NEQ,
             right: 'true',
@@ -193,29 +175,6 @@ describe('AlertConditionModalComponent', () => {
             operator: TriggerConditionOperator.NEQ,
             right: true,
         });
-    });
-
-    it('should build a time-dependent condition on save', async () => {
-        const alert = base_alert();
-        spectator = build({ system: {}, alert });
-        spectator.component.model.set({
-            ...spectator.component.model(),
-            condition_type: 'time',
-            time_type: TriggerTimeConditionType.AT,
-            time: 5000,
-        });
-
-        await spectator.component.save();
-
-        expect(dialog_close).toHaveBeenCalledTimes(1);
-        const conditions = dialog_close.mock.calls[0][0];
-        expect(conditions.time_dependents).toHaveLength(1);
-        expect(conditions.time_dependents[0]).toEqual(
-            expect.objectContaining({
-                type: TriggerTimeConditionType.AT,
-                time: 5,
-            }),
-        );
     });
 
     it('should ignore save while an action is already loading', async () => {

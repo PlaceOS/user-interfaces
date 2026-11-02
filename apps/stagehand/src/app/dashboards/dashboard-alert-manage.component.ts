@@ -25,7 +25,6 @@ import {
     addAlert,
     TriggerComparison,
     TriggerConditions,
-    TriggerTimeCondition,
     updateAlert,
 } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -221,42 +220,6 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                         | translate
                                 "
                             ></simple-table>
-                            <!-- <simple-table
-                                class="block w-full min-w-lg text-sm"
-                                [data]="
-                                    model().conditions?.time_dependents || []
-                                "
-                                [columns]="[
-                                    {
-                                        key: 'time',
-                                        name:
-                                            'TRIGGERS.FIELD_TIME_DEPS'
-                                            | translate,
-                                        content: time_dep_template,
-                                    },
-                                    {
-                                        key: 'actions',
-                                        name: ' ',
-                                        size: '6rem',
-                                        sortable: false,
-                                        content: actions_template,
-                                    },
-                                ]"
-                                [sortable]="true"
-                                [empty_message]="
-                                    'TRIGGERS.CONDITION_TIME_EMPTY' | translate
-                                "
-                            ></simple-table> -->
-                            <ng-template #time_dep_template let-row="row">
-                                <div
-                                    class="mono flex items-center space-x-2 p-4 text-sm"
-                                >
-                                    {{ row.type === 'at' ? 'At time' : 'CRON' }}
-                                    {{
-                                        row.type === 'at' ? row.time : row.cron
-                                    }}
-                                </div>
-                            </ng-template>
                             <ng-template #comparison_template let-row="row">
                                 <div
                                     class="mono flex items-center space-x-4 p-4 text-xs"
@@ -402,24 +365,19 @@ export class DashboardAlertManageComponent
         if (loaded && dash) this.model.update((m) => ({ ...m, ...dash }));
     }
 
-    public removeCondition(
-        condition: TriggerComparison | TriggerTimeCondition = null,
-    ) {
+    public removeCondition(condition: TriggerComparison = null) {
         const old_conditions = this.model().conditions;
+        // Keep time dependents that saved alerts can still have
         const new_conditions: TriggerConditions = {
+            ...old_conditions,
             comparisons: old_conditions.comparisons.filter(
-                (_) => _ !== condition,
-            ),
-            time_dependents: old_conditions.time_dependents.filter(
                 (_) => _ !== condition,
             ),
         };
         this.model.update((m) => ({ ...m, conditions: new_conditions }));
     }
 
-    public async editCondition(
-        condition: TriggerComparison | TriggerTimeCondition = null,
-    ) {
+    public async editCondition(condition: TriggerComparison = null) {
         const system = this.template_system();
         if (!system) return;
         const ref = this._dialog.open(AlertConditionModalComponent, {

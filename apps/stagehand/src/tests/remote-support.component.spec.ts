@@ -167,7 +167,6 @@ describe('RemoteSupportComponent', () => {
             'al-1',
             'al-2',
         ]);
-        expect(spectator.component.critical_alerts()).toBe(1);
     });
 
     it('should filter rooms by the selected state', () => {

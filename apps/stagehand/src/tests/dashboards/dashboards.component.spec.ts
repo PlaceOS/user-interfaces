@@ -51,22 +51,6 @@ describe('DashboardsComponent', () => {
         ).toBeTruthy();
     });
 
-    it('should show the back navigation on the view page', () => {
-        spectator.component.page.set('view');
-        spectator.detectChanges();
-
-        expect(
-            spectator.query('a[aria-label="Back to dashboards"]'),
-        ).toBeTruthy();
-    });
-
-    it('should hide the add action while viewing a dashboard', () => {
-        spectator.component.page.set('view');
-        spectator.detectChanges();
-
-        expect(spectator.query('a[btn]')).toBeFalsy();
-    });
-
     it('should show the add action on the listing and alerts pages', () => {
         spectator.component.page.set('dashboards');
         spectator.detectChanges();

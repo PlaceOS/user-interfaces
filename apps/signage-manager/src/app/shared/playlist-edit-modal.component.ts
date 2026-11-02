@@ -26,12 +26,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
-import {
-    addSignagePlaylist,
-    MediaAnimation,
-    SignagePlaylist,
-    updateSignagePlaylist,
-} from '@placeos/ts-client';
+import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { playlistAnimation } from '../signage-playlist.util';
 import {
@@ -48,7 +43,9 @@ export interface PlaylistEditModalData {
     playlist: SignagePlaylist;
     /** Signage group the playlist is being viewed from */
     group_id?: string;
+    /** Saves a new playlist. Set when the modal opens without a playlist ID. */
     onAdd?: (data: Partial<SignagePlaylist>) => Promise<SignagePlaylist>;
+    /** Saves an existing playlist. Set when the playlist has an ID. */
     onEdit?: (
         id: string,
         data: Partial<SignagePlaylist>,
@@ -485,13 +482,9 @@ export class PlaylistEditModalComponent {
             try {
                 let result: SignagePlaylist;
                 if (this.playlist.id) {
-                    result = this._data.onEdit
-                        ? await this._data.onEdit(this.playlist.id, data)
-                        : await updateSignagePlaylist(this.playlist.id, data);
+                    result = await this._data.onEdit(this.playlist.id, data);
                 } else {
-                    result = this._data.onAdd
-                        ? await this._data.onAdd(data)
-                        : await addSignagePlaylist(data);
+                    result = await this._data.onAdd(data);
                 }
                 this._dialog_ref.disableClose = false;
                 this._dialog_ref.close(result);

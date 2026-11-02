@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -82,7 +81,6 @@ import { SidebarComponent } from './ui/sidebar.component';
                     id="stagehand-page-content"
                     class="bg-base-200 w-full flex-1 overflow-auto"
                 >
-                    <!-- @if (dashboard()) { -->
                     <div
                         class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3"
                     >
@@ -194,30 +192,6 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     </mat-select>
                                 </mat-form-field>
                             </div>
-                            <!-- <mat-form-field
-                                appearance="outline"
-                                class="no-subscript flex-1 bg-base-100"
-                            >
-                                <mat-select
-                                    placeholder="All Statuses"
-                                    [ngModel]="status()"
-                                    (ngModelChange)="status.set($event)"
-                                >
-                                    <mat-option value=""
-                                        >All Statuses</mat-option
-                                    >
-                                    <mat-option value="open">Open</mat-option>
-                                    <mat-option value="in progress"
-                                        >In Progress</mat-option
-                                    >
-                                    <mat-option value="resolved"
-                                        >Resolved</mat-option
-                                    >
-                                    <mat-option value="closed"
-                                        >Closed</mat-option
-                                    >
-                                </mat-select>
-                            </mat-form-field> -->
                             <div class="flex-1">
                                 <mat-form-field
                                     appearance="outline"
@@ -403,35 +377,9 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 >
                                     <icon class="text-2xl">build</icon>
                                 </a>
-                                <!-- <a
-                                    icon
-                                    matRipple
-                                    [href]="service_link()"
-                                    target="_blank"
-                                    ref="noopener noreferrer"
-                                    class="rounded-sm"
-                                    matTooltip="Raise Ticket"
-                                >
-                                    <icon class="text-2xl"
-                                        >person_raised_hand</icon
-                                    >
-                                </a> -->
                             </div>
                         </ng-template>
                     </div>
-                    <!-- } @else {
-                        <div
-                            class="flex h-full w-full flex-col items-center justify-center space-y-4 p-12 opacity-30"
-                        >
-                            <icon class="text-8xl">arrow_warm_up</icon>
-                            <p>
-                                {{
-                                    'Select an alerts dashboard from above'
-                                        | translate
-                                }}
-                            </p>
-                        </div>
-                    } -->
                 </main>
             </div>
         </div>
@@ -439,7 +387,6 @@ import { SidebarComponent } from './ui/sidebar.component';
     styles: [``],
     imports: [
         CommonModule,
-        MatMenuModule,
         MatRippleModule,
         SimpleTableComponent,
         IconComponent,
@@ -529,12 +476,6 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     public readonly dashboard = signal(null);
     public readonly dashboards = this._dashboards.dashboard_list.asReadonly();
 
-    public readonly info_alerts = computed(
-        () =>
-            this.alert_list().filter(
-                (a) => a.severity === 'medium' || a.severity === 'low',
-            ).length,
-    );
     public readonly critical_alerts = computed(
         () => this.alert_list().filter((a) => a.severity === 'critical').length,
     );
@@ -562,10 +503,6 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     public readonly backoffice_link = settingSignal(
         'backoffice_link',
         `${location.origin}/backoffice/`,
-    );
-    public readonly service_link = settingSignal(
-        'service_link',
-        `${location.origin}/control/`,
     );
 
     public ngOnInit() {

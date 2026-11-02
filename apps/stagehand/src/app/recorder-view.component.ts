@@ -66,7 +66,6 @@ interface RecorderStreamMetadata {
 export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
 
-    public readonly time = signal(Date.now());
     public readonly images = signal([]);
     public domain = '';
     public api_path = '';
@@ -108,7 +107,6 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
     }
 
     public refresh() {
-        this.time.set(Date.now());
         const image_list = [];
         for (const image of this.image_data) {
             const { name, ip_address, id } = image;

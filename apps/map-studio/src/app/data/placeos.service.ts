@@ -395,10 +395,6 @@ export class PlaceOSService {
             : details.updated_at;
     }
 
-    public async getLevelSvg(level_id: string): Promise<string | null> {
-        return (await this.getLevelMap(level_id))?.svg ?? null;
-    }
-
     /** The level's current `map_id` and its SVG; null when the level has no map. */
     public async getLevelMap(
         level_id: string,

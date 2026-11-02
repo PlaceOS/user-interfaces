@@ -1207,8 +1207,7 @@ export class CanvasComponent {
     public isPolygonEditable(object: MapObject) {
         return (
             object.id === this.state.selected_id() &&
-            this.state.active_tool() === 'select' &&
-            this.state.mode() === 'design'
+            this.state.active_tool() === 'select'
         );
     }
 

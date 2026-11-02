@@ -18,7 +18,6 @@ import {
     setTranslationService,
     setupCache,
     setupPlace,
-    UploadsService,
     userSignal,
     withTimeout,
 } from '@placeos/common';
@@ -62,7 +61,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _cache = inject(SwUpdate);
     private _snackbar = lazySnackbar();
     private _locales = inject(LocaleService);
-    private _uploads = inject(UploadsService);
     private _current_user = userSignal();
     private _internal_user_domain = computed(() => {
         const email = this._current_user()?.email || '';
@@ -73,7 +71,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
         );
     });
 
-    public readonly title = 'outlook-addin';
     private _mocks_registered = false;
     /** Read before startup, so later URL changes cannot drop it */
     private _naa_client_id = naaClientId();
@@ -119,7 +116,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
             }
         }
         await this._finishInitialise();
-        if (this._settings.get('app.has_uploads')) this._uploads.init();
     }
 
     private async _initialiseAuth(local = true): Promise<boolean> {

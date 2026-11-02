@@ -286,7 +286,9 @@ describe('PlaceOSService', () => {
         await expect(service.getActiveOrganisation()).resolves.toEqual({
             id: 'org-2',
         });
-        await expect(service.getLevelSvg('level-1')).resolves.toContain('<svg');
+        await expect(service.getLevelMap('level-1')).resolves.toMatchObject({
+            svg: expect.stringContaining('<svg'),
+        });
 
         const [, options] = calls.find(([url]) =>
             url.endsWith('/maps/level-1.svg'),
@@ -300,7 +302,9 @@ describe('PlaceOSService', () => {
         const calls = stubFetch(true);
         await service.init();
 
-        await expect(service.getLevelSvg('level-2')).resolves.toContain('<svg');
+        await expect(service.getLevelMap('level-2')).resolves.toMatchObject({
+            svg: expect.stringContaining('<svg'),
+        });
 
         const [url, options] = calls[calls.length - 1];
         expect(url).toBe('http://other.example/map.svg');

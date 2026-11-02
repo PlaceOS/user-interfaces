@@ -73,20 +73,6 @@ describe('AlertNotificationService', () => {
         expect(JSON.parse(localStorage.getItem(STORAGE_KEY)).high).toBe(true);
     });
 
-    it('should replace the whole config via setConfig and persist it', () => {
-        build();
-        const next = {
-            critical: false,
-            high: true,
-            medium: true,
-            low: true,
-        };
-        service.setConfig(next);
-
-        expect(service.config()).toEqual(next);
-        expect(JSON.parse(localStorage.getItem(STORAGE_KEY))).toEqual(next);
-    });
-
     it('should never notify while notifications are disabled', () => {
         build();
         // permission is not granted -> enabled() is false
@@ -97,7 +83,7 @@ describe('AlertNotificationService', () => {
     it('should notify only for enabled severities once enabled', () => {
         build();
         service.permission.set('granted');
-        service.setConfig({
+        service.config.set({
             critical: true,
             high: false,
             medium: false,
@@ -112,7 +98,7 @@ describe('AlertNotificationService', () => {
         build();
         service.permission.set('granted');
         const notify = vi.spyOn(service, 'notify').mockReturnValue({} as any);
-        service.setConfig({
+        service.config.set({
             critical: false,
             high: false,
             medium: false,
@@ -156,7 +142,7 @@ describe('AlertNotificationService', () => {
         build();
         service.permission.set('granted');
         const notify = vi.spyOn(service, 'notify').mockReturnValue({} as any);
-        service.setConfig({
+        service.config.set({
             critical: false,
             high: true,
             medium: false,

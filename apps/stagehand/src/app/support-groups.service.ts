@@ -18,7 +18,6 @@ import {
     showZone,
 } from '@placeos/ts-client';
 import {
-    groupHierarchy,
     GroupScope,
     groupScope,
     queryAll,
@@ -108,8 +107,6 @@ export async function loadGroupScope(group_id: string): Promise<GroupScope> {
     providedIn: 'root',
 })
 export class SupportGroupsService {
-    private readonly _groups_change = signal(0);
-
     public readonly current_user = userSignal();
     public readonly is_sys_admin = computed(() => {
         const user: Partial<Pick<PlaceUser, 'groups' | 'sys_admin'>> =
@@ -143,7 +140,6 @@ export class SupportGroupsService {
                 ? {
                       email: this.current_user()?.email || '',
                       view_all: this.can_view_all(),
-                      change: this._groups_change(),
                   }
                 : undefined,
         loader: async ({ params }) => {
@@ -190,13 +186,6 @@ export class SupportGroupsService {
     public readonly selected_group = computed(() =>
         this.groups().find(
             ({ group }) => group.id === this.selected_group_id(),
-        ),
-    );
-    /** Selected group and its ancestors, root first */
-    public readonly selected_hierarchy = computed(() =>
-        groupHierarchy(
-            this.selected_group()?.group,
-            this.groups().map(({ group }) => group),
         ),
     );
     /** ID of the selected group, empty for "All groups" */
@@ -251,11 +240,6 @@ export class SupportGroupsService {
             );
         });
         effect(() => persistSelectedGroupId(this.selected_group_id()));
-    }
-
-    /** Load the groups again */
-    public reloadGroups() {
-        this._groups_change.update((count) => count + 1);
     }
 
     /** Switch group. An empty ID picks "All groups", for those allowed it. */

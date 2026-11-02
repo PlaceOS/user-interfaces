@@ -24,7 +24,7 @@ import { DashboardsService } from './dashboards.service';
                 <header
                     class="border-base-400 bg-base-100 flex h-18 w-full items-center space-x-2 p-4"
                 >
-                    @if (page() === 'alerts' || page() === 'view') {
+                    @if (page() === 'alerts') {
                         <a
                             icon
                             matRipple
@@ -42,9 +42,7 @@ import { DashboardsService } from './dashboards.service';
                         {{
                             (page() === 'alerts'
                                 ? 'APP.STAGEHAND.DASHBOARD_ALERTS_HEADER'
-                                : page() === 'view'
-                                  ? dashboard()?.name
-                                  : 'APP.STAGEHAND.DASHBOARD_HEADER'
+                                : 'APP.STAGEHAND.DASHBOARD_HEADER'
                             ) | translate
                         }}
                     </h1>
@@ -56,20 +54,12 @@ import { DashboardsService } from './dashboards.service';
                         </div>
                     }
                     <div class="w-px flex-1"></div>
-                    @if (page() !== 'view') {
-                        <a
-                            btn
-                            matRipple
-                            class="w-40"
-                            [routerLink]="new_route()"
-                            >{{
-                                (page() === 'alerts'
-                                    ? 'APP.STAGEHAND.DASHBOARD_ALERTS_ADD'
-                                    : 'APP.STAGEHAND.DASHBOARD_ADD'
-                                ) | translate
-                            }}</a
-                        >
-                    }
+                    <a btn matRipple class="w-40" [routerLink]="new_route()">{{
+                        (page() === 'alerts'
+                            ? 'APP.STAGEHAND.DASHBOARD_ALERTS_ADD'
+                            : 'APP.STAGEHAND.DASHBOARD_ADD'
+                        ) | translate
+                    }}</a>
                 </header>
                 <main
                     id="stagehand-page-content"
@@ -118,9 +108,7 @@ export class DashboardsComponent extends AsyncHandler implements OnInit {
                 this.page.set(
                     this._router.url.includes('/alerts')
                         ? 'alerts'
-                        : this._router.url.includes('/view')
-                          ? 'view'
-                          : 'dashboards',
+                        : 'dashboards',
                 );
             },
             50,

@@ -87,13 +87,6 @@ export const routes: Routes = [
                         (m) => m.DashboardManageComponent,
                     ),
             },
-            {
-                path: 'view/:id',
-                loadComponent: () =>
-                    import('./dashboards/dashboard-view.component').then(
-                        (m) => m.DashboardViewComponent,
-                    ),
-            },
             { path: '**', redirectTo: 'list' },
         ],
     },

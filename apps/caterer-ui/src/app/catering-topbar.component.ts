@@ -181,7 +181,6 @@ import { DateOptionsComponent } from '@placeos/form-fields';
             @if (page() !== 'menu') {
                 <div class="w-2 flex-1"></div>
             }
-            <!-- <searchbar class="mr-2"></searchbar> -->
             @if (page() !== 'menu') {
                 <date-options (dateChange)="setDate($event)"></date-options>
             }
@@ -365,7 +364,6 @@ export class CateringTopbarComponent extends AsyncHandler {
             const params = this._query_param_map();
             if (params.has('zone_ids')) {
                 const zones = params.get('zone_ids').split(',');
-                if (!zones.length) return;
                 const level = this._org.levelWithID(zones);
                 this.zones.set(zones);
                 if (!level) return;

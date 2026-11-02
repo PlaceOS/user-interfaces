@@ -80,11 +80,6 @@ import {
                     background-color: #424242;
                     border-color: #888;
                 }
-
-                input {
-                    border-color: #666;
-                    color: #fff;
-                }
             }
         `,
     ],
