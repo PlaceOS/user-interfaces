@@ -4,12 +4,12 @@ import {
 import {
   generateMockSpace,
   setInternalUserDomain
-} from "./chunk-BGXL3CAB.js";
+} from "./chunk-POH5D2OW.js";
 import {
   setHours,
   subDays
 } from "./chunk-GMRF6SS2.js";
-import "./chunk-G64IZZK2.js";
+import "./chunk-6G7TZWO6.js";
 import {
   TranslatePipe
 } from "./chunk-XNDE36BK.js";
@@ -43,7 +43,7 @@ import {
   setupPlace,
   userSignal,
   user_groups_loaded
-} from "./chunk-TSX27MPB.js";
+} from "./chunk-5BEUNBHR.js";
 import {
   AsyncHandler,
   Bp,
@@ -524,7 +524,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-5LTHK77H.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-TE555S5T.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -649,7 +649,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-5LTHK77H.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-TE555S5T.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -8791,7 +8791,7 @@ async function authority() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-3G6INTHL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-J7NAP44Z.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -9005,7 +9005,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-3G6INTHL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-J7NAP44Z.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9042,7 +9042,7 @@ var routes = [
   },
   {
     path: "find",
-    loadComponent: () => import("./find-space.component-ZI532X5L.js").then((m) => m.FindSpaceComponent)
+    loadComponent: () => import("./find-space.component-JKKZVVEG.js").then((m) => m.FindSpaceComponent)
   },
   {
     path: "",
@@ -9051,48 +9051,48 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-PQJV43LW.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-KTI3R5EA.js").then((m) => m.CalendarPaneComponent)
       },
       {
         path: "book",
         children: [
           {
             path: "spaces",
-            loadComponent: () => import("./room-booking.component-MXSBDKXC.js").then((m) => m.RoomBookingComponent)
+            loadComponent: () => import("./room-booking.component-OWFOIRGI.js").then((m) => m.RoomBookingComponent)
           },
           {
             path: "spaces/success",
-            loadComponent: () => import("./booking-confirmed.component-Z2KC7XN3.js").then((m) => m.BookingConfirmedComponent)
+            loadComponent: () => import("./booking-confirmed.component-QKRVOKOZ.js").then((m) => m.BookingConfirmedComponent)
           },
           {
             path: "meeting",
-            loadComponent: () => import("./meeting-booking.component-42FHKF2X.js").then((m) => m.MeetingBookingComponent)
+            loadComponent: () => import("./meeting-booking.component-76Q7T5FX.js").then((m) => m.MeetingBookingComponent)
           },
           {
             path: "meeting/success",
-            loadComponent: () => import("./meeting-success.component-VL4QNBBC.js").then((m) => m.MeetingBookingSuccessComponent)
+            loadComponent: () => import("./meeting-success.component-H7OOHJT3.js").then((m) => m.MeetingBookingSuccessComponent)
           },
           {
             path: "desks",
-            loadComponent: () => import("./desk-booking.component-V5RS7V6A.js").then((m) => m.DeskBookingComponent)
+            loadComponent: () => import("./desk-booking.component-2INJWWCO.js").then((m) => m.DeskBookingComponent)
           },
           {
             path: "desks/success",
-            loadComponent: () => import("./desk-success.component-O2KJOCNG.js").then((m) => m.DeskBookingSuccessComponent)
+            loadComponent: () => import("./desk-success.component-B5PSYOFI.js").then((m) => m.DeskBookingSuccessComponent)
           }
         ]
       },
       {
         path: "schedule/view",
-        loadComponent: () => import("./find-space.component-ZI532X5L.js").then((m) => m.FindSpaceComponent)
+        loadComponent: () => import("./find-space.component-JKKZVVEG.js").then((m) => m.FindSpaceComponent)
       },
       {
         path: "confirm/success",
-        loadComponent: () => import("./booking-confirmed.component-Z2KC7XN3.js").then((m) => m.BookingConfirmedComponent)
+        loadComponent: () => import("./booking-confirmed.component-QKRVOKOZ.js").then((m) => m.BookingConfirmedComponent)
       },
       {
         path: "upcoming",
-        loadComponent: () => import("./upcoming-bookings.component-FDBMFZD5.js").then((m) => m.UpcomingBookingsComponent)
+        loadComponent: () => import("./upcoming-bookings.component-CWZBBAPE.js").then((m) => m.UpcomingBookingsComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
