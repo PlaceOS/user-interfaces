@@ -62,6 +62,10 @@ All notable changes to this project will be documented in this file.
 - Keep virtual table position on data refresh
 - Remove active content from map SVGs before measuring
 
+#### Components,visitor-kiosk,workplace
+
+- Fix setup screen and idle reset review issues
+
 #### Concierge
 
 - PROJ-1902 align parking request edit form

@@ -8,11 +8,11 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-UZFHTD54.js";
+} from "./chunk-JCMFQ3ZE.js";
 import "./chunk-2ORIRUQS.js";
 import {
   TranslatePipe
-} from "./chunk-FN4AM65K.js";
+} from "./chunk-6UU4CXOR.js";
 import {
   AsyncHandler,
   Bp,
@@ -61,7 +61,7 @@ import {
   toDate,
   unique,
   user_groups_loaded
-} from "./chunk-APKVUPZW.js";
+} from "./chunk-7AN7DZT4.js";
 import {
   IconComponent
 } from "./chunk-YWE57PEN.js";
@@ -741,15 +741,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-RYWDOGEF.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-FMLBWU3P.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-FTSJMIME.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-OD53OBW4.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-UBVYZNLA.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-I77OWJUI.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -984,11 +984,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-RYWDOGEF.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-FMLBWU3P.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-FTSJMIME.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-OD53OBW4.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-UBVYZNLA.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-I77OWJUI.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -8963,7 +8963,7 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-3RVH7VLT.js").then((m) => m.ChatComponent)
+  import("./chat.component-SRLYVNYC.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -9015,7 +9015,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-3RVH7VLT.js").then((m) => m.ChatComponent)
+    import("./chat.component-SRLYVNYC.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9051,7 +9051,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-2YKJSBFA.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-XCX5IIBI.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
