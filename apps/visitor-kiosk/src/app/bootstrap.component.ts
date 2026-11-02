@@ -1,31 +1,31 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
     AsyncHandler,
-    Building,
-    BuildingLevel,
-    Identity,
     isPublicMode,
     OrganisationService,
-    Region,
     SettingsService,
     VERSION,
 } from '@placeos/common';
-
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatRippleModule } from '@angular/material/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import {
-    AnnounceDirective,
+    clearKioskLocation,
+    hasKioskLocation,
+    KioskLocation,
+    KioskLocationPickerComponent,
+    saveKioskLocation,
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
 import { PageHeadingDirective } from './components/page-heading.directive';
 
+/**
+ * Setup screen that picks the location the visitor kiosk shows.
+ * `?level=` saves that level at once, `?clear=true` removes the saved
+ * setup, `?osk=` turns the on-screen keyboard on or off and
+ * `?action=preferences` opens the check-in preferences.
+ */
 @Component({
     selector: '[bootstrap]',
     template: `
@@ -49,320 +49,7 @@ import { PageHeadingDirective } from './components/page-heading.directive';
                         </div>
                     </div>
                 </header>
-                @if (!loading()) {
-                    <div class="flex flex-col space-y-2 px-4">
-                        @if (regions().length > 1) {
-                            <label id="bootstrap-region-label">
-                                {{
-                                    'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
-                                        | translate
-                                }}
-                            </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript"
-                            >
-                                <mat-select
-                                    aria-labelledby="bootstrap-region-label"
-                                    #select
-                                    building
-                                    [(ngModel)]="active_region"
-                                    (ngModelChange)="setRegion($event)"
-                                    [placeholder]="
-                                        'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
-                                            | translate
-                                    "
-                                >
-                                    <mat-select-trigger>
-                                        <div
-                                            class="flex items-center space-x-4"
-                                        >
-                                            <div class="flex-1 truncate">
-                                                {{
-                                                    active_region()
-                                                        ?.display_name ||
-                                                        active_region()?.name
-                                                }}
-                                            </div>
-                                            <div
-                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
-                                            >
-                                                {{ active_region()?.id }}
-                                            </div>
-                                        </div>
-                                    </mat-select-trigger>
-                                    @for (option of regions(); track option) {
-                                        <mat-option [value]="option">
-                                            <div class="leading-tight">
-                                                <div>
-                                                    {{
-                                                        option.display_name ||
-                                                            option.name
-                                                    }}
-                                                </div>
-                                                <div
-                                                    class="font-mono text-[0.625rem] opacity-70"
-                                                >
-                                                    <span class="hidden"
-                                                        >&nbsp;[</span
-                                                    >{{ option.id
-                                                    }}<span class="hidden"
-                                                        >]</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                        @if (buildings().length) {
-                            <label id="bootstrap-building-label">
-                                {{
-                                    'APP.VISITOR_KIOSK.SELECT_BUILDING_MSG'
-                                        | translate
-                                }}
-                            </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript"
-                            >
-                                <mat-select
-                                    aria-labelledby="bootstrap-building-label"
-                                    #select
-                                    building
-                                    [(ngModel)]="active_building"
-                                    (ngModelChange)="setBuilding($event)"
-                                    [placeholder]="
-                                        'APP.VISITOR_KIOSK.SELECT_BUILDING'
-                                            | translate
-                                    "
-                                >
-                                    <mat-select-trigger>
-                                        <div
-                                            class="flex items-center space-x-4"
-                                        >
-                                            <div class="flex-1 truncate">
-                                                {{
-                                                    active_building()
-                                                        ?.display_name ||
-                                                        active_building()?.name
-                                                }}
-                                            </div>
-                                            <div
-                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
-                                            >
-                                                {{ active_building()?.id }}
-                                            </div>
-                                        </div>
-                                    </mat-select-trigger>
-                                    @for (option of buildings(); track option) {
-                                        <mat-option [value]="option">
-                                            <div class="leading-tight">
-                                                <div>
-                                                    {{
-                                                        option.display_name ||
-                                                            option.name
-                                                    }}
-                                                </div>
-                                                <div
-                                                    class="font-mono text-[0.625rem] opacity-70"
-                                                >
-                                                    <span class="hidden"
-                                                        >&nbsp;[</span
-                                                    >{{ option.id
-                                                    }}<span class="hidden"
-                                                        >]</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                        @if (levels().length && active_building()) {
-                            <div></div>
-                            <label id="bootstrap-level-label">
-                                {{
-                                    'APP.VISITOR_KIOSK.SELECT_LEVEL_MSG'
-                                        | translate
-                                }}
-                            </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript"
-                            >
-                                <mat-select
-                                    aria-labelledby="bootstrap-level-label"
-                                    #select
-                                    level
-                                    [(ngModel)]="active_level"
-                                    [placeholder]="
-                                        'APP.VISITOR_KIOSK.SELECT_LEVEL'
-                                            | translate
-                                    "
-                                >
-                                    <mat-select-trigger>
-                                        <div
-                                            class="flex items-center space-x-4"
-                                        >
-                                            <div class="flex-1 truncate">
-                                                {{
-                                                    active_level()
-                                                        ?.display_name ||
-                                                        active_level()?.name
-                                                }}
-                                            </div>
-                                            <div
-                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
-                                            >
-                                                {{ active_level()?.id }}
-                                            </div>
-                                        </div>
-                                    </mat-select-trigger>
-                                    @for (option of levels(); track option) {
-                                        <mat-option [value]="option">
-                                            <div class="leading-tight">
-                                                <div>
-                                                    {{
-                                                        option.display_name ||
-                                                            option.name
-                                                    }}
-                                                </div>
-                                                <div
-                                                    class="font-mono text-[0.625rem] opacity-70"
-                                                >
-                                                    <span class="hidden"
-                                                        >&nbsp;[</span
-                                                    >{{ option.id
-                                                    }}<span class="hidden"
-                                                        >]</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                        @if (rotations().length) {
-                            <div></div>
-                            <label id="bootstrap-orientation-label">
-                                {{
-                                    'APP.VISITOR_KIOSK.SELECT_ORIENTATION_MSG'
-                                        | translate
-                                }}
-                            </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript"
-                            >
-                                <mat-select
-                                    aria-labelledby="bootstrap-orientation-label"
-                                    #select
-                                    [(ngModel)]="active_rotation"
-                                    [placeholder]="
-                                        'APP.VISITOR_KIOSK.SELECT_ORIENTATION'
-                                            | translate
-                                    "
-                                >
-                                    @for (option of rotations(); track option) {
-                                        <mat-option [value]="option">
-                                            <div class="leading-tight">
-                                                <div>
-                                                    {{
-                                                        option.display_name ||
-                                                            option.name
-                                                    }}
-                                                </div>
-                                                <div
-                                                    class="font-mono text-[0.625rem] opacity-70"
-                                                >
-                                                    <span class="hidden"
-                                                        >&nbsp;[</span
-                                                    >{{ option.id
-                                                    }}<span class="hidden"
-                                                        >]</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                        @if (locations().length) {
-                            <div></div>
-                            <label id="bootstrap-location-label">
-                                {{
-                                    'APP.VISITOR_KIOSK.SELECT_LOCATION_MSG'
-                                        | translate
-                                }}
-                            </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript"
-                            >
-                                <mat-select
-                                    aria-labelledby="bootstrap-location-label"
-                                    #select
-                                    [(ngModel)]="active_location"
-                                    [placeholder]="
-                                        'APP.VISITOR_KIOSK.SELECT_LOCATION'
-                                            | translate
-                                    "
-                                >
-                                    @for (option of locations(); track option) {
-                                        <mat-option [value]="option">
-                                            <div class="leading-tight">
-                                                <div>
-                                                    {{
-                                                        option.display_name ||
-                                                            option.name
-                                                    }}
-                                                </div>
-                                                <div
-                                                    class="font-mono text-[0.625rem] opacity-70"
-                                                >
-                                                    <span class="hidden"
-                                                        >&nbsp;[</span
-                                                    >{{ option.id
-                                                    }}<span class="hidden"
-                                                        >]</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                    </div>
-                } @else {
-                    <div class="m-auto flex flex-col items-center p-8">
-                        <mat-spinner
-                            [diameter]="32"
-                            aria-hidden="true"
-                        ></mat-spinner>
-                        <p announce>{{ loading() }}</p>
-                    </div>
-                }
-                @if (!loading()) {
-                    <div
-                        class="border-base-300 mt-4! flex w-full items-center justify-end border-t px-4 py-2"
-                    >
-                        <button
-                            btn
-                            matRipple
-                            class="w-32"
-                            [disabled]="!active_building() && !active_level()"
-                            (click)="bootstrapKiosk()"
-                        >
-                            Finish Setup
-                        </button>
-                    </div>
-                }
+                <kiosk-location-picker (submitted)="bootstrapKiosk($event)" />
             </div>
             <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
                 <div class="text-xs opacity-70">
@@ -391,27 +78,11 @@ import { PageHeadingDirective } from './components/page-heading.directive';
             }
         </div>
     `,
-    styles: [
-        `
-            mat-form-field {
-                width: 100%;
-            }
-
-            label {
-                padding-top: 1rem;
-            }
-        `,
-    ],
     imports: [
         PageHeadingDirective,
-        AnnounceDirective,
-        CommonModule,
-        MatRippleModule,
+        DatePipe,
+        KioskLocationPickerComponent,
         TranslatePipe,
-        MatProgressSpinnerModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        FormsModule,
     ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
@@ -420,61 +91,16 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _startup_action = '';
+    private _last_query_params = '';
 
     public get version() {
         return VERSION;
     }
 
-    /** Loading state of the bootstrap */
-    public readonly loading = signal('');
-    /** Actively selected building */
-    public readonly active_region = signal<Region | null>(null);
-    /** Actively selected building */
-    public readonly active_building = signal<Building | null>(null);
-    /** Actively selected level */
-    public readonly active_level = signal<BuildingLevel | null>(null);
-    /** Actively selected level */
-    public readonly active_rotation = signal<Identity | null>(null);
-    /** Actively selected location */
-    public readonly active_location = signal<Identity | null>(null);
-
-    public readonly rotations = signal<Identity[]>([]);
-    private _last_query_params = '';
-
-    public readonly regions = this._org.region_list;
-    public readonly buildings = this._org.active_buildings;
-    public readonly levels = this._org.active_levels;
     public readonly is_public_mode = isPublicMode;
-
-    public setRegion(region: Region) {
-        this._org.region = region;
-        this.active_region.set(region);
-        this.active_building.set(null);
-        this.active_level.set(null);
-        this.active_location.set(null);
-        this.updateRotations();
-    }
-
-    public setBuilding(building: Building) {
-        this._org.building = building;
-        this.active_building.set(building);
-        this.active_level.set(null);
-        this.active_location.set(null);
-        this.updateRotations();
-    }
-
-    /** List of available locations */
-    public readonly locations = computed((): readonly Identity[] => {
-        const active_level = this.active_level();
-        if (!active_level) {
-            return [];
-        }
-        return active_level.locations || [];
-    });
 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
-        this.active_region.set(this._org.region);
         // Emits the current params at once, then on each later change
         this.subscription(
             'query_params',
@@ -483,85 +109,27 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         this.checkBootstrap();
     }
 
-    public updateRotations() {
-        this.rotations.set([]);
-        const active_building = this.active_building();
-        if (!active_building) {
-            this.active_rotation.set(null);
-            return;
-        }
-        const orientations = active_building.orientations;
-        const rotations: Identity[] = [];
-        for (const key in orientations) {
-            if (orientations[key]) {
-                rotations.push({
-                    id: key,
-                    name: `${key.split('_').join(' ')} (${
-                        orientations[key] * 90
-                    }°)`,
-                    value: orientations[key],
-                });
-            }
-        }
-        this.rotations.set(rotations);
-        this.active_rotation.set(rotations[0] || null);
-    }
-
     /**
      * Store bootstrapped values and navigate to the main page
      */
-    public bootstrapKiosk() {
-        this.loading.set('Bootstrapping application...');
-        const active_level = this.active_level();
-        const active_building = this.active_building();
-        const active_rotation = this.active_rotation();
-        const active_location = this.active_location();
-        if (active_level) {
-            if (localStorage) {
-                localStorage.setItem(
-                    'KIOSK.building',
-                    active_building?.id || active_level.parent_id,
-                );
-                localStorage.setItem('KIOSK.level', active_level.id);
-                if (active_rotation) {
-                    localStorage.setItem(
-                        'KIOSK.orientation',
-                        `${active_rotation.id}`,
-                    );
-                } else localStorage.removeItem('KIOSK.orientation');
-                if (active_location) {
-                    localStorage.setItem(
-                        'KIOSK.location',
-                        `${active_location.id}`,
-                    );
-                } else localStorage.removeItem('KIOSK.location');
-            }
-            this.navigateToStartupRoute();
-        }
-        this.loading.set('');
+    public bootstrapKiosk(kiosk: KioskLocation) {
+        saveKioskLocation(kiosk);
+        this.navigateToStartupRoute();
     }
 
     /**
      * Check for any existing bootstrapped values
      */
     private checkBootstrap() {
-        this.loading.set('Checking for existing parameters...');
         if (this._startup_action === 'preferences') {
             this.navigateToStartupRoute();
-            this.loading.set('');
             return;
         }
-        if (localStorage) {
-            const building_id = localStorage.getItem('KIOSK.building');
-            const level_id = localStorage.getItem('KIOSK.level');
-            if (building_id && level_id) {
-                this._router.navigate(this.getStartupRoute());
-            }
+        if (hasKioskLocation()) {
+            this._router.navigate(this.getStartupRoute());
         }
-
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
-        this.loading.set('');
     }
 
     private getStartupRoute() {
@@ -595,17 +163,16 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             const osk_enabled = query_params.osk === 'true';
             localStorage.setItem('OSK.enabled', `${osk_enabled}`);
         }
-        if (query_params.clear === 'true') {
-            localStorage.removeItem('KIOSK.building');
-            localStorage.removeItem('KIOSK.level');
-            localStorage.removeItem('KIOSK.orientation');
-            localStorage.removeItem('KIOSK.location');
-        }
+        if (query_params.clear === 'true') clearKioskLocation();
         if (query_params.level) {
             const level = this._org.levelWithID([query_params.level]);
             if (level) {
-                this.active_level.set(level);
-                this.bootstrapKiosk();
+                this.bootstrapKiosk({
+                    building: null,
+                    level,
+                    orientation: null,
+                    location: null,
+                });
             }
         }
     }

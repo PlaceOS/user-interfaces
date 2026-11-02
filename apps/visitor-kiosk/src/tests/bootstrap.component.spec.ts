@@ -1,7 +1,4 @@
 import { signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import {
     createRoutingFactory,
@@ -45,74 +42,12 @@ describe('BootstrapComponent', () => {
             }),
             MockProvider(SettingsService, { get: vi.fn() }),
         ],
-        imports: [MatFormFieldModule, MatSelectModule, FormsModule],
     });
 
     beforeEach(() => {
         window.PLACEOS_PUBLIC_MODE = false;
         localStorage.clear();
         spectator = createComponent();
-    });
-
-    it('should allow selecting level', async () => {
-        expect('[level]').not.toExist();
-        expect('mat-select').toHaveLength(1);
-        spectator.click('[building]');
-        spectator.click(document.querySelector('mat-option'));
-        spectator.detectChanges();
-
-        expect(spectator.component.active_building()?.id).toBe('1');
-        expect(spectator.component.active_level()).toBeFalsy();
-        expect(spectator.component.levels().length).toBe(2);
-        expect('[level]').toExist();
-        spectator.click('[level]');
-        spectator.click(document.querySelector('mat-option'));
-        spectator.detectChanges();
-        expect(spectator.component.active_level()).toBeTruthy();
-    });
-
-    it('should handling bootstrapping', () => {
-        vi.spyOn(Storage.prototype, 'setItem');
-        expect(localStorage.setItem).not.toHaveBeenCalled();
-        spectator.component.bootstrapKiosk();
-        expect(localStorage.setItem).not.toHaveBeenCalled();
-        spectator.component.active_building.set(new Building({ id: 'bld-1' }));
-        spectator.component.bootstrapKiosk();
-        expect(localStorage.setItem).not.toHaveBeenCalled();
-        spectator.component.active_level.set(
-            new BuildingLevel({ id: 'lvl-1' }),
-        );
-        spectator.component.bootstrapKiosk();
-        expect(localStorage.setItem).toHaveBeenCalledWith(
-            'KIOSK.building',
-            'bld-1',
-        );
-        expect(localStorage.setItem).toHaveBeenCalledWith(
-            'KIOSK.level',
-            'lvl-1',
-        );
-        expect(localStorage.setItem).not.toHaveBeenCalledWith(
-            'KIOSK.orientation',
-            '90',
-        );
-        expect(localStorage.setItem).not.toHaveBeenCalledWith(
-            'KIOSK.location',
-            'kiosk-1',
-        );
-        spectator.component.active_rotation.set({ id: '90', name: '' });
-        spectator.component.active_location.set({
-            id: 'kiosk-1',
-            name: 'South West',
-        });
-        spectator.component.bootstrapKiosk();
-        expect(localStorage.setItem).toHaveBeenCalledWith(
-            'KIOSK.orientation',
-            '90',
-        );
-        expect(localStorage.setItem).toHaveBeenCalledWith(
-            'KIOSK.location',
-            'kiosk-1',
-        );
     });
 
     it('should handle clearing bootstrap details', () => {
@@ -131,13 +66,14 @@ describe('BootstrapComponent', () => {
         const router = spectator.inject(Router);
         spectator.setRouteQueryParam('action', 'preferences');
         spectator.setRouteQueryParam('token', 'abc.123');
-        spectator.component.active_building.set(new Building({ id: 'bld-1' }));
-        spectator.component.active_level.set(
-            new BuildingLevel({ id: 'lvl-1' }),
-        );
         spectator.detectChanges();
 
-        spectator.component.bootstrapKiosk();
+        spectator.component.bootstrapKiosk({
+            building: new Building({ id: 'bld-1' }),
+            level: new BuildingLevel({ id: 'lvl-1' }),
+            orientation: null,
+            location: null,
+        });
 
         expect(router.navigate).toHaveBeenCalledWith(
             ['/checkin', 'preferences'],
