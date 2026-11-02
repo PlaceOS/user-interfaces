@@ -19,10 +19,9 @@
  * The listing queries a single local day, defaulting to today. `?date=<ms>` is
  * NOT honoured on this route: the component actually rendered
  * (`DesksComponent`) reads only `zone_ids` from the query and returns early
- * without it. The `date` parameter is handled by `desks-topbar.component.ts`,
- * which is referenced only by unit tests and is not on this route. So the specs
- * book for TODAY, and the date is stepped with the arrow controls when a test
- * needs another day.
+ * without it, and nothing on this route reads the `date` parameter. So the
+ * specs book for TODAY, and the date is stepped with the arrow controls when a
+ * test needs another day.
  *
  * ## It filters by the BUILDING zone
  *
