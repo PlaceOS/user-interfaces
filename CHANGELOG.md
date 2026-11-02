@@ -82,6 +82,10 @@ All notable changes to this project will be documented in this file.
 
 - Update Sentry to 11 and keep its data collection unchanged
 
+#### Desks
+
+- Keep desk data on CSV import and find desks across the org
+
 #### Events
 
 - Fix saving room data (PROJ-1918)
