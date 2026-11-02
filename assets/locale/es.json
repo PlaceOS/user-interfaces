@@ -894,6 +894,7 @@
             "CHAT_ASSISTANT": "Asistente",
             "CHAT_WAITING": "Esperando una respuesta...",
             "CHAT_MESSAGE_PLACEHOLDER": "Nuevo mensaje...",
+            "CHAT_SEND_FAILED": "No se pudo enviar el mensaje. El asistente no está disponible.",
             "DEAL_COUNT_1": "{{ count }} Oferta",
             "DEAL_COUNT": "{{ count }} Ofertas",
             "SORT_BY_DATE_DESC": "Ordenar por Fecha (Más Reciente Primero)",
