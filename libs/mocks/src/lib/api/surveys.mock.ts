@@ -579,7 +579,6 @@ export const MOCK_ANSWERS: SurveyAnswer[] = [
 export function registerMockSurveys() {
     registerMockEndpoint({
         path: '/api/staff/v1/surveys',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const { query_params } = request;
@@ -612,7 +611,6 @@ export function registerMockSurveys() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/surveys/questions',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const { query_params } = request;
@@ -655,7 +653,6 @@ export function registerMockSurveys() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/surveys/questions/:id',
-        metadata: {},
         method: 'GET',
         delay: 50,
         delay_variance: 10,
@@ -675,7 +672,6 @@ export function registerMockSurveys() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/surveys/answers',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const { query_params } = request;
@@ -710,7 +706,6 @@ export function registerMockSurveys() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/surveys/answers/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const answerId = parseInt(request.route_params?.id as string);
@@ -726,7 +721,6 @@ export function registerMockSurveys() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/surveys/:id',
-        metadata: {},
         method: 'GET',
         delay: 50,
         delay_variance: 10,
@@ -745,7 +739,6 @@ export function registerMockSurveys() {
     // POST endpoint for submitting survey answers
     registerMockEndpoint({
         path: '/api/staff/v1/surveys/answers',
-        metadata: {},
         method: 'POST',
         delay: 50,
         delay_variance: 10,
@@ -774,10 +767,3 @@ export function registerMockSurveys() {
         },
     });
 }
-
-// Re-export for mocks.ts compatibility
-export const SURVEY_MOCKS = {
-    MOCK_SURVEYS,
-    MOCK_QUESTIONS,
-    MOCK_ANSWERS,
-};

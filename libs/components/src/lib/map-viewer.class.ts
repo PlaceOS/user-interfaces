@@ -6,7 +6,7 @@ import {
 } from '@placeos/common';
 import { apiKey, authority, token } from '@placeos/ts-client';
 
-import { setAuthCookie } from './authenticated-image.pipe';
+import { setAuthCookie } from './authenticated-image';
 
 export interface MapDetails {
     raw_data: string;

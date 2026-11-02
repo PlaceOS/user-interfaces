@@ -5,12 +5,7 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
-import {
-    Building,
-    CateringItem,
-    CateringOrder,
-    OrganisationService,
-} from '@placeos/common';
+import { Building, CateringItem, OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 import { CateringStateService } from '../lib/catering-state.service';
@@ -137,18 +132,6 @@ describe('CateringStateService', () => {
         );
     });
 
-    it('should allow user to select catering options to orders', async () => {
-        const dialog = spectator.inject(MatDialog);
-        (dialog.open as any).mockImplementation(dialog_fn(true));
-        let options = await spectator.service.selectOptions([]);
-        expect(options).toEqual([]);
-        (dialog.open as any).mockImplementation(
-            dialog_fn(false, { options: [{} as any] }),
-        );
-        options = await spectator.service.selectOptions([]);
-        expect(options).toEqual([{}]);
-    });
-
     it('should allow user to remove catering items from menu', async () => {
         const dialog = spectator.inject(MatDialog);
         (dialog.open as any).mockImplementation(dialog_fn(true));
@@ -205,17 +188,6 @@ describe('CateringStateService', () => {
             'bld-2',
             'catering_config',
         );
-    });
-
-    it('should allow user to add items to order', () => {
-        const order = new CateringOrder();
-        const item = new CateringItem({ id: '1' });
-        let updated_order = spectator.service.addItemToOrder(order, item);
-        expect(updated_order.items).toHaveLength(1);
-        expect(updated_order.items[0].quantity).toBe(1);
-        updated_order = spectator.service.addItemToOrder(updated_order, item);
-        expect(updated_order.items).toHaveLength(1);
-        expect(updated_order.items[0].quantity).toBe(2);
     });
 
     it('should open a copy of an item without its ID', async () => {

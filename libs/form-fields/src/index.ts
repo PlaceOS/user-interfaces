@@ -1,4 +1,3 @@
-export * from './lib/action-field.component';
 export * from './lib/counter.component';
 export * from './lib/date-calendar.component';
 export * from './lib/date-field.component';

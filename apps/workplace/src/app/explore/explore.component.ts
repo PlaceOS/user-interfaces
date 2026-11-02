@@ -1,13 +1,11 @@
 import {
     Component,
-    OnInit,
     computed,
     effect,
     inject,
     linkedSignal,
 } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DesksService } from '@placeos/bookings';
 import { AsyncHandler, MINUTES, OrganisationService } from '@placeos/common';
 import { IconComponent, LevelPipe, TranslatePipe } from '@placeos/components';
 import { ExploreMapViewComponent, ExploreStateService } from '@placeos/explore';
@@ -119,8 +117,7 @@ export function msUntilMinuteChange(now: number, targets: number[]) {
         MatTooltipModule,
     ],
 })
-export class ExploreComponent extends AsyncHandler implements OnInit {
-    private _desks = inject(DesksService);
+export class ExploreComponent extends AsyncHandler {
     private _landing = inject(LandingStateService);
     private _explore = inject(ExploreStateService);
     private _org = inject(OrganisationService);
@@ -169,10 +166,6 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
             if (delay === null) return this.clearTimeout('time');
             this.timeout('time', () => this._time.set(Date.now()), delay);
         });
-    }
-
-    public ngOnInit() {
-        this._desks.error_on_host = false;
     }
 
     public pinEvent() {

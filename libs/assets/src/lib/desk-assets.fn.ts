@@ -1,17 +1,10 @@
-import { Desk, flatten } from '@placeos/common';
+import { Desk } from '@placeos/common';
+import { PlaceAsset, PlaceZone, removeAsset } from '@placeos/ts-client';
 import {
-    PlaceAsset,
-    PlaceZone,
-    queryAssetCategories,
-    queryAssetTypes,
-    removeAsset,
-} from '@placeos/ts-client';
-import {
-    findOldestByName,
-    queryAllAssetPages,
+    queryTypeAssetsForZones,
+    queryTypeAssetsInZone,
+    resolveHiddenAssetTypeId,
     saveAsset,
-    saveAssetCategory,
-    saveAssetType,
 } from './assets.fn';
 
 const DESK_CATEGORY_NAME = '_DESKS_';
@@ -20,63 +13,22 @@ const DESK_TYPE_NAME = '_DESKS_';
 type DeskZone = Pick<PlaceZone, 'id'> &
     Partial<Pick<PlaceZone, 'name' | 'display_name' | 'parent_id' | 'map_id'>>;
 
-let _desk_type_id: string | null = null;
-let _desk_type_id_promise: Promise<string> | null = null;
-
-async function bootstrap_desk_type(): Promise<string> {
-    let category = findOldestByName(
-        await queryAssetCategories({ hidden: true, limit: 500 }).then(
-            (response) => response.data,
-        ),
-        DESK_CATEGORY_NAME,
-    );
-    if (!category) {
-        category = await saveAssetCategory({
-            name: DESK_CATEGORY_NAME,
-            hidden: true,
-        });
-    }
-    let type = findOldestByName(
-        await queryAssetTypes({
-            category_id: category.id,
-            limit: 500,
-        }).then((response) => response.data),
-        DESK_TYPE_NAME,
-    );
-    if (!type) {
-        type = await saveAssetType({
-            name: DESK_TYPE_NAME,
-            brand: 'PlaceOS',
-            category_id: category.id,
-        });
-    }
-    return type.id;
-}
-
 /** Resolve the hidden asset type used for desk resources. */
 export function resolveDeskTypeId(): Promise<string> {
-    if (_desk_type_id) return Promise.resolve(_desk_type_id);
-    if (!_desk_type_id_promise) {
-        _desk_type_id_promise = bootstrap_desk_type().then(
-            (id) => {
-                _desk_type_id = id;
-                return id;
-            },
-            (error) => {
-                // allow a later call to retry, e.g. after a network error
-                _desk_type_id_promise = null;
-                throw error;
-            },
-        );
-    }
-    return _desk_type_id_promise;
+    return resolveHiddenAssetTypeId(DESK_CATEGORY_NAME, DESK_TYPE_NAME);
 }
 
 /** Query desk assets for one level. */
 export async function queryDeskAssets(zone_id: string): Promise<PlaceAsset[]> {
-    const type_id = await resolveDeskTypeId();
-    const response = await queryAllAssetPages({ zone_id, type_id });
-    return response.data;
+    return queryDeskAssetsForZones([zone_id]);
+}
+
+/** Query desk assets for multiple levels. */
+export async function queryDeskAssetsForZones(
+    zone_ids: string[],
+): Promise<PlaceAsset[]> {
+    if (!zone_ids.length) return [];
+    return queryTypeAssetsForZones(await resolveDeskTypeId(), zone_ids);
 }
 
 /**
@@ -88,25 +40,7 @@ export async function queryDeskAssetsInZone(
 ): Promise<PlaceAsset[]> {
     // an empty `zones` filter is not a scope, e.g. the building is not loaded
     if (!zone_id) return [];
-    const type_id = await resolveDeskTypeId();
-    const response = await queryAllAssetPages({ zones: zone_id, type_id });
-    return response.data;
-}
-
-/** Query desk assets for multiple levels. */
-export async function queryDeskAssetsForZones(
-    zone_ids: string[],
-): Promise<PlaceAsset[]> {
-    if (!zone_ids.length) return [];
-    const type_id = await resolveDeskTypeId();
-    const results = await Promise.all(
-        zone_ids.map((zone_id) =>
-            queryAllAssetPages({ zone_id, type_id }).then(
-                (response) => response.data,
-            ),
-        ),
-    );
-    return flatten(results);
+    return queryTypeAssetsInZone(await resolveDeskTypeId(), zone_id);
 }
 
 /**
@@ -123,6 +57,19 @@ export function findDeskByLegacyId<
         desks.find((desk) => desk.place_id === id) ||
         desks.find((desk) => desk.map_id === id)
     );
+}
+
+/**
+ * Find the desk asset within a building, region or org for an id from a link,
+ * check-in code or favourite. Matches like `findDeskByLegacyId`.
+ */
+export async function queryDeskAssetByLegacyId(
+    zone_id: string,
+    id: string,
+): Promise<PlaceAsset | undefined> {
+    const assets = await queryDeskAssetsInZone(zone_id);
+    const desks = assets.map((asset) => deskFromAsset(asset));
+    return assets[desks.indexOf(findDeskByLegacyId(desks, id))];
 }
 
 /**

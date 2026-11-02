@@ -14,22 +14,9 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
-import {
-    addMinutes,
-    endOfDay,
-    endOfMinute,
-    getUnixTime,
-    startOfDay,
-    startOfMinute,
-} from 'date-fns';
-import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
-import { updateAssetGroupList } from './asset-group.pipe';
+import { addMinutes, endOfMinute, getUnixTime, startOfMinute } from 'date-fns';
 import { assetAvailable, getAssetRulesForZone } from './asset.utilities';
-import {
-    queryAssetCategories,
-    queryAssets,
-    queryGroupAvailability,
-} from './assets.fn';
+import { queryAssetCategories, queryGroupAvailability } from './assets.fn';
 
 export interface AssetOptions {
     zone?: string;
@@ -62,18 +49,20 @@ export class AssetStateService {
     private _category = signal<string[]>([]);
     private _loading = signal<string>('');
     private _rules = signal([]);
-    private _asset_list = signal<any>(null);
-    private _asset_bookings = signal<any[]>([]);
     private _available_groups = signal<AssetGroup[]>([]);
     private _category_list = signal<any[]>([]);
     private _settings = signal<Record<string, any>>({});
     private _network_requested = false;
     private _network_consumed = signal(false);
-    private _asset_list_request: Promise<unknown> = null;
     private _category_list_request: Promise<unknown> = null;
-    private _booking_requests = new Map<string, Promise<unknown[]>>();
-    private _available_group_requests = new Map<string, Promise<AssetGroup[]>>();
-    private _settings_requests = new Map<string, Promise<Record<string, unknown>>>();
+    private _available_group_requests = new Map<
+        string,
+        Promise<AssetGroup[]>
+    >();
+    private _settings_requests = new Map<
+        string,
+        Promise<Record<string, unknown>>
+    >();
 
     private readonly _options_debounced = debounced(this._options, 300, {
         injector: this._injector,
@@ -98,14 +87,6 @@ export class AssetStateService {
     public readonly rules = computed(() => {
         this._requestNetwork();
         return this._rules();
-    });
-    public readonly asset_list = computed(() => {
-        this._requestNetwork();
-        return this._asset_list();
-    });
-    public readonly asset_bookings = computed(() => {
-        this._requestNetwork();
-        return this._asset_bookings();
     });
     public readonly available_groups = computed(() => {
         this._requestNetwork();
@@ -151,8 +132,6 @@ export class AssetStateService {
             if (!this._requests_ready() || !bld?.id || !options) return;
             untracked(() => {
                 this._loadRules(options, bld.id);
-                this._loadAssetList();
-                this._loadAssetBookings(options);
                 this._loadAvailableGroups(options, bld.id);
                 this._loadSettings(bld.id);
                 this._loadCategories();
@@ -221,38 +200,6 @@ export class AssetStateService {
         this._removeLoading('[Rules]');
     }
 
-    private async _loadAssetList() {
-        if (this._asset_list_request) return this._asset_list_request;
-        this._appendLoading('[Assets]');
-        this._asset_list_request = queryAssets()
-            .then((list) => {
-                this._asset_list.set(list);
-                return list;
-            })
-            .finally(() => {
-                this._asset_list_request = null;
-                this._removeLoading('[Assets]');
-            });
-        return this._asset_list_request;
-    }
-
-    private async _loadAssetBookings({ zone, zone_id, date }: AssetOptions) {
-        const query = {
-            zones: zone || zone_id || '',
-            period_start: getUnixTime(startOfDay(date)),
-            period_end: getUnixTime(endOfDay(date)),
-            type: 'asset-request' as const,
-        };
-        const key = JSON.stringify(query);
-        const existing = this._booking_requests.get(key);
-        this._appendLoading('[Bookings]');
-        const request = existing || queryBookings(query);
-        if (!existing) this._booking_requests.set(key, request);
-        this._asset_bookings.set(await request);
-        request.finally(() => this._booking_requests.delete(key));
-        this._removeLoading('[Bookings]');
-    }
-
     private async _loadAvailableGroups(
         { zone, zone_id, date, duration, ignore }: AssetOptions,
         building_id: string,
@@ -275,10 +222,11 @@ export class AssetStateService {
                 return [] as AssetGroup[];
             });
         if (!existing) this._available_group_requests.set(key, request);
+        this._appendLoading('[Availability]');
         const list = await request;
+        this._removeLoading('[Availability]');
         request.finally(() => this._available_group_requests.delete(key));
         const sorted_list = list.sort((a, b) => a.name.localeCompare(b.name));
-        updateAssetGroupList(sorted_list);
         this._available_groups.set(sorted_list);
     }
 

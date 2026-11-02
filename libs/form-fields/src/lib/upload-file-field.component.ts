@@ -1,18 +1,11 @@
-import { Component, forwardRef, signal } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import {
-    Attachment,
-    randomInt,
-    UPLOAD_PERMISSIONS_MODAL,
-} from '@placeos/common';
-import { takeWhile } from 'rxjs/operators';
+import { Component, signal } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
+import { Attachment, provideValueAccessor } from '@placeos/common';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { uploadFiles } from '@placeos/cloud-uploads';
-import * as blobUtil from 'blob-util';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
+import { uploadAttachment } from './upload-attachment';
 
 @Component({
     selector: 'upload-file',
@@ -79,17 +72,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
         </div>
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => UploadFileFieldComponent),
-            multi: true,
-        },
-        {
-            provide: UPLOAD_PERMISSIONS_MODAL,
-            useValue: UploadPermissionsModalComponent,
-        },
-    ],
+    providers: [provideValueAccessor(() => UploadFileFieldComponent)],
     imports: [MatProgressSpinnerModule, IconComponent, TranslatePipe],
 })
 export class UploadFileFieldComponent implements ControlValueAccessor {
@@ -124,35 +107,6 @@ export class UploadFileFieldComponent implements ControlValueAccessor {
         /* istanbul ignore else */
         if (!element?.files?.length) return;
         const files: FileList = element.files;
-        this._uploadFile(files[0], (item) => this.setValue(item));
-    }
-
-    private _uploadFile(file: File, on_change: (item: Attachment) => void) {
-        const fileReader = new FileReader();
-        fileReader.addEventListener('loadend', (e: any) => {
-            const arrayBuffer = e.target.result;
-            const blob = blobUtil.arrayBufferToBlob(arrayBuffer, file.type);
-            const upload_list = uploadFiles([blob], { file_name: file.name });
-            const upload = upload_list[0];
-            const upload_details: Attachment = {
-                id: `${randomInt(9999_9999_9999)}`,
-                name: file.name,
-                progress: 0,
-                size: file.size,
-                created_at: Date.now(),
-                url: '',
-            };
-            upload.status
-                .pipe(takeWhile((_) => _.status !== 'complete', true))
-                .subscribe((state) => {
-                    if (upload.access_url)
-                        upload_details.url = upload.access_url;
-                    upload_details.progress = state.progress;
-                    if (state.status === 'error') upload_details.progress = -1;
-                    on_change(upload_details);
-                });
-            on_change(upload_details);
-        });
-        fileReader.readAsArrayBuffer(file);
+        uploadAttachment(files[0], (item) => this.setValue(item));
     }
 }

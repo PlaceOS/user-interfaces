@@ -7,14 +7,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
-    csvToJson,
     Desk,
     i18n,
     loadTextFileFromInputEvent,
     notifyError,
     notifySuccess,
     OrganisationService,
-    randomInt,
     settingSignal,
     SettingsService,
 } from '@placeos/common';
@@ -386,13 +384,7 @@ export class DesksManageComponent extends AsyncHandler {
             throw e;
         });
         try {
-            const list = csvToJson(data) || [];
-            this._state.addDesks(
-                list.map((_) => ({
-                    ..._,
-                    id: _.id || `desk-${randomInt(999_999)}`,
-                })),
-            );
+            this._state.importDesksCsv(data);
         } catch (e) {
             console.error(e);
         }

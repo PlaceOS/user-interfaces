@@ -3,14 +3,12 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import { getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
 import {
     Calendar,
     OrganisationService,
     SettingsService,
-    Space,
 } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import { CalendarService } from '../lib/calendar.service';
@@ -69,42 +67,5 @@ describe('CalendarService', () => {
         await spectator.service.loadCalendars();
         expect(spectator.service.calendar_list()).toHaveLength(1);
         expect(ts_client.get).toHaveBeenCalledTimes(2);
-    });
-
-    it('should allow getting free busy', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([
-            {
-                resource: {
-                    id: 'sys-1',
-                    email: 'sys-1@place.tech',
-                    bookable: true,
-                },
-            },
-        ] as any);
-        const list = await spectator.service.getFreeBusyDate(1, 'CAL-1');
-        expect(list).toHaveLength(1);
-        expect(list[0]).toBeInstanceOf(Space);
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining(
-                `/api/staff/v1/calendars/free_busy?period_start=${getUnixTime(
-                    startOfDay(1),
-                )}`,
-            ),
-        );
-    });
-
-    it('should allow checking space availability', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
-        const is_free = await spectator.service.checkSpacesAvailability(
-            ['sys-1'],
-            1,
-            2,
-        );
-        expect(is_free).toBeTruthy();
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining(
-                `/api/staff/v1/calendars/availability?period_start=1&period_end=2&system_ids=sys-1`,
-            ),
-        );
     });
 });

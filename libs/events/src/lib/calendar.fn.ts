@@ -39,14 +39,6 @@ const calendarsToSpaces = (list: Calendar[], org?: OrganisationService) =>
         )
         .filter((space) => space.bookable);
 
-/** List available spaces based on the given query */
-export async function querySpaceCalendarAvailability(
-    q: CalendarAvailabilityQueryParams,
-    org?: OrganisationService,
-): Promise<Space[]> {
-    return calendarsToSpaces(await queryCalendarAvailability(q), org);
-}
-
 export async function queryUserFreeBusy(
     q: CalendarAvailabilityQueryParams,
 ): Promise<Calendar[]> {

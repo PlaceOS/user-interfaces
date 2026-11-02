@@ -13,7 +13,7 @@
  * Both type names come from `libs/assets/src/lib/locker-assets.fn.ts`, and the
  * category is HIDDEN — unlike the equipment seeder, where a hidden category
  * would make the assets invisible. Lockers are read through
- * `queryLockerBankAssets` / `queryLockerAssets`, which resolve the type id
+ * `queryLockerBankAssetsForZones` / `queryLockerAssets`, which resolve the type id
  * themselves rather than going through the visible-asset filter, so hidden is
  * correct here and copying the equipment seeder's `hidden: false` would put
  * locker banks into the general asset list.

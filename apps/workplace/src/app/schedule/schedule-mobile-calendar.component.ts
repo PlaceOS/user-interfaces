@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, forwardRef, OnInit, signal } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, OnInit, signal } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
 import { MatRipple } from '@angular/material/core';
 import { IconComponent } from '@placeos/components';
 import {
@@ -13,6 +13,7 @@ import {
     startOfMonth,
     startOfWeek,
 } from 'date-fns';
+import { provideValueAccessor } from '@placeos/common';
 
 @Component({
     selector: 'schedule-mobile-calendar',
@@ -74,11 +75,7 @@ import {
     `,
     styles: [``],
     providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ScheduleMobileCalendarComponent),
-            multi: true,
-        },
+        provideValueAccessor(() => ScheduleMobileCalendarComponent),
     ],
     imports: [CommonModule, MatRipple, IconComponent],
 })

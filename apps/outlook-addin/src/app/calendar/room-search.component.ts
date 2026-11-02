@@ -22,6 +22,7 @@ import {
     settingSignal,
     SettingsService,
     Space,
+    toggleListItem,
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -528,10 +529,7 @@ export class RoomSearchComponent {
     }
 
     public toggleFavourite(space: Space) {
-        const list = this.favourites();
-        const next = list.includes(space.id)
-            ? list.filter((_) => _ !== space.id)
-            : [...list, space.id];
+        const next = toggleListItem(this.favourites(), space.id);
         this._favourites.set(next);
         this._settings.saveUserSetting('favourite_spaces', next);
     }

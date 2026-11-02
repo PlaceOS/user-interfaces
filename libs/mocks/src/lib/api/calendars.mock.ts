@@ -9,7 +9,6 @@ import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 export function registerMockCalendars() {
     registerMockEndpoint({
         path: '/api/staff/v1/calendars',
-        metadata: {},
         method: 'GET',
         callback: (_request) => {
             const user = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
@@ -89,7 +88,6 @@ export function registerMockCalendars() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/calendars/availability',
-        metadata: {},
         method: 'GET',
         callback: (request) =>
             handleSpaceAvailability(request).map((_) => ({
@@ -99,7 +97,6 @@ export function registerMockCalendars() {
 
     registerMockEndpoint({
         path: '/api/staff/v1/calendars/free_busy',
-        metadata: {},
         method: 'GET',
         callback: (request) =>
             handleSpaceAvailability(request).map((_) => ({

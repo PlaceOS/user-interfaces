@@ -1,13 +1,17 @@
 import { Component, computed, inject, Signal, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { AssetGroup, isMobileSafari, SettingsService } from '@placeos/common';
+import {
+    AssetGroup,
+    isMobileSafari,
+    SettingsService,
+    toggleListItem,
+} from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { AssetStateService } from '../asset-state.service';
 import { AssetDetailsComponent } from './asset-details.component';
-import { AssetFiltersDisplayComponent } from './asset-filters-display.component';
 import { AssetFiltersComponent } from './asset-filters.component';
 import { AssetListComponent } from './asset-list.component';
 
@@ -49,7 +53,6 @@ const EMPTY_FAVS: string[] = [];
                     [class.sm:hidden]="displayed()"
                     [class.md:block]="!displayed()"
                 >
-                    <asset-filters-display></asset-filters-display>
                     <asset-list
                         [selected]="selected_ids()"
                         [favorites]="favorites()"
@@ -141,7 +144,6 @@ const EMPTY_FAVS: string[] = [];
         AssetListComponent,
         AssetDetailsComponent,
         AssetFiltersComponent,
-        AssetFiltersDisplayComponent,
     ],
 })
 export class AssetSelectModalComponent {
@@ -214,30 +216,11 @@ export class AssetSelectModalComponent {
         this.selected.set([...list]);
     }
 
-    public updateSelectedCount(count: number) {
-        const displayed = this.displayed();
-        if (!displayed) return;
-        const item = this.selected().find((_) => _.id === displayed.id);
-        if (item) {
-            item.quantity = count;
-            item.assets = displayed.assets;
-        }
-    }
-
     public toggleFavourite(asset: AssetGroup | null) {
         if (!asset) return;
-        const fav_list = this.favorites();
-        const new_state = !fav_list.includes(asset.id);
-        if (new_state) {
-            this._settings.saveUserSetting('favourite_assets', [
-                ...fav_list,
-                asset.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                'favourite_assets',
-                fav_list.filter((_) => _ !== asset.id),
-            );
-        }
+        this._settings.saveUserSetting(
+            'favourite_assets',
+            toggleListItem(this.favorites(), asset.id),
+        );
     }
 }

@@ -14,7 +14,6 @@ import {
     AbstractControl,
     ControlValueAccessor,
     NG_VALIDATORS,
-    NG_VALUE_ACCESSOR,
     ValidationErrors,
     Validator,
 } from '@angular/forms';
@@ -24,6 +23,7 @@ import {
     formatDuration,
     getTimeInTimezone,
     getTimezoneOffsetString,
+    provideValueAccessor,
 } from '@placeos/common';
 import { addMinutes, differenceInMinutes, format, set } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -37,7 +37,7 @@ export interface DurationOption {
 @Component({
     selector: 'a-duration-field,duration-field',
     template: `
-        @if (allow_end_time() && time() != null && !force()) {
+        @if (allow_end_time() && time() != null) {
             <div
                 class="border-neutral flex h-12 w-full items-center rounded-sm border"
                 [class.opacity-30]="disabled() || no_options()"
@@ -130,34 +130,29 @@ export interface DurationOption {
                     (click)="setValue(option.id); touch()"
                 >
                     <div class="flex items-center justify-between">
-                        @if (!force()) {
-                            <div class="flex flex-col leading-tight">
-                                <div class="truncate">
+                        <div class="flex flex-col leading-tight">
+                            <div class="truncate">
+                                {{
+                                    option.date
+                                        ? (option.date
+                                              | date
+                                                  : (option.id >= 24 * 60
+                                                        ? 'mediumDate'
+                                                        : time_format())) + ' ('
+                                        : ''
+                                }}{{ option.name }}{{ option.date ? ')' : '' }}
+                            </div>
+                            @if (timezone() && tz()) {
+                                <div class="truncate text-xs opacity-30">
                                     {{
                                         option.date
-                                            ? (option.date
-                                                  | date
-                                                      : (option.id >= 24 * 60
-                                                            ? 'mediumDate'
-                                                            : time_format())) +
-                                              ' ('
-                                            : ''
-                                    }}{{ option.name
-                                    }}{{ option.date ? ')' : '' }}
+                                            | date
+                                                : time_format() + ' (z)'
+                                                : tz()
+                                    }}
                                 </div>
-                                @if (timezone() && tz()) {
-                                    <div class="truncate text-xs opacity-30">
-                                        {{
-                                            option.date
-                                                | date
-                                                    : time_format() + ' (z)'
-                                                    : tz()
-                                        }}
-                                    </div>
-                                }
-                            </div>
-                        }
-                        <div>{{ force() }}</div>
+                            }
+                        </div>
                         @if (selected()?.id === option.id) {
                             <icon class="ml-2 text-2xl"> done </icon>
                         }
@@ -187,11 +182,7 @@ export interface DurationOption {
         `,
     ],
     providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => DurationFieldComponent),
-            multi: true,
-        },
+        provideValueAccessor(() => DurationFieldComponent),
         {
             provide: NG_VALIDATORS,
             useExisting: forwardRef(() => DurationFieldComponent),
@@ -216,7 +207,6 @@ export class DurationFieldComponent
     /** Special case prepopulation i.e. out of step options */
     public readonly custom_options = input<number[]>([]);
     /** Force the display duration value */
-    public readonly force = input<string>(undefined);
     /** Whether to use 24 hour time when formatting displayed time */
     public readonly use_24hr = input(false);
     /** Display extra information for displayed times for timezone */

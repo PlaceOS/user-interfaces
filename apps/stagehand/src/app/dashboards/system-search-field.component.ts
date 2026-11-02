@@ -2,7 +2,6 @@ import {
     Component,
     ElementRef,
     effect,
-    forwardRef,
     inject,
     input,
     model,
@@ -12,11 +11,7 @@ import {
     SimpleChanges,
     viewChild,
 } from '@angular/core';
-import {
-    ControlValueAccessor,
-    FormsModule,
-    NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { ControlValueAccessor, FormsModule } from '@angular/forms';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
 
 import { CommonModule } from '@angular/common';
@@ -24,7 +19,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, provideValueAccessor } from '@placeos/common';
 import { inGroupScope } from '../support-groups';
 import { SupportGroupsService } from '../support-groups.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -170,11 +165,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         `,
     ],
     providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => SystemSearchFieldComponent),
-            multi: true,
-        },
+        provideValueAccessor(() => SystemSearchFieldComponent),
     ],
     imports: [
         CommonModule,

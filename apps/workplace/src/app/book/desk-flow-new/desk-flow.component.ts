@@ -12,7 +12,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
     deskFromAsset,
     findDeskByLegacyId,
-    queryDeskAssetsInZone,
+    queryDeskAssetByLegacyId,
 } from '@placeos/assets';
 import {
     BookingAsset,
@@ -374,12 +374,10 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     private async _findDeskAssetFromBuildings(
         asset_id: string,
     ): Promise<BookingAsset | null> {
-        const assets = await queryDeskAssetsInZone(
+        const asset = await queryDeskAssetByLegacyId(
             this._org.organisation?.id,
-        ).catch(() => []);
-        const desks = assets.map((asset) => deskFromAsset(asset));
-        const asset =
-            assets[desks.indexOf(findDeskByLegacyId(desks, asset_id))];
+            asset_id,
+        ).catch(() => undefined);
         if (!asset) return null;
         await this._org.loadBuildingsForZones([asset.zones || []]);
         const level = (this._org.levels || []).find(

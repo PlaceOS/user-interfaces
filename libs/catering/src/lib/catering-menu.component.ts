@@ -5,7 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CateringItem, OrganisationService, unique } from '@placeos/common';
+import { CateringItem, unique } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
@@ -243,7 +243,6 @@ import { CateringStateService } from './catering-state.service';
 export class CateringMenuComponent {
     private _catering = inject(CateringStateService);
     private _orders = inject(CateringOrdersService);
-    private _org = inject(OrganisationService);
 
     public readonly currency_code = this._catering.currency;
 
