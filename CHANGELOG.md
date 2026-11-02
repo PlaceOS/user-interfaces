@@ -88,6 +88,10 @@ All notable changes to this project will be documented in this file.
 
 - Update Sentry to 11 and keep its data collection unchanged
 
+#### Desks
+
+- Keep desk data on CSV import and find desks across the org
+
 #### Enrolment
 
 - Read internal_user_domain after domain overrides
