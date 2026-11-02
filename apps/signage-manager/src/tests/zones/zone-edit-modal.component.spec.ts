@@ -56,8 +56,10 @@ describe('ZoneEditModalComponent', () => {
         component.selected_parent.set(null);
         TestBed.tick();
         component.zone_list.search.set('lobby');
-        await new Promise((resolve) => setTimeout(resolve, 450));
-        expect(query_zones).toHaveBeenCalledWith('lobby', '');
+        // wait out the search debounce, slow under parallel test load
+        await vi.waitFor(() =>
+            expect(query_zones).toHaveBeenCalledWith('lobby', ''),
+        );
     });
 
     it('creates a zone under the supplied default parent', async () => {
