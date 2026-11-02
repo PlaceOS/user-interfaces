@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/visitor-kiosk/src/app/components/page-heading.directive.ts"
+  ],
+  "sourcesContent": [
+    "import { afterNextRender, Directive, ElementRef, inject } from '@angular/core';\n\n/**\n * Put on the main heading of each kiosk step. When the heading renders and\n * no element has focus, the heading gets focus, so screen readers read the\n * new step. This also covers steps that show a loading state first.\n */\n@Directive({\n    selector: '[pageHeading]',\n    host: { tabindex: '-1' },\n})\nexport class PageHeadingDirective {\n    constructor() {\n        const el = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;\n        afterNextRender(() => {\n            const active = document.activeElement;\n            if (active && active !== document.body) return;\n            el.focus({ preventScroll: true });\n        });\n    }\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;AAWM,IAAO,uBAAP,MAAO,sBAAoB;EAC7B,cAAA;AACI,UAAM,KAAK,OAAgC,UAAU,EAAE;AACvD,oBAAgB,MAAK;AACjB,YAAM,SAAS,SAAS;AACxB,UAAI,UAAU,WAAW,SAAS;AAAM;AACxC,SAAG,MAAM,EAAE,eAAe,KAAI,CAAE;IACpC,CAAC;EACL;;;uCARS,uBAAoB;IAAA;EAAA;;yEAApB,uBAAoB,WAAA,CAAA,CAAA,IAAA,eAAA,EAAA,CAAA,GAAA,WAAA,CAAA,YAAA,IAAA,EAAA,CAAA;EAAA;;;sEAApB,sBAAoB,CAAA;UAJhC;WAAU;MACP,UAAU;MACV,MAAM,EAAE,UAAU,KAAI;KACzB;;;",
+  "names": [],
+  "debugId": "c8ec7824-3548-55a1-921b-27d0293a461b"
+}
