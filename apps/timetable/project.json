@@ -126,7 +126,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/timetable"],
             "options": {
                 "tsConfig": "apps/timetable/tsconfig.spec.json",
-                "setupFiles": ["apps/timetable/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/timetable/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "timetable:test-build:development"

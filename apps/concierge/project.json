@@ -126,7 +126,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/concierge"],
             "options": {
                 "tsConfig": "apps/concierge/tsconfig.spec.json",
-                "setupFiles": ["apps/concierge/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/concierge/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "concierge:test-build:development"

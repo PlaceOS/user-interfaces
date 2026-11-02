@@ -121,7 +121,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/map-kiosk"],
             "options": {
                 "tsConfig": "apps/map-kiosk/tsconfig.spec.json",
-                "setupFiles": ["apps/map-kiosk/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/map-kiosk/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "map-kiosk:test-build:development"

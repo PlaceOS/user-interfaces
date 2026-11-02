@@ -155,7 +155,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/booking-panel"],
             "options": {
                 "tsConfig": "apps/booking-panel/tsconfig.spec.json",
-                "setupFiles": ["apps/booking-panel/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/booking-panel/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "booking-panel:test-build:development"

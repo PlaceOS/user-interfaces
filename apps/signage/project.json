@@ -121,7 +121,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/signage"],
             "options": {
                 "tsConfig": "apps/signage/tsconfig.spec.json",
-                "setupFiles": ["apps/signage/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/signage/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "signage:test-build:development"

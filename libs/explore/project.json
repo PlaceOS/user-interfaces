@@ -12,7 +12,10 @@
             "outputs": ["{workspaceRoot}/coverage/libs/explore"],
             "options": {
                 "tsConfig": "libs/explore/tsconfig.spec.json",
-                "setupFiles": ["libs/explore/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "libs/explore/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "explore:test-build:development"

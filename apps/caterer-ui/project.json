@@ -121,7 +121,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/caterer-ui"],
             "options": {
                 "tsConfig": "apps/caterer-ui/tsconfig.spec.json",
-                "setupFiles": ["apps/caterer-ui/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/caterer-ui/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "caterer-ui:test-build:development"

@@ -75,7 +75,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/public"],
             "options": {
                 "tsConfig": "apps/public/tsconfig.spec.json",
-                "setupFiles": ["apps/public/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/public/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "public:test-build:development"

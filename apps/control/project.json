@@ -162,7 +162,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/control"],
             "options": {
                 "tsConfig": "apps/control/tsconfig.spec.json",
-                "setupFiles": ["apps/control/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/control/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "control:test-build:development"

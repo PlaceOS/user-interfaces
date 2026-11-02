@@ -11,7 +11,10 @@
             "outputs": ["{workspaceRoot}/coverage/libs/assets"],
             "options": {
                 "tsConfig": "libs/assets/tsconfig.spec.json",
-                "setupFiles": ["libs/assets/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "libs/assets/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "assets:test-build:development"

@@ -133,7 +133,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/stagehand"],
             "options": {
                 "tsConfig": "apps/stagehand/tsconfig.spec.json",
-                "setupFiles": ["apps/stagehand/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/stagehand/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "stagehand:test-build:development"

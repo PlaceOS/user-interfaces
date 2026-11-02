@@ -12,7 +12,10 @@
             "outputs": ["{workspaceRoot}/coverage/libs/events"],
             "options": {
                 "tsConfig": "libs/events/tsconfig.spec.json",
-                "setupFiles": ["libs/events/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "libs/events/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "events:test-build:development"

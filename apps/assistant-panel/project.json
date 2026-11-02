@@ -136,7 +136,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/assistant-panel"],
             "options": {
                 "tsConfig": "apps/assistant-panel/tsconfig.spec.json",
-                "setupFiles": ["apps/assistant-panel/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/assistant-panel/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "assistant-panel:test-build:development"
