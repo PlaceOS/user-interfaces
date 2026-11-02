@@ -38,6 +38,7 @@ All notable changes to this project will be documented in this file.
 - Hide the parking space in the booking card location (PPT-2858)
 - Lock locker date and time when disabled_date_select is set
 - Locker picker no longer errors while lockers load
+- Booking type timezone settings override the generic setting
 
 #### Catering
 
