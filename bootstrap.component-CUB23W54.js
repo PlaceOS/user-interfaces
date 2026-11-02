@@ -5,7 +5,7 @@ import {
   SettingsToggleComponent,
   VirtualKeyboardComponent,
   toSignal
-} from "./chunk-DSJIDHJK.js";
+} from "./chunk-QYJMWX4A.js";
 import {
   MatFormField,
   MatFormFieldModule
@@ -14,7 +14,7 @@ import "./chunk-HNXE7CJM.js";
 import {
   MatOption
 } from "./chunk-6J743VWG.js";
-import "./chunk-7QMCZYTP.js";
+import "./chunk-C7YQ7FLP.js";
 import {
   TranslatePipe
 } from "./chunk-IZ5V3236.js";
@@ -24,7 +24,7 @@ import {
   NgModel,
   OrganisationService,
   VERSION
-} from "./chunk-AJ5U6FUK.js";
+} from "./chunk-WMA6HMO6.js";
 import {
   AsyncHandler
 } from "./chunk-PVXDZGBZ.js";
@@ -230,11 +230,10 @@ function KioskLocationPickerComponent_Conditional_3_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "mat-form-field", 6)(5, "mat-select", 16, 1);
     \u0275\u0275pipe(7, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function KioskLocationPickerComponent_Conditional_3_Template_mat_select_ngModelChange_5_listener($event) {
+    \u0275\u0275listener("ngModelChange", function KioskLocationPickerComponent_Conditional_3_Template_mat_select_ngModelChange_5_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r1.active_level, $event) || (ctx_r1.active_level = $event);
-      return \u0275\u0275resetView($event);
+      return \u0275\u0275resetView(ctx_r1.setLevel($event));
     });
     \u0275\u0275elementStart(8, "mat-select-trigger")(9, "div", 8)(10, "div", 9);
     \u0275\u0275text(11);
@@ -253,8 +252,7 @@ function KioskLocationPickerComponent_Conditional_3_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "APP.VISITOR_KIOSK.SELECT_LEVEL_MSG"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_level);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 7, "APP.VISITOR_KIOSK.SELECT_LEVEL"));
+    \u0275\u0275property("ngModel", ctx_r1.active_level())("placeholder", \u0275\u0275pipeBind1(7, 7, "APP.VISITOR_KIOSK.SELECT_LEVEL"));
     \u0275\u0275control();
     \u0275\u0275advance(6);
     \u0275\u0275textInterpolate1(" ", ctx_r1.active_level()?.display_name || ctx_r1.active_level()?.name, " ");
@@ -479,6 +477,11 @@ var KioskLocationPickerComponent = class _KioskLocationPickerComponent {
     this.active_location.set(null);
     this.updateRotations();
   }
+  /** Select a level. A location from the old level is cleared. */
+  setLevel(level) {
+    this.active_level.set(level);
+    this.active_location.set(null);
+  }
   /** List the orientations of the active building and select the first */
   updateRotations() {
     const orientations = this.active_building()?.orientations || {};
@@ -662,7 +665,8 @@ var KioskLocationPickerComponent = class _KioskLocationPickerComponent {
                         aria-labelledby="bootstrap-level-label"
                         #select
                         level
-                        [(ngModel)]="active_level"
+                        [ngModel]="active_level()"
+                        (ngModelChange)="setLevel($event)"
                         [placeholder]="
                             'APP.VISITOR_KIOSK.SELECT_LEVEL' | translate
                         "
@@ -778,7 +782,7 @@ var KioskLocationPickerComponent = class _KioskLocationPickerComponent {
   }], null, { submitted: [{ type: Output, args: ["submitted"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(KioskLocationPickerComponent, { className: "KioskLocationPickerComponent", filePath: "libs/components/src/lib/kiosk-location-picker.component.ts", lineNumber: 300 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(KioskLocationPickerComponent, { className: "KioskLocationPickerComponent", filePath: "libs/components/src/lib/kiosk-location-picker.component.ts", lineNumber: 301 });
 })();
 
 // apps/map-kiosk/src/app/bootstrap.component.ts
@@ -1015,5 +1019,5 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
 export {
   BootstrapComponent
 };
-//# debugId=0e713b07-1c8a-51f6-93ba-7d4ebf3438c5
-//# sourceMappingURL=bootstrap.component-3XRXE6ZE.js.map
+//# debugId=38445d1d-3141-5c4e-8bba-e175d862f4f4
+//# sourceMappingURL=bootstrap.component-CUB23W54.js.map
