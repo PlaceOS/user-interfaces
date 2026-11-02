@@ -1,26 +1,27 @@
 import {
   generateMockSpace
-} from "./chunk-EKSWDME3.js";
+} from "./chunk-CCAE4C5C.js";
 import {
+  MatDialog,
   setHours
-} from "./chunk-GADPE4WI.js";
+} from "./chunk-7ICWJI3G.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
 import {
   AnnounceDirective,
   CheckinStateService
-} from "./chunk-X7SQHLZT.js";
+} from "./chunk-C7OT7C6Y.js";
 import {
   subDays
-} from "./chunk-QE444ZXK.js";
+} from "./chunk-HSUUCD5L.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-JAZX2OU7.js";
-import "./chunk-NDQQUWUJ.js";
+} from "./chunk-SXC42DT2.js";
+import "./chunk-23LP67GO.js";
 import {
   TranslatePipe
-} from "./chunk-WMTVHI5M.js";
+} from "./chunk-U236FS7Z.js";
 import {
   IconComponent
 } from "./chunk-IGFQZTGL.js";
@@ -51,7 +52,7 @@ import {
   setPublicMode,
   settingSignal,
   user_groups_loaded
-} from "./chunk-KUX3ZAQM.js";
+} from "./chunk-ERUCGEWJ.js";
 import {
   AsyncHandler,
   Bp,
@@ -77,12 +78,12 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-26AZQAZS.js";
-import "./chunk-VEHNMD7P.js";
+} from "./chunk-JBKXW3ZH.js";
+import "./chunk-5QN4C5PK.js";
 import {
   BidiModule,
   _getAnimationsState
-} from "./chunk-ZGEGORPC.js";
+} from "./chunk-PEBHUM6G.js";
 import {
   NavigationEnd,
   Router,
@@ -679,7 +680,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-XBB4S7KW.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-PPOKSYPU.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -804,7 +805,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-XBB4S7KW.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-PPOKSYPU.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -8912,6 +8913,7 @@ var ACTIVITY_EVENTS = ["pointerdown", "keydown", "wheel"];
 function returnToWelcomeWhenIdle() {
   const router = inject(Router);
   const checkin = inject(CheckinStateService);
+  const dialog = inject(MatDialog);
   const timeout_secs = settingSignal("inactivity_timeout_secs", DEFAULT_INACTIVITY_TIMEOUT_SECS);
   const warning_secs = signal(
     0,
@@ -8948,6 +8950,7 @@ function returnToWelcomeWhenIdle() {
       clear();
       if (isIdleRoute())
         return;
+      dialog.closeAll();
       checkin.clear();
       router.navigate(["/welcome"]);
     }, secs * 1e3);
@@ -8975,11 +8978,11 @@ function returnToWelcomeWhenIdle() {
 // apps/visitor-kiosk/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-6Q4VHAHJ.js").then((m) => m.ChatComponent)
+  import("./chat.component-4Z24TAFK.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-OEF7CL5B.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-G5UX5YP7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 var _c02 = (a0) => ({ seconds: a0 });
 function AppComponent_Conditional_3_Template(rf, ctx) {
@@ -9084,9 +9087,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-6Q4VHAHJ.js").then((m) => m.ChatComponent),
+    import("./chat.component-4Z24TAFK.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-OEF7CL5B.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-G5UX5YP7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9146,33 +9149,33 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-AGB4UUJR.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-LTN3RGD2.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "welcome",
-    loadComponent: () => import("./welcome.component-QM6EKG5C.js").then((m) => m.WelcomeComponent),
+    loadComponent: () => import("./welcome.component-ZUQF2WCO.js").then((m) => m.WelcomeComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "register",
-    loadComponent: () => import("./visitor-registration.component-5A46T2GK.js").then((m) => m.VisitorRegistrationComponent),
+    loadComponent: () => import("./visitor-registration.component-A5KLR47C.js").then((m) => m.VisitorRegistrationComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-QSA6RYQM.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-23YF5PTA.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-BHEZCINU.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-PHZXJ3TV.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-QURS43YE.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-V4B24J45.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
@@ -9204,5 +9207,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=ae84011c-88b9-501f-a5b9-4625b4e6a86b
+//# debugId=61d1f9c6-9374-5f70-9a51-325943e7851d
 //# sourceMappingURL=main.js.map
