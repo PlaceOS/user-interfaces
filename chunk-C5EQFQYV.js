@@ -85,7 +85,7 @@ import {
   vc,
   wi,
   withTimeout
-} from "./chunk-ZH3B4WRR.js";
+} from "./chunk-UOPID4IS.js";
 import {
   ActivatedRoute,
   NavigationEnd,
@@ -706,15 +706,15 @@ var ClipboardModule = class _ClipboardModule {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "1947249",
-  "hash": "1947249",
+  "raw": "0966141",
+  "hash": "0966141",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "1947249",
+  "suffix": "0966141",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1793351597440
+  "time": 1793584926939
 };
 
 // libs/common/src/lib/settings.ts
@@ -4729,5 +4729,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=88b1a2b4-e7ea-5447-bc93-4b213738a8f7
-//# sourceMappingURL=chunk-2WZZQNFL.js.map
+//# debugId=43b7520f-9402-54d0-bc04-d33fb454ecc6
+//# sourceMappingURL=chunk-C5EQFQYV.js.map

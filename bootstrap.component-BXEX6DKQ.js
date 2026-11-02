@@ -25,12 +25,12 @@ import {
 import "./chunk-BDIFYFS3.js";
 import {
   TranslatePipe
-} from "./chunk-ESQLNESW.js";
+} from "./chunk-2R7QAMOZ.js";
 import {
   OrganisationService,
   Space,
   VERSION
-} from "./chunk-2WZZQNFL.js";
+} from "./chunk-C5EQFQYV.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -43,7 +43,7 @@ import {
 import {
   AsyncHandler,
   Ra
-} from "./chunk-ZH3B4WRR.js";
+} from "./chunk-UOPID4IS.js";
 import "./chunk-SWZP2EMK.js";
 import {
   CdkScrollableModule,
@@ -1609,4 +1609,4 @@ export {
   BootstrapComponent
 };
 //# debugId=3fef9ea1-f423-5af0-9b43-df75776c16cf
-//# sourceMappingURL=bootstrap.component-JUOQXRP3.js.map
+//# sourceMappingURL=bootstrap.component-BXEX6DKQ.js.map
