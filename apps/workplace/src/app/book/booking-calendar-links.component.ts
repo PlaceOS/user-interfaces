@@ -29,7 +29,7 @@ import {
             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
             [href]="outlook_link() | sanitize: 'url'"
             target="_blank"
-            rel="noopener noreferer"
+            rel="noopener noreferrer"
         >
             <img src="assets/icons/outlook.svg" class="w-6" />
             <span>{{ 'BOOKINGS.LINK_OUTLOOK' | translate }}</span>
@@ -41,7 +41,7 @@ import {
             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
             [href]="google_link() | sanitize: 'url'"
             target="_blank"
-            rel="noopener noreferer"
+            rel="noopener noreferrer"
         >
             <img src="assets/icons/gcal.svg" class="w-6" />
             <span>{{ 'BOOKINGS.LINK_GOOGLE' | translate }}</span>
@@ -53,7 +53,7 @@ import {
             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
             [href]="ical_link() | safe: 'url'"
             target="_blank"
-            rel="noopener noreferer"
+            rel="noopener noreferrer"
         >
             <icon class="text-xl">download</icon>
             <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>

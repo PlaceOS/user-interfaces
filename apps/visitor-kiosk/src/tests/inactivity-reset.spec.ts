@@ -1,5 +1,6 @@
 import { Injector, runInInjectionContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 import { Subject } from 'rxjs';
@@ -11,6 +12,7 @@ describe('returnToWelcomeWhenIdle', () => {
     const events = new Subject<unknown>();
     const router = { url: '/welcome', events, navigate: vi.fn() };
     const checkin = { clear: vi.fn() };
+    const dialog = { closeAll: vi.fn() };
     let idle: IdleReset;
 
     function navigateTo(url: string) {
@@ -26,6 +28,7 @@ describe('returnToWelcomeWhenIdle', () => {
             providers: [
                 { provide: Router, useValue: router },
                 { provide: CheckinStateService, useValue: checkin },
+                { provide: MatDialog, useValue: dialog },
             ],
         });
         idle = runInInjectionContext(TestBed.inject(Injector), () =>
@@ -43,6 +46,7 @@ describe('returnToWelcomeWhenIdle', () => {
         vi.advanceTimersByTime(119_999);
         expect(router.navigate).not.toHaveBeenCalled();
         vi.advanceTimersByTime(1);
+        expect(dialog.closeAll).toHaveBeenCalled();
         expect(checkin.clear).toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledWith(['/welcome']);
     });

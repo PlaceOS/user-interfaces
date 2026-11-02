@@ -66,6 +66,21 @@ describe('KioskLocationPickerComponent', () => {
         });
     });
 
+    it('should clear the location when the level changes', () => {
+        const [first, second] = [
+            new BuildingLevel({
+                id: '1',
+                locations: [{ id: 'k1', name: 'K1' }],
+            }),
+            new BuildingLevel({ id: '2' }),
+        ];
+        spectator.component.setLevel(first);
+        spectator.component.active_location.set(first.locations[0]);
+        spectator.component.setLevel(second);
+        expect(spectator.component.active_level()).toBe(second);
+        expect(spectator.component.active_location()).toBeNull();
+    });
+
     it('should save the kiosk location', () => {
         localStorage.setItem('KIOSK.orientation', '180');
         localStorage.setItem('KIOSK.location', 'old-kiosk');

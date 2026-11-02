@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +11,7 @@ import {
 } from '@ngneat/spectator/vitest';
 import { MockModule, MockProvider } from 'ng-mocks';
 
-import { SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import * as client from '@placeos/ts-client';
 import { SystemBootstrapComponent } from '../lib/system-bootstrap.component';
 
@@ -19,9 +20,16 @@ vi.mock('@placeos/ts-client', { spy: true });
 describe('SystemBootstrapComponent', () => {
     const STORE_KEY = 'TEST.system';
     let spectator: SpectatorRouting<SystemBootstrapComponent>;
+    const org_ready = signal(true);
     const createComponent = createRoutingFactory({
         component: SystemBootstrapComponent,
-        providers: [MockProvider(SettingsService, { get: vi.fn() })],
+        providers: [
+            MockProvider(SettingsService, { get: vi.fn() }),
+            MockProvider(OrganisationService, {
+                initialised: org_ready.asReadonly(),
+                organisation: { id: 'org-1' } as never,
+            }),
+        ],
         imports: [
             FormsModule,
             MockModule(MatAutocompleteModule),
@@ -32,6 +40,8 @@ describe('SystemBootstrapComponent', () => {
     });
 
     beforeEach(() => {
+        vi.clearAllMocks();
+        org_ready.set(true);
         vi.useFakeTimers();
         spectator = createComponent({
             props: {
@@ -110,5 +120,20 @@ describe('SystemBootstrapComponent', () => {
         expect(client.querySystems).toHaveBeenCalled();
         expect(spectator.component.space_list()).toEqual([]);
         expect(() => spectator.detectChanges()).not.toThrow();
+    });
+
+    it('should wait for the organisation before searching', async () => {
+        vi.mocked(client.querySystems).mockResolvedValue({ data: [] } as never);
+        org_ready.set(false);
+        spectator.component.system_id.set('Room');
+        spectator.detectChanges();
+        await vi.advanceTimersByTimeAsync(400);
+        expect(client.querySystems).not.toHaveBeenCalled();
+        org_ready.set(true);
+        spectator.detectChanges();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(client.querySystems).toHaveBeenCalledWith(
+            expect.objectContaining({ q: 'Room', zone_id: 'org-1' }),
+        );
     });
 });

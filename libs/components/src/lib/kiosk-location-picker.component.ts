@@ -167,7 +167,8 @@ export function hasKioskLocation() {
                         aria-labelledby="bootstrap-level-label"
                         #select
                         level
-                        [(ngModel)]="active_level"
+                        [ngModel]="active_level()"
+                        (ngModelChange)="setLevel($event)"
                         [placeholder]="
                             'APP.VISITOR_KIOSK.SELECT_LEVEL' | translate
                         "
@@ -346,6 +347,12 @@ export class KioskLocationPickerComponent implements OnInit {
         this.active_level.set(null);
         this.active_location.set(null);
         this.updateRotations();
+    }
+
+    /** Select a level. A location from the old level is cleared. */
+    public setLevel(level: BuildingLevel) {
+        this.active_level.set(level);
+        this.active_location.set(null);
     }
 
     /** List the orientations of the active building and select the first */

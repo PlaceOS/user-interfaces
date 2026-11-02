@@ -37,6 +37,7 @@ import { TranslatePipe } from './translate.pipe';
  *
  * Search for a system, or pass `?system_id=` (or `?sys_id=`), to save the
  * system ID under `store_key` and go to the route from `system_route`.
+ * Searches wait until the organisation is loaded.
  * `?clear=true` removes the saved system. On load, a system ID from MDM
  * managed config overrides the saved system. Otherwise a saved system
  * goes to its route at once.
@@ -219,7 +220,9 @@ export class SystemBootstrapComponent implements OnInit {
 
     private readonly _debounced_search = debounced(this.system_id, 300);
     private readonly _space_list = resource({
-        params: () => this._debounced_search.value(),
+        // Wait for the organisation so the search is scoped to its zone
+        params: () =>
+            this._org.initialised() ? this._debounced_search.value() : '',
         loader: async ({ params: search }) => {
             if (search.length < 2) return [] as Space[];
             this.loading.set('search');
