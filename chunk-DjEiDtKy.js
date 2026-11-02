@@ -1,0 +1,4 @@
+var o=`PLACEOS.concierge.zones`;function s(t,e){if(!e)return[];try{let r=localStorage.getItem(`${o}.${t}.${e}`),n=JSON.parse(r||`[]`);return Array.isArray(n)?n.filter(i=>typeof i==`string`):[]}catch{return[]}}function c(t,e,r=[]){if(e)try{localStorage.setItem(`${o}.${t}.${e}`,JSON.stringify(r))}catch{}}function a(t,e){return(e?t.region?.id:t.building?.id)||``}function u(t=[],e=[]){return t.length===e.length&&t.every((r,n)=>r===e[n])}export{u as i,c as n,s as r,a as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="a9c9d823-6813-599d-892c-17b0f890ca92")}catch(e){}}();
+//# debugId=a9c9d823-6813-599d-892c-17b0f890ca92
+//# sourceMappingURL=chunk-DjEiDtKy.js.map
