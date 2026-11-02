@@ -494,6 +494,32 @@ export class EditorStateService extends AsyncHandler {
             img.src = url;
         });
         this._image_dims.set(dims);
+        await this._storeImageSize(floorplan_id, dims);
+    }
+
+    /**
+     * Saves a traced image's pixel size as the floor's canvas size. The kiosk
+     * reads only the stored size, so this keeps it in step with the editor.
+     * Floors with an SVG source already store the SVG's size.
+     */
+    private async _storeImageSize(
+        floorplan_id: string,
+        dims: { width: number; height: number } | null,
+    ) {
+        const floorplan = this._floorplan();
+        if (!dims || floorplan?.id !== floorplan_id || floorplan.svg_source)
+            return;
+        if (
+            floorplan.canvas_width === dims.width &&
+            floorplan.canvas_height === dims.height
+        )
+            return;
+        const updated = await this._store.updateFloorplan(floorplan_id, {
+            canvas_width: dims.width,
+            canvas_height: dims.height,
+        });
+        if (!this._destroyed && this._floorplan_id === floorplan_id)
+            this._floorplan.set(updated);
     }
 
     public async uploadSourceImage(file: File) {

@@ -46,7 +46,9 @@ import { SignageMediaService } from './signage-media.service';
                     <div class="text-sm opacity-60">
                         {{
                             'COMMON.ITEM_COUNT'
-                                | translate: { count: total_count() }
+                                | translate
+                                    : { count: total_count() }
+                                    : total_count()
                         }}
                     </div>
                     <group-breadcrumbs />

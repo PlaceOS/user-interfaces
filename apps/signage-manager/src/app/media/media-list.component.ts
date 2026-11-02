@@ -118,7 +118,9 @@ const UNTAGGED = '\0untagged';
                                 <div class="text-base-content/60 text-xs">
                                     {{
                                         'COMMON.ITEM_COUNT'
-                                            | translate: { count: folder.count }
+                                            | translate
+                                                : { count: folder.count }
+                                                : folder.count
                                     }}
                                 </div>
                             </button>

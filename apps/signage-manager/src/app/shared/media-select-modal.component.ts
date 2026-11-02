@@ -4,7 +4,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 import { SignageMediaService } from '../media/signage-media.service';
 import { IntersectDirective } from './intersect.directive';
@@ -87,6 +91,8 @@ export interface MediaSelectModalData {
                         intersect
                         (intersect)="list.loadMore()"
                     ></div>
+                } @else if (list.error()) {
+                    <load-error (retry)="list.retry()" />
                 }
             } @else if (list.loading()) {
                 <div
@@ -96,6 +102,8 @@ export interface MediaSelectModalData {
                         {{ 'COMMON.LOADING' | translate }}
                     </div>
                 </div>
+            } @else if (list.error()) {
+                <load-error (retry)="list.retry()" />
             } @else {
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center gap-4 rounded-lg p-16"
@@ -115,6 +123,7 @@ export interface MediaSelectModalData {
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
         IntersectDirective,
         MediaThumbnailComponent,

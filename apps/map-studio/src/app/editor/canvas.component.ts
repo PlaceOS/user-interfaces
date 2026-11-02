@@ -1756,12 +1756,16 @@ export class CanvasComponent {
         this._startPress(event);
         const centerX = this.centerX(object);
         const centerY = this.centerY(object);
-        const handleY = this.rotateHandleY(object);
+        // Measure from the pointer, not the handle: a handle inside a rotated
+        // shape turns with it, so it is not always straight above the center
+        const pointer = this._toCanvas(event.clientX, event.clientY);
         this._rotating.set({
             id: object.id,
             centerX,
             centerY,
-            startAngle: (Math.atan2(handleY - centerY, 0) * 180) / Math.PI,
+            startAngle:
+                (Math.atan2(pointer.y - centerY, pointer.x - centerX) * 180) /
+                Math.PI,
             startRotation: object.geometry.rotation ?? 0,
         });
     }

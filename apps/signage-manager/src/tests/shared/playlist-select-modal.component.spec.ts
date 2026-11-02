@@ -44,3 +44,52 @@ describe('PlaylistSelectModalComponent', () => {
         );
     });
 });
+
+// The real template, so a failed search shows an error and not "no playlists"
+describe('PlaylistSelectModalComponent errors', () => {
+    const flush = () => new Promise((resolve) => setTimeout(resolve));
+    const queryPlaylists = vi.fn();
+
+    beforeEach(async () => {
+        vi.clearAllMocks();
+        await TestBed.configureTestingModule({
+            imports: [PlaylistSelectModalComponent],
+            providers: [
+                { provide: MAT_DIALOG_DATA, useValue: {} },
+                {
+                    provide: SignagePlaylistService,
+                    useValue: { queryPlaylists },
+                },
+            ],
+        }).compileComponents();
+    });
+
+    it('shows a load error with a retry that queries again', async () => {
+        queryPlaylists
+            .mockReturnValueOnce(Promise.reject(new Error('offline')))
+            .mockReturnValueOnce(
+                Promise.resolve({
+                    data: [{ id: 'p1', name: 'Morning Loop' }],
+                    total: 1,
+                    next: null,
+                }),
+            );
+        const fixture = TestBed.createComponent(PlaylistSelectModalComponent);
+        fixture.detectChanges();
+        await flush();
+        fixture.detectChanges();
+
+        const element: HTMLElement = fixture.nativeElement;
+        const retry =
+            element.querySelector<HTMLButtonElement>('load-error button');
+        expect(retry).toBeTruthy();
+
+        retry?.click();
+        await flush();
+        fixture.detectChanges();
+
+        expect(queryPlaylists).toHaveBeenCalledTimes(2);
+        expect(element.querySelector('load-error')).toBeNull();
+        expect(element.textContent).toContain('Morning Loop');
+    });
+});

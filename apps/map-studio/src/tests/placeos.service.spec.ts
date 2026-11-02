@@ -94,6 +94,20 @@ function stubFetch(authority_ok: boolean) {
             };
         }
         if (url.includes('/zones?')) return { ok: true, json: async () => [] };
+        if (url.includes('/systems?')) {
+            // One full page, then a short one
+            const offset = Number(
+                new URL(url, 'http://x').searchParams.get('offset'),
+            );
+            const size = offset < 100 ? 100 : 20;
+            return {
+                ok: true,
+                json: async () =>
+                    Array.from({ length: size }, (_, i) => ({
+                        id: `sys-${offset + i}`,
+                    })),
+            };
+        }
         if (url.includes('/LLM_1/chat'))
             return {
                 ok: true,
@@ -341,6 +355,18 @@ describe('PlaceOSService', () => {
         expect(
             calls.filter(([url]) => url.includes('tags=level')),
         ).toHaveLength(3);
+    });
+
+    it('reads every page of systems', async () => {
+        const calls = stubFetch(true);
+        await service.init();
+
+        const systems = await service.getSystems('level-1');
+
+        expect(systems).toHaveLength(120);
+        expect(calls.filter(([url]) => url.includes('/systems?'))).toHaveLength(
+            2,
+        );
     });
 
     it('sends an imported SVG once, not as both source and output', async () => {
