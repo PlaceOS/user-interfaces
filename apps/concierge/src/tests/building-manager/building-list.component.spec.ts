@@ -36,7 +36,6 @@ describe('BuildingListComponent', () => {
         manager = {
             filtered_buildings: signal([{ id: 'b1' }]),
             editBuilding: vi.fn(),
-            editBuildingMetadata: vi.fn(),
             removeBuilding: vi.fn(),
             setAutoRelease: vi.fn(),
             setInduction: vi.fn(),

@@ -327,7 +327,6 @@ Each custom column requires a `field` (the booking extension data field to displ
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `reports.features` | string[] | – | List of report cards shown on the reports menu page: `attendance`, `desks`, `spaces`, `catering`, `contact-tracing` and `user`. Defaults to all of them except `user`. The `/reports` route opens the desk report, so this page does not show at this time. The sidebar report links use the `*-report` values of `features`. |
 | `reports.attendance_include_weekends` | boolean | `false` | Include weekends in attendance report calculations. |
 | `reports.ignore_days` | array | – | Days of the week to exclude from report calculations. Either day names (e.g. `"saturday"`) or day indexes (0-6). |
 | `custom_reports` | array | `[]` | Custom report pages to add to the reports section. Each report is rendered as an embedded page. The sidebar shows a link to each report, whatever the value of `features`. |

@@ -60,7 +60,6 @@ const SPAN_CLASSES: Record<LandingWidgetSpan, string> = {
                     class="mx-auto flex w-[80rem] max-w-full flex-col gap-4 p-4"
                 >
                     <landing-upcoming-booking />
-                    <!-- <landing-virtual-concierge /> -->
 
                     @if (!hide_customise()) {
                         <div
@@ -325,7 +324,6 @@ const SPAN_CLASSES: Record<LandingWidgetSpan, string> = {
         FooterMenuComponent,
         VirtualConciergeButtonComponent,
         LandingUpcomingBookingComponent,
-        // LandingVirtualConciergeComponent,
         LandingAvailableNowComponent,
         LandingQuickActionsComponent,
         LandingDeskWeekComponent,

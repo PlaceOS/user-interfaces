@@ -202,17 +202,6 @@ when the relevant feature is enabled and the signed-in user is authorised.
 - Selecting a day opens the desk booking or schedule flow for that day.
 - Recurring desk bookings are represented consistently with single-day bookings.
 
-### US-016: Use landing concierge prompts
-**As an** employee
-**I want to** use suggested prompts on the landing page
-**So that** I can ask common workplace questions quickly
-
-**Acceptance Criteria:**
-- The landing virtual concierge surface appears when chat/concierge configuration is enabled.
-- Suggested prompts come from configured `virtual_concierge.prompts`.
-- Submitting a prompt opens or continues the concierge experience.
-- Concierge failures do not prevent the rest of the landing page from rendering.
-
 ### US-017: See organisation messages
 **As an** employee
 **I want to** see important workplace announcements

@@ -260,9 +260,6 @@ export class BuildingListComponent {
     public readonly editBuilding = (building) =>
         this._manager.editBuilding(building);
 
-    public readonly editBuildingMetadata = (building) =>
-        this._manager.editBuildingMetadata(building);
-
     public readonly removeBuilding = (building) =>
         this._manager.removeBuilding(building);
 

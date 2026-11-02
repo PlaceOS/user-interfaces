@@ -8,7 +8,6 @@ import { minuteClock } from '../minute-clock';
 @Component({
     selector: '[app-checkin]',
     template: `
-        <!-- <a-topbar-header class="w-full screen-only"></a-topbar-header> -->
         <div
             class="absolute inset-0 flex items-center p-8 print:static print:block print:p-0"
         >

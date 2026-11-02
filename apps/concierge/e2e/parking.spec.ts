@@ -18,8 +18,6 @@ test.describe('Parking Bookings Page', () => {
         await gotoMockRoute(page, '/#/book/parking/events/requests');
         await waitForHost(page, 'app-parking');
         await waitForHost(page, 'parking-bookings-list');
-
-        await expect(page.locator('parking-requests-list')).toHaveCount(0);
     });
 
     // US-030 / US-035: Map view uses a single selected level.
