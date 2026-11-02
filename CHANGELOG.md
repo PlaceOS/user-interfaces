@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+#### Apps
+
+- Fix bugs in signage, stagehand, assistant panel and small apps
+
 #### Assets
 
 - Update parking space pipe to return unallocated for unallocated spaces
@@ -55,6 +59,11 @@ All notable changes to this project will be documented in this file.
 
 - Keep virtual table position on data refresh
 - Remove active content from map SVGs before measuring
+- Keep chat messages that cannot be sent
+
+#### Components,visitor-kiosk,workplace
+
+- Fix setup screen and idle reset review issues
 
 #### Concierge
 
@@ -290,6 +299,12 @@ All notable changes to this project will be documented in this file.
 
 ### Refactor
 
+#### Apps
+
+- Remove unused code from the remaining apps
+- Share app setup, test setup and service worker config
+- Use lib helpers in place of app copies
+
 #### Assets
 
 - Share the hidden asset category and type lookup
@@ -320,15 +335,27 @@ All notable changes to this project will be documented in this file.
 - Share one helper for toggling favourites
 - Share the zone rules loader and app version details
 - Add provideValueAccessor for form field providers
+- Share the themed logo, announce directive and helpers
+- Share the system and kiosk location setup screens
+- Move code that apps imported from other apps
 
 #### Mocks
 
 - Remove unused mock endpoints and data helpers
 - Build asset CRUD mocks from one helper
 
+#### Signage
+
+- Share player rules with the signage manager
+
+#### Signage-manager
+
+- Share assignment, approval and schedule text
+
 #### Workplace
 
 - Simplify international visitor handling
+- Share calendar links, filters and group bookings
 
 ## [2610.2] - 2026-10-08
 
@@ -676,38 +703,13 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
-#### Assets
-
-- Update parking space pipe to return unallocated for unallocated spaces
-- Fix resource assets using newer duplicate categories and types for resolution
-
 #### Auth
 
-- Preserve mobile auth cookies
 - Wait for access data before checking guards
 - Avoid unauthorised redirect during slow startup
 
-#### Booking
-
-- Add guard for form cross-contamination
-
 #### Bookings
 
-- Preserve monthly review recurrence PPT-2526
-- Prevent asset option update loop
-- Fix required conditional for plate number on booking form
-- Defer booking requests until consumed
-- Debounce booked resource checks
-- Reduce limit for booked resources requests
-- Paginate booked resource lookup
-- Remove using assigned_asset_name from name details
-- Fix stale booking_end being used for clash check
-- Update start/end to most strictly source from date/duration
-- Combine booked with clashes for availability
-- Tweak readiness gate for form state
-- Restrict booking extension data
-- Generalize reserved-resource booking restriction
-- Read parking favourites from correct settings key
 - Remove start clamping for all day bookings
 - Prevent created at being sent to backend
 - Check assignments for booking recipients
@@ -742,18 +744,12 @@ All notable changes to this project will be documented in this file.
 - Check in single occurrence of recurring bookings PPT-2674
 - Roll back bookings when asset requests fail PPT-2678
 
-#### Catering
-
-- Fix infinite loop after adding order
-
 #### Ci
 
 - Restore nx test pipeline
 
 #### Common
 
-- Initialise saved org location on load
-- Break runtime import cycle between event and catering classes
 - Guard nested lookup against primitives
 - Widen upload state type to unblock compilation
 - Let fixed devices boot offline from cached state
@@ -761,16 +757,10 @@ All notable changes to this project will be documented in this file.
 
 #### Components
 
-- Stop dynamic map injector signal loop
-- Repair broken printable portal and debug console template
-- Add missing TranslatePipe and SlicePipe imports to indoor-maps
-- Add missing matInput to login form fields
 - Contain dynamic map overlays
 
 #### Concierge
 
-- Fix user avatar initialising with empty user
-- Update parking report downloads
 - Tweak level selections/defaults and resource booking paginations
 - Export current desk list
 - Disable actions for cancelled parking bookings
@@ -782,12 +772,6 @@ All notable changes to this project will be documented in this file.
 
 #### Events
 
-- Return saved booking after post PPT-2462
-- Enforce room booking rules in booking panel
-- Keep submitted meeting success details
-- Preserve selected meeting booking time
-- Keep host permission error visible after host revert
-- Add aria-labels to space filter selects
 - Stop catering time sync loop
 - Fix check to show notify new attendees option
 - Limit attendee-only notifications for PPT-2514
@@ -800,8 +784,6 @@ All notable changes to this project will be documented in this file.
 
 #### Explore
 
-- Minor review fixes
-- Clean up handling of disabled map resource states
 - Correct parking map status query
 - Apply all-day desk booking settings
 - Make map legend collapsible on all views
@@ -813,9 +795,6 @@ All notable changes to this project will be documented in this file.
 
 #### Form-fields
 
-- Remove monthly day recurrence option
-- Guard date calendar invalid values
-- Hide empty user in search field
 - Restrict user search fields
 - Add sorting to user search field
 - Prevent dropdown form submission
@@ -823,32 +802,17 @@ All notable changes to this project will be documented in this file.
 - Ignore blank bookable hours ranges PPT-2641
 - Remove only the clicked visitor from the list (PPT-2634)
 
-#### Forms
-
-- Start network requests from form load
-- Wait for user before form initialisation
-
-#### Mobile
-
-- Add config to hide status bar and remove safe area
-- Fix applying MDM system id to panel UIs
-- Fix System ID MDM key
-- Fix workplace safe zones for devices with notches
-
 #### Org
 
-- Rework default building init logic
 - Fallback to individual requests for settings metadata
 
 #### Parking
 
-- Keep approval requests out of waitlist
 - Derive request status from the booking process state
 - Correct request status field mapping
 
 #### Signage
 
-- Fix takeover playlists not triggering after 30 second start window
 - Clear player when playlist is empty
 - Resume playback when content returns
 - Refresh changed playlist schedules
@@ -877,7 +841,6 @@ All notable changes to this project will be documented in this file.
 
 #### Uploads
 
-- Handle token refreshes mid-upload
 - Report upload failures instead of reporting success
 
 #### Visitor-kiosk
@@ -886,12 +849,6 @@ All notable changes to this project will be documented in this file.
 
 #### Workplace
 
-- Fix plate number validator propagating to other types
-- Prevent user with reserved desk from booking by default
-- Stabilize signal migration
-- Preserve parking request shift duration
-- Fix parking form buttons submitting the form
-- Prevent deleting ended bookings and events
 - Trim required parking plate numbers
 - Expose visitor invite settings PPT-2666
 
@@ -909,21 +866,12 @@ All notable changes to this project will be documented in this file.
 
 #### Bookings
 
-- Migrate booking form service to use signals
 - Consolidate assigned resource booking settings
 - Confirm booking checkout
 - Add UTM source to create and delete requests
 
-#### Catering
-
-- Support external catering backend in workplace bookings
-
 #### Components
 
-- Add debug mode to dynamic map
-- Show styles, actions, labels and features in map debug panel
-- Add colour swatches and src truncation to map debug panel
-- Improve map debug mappings
 - Show settings source zones
 - Dock settings debug panel
 - Improve settings enum controls
@@ -933,9 +881,6 @@ All notable changes to this project will be documented in this file.
 
 #### Concierge
 
-- Migrate desks section to use signals
-- Add warning to resource assignment for existing bookings
-- Reject clashing assignment bookings and reject overlapping user bookings
 - Add no show details to parking reports
 - Add parking map availability time
 - Show parking booking history
@@ -943,21 +888,11 @@ All notable changes to this project will be documented in this file.
 
 #### Events
 
-- Migrate event form service to use signals
 - Notify only new attendees for PPT-2514
 
 #### Explore
 
 - Add configurable map overlay toggles
-
-#### Maps
-
-- Standardise rasterised resolutions for map images
-
-#### Mobile
-
-- Add MDM config support
-- Add MS Intune support to mobile apps
 
 #### Signage
 
@@ -970,10 +905,6 @@ All notable changes to this project will be documented in this file.
 
 #### Signage-manager
 
-- Add ability to upload multiple media items at once
-- Add list and folder views to media list
-- Paginate media, playlist and display requests
-- Add support for distribution playlists
 - Add save hotkeys to form modals
 - Let plugins render their own thumbnails
 - Scope zone search to selected hierarchy
@@ -985,10 +916,6 @@ All notable changes to this project will be documented in this file.
 - Show groups signage items are shared with PPT-2679
 - Add template approval workflow
 - Add template sharing
-
-#### Visitor-kiosk
-
-- Add virtual keyboard support
 
 #### Workplace
 
@@ -1007,6 +934,182 @@ All notable changes to this project will be documented in this file.
 
 - Memoise cron lookups and harden the schedule tick
 - Stop the media cache reading every stored file to check itself
+
+### Refactor
+
+#### Locale
+
+- Prune dead keys, de-dup shared strings, drop _N plurals
+
+#### Signage
+
+- Treat play_at as seconds without guessing
+
+### Styling
+
+#### Components
+
+- Refine settings panel header
+
+## [2607.1] - 2026-07-06
+
+### Bug Fixes
+
+#### Assets
+
+- Update parking space pipe to return unallocated for unallocated spaces
+- Fix resource assets using newer duplicate categories and types for resolution
+
+#### Auth
+
+- Preserve mobile auth cookies
+
+#### Booking
+
+- Add guard for form cross-contamination
+
+#### Bookings
+
+- Preserve monthly review recurrence PPT-2526
+- Prevent asset option update loop
+- Fix required conditional for plate number on booking form
+- Defer booking requests until consumed
+- Debounce booked resource checks
+- Reduce limit for booked resources requests
+- Paginate booked resource lookup
+- Remove using assigned_asset_name from name details
+- Fix stale booking_end being used for clash check
+- Update start/end to most strictly source from date/duration
+- Combine booked with clashes for availability
+- Tweak readiness gate for form state
+- Restrict booking extension data
+- Generalize reserved-resource booking restriction
+- Read parking favourites from correct settings key
+
+#### Catering
+
+- Fix infinite loop after adding order
+
+#### Common
+
+- Initialise saved org location on load
+- Break runtime import cycle between event and catering classes
+
+#### Components
+
+- Stop dynamic map injector signal loop
+- Repair broken printable portal and debug console template
+- Add missing TranslatePipe and SlicePipe imports to indoor-maps
+- Add missing matInput to login form fields
+
+#### Concierge
+
+- Fix user avatar initialising with empty user
+- Update parking report downloads
+
+#### Events
+
+- Return saved booking after post PPT-2462
+- Enforce room booking rules in booking panel
+- Keep submitted meeting success details
+- Preserve selected meeting booking time
+- Keep host permission error visible after host revert
+- Add aria-labels to space filter selects
+
+#### Explore
+
+- Minor review fixes
+- Clean up handling of disabled map resource states
+
+#### Form-fields
+
+- Remove monthly day recurrence option
+- Guard date calendar invalid values
+- Hide empty user in search field
+
+#### Forms
+
+- Start network requests from form load
+- Wait for user before form initialisation
+
+#### Mobile
+
+- Add config to hide status bar and remove safe area
+- Fix applying MDM system id to panel UIs
+- Fix System ID MDM key
+- Fix workplace safe zones for devices with notches
+
+#### Org
+
+- Rework default building init logic
+
+#### Parking
+
+- Keep approval requests out of waitlist
+
+#### Signage
+
+- Fix takeover playlists not triggering after 30 second start window
+
+#### Uploads
+
+- Handle token refreshes mid-upload
+
+#### Workplace
+
+- Fix plate number validator propagating to other types
+- Prevent user with reserved desk from booking by default
+- Stabilize signal migration
+- Preserve parking request shift duration
+- Fix parking form buttons submitting the form
+- Prevent deleting ended bookings and events
+
+### Features
+
+#### Bookings
+
+- Migrate booking form service to use signals
+
+#### Catering
+
+- Support external catering backend in workplace bookings
+
+#### Components
+
+- Add debug mode to dynamic map
+- Show styles, actions, labels and features in map debug panel
+- Add colour swatches and src truncation to map debug panel
+- Improve map debug mappings
+
+#### Concierge
+
+- Migrate desks section to use signals
+- Add warning to resource assignment for existing bookings
+- Reject clashing assignment bookings and reject overlapping user bookings
+
+#### Events
+
+- Migrate event form service to use signals
+
+#### Maps
+
+- Standardise rasterised resolutions for map images
+
+#### Mobile
+
+- Add MDM config support
+- Add MS Intune support to mobile apps
+
+#### Signage-manager
+
+- Add ability to upload multiple media items at once
+- Add list and folder views to media list
+- Paginate media, playlist and display requests
+- Add support for distribution playlists
+
+#### Visitor-kiosk
+
+- Add virtual keyboard support
 
 ### Refactor
 
@@ -1033,14 +1136,9 @@ All notable changes to this project will be documented in this file.
 
 - Migrate template state to signals
 
-#### Locale
-
-- Prune dead keys, de-dup shared strings, drop _N plurals
-
 #### Signage
 
 - Migrate to use signals
-- Treat play_at as seconds without guessing
 
 #### Signage-manager
 
@@ -1050,12 +1148,6 @@ All notable changes to this project will be documented in this file.
 #### Visitor-kiosk
 
 - Migrate to use signals
-
-### Styling
-
-#### Components
-
-- Refine settings panel header
 
 ## [2606.1] - 2026-06-04
 
@@ -1453,6 +1545,14 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+#### Explore
+
+- Show free state on space info tooltip (PPT-2286)
+
+## [2511.1] - 2025-11-05
+
+### Bug Fixes
+
 #### Bookings
 
 - Fix reading the show_filters state (PPT-2249)
@@ -1466,7 +1566,6 @@ All notable changes to this project will be documented in this file.
 
 - Fix initial status updates
 - Fix zones toggle
-- Show free state on space info tooltip (PPT-2286)
 
 #### Signage
 
@@ -1598,8 +1697,61 @@ All notable changes to this project will be documented in this file.
 
 #### Assets
 
-- Fix checking rules
 - Fix counter binding for selected assets
+
+#### Bookings
+
+- Re-evaluate available resources on host change
+- Fix showing calendar links (PPT-2081)
+
+#### Form-fields
+
+- Finish options for monthly recurrence (PPT-1993)
+- Use PlaceOS users for host select field (CDU-116)
+
+#### Visitor-kiosk
+
+- Fix label printing
+
+### Features
+
+#### Concierge
+
+- Add ability to print guest passes from visitor list (PPT-2029)
+- Add ability to set approval flag for rooms (PPT-2005)
+- Add ability to set default work hours for auto-release (PPT-2001)
+- Add component for survey rendering, remove survey-core dep
+
+#### Explore
+
+- Add ability to search for desks (PPT-2090)
+
+#### Redirect
+
+- Add simple app for redirecting users to set domains (PPT-2015)
+
+#### Workplace
+
+- Add icon for recurrence on details modals (PPT-2028)
+- Indicate to user that room bookings require approval (PPT-2006)
+
+### Refactor
+
+## [2504.2] - 2025-04-17
+
+### Features
+
+#### Control
+
+- Add ability to mute mics on a room basis (PPT-2022)
+
+## [2504.1] - 2025-04-09
+
+### Bug Fixes
+
+#### Assets
+
+- Fix checking rules
 
 #### Booking-panel
 
@@ -1617,8 +1769,6 @@ All notable changes to this project will be documented in this file.
 - Prevent paginated requests causing an infinite loop
 - Fix colour of unavailable lockers (PPT-1946)
 - Fix overflow for invite visitor success view (PPT-1996)
-- Re-evaluate available resources on host change
-- Fix showing calendar links (PPT-2081)
 
 #### Catering
 
@@ -1626,8 +1776,6 @@ All notable changes to this project will be documented in this file.
 
 #### Concierge
 
-- Fix ignore days for locker and parking reports
-- Handle errors when saving desk details (PPT-1805)
 - Fix booking rooms (PPT-1907)
 
 #### Events
@@ -1637,22 +1785,7 @@ All notable changes to this project will be documented in this file.
 
 #### Explore
 
-- Fix parking statuses on maps (PPT-1590)
-- Check desk rules before finalising booking (PPT-1687)
-- Prefer map_id over id from desk model
-- Fix pinning points of interest (PPT-1820)
 - Use visible user locations first (PPT-1944)
-
-#### Form-fields
-
-- Finish options for monthly recurrence (PPT-1993)
-- Use PlaceOS users for host select field (CDU-116)
-
-#### Visitor-kiosk
-
-- Fix visitor label printing (PPT-1744)
-- Fix flow redirections after registration (PPT-1812)
-- Fix label printing
 
 #### Workplace
 
@@ -1662,60 +1795,28 @@ All notable changes to this project will be documented in this file.
 
 #### Bookings
 
-- Add ability to hide booking checkin option (PPT-1796)
 - Hide fav toggle when viewing select map view (PPT-1978)
 
 #### Concierge
 
-- Allow user to print all desk QR codes for a level (PPT-1572)
-- Add security field to desk model (PPT-1784)
-- Add ability to set which visitor listing columns show (PPT-1799)
 - Add ability to email access QR codes to visitors (PPT-1935)
 - Add ability to release all lockers (PPT-1886)
 - Add ability to delete user's desk bookings (PPT-1982)
 - Add ability to set custom auto-release for resource types
 - Add extra options to auto-release (PPT-2001)
-- Add ability to print guest passes from visitor list (PPT-2029)
-- Add ability to set approval flag for rooms (PPT-2005)
-- Add ability to set default work hours for auto-release (PPT-2001)
-- Add component for survey rendering, remove survey-core dep
-
-#### Control
-
-- Add ability to mute mics on a room basis (PPT-2022)
 
 #### Explore
 
 - Add setting to hide search items (PPT-1945)
 - Add setting to show/hide desk users
-- Add ability to search for desks (PPT-2090)
-
-#### Redirect
-
-- Add simple app for redirecting users to set domains (PPT-2015)
-
-#### Spaces
-
-- Add ability to set alerts on rooms (PPT-1645)
 
 #### Users
 
 - Show username if different from email (PPT-1878)
 
-#### Visitor-kiosk
-
-- Add translation hooks for text in visitor kiosk (PPT-1720)
-- Add success header for self-registered visitors (PPT-1797)
-- Add ability for visitors to checkout (PPT-1808)
-- Add ability to select language on visitor kiosk (PPT-1897)
-
 #### Workplace
 
-- Add ability to book recurring desk bookings (PPT-1576)
-- Add ability to show calendar links for visitor invites (PPT-1798)
 - Add setting to only allow selecting locker durations
-- Add icon for recurrence on details modals (PPT-2028)
-- Indicate to user that room bookings require approval (PPT-2006)
 
 ### Refactor
 
@@ -1723,7 +1824,260 @@ All notable changes to this project will be documented in this file.
 
 - Refactor events form service
 
+## [2502.1] - 2025-02-07
+
+### Bug Fixes
+
+#### Concierge
+
+- Fix ignore days for locker and parking reports
+- Handle errors when saving desk details (PPT-1805)
+
+#### Explore
+
+- Prefer map_id over id from desk model
+- Fix pinning points of interest (PPT-1820)
+
+#### Visitor-kiosk
+
+- Fix visitor label printing (PPT-1744)
+- Fix flow redirections after registration (PPT-1812)
+
+### Features
+
+#### Bookings
+
+- Add ability to hide booking checkin option (PPT-1796)
+
+#### Concierge
+
+- Add security field to desk model (PPT-1784)
+- Add ability to set which visitor listing columns show (PPT-1799)
+
+#### Visitor-kiosk
+
+- Add success header for self-registered visitors (PPT-1797)
+- Add ability for visitors to checkout (PPT-1808)
+- Add ability to select language on visitor kiosk (PPT-1897)
+
+#### Workplace
+
+- Add ability to show calendar links for visitor invites (PPT-1798)
+
+## [2412.1] - 2024-12-10
+
+### Bug Fixes
+
+#### Explore
+
+- Check desk rules before finalising booking (PPT-1687)
+
+### Features
+
+#### Spaces
+
+- Add ability to set alerts on rooms (PPT-1645)
+
+#### Visitor-kiosk
+
+- Add translation hooks for text in visitor kiosk (PPT-1720)
+
+## [2411.1] - 2024-11-05
+
+### Bug Fixes
+
+#### Explore
+
+- Fix parking statuses on maps (PPT-1590)
+
+### Features
+
+#### Concierge
+
+- Allow user to print all desk QR codes for a level (PPT-1572)
+
+#### Workplace
+
+- Add ability to book recurring desk bookings (PPT-1576)
+
 ## [2410.1] - 2024-10-08
+
+### Bug Fixes
+
+#### Bookings
+
+- Update logic to handle recurring instances
+- Tweak zones for bookings
+- Fix ending booking instances (PPT-1480)
+- Fix getting map id for pinning resource
+- Fix standalone visitor bookings
+- Fix check for user's availability (PPT-1557, PPT-1558)
+- Fix adding and viewing booked assets (PPT-1568)
+
+#### Concierge
+
+- Fix saving level id to parking assignment booking (PPT-1498)
+- Add ability to set host for visitor invites (PPT-1532)
+
+#### Events
+
+- Fix applying space zones to asset bookings (PPT-1346)
+- Fix extending bookings over another booking (PPT-1559)
+
+#### Explore
+
+- Fix selecting the same item twice from search (PPT-1504)
+- Fix grabbing map features for search
+- Ignore rejected bookings for parking maps
+
+#### Mapspeople
+
+- Tweak handling of building switching (PPT-1501)
+- Clear directions when changing focus item (PPT-1504)
+- Prioritise focus item over building for center
+- Store last position of the user (PPT-1504)
+
+#### Visitors
+
+- Update induction API calls
+
+### Features
+
+#### Concierge
+
+- Add week view for calendar events (PPT-1508)
+- Add ability to search for calendar events (PPT-1509)
+- Add ability display bookings based on the building timezone
+- Add reply-to and from addresses (PPT-1461)
+
+#### Control
+
+- Add basic voice assistant
+
+#### Explore
+
+- Add logic to show occupancy icons for rooms (PPT-1464)
+
+#### Form-fields
+
+- Add ability to attach files to input (PPT-1458)
+
+#### Workplace
+
+- Rework work location UI (PPT-1482)
+
+## [2408.1] - 2024-08-06
+
+### Bug Fixes
+
+#### Assets
+
+- Add check to factor in cancelled and declined bookings for availability
+
+#### Bookings
+
+- Fix sizing of images
+- Minor tweak to display of details for group events
+- Fix availability checks when user has cancelled bookings
+- Fix desk booking group
+- Remove value to ignore hiding set desk height when not checked in (PPT-1298)
+- Remove room facilities from parking select details
+- Show region instead of building in use_region mode
+- Display region instead of building for visitor invite when configured (PROJ-852)
+- Fix visitor name display (PPT-1453)
+- Tweak building display on details modal (PPT-1454)
+- Fix adding appropriate zones for selected resources
+- Fix switching buildings on parking select modal
+- Fix handling bookings without resources
+
+#### Concierge
+
+- Fix parking map loaded on refresh
+- Fix setting zones to parking assignment bookings
+
+#### Events
+
+- Fix enabling recurrence
+- Include booked event for room availability (PPT-1369)
+- Use room_booking_rules metadata (PROJ-804)
+- Fix display of group event location
+- Fix images display for group events
+- Fix endpoint requests for attendees on group events
+- Fix saving images on group events
+
+#### Explore
+
+- Ignore bookings status for non-bookable rooms (PPT-1364)
+- Fix space bookings when using maps people (PPT-1394)
+- Fix displaying plate numbers for parking spaces
+- Fix parking info reserved status when space not assigned (PPT-1386)
+- Re-poll parking bookings after making booking from map
+- Fix getting parking status for region
+
+#### Form-fields
+
+- Add check to file type when loading users from CSV file (PROJ-768)
+- Clear input field after uploading image (PPT-1370)
+- Add image viewer component
+
+#### Maps-indoors
+
+- Fix map actions (PPT-1360)
+
+#### Maps-people
+
+- Fix setting level from zone (PPT-1376)
+
+#### Mapspeople
+
+- Tweak styling of map to use internal IDs
+- Fix setting level
+
+### Features
+
+#### Bookings
+
+- Use new booked endpoint for resource availability (PPT-1443)
+
+#### Catering
+
+- Upgrade catering order table
+
+#### Concierge
+
+- Add ability to set support ticket types (PPT-1342)
+- Add option to select points of interest from a map (PPT-1343)
+- Add event UI (PPT-1216)
+- Add event UI (PPT-1216)
+- Add calendar views for group events
+- Add ability to see parking space status on manage view (PPT-1379)
+- Add extra parking map display info (PPT-1386)
+- Add ability to set notes on visitors (PPT-1472)
+
+#### Explore
+
+- Setup parking map booking checks and status displays (PPT-1387)
+
+#### Workplace
+
+- Add integrations for group events (PPT-1220)
+- Add events UI (PPT-1217)
+- Add events UI (PPT-1217)
+- Update booking listings to show extra info for parking (PPT-1380)
+- Add desk height options (PPT-1295, PPT-1298, PPT-1299, PPT-1300)
+- Add desk height options (PPT-1295, PPT-1298, PPT-1299, PPT-1300)
+
+### Refactor
+
+#### Concierge
+
+- Simplify visitor listing table
+
+#### Workplace
+
+- Tweak level selectors for resource selection modals
+
+## [2404.1] - 2024-04-30
 
 ### Bug Fixes
 
@@ -1740,7 +2094,6 @@ All notable changes to this project will be documented in this file.
 - Fix handling of clashes on edit (PROJ-658)
 - Ignore existing bookings for availability checks on edit
 - Fix availability check for validating asset requests
-- Add check to factor in cancelled and declined bookings for availability
 
 #### Booking
 
@@ -1751,33 +2104,6 @@ All notable changes to this project will be documented in this file.
 - Fix availability of resource that have an assigned user (PPT-1223)
 - Increase page size for checking resoure availability (PPT-1318)
 - Add fallback for zone requested for availability checks (PPT-1318)
-- Fix sizing of images
-- Minor tweak to display of details for group events
-- Fix availability checks when user has cancelled bookings
-- Fix desk booking group
-- Remove value to ignore hiding set desk height when not checked in (PPT-1298)
-- Remove room facilities from parking select details
-- Show region instead of building in use_region mode
-- Display region instead of building for visitor invite when configured (PROJ-852)
-- Fix visitor name display (PPT-1453)
-- Tweak building display on details modal (PPT-1454)
-- Fix adding appropriate zones for selected resources
-- Fix switching buildings on parking select modal
-- Fix handling bookings without resources
-- Update logic to handle recurring instances
-- Tweak zones for bookings
-- Fix ending booking instances (PPT-1480)
-- Fix getting map id for pinning resource
-- Fix standalone visitor bookings
-- Fix check for user's availability (PPT-1557, PPT-1558)
-- Fix adding and viewing booked assets (PPT-1568)
-
-#### Concierge
-
-- Fix parking map loaded on refresh
-- Fix setting zones to parking assignment bookings
-- Fix saving level id to parking assignment booking (PPT-1498)
-- Add ability to set host for visitor invites (PPT-1532)
 
 #### Events
 
@@ -1787,15 +2113,6 @@ All notable changes to this project will be documented in this file.
 - Fix ignoring assets for availability on edit (PPT-1227)
 - Fix getting assets status from linked bookings
 - Use linked bookings for assets if available
-- Fix enabling recurrence
-- Include booked event for room availability (PPT-1369)
-- Use room_booking_rules metadata (PROJ-804)
-- Fix display of group event location
-- Fix images display for group events
-- Fix endpoint requests for attendees on group events
-- Fix saving images on group events
-- Fix applying space zones to asset bookings (PPT-1346)
-- Fix extending bookings over another booking (PPT-1559)
 
 #### Explore
 
@@ -1812,47 +2129,14 @@ All notable changes to this project will be documented in this file.
 - Prevent loading parking bookings when UI is public
 - Simplify display of sensor info to allow more displayed on map (PPT-1317)
 - Change sensor overlay to tooltip
-- Ignore bookings status for non-bookable rooms (PPT-1364)
-- Fix space bookings when using maps people (PPT-1394)
-- Fix displaying plate numbers for parking spaces
-- Fix parking info reserved status when space not assigned (PPT-1386)
-- Re-poll parking bookings after making booking from map
-- Fix getting parking status for region
-- Fix selecting the same item twice from search (PPT-1504)
-- Fix grabbing map features for search
-- Ignore rejected bookings for parking maps
 
 #### Form-fields
 
 - Fix booking rules between dates end date edit (PPT-1234)
-- Add check to file type when loading users from CSV file (PROJ-768)
-- Clear input field after uploading image (PPT-1370)
-- Add image viewer component
 
 #### Map-kiosk
 
 - Prevent websocket bindings when app set as public
-
-#### Maps-indoors
-
-- Fix map actions (PPT-1360)
-
-#### Maps-people
-
-- Fix setting level from zone (PPT-1376)
-
-#### Mapspeople
-
-- Tweak styling of map to use internal IDs
-- Fix setting level
-- Tweak handling of building switching (PPT-1501)
-- Clear directions when changing focus item (PPT-1504)
-- Prioritise focus item over building for center
-- Store last position of the user (PPT-1504)
-
-#### Visitors
-
-- Update induction API calls
 
 #### Workplace
 
@@ -1860,44 +2144,14 @@ All notable changes to this project will be documented in this file.
 
 ### Features
 
-#### Bookings
-
-- Use new booked endpoint for resource availability (PPT-1443)
-
-#### Catering
-
-- Upgrade catering order table
-
 #### Concierge
 
 - Add section for management for URLs
 - Add public link for points of interest
-- Add ability to set support ticket types (PPT-1342)
-- Add option to select points of interest from a map (PPT-1343)
-- Add event UI (PPT-1216)
-- Add event UI (PPT-1216)
-- Add calendar views for group events
-- Add ability to see parking space status on manage view (PPT-1379)
-- Add extra parking map display info (PPT-1386)
-- Add ability to set notes on visitors (PPT-1472)
-- Add week view for calendar events (PPT-1508)
-- Add ability to search for calendar events (PPT-1509)
-- Add ability display bookings based on the building timezone
-- Add reply-to and from addresses (PPT-1461)
-
-#### Control
-
-- Add basic voice assistant
 
 #### Explore
 
 - Add ability to deeplink locations (PPT-1273)
-- Setup parking map booking checks and status displays (PPT-1387)
-- Add logic to show occupancy icons for rooms (PPT-1464)
-
-#### Form-fields
-
-- Add ability to attach files to input (PPT-1458)
 
 #### Map-kiosk
 
@@ -1906,27 +2160,12 @@ All notable changes to this project will be documented in this file.
 #### Workplace
 
 - Allow using regions for resource availability (PPT-1184)
-- Add integrations for group events (PPT-1220)
-- Add events UI (PPT-1217)
-- Add events UI (PPT-1217)
-- Update booking listings to show extra info for parking (PPT-1380)
-- Add desk height options (PPT-1295, PPT-1298, PPT-1299, PPT-1300)
-- Add desk height options (PPT-1295, PPT-1298, PPT-1299, PPT-1300)
-- Rework work location UI (PPT-1482)
 
 ### Refactor
-
-#### Concierge
-
-- Simplify visitor listing table
 
 #### Explore
 
 - Re-write mapspeoples integration
-
-#### Workplace
-
-- Tweak level selectors for resource selection modals
 
 ## [2402.1] - 2024-02-27
 
@@ -1934,10 +2173,6 @@ All notable changes to this project will be documented in this file.
 
 #### Assets
 
-- Tweak saving/updating of linked asset bookings
-- Ignore cancelled and declined assets bookings for availability
-- Ignore rejected bookings for availability
-- Minor tweaks
 - Fix keeping status when event changes (PPT-1143)
 - Reduce request data stored in events/bookings
 - Tweak grab more items when requesting available assets (PPT-1159)
@@ -1951,22 +2186,81 @@ All notable changes to this project will be documented in this file.
 - Prevent over selecting available assets across requests
 - Handle not asset ids set on request items
 
-#### Booking-panel
+#### Bookings
 
-- Add new custom status text when meeting is checked in early (PPT-976)
+- Prevent editing visitor bookings
+- Remove conflicting linked bookings when editing events/bookings (PPT-1199)
+
+#### Events
+
+- Tweak edit availability checks for future times (PPT-1119)
+- Update availability check at the end of the booking flow (PPT-1119)
+- Fix clearing loading state on error when assets are included
+- Fix checking availability on edits (PPT-1119)
+- Also use event status for evaluating overall status (PPT-1167)
+- Only update asset options on change
+- Prevent id being sent in events request
+- Add ability to set calendar resource for no space bookings (PPT-1141)
+- Handle availability request errors
+- Tweak checks for valid asset requests
+
+#### Explore
+
+- Prevent opening space book modal when panning
+
+#### Form-fields
+
+- Fix selecting user data from less strict input (PPT-1171)
+- Add work location for internal users on user list field (PPT-1150)
+
+#### User
+
+- Add ability to get location for specific time
+
+#### Users
+
+- Force page to reload after saving (PPT-1183)
+- Fix WFH icon and tooltip for work hours
+- Tweak handling of times for location
+
+#### Workplace
+
+- Fix to metadata for link created events (PPT-981)
+
+### Features
+
+#### Concierge
+
+- Add signage playlists logic
+
+#### Events
+
+- Add ability to use the building parent instead of the building (PPT-1184)
+
+#### Users
+
+- Update WFH settings
+
+### Refactor
+
+#### Maps-people
+
+- Clean up naming of service and properties
+
+## [2312.1] - 2023-12-21
+
+### Bug Fixes
+
+#### Assets
+
+- Ignore cancelled and declined assets bookings for availability
+- Ignore rejected bookings for availability
+- Minor tweaks
 
 #### Bookings
 
-- Fix setting initial level when select desks from map (PPT-973)
-- Display desks without a user as not-bookable
-- Fix map colours on desk select modal (PPT-913)
-- Hide check-in after check on details modal
-- Fix user tooltip display for desk select map (PPT-913)
-- Set resource as attendee in linked events
 - Fix clearing form on navigation (PPT-1057)
 - Fix formatting for all day bookings (PPT-1127)
-- Prevent editing visitor bookings
-- Remove conflicting linked bookings when editing events/bookings (PPT-1199)
 
 #### Catering
 
@@ -1975,20 +2269,11 @@ All notable changes to this project will be documented in this file.
 
 #### Chat
 
-- Allow resuming chats on timeout
-- Fix timestamp displayed for messages
 - Various minor updates
 - Fix closing chat
 
 #### Concierge
 
-- Tweaks to printing QR codes (PPT-952)
-- Tweaks to printing QR codes (PPT-952)
-- Various desk manage fixes (PPT-1030, PPT-1029, PPT-1028)
-- Re-add ability to checkin all visitors from room booking (PPT-982)
-- Use calendar value first for delete or decline of events (PPT-975)
-- Retry events request with delay on 429 (PPT-1047)
-- Fix to display of setup/breakdown meetings (PPT-535)
 - Fix sorting desk bookings (PPT-842)
 - Fix changing asset tracking status (PPT-1125)
 - Fix filtering of invalid asset requests (PPT-1126)
@@ -2000,11 +2285,6 @@ All notable changes to this project will be documented in this file.
 
 #### Events
 
-- Fix check in state of attendees when init from booking
-- Fix duration for multi-day bookings
-- Change setup/breakdown time back to minutes
-- Tweak to visit expected handling
-- Fix removing visit expected value on room bookings
 - Tweak parsing of data (PPT-981)
 - Fix catering settings for main form group
 - Set min duration for all day bookings to 24hrs (PPT-1060)
@@ -2029,16 +2309,6 @@ All notable changes to this project will be documented in this file.
 - Fix filtering of valid catering orders (PPT-1072)
 - Load metadata for event if needed
 - Update metadata if unable to update event setup/breakdown (PPT-1130)
-- Tweak edit availability checks for future times (PPT-1119)
-- Update availability check at the end of the booking flow (PPT-1119)
-- Fix clearing loading state on error when assets are included
-- Fix checking availability on edits (PPT-1119)
-- Also use event status for evaluating overall status (PPT-1167)
-- Only update asset options on change
-- Prevent id being sent in events request
-- Add ability to set calendar resource for no space bookings (PPT-1141)
-- Handle availability request errors
-- Tweak checks for valid asset requests
 
 #### Explore
 
@@ -2047,30 +2317,92 @@ All notable changes to this project will be documented in this file.
 - Fix hiding zone toggle
 - Allow changing count value used for occupancy
 - Minor fixes
-- Prevent opening space book modal when panning
 
 #### Form-fields
 
-- Remove space as item separator (PPT-984)
-- Fix is between field on booking rules form (PPT-1031, PPT-1033)
 - Allow adding comma separated list of items
-- Fix selecting user data from less strict input (PPT-1171)
-- Add work location for internal users on user list field (PPT-1150)
 
 #### Spaces
 
 - Add handling for multiday bookings (PPT-1117)
 
-#### User
+#### Workplace
 
-- Add ability to get location for specific time
+- Fix filtering duplicate events (PPT-981)
+- Prevent editing multi-day bookings
+- Fix display of multiday event times
+- Fix data sync between shared input fields (PPT-1117)
+- Add extra display info to multiday end time field
+- Fix selectable durations (PPT-1120)
+
+### Features
+
+#### Assets
+
+- Add category fields to assets select modal (PPT-1075)
+- Add ability to book multiple groups of assets (PPT-1073)
+
+#### Catering
+
+- Add ability for multiple orders per booking
+
+#### Events
+
+- Update display of catering orders on details modal (PPT-1080)
+- Add ability to handle multi-day events
+
+## [2311.1] - 2023-11-15
+
+### Bug Fixes
+
+#### Assets
+
+- Tweak saving/updating of linked asset bookings
+
+#### Booking-panel
+
+- Add new custom status text when meeting is checked in early (PPT-976)
+
+#### Bookings
+
+- Fix setting initial level when select desks from map (PPT-973)
+- Display desks without a user as not-bookable
+- Fix map colours on desk select modal (PPT-913)
+- Hide check-in after check on details modal
+- Fix user tooltip display for desk select map (PPT-913)
+- Set resource as attendee in linked events
+
+#### Chat
+
+- Allow resuming chats on timeout
+- Fix timestamp displayed for messages
+
+#### Concierge
+
+- Tweaks to printing QR codes (PPT-952)
+- Tweaks to printing QR codes (PPT-952)
+- Various desk manage fixes (PPT-1030, PPT-1029, PPT-1028)
+- Re-add ability to checkin all visitors from room booking (PPT-982)
+- Use calendar value first for delete or decline of events (PPT-975)
+- Retry events request with delay on 429 (PPT-1047)
+- Fix to display of setup/breakdown meetings (PPT-535)
+
+#### Events
+
+- Fix check in state of attendees when init from booking
+- Fix duration for multi-day bookings
+- Change setup/breakdown time back to minutes
+- Tweak to visit expected handling
+- Fix removing visit expected value on room bookings
+
+#### Form-fields
+
+- Remove space as item separator (PPT-984)
+- Fix is between field on booking rules form (PPT-1031, PPT-1033)
 
 #### Users
 
 - Update phone validation regex
-- Force page to reload after saving (PPT-1183)
-- Fix WFH icon and tooltip for work hours
-- Tweak handling of times for location
 
 #### Visitor-kiosk
 
@@ -2084,25 +2416,12 @@ All notable changes to this project will be documented in this file.
 - Tweak topbar colours
 - Fix disabling assets field on selecting a space (PPT-956)
 - Add logic to prevent duplicates showing when using calendar links (PPT-981)
-- Fix filtering duplicate events (PPT-981)
-- Prevent editing multi-day bookings
-- Fix display of multiday event times
-- Fix data sync between shared input fields (PPT-1117)
-- Add extra display info to multiday end time field
-- Fix selectable durations (PPT-1120)
-- Fix to metadata for link created events (PPT-981)
 
 ### Features
 
 #### Assets
 
 - Add ability to disable asset booking for specific rooms
-- Add category fields to assets select modal (PPT-1075)
-- Add ability to book multiple groups of assets (PPT-1073)
-
-#### Catering
-
-- Add ability for multiple orders per booking
 
 #### Chat
 
@@ -2113,22 +2432,14 @@ All notable changes to this project will be documented in this file.
 - Add ability to set availability rules for assets (PPT-956)
 - Add view for locker bookings (PPT-1014)
 - Add ability to manage emergency contacts
-- Add signage playlists logic
 
 #### Events
 
 - Update logic for setup and breakdown
-- Update display of catering orders on details modal (PPT-1080)
-- Add ability to handle multi-day events
-- Add ability to use the building parent instead of the building (PPT-1184)
 
 #### Explore
 
 - Add ability to query emergency contacts (PPT-1045)
-
-#### Users
-
-- Update WFH settings
 
 #### Visitor-kiosk
 
@@ -2139,10 +2450,6 @@ All notable changes to this project will be documented in this file.
 - Add asset restrictions to room booking flow (PPT-956)
 
 ### Refactor
-
-#### Maps-people
-
-- Clean up naming of service and properties
 
 ### Styling
 
@@ -2236,10 +2543,6 @@ All notable changes to this project will be documented in this file.
 
 #### Bookings
 
-- Fix setting for no_approvals with bookings (PPT-829)
-- Fix zone data when editing bookings
-- Fix setting date on edits
-- Fix all day fields
 - Fix setting active resource for bookings
 - Make host booking parent for group desk bookings (PPT-838)
 - Fix warning for unavailable group booking members (PPT-851)
@@ -2247,7 +2550,6 @@ All notable changes to this project will be documented in this file.
 
 #### Concierge
 
-- Fix setting event visitors to remote
 - Fix showing custom reports
 - Update desk booking list to more match new design
 - Handle pagination for reports data
@@ -2255,10 +2557,35 @@ All notable changes to this project will be documented in this file.
 
 #### Events
 
-- Fix saving event when setting setup and breakdown times (PPT-720)
 - Tweak handling of availability when editing bookings (PPT-839)
 - Fix availability check (PPT-839)
 - Update day of week for recurrence on date change (PPT-846)
+
+#### Explore
+
+- Clean binding logic for desk statuses
+- Fix handling user data from desk bookings
+
+### Features
+
+## [2308.2] - 2023-08-24
+
+### Bug Fixes
+
+#### Bookings
+
+- Fix setting for no_approvals with bookings (PPT-829)
+- Fix zone data when editing bookings
+- Fix setting date on edits
+- Fix all day fields
+
+#### Concierge
+
+- Fix setting event visitors to remote
+
+#### Events
+
+- Fix saving event when setting setup and breakdown times (PPT-720)
 
 #### Explore
 
@@ -2266,14 +2593,10 @@ All notable changes to this project will be documented in this file.
 - Tweak handling of desk data
 - Show "desk" on error if desk has no name
 - Fix errors with desk bookings
-- Clean binding logic for desk statuses
-- Fix handling user data from desk bookings
 
 #### Form-fields
 
 - Update support email requests (PPT-823)
-
-### Features
 
 ## [2308W3] - 2023-08-22
 
@@ -2304,10 +2627,6 @@ All notable changes to this project will be documented in this file.
 - Allow forcing of displayed value on duration field
 - Fix plural form text on recurrence modal (PPT-805)
 
-#### Org
-
-- Fix saving selected regions
-
 #### Users
 
 - Fix email case sensitivity for availability display (PPT-811)
@@ -2318,7 +2637,70 @@ All notable changes to this project will be documented in this file.
 
 - Add ability to make standalone visitor bookings (PPT-787)
 
+## [2308.1] - 2023-08-10
+
+### Bug Fixes
+
+#### Org
+
+- Fix saving selected regions
+
 ## [2308W2] - 2023-08-08
+
+### Bug Fixes
+
+#### Bookings
+
+- Only show checkin around booking period (PPT-740)
+- Ignore existing booking in availability checks (PPT-741)
+- Fix setting host for visitor bookings
+- Fix resource list update on building change (PPT-763)
+
+#### Concierge
+
+- Fix handling building switches on booking room select (PPT-764)
+
+#### Events
+
+- Add booking rules filter to future available spaces (PPT-736)
+- Fix id for status binding (PPT-759)
+- Add booking rule for available hours
+- Update clear routes for form data (PPT-764)
+
+#### Explore
+
+- Add zone info to feature locating (PPT-748)
+- Fix zone details for locating points of interest (PPT-748)
+- Show desks as busy when auto checkin enable
+- Fix handling non-existant desk restrictions
+- Fix checked in check for desks
+
+#### Form-fields
+
+- Make default end date of recurrence 1 day less than a year (PPT-757)
+- Add setting for default recurrence period
+- Change default recurrence period to 180 days (PPT-757)
+
+#### Users
+
+- Update availability on date change (PPT-749)
+
+#### Visitor-kiosk
+
+- Add logic for handling standalone bookings
+
+#### Workplace
+
+- Re-enable desk booking editing (PPT-741)
+- Fix editing desk bookings (PPT-741)
+
+### Styling
+
+#### Concierge
+
+- Minor custom table style changes
+
+## [2307W4] - 2023-07-25
 
 ### Bug Fixes
 
@@ -2370,24 +2752,11 @@ All notable changes to this project will be documented in this file.
 
 #### Booking-panel
 
-- Add dark mode to bootstrap view
 - Fix check for bookings for status
 - Fix booking from checkin view (PPT-631)
 
 #### Bookings
 
-- Tweak feature display for desk details
-- Fix image display on desk list
-- Fix parsing asset name
-- Tweak handling of booking type
-- Fix making visitor bookings
-- Fix to previous commit
-- Add error handling to invite visitor
-- Tweak to visitor listing
-- Hide image section when no images present (#213)
-- Fix visitor name being stored
-- Show different error message for visitor bookings
-- Tweak to payments
 - Hide desk images when none available
 - Add loading logic for parking spaces
 - Fix getting parking space metadata
@@ -2441,10 +2810,6 @@ All notable changes to this project will be documented in this file.
 - Fix visitor error handling and form on extra requests (PPT-707)
 - Fix setting start time for visitor bookings (PPT-719)
 - Minor fix
-- Only show checkin around booking period (PPT-740)
-- Ignore existing booking in availability checks (PPT-741)
-- Fix setting host for visitor bookings
-- Fix resource list update on building change (PPT-763)
 
 #### Catering
 
@@ -2454,26 +2819,12 @@ All notable changes to this project will be documented in this file.
 - Tweak handling of options
 - Fix display of order data when listed (PPT-469)
 
-#### Common
-
-- Fix calendar link generation
-- Fix to previous commit
-- Fix calendar links for google calendar
-- Fix timezone issue with calendar links
-- Tweak handling of attendees for calendar links
-- Tweak handling of spaces for calendar links
-- Fix adding spaces as attendees to google calendar links
-
 #### Components
 
 - Fix display of map location (PPT-347)
 
 #### Concierge
 
-- Fix dark mode styles for visitors
-- Fix minor dark mode issues
-- Add dark mode styles for asset manager
-- Add logic to checkin guests from PlaceOS bookings
 - Fix passing asset details to backend
 - Show desk bookings that are checked out/deleted
 - Fix variable for desk restriction modal
@@ -2495,7 +2846,6 @@ All notable changes to this project will be documented in this file.
 - Fix deleting events
 - Remove event editing
 - Show facilities option when no admin group set
-- Fix handling building switches on booking room select (PPT-764)
 
 #### Control
 
@@ -2504,34 +2854,12 @@ All notable changes to this project will be documented in this file.
 - Fix button styles
 - Add logic to allow ignoring server update from binding
 
-#### Currency
-
-- Fix using setting for currency code (#198)
-
 #### Desks
 
 - Fix end time for all day (#314)
 
-#### Event
-
-- Fix dark mode styles
-
 #### Events
 
-- Fix loading while making a booking
-- Fix handling of catering
-- Add setting to restrict zone spaces to email domain
-- Fix to previous commit
-- Fix parsing of catering order data
-- Prevent editing/deleting when unavailable
-- Fix dates in calendar links
-- Fix to converting visitor booking into event
-- Fix overflow on notes
-- Fix sizing of detail cards on details modal (#208)
-- Fix converting bookings to events
-- Fix loading space data for details modal
-- Pass selected rooms as attendees
-- Fix attendee status counts for event details modal
 - Tweak handling of available spaces
 - Hookup booking checkin
 - Disable check in when checked in
@@ -2599,17 +2927,9 @@ All notable changes to this project will be documented in this file.
 - Fix space availability
 - Fix to previous commit
 - Fix removing recurring series (PPT-692)
-- Add booking rules filter to future available spaces (PPT-736)
-- Fix id for status binding (PPT-759)
-- Add booking rule for available hours
-- Update clear routes for form data (PPT-764)
 
 #### Explore
 
-- Set host when making space bookings from map
-- Fix minor dark mode style issues
-- Show links for delegated map bookings
-- Fix positioning of space info tooltips
 - Fix updating space tooltips
 - Update check for in use desks (#242)
 - Limit buildings to active region
@@ -2656,11 +2976,6 @@ All notable changes to this project will be documented in this file.
 - Fix locker driver binding runtime error
 - Update booking available error message (PPT-686)
 - Use driver data for in use desk checks
-- Add zone info to feature locating (PPT-748)
-- Fix zone details for locating points of interest (PPT-748)
-- Show desks as busy when auto checkin enable
-- Fix handling non-existant desk restrictions
-- Fix checked in check for desks
 
 #### Form-field
 
@@ -2668,7 +2983,6 @@ All notable changes to this project will be documented in this file.
 
 #### Form-fields
 
-- Fix updating of space list on modal close
 - Fix text colour for user list field
 - Fix input icon colors on dark mode
 - Fix user list upload styling
@@ -2680,9 +2994,6 @@ All notable changes to this project will be documented in this file.
 - Fix display of recurrence details (PPT-648)
 - Fix non-custom recurrence options (PPT-650)
 - Minor tweaks to handling recurrence
-- Make default end date of recurrence 1 day less than a year (PPT-757)
-- Add setting for default recurrence period
-- Change default recurrence period to 180 days (PPT-757)
 
 #### I18n
 
@@ -2708,7 +3019,6 @@ All notable changes to this project will be documented in this file.
 
 #### Spaces
 
-- Fix showing space display name when listed
 - Allow selecting building for space searching
 - Fix typo
 - Show space features on select modal
@@ -2731,20 +3041,9 @@ All notable changes to this project will be documented in this file.
 - Fix find availability modal block display
 - Fix availability modal scrolling (PPT-713)
 - Tweak availability modal styles
-- Update availability on date change (PPT-749)
-
-#### Visitor-kiosk
-
-- Add logic for handling standalone bookings
 
 #### Workplace
 
-- Fix dark mode styles for visitor flow
-- Fix dark mode styles for old UIs
-- Add locker mocks to old desk flow
-- Fix more dark mode styles
-- Fix visitor flow not returning to home after finished
-- Hide location on landing due to no data source for the value
 - Show other resource types in favourites list
 - #230: Prevent duplicate request
 - #234 re-init zone after booking
@@ -2767,8 +3066,6 @@ All notable changes to this project will be documented in this file.
 - Tweak parsing of locker booking data (PPT-679)
 - Add check to global search for contacts (PPT-718)
 - Fix handling of locker data for bookings
-- Re-enable desk booking editing (PPT-741)
-- Fix editing desk bookings (PPT-741)
 
 ### Features
 
@@ -2786,9 +3083,6 @@ All notable changes to this project will be documented in this file.
 
 #### Bookings
 
-- Add company field for visitor invites (#211)
-- Add simple lookup for past visitors
-- Add attendees key to bookings
 - Add ability to book multiple visitors at once (PPT-360)
 - Start adding logic for lockers
 - Add component for rendering locker grid
@@ -2797,7 +3091,6 @@ All notable changes to this project will be documented in this file.
 
 #### Concierge
 
-- Add dark mode styles
 - Allow catering notes to be viewed
 - Add ability to set desk restrictions (PPT-396)
 - Add listing of rooms
@@ -2808,7 +3101,6 @@ All notable changes to this project will be documented in this file.
 
 #### Events
 
-- Allow restricting spaces by email domain
 - Add ability to make catering notes required
 - Add setting to set resource as meeting host
 - Add setting to force host of meetings
@@ -2824,17 +3116,12 @@ All notable changes to this project will be documented in this file.
 
 #### Form-fields
 
-- Update user list field to handle visitor details (#215)
 - Add input for uploading images
 - Add recurrence form fields (PPT-484)
 
 #### Locale
 
 - Add logic for setting locales
-
-#### Outlook-addin
-
-- Add desk flow to addin (#203)
 
 #### Survey
 
@@ -2843,11 +3130,6 @@ All notable changes to this project will be documented in this file.
 
 #### Workplace
 
-- Cleanup desk select modal and refactor it to shared module
-- Add meeting flow for user availability
-- Add feature to show calendar links for event booking
-- Add calendar links to desk booking
-- Show visitor bookings on schedule view (#207)
 - Allow user to view the changelog
 - Add region selection support (#233)
 - Add catering notes support
@@ -2855,6 +3137,160 @@ All notable changes to this project will be documented in this file.
 - Fix for PPT-8
 - Add flow and select modal for lockers
 - Add locker filter to schedule page
+
+### Refactor
+
+#### Workplace
+
+- Fix image related issues (#219)
+- Tweak dark mode styles
+
+### Styling
+
+#### Survey/concierge
+
+- Add svg to assets folder for drag and drop icon
+- Add not-found icon referenced in NotFoundComponent
+- Add mock building image, building name and address for Building-List-Component
+- Style mock building image to fit container
+- Add surveyJS inbuilt styling and SurveyModule to Concierge, update styling in Complete-Survey component
+- Change styling in surveyjs package to different styling to see survey complete button
+
+## [1.12.0] - 2022-11-08
+
+### Bug Fixes
+
+#### Bookings
+
+- Tweak to visitor listing
+- Hide image section when no images present (#213)
+- Fix visitor name being stored
+- Show different error message for visitor bookings
+- Tweak to payments
+
+#### Common
+
+- Tweak handling of spaces for calendar links
+- Fix adding spaces as attendees to google calendar links
+
+#### Concierge
+
+- Add logic to checkin guests from PlaceOS bookings
+
+#### Event
+
+- Fix dark mode styles
+
+#### Events
+
+- Fix to converting visitor booking into event
+- Fix overflow on notes
+- Fix sizing of detail cards on details modal (#208)
+- Fix converting bookings to events
+- Fix loading space data for details modal
+- Pass selected rooms as attendees
+- Fix attendee status counts for event details modal
+
+#### Explore
+
+- Show links for delegated map bookings
+- Fix positioning of space info tooltips
+
+#### Spaces
+
+- Fix showing space display name when listed
+
+#### Workplace
+
+- Hide location on landing due to no data source for the value
+
+### Features
+
+#### Bookings
+
+- Add company field for visitor invites (#211)
+- Add simple lookup for past visitors
+- Add attendees key to bookings
+
+#### Form-fields
+
+- Update user list field to handle visitor details (#215)
+
+#### Workplace
+
+- Show visitor bookings on schedule view (#207)
+
+## [1.11.0] - 2022-10-19
+
+### Bug Fixes
+
+#### Booking-panel
+
+- Add dark mode to bootstrap view
+
+#### Bookings
+
+- Tweak feature display for desk details
+- Fix image display on desk list
+- Fix parsing asset name
+- Tweak handling of booking type
+- Fix making visitor bookings
+- Fix to previous commit
+- Add error handling to invite visitor
+
+#### Common
+
+- Fix calendar link generation
+- Fix to previous commit
+- Fix calendar links for google calendar
+- Fix timezone issue with calendar links
+- Tweak handling of attendees for calendar links
+
+#### Concierge
+
+- Fix dark mode styles for visitors
+- Fix minor dark mode issues
+- Add dark mode styles for asset manager
+
+#### Currency
+
+- Fix using setting for currency code (#198)
+
+#### Events
+
+- Fix parsing of catering order data
+- Prevent editing/deleting when unavailable
+- Fix dates in calendar links
+
+#### Explore
+
+- Fix minor dark mode style issues
+
+#### Form-fields
+
+- Fix updating of space list on modal close
+
+#### Workplace
+
+- Fix dark mode styles for visitor flow
+- Fix dark mode styles for old UIs
+- Add locker mocks to old desk flow
+- Fix more dark mode styles
+- Fix visitor flow not returning to home after finished
+
+### Features
+
+#### Concierge
+
+- Add dark mode styles
+
+#### Outlook-addin
+
+- Add desk flow to addin (#203)
+
+#### Workplace
+
+- Add calendar links to desk booking
 
 ### Refactor
 
@@ -2871,23 +3307,33 @@ All notable changes to this project will be documented in this file.
 
 - Update styles for global search
 - Tweak to dark mode styles
-- Fix image related issues (#219)
-- Tweak dark mode styles
 
-### Styling
+## [1.10.0] - 2022-09-29
 
-#### Concierge
+### Bug Fixes
 
-- Minor custom table style changes
+#### Events
 
-#### Survey/concierge
+- Fix loading while making a booking
+- Fix handling of catering
+- Add setting to restrict zone spaces to email domain
+- Fix to previous commit
 
-- Add svg to assets folder for drag and drop icon
-- Add not-found icon referenced in NotFoundComponent
-- Add mock building image, building name and address for Building-List-Component
-- Style mock building image to fit container
-- Add surveyJS inbuilt styling and SurveyModule to Concierge, update styling in Complete-Survey component
-- Change styling in surveyjs package to different styling to see survey complete button
+#### Explore
+
+- Set host when making space bookings from map
+
+### Features
+
+#### Events
+
+- Allow restricting spaces by email domain
+
+#### Workplace
+
+- Cleanup desk select modal and refactor it to shared module
+- Add meeting flow for user availability
+- Add feature to show calendar links for event booking
 
 ## [1.9.0] - 2022-08-31
 
@@ -3155,12 +3601,10 @@ All notable changes to this project will be documented in this file.
 
 #### Bookings
 
-- Fix handling invalid data for asset features
 - Tweak handling of all day bookings
 
 #### Common
 
-- Simplify retrieval of bindings metadata
 - Add handling for boolean strings to CSV parsing
 
 #### Components
@@ -3181,42 +3625,11 @@ All notable changes to this project will be documented in this file.
 - Only check availability for new events or when date/duration changes
 - Only check availability when there are spaces selected
 
-#### Explore
-
-- Tweak presence check
-- Also check building for location services bindings
-- Fix map features occasionally re-rendering
-- Update booking modal to get max duration from settings
-- Fix check for space info features
-- Fix space info tooltip error
-- Tweaks to map components
-- Tweaks to handling tracking features
-- Tweak desk status logic
-- Tweak check for desk presence
-- Fix adding space actions
-
 #### Mocks
 
 - Tweak area management data
 
-#### Users
-
-- Update location class to handle desks
-- Add logic to handle user departments
-
-#### Workplace
-
-- Fix all day booking details
-
 ### Features
-
-#### Contact-tracing
-
-- Hookup contact tracing to API
-
-#### Explore
-
-- Allow hiding of feature list on space info tooltip
 
 #### Form-fields
 
@@ -3237,7 +3650,6 @@ All notable changes to this project will be documented in this file.
 
 #### Workplace
 
-- Add logic to handle group desk bookings
 - Start adding new space booking flow
 - Change new space flow to meeting flow
 
@@ -3248,6 +3660,55 @@ All notable changes to this project will be documented in this file.
 #### Space
 
 - Tweak styles for space select components
+
+## [1.4.0] - 2022-04-04
+
+### Bug Fixes
+
+#### Bookings
+
+- Fix handling invalid data for asset features
+
+#### Common
+
+- Simplify retrieval of bindings metadata
+
+#### Explore
+
+- Tweak presence check
+- Also check building for location services bindings
+- Fix map features occasionally re-rendering
+- Update booking modal to get max duration from settings
+- Fix check for space info features
+- Fix space info tooltip error
+- Tweaks to map components
+- Tweaks to handling tracking features
+- Tweak desk status logic
+- Tweak check for desk presence
+- Fix adding space actions
+
+#### Users
+
+- Update location class to handle desks
+- Add logic to handle user departments
+
+#### Workplace
+
+- Fix all day booking details
+
+### Features
+
+#### Contact-tracing
+
+- Hookup contact tracing to API
+
+#### Explore
+
+- Allow hiding of feature list on space info tooltip
+
+#### Workplace
+
+- Add logic to handle group desk bookings
 
 ## [1.3.0] - 2022-03-02
 
@@ -3298,6 +3759,107 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+#### Components
+
+- Fix logic for setting focus element on map
+
+#### Concierge
+
+- Fix reports page
+- Add mock data for guest attachments
+- Tweak styling for id/vaccine attachment tooltips
+
+### Features
+
+#### Asset-manager
+
+- Start adding mocks for assets
+
+#### Common
+
+- Add basic service for sending logs to a driver
+
+#### Concierge
+
+- Add basic contact tracing report
+- Add logic and mocks for handling asset requests
+- Add parking components
+
+#### Workplace
+
+- Add logic and components for parking
+- Add logic for preventing duplicate parking space bookings
+- Add logic for auto allocation of desks when booking (#99)
+
+## [1.1.0] - 2021-12-01
+
+### Bug Fixes
+
+#### Bookings
+
+- Ignore cancelled bookings
+- Ignore cancelled bookings for asset availability
+
+#### Common
+
+- Fix app name
+
+#### Components
+
+- Tweak map polygon logic
+- Fixes to drawing polygons on the map
+- Tweaks to map polygon rendering
+- Fix showing custom tooltips on touch
+
+#### Explore
+
+- Update device dots to be above zones
+- Tweak device info tooltip
+- Add z-index to location pins
+- Fix z-indexing of map features (#70)
+- Fix booking qr code URL
+- Fix booking desks from the map
+- Draw zone polygons even if there is no status for them
+- Minor tweaks to zone rendering
+- Tweak display of people count
+- Tweak zone labels
+- Minor fix to device info component
+
+#### Workplace
+
+- Fix selecting a room a second time
+
+### Features
+
+#### Asset-manager
+
+- Add logic for asset requests
+
+#### Concierge
+
+- Add extra logic for visitors (#92, #93, #94, #95)
+- Add file upload component from enrolment to asset manager
+- More asset manager logic
+- Add location listing modal to asset manager
+
+#### Enrolment
+
+- Add new enrolment app
+- Allow users to upload attachments to their guest details (#91)
+- Add ability to upload vaccination proof (#96)
+
+#### Explore
+
+- Add ability to show qr code for booking rooms
+
+#### Timetable
+
+- Start adding timetable app
+
+## [1.0.0] - 2021-10-25
+
+### Bug Fixes
+
 #### Api
 
 - Encode ids passed into urls (#29)
@@ -3337,8 +3899,6 @@ All notable changes to this project will be documented in this file.
 - Fix setting start and end time from form data
 - Tweak handling of all day bookings
 - Fix booking type when clear form after booking
-- Ignore cancelled bookings
-- Ignore cancelled bookings for asset availability
 
 #### Catering
 
@@ -3352,7 +3912,6 @@ All notable changes to this project will be documented in this file.
 - Fix ordering for grabbing user settings
 - Fix conditional for getting top level settings
 - Fix parsing settings
-- Fix app name
 
 #### Components
 
@@ -3366,11 +3925,6 @@ All notable changes to this project will be documented in this file.
 - Reduce map viewer errors
 - Fix scaling of map polygons
 - Fix height of main section
-- Tweak map polygon logic
-- Fixes to drawing polygons on the map
-- Tweaks to map polygon rendering
-- Fix showing custom tooltips on touch
-- Fix logic for setting focus element on map
 
 #### Concierge
 
@@ -3385,9 +3939,6 @@ All notable changes to this project will be documented in this file.
 - Tweaks to visitor logic
 - Add inputs for adding features to desks
 - Fix mat elements in desks topbar
-- Fix reports page
-- Add mock data for guest attachments
-- Tweak styling for id/vaccine attachment tooltips
 
 #### Control
 
@@ -3465,17 +4016,6 @@ All notable changes to this project will be documented in this file.
 - Minor fixes to explore zones
 - Prevent booking non-bookable desks
 - Fix setting for limiting date on desk bookings
-- Update device dots to be above zones
-- Tweak device info tooltip
-- Add z-index to location pins
-- Fix z-indexing of map features (#70)
-- Fix booking qr code URL
-- Fix booking desks from the map
-- Draw zone polygons even if there is no status for them
-- Minor tweaks to zone rendering
-- Tweak display of people count
-- Tweak zone labels
-- Minor fix to device info component
 
 #### Form-field
 
@@ -3538,14 +4078,8 @@ All notable changes to this project will be documented in this file.
 - Fix check for allowing actions on calendar events
 - Clean up top menu
 - Add topbar menu button for schedule page
-- Fix selecting a room a second time
 
 ### Features
-
-#### Asset-manager
-
-- Add logic for asset requests
-- Start adding mocks for assets
 
 #### Booking
 
@@ -3568,7 +4102,6 @@ All notable changes to this project will be documented in this file.
 
 - Change app name to default to URL path
 - Add route guard for checking enabled features
-- Add basic service for sending logs to a driver
 
 #### Components
 
@@ -3593,13 +4126,6 @@ All notable changes to this project will be documented in this file.
 - Finish adding logic for points
 - Add catering report (#57)
 - Add some charts to desk report
-- Add extra logic for visitors (#92, #93, #94, #95)
-- Add file upload component from enrolment to asset manager
-- More asset manager logic
-- Add location listing modal to asset manager
-- Add basic contact tracing report
-- Add logic and mocks for handling asset requests
-- Add parking components
 
 #### Control
 
@@ -3617,12 +4143,6 @@ All notable changes to this project will be documented in this file.
 
 - Add booking modal and logic
 
-#### Enrolment
-
-- Add new enrolment app
-- Allow users to upload attachments to their guest details (#91)
-- Add ability to upload vaccination proof (#96)
-
 #### Explore
 
 - Add logic to pin items on the map
@@ -3634,7 +4154,6 @@ All notable changes to this project will be documented in this file.
 - Add ability to display custom zones on map
 - Allow selecting a time for desk bookings
 - Allow pinning of any element with query parameters
-- Add ability to show qr code for booking rooms
 
 #### Form-fields
 
@@ -3665,10 +4184,6 @@ All notable changes to this project will be documented in this file.
 
 - Allow for custom css variables from settings
 
-#### Timetable
-
-- Start adding timetable app
-
 #### Visitor-kiosk
 
 - Cleanup checkin flow components
@@ -3693,9 +4208,6 @@ All notable changes to this project will be documented in this file.
 - Add ability to set time during the day for desk bookings
 - Allow setting custom host for events and bookings
 - Add logic for saving user settings
-- Add logic and components for parking
-- Add logic for preventing duplicate parking space bookings
-- Add logic for auto allocation of desks when booking (#99)
 
 ### Refactor
 
