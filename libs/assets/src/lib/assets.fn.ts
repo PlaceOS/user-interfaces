@@ -127,15 +127,24 @@ export function saveAssetCategory(category: Partial<PlaceAssetCategory>) {
 const _GROUPS_CACHE = new Map<string, AssetGroup[]>();
 const REMOVE_QUERY_KEYS = ['period_start', 'period_end', 'type', 'rejected'];
 
-/** Query assets, following pagination until every page is loaded */
-export async function queryAllAssetPages(query: any = {}) {
+/** Upper bound on pages loaded by `queryAllAssetPages` (100 × 500 assets) */
+const MAX_ASSET_PAGES = 100;
+
+/**
+ * Query assets, following pagination until every page is loaded.
+ * `zones` is a comma separated list, assets must be in every zone listed.
+ */
+export async function queryAllAssetPages(
+    query: Parameters<typeof queryAssetsAPI>[0] & { zones?: string } = {},
+) {
     let response = await queryAssetsAPI({
         ...query,
         limit: query.limit || 500,
     });
     let total = response.total;
     const data: PlaceAsset[] = [...response.data];
-    while (typeof response.next === 'function') {
+    for (let page = 1; page < MAX_ASSET_PAGES; page++) {
+        if (typeof response.next !== 'function') break;
         const next = response.next();
         if (!next) break;
         response = await next;

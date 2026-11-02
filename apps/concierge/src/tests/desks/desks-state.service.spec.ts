@@ -288,6 +288,8 @@ describe('DesksStateService', () => {
                                       zone_id: 'level-2',
                                       identifier: 'Old Name',
                                       map_id: 'desk-6.06.1',
+                                      bookable: true,
+                                      images: ['desk.png'],
                                       other_data: { floorsense_id: 'fs-1' },
                                   },
                               ]
@@ -300,12 +302,8 @@ describe('DesksStateService', () => {
 
         // a metadata era CSV row, identified by the original desk id
         await spectator.service.addDesks([
-            new Desk({
-                id: 'desk-6.06.1',
-                name: 'New Name',
-                zone_id: 'level-2',
-            } as any),
-            new Desk({ id: 'desk-new', name: 'Brand New' }),
+            { id: 'desk-6.06.1', name: 'New Name', zone_id: 'level-2' } as any,
+            { id: 'desk-new', name: 'Brand New' },
         ]);
 
         expect(ts_client_mod.updateAsset).toHaveBeenCalledTimes(1);
@@ -315,6 +313,9 @@ describe('DesksStateService', () => {
                 zone_id: 'level-2',
                 identifier: 'New Name',
                 map_id: 'desk-6.06.1',
+                // columns missing from the row keep the asset's values
+                bookable: true,
+                images: ['desk.png'],
                 other_data: expect.objectContaining({ floorsense_id: 'fs-1' }),
             }),
         );

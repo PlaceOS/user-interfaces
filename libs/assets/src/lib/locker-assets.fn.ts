@@ -134,6 +134,8 @@ export async function queryLockerBankAssetsForZones(
 export async function queryLockerBankAssetsInZone(
     zone_id: string,
 ): Promise<PlaceAsset[]> {
+    // an empty `zones` filter is not a scope, e.g. the building is not loaded
+    if (!zone_id) return [];
     const type_id = await resolveLockerBankTypeId();
     const response = await queryAllAssetPages({ zones: zone_id, type_id });
     return response.data;
@@ -175,6 +177,8 @@ export async function queryLockerAssetsForZones(
 export async function queryLockerAssetsInZone(
     zone_id: string,
 ): Promise<PlaceAsset[]> {
+    // an empty `zones` filter is not a scope, e.g. the building is not loaded
+    if (!zone_id) return [];
     const type_id = await resolveLockerTypeId();
     const response = await queryAllAssetPages({ zones: zone_id, type_id });
     return response.data;

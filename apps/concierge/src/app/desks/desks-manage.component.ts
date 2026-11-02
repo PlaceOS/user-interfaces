@@ -388,13 +388,10 @@ export class DesksManageComponent extends AsyncHandler {
         try {
             const list = csvToJson(data) || [];
             this._state.addDesks(
-                list.map(
-                    (_) =>
-                        new Desk({
-                            ..._,
-                            id: _.id || `desk-${randomInt(999_999)}`,
-                        }),
-                ),
+                list.map((_) => ({
+                    ..._,
+                    id: _.id || `desk-${randomInt(999_999)}`,
+                })),
             );
         } catch (e) {
             console.error(e);
