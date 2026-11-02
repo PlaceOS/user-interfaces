@@ -2303,6 +2303,14 @@
         "NO_ZONES_AVAILABLE": "Nenhuma zona disponível.",
         "NO_ZONES_USE_PLAYLIST": "Nenhuma zona usa esta lista de reprodução.",
         "ONE_PLAYLIST_PASS": "uma passagem da lista de reprodução",
+        "ORDINAL": "{{ count }}",
+        "ORDINAL_1": "{{ count }}",
+        "ORDINAL_2": "{{ count }}",
+        "ORDINAL_3": "{{ count }}",
+        "ORDINAL_21": "{{ count }}",
+        "ORDINAL_22": "{{ count }}",
+        "ORDINAL_23": "{{ count }}",
+        "ORDINAL_31": "{{ count }}",
         "OPEN_DISPLAY": "Abrir ecrã {{ name }}",
         "OPEN_GROUP": "Abrir grupo {{ name }}",
         "OPEN_PANEL": "Abrir painel de sinalização",
@@ -2337,6 +2345,7 @@
         "PLAYLIST_NAME_ARIA": "Nome da lista de reprodução",
         "PLAYLIST_ORIENTATION_ARIA": "Orientação da lista de reprodução",
         "PLAYLIST_REVERTED": "Lista de reprodução revertida para a versão anterior",
+        "PLAYLIST_REVERT_CONFIRM": "Descartar as alterações pendentes e repor a versão aprovada de {{ name }}? Não poderá recuperar as alterações pendentes.",
         "PLAYLIST_REVERT_ERROR": "Erro ao reverter alterações da lista de reprodução",
         "PLAYLIST_SAVED": "Lista de reprodução guardada",
         "PLAYLIST_SAVE_ERROR": "Erro ao guardar lista de reprodução",
@@ -2421,6 +2430,8 @@
         "SUMMARY_DAILY": "Começa todos os dias às {{ time }} durante {{ duration }}.",
         "SUMMARY_EVERY_HOUR": "Reproduz a cada {{ interval }} horas.",
         "SUMMARY_EVERY_HOUR_1": "Reproduz a cada {{ interval }} hora.",
+        "SUMMARY_EVERY_MINUTE": "Reproduz a cada {{ interval }} minutos.",
+        "SUMMARY_EVERY_MINUTE_1": "Reproduz a cada {{ interval }} minuto.",
         "SUMMARY_MONTHLY": "Começa no dia {{ days }} de cada mês às {{ time }} durante {{ duration }}.",
         "SUMMARY_MONTHLY_WEEKDAY": "Começa no {{ weeks }} {{ days }} de cada mês às {{ time }} durante {{ duration }}.",
         "SUMMARY_PLAY_ONCE": "Reproduz uma vez em {{ datetime }} durante {{ duration }}",
@@ -2533,6 +2544,9 @@
         "ZONE_COUNT_LABEL_1": "{{ count }} zona",
         "ZONE_DETAILS_TABS": "Separadores de detalhes da zona",
         "ZONE_PERMISSIONS": "Permissões da zona",
-        "ZONE_SELECT_DETAILS": "Selecione uma zona para ver os detalhes."
+        "ZONE_SELECT_DETAILS": "Selecione uma zona para ver os detalhes.",
+        "SVC_REMOVING": "A remover...",
+        "SCHEDULE_UNTIL_FROM_NOW": "termina daqui a {{ time }}",
+        "SCHEDULE_UNTIL_AGO": "terminou há {{ time }}"
     }
 }

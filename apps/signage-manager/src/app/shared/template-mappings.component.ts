@@ -3,7 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { computeTemplateLayout, i18n } from '@placeos/common';
+import { computeTemplateLayout, i18n, LocaleService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -16,7 +16,6 @@ import {
 import { SignageContextService } from '../signage-context.service';
 import {
     playlistScheduleExpiryTooltip,
-    playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
 } from '../signage-playlist.util';
 import {
@@ -25,6 +24,7 @@ import {
 } from '../signage-template-mapping';
 import { SignageTemplateService } from '../templates/signage-template.service';
 import { SignageZoneService } from '../zones/signage-zone.service';
+import { scheduleSummary } from './schedule-summary.util';
 
 export type TemplateMappingTargetType = 'display' | 'zone';
 
@@ -335,6 +335,7 @@ export type TemplateMappingTargetType = 'display' | 'zone';
 })
 export class TemplateMappingsComponent {
     private readonly _context = inject(SignageContextService);
+    private readonly _locale = inject(LocaleService);
     private readonly _template_service = inject(SignageTemplateService);
     private readonly _zone_service = inject(SignageZoneService);
 
@@ -396,7 +397,9 @@ export class TemplateMappingsComponent {
         );
     }
 
-    public scheduleLabel = playlistScheduleLabel;
+    public scheduleLabel(schedule: Partial<SignagePlaylistSchedule>) {
+        return scheduleSummary(schedule, this._locale.locale);
+    }
 
     public scheduleTooltip(schedule: Partial<SignagePlaylistSchedule>) {
         const labels = playlistScheduleNextPlayLabels(schedule);

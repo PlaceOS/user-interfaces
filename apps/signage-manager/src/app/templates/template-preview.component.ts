@@ -29,6 +29,7 @@ import { mediaThumbnail } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { SignagePluginService } from '../signage-plugin.service';
 import { pluginName } from '../signage-plugin.util';
+import { signagePlayerUrl } from '../signage-url.util';
 import { SignageTemplateService } from './signage-template.service';
 import {
     applyLayoutPositionDefaults,
@@ -330,14 +331,10 @@ export class TemplatePreviewComponent {
         const template_id = this.live_template_id();
         const display_id = this.selected_display_id();
         if (!template_id || !display_id) return '';
-        // Zone metadata can override the path, so refuse schemes that would
-        // run script in this origin, such as `javascript:`
-        const setting = this.signage_path();
-        const signage_path =
-            setting && parseWebUrl(setting, document.baseURI)
-                ? setting
-                : '/signage';
-        return `${signage_path.replace(/\/$/, '')}/#/template/${encodeURIComponent(template_id)}/${encodeURIComponent(display_id)}?debug=true`;
+        return signagePlayerUrl(
+            this.signage_path(),
+            `template/${encodeURIComponent(template_id)}/${encodeURIComponent(display_id)}`,
+        );
     });
 
     /**

@@ -21,7 +21,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { i18n, notifyWarn } from '@placeos/common';
+import { i18n, LocaleService, notifyWarn } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     buildFormFromFields,
@@ -38,12 +38,12 @@ import {
     SignageTemplateMapping,
 } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
+import { scheduleSummary } from '../shared/schedule-summary.util';
 import {
     SectionTab,
     SectionTabsComponent,
 } from '../shared/section-tabs.component';
 import { SignageContextService } from '../signage-context.service';
-import { playlistScheduleLabel } from '../signage-playlist.util';
 import { SignagePluginService } from '../signage-plugin.service';
 import {
     pluginName,
@@ -737,6 +737,7 @@ import {
 })
 export class TemplateLayoutListComponent {
     private readonly _context = inject(SignageContextService);
+    private readonly _locale = inject(LocaleService);
     private readonly _display_service = inject(SignageDisplayService);
     private readonly _plugin_service = inject(SignagePluginService);
     private readonly _template_service = inject(SignageTemplateService);
@@ -858,7 +859,7 @@ export class TemplateLayoutListComponent {
 
     public mappingSchedule(mapping: SignageTemplateMapping) {
         return mapping.schedule
-            ? playlistScheduleLabel(mapping.schedule)
+            ? scheduleSummary(mapping.schedule, this._locale.locale)
             : i18n('SIGNAGE_MANAGER.DEFAULT_TEMPLATE');
     }
 

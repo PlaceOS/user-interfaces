@@ -4,11 +4,8 @@ import {
     DEFAULT_PLAY_PERIOD_MINUTES,
     doesCronMatchDay,
     hasPlayableScheduleMask,
-    isCronMonthlyWeekday,
     isPlayOnceSchedule,
     mediaAnimation,
-    parseCronNumber,
-    parseCronWeekdays,
     parsePlayAtLocal,
 } from '@placeos/common';
 import {
@@ -17,19 +14,14 @@ import {
     type SignagePlaylistItemSchedule,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
-import { format, formatDistance, fromUnixTime, getUnixTime } from 'date-fns';
+import { format, fromUnixTime, getUnixTime } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { nextCronDates } from './signage-cron.util';
+import { uploadUrl } from './signage-url.util';
 
 /** Format a date as a `play_at_local` value in the viewer's timezone. */
 export function formatPlayAtLocal(date: Date | number) {
     return format(date, "yyyy-MM-dd'T'HH:mm:ss");
-}
-
-/** Play once start time for labels. Local times note the display timezone. */
-function playOnceLabel(schedule: Partial<SignagePlaylistSchedule>) {
-    const start = playOnceStart(schedule)?.toLocaleString() ?? '';
-    return schedule.play_at ? start : `${start} display local time`;
 }
 
 /**
@@ -41,16 +33,6 @@ export function playOnceStart(schedule: Partial<SignagePlaylistSchedule>) {
     const local_time = parsePlayAtLocal(schedule.play_at_local);
     return local_time === null ? null : new Date(local_time);
 }
-
-const WEEKDAY_NAMES = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-];
 
 /**
  * Default animation of a playlist that ts-client loaded. The API returns
@@ -80,9 +62,7 @@ export function playlistMediaThumbnailUrl(item: SignageMedia) {
 }
 
 export function playlistMediaUrl(item: SignageMedia) {
-    return item?.media_id
-        ? `/api/engine/v2/uploads/${item.media_id}/url`
-        : item?.media_uri || '';
+    return item?.media_id ? uploadUrl(item.media_id) : item?.media_uri || '';
 }
 
 export function playlistMediaIcon(item: SignageMedia) {
@@ -162,136 +142,13 @@ export function playlistItemScheduleMap(list: {
     return map;
 }
 
-/** English ordinal of a number, e.g. "1st" or "12th" */
-export function ordinal(value: number) {
-    if (value >= 11 && value <= 13) return `${value}th`;
-    switch (value % 10) {
-        case 1:
-            return `${value}st`;
-        case 2:
-            return `${value}nd`;
-        case 3:
-            return `${value}rd`;
-        default:
-            return `${value}th`;
-    }
-}
-
-function formatCronTime(hour_part: string, minute_part: string) {
-    const date = new Date();
-    date.setHours(+hour_part || 0, +minute_part || 0, 0, 0);
-    return date.toLocaleTimeString(undefined, {
-        hour: 'numeric',
-        minute: '2-digit',
-    });
-}
-
-function durationLabel(duration_minutes: number) {
-    if (!duration_minutes) return 'one playlist pass';
-    if (duration_minutes < 60) {
-        return `${duration_minutes} minute${duration_minutes === 1 ? '' : 's'}`;
-    }
-    if (duration_minutes % 60 === 0) {
-        const hours = duration_minutes / 60;
-        return `${hours} hour${hours === 1 ? '' : 's'}`;
-    }
-    const hours = Math.floor(duration_minutes / 60);
-    const minutes = duration_minutes % 60;
-    return `${hours} hr ${minutes} min`;
-}
-
-/** Days of the month in a plain list such as "1,15". Empty for other values. */
-export function parseCronMonthDays(value: string) {
-    if (!value || value === '*') return [];
-    const days = value.split(',').map((part) => parseCronNumber(part, 1, 31));
-    return days.every((day) => day !== null)
-        ? [...new Set(days)].sort((a, b) => a - b)
-        : [];
-}
-
-function listText(values: string[]) {
-    if (values.length <= 1) return values[0] || '';
-    if (values.length === 2) return `${values[0]} and ${values[1]}`;
-    return `${values.slice(0, -1).join(', ')} and ${values.at(-1)}`;
-}
-
-function weekOfMonthLabel(day_part: string) {
-    const [start, end] = day_part.split('-').map(Number);
-    if (start === 1 && end === 7) return '1st';
-    if (start === 8 && end === 14) return '2nd';
-    if (start === 15 && end === 21) return '3rd';
-    if (start === 22 && end === 28) return '4th';
-    if (start === 29 && end === 31) return '5th';
-    return '';
-}
-
-function weekOfMonthLabels(day_part: string) {
-    const labels = day_part.split(',').map((range) => weekOfMonthLabel(range));
-    return labels.every((label) => label) ? labels : [];
-}
-
-function humanizeCronSchedule(cron: string, duration_minutes: number) {
-    const parts = (cron || '0 0 * * *').trim().split(/\s+/);
-    if (parts.length !== 5) return `Custom schedule (${cron})`;
-    const [minute, hour, day, month, day_of_week] = parts;
-    const duration = durationLabel(duration_minutes);
-    const suffix = ` for ${duration}`;
-    if (month !== '*') return `Custom schedule (${cron})`;
-    const minute_interval = /^\*\/(\d+)$/.exec(minute)?.[1];
-    if (minute === '*' && hour === '*' && day === '*' && day_of_week === '*') {
-        return `Every minute${suffix}`;
-    }
-    if (minute_interval && hour === '*' && day === '*' && day_of_week === '*') {
-        return `Every ${minute_interval} minutes${suffix}`;
-    }
-    const hour_interval = /^\*\/(\d+)$/.exec(hour)?.[1];
-    if (minute === '0' && hour === '*' && day === '*' && day_of_week === '*') {
-        return `Every hour${suffix}`;
-    }
-    if (minute === '0' && hour_interval && day === '*' && day_of_week === '*') {
-        return `Every ${hour_interval} hours${suffix}`;
-    }
-    if (!/^\d+$/.test(minute) || !/^\d+$/.test(hour)) {
-        return `Custom schedule (${cron})`;
-    }
-    const time = formatCronTime(hour, minute);
-    if (day === '*' && day_of_week === '*') {
-        return `Every day at ${time}${suffix}`;
-    }
-    if (day === '*' && day_of_week === '1-5') {
-        return `Weekdays at ${time}${suffix}`;
-    }
-    if (day === '*' && day_of_week !== '*') {
-        const weekdays = parseCronWeekdays(day_of_week).map(
-            (day_value) => WEEKDAY_NAMES[day_value],
-        );
-        return weekdays.length
-            ? `Every ${listText(weekdays)} at ${time}${suffix}`
-            : `Custom schedule (${cron})`;
-    }
-    if (day !== '*' && day_of_week === '*') {
-        const days = parseCronMonthDays(day).map((day_value) =>
-            ordinal(day_value),
-        );
-        return days.length
-            ? `On the ${listText(days)} of each month at ${time}${suffix}`
-            : `Custom schedule (${cron})`;
-    }
-    if (isCronMonthlyWeekday(day, day_of_week)) {
-        const weeks = weekOfMonthLabels(day);
-        const weekdays = parseCronWeekdays(day_of_week).map(
-            (day_value) => WEEKDAY_NAMES[day_value],
-        );
-        return weeks.length && weekdays.length
-            ? `On the ${listText(weeks)} ${listText(weekdays)} of each month at ${time}${suffix}`
-            : `Custom schedule (${cron})`;
-    }
-    return `Custom schedule (${cron})`;
-}
-
-function schedulePeriod(schedule: Partial<SignagePlaylistSchedule>) {
+/**
+ * Play length of a schedule in minutes. A schedule without one plays all
+ * day. A length of 0 plays the playlist once.
+ */
+export function playPeriodMinutes(schedule: Partial<SignagePlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
-        ? schedule.play_period || 0
+        ? Math.max(0, schedule.play_period || 0)
         : DEFAULT_PLAY_PERIOD_MINUTES;
 }
 
@@ -318,18 +175,6 @@ export function playlistLoopDuration(
                 DEFAULT_PLAY_TIME_MS),
         0,
     );
-}
-
-export function playlistScheduleExpiryLabel(
-    schedule: Partial<SignagePlaylistSchedule>,
-    now = Date.now(),
-) {
-    if (!schedule.valid_until) return '';
-    const expiry = fromUnixTime(schedule.valid_until);
-    const distance = formatDistance(expiry, new Date(now));
-    const relative_time =
-        expiry.getTime() >= now ? `${distance} from now` : `${distance} ago`;
-    return `until ${relative_time}`;
 }
 
 export function playlistScheduleExpiryTooltip(
@@ -395,30 +240,6 @@ export function playlistStatus(
     }
     if (!(playlist.id in approvals) || approvals[playlist.id]) return null;
     return requests[playlist.id] ? 'awaiting_review' : 'awaiting_approval';
-}
-
-export function playlistScheduleLabel(
-    schedule: Partial<SignagePlaylistSchedule>,
-) {
-    const period = schedulePeriod(schedule);
-    const expiry = playlistScheduleExpiryLabel(schedule);
-    const suffix = [
-        schedule.play_takeover ? 'takeover' : '',
-        expiry,
-        schedule.mask
-            ? `mask ${schedule.mask}, repeats every ${schedule.mask.length} instances`
-            : '',
-    ]
-        .filter((_) => _)
-        .join(' · ');
-    if (isPlayOnceSchedule(schedule)) {
-        return `Plays once on ${playOnceLabel(schedule)} for ${durationLabel(period)}${
-            suffix ? ` · ${suffix}` : ''
-        }`;
-    }
-    return `${humanizeCronSchedule(schedule.play_cron || '0 0 * * *', period)}${
-        suffix ? ` · ${suffix}` : ''
-    }`;
 }
 
 /**
@@ -505,10 +326,16 @@ export function createScheduleMaskFilter(
 /**
  * Date and time of a play, e.g. "Mon, Jan 5, 9:00 AM".
  * @param timeZone IANA timezone. The viewer's timezone when not set.
+ * @param hour12 12 hour clock when true, 24 hour when false. The viewer's locale decides when not set.
  */
-export function formatPlayDateTime(date: Date, timeZone?: string) {
+export function formatPlayDateTime(
+    date: Date,
+    timeZone?: string,
+    hour12?: boolean,
+) {
     return date.toLocaleString(undefined, {
         timeZone,
+        hour12,
         weekday: 'short',
         month: 'short',
         day: 'numeric',
@@ -568,7 +395,7 @@ function nextSchedulePlays(
     count: number,
     now: number,
 ): PlaySession[] {
-    const period = schedulePeriod(schedule);
+    const period = playPeriodMinutes(schedule);
     if (isPlayOnceSchedule(schedule)) {
         const start = playOnceStart(schedule);
         if (!start) return [];
@@ -606,7 +433,7 @@ export function playlistNextPlayTime(
         // One-off plays already count until they end.
         const from = isPlayOnceSchedule(schedule)
             ? now
-            : now - schedulePeriod(schedule) * 60_000;
+            : now - playPeriodMinutes(schedule) * 60_000;
         const [play] = nextSchedulePlays(schedule, 1, from);
         if (play) next = Math.min(next, Math.max(play.start.getTime(), now));
     }

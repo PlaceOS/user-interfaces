@@ -19,6 +19,7 @@ import {
     PlaylistScheduleFormModel,
     playlistSchedulePayload,
     playlistScheduleSchema,
+    ScheduleList,
 } from './playlist-schedule-form.component';
 
 export interface PlaylistItemScheduleModalData {
@@ -81,16 +82,16 @@ export interface PlaylistItemScheduleModalData {
                     <playlist-schedule-form
                         [schedule]="schedule"
                         [index]="index"
-                        [open]="isScheduleOpen(index)"
+                        [open]="schedule_list.isOpen(index)"
                         [can_remove]="model().schedules.length > 1"
-                        (toggle)="openSchedule(index)"
-                        (remove)="removeSchedule($event, index)"
+                        (toggle)="schedule_list.toggle(index)"
+                        (remove)="schedule_list.remove($event, index)"
                     />
                 }
                 <button
                     type="button"
                     class="border-primary text-primary hover:bg-primary/10 rounded border px-3 py-2 text-sm font-medium"
-                    (click)="addSchedule()"
+                    (click)="schedule_list.add()"
                 >
                     {{ 'SIGNAGE_MANAGER.ADD_SCHEDULE' | translate }}
                 </button>
@@ -114,49 +115,17 @@ export class PlaylistItemScheduleModalComponent {
     /** Media the schedules are attached to, shown as context in the modal header */
     public readonly media = new SignageMedia(this._data.item.media || {});
     public readonly loading = signal(false);
-    public readonly active_schedule_index = signal<number | null>(0);
     public readonly model = signal<{ schedules: PlaylistScheduleFormModel[] }>({
         schedules: (this._data.item.schedules?.length
             ? this._data.item.schedules
             : [{}]
         ).map((schedule) => createPlaylistScheduleModel(schedule)),
     });
+    public readonly schedule_list = new ScheduleList(this.model);
     public readonly form_model = form(this.model, (path) => {
         minLength(path.schedules, 1);
         applyEach(path.schedules, playlistScheduleSchema);
     });
-
-    public addSchedule() {
-        this.model.update((model) => ({
-            schedules: [...model.schedules, createPlaylistScheduleModel()],
-        }));
-        this.active_schedule_index.set(this.model().schedules.length - 1);
-    }
-
-    public removeSchedule(event: Event, index: number) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (this.model().schedules.length <= 1) return;
-        this.model.update((model) => ({
-            schedules: model.schedules.filter(
-                (_, item_index) => item_index !== index,
-            ),
-        }));
-        this.active_schedule_index.update((active_index) => {
-            if (active_index === index) return null;
-            return active_index > index ? active_index - 1 : active_index;
-        });
-    }
-
-    public openSchedule(index: number) {
-        this.active_schedule_index.update((active_index) =>
-            active_index === index ? null : index,
-        );
-    }
-
-    public isScheduleOpen(index: number) {
-        return this.active_schedule_index() === index;
-    }
 
     public async saveSchedule() {
         await submit(this.form_model, async () => {

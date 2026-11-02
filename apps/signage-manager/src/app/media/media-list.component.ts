@@ -27,6 +27,7 @@ import {
 import { SignageMedia } from '@placeos/ts-client';
 import { ImageGenService } from '../image-gen/image-gen.service';
 import { IntersectDirective } from '../shared/intersect.directive';
+import { mediaTypeLabel } from '../shared/media-labels.util';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import { SignageContextService } from '../signage-context.service';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
@@ -946,16 +947,7 @@ export class MediaListComponent implements OnInit {
     }
 
     public typeLabelKey(item: SignageMedia): string {
-        switch (item.media_type) {
-            case 'image':
-                return 'COMMON.IMAGE';
-            case 'webpage':
-                return 'COMMON.WEBPAGE';
-            case 'plugin':
-                return 'SIGNAGE_MANAGER.TYPE_PLUGIN';
-            default:
-                return 'COMMON.VIDEO';
-        }
+        return mediaTypeLabel(item.media_type) ?? 'COMMON.VIDEO';
     }
 
     public typeBadgeClass(item: SignageMedia): string {

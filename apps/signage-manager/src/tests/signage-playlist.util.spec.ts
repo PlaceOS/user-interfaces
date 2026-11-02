@@ -10,9 +10,7 @@ import {
     playlistMediaItems,
     playlistNextPlayLabels,
     playlistNextPlayTime,
-    playlistScheduleExpiryLabel,
     playlistScheduleExpiryTooltip,
-    playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
     playlistStatus,
     playOnceStart,
@@ -77,33 +75,6 @@ describe('signage playlist util', () => {
         ).toBe(item);
     });
 
-    // play_at arrives from the API as unix seconds, never milliseconds
-    it('labels a one-off schedule at its stored time', () => {
-        const play_at = new Date('2026-03-02T09:30:00');
-
-        const label = playlistScheduleLabel({
-            play_at: getUnixTime(play_at),
-            play_period: 30,
-        });
-
-        expect(label).toContain('Plays once on');
-        expect(label).toContain(play_at.toLocaleString());
-        expect(label).toContain('for 30 minutes');
-    });
-
-    it('labels a local one-off schedule in the viewer timezone', () => {
-        const label = playlistScheduleLabel({
-            play_at_local: '2026-03-02T09:30:00',
-            // The API always sends a fallback cron with one-off schedules.
-            play_cron: '0 0 * * *',
-            play_period: 30,
-        });
-
-        expect(label).toContain(
-            `Plays once on ${new Date(2026, 2, 2, 9, 30).toLocaleString()} display local time`,
-        );
-    });
-
     it('starts a local play once schedule at its date time', () => {
         expect(playOnceStart({ play_at_local: '2027-01-01T00:00:00' })).toEqual(
             new Date(2027, 0, 1),
@@ -113,39 +84,12 @@ describe('signage playlist util', () => {
         ).toBeNull();
     });
 
-    it('labels cron schedules like playlist details', () => {
-        expect(
-            playlistScheduleLabel({
-                play_cron: '0 9 * * *',
-                play_period: 30,
-            }),
-        ).toContain('Every day at');
-        expect(
-            playlistScheduleLabel({
-                play_cron: '0 9 * * *',
-                play_period: 30,
-            }),
-        ).toContain('for 30 minutes');
-    });
-
-    it('adds relative and exact schedule expiry descriptions', () => {
-        const now = Date.UTC(2026, 0, 1, 9);
+    it('describes the exact end of a schedule', () => {
         const valid_until = getUnixTime(new Date(Date.UTC(2026, 0, 22, 9)));
-        const schedule = { valid_until };
 
-        expect(playlistScheduleExpiryLabel(schedule, now)).toBe(
-            'until 21 days from now',
-        );
-        expect(playlistScheduleExpiryTooltip(schedule)).toBe(
+        expect(playlistScheduleExpiryTooltip({ valid_until })).toBe(
             new Date(valid_until * 1000).toLocaleString(),
         );
-        expect(
-            playlistScheduleLabel({
-                ...schedule,
-                play_cron: '0 9 * * *',
-                play_period: 30,
-            }),
-        ).toContain(' · until ');
     });
 
     it('lists the next five play blocks for a recurring schedule', () => {

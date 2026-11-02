@@ -28,6 +28,7 @@ import {
 } from '../image-gen/image-gen.types';
 import { actionError } from '../image-gen/image-gen.util';
 import { SignageContextService } from '../signage-context.service';
+import { uploadUrl } from '../signage-url.util';
 import { brandEditingOn, canEditBrandKit } from './brand-access';
 import { BRAND_FONTS, ensureBrandFont } from './brand-fonts';
 
@@ -495,7 +496,7 @@ export class BrandingComponent implements OnInit {
 
     public logoUrl(slot: ImageGenLogoSlot) {
         const id = this.logos()[slot];
-        return id ? `/api/engine/v2/uploads/${encodeURIComponent(id)}/url` : '';
+        return id ? uploadUrl(id) : '';
     }
 
     public other(slot: ImageGenLogoSlot): ImageGenLogoSlot {

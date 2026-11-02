@@ -8,6 +8,7 @@ import {
     input,
     output,
     signal,
+    type WritableSignal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FieldTree, FormField, schema, validate } from '@angular/forms/signals';
@@ -25,14 +26,10 @@ import {
     getTimezoneOffsetString,
     hasPlayableScheduleMask,
     i18n,
-    isCronMonthlyWeekday,
     isPlayOnceSchedule,
     isValidScheduleMask,
     LOCAL_TIMEZONE,
     LocaleService,
-    parseCronNumber,
-    parseCronWeekdays,
-    parseCronWeeksOfMonth,
     parsePlayAtLocal,
     setTimeInTimezone,
     settingSignal,
@@ -58,20 +55,27 @@ import {
     formatPlayAtLocal,
     formatPlayDateTime,
     formatPlayDateTimeRange,
-    ordinal,
-    parseCronMonthDays,
-    playlistScheduleExpiryLabel,
+    playPeriodMinutes,
 } from '../signage-playlist.util';
+import {
+    DEFAULT_RECURRING_CRON,
+    DEFAULT_RECURRING_TIME,
+    formatClockTime,
+    normaliseMonthDays,
+    normaliseWeekdays,
+    normaliseWeeksOfMonth,
+    ordinalLabel,
+    parseRecurringCron,
+    playLengthLabel,
+    recurringScheduleSummary,
+    type RecurringScheduleType,
+    scheduleExpiryLabel,
+    scheduleMaskLabel,
+    WEEK_OF_MONTH_OPTIONS,
+    WEEKDAY_OPTIONS,
+} from './schedule-summary.util';
 
 export type PlaylistScheduleType = 'play_at' | 'play_cron';
-type RecurringScheduleType =
-    | 'hours'
-    | 'daily'
-    | 'weekdays'
-    | 'weekly'
-    | 'monthly'
-    | 'monthly_weekday'
-    | 'custom';
 
 export interface PlaylistScheduleFormModel {
     schedule_type: PlaylistScheduleType;
@@ -101,29 +105,15 @@ export interface PlaylistScheduleFormModel {
 
 const FULL_DAY_START_MINUTES = 0;
 const FULL_DAY_END_MINUTES = 23 * 60 + 59;
-const DEFAULT_RECURRING_TIME = '00:00';
-const DEFAULT_RECURRING_CRON = '0 0 * * *';
-const WEEKDAY_OPTIONS = [
-    { value: 1 },
-    { value: 2 },
-    { value: 3 },
-    { value: 4 },
-    { value: 5 },
-    { value: 6 },
-    { value: 0 },
-];
-const WEEK_OF_MONTH_OPTIONS = [1, 2, 3, 4, 5];
 
+/** Clock time of minutes from midnight, kept inside the day */
 function minutesToTime(value: number) {
-    const safe_value = Math.max(
-        FULL_DAY_START_MINUTES,
-        Math.min(FULL_DAY_END_MINUTES, value || 0),
+    return formatClockTime(
+        Math.max(
+            FULL_DAY_START_MINUTES,
+            Math.min(FULL_DAY_END_MINUTES, value || 0),
+        ),
     );
-    const hours = Math.floor(safe_value / 60)
-        .toString()
-        .padStart(2, '0');
-    const minutes = (safe_value % 60).toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
 }
 
 function timeToMinutes(value: string) {
@@ -134,119 +124,11 @@ function timeToMinutes(value: string) {
     );
 }
 
-function normaliseWeekdays(value: number[] | null | undefined) {
-    const seen_days = new Set<number>();
-    for (const day of value || []) {
-        if (day >= 0 && day <= 6) seen_days.add(day);
-    }
-    return WEEKDAY_OPTIONS.map((day) => day.value).filter((day) =>
-        seen_days.has(day),
-    );
-}
-
-function normaliseMonthDays(value: number[] | null | undefined) {
-    const seen_days = new Set<number>();
-    for (const day of value || []) {
-        if (day >= 1 && day <= 31) seen_days.add(day);
-    }
-    return Array.from({ length: 31 }, (_, index) => index + 1).filter((day) =>
-        seen_days.has(day),
-    );
-}
-
-function normaliseWeeksOfMonth(value: number[] | null | undefined) {
-    const seen_weeks = new Set<number>();
-    for (const week of value || []) {
-        if (week >= 1 && week <= 5) seen_weeks.add(week);
-    }
-    return WEEK_OF_MONTH_OPTIONS.filter((week) => seen_weeks.has(week));
-}
-
-function parseCronStep(value: string, min: number, max: number) {
-    const match = /^\*\/(\d+)$/.exec(value || '');
-    if (!match) return null;
-    const step = +match[1];
-    return step >= min && step <= max ? step : null;
-}
-
 function dayRangeForWeekOfMonth(value: number | null | undefined) {
     const week = Math.max(1, Math.min(5, value || 1));
     if (week === 5) return '29-31';
     const start = (week - 1) * 7 + 1;
     return `${start}-${start + 6}`;
-}
-
-function parseRecurringCron(value: string | null | undefined) {
-    const [minute_part, hour_part, day_part, month_part, weekday_part] = (
-        value || DEFAULT_RECURRING_CRON
-    )
-        .trim()
-        .split(/\s+/);
-    const minute = parseCronNumber(minute_part, 0, 59);
-    const hour = parseCronNumber(hour_part, 0, 23);
-    const time =
-        minute === null || hour === null
-            ? DEFAULT_RECURRING_TIME
-            : `${hour.toString().padStart(2, '0')}:${minute
-                  .toString()
-                  .padStart(2, '0')}`;
-    const custom = {
-        recurrence_type: 'custom' as RecurringScheduleType,
-        recurrence_time: time,
-        recurrence_interval: 1,
-        recurrence_week_of_month: [1],
-        recurrence_weekdays: [1],
-        recurrence_day_of_month: [1],
-    };
-    if (day_part === '*' && month_part === '*' && weekday_part === '*') {
-        const minute_step =
-            minute_part === '*' ? 1 : parseCronStep(minute_part, 1, 59);
-        if (minute_step !== null && hour_part === '*') return custom;
-        const hour_step =
-            hour_part === '*' ? 1 : parseCronStep(hour_part, 1, 23);
-        if (parseCronNumber(minute_part, 0, 59) === 0 && hour_step !== null) {
-            return {
-                ...custom,
-                recurrence_type: 'hours' as RecurringScheduleType,
-                recurrence_interval: hour_step,
-            };
-        }
-    }
-    if (minute === null || hour === null || month_part !== '*') return custom;
-    if (day_part === '*' && weekday_part === '*') {
-        return { ...custom, recurrence_type: 'daily' as RecurringScheduleType };
-    }
-    if (day_part === '*' && weekday_part === '1-5') {
-        return {
-            ...custom,
-            recurrence_type: 'weekdays' as RecurringScheduleType,
-        };
-    }
-    const weekdays = normaliseWeekdays(parseCronWeekdays(weekday_part));
-    if (isCronMonthlyWeekday(day_part, weekday_part)) {
-        return {
-            ...custom,
-            recurrence_type: 'monthly_weekday' as RecurringScheduleType,
-            recurrence_week_of_month: parseCronWeeksOfMonth(day_part),
-            recurrence_weekdays: weekdays,
-        };
-    }
-    if (day_part === '*' && weekdays.length) {
-        return {
-            ...custom,
-            recurrence_type: 'weekly' as RecurringScheduleType,
-            recurrence_weekdays: weekdays,
-        };
-    }
-    const days_of_month = parseCronMonthDays(day_part);
-    if (days_of_month?.length && weekday_part === '*') {
-        return {
-            ...custom,
-            recurrence_type: 'monthly' as RecurringScheduleType,
-            recurrence_day_of_month: days_of_month,
-        };
-    }
-    return custom;
 }
 
 function isIntervalRecurringType(
@@ -304,12 +186,6 @@ function buildRecurringCron(value: {
     return `${minute} ${hour} * * *`;
 }
 
-function playlistPlayPeriod(schedule: Partial<SignagePlaylistSchedule>) {
-    return Number.isFinite(schedule.play_period)
-        ? Math.max(0, schedule.play_period)
-        : DEFAULT_PLAY_PERIOD_MINUTES;
-}
-
 function scheduleTypeFor(
     schedule: Partial<SignagePlaylistSchedule>,
 ): PlaylistScheduleType {
@@ -336,32 +212,6 @@ function currentPlaylistSchedule(playlist: SignagePlaylist) {
 export function playlistSchedules(playlist: SignagePlaylist) {
     const schedule = currentPlaylistSchedule(playlist);
     return playlist.schedules?.length ? playlist.schedules : [schedule];
-}
-
-function formatMinutes(value: number | null | undefined) {
-    const total_minutes = Math.max(0, Math.round(value || 0));
-    if (!total_minutes) return '';
-    const days = Math.floor(total_minutes / (24 * 60));
-    const hours = Math.floor((total_minutes % (24 * 60)) / 60);
-    const minutes = total_minutes % 60;
-    const parts = [
-        {
-            value: days,
-            key: 'SIGNAGE_MANAGER.DURATION_DAY',
-        },
-        {
-            value: hours,
-            key: 'SIGNAGE_MANAGER.DURATION_HOUR',
-        },
-        {
-            value: minutes,
-            key: 'SIGNAGE_MANAGER.DURATION_MINUTE',
-        },
-    ];
-    return parts
-        .filter((part) => part.value)
-        .map((part) => i18n(part.key, { count: part.value }, part.value))
-        .join(' ');
 }
 
 /** Time ranges of the next five plays of a recurring schedule in the timezone. */
@@ -444,6 +294,58 @@ function maskOccurrenceDates(
     return result;
 }
 
+/**
+ * Schedules of a modal form, shown as an accordion with one schedule open
+ * at a time. A form keeps at least one schedule.
+ */
+export class ScheduleList {
+    /** Index of the open schedule, or null when all are closed */
+    public readonly open_index = signal<number | null>(0);
+
+    constructor(
+        private readonly _model: WritableSignal<{
+            schedules: PlaylistScheduleFormModel[];
+        }>,
+    ) {}
+
+    /** Add a new schedule and open it */
+    public add() {
+        this._model.update((model) => ({
+            ...model,
+            schedules: [...model.schedules, createPlaylistScheduleModel()],
+        }));
+        this.open_index.set(this._model().schedules.length - 1);
+    }
+
+    /** Remove a schedule, unless it is the last one */
+    public remove(event: Event, index: number) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (this._model().schedules.length <= 1) return;
+        this._model.update((model) => ({
+            ...model,
+            schedules: model.schedules.filter(
+                (_, item_index) => item_index !== index,
+            ),
+        }));
+        this.open_index.update((open_index) => {
+            if (open_index === index) return null;
+            return open_index > index ? open_index - 1 : open_index;
+        });
+    }
+
+    /** Open a schedule, or close it when it is open */
+    public toggle(index: number) {
+        this.open_index.update((open_index) =>
+            open_index === index ? null : index,
+        );
+    }
+
+    public isOpen(index: number) {
+        return this.open_index() === index;
+    }
+}
+
 export function createPlaylistScheduleModel(
     schedule?: Partial<SignagePlaylistSchedule>,
 ): PlaylistScheduleFormModel {
@@ -467,7 +369,7 @@ export function createPlaylistScheduleModel(
         recurrence_week_of_month: recurring_schedule.recurrence_week_of_month,
         recurrence_weekdays: recurring_schedule.recurrence_weekdays,
         recurrence_day_of_month: recurring_schedule.recurrence_day_of_month,
-        play_period: playlistPlayPeriod(source),
+        play_period: playPeriodMinutes(source),
         has_mask: !!source.mask,
         mask: source.mask || '',
         has_valid_from: !!source.valid_from,
@@ -1481,7 +1383,7 @@ export class PlaylistScheduleFormComponent {
         { length: 31 },
         (_, index) => index + 1,
     );
-    public readonly ordinal = ordinal;
+    public readonly ordinal = ordinalLabel;
     public readonly value = computed(() => this.schedule()().value());
     public readonly mask_occurrence_dates = computed(() =>
         maskOccurrenceDates(this.value(), this.timezone()),
@@ -1642,78 +1544,28 @@ export class PlaylistScheduleFormComponent {
 
     public recurringScheduleSummary() {
         const value = this.value();
-        if (value.recurrence_type === 'custom') {
-            return i18n('SIGNAGE_MANAGER.SUMMARY_ADVANCED');
-        }
-        const interval = value.recurrence_interval || 1;
-        const start_time = this.formatPlayHour(value.play_start);
-        const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES;
-        const duration =
-            formatMinutes(period) || i18n('SIGNAGE_MANAGER.ONE_PLAYLIST_PASS');
-        if (value.recurrence_type === 'hours') {
-            return i18n(
-                'SIGNAGE_MANAGER.SUMMARY_EVERY_HOUR',
-                { interval },
-                interval,
-            );
-        }
-        if (value.recurrence_type === 'weekdays') {
-            return i18n('SIGNAGE_MANAGER.SUMMARY_WEEKDAYS', {
-                time: start_time,
-                duration,
-            });
-        }
-        if (value.recurrence_type === 'weekly') {
-            const days = this._weekdayNames(value.recurrence_weekdays);
-            return i18n('SIGNAGE_MANAGER.SUMMARY_WEEKLY', {
-                days,
-                time: start_time,
-                duration,
-            });
-        }
-        if (value.recurrence_type === 'monthly') {
-            const days = normaliseMonthDays(value.recurrence_day_of_month);
-            return i18n('SIGNAGE_MANAGER.SUMMARY_MONTHLY', {
-                days: (days.length ? days : [1])
-                    .map((day) => ordinal(day))
-                    .join(', '),
-                time: start_time,
-                duration,
-            });
-        }
-        if (value.recurrence_type === 'monthly_weekday') {
-            const weeks = normaliseWeeksOfMonth(value.recurrence_week_of_month);
-            return i18n('SIGNAGE_MANAGER.SUMMARY_MONTHLY_WEEKDAY', {
-                weeks: (weeks.length ? weeks : [1])
-                    .map((week) => ordinal(week))
-                    .join(', '),
-                days: this._weekdayNames(value.recurrence_weekdays),
-                time: start_time,
-                duration,
-            });
-        }
-        return i18n('SIGNAGE_MANAGER.SUMMARY_DAILY', {
-            time: start_time,
-            duration,
-        });
+        return (
+            recurringScheduleSummary(
+                value,
+                this.formatPlayHour(value.play_start),
+                value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES,
+                this._locale.locale,
+            ) ?? i18n('SIGNAGE_MANAGER.SUMMARY_ADVANCED')
+        );
     }
 
     public scheduleSummary() {
         const value = this.value();
         const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES;
-        const duration =
-            formatMinutes(period) || i18n('SIGNAGE_MANAGER.ONE_PLAYLIST_PASS');
         const takeover = value.play_takeover
             ? i18n('SIGNAGE_MANAGER.TAKEOVER_SUFFIX')
             : '';
-        const expiry = playlistScheduleExpiryLabel(
-            playlistSchedulePayload(value),
+        const expiry = scheduleExpiryLabel(
+            playlistSchedulePayload(value).valid_until,
         );
         const expiry_suffix =
             (expiry ? ` · ${expiry}` : '') +
-            (value.has_mask
-                ? ` · ${i18n('SIGNAGE_MANAGER.SCHEDULE_MASK_SUMMARY', { mask: value.mask, size: value.mask.length })}`
-                : '');
+            (value.has_mask ? ` · ${scheduleMaskLabel(value.mask)}` : '');
         if (value.schedule_type === 'play_at') {
             const date = new Date(value.play_at || Date.now());
             const datetime = value.play_at_exact
@@ -1721,7 +1573,7 @@ export class PlaylistScheduleFormComponent {
                 : `${formatPlayDateTime(date)} ${i18n('SIGNAGE_MANAGER.DISPLAY_LOCAL_TIME')}`;
             return `${i18n('SIGNAGE_MANAGER.SUMMARY_PLAY_ONCE', {
                 datetime,
-                duration,
+                duration: playLengthLabel(period),
             })}${takeover}${expiry_suffix}`;
         }
         return `${this.recurringScheduleSummary()} · ${this.timezone()}${takeover}${expiry_suffix}`;
@@ -1809,13 +1661,5 @@ export class PlaylistScheduleFormComponent {
         const monday_based_offset = day === 0 ? 6 : day - 1;
         const date = new Date(2024, 0, 1 + monday_based_offset);
         return this._date_pipe.transform(date, format) || '';
-    }
-
-    private _weekdayNames(value: number[] | null | undefined) {
-        const weekdays = normaliseWeekdays(value);
-        return (weekdays.length ? weekdays : [1])
-            .map((day) => this.weekdayLabel(day, 'EEEE'))
-            .filter((_) => _)
-            .join(', ');
     }
 }

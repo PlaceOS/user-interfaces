@@ -1,15 +1,13 @@
-import { DatePipe } from '@angular/common';
 import { Component, computed, inject, input, LOCALE_ID } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { i18n } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
-    DateFromPipe,
-    IconComponent,
-    TranslatePipe,
-} from '@placeos/components';
-import { isSameDay } from 'date-fns';
-import { isDisplayOnline } from '../displays/display-status.util';
+    displayLastSeen,
+    displayStatusKey,
+    isDisplayOnline,
+} from '../displays/display-status.util';
 import {
     MINUTES_PER_DAY,
     ScheduleTimelineRow,
@@ -348,9 +346,7 @@ function dayPercent(minutes: number) {
     imports: [MatTooltipModule, RouterLink, IconComponent, TranslatePipe],
 })
 export class ScheduleTimelineComponent {
-    private readonly _date_from = new DateFromPipe();
     private readonly _locale = inject(LOCALE_ID);
-    private readonly _date = new DatePipe(this._locale);
 
     public readonly rows = input<ScheduleTimelineRow[]>([]);
     public readonly view_tab = input<'displays' | 'zones'>('displays');
@@ -399,36 +395,13 @@ export class ScheduleTimelineComponent {
         if (this.view_tab() !== 'displays') return statuses;
         for (const row of this.rows()) {
             const online = isDisplayOnline(row.signage_last_seen, now);
-            const label = !row.signage_last_seen
-                ? i18n('SIGNAGE_MANAGER.DISPLAY_STATUS_NEVER_SEEN')
-                : i18n(
-                      online
-                          ? 'SIGNAGE_MANAGER.DISPLAY_STATUS_ONLINE'
-                          : 'SIGNAGE_MANAGER.DISPLAY_STATUS_OFFLINE',
-                      {
-                          time: this._lastSeen(
-                              row.signage_last_seen * 1000,
-                              now,
-                          ),
-                      },
-                  );
+            const label = i18n(displayStatusKey(row.signage_last_seen, now), {
+                time: displayLastSeen(row.signage_last_seen, now, this._locale),
+            });
             statuses.set(row.id, { online, label });
         }
         return statuses;
     });
-
-    /**
-     * When a display last checked in: relative within the last hour, the
-     * time earlier today, and the date and time before today. Matches the
-     * display list.
-     */
-    private _lastSeen(last_seen: number, now: number) {
-        if (now - last_seen < 60 * 60 * 1000) {
-            return this._date_from.transform(last_seen);
-        }
-        const date_format = isSameDay(last_seen, now) ? 'shortTime' : 'short';
-        return this._date.transform(last_seen, date_format) || '';
-    }
 
     private _blockView(
         row: ScheduleTimelineRow,

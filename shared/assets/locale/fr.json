@@ -2303,6 +2303,14 @@
         "NO_ZONES_AVAILABLE": "Aucune zone disponible.",
         "NO_ZONES_USE_PLAYLIST": "Aucune zone n'utilise cette liste de lecture.",
         "ONE_PLAYLIST_PASS": "un passage de la liste de lecture",
+        "ORDINAL": "{{ count }}",
+        "ORDINAL_1": "{{ count }}er",
+        "ORDINAL_2": "{{ count }}",
+        "ORDINAL_3": "{{ count }}",
+        "ORDINAL_21": "{{ count }}",
+        "ORDINAL_22": "{{ count }}",
+        "ORDINAL_23": "{{ count }}",
+        "ORDINAL_31": "{{ count }}",
         "OPEN_DISPLAY": "Ouvrir l'écran {{ name }}",
         "OPEN_GROUP": "Ouvrir le groupe {{ name }}",
         "OPEN_PANEL": "Ouvrir le panneau d'affichage",
@@ -2337,6 +2345,7 @@
         "PLAYLIST_NAME_ARIA": "Nom de la liste de lecture",
         "PLAYLIST_ORIENTATION_ARIA": "Orientation de la liste de lecture",
         "PLAYLIST_REVERTED": "Liste de lecture rétablie à la version précédente",
+        "PLAYLIST_REVERT_CONFIRM": "Abandonner les modifications en attente et restaurer la version approuvée de {{ name }} ? Vous ne pourrez pas récupérer les modifications en attente.",
         "PLAYLIST_REVERT_ERROR": "Erreur lors du rétablissement des changements de la liste de lecture",
         "PLAYLIST_SAVED": "Liste de lecture enregistrée",
         "PLAYLIST_SAVE_ERROR": "Erreur lors de l'enregistrement de la liste de lecture",
@@ -2421,6 +2430,8 @@
         "SUMMARY_DAILY": "Commence tous les jours à {{ time }} pendant {{ duration }}.",
         "SUMMARY_EVERY_HOUR": "Se lit toutes les {{ interval }} heures.",
         "SUMMARY_EVERY_HOUR_1": "Se lit toutes les {{ interval }} heure.",
+        "SUMMARY_EVERY_MINUTE": "Se lit toutes les {{ interval }} minutes.",
+        "SUMMARY_EVERY_MINUTE_1": "Se lit toutes les {{ interval }} minute.",
         "SUMMARY_MONTHLY": "Commence le {{ days }} de chaque mois à {{ time }} pendant {{ duration }}.",
         "SUMMARY_MONTHLY_WEEKDAY": "Commence le {{ weeks }} {{ days }} de chaque mois à {{ time }} pendant {{ duration }}.",
         "SUMMARY_PLAY_ONCE": "Se lit une fois le {{ datetime }} pendant {{ duration }}",
@@ -2533,6 +2544,9 @@
         "ZONE_COUNT_LABEL_1": "{{ count }} zone",
         "ZONE_DETAILS_TABS": "Onglets des détails de la zone",
         "ZONE_PERMISSIONS": "Autorisations de la zone",
-        "ZONE_SELECT_DETAILS": "Sélectionnez une zone pour afficher ses détails."
+        "ZONE_SELECT_DETAILS": "Sélectionnez une zone pour afficher ses détails.",
+        "SVC_REMOVING": "Suppression...",
+        "SCHEDULE_UNTIL_FROM_NOW": "se termine dans {{ time }}",
+        "SCHEDULE_UNTIL_AGO": "terminé il y a {{ time }}"
     }
 }

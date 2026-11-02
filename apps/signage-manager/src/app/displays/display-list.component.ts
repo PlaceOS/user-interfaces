@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import {
     Component,
     DestroyRef,
@@ -15,15 +14,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import {
-    DateFromPipe,
     IconComponent,
     LoadErrorComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { isSameDay } from 'date-fns';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { scrollSelectionIntoView } from '../shared/scroll-selection.util';
-import { isDisplayOnline } from './display-status.util';
+import {
+    displayLastSeen,
+    displayStatusKey,
+    isDisplayOnline,
+} from './display-status.util';
 import { SignageDisplayService } from './signage-display.service';
 
 @Component({
@@ -184,8 +185,7 @@ export class DisplayListComponent {
     // Ticks each minute so a display that stops checking in turns offline
     // without a reload.
     private readonly _now = signal(Date.now());
-    private readonly _date_from = new DateFromPipe();
-    private readonly _date = new DatePipe(inject(LOCALE_ID));
+    private readonly _locale = inject(LOCALE_ID);
 
     constructor() {
         const timer = setInterval(() => this._now.set(Date.now()), 60 * 1000);
@@ -212,26 +212,15 @@ export class DisplayListComponent {
 
     /** Translation key for the status tooltip of a display */
     public statusLabel(display: { signage_last_seen?: number }) {
-        if (!display.signage_last_seen) {
-            return 'SIGNAGE_MANAGER.DISPLAY_STATUS_NEVER_SEEN';
-        }
-        return this.isOnline(display)
-            ? 'SIGNAGE_MANAGER.DISPLAY_STATUS_ONLINE'
-            : 'SIGNAGE_MANAGER.DISPLAY_STATUS_OFFLINE';
+        return displayStatusKey(display.signage_last_seen, this._now());
     }
 
-    /**
-     * When the display's player last checked in: minutes ago within the last
-     * hour, the time earlier today, and the date and time before today.
-     */
+    /** When the display's player last checked in */
     public lastSeen(display: { signage_last_seen?: number }) {
-        const now = this._now();
-        if (!display.signage_last_seen) return '';
-        const last_seen = display.signage_last_seen * 1000;
-        if (now - last_seen < 60 * 60 * 1000) {
-            return this._date_from.transform(last_seen);
-        }
-        const date_format = isSameDay(last_seen, now) ? 'shortTime' : 'short';
-        return this._date.transform(last_seen, date_format) || '';
+        return displayLastSeen(
+            display.signage_last_seen,
+            this._now(),
+            this._locale,
+        );
     }
 }

@@ -13,6 +13,7 @@ import {
     SectionTabsComponent,
 } from '../shared/section-tabs.component';
 import { SignageContextService } from '../signage-context.service';
+import { signagePlayerUrl } from '../signage-url.util';
 import { DisplayContentComponent } from './display-content.component';
 import { DisplayHeaderComponent } from './display-header.component';
 import { DisplayListComponent } from './display-list.component';
@@ -246,8 +247,10 @@ export class DisplaysSectionComponent {
     public readonly panel_link = computed(() => {
         const display = this.selected_display();
         if (!display?.id) return '';
-        const signage_path = this.signage_path() || '/signage';
-        return `${signage_path.replace(/\/$/, '')}/#/signage/${encodeURIComponent(display.id)}?debug=true`;
+        return signagePlayerUrl(
+            this.signage_path(),
+            `signage/${encodeURIComponent(display.id)}`,
+        );
     });
 
     constructor() {

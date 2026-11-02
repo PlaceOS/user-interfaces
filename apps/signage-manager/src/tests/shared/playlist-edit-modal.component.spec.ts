@@ -1,7 +1,11 @@
 import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form } from '@angular/forms/signals';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { HotkeysService, setNotifyOutlet } from '@placeos/common';
 import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
 import { PlaylistEditModalComponent } from '../../app/shared/playlist-edit-modal.component';
@@ -24,10 +28,12 @@ describe('PlaylistEditModalComponent', () => {
     const onEdit = vi.fn();
     const before_save = vi.fn();
     const hotkey_listen = vi.fn();
+    const dialog = { openDialogs: [] as unknown[] };
     let hotkey_callback: () => void;
 
     beforeEach(async () => {
         vi.clearAllMocks();
+        dialog.openDialogs = [dialog_ref];
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         onEdit.mockResolvedValue({ id: 'playlist-1' });
@@ -63,6 +69,7 @@ describe('PlaylistEditModalComponent', () => {
                     },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
+                { provide: MatDialog, useValue: dialog },
                 {
                     provide: HotkeysService,
                     useValue: { listen: hotkey_listen },
@@ -148,6 +155,7 @@ describe('PlaylistEditModalComponent', () => {
                     },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
+                { provide: MatDialog, useValue: dialog },
                 {
                     provide: HotkeysService,
                     useValue: { listen: hotkey_listen },
@@ -353,6 +361,18 @@ describe('PlaylistEditModalComponent', () => {
         expect(save).toHaveBeenCalled();
     });
 
+    it('ignores the S hotkey while another dialog is on top', () => {
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        const save = vi
+            .spyOn(fixture.componentInstance, 'savePlaylist')
+            .mockResolvedValue();
+        dialog.openDialogs = [dialog_ref, { id: 'confirm' }];
+
+        hotkey_callback();
+
+        expect(save).not.toHaveBeenCalled();
+    });
+
     it('ignores the S hotkey while a select has focus', () => {
         const fixture = TestBed.createComponent(PlaylistEditModalComponent);
         const save = vi
@@ -412,7 +432,7 @@ describe('PlaylistEditModalComponent', () => {
                 },
             ],
         }));
-        component.addSchedule();
+        component.schedule_list.add();
         const play_at = Date.UTC(2026, 2, 2, 10, 30);
         component.model.update((model) => ({
             ...model,
@@ -466,7 +486,7 @@ describe('PlaylistEditModalComponent', () => {
         const component = fixture.componentInstance;
         const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
 
-        component.removeSchedule(event as any, 0);
+        component.schedule_list.remove(event as any, 0);
 
         expect(component.model().schedules.length).toBe(1);
         expect(event.stopPropagation).toHaveBeenCalled();
@@ -476,19 +496,19 @@ describe('PlaylistEditModalComponent', () => {
         const fixture = TestBed.createComponent(PlaylistEditModalComponent);
         const component = fixture.componentInstance;
 
-        component.addSchedule();
-        expect(component.isScheduleOpen(1)).toBe(true);
-        expect(component.isScheduleOpen(0)).toBe(false);
+        component.schedule_list.add();
+        expect(component.schedule_list.isOpen(1)).toBe(true);
+        expect(component.schedule_list.isOpen(0)).toBe(false);
 
-        component.openSchedule(0);
+        component.schedule_list.toggle(0);
 
-        expect(component.isScheduleOpen(0)).toBe(true);
-        expect(component.isScheduleOpen(1)).toBe(false);
+        expect(component.schedule_list.isOpen(0)).toBe(true);
+        expect(component.schedule_list.isOpen(1)).toBe(false);
 
-        component.openSchedule(0);
+        component.schedule_list.toggle(0);
 
-        expect(component.isScheduleOpen(0)).toBe(false);
-        expect(component.isScheduleOpen(1)).toBe(false);
+        expect(component.schedule_list.isOpen(0)).toBe(false);
+        expect(component.schedule_list.isOpen(1)).toBe(false);
     });
 
     it('shows a summary for one-off schedules', () => {

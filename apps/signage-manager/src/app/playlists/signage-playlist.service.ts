@@ -23,7 +23,6 @@ import {
     listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
     mediaThumbnail,
-    PlaceCurrentGroup,
     type QueryResponse,
     querySignagePlaylists,
     removeSignagePlaylist,
@@ -49,10 +48,12 @@ import {
     hasTakeoverSchedule,
     type ScheduleItem,
 } from '../schedules/signage-schedule.util';
+import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import { PagedList } from '../shared/paged-list';
 import { byName } from '../shared/paged-search';
 import type { PlaylistRequestApprovalModalResult } from '../shared/playlist-request-approval-modal.component';
+import { storedSignal } from '../shared/stored-signal';
 import { SignageContextService } from '../signage-context.service';
 import {
     type SignageInventory,
@@ -96,30 +97,6 @@ function escapeHtml(text: string) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
-}
-
-function loadPlaylistMetaSessionCache(): Record<string, PlaylistMetaState> {
-    if (typeof sessionStorage === 'undefined') return {};
-    try {
-        const stored_value = sessionStorage.getItem(PLAYLIST_META_SESSION_KEY);
-        return stored_value ? JSON.parse(stored_value) : {};
-    } catch {
-        return {};
-    }
-}
-
-function persistPlaylistMetaSessionCache(
-    cache: Record<string, PlaylistMetaState>,
-) {
-    if (typeof sessionStorage === 'undefined') return;
-    try {
-        sessionStorage.setItem(
-            PLAYLIST_META_SESSION_KEY,
-            JSON.stringify(cache),
-        );
-    } catch {
-        // Session cache persistence is opportunistic only.
-    }
 }
 
 /**
@@ -364,9 +341,18 @@ export class SignagePlaylistService {
         computation: () => null,
     });
 
-    private readonly _playlist_meta_state = signal<
+    // Kept for the session, so list rows show thumbnails and approval state
+    // before their requests finish
+    private readonly _playlist_meta_state = storedSignal<
         Record<string, PlaylistMetaState>
-    >(loadPlaylistMetaSessionCache());
+    >(
+        PLAYLIST_META_SESSION_KEY,
+        (stored) => (stored ? JSON.parse(stored) : {}),
+        {
+            storage: 'session',
+            serialise: JSON.stringify,
+        },
+    );
     private readonly _playlist_meta_loading = signal<Record<string, boolean>>(
         {},
     );
@@ -466,7 +452,8 @@ export class SignagePlaylistService {
             .sort(byName);
     }
 
-    private readonly _playlist_change = signal(Date.now());
+    // A counter, so two changes in the same millisecond still reload
+    private readonly _playlist_change = signal(0);
 
     // Keyed by id, so a new copy of the selected playlist from a list reload
     // does not load the media again.
@@ -597,7 +584,8 @@ export class SignagePlaylistService {
             )
         )
             return;
-        const result = await openConfirmModal(
+        const removed = await confirmThenRun(
+            this._dialog,
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_PLAYLIST_TITLE'),
                 content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
@@ -605,16 +593,13 @@ export class SignagePlaylistService {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading_key: 'SIGNAGE_MANAGER.SVC_REMOVING',
+                error_key: 'SIGNAGE_MANAGER.SVC_ERR_REMOVE_PLAYLIST',
+                action: () => removeSignagePlaylist(playlist.id),
+            },
         );
-        if (result.reason !== 'done') return;
-        try {
-            await removeSignagePlaylist(playlist.id);
-        } catch {
-            result.close();
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_PLAYLIST'));
-            return;
-        }
+        if (!removed) return;
         if (this.selected_playlist()?.id === playlist.id) {
             this.selected_playlist.set(null);
             this.selected_playlist_item.set(null);
@@ -623,7 +608,6 @@ export class SignagePlaylistService {
         this._removePlaylistMediaState(playlist.id);
         this._context.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED'));
-        result.close();
     }
 
     /** Whether a playlist is being duplicated */
@@ -734,58 +718,42 @@ export class SignagePlaylistService {
 
     public async requestPlaylistApproval(playlist: SignagePlaylist) {
         if (!playlist?.id) return;
-        if (this.playlist_approval_request_loading()) return;
-        if (this._context.can_approve()) {
-            await this.approvePlaylist(playlist);
-            return;
-        }
-        let approvers: SignagePlaylistApprover[] = [];
-        let group: PlaceCurrentGroup | null = null;
-        this.playlist_approval_request_loading.set(true);
-        try {
-            [group] = await this._context.groupsHolding(
-                playlist.id,
-                (group_id) => querySignagePlaylists({ group_id, limit: 500 }),
-            );
-            if (!group) {
-                notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_PLAYLIST'));
-                return;
-            }
-            approvers =
-                ((await listSignagePlaylistApprovers(
-                    group.group.id,
-                )) as SignagePlaylistApprover[]) || [];
-        } catch {
-            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_APPROVERS'));
-        } finally {
-            this.playlist_approval_request_loading.set(false);
-        }
-        if (!group) return;
-        const { PlaylistRequestApprovalModalComponent } =
-            await import('../shared/playlist-request-approval-modal.component');
-        const ref = this._dialog.open(PlaylistRequestApprovalModalComponent, {
-            data: {
-                playlist,
-                approvers,
+        await this._context.requestApproval({
+            item_id: playlist.id,
+            loading: this.playlist_approval_request_loading,
+            approve: () => this.approvePlaylist(playlist),
+            query: (group_id) =>
+                querySignagePlaylists({ group_id, limit: 500 }),
+            list_approvers: (group_id) =>
+                listSignagePlaylistApprovers(group_id) as Promise<
+                    SignagePlaylistApprover[]
+                >,
+            pick: async (approvers) => {
+                const { PlaylistRequestApprovalModalComponent } =
+                    await import('../shared/playlist-request-approval-modal.component');
+                const ref = this._dialog.open(
+                    PlaylistRequestApprovalModalComponent,
+                    {
+                        data: { playlist, approvers },
+                        panelClass: 'mobile-fullscreen',
+                    },
+                );
+                return dialogClosed<PlaylistRequestApprovalModalResult>(ref);
             },
-            panelClass: 'mobile-fullscreen',
+            request: (group_id, message, approver_id) =>
+                requestApprovalSignagePlaylist(
+                    playlist.id,
+                    group_id,
+                    message,
+                    approver_id,
+                ),
+            requested: () =>
+                this.setPlaylistApprovalStatus(playlist.id, false, true),
+            no_groups_key: 'SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_PLAYLIST',
+            no_approvers_key: 'SIGNAGE_MANAGER.SVC_NO_APPROVERS',
+            error_key: 'SIGNAGE_MANAGER.SVC_ERR_REQUEST_APPROVAL',
+            success_key: 'SIGNAGE_MANAGER.SVC_APPROVAL_REQUESTED',
         });
-        const result: PlaylistRequestApprovalModalResult | undefined =
-            await dialogClosed(ref);
-        if (!result) return;
-        try {
-            await requestApprovalSignagePlaylist(
-                playlist.id,
-                group.group.id,
-                result.message || '',
-                result.approver_id || '',
-            );
-        } catch {
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REQUEST_APPROVAL'));
-            return;
-        }
-        this.setPlaylistApprovalStatus(playlist.id, false, true);
-        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_APPROVAL_REQUESTED'));
     }
 
     public async removeMediaFromPlaylist(
@@ -1000,17 +968,59 @@ export class SignagePlaylistService {
         });
         const result = await dialogClosed(ref);
         if (result) {
-            this._playlist_change.set(Date.now());
+            this._playlist_change.update((count) => count + 1);
             this._context.changed();
         }
         return !!result;
+    }
+
+    /**
+     * Put the media of a playlist back to an older version, after the user
+     * confirms. Used by the approval modals.
+     * @param previous_version Version of the media to restore
+     * @returns Whether the media was restored
+     */
+    public async undoPlaylistChanges(
+        playlist: SignagePlaylist,
+        previous_version: SignagePlaylistMedia,
+    ) {
+        if (
+            !this._context.requirePermission(
+                this._context.can_update(),
+                'SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS',
+            )
+        )
+            return false;
+        const items = previous_version.items;
+        if (!items) return false;
+        const undone = await confirmThenRun(
+            this._dialog,
+            {
+                title: i18n('SIGNAGE_MANAGER.UNDO_CHANGES'),
+                content: i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_CONFIRM', {
+                    name: playlist.name,
+                }),
+                confirm_text: i18n('SIGNAGE_MANAGER.UNDO_CHANGES'),
+                icon: { content: 'undo' },
+            },
+            {
+                loading_key: 'SIGNAGE_MANAGER.UNDOING_CHANGES',
+                error_key: 'SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR',
+                action: () => updateSignagePlaylistMedia(playlist.id, items),
+            },
+        );
+        if (!undone) return false;
+        this.setPlaylistApprovalStatus(playlist.id, false);
+        notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERTED'));
+        this.refreshPlaylist(playlist.id);
+        return true;
     }
 
     public refreshPlaylist(playlist_id: string) {
         if (!playlist_id) return;
         this._removePlaylistMediaState(playlist_id);
         if (this.selected_playlist()?.id === playlist_id) {
-            this._playlist_change.set(Date.now());
+            this._playlist_change.update((count) => count + 1);
         }
         this._context.changed();
     }
@@ -1048,7 +1058,7 @@ export class SignagePlaylistService {
         });
         const result = await dialogClosed(ref);
         if (!result) return false;
-        this._playlist_change.set(Date.now());
+        this._playlist_change.update((count) => count + 1);
         return true;
     }
 
@@ -1070,7 +1080,7 @@ export class SignagePlaylistService {
         await updateSignagePlaylistMedia(playlist_id, list);
         this._setPlaylistMediaState(playlist_id, list, { approved: false });
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED'));
-        this._playlist_change.set(Date.now());
+        this._playlist_change.update((count) => count + 1);
     }
 
     /**
@@ -1380,7 +1390,7 @@ export class SignagePlaylistService {
             this.selected_playlist_item.set(null);
             this.selected_playlist_item_index.set(null);
         }
-        this._playlist_change.set(Date.now());
+        this._playlist_change.update((count) => count + 1);
     }
 
     private _updatePlaylistMetaState(
@@ -1388,12 +1398,7 @@ export class SignagePlaylistService {
             state: Record<string, PlaylistMetaState>,
         ) => Record<string, PlaylistMetaState>,
     ) {
-        let next_state: Record<string, PlaylistMetaState> = {};
-        this._playlist_meta_state.update((state) => {
-            next_state = updater(state);
-            return next_state;
-        });
-        persistPlaylistMetaSessionCache(next_state);
+        this._playlist_meta_state.update(updater);
     }
 
     /** Playlist IDs with a boolean meta flag, mapped to its value */
