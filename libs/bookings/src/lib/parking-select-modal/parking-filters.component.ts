@@ -338,19 +338,20 @@ export class ParkingFiltersComponent {
         'use_24_hour_time',
         false,
     );
-    // Match the parking forms, which read the bookings and parking keys
-    private readonly _parking_use_building_timezone = this._settings.signal(
-        'parking.use_building_timezone',
-        false,
-    );
-    private readonly _booking_use_building_timezone = this._settings.signal(
-        'bookings.use_building_timezone',
-        false,
-    );
+    // Match the parking forms: the parking key, when set, overrides the
+    // bookings key. `get()` reads the settings override signals, so this
+    // updates when the building changes. Cached setting signals keep their
+    // old value when a key becomes unset, so they are not used here.
     private readonly _use_building_timezone = computed(
         () =>
-            this._parking_use_building_timezone() ||
-            this._booking_use_building_timezone(),
+            !!(
+                this._settings.get<boolean>(
+                    'app.parking.use_building_timezone',
+                ) ??
+                this._settings.get<boolean>(
+                    'app.bookings.use_building_timezone',
+                )
+            ),
     );
 
     public readonly bookable_hours = this._bookable_hours;

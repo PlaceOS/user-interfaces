@@ -208,3 +208,36 @@ describe('ParkingFiltersComponent', () => {
         expect(org_mock.region).toEqual({ id: 'reg-2' });
     });
 });
+
+describe('ParkingFiltersComponent timezone', () => {
+    let spectator: Spectator<ParkingFiltersComponent>;
+    // The real settings service caches setting signals, as on a building switch
+    const createComponent = createComponentFactory({
+        component: ParkingFiltersComponent,
+        providers: [
+            { provide: BookingFormService, useValue: {} },
+            {
+                provide: OrganisationService,
+                useValue: { building: { timezone: 'Australia/Sydney' } },
+            },
+        ],
+        overrideComponents: [
+            [ParkingFiltersComponent, { set: { template: '' } }],
+        ],
+    });
+
+    beforeEach(() => (spectator = createComponent()));
+
+    it('should use the bookings value after the parking value becomes unset', () => {
+        const settings = spectator.inject(SettingsService);
+        settings.setOverrides([
+            {
+                parking: { use_building_timezone: false },
+                bookings: { use_building_timezone: true },
+            },
+        ]);
+        expect(spectator.component.timezone()).toBe('');
+        settings.setOverrides([{ bookings: { use_building_timezone: true } }]);
+        expect(spectator.component.timezone()).toBe('Australia/Sydney');
+    });
+});

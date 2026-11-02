@@ -746,8 +746,8 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     );
 
     public get timezone() {
-        return this._settings.get('app.bookings.use_building_timezone') ||
-            this._settings.get('app.desks.use_building_timezone')
+        return (this._settings.get('app.desks.use_building_timezone') ??
+            this._settings.get('app.bookings.use_building_timezone'))
             ? this._org.building.timezone
             : '';
     }

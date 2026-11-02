@@ -94,6 +94,13 @@ describe('ParkingFormDetailsComponent', () => {
         expect(spectator.component.timezone).toBe('Australia/Sydney');
     });
 
+    it('should let the parking timezone setting override the bookings setting', () => {
+        settings['app.bookings.use_building_timezone'] = true;
+        expect(spectator.component.timezone).toBe('Australia/Sydney');
+        settings['app.parking.use_building_timezone'] = false;
+        expect(spectator.component.timezone).toBe('');
+    });
+
     it('should compute the effective minimum duration from min and custom options', () => {
         expect(spectator.component.effective_min_duration).toBe(30);
         settings['app.parking.custom_duration_options'] = [15, 45];
