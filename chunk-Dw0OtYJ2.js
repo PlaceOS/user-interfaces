@@ -1,4 +1,0 @@
-import{gn as _t}from"./chunk-BF3rhqXc.js";import{on as fl}from"./chunk-DG8xk7zR.js";var a=[];var o={};var s={identifier:`Unallocated`};var P=(()=>{class r{async transform(t){if(!t)return o;if(t.startsWith(`unallocated`))return s;let e=a.find(({id:p})=>p===t);if(e)return e;let n=await fl(t).catch(()=>null);return n?(a.push(n),n):o}static{this.ɵfac=function(e){return new(e||r)}}static{this.ɵpipe=_t({name:`parkingSpace`,type:r,pure:!0})}}return r})();export{P as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="4677f05d-416b-5c37-8600-a64c2c17804a")}catch(e){}}();
-//# debugId=4677f05d-416b-5c37-8600-a64c2c17804a
-//# sourceMappingURL=chunk-Dw0OtYJ2.js.map
