@@ -1,7 +1,7 @@
 import {
   OrganisationService,
   Space
-} from "./chunk-BTER2AFF.js";
+} from "./chunk-5M37D5UD.js";
 import {
   Ia,
   Ua
@@ -151,4 +151,4 @@ export {
   SpacePipe
 };
 //# debugId=6b7c9328-7b5c-50ed-952e-f8c9619b44d9
-//# sourceMappingURL=chunk-DJDQAVH3.js.map
+//# sourceMappingURL=chunk-BIQMWFNY.js.map

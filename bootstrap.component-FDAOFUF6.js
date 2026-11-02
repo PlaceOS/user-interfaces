@@ -30,7 +30,7 @@ import {
   OrganisationService,
   Space,
   VERSION
-} from "./chunk-BTER2AFF.js";
+} from "./chunk-5M37D5UD.js";
 import {
   AsyncHandler,
   Ra
@@ -1611,4 +1611,4 @@ export {
   BootstrapComponent
 };
 //# debugId=9147bfbf-0198-54b4-9aa4-ac2656190c3f
-//# sourceMappingURL=bootstrap.component-P5ALJR4F.js.map
+//# sourceMappingURL=bootstrap.component-FDAOFUF6.js.map
