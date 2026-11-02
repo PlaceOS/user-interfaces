@@ -9,8 +9,10 @@ import {
     TriggerConditionOperator,
     TriggerStatusVariable,
 } from '@placeos/ts-client';
-import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    FullscreenModalShellComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { AlertConditionComparisonFormComponent } from './alert-condition-compare-form.component';
 
 export interface AlertConditionData {

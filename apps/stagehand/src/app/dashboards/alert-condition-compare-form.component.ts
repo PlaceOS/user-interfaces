@@ -22,8 +22,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Identity, i18n, notifyError } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 type ComparisonSide = 'left' | 'right';
 

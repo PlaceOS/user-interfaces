@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { AsyncHandler, errorMessage } from '@placeos/common';
 
 import type { DetectedRoom } from '../data/floorplan-ai.service';
+import { loadImage } from '../data/load-image';
 import { PlaceOSService } from '../data/placeos.service';
 import { StoreService } from '../data/store.service';
 import {
@@ -13,7 +14,12 @@ import {
     MapObject,
     MapObjectType,
 } from '../data/types';
-import { cycleState, defaultStateFor, getStatesForType } from './availability';
+import {
+    cycleState,
+    defaultStateFor,
+    getStatesForType,
+    isBookable,
+} from './availability';
 import {
     AMENITY_ICONS,
     DESK_LAYOUTS,
@@ -474,19 +480,10 @@ export class EditorStateService extends AsyncHandler {
             this._image_dims.set(null);
             return;
         }
-        const dims = await new Promise<{
-            width: number;
-            height: number;
-        } | null>((resolve) => {
-            const img = new Image();
-            img.onload = () =>
-                resolve({
-                    width: img.naturalWidth,
-                    height: img.naturalHeight,
-                });
-            img.onerror = () => resolve(null);
-            img.src = url;
-        });
+        const dims = await loadImage(url).then(
+            (img) => ({ width: img.naturalWidth, height: img.naturalHeight }),
+            () => null,
+        );
         this._image_dims.set(dims);
         await this._storeImageSize(floorplan_id, dims);
     }
@@ -642,7 +639,7 @@ export class EditorStateService extends AsyncHandler {
         const name = type.charAt(0).toUpperCase() + type.slice(1);
         return {
             label: `${name} ${count + 1}`,
-            svg_id: `${type}-${String(count + 1).padStart(3, '0')}`,
+            svg_id: sequentialId(`${type}-`, count + 1),
         };
     }
 
@@ -751,19 +748,14 @@ export class EditorStateService extends AsyncHandler {
     public async updateObject(id: string, updates: Partial<MapObject>) {
         this.patchLocal(id, updates);
         this.markDirty();
-        await this._store
-            .updateObject(this._floorplan_id, id, updates)
-            .catch(() => undefined);
+        await this._persist([id]);
     }
 
     /** Persists whatever geometry the object currently holds after a drag */
     public async commitGeometry(id: string) {
-        const object = this._objects().find((o) => o.id === id);
-        if (!object) return;
+        if (!this._objects().some((o) => o.id === id)) return;
         this.markDirty();
-        await this._store
-            .updateObject(this._floorplan_id, id, { geometry: object.geometry })
-            .catch(() => undefined);
+        await this._persist([id]);
     }
 
     public async deleteObject(id: string) {
@@ -863,7 +855,7 @@ export class EditorStateService extends AsyncHandler {
         this.patchLocal(existing.id, values);
         this._selected_id.set(existing.id);
         this.markDirty();
-        await this._store.updateObject(this._floorplan_id, existing.id, values);
+        await this._persist([existing.id]);
         return { ...existing, ...values } as MapObject;
     }
 
@@ -955,7 +947,7 @@ export class EditorStateService extends AsyncHandler {
         await this.createObject({
             object_type: 'amenity',
             label: asset?.label ?? 'Amenity',
-            svg_id: `amenity-${String(count + 1).padStart(3, '0')}`,
+            svg_id: sequentialId('amenity-', count + 1),
             geometry: { type: 'circle', x, y, r: 12 },
             layer: PLACE_LAYERS.amenity,
             fill_color: '#dc2626',
@@ -973,7 +965,7 @@ export class EditorStateService extends AsyncHandler {
         await this.createObject({
             object_type: 'decorative',
             label: asset.label,
-            svg_id: `furniture-${String(count + 1).padStart(3, '0')}`,
+            svg_id: sequentialId('furniture-', count + 1),
             geometry: {
                 type: 'rect',
                 x: x - asset.w / 2,
@@ -1011,7 +1003,7 @@ export class EditorStateService extends AsyncHandler {
                 desks.push({
                     object_type: 'desk',
                     label: `Desk ${index}`,
-                    svg_id: `desk-${String(index).padStart(3, '0')}`,
+                    svg_id: sequentialId('desk-', index),
                     geometry: {
                         type: 'rect',
                         x: start_x + col * (layout.deskW + layout.gap),
@@ -1076,9 +1068,7 @@ export class EditorStateService extends AsyncHandler {
     }
 
     public readonly bookable = computed(() =>
-        this._objects().filter(
-            (o) => o.object_type === 'room' || o.object_type === 'desk',
-        ),
+        this._objects().filter(isBookable),
     );
 
     // ── Multi-select ────────────────────────────────────────────────────────

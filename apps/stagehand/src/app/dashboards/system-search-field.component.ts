@@ -17,9 +17,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, provideValueAccessor } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { inGroupScope } from '../support-groups';
 import { SupportGroupsService } from '../support-groups.service';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
     selector: 'system-search-field',

@@ -1,13 +1,8 @@
-import {
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { SafePipe } from '@placeos/components';
 import { showMetadata } from '@placeos/ts-client';
-import { SidebarComponent } from './ui/sidebar.component';
+import { StagehandPageComponent } from './ui/stagehand-page.component';
 
 interface RecorderStreamImage {
     id: string;
@@ -23,17 +18,10 @@ interface RecorderStreamMetadata {
 
 @Component({
     selector: `recorder-grid-view`,
-    template: ` <div class="bg-base-200 absolute inset-0 flex">
-        <sidebar />
-        <div class="flex flex-1 flex-col">
-            <header
-                class="border-base-400 bg-base-100 flex h-18 w-full items-center justify-between p-4"
-            >
-                <h1 class="text-2xl font-bold">Recorder Streams</h1>
-            </header>
-            <main
-                id="stagehand-page-content"
-                class="grid w-full flex-1 grid-cols-1 gap-4 overflow-auto p-4 sm:grid-cols-3"
+    template: `
+        <stagehand-page heading="Recorder Streams">
+            <div
+                class="grid min-h-full w-full grid-cols-1 gap-4 p-4 sm:grid-cols-3"
             >
                 @for (image of images(); track image.id) {
                     <div
@@ -57,11 +45,11 @@ interface RecorderStreamMetadata {
                         </div>
                     </div>
                 }
-            </main>
-        </div>
-    </div>`,
+            </div>
+        </stagehand-page>
+    `,
     styles: ``,
-    imports: [SidebarComponent, SafePipe],
+    imports: [StagehandPageComponent, SafePipe],
 })
 export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

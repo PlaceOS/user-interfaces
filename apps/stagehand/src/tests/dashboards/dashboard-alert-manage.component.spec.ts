@@ -9,14 +9,16 @@ import {
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { delay, of } from 'rxjs';
 
-import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { addAlert, updateAlert } from '@placeos/ts-client';
 
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    SimpleTableComponent,
+} from '@placeos/components';
+import { setNotifyOutlet } from '@placeos/common';
 import { DashboardAlertManageComponent } from '../../app/dashboards/dashboard-alert-manage.component';
 import { DashboardsService } from '../../app/dashboards/dashboards.service';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { SystemSearchFieldComponent } from '../../app/dashboards/system-search-field.component';
 
 vi.mock('@placeos/ts-client', { spy: true });

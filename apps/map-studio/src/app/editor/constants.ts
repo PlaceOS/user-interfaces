@@ -36,6 +36,21 @@ export const TYPE_COLORS: Record<string, string> = {
     locker: '#9333ea',
 };
 
+/**
+ * Type colours of the object list and the minimap. They are not the canvas
+ * colours in `TYPE_COLORS`.
+ */
+export const TYPE_ACCENT_COLORS: Record<string, string> = {
+    room: '#3b82f6',
+    desk: '#22c55e',
+    zone: '#a855f7',
+    area: '#f59e0b',
+    amenity: '#06b6d4',
+    decorative: '#6b7280',
+    parking: '#8b5cf6',
+    locker: '#ec4899',
+};
+
 export const OBJECT_TYPES: MapObjectType[] = [
     'room',
     'desk',

@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { requestTokenFromOpener } from '@placeos/common';
+import { requestTokenFromOpener, withTimeout } from '@placeos/common';
 import {
     authorise,
     authority,
@@ -39,25 +39,6 @@ export function withoutLocalFields(
     return data;
 }
 
-function withDeadline<T>(promise: Promise<T>, message: string): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-        const timer = setTimeout(
-            () => reject(new Error(message)),
-            PLACEOS_REQUEST_TIMEOUT,
-        );
-        promise.then(
-            (value) => {
-                clearTimeout(timer);
-                resolve(value);
-            },
-            (error) => {
-                clearTimeout(timer);
-                reject(error);
-            },
-        );
-    });
-}
-
 function fetchWithDeadline<T>(
     input: RequestInfo | URL,
     init: RequestInit,
@@ -67,9 +48,11 @@ function fetchWithDeadline<T>(
     const request = fetch(input, { ...init, signal: controller.signal }).then(
         read,
     );
-    return withDeadline(request, 'PlaceOS request timed out.').finally(() =>
-        controller.abort(),
-    );
+    return withTimeout(
+        request,
+        PLACEOS_REQUEST_TIMEOUT,
+        'PlaceOS request timed out.',
+    ).finally(() => controller.abort());
 }
 
 export interface PlaceOSSettings {
@@ -229,7 +212,11 @@ export class PlaceOSService {
             handle_login: false,
         };
         try {
-            await withDeadline(setup(options), 'PlaceOS setup timed out.');
+            await withTimeout(
+                setup(options),
+                PLACEOS_REQUEST_TIMEOUT,
+                'PlaceOS setup timed out.',
+            );
             if (!token()) await this._useOpenerToken();
             options.handle_login = true;
             // With handle_login on, this redirects to the login page

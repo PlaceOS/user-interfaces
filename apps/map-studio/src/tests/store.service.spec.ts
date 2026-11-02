@@ -413,30 +413,4 @@ describe('StoreService', () => {
             }),
         ]);
     });
-
-    it('reports missing labels, empty geometry and duplicate svg ids', async () => {
-        const floorplan = await store.addFloorplan('p1', 'Level 1');
-        await store.createObject(floorplan.id, {
-            svg_id: 'dupe',
-            label: 'A',
-            geometry: { type: 'rect', x: 0, y: 0, width: 1, height: 1 },
-        });
-        await store.createObject(floorplan.id, {
-            svg_id: 'dupe',
-            label: 'B',
-            geometry: { type: 'rect', x: 0, y: 0, width: 1, height: 1 },
-        });
-        await store.createObject(floorplan.id, { geometry: {} as never });
-
-        const issues = await store.validateFloorplan(floorplan.id);
-        const types = issues.map((issue) => issue.message);
-
-        expect(types.filter((m) => m.includes('has no label'))).toHaveLength(1);
-        expect(
-            types.filter((m) => m.includes('has empty geometry')),
-        ).toHaveLength(1);
-        expect(
-            types.filter((m) => m.includes('Duplicate svg_id')),
-        ).toHaveLength(2);
-    });
 });

@@ -27,10 +27,12 @@ import {
     TriggerConditions,
     updateAlert,
 } from '@placeos/ts-client';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { AlertConditionModalComponent } from './alert-conditions-modal.component';
 import { DashboardsService } from './dashboards.service';
 import { SystemSearchFieldComponent } from './system-search-field.component';

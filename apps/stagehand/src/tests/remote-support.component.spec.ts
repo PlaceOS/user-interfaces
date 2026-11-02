@@ -1,11 +1,10 @@
-import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { CameraSnapshotModalComponent } from '../app/camera-snapshot-modal.component';
 import { DashboardsService } from '../app/dashboards/dashboards.service';
@@ -37,14 +36,12 @@ describe('RemoteSupportComponent', () => {
         detectChanges: false,
         // Render nothing: these tests exercise the component's signals, computeds
         // and methods, not its (heavy) template with the sidebar + data table.
-        overrideComponents: [[RemoteSupportComponent, { set: { template: '' } }]],
+        overrideComponents: [
+            [RemoteSupportComponent, { set: { template: '' } }],
+        ],
         providers: [
             MockProvider(DashboardsService, {}),
             MockProvider(SupportService, {}),
-            MockProvider(OrganisationService, {
-                regions: [],
-                buildings: [],
-            }),
             MockProvider(MatDialog, {}),
             MockProvider(Router, {}),
             MockProvider(ActivatedRoute, {
@@ -70,7 +67,8 @@ describe('RemoteSupportComponent', () => {
                         dashboard_alerts,
                         setDashboard: vi.fn(),
                         listenForDashboardAlerts: vi.fn(),
-                        setRegionFromParams: vi.fn(),
+                        applyLocationParams: vi.fn(),
+                        location_query_params: signal({ region: 'all' }),
                     },
                 },
                 { provide: SupportService, useValue: { space_list } },
@@ -84,7 +82,9 @@ describe('RemoteSupportComponent', () => {
         expect(spectator.component.snapshotUrl('')).toBe('');
         const url = spectator.component.snapshotUrl('http://host/snap');
         expect(url).toMatch(/^http:\/\/host\/snap\?t=\d+$/);
-        const with_query = spectator.component.snapshotUrl('http://host/snap?a=1');
+        const with_query = spectator.component.snapshotUrl(
+            'http://host/snap?a=1',
+        );
         expect(with_query).toMatch(/^http:\/\/host\/snap\?a=1&t=\d+$/);
     });
 
@@ -147,7 +147,9 @@ describe('RemoteSupportComponent', () => {
             room({ id: 'b', zones: ['bld-2'] }),
         ] as any);
         building_id.set('bld-1');
-        expect(spectator.component.zone_rooms().map((r) => r.id)).toEqual(['a']);
+        expect(spectator.component.zone_rooms().map((r) => r.id)).toEqual([
+            'a',
+        ]);
     });
 
     it('should attach matching alerts to each room and de-duplicate them', () => {

@@ -14,7 +14,7 @@ import {
     MapObject,
     Project,
 } from '../data/types';
-import { STATE_COLORS } from '../editor/availability';
+import { isBookable, STATE_COLORS } from '../editor/availability';
 import { AvailabilityPollingService } from './availability-polling.service';
 import {
     FloorPlan2dComponent,
@@ -483,9 +483,7 @@ export class KioskComponent extends AsyncHandler {
             : this.objects();
         return pool
             .filter(
-                (o) =>
-                    (o.object_type === 'room' || o.object_type === 'desk') &&
-                    o.label?.toLowerCase().includes(query),
+                (o) => isBookable(o) && o.label?.toLowerCase().includes(query),
             )
             .sort(
                 (a, b) =>

@@ -6,13 +6,12 @@ import {
 } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { addAlertDashboard, updateAlertDashboard } from '@placeos/ts-client';
 
+import { IconComponent, SettingsToggleComponent } from '@placeos/components';
+import { setNotifyOutlet } from '@placeos/common';
 import { DashboardManageComponent } from '../../app/dashboards/dashboard-mange.component';
 import { DashboardsService } from '../../app/dashboards/dashboards.service';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 

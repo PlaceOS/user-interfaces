@@ -1,16 +1,15 @@
-import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { ActivatedRoute, Router } from '@angular/router';
-import { OrganisationService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { showSystem } from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { AlertsComponent } from '../app/alerts.component';
 import { DashboardsService } from '../app/dashboards/dashboards.service';
-import { SidebarComponent } from '../app/ui/sidebar.component';
+import { StagehandPageComponent } from '../app/ui/stagehand-page.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -36,13 +35,12 @@ describe('AlertsComponent', () => {
     let router: { navigate: Mock };
     let route: unknown;
     let dashboards_service: any;
-    let org: unknown;
 
     const create_component = createComponentFactory({
         component: AlertsComponent,
         detectChanges: false,
         declarations: [
-            MockComponent(SidebarComponent),
+            MockComponent(StagehandPageComponent),
             MockComponent(SimpleTableComponent),
             MockComponent(IconComponent),
         ],
@@ -69,15 +67,14 @@ describe('AlertsComponent', () => {
             loadDashboards: vi.fn(),
             setDashboard: vi.fn(() => Promise.resolve()),
             listenForDashboardAlerts: vi.fn(),
-            setRegionFromParams: vi.fn(),
+            applyLocationParams: vi.fn(),
+            location_query_params: signal({ region: 'all' }),
         };
-        org = { regions: [], buildings: [], region: null, building: null };
         return create_component({
             providers: [
                 { provide: Router, useValue: router },
                 { provide: ActivatedRoute, useValue: route },
                 MockProvider(DashboardsService, dashboards_service),
-                MockProvider(OrganisationService, org),
             ],
         });
     };
@@ -103,9 +100,24 @@ describe('AlertsComponent', () => {
     it('should filter the alert list by severity, device type and status', () => {
         spectator = build();
         dashboard_alerts.set([
-            make_alert({ id: '1', severity: 'critical', type: 'display', status: 'open' }),
-            make_alert({ id: '2', severity: 'high', type: 'audio', status: 'closed' }),
-            make_alert({ id: '3', severity: 'critical', type: 'audio', status: 'open' }),
+            make_alert({
+                id: '1',
+                severity: 'critical',
+                type: 'display',
+                status: 'open',
+            }),
+            make_alert({
+                id: '2',
+                severity: 'high',
+                type: 'audio',
+                status: 'closed',
+            }),
+            make_alert({
+                id: '3',
+                severity: 'critical',
+                type: 'audio',
+                status: 'open',
+            }),
         ]);
 
         spectator.component.severity.set('critical');
@@ -168,29 +180,13 @@ describe('AlertsComponent', () => {
         expect(dashboards_service.loadDashboards).toHaveBeenCalled();
     });
 
-    it('should apply all-regions scope when the region param is "all"', () => {
-        spectator = build({ region: 'all' });
+    it('should apply the region and building query params on init', () => {
+        const params = { region: 'region-1', building: 'building-1' };
+        spectator = build(params);
         spectator.component.ngOnInit();
-        expect(dashboards_service.setRegionFromParams).toHaveBeenCalledWith(
-            '',
-            '',
+        expect(dashboards_service.applyLocationParams).toHaveBeenCalledWith(
+            params,
         );
-    });
-
-    it('should apply a specific region and building from query params', () => {
-        const region = { id: 'region-1' };
-        const building = { id: 'building-1' };
-        spectator = build({ region: 'region-1', building: 'building-1' });
-        const injected_org: any = spectator.inject(OrganisationService);
-        injected_org.regions = [region];
-        injected_org.buildings = [building];
-        spectator.component.ngOnInit();
-        expect(injected_org.region).toBe(region);
-        expect(dashboards_service.setRegionFromParams).toHaveBeenCalledWith(
-            'region-1',
-            'building-1',
-        );
-        expect(injected_org.building).toBe(building);
     });
 
     it('should navigate to the selected dashboard route, keeping the filters', () => {

@@ -17,6 +17,7 @@ import type { DetectedRoom } from '../data/floorplan-ai.service';
 import { FloorplanAiService } from '../data/floorplan-ai.service';
 import { MapObject } from '../data/types';
 import { AssetPickerComponent } from './asset-picker.component';
+import { isBookable } from './availability';
 import { AvailabilityPanelComponent } from './availability-panel.component';
 import { CanvasComponent } from './canvas.component';
 import {
@@ -951,8 +952,7 @@ export class EditorComponent {
             .objects()
             .filter(
                 (object) =>
-                    (object.object_type === 'room' ||
-                        object.object_type === 'desk') &&
+                    isBookable(object) &&
                     object.label?.toLowerCase().includes(query),
             )
             .slice(0, 8);

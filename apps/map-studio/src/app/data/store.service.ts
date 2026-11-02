@@ -14,7 +14,6 @@ import {
     MapObject,
     MapObjectType,
     Project,
-    ValidationIssue,
 } from './types';
 
 type ZoneReference = Pick<PlaceOSZone, 'id' | 'name' | 'display_name'>;
@@ -713,26 +712,28 @@ export class StoreService {
         for (const [index, parsed] of analysis.objects.entries()) {
             const mapping = mappings?.get(parsed.svgId);
             if (mappings && !mapping) continue;
+            const fill =
+                parsed.presentation?.fill || parsed.attributes['fill'] || null;
+            const stroke =
+                parsed.presentation?.stroke ||
+                parsed.attributes['stroke'] ||
+                null;
+            const opacity =
+                parsed.presentation?.opacity ??
+                Number(parsed.attributes['opacity'] ?? 1);
+            const label =
+                mapping?.label ||
+                parsed.label ||
+                (parsed.tag === 'text' ? '' : parsed.svgId);
             objects.push({
                 object_type: (mapping?.objectType ??
                     parsed.suggestedType) as MapObjectType,
                 svg_id: parsed.svgId,
-                label:
-                    mapping?.label ||
-                    parsed.label ||
-                    (parsed.tag === 'text' ? '' : parsed.svgId),
+                label,
                 geometry: parsed.geometry,
-                fill_color:
-                    parsed.presentation?.fill ||
-                    parsed.attributes['fill'] ||
-                    null,
-                stroke_color:
-                    parsed.presentation?.stroke ||
-                    parsed.attributes['stroke'] ||
-                    null,
-                opacity:
-                    parsed.presentation?.opacity ??
-                    Number(parsed.attributes['opacity'] ?? 1),
+                fill_color: fill,
+                stroke_color: stroke,
+                opacity,
                 layer: parsed.layer,
                 group_id: parsed.groupId,
                 z_index: index,
@@ -741,21 +742,10 @@ export class StoreService {
                     originalTag: parsed.tag,
                     originalAttributes: parsed.attributes,
                     originalGeometry: parsed.geometry,
-                    originalFill:
-                        parsed.presentation?.fill ||
-                        parsed.attributes['fill'] ||
-                        null,
-                    originalStroke:
-                        parsed.presentation?.stroke ||
-                        parsed.attributes['stroke'] ||
-                        null,
-                    originalOpacity:
-                        parsed.presentation?.opacity ??
-                        Number(parsed.attributes['opacity'] ?? 1),
-                    originalLabel:
-                        mapping?.label ||
-                        parsed.label ||
-                        (parsed.tag === 'text' ? '' : parsed.svgId),
+                    originalFill: fill,
+                    originalStroke: stroke,
+                    originalOpacity: opacity,
+                    originalLabel: label,
                     parentMatrix: parsed.parentMatrix,
                 },
             });
@@ -821,22 +811,6 @@ export class StoreService {
         });
     }
 
-    public async updateObject(
-        floorplan_id: string,
-        id: string,
-        data: Partial<MapObject>,
-    ): Promise<void> {
-        const object = await this._db.get<MapObject>(
-            key.object(floorplan_id, id),
-        );
-        if (!object) throw new Error('Object not found');
-        await this._db.set(key.object(floorplan_id, id), {
-            ...object,
-            ...data,
-            id,
-        });
-    }
-
     /**
      * Writes `objects` and removes `remove_ids` in one transaction. Returns the
      * objects as stored, with defaults filled in.
@@ -852,48 +826,5 @@ export class StoreService {
             put: records,
         });
         return records.map(([, object]) => object);
-    }
-
-    // ── Validation ──────────────────────────────────────────────────────────
-
-    public async validateFloorplan(
-        floorplan_id: string,
-    ): Promise<ValidationIssue[]> {
-        const objects = await this.listObjects(floorplan_id);
-        const issues: ValidationIssue[] = [];
-        const seen = new Set<string>();
-        const duplicates = new Set<string>();
-
-        for (const obj of objects) {
-            if (!obj.label) {
-                issues.push({
-                    type: 'warning',
-                    objectId: obj.id,
-                    message: `Object ${obj.id} (${obj.object_type}) has no label`,
-                });
-            }
-            if (obj.svg_id) {
-                if (seen.has(obj.svg_id)) duplicates.add(obj.svg_id);
-                seen.add(obj.svg_id);
-            }
-            if (!obj.geometry || Object.keys(obj.geometry).length === 0) {
-                issues.push({
-                    type: 'error',
-                    objectId: obj.id,
-                    message: `Object ${obj.id} (${obj.object_type}) has empty geometry`,
-                });
-            }
-        }
-
-        for (const svg_id of duplicates) {
-            for (const obj of objects.filter((o) => o.svg_id === svg_id)) {
-                issues.push({
-                    type: 'error',
-                    objectId: obj.id,
-                    message: `Duplicate svg_id "${svg_id}" on object ${obj.id}`,
-                });
-            }
-        }
-        return issues;
     }
 }

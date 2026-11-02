@@ -1,3 +1,4 @@
+import { ObjectGeometry } from '../data/types';
 import { Handle } from './constants';
 
 export interface Point {
@@ -191,6 +192,29 @@ export function boundsOf(points: Point[]) {
         y: Math.min(...ys),
         width: Math.max(...xs) - Math.min(...xs),
         height: Math.max(...ys) - Math.min(...ys),
+    };
+}
+
+/**
+ * Bounding box of an object's geometry, in geometry field order. A circle
+ * with no radius gets the 12 unit radius the canvas draws it with.
+ */
+export function objectBounds(geometry: ObjectGeometry) {
+    if (geometry.points?.length) return boundsOf(geometry.points);
+    if (geometry.type === 'circle') {
+        const r = geometry.r ?? 12;
+        return {
+            x: (geometry.x ?? 0) - r,
+            y: (geometry.y ?? 0) - r,
+            width: r * 2,
+            height: r * 2,
+        };
+    }
+    return {
+        x: geometry.x ?? 0,
+        y: geometry.y ?? 0,
+        width: geometry.width ?? 0,
+        height: geometry.height ?? 0,
     };
 }
 

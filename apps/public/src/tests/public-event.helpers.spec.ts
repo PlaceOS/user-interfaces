@@ -1,6 +1,9 @@
+import { convertToParamMap } from '@angular/router';
 import {
     eventDescriptionText,
     isSystemEvent,
+    preservedQueryParams,
+    querySystemId,
 } from '../app/public-event.helpers';
 
 describe('public event helpers', () => {
@@ -20,6 +23,26 @@ describe('public event helpers', () => {
         expect(isSystemEvent({ id: 'booking', body: 'Public event' })).toBe(
             false,
         );
+    });
+
+    it('should read the source id from the first query param that is set', () => {
+        expect(querySystemId(convertToParamMap({ id: 'c', system: 'b' }))).toBe(
+            'b',
+        );
+        expect(querySystemId(convertToParamMap({}))).toBe('');
+    });
+
+    it('should keep only the query params that do not pick a source or event', () => {
+        expect(
+            preservedQueryParams({
+                system_id: 'a',
+                system: 'b',
+                id: 'c',
+                event_id: 'e',
+                direct_event: 'true',
+                lang: 'en',
+            }),
+        ).toEqual({ lang: 'en' });
     });
 
     it('should read description text without creating elements in the page', () => {

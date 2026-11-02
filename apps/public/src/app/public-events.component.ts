@@ -11,7 +11,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest } from 'rxjs';
 import { PublicEventDetailsComponent } from './public-event-details.component';
-import { eventId } from './public-event.helpers';
+import {
+    eventId,
+    preservedQueryParams,
+    querySystemId,
+} from './public-event.helpers';
 import { PublicEventsListComponent } from './public-events-list.component';
 import { PublicEvent, PublicEventsService } from './public-events.service';
 import { PublicPageShellComponent } from './public-page-shell.component';
@@ -25,21 +29,11 @@ import { PublicPageShellComponent } from './public-page-shell.component';
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
     template: `
-        <placeos-public-page-shell [logo]="service.logo_url()">
-            @if (!system_id()) {
-                <section
-                    class="border-base-300 bg-base-100/95 w-full rounded-xl border p-5 shadow-md backdrop-blur"
-                >
-                    <h2 class="text-xl font-medium">
-                        Public events are not configured yet
-                    </h2>
-                    <p class="mt-2 max-w-3xl text-sm opacity-70">
-                        Configure a default public events source in the
-                        authority settings, or provide one with the shared event
-                        link.
-                    </p>
-                </section>
-            } @else {
+        <placeos-public-page-shell
+            [logo]="service.logo_url()"
+            [configured]="!!system_id()"
+        >
+            @if (system_id()) {
                 @if (service.error()) {
                     <div
                         class="bg-error-light text-error border-error/25 mx-auto w-full max-w-xl rounded-xl border p-4 text-sm font-medium shadow-sm"
@@ -88,18 +82,12 @@ export class PublicEventsComponent implements OnInit {
     );
 
     public async ngOnInit() {
-        await this.service
-            .init()
-            .catch((err) =>
-                this.service.error.set(
-                    err instanceof Error ? err.message : `${err}`,
-                ),
-            );
+        await this.service.init();
         combineLatest([this._route.paramMap, this._route.queryParamMap])
             .pipe(takeUntilDestroyed(this._destroy_ref))
             .subscribe(([params, query]) => {
                 this.system_id.set(
-                    this._querySystemId(query) ||
+                    querySystemId(query) ||
                         params.get('system_id') ||
                         this.service.default_system_id(),
                 );
@@ -115,17 +103,8 @@ export class PublicEventsComponent implements OnInit {
                     });
                     return;
                 }
-                this._loadIfReady();
+                this.loadEvents();
             });
-    }
-
-    private _querySystemId(params: { get: (key: string) => string | null }) {
-        return (
-            params.get('system_id') ||
-            params.get('system') ||
-            params.get('id') ||
-            ''
-        );
     }
 
     private _isDirectEventRoute() {
@@ -137,7 +116,7 @@ export class PublicEventsComponent implements OnInit {
 
     private _guestDetailsQueryParams() {
         return {
-            ...this._preservedQueryParams(),
+            ...preservedQueryParams(this._route.snapshot.queryParams),
             ...(this.system_id() ? { system_id: this.system_id() } : {}),
             ...(this.selected_event_id()
                 ? { event_id: this.selected_event_id() }
@@ -146,29 +125,19 @@ export class PublicEventsComponent implements OnInit {
         };
     }
 
-    private _preservedQueryParams() {
-        const params = { ...this._route.snapshot.queryParams };
-        delete params['system_id'];
-        delete params['system'];
-        delete params['id'];
-        delete params['event_id'];
-        delete params['direct_event'];
-        return params;
-    }
-
     public async loadEvents() {
         if (!this.system_id()) return;
         await this.service.loadEvents(this.system_id());
     }
 
     public async register(event: PublicEvent) {
-        await this.service.register(this.system_id(), eventId(event));
-        this.registered.set(true);
-    }
-
-    private _loadIfReady() {
-        if (this.service.authenticated() && this.system_id()) {
-            this.loadEvents();
-        }
+        // The service shows the error, so a failed registration only stops here
+        const registered = await this.service
+            .register(this.system_id(), eventId(event))
+            .then(
+                () => true,
+                () => false,
+            );
+        if (registered) this.registered.set(true);
     }
 }

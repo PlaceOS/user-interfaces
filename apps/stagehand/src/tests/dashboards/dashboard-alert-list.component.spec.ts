@@ -5,10 +5,9 @@ import {
 } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { DashboardAlertListComponent } from '../../app/dashboards/dashboard-alert-list.component';
 import { DashboardsService } from '../../app/dashboards/dashboards.service';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 
 describe('DashboardAlertListComponent', () => {
     let spectator: SpectatorRouting<DashboardAlertListComponent>;

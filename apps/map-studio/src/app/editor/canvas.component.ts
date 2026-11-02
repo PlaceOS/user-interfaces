@@ -12,7 +12,7 @@ import {
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 import { MapObject } from '../data/types';
-import { getAvailabilityColor } from './availability';
+import { getAvailabilityColor, isBookable } from './availability';
 import {
     AMENITY_ICONS,
     FURNITURE_ASSETS,
@@ -30,11 +30,21 @@ import {
     closestPointOnSegment,
     computeSnap,
     getHandlePos,
+    objectBounds,
     pointInRotatedRect,
     rotatePoint,
 } from './geometry';
 import { composeSourceSvg, importedObject } from './source-svg';
+import { sequentialId } from './svg-export';
 import { ToastService } from './toast.service';
+
+/** Position of each resize handle on the given bounding box */
+function handlePositions(x: number, y: number, w: number, h: number) {
+    return HANDLES.map((handle) => {
+        const [hx, hy] = getHandlePos(handle, x, y, w, h);
+        return { handle, x: hx, y: hy };
+    });
+}
 
 interface DragState {
     id: string;
@@ -310,17 +320,17 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                                     object.id === state.selected_id() &&
                                     state.multi_select().length < 2
                                 ) {
-                                    @for (handle of handles; track handle) {
+                                    @for (pos of selected_handles(); track pos.handle) {
                                         <circle
-                                            [attr.cx]="handleX(object, handle)"
-                                            [attr.cy]="handleY(object, handle)"
+                                            [attr.cx]="pos.x"
+                                            [attr.cy]="pos.y"
                                             [attr.r]="state.handle_radius()"
                                             fill="#f59e0b"
                                             stroke="#fff"
                                             [attr.stroke-width]="
                                                 state.stroke_width() * 0.75
                                             "
-                                            [style.cursor]="cursorFor(handle)"
+                                            [style.cursor]="cursorFor(pos.handle)"
                                         />
                                     }
                                     <line
@@ -464,17 +474,17 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                             stroke-dasharray="6 3"
                             class="pointer-events-none"
                         />
-                        @for (handle of handles; track handle) {
+                        @for (pos of group_handles(); track pos.handle) {
                             <circle
-                                [attr.cx]="groupHandleX(group, handle)"
-                                [attr.cy]="groupHandleY(group, handle)"
+                                [attr.cx]="pos.x"
+                                [attr.cy]="pos.y"
                                 [attr.r]="state.handle_radius()"
                                 fill="#3b82f6"
                                 stroke="#fff"
                                 [attr.stroke-width]="
                                     state.stroke_width() * 0.75
                                 "
-                                [style.cursor]="cursorFor(handle)"
+                                [style.cursor]="cursorFor(pos.handle)"
                             />
                         }
                         <line
@@ -531,15 +541,15 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                             state.floorplan()?.svg_source &&
                             !object.locked
                         ) {
-                            @for (handle of handles; track handle) {
+                            @for (pos of selected_handles(); track pos.handle) {
                                 <circle
-                                    [attr.cx]="handleX(object, handle)"
-                                    [attr.cy]="handleY(object, handle)"
+                                    [attr.cx]="pos.x"
+                                    [attr.cy]="pos.y"
                                     [attr.r]="state.handle_radius()"
                                     fill="#fff"
                                     stroke="#3b82f6"
                                     [attr.stroke-width]="state.stroke_width()"
-                                    [style.cursor]="cursorFor(handle)"
+                                    [style.cursor]="cursorFor(pos.handle)"
                                 />
                             }
                             <circle
@@ -699,8 +709,6 @@ export class CanvasComponent {
     private readonly _rename_input =
         viewChild<ElementRef<HTMLInputElement>>('renameInput');
 
-    public readonly handles = HANDLES;
-
     public readonly rect_draw = signal<RectDrawState | null>(null);
     public readonly selection_box = signal<SelectionBox | null>(null);
     public readonly outline_points = signal<Point[]>([]);
@@ -849,8 +857,7 @@ export class CanvasComponent {
     /** Move cursor over objects the select tool can drag, else inherit */
     public moveCursor(object: MapObject) {
         const cycles =
-            this.state.availability_enabled() &&
-            (object.object_type === 'room' || object.object_type === 'desk');
+            this.state.availability_enabled() && isBookable(object);
         return this._can_move() &&
             !cycles &&
             !object.locked &&
@@ -970,6 +977,25 @@ export class CanvasComponent {
         };
     });
 
+    /** Resize handle positions around the selected object */
+    public readonly selected_handles = computed(() => {
+        const geometry = this.state.selected()?.geometry;
+        if (!geometry) return [];
+        return handlePositions(
+            geometry.x ?? 0,
+            geometry.y ?? 0,
+            geometry.width ?? 50,
+            geometry.height ?? 50,
+        );
+    });
+
+    /** Resize handle positions around the multi-selection */
+    public readonly group_handles = computed(() => {
+        const group = this.groupBounds();
+        if (!group) return [];
+        return handlePositions(group.x, group.y, group.width, group.height);
+    });
+
     public readonly groupBounds = computed(() => {
         const ids = this.state.multi_select_ids();
         if (ids.size < 2) return null;
@@ -977,7 +1003,7 @@ export class CanvasComponent {
             .objects()
             .filter((object) => ids.has(object.id));
         if (objects.length < 2) return null;
-        const bounds = objects.map((object) => this._objectBounds(object));
+        const bounds = objects.map((object) => objectBounds(object.geometry));
         const x = Math.min(...bounds.map((item) => item.x));
         const y = Math.min(...bounds.map((item) => item.y));
         const right = Math.max(...bounds.map((item) => item.x + item.width));
@@ -1098,48 +1124,8 @@ export class CanvasComponent {
         return (object.geometry.y ?? 0) - 25 / (this.state.stroke_width() / 2);
     }
 
-    public handleX(object: MapObject, handle: Handle) {
-        return getHandlePos(
-            handle,
-            object.geometry.x ?? 0,
-            object.geometry.y ?? 0,
-            object.geometry.width ?? 50,
-            object.geometry.height ?? 50,
-        )[0];
-    }
-
-    public handleY(object: MapObject, handle: Handle) {
-        return getHandlePos(
-            handle,
-            object.geometry.x ?? 0,
-            object.geometry.y ?? 0,
-            object.geometry.width ?? 50,
-            object.geometry.height ?? 50,
-        )[1];
-    }
-
     public cursorFor(handle: Handle) {
         return HANDLE_CURSORS[handle];
-    }
-
-    public groupHandleX(group: GroupTransformState['bounds'], handle: Handle) {
-        return getHandlePos(
-            handle,
-            group.x,
-            group.y,
-            group.width,
-            group.height,
-        )[0];
-    }
-
-    public groupHandleY(group: GroupTransformState['bounds'], handle: Handle) {
-        return getHandlePos(
-            handle,
-            group.x,
-            group.y,
-            group.width,
-            group.height,
-        )[1];
     }
 
     public groupRotateY(group: GroupTransformState['bounds']) {
@@ -1449,10 +1435,7 @@ export class CanvasComponent {
         const hit = this._hitTest(x, y);
         if (hit) {
             // In preview mode a click cycles the availability state instead
-            if (
-                this.state.availability_enabled() &&
-                (hit.object_type === 'room' || hit.object_type === 'desk')
-            ) {
+            if (this.state.availability_enabled() && isBookable(hit)) {
                 this.state.select(hit.id);
                 this.state.cycleAvailability(hit);
                 event.preventDefault();
@@ -1995,7 +1978,7 @@ export class CanvasComponent {
                 geometry.points = geometry.points.map(transform);
                 Object.assign(geometry, boundsOf(geometry.points));
             } else {
-                const bounds = this._objectBounds(object);
+                const bounds = objectBounds(object.geometry);
                 const center = transform({
                     x: bounds.x + bounds.width / 2,
                     y: bounds.y + bounds.height / 2,
@@ -2053,7 +2036,7 @@ export class CanvasComponent {
             .visible_objects()
             .filter((object) => {
                 if (object.layer !== activeLayer || object.locked) return false;
-                const bounds = this._objectBounds(object);
+                const bounds = objectBounds(object.geometry);
                 return (
                     bounds.x >= left &&
                     bounds.y >= top &&
@@ -2071,26 +2054,6 @@ export class CanvasComponent {
             .objects()
             .filter((object) => ids.has(object.id))
             .map((object) => structuredClone(object));
-    }
-
-    private _objectBounds(object: MapObject) {
-        const geometry = object.geometry;
-        if (geometry.points?.length) return boundsOf(geometry.points);
-        if (geometry.type === 'circle') {
-            const r = geometry.r ?? 12;
-            return {
-                x: (geometry.x ?? 0) - r,
-                y: (geometry.y ?? 0) - r,
-                width: r * 2,
-                height: r * 2,
-            };
-        }
-        return {
-            x: geometry.x ?? 0,
-            y: geometry.y ?? 0,
-            width: geometry.width ?? 0,
-            height: geometry.height ?? 0,
-        };
     }
 
     private _applyVertexDrag(
@@ -2149,12 +2112,7 @@ export class CanvasComponent {
 
     /** Topmost selectable object under the cursor, preferring the active layer */
     private _hitTest(x: number, y: number): MapObject | null {
-        const selectable = new Set(
-            this.state
-                .layers()
-                .filter((l) => l.visible && !l.locked)
-                .map((l) => l.id),
-        );
+        const selectable = this._pickable_layers();
         const active = this.state.active_layer_id();
         const hits: { object: MapObject; area: number; onActive: boolean }[] =
             [];
@@ -2330,7 +2288,7 @@ export class CanvasComponent {
                 {
                     object_type: 'decorative',
                     label: `Wall ${count + 1}`,
-                    svg_id: `wall-${String(count + 1).padStart(3, '0')}`,
+                    svg_id: sequentialId('wall-', count + 1),
                     geometry: { type: 'polygon', points, ...boundsOf(points) },
                     layer: 'walls',
                     fill_color: '#374151',

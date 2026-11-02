@@ -56,6 +56,19 @@ describe('PublicEventsService', () => {
         expect(service.loading()).toBe('');
     });
 
+    it('should show an authority load failure as the error', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({ ok: false } as Response),
+        );
+        const service = TestBed.inject(PublicEventsService);
+
+        await service.init();
+
+        expect(service.error()).toBe('Unable to load PlaceOS authority.');
+        vi.unstubAllGlobals();
+    });
+
     it('should ignore stored values that are not guest details', () => {
         localStorage.setItem(
             'PLACEOS.public.guest',

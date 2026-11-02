@@ -8,7 +8,8 @@ import { IconComponent } from '@placeos/components';
 
 import { StoreService } from '../data/store.service';
 import { analyzeSvg, SvgAnalysis } from '../data/svg-import';
-import { MapObjectType, Project } from '../data/types';
+import { Project } from '../data/types';
+import { OBJECT_TYPES } from '../editor/constants';
 
 type ImportStep = 'upload' | 'review' | 'map' | 'confirm';
 
@@ -17,17 +18,6 @@ const STEPS: { key: ImportStep; label: string }[] = [
     { key: 'review', label: 'Review' },
     { key: 'map', label: 'Map' },
     { key: 'confirm', label: 'Confirm' },
-];
-
-const OBJECT_TYPES: MapObjectType[] = [
-    'room',
-    'desk',
-    'zone',
-    'area',
-    'amenity',
-    'decorative',
-    'parking',
-    'locker',
 ];
 
 const SPACE_LABELS: Record<string, string> = {

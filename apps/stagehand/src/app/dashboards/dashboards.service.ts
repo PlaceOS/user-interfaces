@@ -1,4 +1,11 @@
-import { effect, inject, Injectable, signal, untracked } from '@angular/core';
+import {
+    computed,
+    effect,
+    inject,
+    Injectable,
+    signal,
+    untracked,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -83,6 +90,19 @@ export class DashboardsService extends AsyncHandler {
     );
     public readonly dashboard_alerts = signal<Alert[]>([]);
 
+    /**
+     * Region and building query params that keep the URL in step with the
+     * selection. 'all' stands for every region, or every building of the
+     * selected region.
+     */
+    public readonly location_query_params = computed(() => {
+        const region = this.region_id();
+        return {
+            region: region || 'all',
+            building: region ? this.building_id() || 'all' : undefined,
+        };
+    });
+
     constructor() {
         super();
 
@@ -148,22 +168,9 @@ export class DashboardsService extends AsyncHandler {
     /** Initialize region/building from URL query params */
     private _initFromQueryParams() {
         // Use query string captured at construction time to avoid reading
-        // params injected by the _query_sync effect in AlertsComponent
+        // params the pages write back to the URL
         const params = new URLSearchParams(this._initial_query_string);
-
-        const region_param = params.get('region');
-        const building_param = params.get('building');
-
-        if (region_param) {
-            this._region_set_from_params = true;
-            // 'all' means empty string (all regions/buildings)
-            this.region_id.set(region_param === 'all' ? '' : region_param);
-            if (building_param) {
-                this.building_id.set(
-                    building_param === 'all' ? '' : building_param,
-                );
-            }
-        }
+        this.applyLocationParams(Object.fromEntries(params));
     }
 
     /** Set region from query params, preventing constructor from overwriting */
@@ -173,6 +180,28 @@ export class DashboardsService extends AsyncHandler {
         if (building_id !== undefined) {
             this.building_id.set(building_id);
         }
+    }
+
+    /**
+     * Applies the `region` and `building` URL query params. 'all' selects
+     * every region, or every building of the region. A region id applies only
+     * when it is a known region; it then also becomes the org region, and a
+     * known building id the org building. With no region param nothing
+     * changes, so the org selection stays the default.
+     */
+    public applyLocationParams(params: { region?: string; building?: string }) {
+        const { region: region_param, building: building_param } = params;
+        if (!region_param) return;
+        if (region_param === 'all') return this.setRegionFromParams('', '');
+        const region = this._org.regions.find((r) => r.id === region_param);
+        if (!region) return;
+        this._org.region = region;
+        const building_id =
+            building_param === 'all' ? '' : building_param || '';
+        this.setRegionFromParams(region.id, building_id);
+        if (!building_id) return;
+        const building = this._org.buildings.find((b) => b.id === building_id);
+        if (building) this._org.building = building;
     }
 
     /**

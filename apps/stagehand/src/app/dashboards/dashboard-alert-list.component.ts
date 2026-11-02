@@ -10,9 +10,11 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { DashboardsService } from './dashboards.service';
 
 @Component({

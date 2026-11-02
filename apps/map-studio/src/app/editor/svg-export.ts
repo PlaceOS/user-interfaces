@@ -1,4 +1,5 @@
-import { MapObject, ObjectGeometry } from '../data/types';
+import { MapObject, ObjectGeometry, ValidationIssue } from '../data/types';
+import { isBookable, toFillOpacity } from './availability';
 import { TYPE_COLORS } from './constants';
 import { composeSourceSvg, importedObject } from './source-svg';
 
@@ -42,22 +43,60 @@ export function sequentialIdRange(
         : `${first} … ${sequentialId(prefix, start + count - 1)}`;
 }
 
-/** Rooms and desks — the objects PlaceOS can bind a booking to */
-export const bookableObjects = (objects: MapObject[]) =>
-    objects.filter((o) => o.object_type === 'room' || o.object_type === 'desk');
+/** How many times each id occurs */
+function idCounts(ids: string[]): Map<string, number> {
+    const counts = new Map<string, number>();
+    for (const id of ids) counts.set(id, (counts.get(id) ?? 0) + 1);
+    return counts;
+}
+
+/**
+ * Problems in the editor's objects: a missing label (warning), empty
+ * geometry, or an svg id that more than one object uses (errors).
+ */
+export function validateObjects(
+    objects: readonly MapObject[],
+): ValidationIssue[] {
+    const issues: ValidationIssue[] = [];
+    for (const object of objects) {
+        if (!object.label) {
+            issues.push({
+                type: 'warning',
+                objectId: object.id,
+                message: `Object ${object.id} (${object.object_type}) has no label`,
+            });
+        }
+        if (!object.geometry || Object.keys(object.geometry).length === 0) {
+            issues.push({
+                type: 'error',
+                objectId: object.id,
+                message: `Object ${object.id} (${object.object_type}) has empty geometry`,
+            });
+        }
+    }
+    const svg_ids = idCounts(
+        objects.filter((o) => o.svg_id).map((o) => o.svg_id),
+    );
+    for (const [svg_id, count] of svg_ids) {
+        if (count < 2) continue;
+        for (const object of objects.filter((o) => o.svg_id === svg_id)) {
+            issues.push({
+                type: 'error',
+                objectId: object.id,
+                message: `Duplicate svg_id "${svg_id}" on object ${object.id}`,
+            });
+        }
+    }
+    return issues;
+}
 
 /**
  * Checks that must pass before a map can be published to PlaceOS.
  * Mirrors the reference application's pre-publish checklist.
  */
 export function preflightChecks(objects: MapObject[]): PreflightCheck[] {
-    const bookable = bookableObjects(objects);
-
-    const duplicates = new Map<string, number>();
-    for (const object of bookable) {
-        const id = idOf(object);
-        duplicates.set(id, (duplicates.get(id) ?? 0) + 1);
-    }
+    const bookable = objects.filter(isBookable);
+    const duplicates = idCounts(bookable.map(idOf));
 
     return [
         {
@@ -98,15 +137,6 @@ export function preflightChecks(objects: MapObject[]): PreflightCheck[] {
             detail: '',
         },
     ];
-}
-
-/** Convert a hex colour into rgba() at the given opacity */
-function toFillOpacity(hex: string, opacity: number): string {
-    const clean = hex.replace('#', '').slice(0, 6);
-    const r = parseInt(clean.slice(0, 2), 16) || 0;
-    const g = parseInt(clean.slice(2, 4), 16) || 0;
-    const b = parseInt(clean.slice(4, 6), 16) || 0;
-    return `rgba(${r},${g},${b},${opacity})`;
 }
 
 function exportFill(object: MapObject): string {

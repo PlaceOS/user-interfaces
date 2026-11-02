@@ -16,9 +16,11 @@ import {
     notifyError,
 } from '@placeos/common';
 import { addAlertDashboard, updateAlertDashboard } from '@placeos/ts-client';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { DashboardsService } from './dashboards.service';
 
 @Component({

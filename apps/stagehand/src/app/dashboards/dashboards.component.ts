@@ -10,69 +10,63 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { SidebarComponent } from '../ui/sidebar.component';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { StagehandPageComponent } from '../ui/stagehand-page.component';
 import { DashboardsService } from './dashboards.service';
 
 @Component({
     selector: `stagehand-dashboards`,
     template: `
-        <div class="bg-base-200 absolute inset-0 flex">
-            <sidebar />
-            <div class="flex w-1/2 flex-1 flex-col">
-                <header
-                    class="border-base-400 bg-base-100 flex h-18 w-full items-center space-x-2 p-4"
+        <stagehand-page
+            [heading]="
+                (page() === 'alerts'
+                    ? 'APP.STAGEHAND.DASHBOARD_ALERTS_HEADER'
+                    : 'APP.STAGEHAND.DASHBOARD_HEADER'
+                ) | translate
+            "
+        >
+            @if (page() === 'alerts') {
+                <a
+                    page-header-start
+                    icon
+                    matRipple
+                    aria-label="Back to dashboards"
+                    [routerLink]="['/dashboards']"
+                    [matTooltip]="'APP.STAGEHAND.DASHBOARD_BACK' | translate"
+                    matTooltipPosition="right"
                 >
-                    @if (page() === 'alerts') {
-                        <a
-                            icon
-                            matRipple
-                            aria-label="Back to dashboards"
-                            [routerLink]="['/dashboards']"
-                            [matTooltip]="
-                                'APP.STAGEHAND.DASHBOARD_BACK' | translate
-                            "
-                            matTooltipPosition="right"
-                        >
-                            <icon>arrow_back</icon>
-                        </a>
-                    }
-                    <h1 class="text-2xl font-bold">
-                        {{
-                            (page() === 'alerts'
-                                ? 'APP.STAGEHAND.DASHBOARD_ALERTS_HEADER'
-                                : 'APP.STAGEHAND.DASHBOARD_HEADER'
-                            ) | translate
-                        }}
-                    </h1>
-                    @if (page() === 'alerts') {
-                        <div
-                            class="bg-base-200 rounded-sm px-2 py-1 text-sm font-medium"
-                        >
-                            {{ dashboard()?.name }}
-                        </div>
-                    }
-                    <div class="w-px flex-1"></div>
-                    <a btn matRipple class="w-40" [routerLink]="new_route()">{{
-                        (page() === 'alerts'
-                            ? 'APP.STAGEHAND.DASHBOARD_ALERTS_ADD'
-                            : 'APP.STAGEHAND.DASHBOARD_ADD'
-                        ) | translate
-                    }}</a>
-                </header>
-                <main
-                    id="stagehand-page-content"
-                    class="w-full flex-1 overflow-auto"
+                    <icon>arrow_back</icon>
+                </a>
+            }
+            <!-- one element per block, so each goes to its header slot -->
+            @if (page() === 'alerts') {
+                <div
+                    page-header
+                    class="bg-base-200 rounded-sm px-2 py-1 text-sm font-medium"
                 >
-                    <router-outlet />
-                </main>
-            </div>
-        </div>
+                    {{ dashboard()?.name }}
+                </div>
+            }
+            <div page-header class="w-px flex-1"></div>
+            <a
+                page-header
+                btn
+                matRipple
+                class="w-40"
+                [routerLink]="new_route()"
+                >{{
+                    (page() === 'alerts'
+                        ? 'APP.STAGEHAND.DASHBOARD_ALERTS_ADD'
+                        : 'APP.STAGEHAND.DASHBOARD_ADD'
+                    ) | translate
+                }}</a
+            >
+            <router-outlet />
+        </stagehand-page>
     `,
     styles: [],
     imports: [
-        SidebarComponent,
+        StagehandPageComponent,
         MatRippleModule,
         RouterModule,
         TranslatePipe,
