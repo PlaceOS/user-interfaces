@@ -1,19 +1,17 @@
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
+import { routedTab } from '../shared/routed-tab.util';
+import {
+    SectionTab,
+    SectionTabsComponent,
+} from '../shared/section-tabs.component';
 import { SignageContextService } from '../signage-context.service';
 import { DisplayContentComponent } from './display-content.component';
 import { DisplayHeaderComponent } from './display-header.component';
@@ -22,11 +20,9 @@ import { selectRoutedItem } from './routed-selection.util';
 import { showSignageDisplay } from './signage-display';
 import { SignageDisplayService } from './signage-display.service';
 
-const TAB_QUERY_PARAM = 'tab';
+type DisplayTab = 'schedule' | 'templates' | 'playlists' | 'zones';
 
-function parseDisplayTab(
-    value: string | null,
-): 'schedule' | 'templates' | 'playlists' | 'zones' {
+function parseDisplayTab(value: string | null): DisplayTab {
     if (value === 'templates' || value === 'playlists' || value === 'zones') {
         return value;
     }
@@ -146,155 +142,17 @@ function parseDisplayTab(
                                     <icon>open_in_new</icon>
                                 </a>
                             </div>
-                            <div
+                            <section-tabs
                                 class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border"
-                                role="tablist"
+                                id_prefix="display"
+                                [tabs]="tabs()"
+                                [active]="view_tab()"
+                                (activeChange)="setViewTab($event)"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.DISPLAY_DETAILS_TABS'
                                         | translate
                                 "
-                            >
-                                <button
-                                    type="button"
-                                    role="tab"
-                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
-                                    [class.border-primary]="
-                                        view_tab() === 'schedule'
-                                    "
-                                    [class.border-b-2]="
-                                        view_tab() === 'schedule'
-                                    "
-                                    [class.text-primary]="
-                                        view_tab() === 'schedule'
-                                    "
-                                    [class.opacity-60]="
-                                        view_tab() !== 'schedule'
-                                    "
-                                    (click)="setViewTab('schedule')"
-                                    [attr.aria-selected]="
-                                        view_tab() === 'schedule'
-                                    "
-                                    aria-controls="display-schedule-panel"
-                                    id="display-schedule-tab"
-                                >
-                                    {{ 'SIGNAGE_MANAGER.SCHEDULE' | translate }}
-                                </button>
-                                @if (templates_enabled()) {
-                                    <button
-                                        type="button"
-                                        role="tab"
-                                        class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
-                                        [class.border-primary]="
-                                            view_tab() === 'templates'
-                                        "
-                                        [class.border-b-2]="
-                                            view_tab() === 'templates'
-                                        "
-                                        [class.text-primary]="
-                                            view_tab() === 'templates'
-                                        "
-                                        [class.opacity-60]="
-                                            view_tab() !== 'templates'
-                                        "
-                                        (click)="setViewTab('templates')"
-                                        [attr.aria-selected]="
-                                            view_tab() === 'templates'
-                                        "
-                                        aria-controls="display-templates-panel"
-                                        id="display-templates-tab"
-                                    >
-                                        {{
-                                            'SIGNAGE_MANAGER.NAV_TEMPLATES'
-                                                | translate
-                                        }}
-                                        <span
-                                            class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
-                                            [attr.aria-busy]="
-                                                template_count_loading()
-                                            "
-                                        >
-                                            {{
-                                                template_count_loading()
-                                                    ? '?'
-                                                    : template_count()
-                                            }}
-                                        </span>
-                                    </button>
-                                }
-                                <button
-                                    type="button"
-                                    role="tab"
-                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
-                                    [class.border-primary]="
-                                        view_tab() === 'playlists'
-                                    "
-                                    [class.border-b-2]="
-                                        view_tab() === 'playlists'
-                                    "
-                                    [class.text-primary]="
-                                        view_tab() === 'playlists'
-                                    "
-                                    [class.opacity-60]="
-                                        view_tab() !== 'playlists'
-                                    "
-                                    (click)="setViewTab('playlists')"
-                                    [attr.aria-selected]="
-                                        view_tab() === 'playlists'
-                                    "
-                                    aria-controls="display-playlists-panel"
-                                    id="display-playlists-tab"
-                                >
-                                    {{
-                                        'SIGNAGE_MANAGER.NAV_PLAYLISTS'
-                                            | translate
-                                    }}
-                                    <span
-                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
-                                        [attr.aria-busy]="
-                                            playlist_count_loading()
-                                        "
-                                    >
-                                        {{
-                                            playlist_count_loading()
-                                                ? '?'
-                                                : playlist_count()
-                                        }}
-                                    </span>
-                                </button>
-                                <button
-                                    type="button"
-                                    role="tab"
-                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
-                                    [class.border-primary]="
-                                        view_tab() === 'zones'
-                                    "
-                                    [class.border-b-2]="view_tab() === 'zones'"
-                                    [class.text-primary]="
-                                        view_tab() === 'zones'
-                                    "
-                                    [class.opacity-60]="view_tab() !== 'zones'"
-                                    (click)="setViewTab('zones')"
-                                    [attr.aria-selected]="
-                                        view_tab() === 'zones'
-                                    "
-                                    aria-controls="display-zones-panel"
-                                    id="display-zones-tab"
-                                >
-                                    {{
-                                        'SIGNAGE_MANAGER.NAV_ZONES' | translate
-                                    }}
-                                    <span
-                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
-                                        [attr.aria-busy]="zone_count_loading()"
-                                    >
-                                        {{
-                                            zone_count_loading()
-                                                ? '?'
-                                                : zone_count()
-                                        }}
-                                    </span>
-                                </button>
-                            </div>
+                            />
                         }
                         <display-content
                             class="h-1/2 flex-1"
@@ -306,27 +164,13 @@ function parseDisplayTab(
             <nav-footer />
         </div>
     `,
-    styles: [
-        `
-            .mobile-hidden {
-                @media (max-width: 639px) {
-                    display: none !important;
-                }
-            }
-
-            .mobile-full {
-                @media (max-width: 639px) {
-                    flex: 1;
-                }
-            }
-        `,
-    ],
     imports: [
         NavSidebarComponent,
         NavFooterComponent,
         DisplayHeaderComponent,
         DisplayListComponent,
         DisplayContentComponent,
+        SectionTabsComponent,
         MatRippleModule,
         MatTooltipModule,
         IconComponent,
@@ -337,16 +181,19 @@ export class DisplaysSectionComponent {
     private readonly _context = inject(SignageContextService);
     private readonly _display_service = inject(SignageDisplayService);
     private readonly _playlist_service = inject(SignagePlaylistService);
-    private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
     public readonly id = input('');
     public readonly tab = input<string | null>(null);
     public readonly signage_path = settingSignal('signage_path');
     public readonly templates_enabled = this._context.templates_enabled;
-    public readonly view_tab = signal<
-        'schedule' | 'templates' | 'playlists' | 'zones'
-    >('schedule');
+    private readonly _view_tab = routedTab(this.tab, (value) => {
+        const tab = parseDisplayTab(value);
+        return tab === 'templates' && !this.templates_enabled()
+            ? 'schedule'
+            : tab;
+    });
+    public readonly view_tab = this._view_tab.active;
     public readonly selected_display = this._display_service.selected_display;
     public readonly can_update = this._context.can_update;
     public readonly can_delete_displays = this._context.can_delete_displays;
@@ -371,6 +218,31 @@ export class DisplaysSectionComponent {
     public readonly zone_count = computed(
         () => this._display_service.selected_display_zones().length,
     );
+    public readonly tabs = computed<SectionTab<DisplayTab>[]>(() => [
+        { id: 'schedule', label: 'SIGNAGE_MANAGER.SCHEDULE' },
+        ...(this.templates_enabled()
+            ? [
+                  {
+                      id: 'templates' as const,
+                      label: 'SIGNAGE_MANAGER.NAV_TEMPLATES',
+                      count: this.template_count(),
+                      count_loading: this.template_count_loading(),
+                  },
+              ]
+            : []),
+        {
+            id: 'playlists',
+            label: 'SIGNAGE_MANAGER.NAV_PLAYLISTS',
+            count: this.playlist_count(),
+            count_loading: this.playlist_count_loading(),
+        },
+        {
+            id: 'zones',
+            label: 'SIGNAGE_MANAGER.NAV_ZONES',
+            count: this.zone_count(),
+            count_loading: this.zone_count_loading(),
+        },
+    ]);
     public readonly panel_link = computed(() => {
         const display = this.selected_display();
         if (!display?.id) return '';
@@ -379,17 +251,6 @@ export class DisplaysSectionComponent {
     });
 
     constructor() {
-        effect(() => {
-            const route_tab = parseDisplayTab(this.tab());
-            const available_tab =
-                route_tab === 'templates' && !this.templates_enabled()
-                    ? 'schedule'
-                    : route_tab;
-            if (available_tab !== this.view_tab()) {
-                this.view_tab.set(available_tab);
-            }
-        });
-
         selectRoutedItem({
             id: this.id,
             list: this._display_service.displays,
@@ -416,14 +277,7 @@ export class DisplaysSectionComponent {
         await this._router.navigate(['/displays'], {});
     }
 
-    public setViewTab(tab: 'schedule' | 'templates' | 'playlists' | 'zones') {
-        if (tab === this.view_tab()) return;
-        this.view_tab.set(tab);
-        void this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { [TAB_QUERY_PARAM]: tab },
-            queryParamsHandling: 'merge',
-            replaceUrl: true,
-        });
+    public setViewTab(tab: DisplayTab) {
+        this._view_tab.select(tab);
     }
 }

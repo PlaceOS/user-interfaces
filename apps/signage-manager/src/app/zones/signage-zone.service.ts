@@ -319,7 +319,6 @@ export class SignageZoneService {
         const { PlaylistSelectModalComponent } =
             await import('../shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
-            data: { zone_id: zone.id },
             panelClass: 'mobile-fullscreen',
         });
         const playlist_id = await dialogClosed<string>(ref);
@@ -346,7 +345,6 @@ export class SignageZoneService {
         const { ZoneSelectModalComponent } =
             await import('../shared/zone-select-modal.component');
         const ref = this._dialog.open(ZoneSelectModalComponent, {
-            data: { playlist_id: playlist.id },
             panelClass: 'mobile-fullscreen',
         });
         const zone_id = await dialogClosed<string>(ref);

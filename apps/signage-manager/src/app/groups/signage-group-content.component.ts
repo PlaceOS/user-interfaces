@@ -44,19 +44,6 @@ import { SignageGroupZonesComponent } from './signage-group-zones.component';
                 flex-direction: column;
                 height: 100%;
             }
-
-            .tablet-hidden {
-                @media (max-width: 1023px) {
-                    display: none !important;
-                }
-            }
-
-            .tablet-full {
-                @media (max-width: 1023px) {
-                    flex: 1;
-                    min-width: 0;
-                }
-            }
         `,
     ],
     imports: [

@@ -13,6 +13,10 @@ import { Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
+import {
+    SectionTab,
+    SectionTabsComponent,
+} from '../shared/section-tabs.component';
 import { SignageContextService } from '../signage-context.service';
 import {
     SignageTemplateService,
@@ -20,7 +24,6 @@ import {
 } from './signage-template.service';
 import { TemplateHeaderComponent } from './template-header.component';
 import { TemplateLayoutListComponent } from './template-layout-list.component';
-import { tabKeyIndex } from './template-layout.util';
 import { TemplateListComponent } from './template-list.component';
 import { TemplatePreviewComponent } from './template-preview.component';
 
@@ -199,45 +202,13 @@ type TemplateViewTab = 'preview' | 'layouts' | 'details';
                                     </button>
                                 }
                             </div>
-                            <div
-                                class="bg-base-100 border-base-300 mx-2 my-2 flex rounded-lg border lg:hidden"
-                                role="tablist"
+                            <section-tabs
+                                class="bg-base-100 border-base-300 mx-2 my-2 flex overflow-hidden rounded-lg border lg:hidden"
+                                id_prefix="template"
+                                [tabs]="tabs"
+                                [(active)]="view_tab"
                                 [attr.aria-label]="'COMMON.DETAILS' | translate"
-                            >
-                                @for (tab of tabs; track tab.id) {
-                                    <button
-                                        type="button"
-                                        role="tab"
-                                        class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
-                                        [class.border-primary]="
-                                            view_tab() === tab.id
-                                        "
-                                        [class.border-b-2]="
-                                            view_tab() === tab.id
-                                        "
-                                        [class.text-primary]="
-                                            view_tab() === tab.id
-                                        "
-                                        [class.opacity-60]="
-                                            view_tab() !== tab.id
-                                        "
-                                        (click)="setViewTab(tab.id)"
-                                        (keydown)="handleTabKeydown($event)"
-                                        [attr.aria-selected]="
-                                            view_tab() === tab.id
-                                        "
-                                        [tabIndex]="
-                                            view_tab() === tab.id ? 0 : -1
-                                        "
-                                        [attr.aria-controls]="
-                                            'template-' + tab.id + '-panel'
-                                        "
-                                        [id]="'template-' + tab.id + '-tab'"
-                                    >
-                                        {{ tab.label | translate }}
-                                    </button>
-                                }
-                            </div>
+                            />
                             <div
                                 class="flex min-h-0 flex-1 flex-row overflow-hidden"
                             >
@@ -293,34 +264,6 @@ type TemplateViewTab = 'preview' | 'layouts' | 'details';
         </div>
     `,
     host: { '(window:beforeunload)': 'onBeforeUnload($event)' },
-    styles: [
-        `
-            .mobile-hidden {
-                @media (max-width: 639px) {
-                    display: none !important;
-                }
-            }
-
-            .mobile-full {
-                @media (max-width: 639px) {
-                    flex: 1;
-                }
-            }
-
-            .tablet-hidden {
-                @media (max-width: 1023px) {
-                    display: none !important;
-                }
-            }
-
-            .tablet-full {
-                @media (max-width: 1023px) {
-                    flex: 1;
-                    min-width: 0;
-                }
-            }
-        `,
-    ],
     imports: [
         NavSidebarComponent,
         NavFooterComponent,
@@ -328,6 +271,7 @@ type TemplateViewTab = 'preview' | 'layouts' | 'details';
         TemplateListComponent,
         TemplatePreviewComponent,
         TemplateLayoutListComponent,
+        SectionTabsComponent,
         MatRippleModule,
         MatProgressSpinnerModule,
         MatTooltipModule,
@@ -342,7 +286,7 @@ export class TemplatesSectionComponent {
 
     public readonly id = input('');
     /** Tabs shown below the lg breakpoint. Wider screens show all panels. */
-    public readonly tabs: { id: TemplateViewTab; label: string }[] = [
+    public readonly tabs: SectionTab<TemplateViewTab>[] = [
         { id: 'preview', label: 'COMMON.PREVIEW' },
         { id: 'layouts', label: 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS' },
         { id: 'details', label: 'COMMON.DETAILS' },
@@ -503,21 +447,6 @@ export class TemplatesSectionComponent {
     /** Mirror the layout list's inner tab into the mobile tabs. */
     public setLayoutTab(tab: 'items' | 'details') {
         this.view_tab.set(tab === 'details' ? 'details' : 'layouts');
-    }
-
-    public handleTabKeydown(event: KeyboardEvent) {
-        const ids = this.tabs.map(({ id }) => id);
-        const next = tabKeyIndex(
-            event.key,
-            ids.indexOf(this.view_tab()),
-            ids.length,
-        );
-        if (next === null) return;
-        event.preventDefault();
-        this.view_tab.set(ids[next]);
-        (event.currentTarget as HTMLElement | null)?.parentElement
-            ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
-            [next]?.focus();
     }
 
     /**

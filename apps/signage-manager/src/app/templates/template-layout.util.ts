@@ -84,19 +84,6 @@ export function layoutPositionAxes(layout: SignageTemplateLayout) {
     return axes;
 }
 
-/**
- * Index of the tab that a key moves to in a tab list of `count` tabs.
- * Home and End go to the ends, the arrow keys wrap around.
- * @returns The new index, or null when the key does not move between tabs
- */
-export function tabKeyIndex(key: string, index: number, count: number) {
-    if (key === 'Home') return 0;
-    if (key === 'End') return count - 1;
-    if (key === 'ArrowLeft') return (index - 1 + count) % count;
-    if (key === 'ArrowRight') return (index + 1) % count;
-    return null;
-}
-
 /** Add the displayed position defaults before sending a layout to the API. */
 export function applyLayoutPositionDefaults(
     layout: SignageTemplateLayout,

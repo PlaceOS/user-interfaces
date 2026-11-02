@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { PlaylistSelectModalComponent } from '../../app/shared/playlist-select-modal.component';
 
@@ -22,10 +21,7 @@ describe('PlaylistSelectModalComponent', () => {
         );
         await TestBed.configureTestingModule({
             imports: [PlaylistSelectModalComponent],
-            providers: [
-                { provide: MAT_DIALOG_DATA, useValue: { media_id: 'media-1' } },
-                { provide: SignagePlaylistService, useValue: service },
-            ],
+            providers: [{ provide: SignagePlaylistService, useValue: service }],
         })
             .overrideComponent(PlaylistSelectModalComponent, {
                 set: { template: '', imports: [] },
@@ -55,7 +51,6 @@ describe('PlaylistSelectModalComponent errors', () => {
         await TestBed.configureTestingModule({
             imports: [PlaylistSelectModalComponent],
             providers: [
-                { provide: MAT_DIALOG_DATA, useValue: {} },
                 {
                     provide: SignagePlaylistService,
                     useValue: { queryPlaylists },

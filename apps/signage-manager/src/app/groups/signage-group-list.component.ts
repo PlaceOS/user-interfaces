@@ -240,12 +240,6 @@ interface GroupListRow {
     `,
     styles: [
         `
-            .mobile-hidden {
-                @media (max-width: 639px) {
-                    display: none !important;
-                }
-            }
-
             .group-tree {
                 background: transparent;
             }

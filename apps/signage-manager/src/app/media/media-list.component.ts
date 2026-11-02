@@ -1,4 +1,4 @@
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 
 import {
@@ -35,6 +35,45 @@ import { SignageMediaService } from './signage-media.service';
 
 // Sentinel folder for media items without any tags.
 const UNTAGGED = '\0untagged';
+
+/**
+ * Tag chips of a media item in the list and grid layouts: the first two tags,
+ * then a "+N" chip with the other tags in its tooltip.
+ */
+@Component({
+    selector: 'media-tag-chips',
+    template: `
+        @for (tag of visible_tags(); track tag) {
+            <span
+                class="bg-info-light text-info truncate rounded-full px-2 py-1 font-medium"
+                [class]="chip_class()"
+            >
+                {{ tag }}
+            </span>
+        }
+        @if (other_tags().length > 0) {
+            <span
+                class="bg-info-light text-info rounded-full px-2 py-1 font-medium"
+                [class]="chip_class()"
+                [matTooltip]="other_tags().join(', ')"
+            >
+                +{{ other_tags().length }}
+            </span>
+        }
+    `,
+    host: { class: 'contents' },
+    imports: [MatTooltipModule],
+})
+export class MediaTagChipsComponent {
+    public readonly tags = input.required<readonly string[] | undefined>();
+    /** Size classes of each chip */
+    public readonly chip_class = input.required<string>();
+
+    public readonly visible_tags = computed(() =>
+        (this.tags() || []).slice(0, 2),
+    );
+    public readonly other_tags = computed(() => (this.tags() || []).slice(2));
+}
 
 @Component({
     selector: 'media-list',
@@ -203,7 +242,6 @@ const UNTAGGED = '\0untagged';
                     role="list"
                     [cdkDropListData]="display_media()"
                     [cdkDropListConnectedTo]="playlist_ids()"
-                    (cdkDropListDropped)="drop($event)"
                 >
                     @for (media_item of display_media(); track media_item.id) {
                         @if (view_mode() === 'list') {
@@ -293,38 +331,10 @@ const UNTAGGED = '\0untagged';
                                             <div
                                                 class="hidden items-center gap-1 lg:flex"
                                             >
-                                                @for (
-                                                    tag of visibleTags(
-                                                        media_item
-                                                    );
-                                                    track tag
-                                                ) {
-                                                    <span
-                                                        class="bg-info-light text-info max-w-32 truncate rounded-full px-2 py-1 text-[0.625rem] font-medium"
-                                                    >
-                                                        {{ tag }}
-                                                    </span>
-                                                }
-                                                @if (
-                                                    remainingTagCount(
-                                                        media_item
-                                                    ) > 0
-                                                ) {
-                                                    <span
-                                                        class="bg-info-light text-info rounded-full px-2 py-1 text-[0.625rem] font-medium"
-                                                        [matTooltip]="
-                                                            remainingTags(
-                                                                media_item
-                                                            ).join(', ')
-                                                        "
-                                                    >
-                                                        +{{
-                                                            remainingTagCount(
-                                                                media_item
-                                                            )
-                                                        }}
-                                                    </span>
-                                                }
+                                                <media-tag-chips
+                                                    [tags]="media_item.tags"
+                                                    chip_class="max-w-32 text-[0.625rem]"
+                                                />
                                             </div>
                                         }
                                     </div>
@@ -460,34 +470,10 @@ const UNTAGGED = '\0untagged';
                                     <div
                                         class="flex min-h-6 w-full items-center gap-1 overflow-hidden"
                                     >
-                                        @for (
-                                            tag of visibleTags(media_item);
-                                            track tag
-                                        ) {
-                                            <span
-                                                class="bg-info-light text-info max-w-[45%] truncate rounded-full px-2 py-1 text-xs font-medium"
-                                            >
-                                                {{ tag }}
-                                            </span>
-                                        }
-                                        @if (
-                                            remainingTagCount(media_item) > 0
-                                        ) {
-                                            <span
-                                                class="bg-info-light text-info rounded-full px-2 py-1 text-xs font-medium"
-                                                [matTooltip]="
-                                                    remainingTags(
-                                                        media_item
-                                                    ).join(', ')
-                                                "
-                                            >
-                                                +{{
-                                                    remainingTagCount(
-                                                        media_item
-                                                    )
-                                                }}
-                                            </span>
-                                        }
+                                        <media-tag-chips
+                                            [tags]="media_item.tags"
+                                            chip_class="max-w-[45%] text-xs"
+                                        />
                                     </div>
                                 }
                             </div>
@@ -780,6 +766,7 @@ const UNTAGGED = '\0untagged';
         IntersectDirective,
         MediaThumbnailComponent,
         MediaSharedGroupsComponent,
+        MediaTagChipsComponent,
     ],
 })
 export class MediaListComponent implements OnInit {
@@ -984,18 +971,6 @@ export class MediaListComponent implements OnInit {
         }
     }
 
-    public visibleTags(item: SignageMedia): string[] {
-        return (item.tags || []).slice(0, 2);
-    }
-
-    public remainingTags(item: SignageMedia): string[] {
-        return (item.tags || []).slice(2);
-    }
-
-    public remainingTagCount(item: SignageMedia): number {
-        return this.remainingTags(item).length;
-    }
-
     public readonly previewItem = (item: SignageMedia) =>
         this._media_service.previewMedia(item);
 
@@ -1060,8 +1035,4 @@ export class MediaListComponent implements OnInit {
     public readonly can_update_media_tags = this._context.can_update_media_tags;
     public readonly can_delete = this._context.can_delete;
     public readonly can_share = this._context.can_share;
-
-    public drop(_event: CdkDragDrop<SignageMedia[]>) {
-        // No-op for media list drops
-    }
 }

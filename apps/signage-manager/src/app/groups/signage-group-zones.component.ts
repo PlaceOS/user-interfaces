@@ -1,158 +1,25 @@
-import { Component, inject } from '@angular/core';
-import { MatRippleModule } from '@angular/material/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupZone } from '@placeos/ts-client';
 import { dialogClosed } from '../signage-service.util';
 import { SignageGroupAdminService } from './signage-group-admin.service';
-import { SignageGroupPermissionLabelsComponent } from './signage-group-permission-labels.component';
+import { SignageGroupMembersComponent } from './signage-group-members.component';
 import { SignageGroupPermissionsModalComponent } from './signage-group-permissions-modal.component';
 import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-select-modal.component';
 
 @Component({
     selector: 'signage-group-zones',
     template: `
-        <div
-            class="bg-base-100 border-base-300 flex h-full min-h-0 flex-col overflow-auto rounded-lg border"
-        >
-            <div
-                class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
-            >
-                <h5
-                    class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
-                >
-                    <icon class="text-lg">layers</icon>
-                    {{
-                        'SIGNAGE_MANAGER.ZONES_COUNT'
-                            | translate
-                                : { count: zones().length }
-                                : zones().length
-                    }}
-                </h5>
-                <button
-                    icon
-                    default
-                    type="button"
-                    matRipple
-                    [matTooltip]="
-                        'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP' | translate
-                    "
-                    [attr.aria-label]="
-                        'SIGNAGE_MANAGER.ADD_ZONE_ARIA' | translate
-                    "
-                    [disabled]="loading() || failed()"
-                    (click)="addZone()"
-                >
-                    <icon>add</icon>
-                </button>
-            </div>
-            <div class="gap-2 p-2">
-                @if (failed() && zones().length) {
-                    <p
-                        class="text-error mb-2 flex items-center gap-2 px-2 text-sm"
-                        role="alert"
-                    >
-                        <icon class="text-lg">error</icon>
-                        {{ 'SIGNAGE_MANAGER.ZONES_LOAD_ERROR' | translate }}
-                    </p>
-                }
-                @if (zones().length) {
-                    @for (row of zones(); track row.zone_id) {
-                        <div
-                            class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border px-4 py-3"
-                        >
-                            <icon class="shrink-0 text-xl opacity-60"
-                                >layers</icon
-                            >
-                            <div class="min-w-0 flex-1">
-                                <div class="truncate text-sm font-medium">
-                                    {{
-                                        row.zone?.display_name ||
-                                            row.zone?.name ||
-                                            row.zone_id
-                                    }}
-                                </div>
-                                <div
-                                    class="text-base-content/70 mt-1 truncate text-xs"
-                                >
-                                    <signage-group-permission-labels
-                                        [permissions]="row.permissions"
-                                    />
-                                    @if (row.deny) {
-                                        <span class="text-error">
-                                            {{
-                                                'SIGNAGE_MANAGER.DENIED'
-                                                    | translate
-                                            }}</span
-                                        >
-                                    }
-                                </div>
-                            </div>
-                            <button
-                                icon
-                                default
-                                type="button"
-                                matRipple
-                                [matTooltip]="
-                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS'
-                                        | translate
-                                "
-                                [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS'
-                                        | translate
-                                "
-                                (click)="editZonePermissions(row)"
-                            >
-                                <icon>edit</icon>
-                            </button>
-                            <button
-                                icon
-                                default
-                                error
-                                type="button"
-                                matRipple
-                                [matTooltip]="
-                                    'SIGNAGE_MANAGER.REMOVE_ZONE' | translate
-                                "
-                                [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.REMOVE_ZONE' | translate
-                                "
-                                (click)="removeZone(row)"
-                            >
-                                <icon>close</icon>
-                            </button>
-                        </div>
-                    }
-                } @else if (loading()) {
-                    <div class="flex justify-center p-6">
-                        <mat-spinner diameter="32" />
-                    </div>
-                } @else if (failed()) {
-                    <div
-                        class="text-error flex flex-col items-center justify-center space-y-2 p-6"
-                    >
-                        <icon class="text-4xl">error</icon>
-                        <p class="text-sm">
-                            {{ 'SIGNAGE_MANAGER.ZONES_LOAD_ERROR' | translate }}
-                        </p>
-                    </div>
-                } @else {
-                    <div
-                        class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
-                    >
-                        <icon class="text-4xl">layers_clear</icon>
-                        <p class="text-sm">
-                            {{
-                                'SIGNAGE_MANAGER.NO_ZONES_ASSIGNED' | translate
-                            }}
-                        </p>
-                    </div>
-                }
-            </div>
-        </div>
+        <signage-group-members
+            kind="zones"
+            [members]="members()"
+            [loading]="loading()"
+            [failed]="failed()"
+            (add)="addZone()"
+            (edit)="editZonePermissions($event)"
+            (remove)="removeZone($event)"
+        />
     `,
     styles: [
         `
@@ -162,14 +29,7 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
             }
         `,
     ],
-    imports: [
-        MatProgressSpinnerModule,
-        MatRippleModule,
-        MatTooltipModule,
-        IconComponent,
-        TranslatePipe,
-        SignageGroupPermissionLabelsComponent,
-    ],
+    imports: [SignageGroupMembersComponent],
 })
 export class SignageGroupZonesComponent {
     private readonly _group_admin = inject(SignageGroupAdminService);
@@ -178,6 +38,15 @@ export class SignageGroupZonesComponent {
     public readonly zones = this._group_admin.managed_group_zones;
     public readonly loading = this._group_admin.managed_group_zones_loading;
     public readonly failed = this._group_admin.managed_group_zones_failed;
+    public readonly members = computed(() =>
+        this.zones().map((row) => ({
+            id: row.zone_id,
+            name: row.zone?.display_name || row.zone?.name || row.zone_id,
+            deny: row.deny,
+            permissions: row.permissions,
+            row,
+        })),
+    );
 
     public async addZone() {
         const zone = await dialogClosed(

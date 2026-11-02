@@ -38,6 +38,10 @@ import {
     SignageTemplateMapping,
 } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
+import {
+    SectionTab,
+    SectionTabsComponent,
+} from '../shared/section-tabs.component';
 import { SignageContextService } from '../signage-context.service';
 import { playlistScheduleLabel } from '../signage-playlist.util';
 import { SignagePluginService } from '../signage-plugin.service';
@@ -56,7 +60,6 @@ import {
     layoutPositionIcon,
     layoutPositionLabel,
     layoutPositionValid,
-    tabKeyIndex,
 } from './template-layout.util';
 
 @Component({
@@ -65,50 +68,15 @@ import {
         <div
             class="bg-base-100 border-base-300 flex h-full w-full flex-col lg:w-96 lg:border-l"
         >
-            <div
+            <section-tabs
                 class="border-base-300 hidden border-b lg:flex"
-                role="tablist"
+                id_prefix="template-layout"
+                [tabs]="tabs"
+                [(active)]="view_tab"
                 [attr.aria-label]="
                     'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS' | translate
                 "
-            >
-                <button
-                    #items_tab
-                    type="button"
-                    role="tab"
-                    class="flex-1 px-4 py-3 text-sm font-medium transition-colors"
-                    [class.border-primary]="view_tab() === 'items'"
-                    [class.border-b-2]="view_tab() === 'items'"
-                    [class.text-primary]="view_tab() === 'items'"
-                    [class.opacity-60]="view_tab() !== 'items'"
-                    (click)="setViewTab('items')"
-                    (keydown)="handleTabKeydown($event, items_tab, details_tab)"
-                    [attr.aria-selected]="view_tab() === 'items'"
-                    [tabIndex]="view_tab() === 'items' ? 0 : -1"
-                    aria-controls="template-layout-items-panel"
-                    id="template-layout-items-tab"
-                >
-                    {{ 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS' | translate }}
-                </button>
-                <button
-                    #details_tab
-                    type="button"
-                    role="tab"
-                    class="flex-1 px-4 py-3 text-sm font-medium transition-colors"
-                    [class.border-primary]="view_tab() === 'details'"
-                    [class.border-b-2]="view_tab() === 'details'"
-                    [class.text-primary]="view_tab() === 'details'"
-                    [class.opacity-60]="view_tab() !== 'details'"
-                    (click)="setViewTab('details')"
-                    (keydown)="handleTabKeydown($event, items_tab, details_tab)"
-                    [attr.aria-selected]="view_tab() === 'details'"
-                    [tabIndex]="view_tab() === 'details' ? 0 : -1"
-                    aria-controls="template-layout-details-panel"
-                    id="template-layout-details-tab"
-                >
-                    {{ 'COMMON.DETAILS' | translate }}
-                </button>
-            </div>
+            />
             @if (view_tab() === 'items') {
                 <div
                     id="template-layout-items-panel"
@@ -749,6 +717,7 @@ import {
         `,
     ],
     imports: [
+        SectionTabsComponent,
         CdkDropList,
         CdkDrag,
         CdkDragHandle,
@@ -777,6 +746,10 @@ export class TemplateLayoutListComponent {
     public readonly view_tab = model<'items' | 'details'>('items', {
         alias: 'tab',
     });
+    public readonly tabs: SectionTab<'items' | 'details'>[] = [
+        { id: 'items', label: 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS' },
+        { id: 'details', label: 'COMMON.DETAILS' },
+    ];
     public readonly positions = LAYOUT_POSITIONS;
     public readonly layouts = this._template_service.template_layout_draft;
     public readonly selected_template =
@@ -850,23 +823,6 @@ export class TemplateLayoutListComponent {
 
     public setViewTab(tab: 'items' | 'details') {
         this.view_tab.set(tab);
-    }
-
-    public handleTabKeydown(
-        event: KeyboardEvent,
-        items_tab: HTMLButtonElement,
-        details_tab: HTMLButtonElement,
-    ) {
-        const tabs = ['items', 'details'] as const;
-        const next = tabKeyIndex(
-            event.key,
-            tabs.indexOf(this.view_tab()),
-            tabs.length,
-        );
-        if (next === null) return;
-        event.preventDefault();
-        this.view_tab.set(tabs[next]);
-        [items_tab, details_tab][next].focus();
     }
 
     public mappingTargetLabel(mapping: SignageTemplateMapping) {

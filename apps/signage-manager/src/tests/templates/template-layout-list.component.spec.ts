@@ -85,24 +85,6 @@ describe('TemplateLayoutListComponent', () => {
         expect(selected_index()).toBeNull();
     });
 
-    it('switches and focuses sidebar tabs with the arrow keys', async () => {
-        const component = await make();
-        const event = {
-            key: 'ArrowRight',
-            preventDefault: vi.fn(),
-        } as unknown as KeyboardEvent;
-        const items_tab = { focus: vi.fn() } as unknown as HTMLButtonElement;
-        const details_tab = {
-            focus: vi.fn(),
-        } as unknown as HTMLButtonElement;
-
-        component.handleTabKeydown(event, items_tab, details_tab);
-
-        expect(component.view_tab()).toBe('details');
-        expect(event.preventDefault).toHaveBeenCalled();
-        expect(details_tab.focus).toHaveBeenCalled();
-    });
-
     it('does not reload mappings when a save replaces the same template', async () => {
         selected_template.set({ id: 'template-1' });
         const component = await make();

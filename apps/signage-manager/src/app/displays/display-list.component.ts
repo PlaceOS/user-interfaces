@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import {
-    afterRenderEffect,
     Component,
     DestroyRef,
     ElementRef,
@@ -23,6 +22,7 @@ import {
 } from '@placeos/components';
 import { isSameDay } from 'date-fns';
 import { IntersectDirective } from '../shared/intersect.directive';
+import { scrollSelectionIntoView } from '../shared/scroll-selection.util';
 import { isDisplayOnline } from './display-status.util';
 import { SignageDisplayService } from './signage-display.service';
 
@@ -191,23 +191,11 @@ export class DisplayListComponent {
         const timer = setInterval(() => this._now.set(Date.now()), 60 * 1000);
         inject(DestroyRef).onDestroy(() => clearInterval(timer));
 
-        afterRenderEffect({
-            earlyRead: () => {
-                const selected_id = this.selected()?.id;
-                if (!selected_id) return;
-                const display_index = this.displays().findIndex(
-                    ({ id }) => id === selected_id,
-                );
-                return this._display_items()[display_index]?.nativeElement;
-            },
-            write: (selected_item) => {
-                selected_item()?.scrollIntoView?.({
-                    behavior: 'instant',
-                    block: 'nearest',
-                    inline: 'nearest',
-                });
-            },
-        });
+        scrollSelectionIntoView(
+            this.displays,
+            this._display_items,
+            this.selected,
+        );
     }
 
     public loadMore() {

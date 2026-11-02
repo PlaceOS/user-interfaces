@@ -485,7 +485,6 @@ export class SignageDisplayService {
         const { DisplaySelectModalComponent } =
             await import('../shared/display-select-modal.component');
         const ref = this._dialog.open(DisplaySelectModalComponent, {
-            data: { zone_id: zone.id },
             panelClass: 'mobile-fullscreen',
         });
         const display_id = await dialogClosed<string>(ref);
@@ -512,7 +511,6 @@ export class SignageDisplayService {
         const { PlaylistSelectModalComponent } =
             await import('../shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
-            data: { display_id: display.id },
             panelClass: 'mobile-fullscreen',
         });
         const playlist_id = await dialogClosed<string>(ref);
@@ -530,7 +528,6 @@ export class SignageDisplayService {
         const { DisplaySelectModalComponent } =
             await import('../shared/display-select-modal.component');
         const ref = this._dialog.open(DisplaySelectModalComponent, {
-            data: { playlist_id: playlist.id },
             panelClass: 'mobile-fullscreen',
         });
         const display_id = await dialogClosed<string>(ref);

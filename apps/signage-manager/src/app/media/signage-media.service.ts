@@ -1258,7 +1258,6 @@ export class SignageMediaService {
         const { PlaylistSelectModalComponent } =
             await import('../shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
-            data: { media_id },
             panelClass: 'mobile-fullscreen',
         });
         const playlist_id = await dialogClosed(ref);
@@ -1274,7 +1273,6 @@ export class SignageMediaService {
         const { PlaylistSelectModalComponent } =
             await import('../shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
-            data: { media_ids },
             panelClass: 'mobile-fullscreen',
         });
         const playlist_id = await dialogClosed(ref);

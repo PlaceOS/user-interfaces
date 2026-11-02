@@ -1,15 +1,7 @@
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-    resource,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, input, resource } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { showZone } from '@placeos/ts-client';
 import { selectRoutedItem } from '../displays/routed-selection.util';
@@ -18,6 +10,11 @@ import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
+import { routedTab } from '../shared/routed-tab.util';
+import {
+    SectionTab,
+    SectionTabsComponent,
+} from '../shared/section-tabs.component';
 import { SignageContextService } from '../signage-context.service';
 import { SignageTemplateService } from '../templates/signage-template.service';
 import { SignageZoneService } from './signage-zone.service';
@@ -25,11 +22,9 @@ import { ZoneContentComponent } from './zone-content.component';
 import { ZoneHeaderComponent } from './zone-header.component';
 import { ZoneListComponent } from './zone-list.component';
 
-const TAB_QUERY_PARAM = 'tab';
+type ZoneTab = 'playlists' | 'displays' | 'templates';
 
-function parseZoneTab(
-    value: string | null,
-): 'playlists' | 'displays' | 'templates' {
+function parseZoneTab(value: string | null): ZoneTab {
     if (value === 'displays' || value === 'templates') return value;
     return 'playlists';
 }
@@ -123,137 +118,17 @@ function parseZoneTab(
                                     </button>
                                 }
                             </div>
-                            <div
+                            <section-tabs
                                 class="bg-base-100 border-base-300 relative z-10 mx-2 mt-2 flex shrink-0 overflow-hidden rounded-lg border"
-                                role="tablist"
+                                id_prefix="zone"
+                                [tabs]="tabs()"
+                                [active]="view_tab()"
+                                (activeChange)="setViewTab($event)"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.ZONE_DETAILS_TABS'
                                         | translate
                                 "
-                            >
-                                <button
-                                    type="button"
-                                    role="tab"
-                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
-                                    [class.border-primary]="
-                                        view_tab() === 'playlists'
-                                    "
-                                    [class.border-b-2]="
-                                        view_tab() === 'playlists'
-                                    "
-                                    [class.text-primary]="
-                                        view_tab() === 'playlists'
-                                    "
-                                    [class.opacity-60]="
-                                        view_tab() !== 'playlists'
-                                    "
-                                    (click)="setViewTab('playlists')"
-                                    [attr.aria-selected]="
-                                        view_tab() === 'playlists'
-                                    "
-                                    aria-controls="zone-playlists-panel"
-                                    id="zone-playlists-tab"
-                                >
-                                    {{
-                                        'SIGNAGE_MANAGER.NAV_PLAYLISTS'
-                                            | translate
-                                    }}
-                                    <span
-                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
-                                        [attr.aria-busy]="
-                                            playlist_count_loading()
-                                        "
-                                    >
-                                        {{
-                                            playlist_count_loading()
-                                                ? '?'
-                                                : playlist_count()
-                                        }}
-                                    </span>
-                                </button>
-                                <button
-                                    type="button"
-                                    role="tab"
-                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
-                                    [class.border-primary]="
-                                        view_tab() === 'displays'
-                                    "
-                                    [class.border-b-2]="
-                                        view_tab() === 'displays'
-                                    "
-                                    [class.text-primary]="
-                                        view_tab() === 'displays'
-                                    "
-                                    [class.opacity-60]="
-                                        view_tab() !== 'displays'
-                                    "
-                                    (click)="setViewTab('displays')"
-                                    [attr.aria-selected]="
-                                        view_tab() === 'displays'
-                                    "
-                                    aria-controls="zone-displays-panel"
-                                    id="zone-displays-tab"
-                                >
-                                    {{
-                                        'SIGNAGE_MANAGER.NAV_DISPLAYS'
-                                            | translate
-                                    }}
-                                    <span
-                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
-                                        [attr.aria-busy]="
-                                            display_count_loading()
-                                        "
-                                    >
-                                        {{
-                                            display_count_loading()
-                                                ? '?'
-                                                : display_count()
-                                        }}
-                                    </span>
-                                </button>
-                                @if (templates_enabled()) {
-                                    <button
-                                        type="button"
-                                        role="tab"
-                                        class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
-                                        [class.border-primary]="
-                                            view_tab() === 'templates'
-                                        "
-                                        [class.border-b-2]="
-                                            view_tab() === 'templates'
-                                        "
-                                        [class.text-primary]="
-                                            view_tab() === 'templates'
-                                        "
-                                        [class.opacity-60]="
-                                            view_tab() !== 'templates'
-                                        "
-                                        (click)="setViewTab('templates')"
-                                        [attr.aria-selected]="
-                                            view_tab() === 'templates'
-                                        "
-                                        aria-controls="zone-templates-panel"
-                                        id="zone-templates-tab"
-                                    >
-                                        {{
-                                            'SIGNAGE_MANAGER.NAV_TEMPLATES'
-                                                | translate
-                                        }}
-                                        <span
-                                            class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
-                                            [attr.aria-busy]="
-                                                template_count_loading()
-                                            "
-                                        >
-                                            {{
-                                                template_count_loading()
-                                                    ? '?'
-                                                    : template_count()
-                                            }}
-                                        </span>
-                                    </button>
-                                }
-                            </div>
+                            />
                         }
                         <zone-content
                             class="h-1/2 flex-1"
@@ -265,27 +140,13 @@ function parseZoneTab(
             <nav-footer />
         </div>
     `,
-    styles: [
-        `
-            .mobile-hidden {
-                @media (max-width: 639px) {
-                    display: none !important;
-                }
-            }
-
-            .mobile-full {
-                @media (max-width: 639px) {
-                    flex: 1;
-                }
-            }
-        `,
-    ],
     imports: [
         NavSidebarComponent,
         NavFooterComponent,
         ZoneHeaderComponent,
         ZoneListComponent,
         ZoneContentComponent,
+        SectionTabsComponent,
         MatRippleModule,
         MatTooltipModule,
         IconComponent,
@@ -298,15 +159,18 @@ export class ZonesSectionComponent {
     private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _template_service = inject(SignageTemplateService);
     private readonly _zone_service = inject(SignageZoneService);
-    private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
     public readonly id = input('');
     public readonly tab = input<string | null>(null);
     public readonly templates_enabled = this._context.templates_enabled;
-    public readonly view_tab = signal<'playlists' | 'displays' | 'templates'>(
-        'playlists',
-    );
+    private readonly _view_tab = routedTab(this.tab, (value) => {
+        const tab = parseZoneTab(value);
+        return tab === 'templates' && !this.templates_enabled()
+            ? 'playlists'
+            : tab;
+    });
+    public readonly view_tab = this._view_tab.active;
     public readonly selected_zone = this._zone_service.selected_zone;
     public readonly can_manage_selected_zone = computed(() => {
         const zone = this.selected_zone();
@@ -352,18 +216,32 @@ export class ZonesSectionComponent {
         () => this._display_service.selected_zone_displays().length,
     );
 
-    constructor() {
-        effect(() => {
-            const route_tab = parseZoneTab(this.tab());
-            const available_tab =
-                route_tab === 'templates' && !this.templates_enabled()
-                    ? 'playlists'
-                    : route_tab;
-            if (available_tab !== this.view_tab()) {
-                this.view_tab.set(available_tab);
-            }
-        });
+    public readonly tabs = computed<SectionTab<ZoneTab>[]>(() => [
+        {
+            id: 'playlists',
+            label: 'SIGNAGE_MANAGER.NAV_PLAYLISTS',
+            count: this.playlist_count(),
+            count_loading: this.playlist_count_loading(),
+        },
+        {
+            id: 'displays',
+            label: 'SIGNAGE_MANAGER.NAV_DISPLAYS',
+            count: this.display_count(),
+            count_loading: this.display_count_loading(),
+        },
+        ...(this.templates_enabled()
+            ? [
+                  {
+                      id: 'templates' as const,
+                      label: 'SIGNAGE_MANAGER.NAV_TEMPLATES',
+                      count: this.template_count(),
+                      count_loading: this.template_count_loading(),
+                  },
+              ]
+            : []),
+    ]);
 
+    constructor() {
         selectRoutedItem({
             id: this.id,
             list: this._zone_service.all_zones,
@@ -389,14 +267,7 @@ export class ZonesSectionComponent {
         await this._router.navigate(['/zones'], {});
     }
 
-    public setViewTab(tab: 'playlists' | 'displays' | 'templates') {
-        if (tab === this.view_tab()) return;
-        this.view_tab.set(tab);
-        void this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { [TAB_QUERY_PARAM]: tab },
-            queryParamsHandling: 'merge',
-            replaceUrl: true,
-        });
+    public setViewTab(tab: ZoneTab) {
+        this._view_tab.select(tab);
     }
 }

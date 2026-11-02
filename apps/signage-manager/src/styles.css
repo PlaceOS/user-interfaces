@@ -49,6 +49,28 @@ select:focus-visible,
     }
 }
 
+/* List and details pages show one panel at a time on small screens */
+@media (max-width: 639px) {
+    .mobile-hidden {
+        display: none !important;
+    }
+
+    .mobile-full {
+        flex: 1;
+    }
+}
+
+@media (max-width: 1023px) {
+    .tablet-hidden {
+        display: none !important;
+    }
+
+    .tablet-full {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
 :root {
     --bg: #212121;
     --transition-delay: 1000ms;
