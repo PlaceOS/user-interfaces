@@ -7,7 +7,9 @@ import {
     MOCK_CATEGORIES,
     MOCK_PRODUCTS,
     MOCK_PURCHASE_ORDERS,
+    mockLevelZones,
 } from './assets.data';
+import { MOCK_LEVELS } from './zone.data';
 
 const BASE_PATH = '/api/engine/v2';
 
@@ -239,8 +241,21 @@ export function registerMockAssets() {
         callback: (req) => {
             const type_id = req.query_params?.type_id;
             const zone_id = req.query_params?.zone_id;
+            // `zones` is comma separated, the asset must be in every one
+            const zones = `${req.query_params?.zones || ''}`
+                .split(',')
+                .filter(Boolean);
             if (type_id === '_parking_type_' && zone_id) {
                 return generateMockParkingAssets(zone_id);
+            }
+            if (type_id === '_parking_type_' && zones.length) {
+                MOCK_LEVELS.filter(
+                    (level) =>
+                        level.type === 'parking' &&
+                        zones.every((id) =>
+                            mockLevelZones(level.id).includes(id),
+                        ),
+                ).forEach((level) => generateMockParkingAssets(level.id));
             }
             let results = [...MOCK_ASSETS, ...getAllMockParkingAssets()];
             if (type_id) {
@@ -251,6 +266,11 @@ export function registerMockAssets() {
                     (a) =>
                         a.zone_id === zone_id ||
                         (a.zones || []).includes(zone_id),
+                );
+            }
+            if (zones.length) {
+                results = results.filter((a) =>
+                    zones.every((id) => (a.zones || []).includes(id)),
                 );
             }
             return results;

@@ -183,6 +183,15 @@ describe('DeskFlowNewComponent', () => {
                             },
                         ]),
                         levelsForRegion: vi.fn(() => []),
+                        loadBuildingsForZones: vi.fn(async () => []),
+                        organisation: { id: 'org-1' },
+                        levels: [
+                            {
+                                id: 'level-2',
+                                parent_id: 'building-2',
+                                tags: [],
+                            },
+                        ],
                         find: vi.fn((id: string) =>
                             ['building-1', 'building-2'].includes(id)
                                 ? { id }
@@ -324,12 +333,14 @@ describe('DeskFlowNewComponent', () => {
         vi.mocked(queryAssets).mockImplementation(
             (query: any) =>
                 page(
-                    query.zones === 'building-2'
+                    // desk assets list the org in their zones
+                    query.zones === 'org-1'
                         ? [
                               {
                                   id: 'asset-456',
                                   asset_type_id: 'type-1',
                                   zone_id: 'level-2',
+                                  zones: ['org-1', 'building-2', 'level-2'],
                                   identifier: 'Desk 456',
                                   map_id: 'desk-456',
                               },
@@ -351,6 +362,10 @@ describe('DeskFlowNewComponent', () => {
         expect(model().resources).toEqual([
             expect.objectContaining({ id: 'asset-456', name: 'Desk 456' }),
         ]);
+        // the desk's building may be in a region that is not loaded yet
+        expect(
+            spectator.inject(OrganisationService).loadBuildingsForZones,
+        ).toHaveBeenCalledWith([['org-1', 'building-2', 'level-2']]);
     });
 
     it('should select a nearby desk by resource id when no map id is available', async () => {

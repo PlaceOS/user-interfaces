@@ -12,6 +12,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
     deleteDeskAsset,
     deskFromAsset,
+    findDeskByLegacyId,
     queryDeskAssets,
     queryDeskAssetsForZones,
     queryDeskAssetsInZone,
@@ -509,14 +510,18 @@ export class DesksStateService extends AsyncHandler {
         downloadFile('desks.csv', jsonToCsv(rows));
     }
 
-    public async addDesks(list: Desk[]) {
+    /**
+     * Save new or imported desks. Pass imported CSV rows as plain objects, not
+     * `Desk` instances, so only the row's own columns update an existing desk.
+     */
+    public async addDesks(list: Partial<Desk>[]) {
         const selected_zones = this._getSelectedZones();
         const all_zones = this._filters().zones?.includes('All');
         const fallback_zone =
             !all_zones && selected_zones.length ? selected_zones[0] : '';
         // Group the desks by their level so each level's metadata is only
         // written with its own desks.
-        const groups = new Map<string, Desk[]>();
+        const groups = new Map<string, Partial<Desk>[]>();
         for (const desk of list) {
             // imported rows carry the level as `zone_id`
             const zone = desk.zone?.id || desk['zone_id'] || fallback_zone;
@@ -544,7 +549,8 @@ export class DesksStateService extends AsyncHandler {
                 continue;
             }
             const desk_list = await this._storedDeskList(zone);
-            for (const desk of desks) {
+            for (const row of desks) {
+                const desk = row instanceof Desk ? row : new Desk(row);
                 const idx = desk_list.findIndex((_) => _.id === desk.id);
                 if (idx >= 0) desk_list[idx] = desk;
                 else desk_list.push(desk);
@@ -559,20 +565,18 @@ export class DesksStateService extends AsyncHandler {
     }
 
     /**
-     * Desks without an asset type (imported rows, metadata era exports) update
-     * the desk asset with the same id or map id rather than creating a duplicate.
-     * Migrated desk assets keep the original desk id as their map id.
+     * Imported rows update the desk asset with the same id or map id rather
+     * than creating a duplicate. Migrated desk assets keep the original desk
+     * id as their map id. Columns missing from the row keep the asset's values.
      */
-    private _matchDeskAsset(desk: Desk, existing: Desk[]): Desk {
-        if (desk['asset_type_id']) return desk;
-        const map_id = desk.map_id || desk.id;
-        const match = existing.find(
-            (asset) => asset.id === desk.id || asset.map_id === map_id,
-        );
-        if (!match) return desk;
+    private _matchDeskAsset(row: Partial<Desk>, existing: Desk[]): Desk {
+        const match =
+            findDeskByLegacyId(existing, row.id) ||
+            findDeskByLegacyId(existing, row.map_id);
+        if (!match) return new Desk(row);
         return new Desk({
             ...match,
-            ...desk,
+            ...row,
             id: match.id,
             map_id: match.map_id,
             asset_type_id: match['asset_type_id'],

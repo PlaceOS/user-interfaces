@@ -231,6 +231,19 @@ describe('[Desk Assets]', () => {
         expect(desks.deskFromAsset(asset).map_id).toBe('desk-legacy');
     });
 
+    it('should find desks by asset id before the original desk id', async () => {
+        const { findDeskByLegacyId } = await load_module();
+        const desks = [
+            { id: 'asset-1', map_id: 'desk-2' },
+            { id: 'desk-2', map_id: 'desk-9' },
+        ];
+
+        expect(findDeskByLegacyId(desks, 'desk-2')).toBe(desks[1]);
+        expect(findDeskByLegacyId(desks, 'desk-9')).toBe(desks[1]);
+        expect(findDeskByLegacyId(desks, 'missing')).toBeUndefined();
+        expect(findDeskByLegacyId(desks, '')).toBeUndefined();
+    });
+
     it('should save and delete desk assets', async () => {
         const desks = await load_module();
         vi.mocked(ts_client.queryAssetCategories).mockReturnValue(

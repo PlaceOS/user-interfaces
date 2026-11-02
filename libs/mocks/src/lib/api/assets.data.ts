@@ -1,6 +1,7 @@
 import { padString, predictableRandomInt } from '@placeos/common';
 import { getUnixTime, subDays, subMonths } from 'date-fns';
 import { MOCK_STAFF } from './users.data';
+import { MOCK_BUILDINGS, MOCK_LEVELS, MOCK_REGIONS } from './zone.data';
 
 export const MOCK_CATEGORIES = [
     {
@@ -636,8 +637,19 @@ export const getAssetsRequiringMaintenance = () =>
 
 const MOCK_PARKING_ASSETS_CACHE: Record<string, any[]> = {};
 
+/** Every zone a mock level is in: org, region, building and level */
+export function mockLevelZones(level_id: string): string[] {
+    const level = MOCK_LEVELS.find((_) => _.id === level_id);
+    const building = MOCK_BUILDINGS.find((_) => _.id === level?.parent_id);
+    const region = MOCK_REGIONS.find((_) => _.id === building?.parent_id);
+    return [region?.parent_id, region?.id, building?.id, level_id].filter(
+        Boolean,
+    );
+}
+
 export function generateMockParkingAssets(zone_id: string) {
     if (!MOCK_PARKING_ASSETS_CACHE[zone_id]) {
+        const zones = mockLevelZones(zone_id);
         const parts = zone_id.split('-');
         const id = parts[parts.length - 1];
         MOCK_PARKING_ASSETS_CACHE[zone_id] = new Array(18 * 6)
@@ -660,6 +672,7 @@ export function generateMockParkingAssets(zone_id: string) {
                     assigned_name: assignee.name || '',
                     asset_type_id: '_parking_type_',
                     zone_id,
+                    zones,
                     notes: '',
                     place_groups: [],
                     features: [],
