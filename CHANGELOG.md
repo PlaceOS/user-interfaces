@@ -76,6 +76,10 @@ All notable changes to this project will be documented in this file.
 
 - Report Angular errors to Sentry
 
+#### Test
+
+- Destroy testing module after each app spec
+
 #### Visitor-kiosk
 
 - Fix check-in, registration and photo UX issues
