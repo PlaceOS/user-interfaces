@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+    <g id="Menu" transform="translate(0 0.308)">
+        <rect id="Rectangle_175" data-name="Rectangle 175" width="16" height="16" transform="translate(0 -0.308)"
+            fill="none" />
+        <g id="Union_4" data-name="Union 4" transform="translate(0 1)">
+            <rect id="Rectangle_172" data-name="Rectangle 172" width="16" height="2" transform="translate(0 -0.308)"
+                fill="#ffffff" />
+            <rect id="Rectangle_173" data-name="Rectangle 173" width="16" height="2" transform="translate(0 5.692)"
+                fill="#ffffff" />
+            <rect id="Rectangle_174" data-name="Rectangle 174" width="8" height="2" transform="translate(0 11.692)"
+                fill="#ffffff" />
+        </g>
+    </g>
+</svg>
