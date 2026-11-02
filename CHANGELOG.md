@@ -139,6 +139,10 @@ All notable changes to this project will be documented in this file.
 
 - Cache s3 urls in a data group
 
+#### Signage
+
+- Resend plugin config when a plugin reports loaded
+
 #### Signage-manager
 
 - Unshare deleted items by group PPT-2651
@@ -146,6 +150,7 @@ All notable changes to this project will be documented in this file.
 - Repair stale and flaky tests
 - Fill the next play sort button while pressed
 - Report Angular errors to Sentry
+- Show and open new playlists right away
 
 #### Users
 
@@ -252,6 +257,7 @@ All notable changes to this project will be documented in this file.
 - Add display management PPT-2673
 - Show shared groups in the media list view
 - Sort distribution playlist items by next play
+- Add media to a playlist from the playlist view
 
 #### Visitor-kiosk
 
