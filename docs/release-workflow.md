@@ -18,7 +18,10 @@ CI writes the `build/<project>/<environment>` branches. Do not edit those branch
 
 The workflow generates application-specific changelogs once before the build jobs
 start. Each changelog includes commits that change the application, its transitive
-Nx dependencies, or files under `shared/`. Builds include `CHANGELOG.md` when
+Nx dependencies, or files under `shared/`. Each commit stays in the release that
+contains it, also when the release tag is on a commit for a different application.
+git-cliff reads the full history one time for all applications, because that read
+takes almost all of the generation time. Builds include `CHANGELOG.md` when
 generation and artifact transfer succeed. Changelog generation, upload, download,
 or copy failures do not block tests, builds, or deployment.
 

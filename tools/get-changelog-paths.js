@@ -1,10 +1,18 @@
 const { execFileSync } = require('node:child_process');
 
-const project = process.argv[2];
+// Usage: node tools/get-changelog-paths.js <app>...
+// Prints `{ "<app>": ["<glob>", ...] }`. Nx builds the project graph once for all apps.
+const projects = process.argv.slice(2);
 
 try {
-    if (!project) throw new TypeError('An application name is required');
-    console.log(JSON.stringify(getChangelogPaths(project, getProjectGraph())));
+    if (!projects.length) {
+        throw new TypeError('An application name is required');
+    }
+    const graph = getProjectGraph();
+    const paths = Object.fromEntries(
+        projects.map((name) => [name, getChangelogPaths(name, graph)]),
+    );
+    console.log(JSON.stringify(paths));
 } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(`Failed to calculate changelog paths: ${message}`);

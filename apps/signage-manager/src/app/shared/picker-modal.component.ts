@@ -45,7 +45,8 @@ export class PickerItemDirective<T extends { id: string }> {
  * error and empty states, and the sentinel that loads the next page.
  *
  * Give the item button as an `<ng-template [pickerItem]="list" let-item>`
- * child. It usually closes the dialog with `[mat-dialog-close]`.
+ * child. It usually closes the dialog with `[mat-dialog-close]`. A dialog
+ * that picks several items can put a footer after the `<picker-modal>`.
  */
 @Component({
     selector: 'picker-modal',

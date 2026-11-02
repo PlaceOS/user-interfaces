@@ -50,6 +50,10 @@ import {
 } from '../schedules/signage-schedule.util';
 import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
+import type {
+    MediaSelectModalComponent,
+    MediaSelectModalData,
+} from '../shared/media-select-modal.component';
 import { PagedList } from '../shared/paged-list';
 import { byName } from '../shared/paged-search';
 import type { PlaylistRequestApprovalModalResult } from '../shared/playlist-request-approval-modal.component';
@@ -507,14 +511,18 @@ export class SignagePlaylistService {
             : null;
     }
 
-    public async addPlaylist() {
+    /**
+     * Open the playlist form and create a playlist from it.
+     * @returns The new playlist, or null when none was made
+     */
+    public async addPlaylist(): Promise<SignagePlaylist | null> {
         if (
             !this._context.requirePermission(
                 this._context.can_create(),
                 'SIGNAGE_MANAGER.SVC_NO_CREATE_PLAYLISTS',
             )
         )
-            return;
+            return null;
         const { PlaylistEditModalComponent } =
             await import('../shared/playlist-edit-modal.component');
         const ref = this._dialog.open(PlaylistEditModalComponent, {
@@ -525,10 +533,8 @@ export class SignagePlaylistService {
             },
             panelClass: 'mobile-fullscreen',
         });
-        const result = await dialogClosed(ref);
-        if (result) {
-            this._context.changed();
-        }
+        const result = await dialogClosed<SignagePlaylist>(ref);
+        return result?.id ? this._addPlaylistToList(result) : null;
     }
 
     public queuePlaylistMeta(playlists: SignagePlaylist | SignagePlaylist[]) {
@@ -677,9 +683,8 @@ export class SignagePlaylistService {
                     );
                 }
             }
-            this._context.changed();
             notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_DUPLICATED'));
-            return copy;
+            return this._addPlaylistToList(copy);
         } catch {
             // Show the partial copy when it cannot be removed
             if (copy?.id) {
@@ -1062,6 +1067,22 @@ export class SignagePlaylistService {
         return true;
     }
 
+    /**
+     * Fold a new playlist into the loaded list. Reloading the list instead
+     * loses the playlist while the backend search index lags the write.
+     */
+    private _addPlaylistToList(playlist: SignagePlaylist) {
+        const item = decodeEntityNames(playlist);
+        if (!this._playlist_list.items().some(({ id }) => id === item.id)) {
+            this._playlist_list.adjustTotal(1);
+        }
+        this._playlist_list.update((items) =>
+            [item, ...items.filter(({ id }) => id !== item.id)].sort(byName),
+        );
+        this._playlist_cache.update((cache) => ({ ...cache, [item.id]: item }));
+        return item;
+    }
+
     private _addSignagePlaylist(form_data: Partial<SignagePlaylist>) {
         return addSignagePlaylist(
             form_data,
@@ -1147,6 +1168,41 @@ export class SignagePlaylistService {
         } catch {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_ADD_PLAYLIST_ITEMS'));
         }
+    }
+
+    /**
+     * Pick media from the library and add it to the end of a playlist.
+     * @returns Whether media was added
+     */
+    public async pickMediaForPlaylist(playlist: SignagePlaylist) {
+        if (
+            !playlist?.id ||
+            !this._context.requirePermission(
+                this._context.can_update(),
+                'SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS',
+            )
+        )
+            return false;
+        const { MediaSelectModalComponent: modal } =
+            await import('../shared/media-select-modal.component');
+        const ref = this._dialog.open<
+            MediaSelectModalComponent,
+            MediaSelectModalData,
+            SignageMedia[]
+        >(modal, {
+            data: {
+                multiple: true,
+                heading: 'SIGNAGE_MANAGER.ADD_MEDIA_TITLE',
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const media = await dialogClosed(ref);
+        if (!media?.length) return false;
+        return this.addMediaItemsToPlaylist(
+            playlist.id,
+            media.map(({ id }) => id),
+            media,
+        );
     }
 
     /**

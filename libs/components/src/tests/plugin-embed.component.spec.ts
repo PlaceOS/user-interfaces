@@ -58,6 +58,28 @@ describe('PluginEmbedComponent', () => {
         },
     );
 
+    it('sends config and play again when a plugin starts listening late', () => {
+        const { post_message, reply } = preparePlugin();
+        // Sent on the iframe load event, before the plugin listens
+        spectator.setInput({ config, play: 10 });
+        post_message.mockClear();
+
+        reply('loaded');
+
+        expect(post_message.mock.calls.map(([message]) => message)).toEqual([
+            expect.objectContaining({ type: 'config', payload: config }),
+            expect.objectContaining({ type: 'play' }),
+        ]);
+    });
+
+    it('sends nothing on load before the host has a config', () => {
+        const { post_message, reply } = preparePlugin();
+
+        reply('loaded');
+
+        expect(post_message).not.toHaveBeenCalled();
+    });
+
     it('waits for paint confirmation of the current play request', () => {
         const { post_message, reply, playing } = preparePlugin(true);
         spectator.setInput({ config, play: 10 });
