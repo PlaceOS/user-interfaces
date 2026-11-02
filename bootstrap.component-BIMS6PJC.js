@@ -25,7 +25,7 @@ import {
   OrganisationService,
   Space,
   VERSION
-} from "./chunk-43URC3DW.js";
+} from "./chunk-NXXOT44U.js";
 import {
   Ra
 } from "./chunk-SJKNCINK.js";
@@ -703,4 +703,4 @@ export {
   BootstrapComponent
 };
 //# debugId=ecb98df0-aea5-5968-8a25-10c6c1af8f3c
-//# sourceMappingURL=bootstrap.component-MOZBZTXS.js.map
+//# sourceMappingURL=bootstrap.component-BIMS6PJC.js.map

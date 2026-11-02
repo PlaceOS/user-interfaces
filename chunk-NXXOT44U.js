@@ -325,15 +325,15 @@ var ClipboardModule = class _ClipboardModule {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "2241b21",
-  "hash": "2241b21",
+  "raw": "1e60633",
+  "hash": "1e60633",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2241b21",
+  "suffix": "1e60633",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1793661240453
+  "time": 1793661499560
 };
 
 // libs/common/src/lib/settings.ts
@@ -4814,5 +4814,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=cf477bd7-4f55-5a62-bb76-0ef8ee388833
-//# sourceMappingURL=chunk-43URC3DW.js.map
+//# debugId=54138619-89a1-5eec-a502-779431ec5f72
+//# sourceMappingURL=chunk-NXXOT44U.js.map
