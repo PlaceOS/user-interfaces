@@ -18,6 +18,7 @@
  */
 import { type BrowserContext } from '@playwright/test';
 import { apiFor, currentUser, ENGINE_API } from '../../../../e2e/support/api';
+import { calendarBacked } from '../../../../e2e/support/calendar/calendar.api';
 import { buildStorageState, mintToken } from '../../../../e2e/support/auth';
 import { APP_URL, BACKEND_URL } from '../../../../e2e/support/env';
 import { test as base, expect } from '../../../../e2e/support/fixtures';
@@ -29,6 +30,12 @@ const test = base.extend({
     staffPage: async ({ browser, adminStorageState }, use, testInfo) => {
         void adminStorageState;
         const request = await apiFor('admin', testInfo.parallelIndex);
+        // Without the Microsoft 365 tenant, staff-api answers 500 for the
+        // schedule's calendar and event requests.
+        if (!(await calendarBacked(request))) {
+            await request.dispose();
+            testInfo.skip(true, 'the stack has no Microsoft 365 calendar');
+        }
         const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
         const email = `yb-empty-${suffix}@example.com`;
         const password = `E2E-${suffix}-Password!`;
