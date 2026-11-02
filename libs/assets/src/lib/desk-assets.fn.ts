@@ -86,6 +86,8 @@ export async function queryDeskAssets(zone_id: string): Promise<PlaceAsset[]> {
 export async function queryDeskAssetsInZone(
     zone_id: string,
 ): Promise<PlaceAsset[]> {
+    // an empty `zones` filter is not a scope, e.g. the building is not loaded
+    if (!zone_id) return [];
     const type_id = await resolveDeskTypeId();
     const response = await queryAllAssetPages({ zones: zone_id, type_id });
     return response.data;
@@ -105,6 +107,22 @@ export async function queryDeskAssetsForZones(
         ),
     );
     return flatten(results);
+}
+
+/**
+ * Find the desk for an id from a link, check-in code, favourite or import.
+ * Matches the desk asset id first, then the map id, which migrated desk assets
+ * keep as the original metadata desk id.
+ */
+export function findDeskByLegacyId<T extends { id: string; map_id?: string }>(
+    desks: T[],
+    id: string | undefined,
+): T | undefined {
+    if (!id) return undefined;
+    return (
+        desks.find((desk) => desk.id === id) ||
+        desks.find((desk) => desk.map_id === id)
+    );
 }
 
 /** Fields with a dedicated place on the asset or desk, everything else is kept in `other_data` */

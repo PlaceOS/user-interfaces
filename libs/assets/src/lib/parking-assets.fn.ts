@@ -208,6 +208,8 @@ export async function queryParkingSpacesForZones(
 export async function queryParkingSpacesInZone(
     zone_id: string,
 ): Promise<PlaceAsset[]> {
+    // an empty `zones` filter is not a scope, e.g. the building is not loaded
+    if (!zone_id) return [];
     const type_id = await resolveParkingTypeId();
     const response = await queryAllAssetPages({ zones: zone_id, type_id });
     return response.data;

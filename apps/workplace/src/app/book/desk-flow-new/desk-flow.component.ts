@@ -9,7 +9,11 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { deskFromAsset, queryDeskAssetsInZone } from '@placeos/assets';
+import {
+    deskFromAsset,
+    findDeskByLegacyId,
+    queryDeskAssetsInZone,
+} from '@placeos/assets';
 import {
     BookingAsset,
     BookingFlowView,
@@ -41,14 +45,6 @@ import {
 } from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
 import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
-
-/** Desk links use the desk asset id, or the original desk id kept as the map id */
-function deskMatchesLink(
-    desk: { id: string; map_id?: string },
-    asset_id: string,
-) {
-    return desk.id === asset_id || desk.map_id === asset_id;
-}
 
 @Component({
     selector: 'desk-flow-new',
@@ -335,9 +331,7 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         const deadline = Date.now() + wait_ms;
         do {
             const resources = await this._booking_form.listResources();
-            const resource = resources.find((item) =>
-                deskMatchesLink(item, asset_id),
-            );
+            const resource = findDeskByLegacyId(resources, asset_id);
             if (resource) return resource;
             if (Date.now() >= deadline) break;
             await new Promise((resolve) => setTimeout(resolve, 50));
@@ -373,25 +367,25 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         return null;
     }
 
+    /**
+     * Desk assets list the org in their `zones`, so one query covers every
+     * building. The desk's building may be in a region that is not loaded yet.
+     */
     private async _findDeskAssetFromBuildings(
         asset_id: string,
     ): Promise<BookingAsset | null> {
-        for (const building of this._org.buildings || []) {
-            const levels = this._org.levelsForBuilding(building);
-            const assets = await queryDeskAssetsInZone(building.id).catch(
-                () => [],
-            );
-            const desk = assets
-                .map((asset) =>
-                    deskFromAsset(
-                        asset,
-                        levels.find((level) => level.id === asset.zone_id),
-                    ),
-                )
-                .find((item) => deskMatchesLink(item, asset_id));
-            if (desk) return desk as unknown as BookingAsset;
-        }
-        return null;
+        const assets = await queryDeskAssetsInZone(
+            this._org.organisation?.id,
+        ).catch(() => []);
+        const desks = assets.map((asset) => deskFromAsset(asset));
+        const asset =
+            assets[desks.indexOf(findDeskByLegacyId(desks, asset_id))];
+        if (!asset) return null;
+        await this._org.loadBuildingsForZones([asset.zones || []]);
+        const level = (this._org.levels || []).find(
+            ({ id }) => id === asset.zone_id,
+        );
+        return deskFromAsset(asset, level) as unknown as BookingAsset;
     }
 
     private async _initNearbyDeskBooking(space_id: string, event_date: number) {

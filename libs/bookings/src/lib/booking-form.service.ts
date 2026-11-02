@@ -111,6 +111,7 @@ import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
+import { findDeskByLegacyId } from 'libs/assets/src/lib/desk-assets.fn';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
@@ -2682,16 +2683,8 @@ export class BookingFormService extends AsyncHandler {
         const favourites =
             this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) || [];
         if (!favourites.length) return;
-        const ids = new Set(desks.map((desk) => desk.id));
-        const asset_ids = new Map(
-            desks
-                .filter((desk) => desk.map_id && desk.map_id !== desk.id)
-                .map((desk) => [desk.map_id, desk.id]),
-        );
         const updated = unique(
-            favourites.map((id) =>
-                ids.has(id) ? id : asset_ids.get(id) || id,
-            ),
+            favourites.map((id) => findDeskByLegacyId(desks, id)?.id || id),
         );
         if (updated.join() === favourites.join()) return;
         this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, updated);

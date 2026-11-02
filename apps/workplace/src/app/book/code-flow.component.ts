@@ -10,7 +10,11 @@ import {
     viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { queryDeskAssetsInZone } from '@placeos/assets';
+import {
+    deskFromAsset,
+    findDeskByLegacyId,
+    queryDeskAssetsInZone,
+} from '@placeos/assets';
 import {
     BookingFormService,
     queryBookings,
@@ -345,19 +349,15 @@ export class BookCodeFlowComponent
     /**
      * Codes printed before desks moved to assets hold the original desk id,
      * which desk assets keep as their map id. Bookings reference the asset id.
+     * The booked desk can be in any building, so search the whole org.
      */
     private async _deskAssetId(code: string): Promise<string> {
         if (!this._settings.get('app.desks.use_assets')) return code;
-        const building_id = this._org.building?.id;
-        if (!building_id) return code;
-        const assets = await queryDeskAssetsInZone(building_id).catch(() => []);
-        const asset = assets.find(
-            (item) =>
-                item.id === code ||
-                item.map_id === code ||
-                item.other_data?.['map_id'] === code,
-        );
-        return asset?.id || code;
+        const org_id = this._org.organisation?.id;
+        if (!org_id) return code;
+        const assets = await queryDeskAssetsInZone(org_id).catch(() => []);
+        const desks = assets.map((asset) => deskFromAsset(asset));
+        return findDeskByLegacyId(desks, code)?.id || code;
     }
 
     private async _checkinEvent(space_id: string, email?: string) {
