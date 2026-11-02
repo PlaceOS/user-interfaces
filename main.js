@@ -1,26 +1,19 @@
 import {
-  subMinutes
-} from "./chunk-SAYAIVRK.js";
-import {
   generateMockSpace,
-  setInternalUserDomain
-} from "./chunk-POH5D2OW.js";
-import {
   setHours,
+  setInternalUserDomain,
   subDays
-} from "./chunk-GMRF6SS2.js";
-import "./chunk-6G7TZWO6.js";
+} from "./chunk-CLTOQZ4P.js";
+import "./chunk-LQ4NHTI2.js";
 import {
   TranslatePipe
-} from "./chunk-XNDE36BK.js";
+} from "./chunk-TFCYUZR4.js";
 import {
   GroupPermission,
-  NativeDateModule,
   OrganisationService,
   PlaceOS_Service,
   SettingsService,
   SwUpdate,
-  UploadsService,
   addMonths,
   autoConfirmNativeDomain,
   current_user,
@@ -36,6 +29,7 @@ import {
   nativeDomainError,
   needsNativeDomain,
   provideServiceWorker,
+  reloadOnChunkLoadError,
   retryInitialisation,
   serviceWorkerUpdate,
   setDefaultCreator,
@@ -43,7 +37,7 @@ import {
   setupPlace,
   userSignal,
   user_groups_loaded
-} from "./chunk-5BEUNBHR.js";
+} from "./chunk-VVZYEMD4.js";
 import {
   AsyncHandler,
   Bp,
@@ -79,19 +73,19 @@ import {
   unique,
   wi,
   withTimeout
-} from "./chunk-U4MIVZ3Z.js";
-import "./chunk-M6Y7MFEE.js";
+} from "./chunk-SJBKQ2EE.js";
 import {
   BidiModule,
   _getAnimationsState
-} from "./chunk-NZNO2GV5.js";
+} from "./chunk-ZKHDHDLZ.js";
 import {
   Router,
   RouterLink,
   RouterOutlet,
   provideRouter,
-  withHashLocation
-} from "./chunk-PZKVCH4S.js";
+  withHashLocation,
+  withNavigationErrorHandler
+} from "./chunk-33J6M2T5.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -111,7 +105,6 @@ import {
   computed,
   effect,
   enableProdMode,
-  importProvidersFrom,
   inject,
   numberAttribute,
   provideHttpClient,
@@ -157,7 +150,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-OID5FTR6.js";
+} from "./chunk-AFMQFREG.js";
 import {
   __spreadProps,
   __spreadValues
@@ -173,6 +166,11 @@ function setMinutes(date, minutes, options) {
 // node_modules/date-fns/subMonths.js
 function subMonths(date, amount, options) {
   return addMonths(date, -amount, options);
+}
+
+// node_modules/date-fns/subMinutes.js
+function subMinutes(date, amount, options) {
+  return addMinutes(date, -amount, options);
 }
 
 // node_modules/@angular/material/fesm2022/progress-bar.mjs
@@ -524,7 +522,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-TE555S5T.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-QXPSUXKR.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -649,7 +647,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-TE555S5T.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-QXPSUXKR.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -8791,7 +8789,7 @@ async function authority() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-J7NAP44Z.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-26FVCLEX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -8807,7 +8805,6 @@ var AppComponent = class _AppComponent extends AsyncHandler {
     this._cache = inject(SwUpdate);
     this._snackbar = lazySnackbar();
     this._locales = inject(LocaleService);
-    this._uploads = inject(UploadsService);
     this._current_user = userSignal();
     this._internal_user_domain = computed(
       () => {
@@ -8820,7 +8817,6 @@ var AppComponent = class _AppComponent extends AsyncHandler {
         []
       )
     );
-    this.title = "outlook-addin";
     this._mocks_registered = false;
     this._naa_client_id = naaClientId();
   }
@@ -8861,8 +8857,6 @@ var AppComponent = class _AppComponent extends AsyncHandler {
       }
     }
     await this._finishInitialise();
-    if (this._settings.get("app.has_uploads"))
-      this._uploads.init();
   }
   async _initialiseAuth(local = true) {
     setAppName(this._settings.get("app.short_name"));
@@ -9005,7 +8999,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-J7NAP44Z.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-26FVCLEX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9025,7 +9019,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/outlook-addin/src/app/app.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/outlook-addin/src/app/app.component.ts", lineNumber: 58 });
 })();
 
 // apps/outlook-addin/src/environments/environment.ts
@@ -9037,62 +9031,13 @@ var environment = {
 var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
-    path: "404",
-    loadComponent: () => import("./not-found.component-LP4HPL7S.js").then((m) => m.NotFoundComponent)
-  },
-  {
-    path: "find",
-    loadComponent: () => import("./find-space.component-JKKZVVEG.js").then((m) => m.FindSpaceComponent)
-  },
-  {
     path: "",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-KTI3R5EA.js").then((m) => m.CalendarPaneComponent)
-      },
-      {
-        path: "book",
-        children: [
-          {
-            path: "spaces",
-            loadComponent: () => import("./room-booking.component-OWFOIRGI.js").then((m) => m.RoomBookingComponent)
-          },
-          {
-            path: "spaces/success",
-            loadComponent: () => import("./booking-confirmed.component-QKRVOKOZ.js").then((m) => m.BookingConfirmedComponent)
-          },
-          {
-            path: "meeting",
-            loadComponent: () => import("./meeting-booking.component-76Q7T5FX.js").then((m) => m.MeetingBookingComponent)
-          },
-          {
-            path: "meeting/success",
-            loadComponent: () => import("./meeting-success.component-H7OOHJT3.js").then((m) => m.MeetingBookingSuccessComponent)
-          },
-          {
-            path: "desks",
-            loadComponent: () => import("./desk-booking.component-2INJWWCO.js").then((m) => m.DeskBookingComponent)
-          },
-          {
-            path: "desks/success",
-            loadComponent: () => import("./desk-success.component-B5PSYOFI.js").then((m) => m.DeskBookingSuccessComponent)
-          }
-        ]
-      },
-      {
-        path: "schedule/view",
-        loadComponent: () => import("./find-space.component-JKKZVVEG.js").then((m) => m.FindSpaceComponent)
-      },
-      {
-        path: "confirm/success",
-        loadComponent: () => import("./booking-confirmed.component-QKRVOKOZ.js").then((m) => m.BookingConfirmedComponent)
-      },
-      {
-        path: "upcoming",
-        loadComponent: () => import("./upcoming-bookings.component-CWZBBAPE.js").then((m) => m.UpcomingBookingsComponent)
+        loadComponent: () => import("./calendar-pane.component-WEOI23AV.js").then((m) => m.CalendarPaneComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -9105,11 +9050,10 @@ var appConfig = {
   providers: [
     provideZonelessChangeDetection(),
     provideHttpClient(withXhr(), withInterceptorsFromDi()),
-    provideRouter(routes, withHashLocation()),
+    provideRouter(routes, withHashLocation(), withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error))),
     provideServiceWorker("ngsw-worker.js", {
       enabled: environment.production
-    }),
-    importProvidersFrom(NativeDateModule)
+    })
   ]
 };
 
@@ -9118,5 +9062,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=688ffc68-7d09-5ffb-a9bf-a2fe718e8097
+//# debugId=61bebbb6-2d68-5fd5-aa81-b3d96b79d826
 //# sourceMappingURL=main.js.map
