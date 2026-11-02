@@ -116,6 +116,17 @@ describe('DeskFlowNewComponent', () => {
                         loadGroupMembersForBooking: vi.fn(
                             async () => group_members,
                         ),
+                        // Run the real restore against these mocks
+                        restoreGroupMembers(
+                            ...args: Parameters<
+                                BookingFormService['restoreGroupMembers']
+                            >
+                        ) {
+                            return BookingFormService.prototype.restoreGroupMembers.apply(
+                                this,
+                                args,
+                            );
+                        },
                         loadGroupSiblings: vi.fn(async () => group_siblings),
                         editFormForGroup: vi.fn(() => Promise.resolve()),
                         newForm: vi.fn(() => {

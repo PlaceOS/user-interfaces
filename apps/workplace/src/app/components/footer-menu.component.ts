@@ -8,83 +8,32 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { landingFeatures } from '../landing-new/landing-features';
+import { FEATURE_MENU_ITEMS } from './menu-items';
 import type { TopMenuEmbedItem } from './top-menu.component';
 
-interface FooterMenuItem {
-    id: string;
-    name: string;
-    icon: string;
-    route: string[];
-}
-
-const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
-    {
-        id: 'spaces',
-        name: 'APP.WORKPLACE.MENU_ROOMS',
-        icon: 'meeting_room',
-        route: ['/book', 'meeting'],
-    },
-    {
-        id: 'desks',
-        name: 'APP.WORKPLACE.MENU_DESKS',
-        icon: 'desk',
-        route: ['/book', 'desk'],
-    },
-    {
-        id: 'parking',
-        name: 'APP.WORKPLACE.MENU_PARKING',
-        icon: 'directions_car',
-        route: ['/book', 'parking'],
-    },
-    {
-        id: 'parking-requests',
-        name: 'APP.WORKPLACE.MENU_PARKING_REQUESTS',
-        icon: 'local_parking',
-        route: ['/book', 'parking-request'],
-    },
-    {
-        id: 'visitor-invite',
-        name: 'APP.WORKPLACE.MENU_VISITORS',
-        icon: 'person_add',
-        route: ['/book', 'visitor'],
-    },
-    {
-        id: 'schedule',
-        name: 'APP.WORKPLACE.MENU_SCHEDULE',
-        icon: 'today',
-        route: ['/your-bookings'],
-    },
-    {
-        id: 'group-events',
-        name: 'APP.WORKPLACE.MENU_EVENTS',
-        icon: 'local_activity',
-        route: ['/group-events'],
-    },
-    {
-        id: 'lockers',
-        name: 'APP.WORKPLACE.MENU_LOCKERS',
-        icon: 'lock',
-        route: ['/book', 'locker'],
-    },
-    {
-        id: 'control',
-        name: 'APP.WORKPLACE.MENU_CONTROL',
-        icon: 'remote_gen',
-        route: ['/control'],
-    },
-    {
-        id: 'deals-n-offers',
-        name: 'APP.WORKPLACE.MENU_DEALS',
-        icon: 'confirmation_number',
-        route: ['/deals-n-offers'],
-    },
-    {
-        id: 'team-schedule',
-        name: 'APP.WORKPLACE.MENU_TEAM_SCHEDULE',
-        icon: 'groups',
-        route: ['/team-schedule'],
-    },
+/** Feature order in the book panel. Explore has its own link in the bar. */
+const FOOTER_MENU_ORDER = [
+    'spaces',
+    'desks',
+    'parking',
+    'parking-requests',
+    'visitor-invite',
+    'schedule',
+    'group-events',
+    'lockers',
+    'control',
+    'deals-n-offers',
+    'team-schedule',
 ];
+
+const FOOTER_MENU_ITEMS = FOOTER_MENU_ORDER.flatMap((id) =>
+    FEATURE_MENU_ITEMS.filter((item) => item.id === id).map((item) => ({
+        id: item.id,
+        route: item.route,
+        icon: item.footer_icon || item.icon,
+        name: item.name,
+    })),
+);
 
 @Component({
     selector: 'footer-menu',
@@ -293,7 +242,7 @@ export class FooterMenuComponent extends AsyncHandler {
     });
     public readonly menu_items = computed(() => {
         const features = this.features();
-        return FEATURE_MENU_ITEMS.filter((item) => features.includes(item.id));
+        return FOOTER_MENU_ITEMS.filter((item) => features.includes(item.id));
     });
     public readonly footer_item_count = computed(
         () => this.features().length + this.menu_embeds().length,

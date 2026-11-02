@@ -2,7 +2,6 @@ import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
-import { Subject } from 'rxjs';
 import { TeamMember } from '../../app/team-schedule/common';
 import { TeamScheduleTableComponent } from '../../app/team-schedule/team-schedule-table.component';
 import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
@@ -34,11 +33,10 @@ describe('TeamScheduleTableComponent', () => {
         level_id: { set: vi.fn() },
         duration: { set: vi.fn() },
     };
-    let closed: Subject<boolean>;
     const refresh = vi.fn();
+    const open_add_colleagues = vi.fn();
     const dialog_open = vi.fn(() => ({
         componentInstance: component_instance,
-        afterClosed: () => closed,
     }));
 
     const createComponent = createComponentFactory({
@@ -54,6 +52,7 @@ describe('TeamScheduleTableComponent', () => {
                 loading: signal(false),
                 failed: signal(false),
                 refresh,
+                openAddColleaguesModal: open_add_colleagues,
                 toggleMemberSelection: toggle_selection,
                 isMemberSelected: is_selected,
                 toggleFavorite: toggle_favorite,
@@ -65,15 +64,14 @@ describe('TeamScheduleTableComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        closed = new Subject<boolean>();
         spectator = createComponent();
     });
 
     it('should build a legend entry for every known location', () => {
         expect(spectator.component.user_locations.length).toBe(6);
-        expect(
-            spectator.component.user_locations.map((l) => l.key),
-        ).toContain('office');
+        expect(spectator.component.user_locations.map((l) => l.key)).toContain(
+            'office',
+        );
     });
 
     it('should delegate member actions to the service', () => {
@@ -130,17 +128,8 @@ describe('TeamScheduleTableComponent', () => {
         expect(component_instance.nearby_desk_id.set).not.toHaveBeenCalled();
     });
 
-    it('should open the add colleagues modal', () => {
+    it('should open the add colleagues modal from the service', () => {
         spectator.component.openAddColleaguesModal();
-        expect(dialog_open).toHaveBeenCalled();
-    });
-
-    it('should reload the colleagues only when the modal added some', () => {
-        spectator.component.openAddColleaguesModal();
-        closed.next(false);
-        expect(refresh).not.toHaveBeenCalled();
-
-        closed.next(true);
-        expect(refresh).toHaveBeenCalledTimes(1);
+        expect(open_add_colleagues).toHaveBeenCalled();
     });
 });

@@ -2,16 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
-import {
-    Booking,
-    CalendarEvent,
-    settingSignal,
-    SettingsService,
-} from '@placeos/common';
+import { Booking, CalendarEvent } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ScheduleFilterCardComponent } from './schedule-filter-card.component';
 import {
-    isBookingForOtherUser,
+    bookingTypeCounts,
+    SCHEDULE_FILTER_TYPES,
     ScheduleStateService,
 } from './schedule-state.service';
 
@@ -186,57 +182,19 @@ import {
 export class ScheduleFiltersComponent {
     private _sheet = inject(MatBottomSheet);
     private _state = inject(ScheduleStateService);
-    private _settings = inject(SettingsService);
 
     public readonly filters = this._state.filters;
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
-    public readonly features = settingSignal<string[]>('features', []);
 
-    public readonly counts = computed(() => {
-        const mapping: Record<string, number> = {};
-        const bkn_list = this.bookings() || [];
-        for (const bkn of bkn_list) {
-            if (bkn instanceof CalendarEvent) {
-                const type = bkn.extension_data?.shared_event
-                    ? 'group-event'
-                    : 'event';
-                mapping[type] = (mapping[type] || 0) + 1;
-            } else {
-                const type = bkn.booking_type;
-                mapping[type] = (mapping[type] || 0) + 1;
-                if (isBookingForOtherUser(bkn)) {
-                    mapping['bookings-for-others'] =
-                        (mapping['bookings-for-others'] || 0) + 1;
-                }
-            }
-        }
-        return mapping;
-    });
+    public readonly counts = computed(() => bookingTypeCounts(this.bookings()));
 
-    public readonly feature_list = [
-        { type: 'desk', feat: 'desks', name: 'RESOURCE.DESKS' },
-        { type: 'event', feat: 'spaces', name: 'RESOURCE.MEETINGS' },
-        {
-            type: 'parking',
-            feat: ['parking', 'parking-requests'],
-            name: 'RESOURCE.PARKING',
-        },
-        { type: 'visitor', feat: 'visitor-invite', name: 'RESOURCE.VISITORS' },
-        { type: 'locker', feat: 'lockers', name: 'RESOURCE.LOCKERS' },
-        { type: 'group-event', feat: 'group-events', name: 'RESOURCE.EVENTS' },
-    ];
+    public readonly feature_list = SCHEDULE_FILTER_TYPES;
 
     public readonly toggleType = (t, c = false) => this._state.toggleType(t, c);
     public readonly toggleBookingsForOthers = () =>
         this._state.toggleBookingsForOthers();
-
-    public hasFeature(feature: string | string[]) {
-        const features = this.features() || [];
-        if (Array.isArray(feature)) {
-            return feature.some((f) => features.includes(f));
-        }
-        return features.includes(feature);
-    }
+    public readonly hasFeature = (feature: string[]) =>
+        this._state.hasFeature(feature);
 
     public openFilters() {
         const ref = this._sheet.open(ScheduleFilterCardComponent);

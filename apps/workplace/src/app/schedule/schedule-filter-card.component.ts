@@ -4,19 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
-import {
-    Booking,
-    BOOKING_TYPE_COLORS,
-    CalendarEvent,
-    SettingsService,
-} from '@placeos/common';
+import { Booking, BOOKING_TYPE_COLORS, CalendarEvent } from '@placeos/common';
 import {
     IconComponent,
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
 import {
-    isBookingForOtherUser,
+    bookingTypeCounts,
+    SCHEDULE_FILTER_TYPES,
     ScheduleStateService,
 } from './schedule-state.service';
 
@@ -115,7 +111,6 @@ import {
 })
 export class ScheduleFilterCardComponent {
     private _state = inject(ScheduleStateService);
-    private _settings = inject(SettingsService);
     private _sheet_ref =
         inject<MatBottomSheetRef<ScheduleFilterCardComponent>>(
             MatBottomSheetRef,
@@ -125,71 +120,17 @@ export class ScheduleFilterCardComponent {
     public readonly colors = BOOKING_TYPE_COLORS;
     public readonly bookings = model<(Booking | CalendarEvent)[]>([]);
 
-    public readonly feature_list = [
-        { type: 'desk', feat: 'desks', icon: 'desk', name: 'RESOURCE.DESKS' },
-        {
-            type: 'event',
-            feat: 'spaces',
-            icon: 'meeting_room',
-            name: 'RESOURCE.ROOMS',
-        },
-        {
-            type: 'parking',
-            feat: ['parking', 'parking-requests'],
-            icon: 'drive_eta',
-            name: 'RESOURCE.PARKING',
-        },
-        {
-            type: 'visitor',
-            feat: 'visitor-invite',
-            icon: 'people',
-            name: 'RESOURCE.VISITORS',
-        },
-        {
-            type: 'locker',
-            feat: 'lockers',
-            icon: 'lock',
-            name: 'RESOURCE.LOCKERS',
-        },
-        {
-            type: 'group-event',
-            feat: 'group-events',
-            icon: 'event_available',
-            name: 'RESOURCE.EVENTS',
-        },
-    ];
+    /** The card labels meetings as rooms */
+    public readonly feature_list = SCHEDULE_FILTER_TYPES.map((item) =>
+        item.type === 'event' ? { ...item, name: 'RESOURCE.ROOMS' } : item,
+    );
 
-    public readonly counts = computed(() => {
-        const mapping: Record<string, number> = {};
-        const bkn_list = this.bookings() || [];
-        for (const bkn of bkn_list) {
-            if (bkn instanceof CalendarEvent) {
-                const type = bkn.extension_data?.shared_event
-                    ? 'group-event'
-                    : 'event';
-                mapping[type] = (mapping[type] || 0) + 1;
-            } else {
-                const type = bkn.booking_type;
-                mapping[type] = (mapping[type] || 0) + 1;
-                if (isBookingForOtherUser(bkn)) {
-                    mapping['bookings-for-others'] =
-                        (mapping['bookings-for-others'] || 0) + 1;
-                }
-            }
-        }
-        return mapping;
-    });
+    public readonly counts = computed(() => bookingTypeCounts(this.bookings()));
 
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly toggleBookingsForOthers = () =>
         this._state.toggleBookingsForOthers();
+    public readonly hasFeature = (feature: string[]) =>
+        this._state.hasFeature(feature);
     public readonly dismiss = () => this._sheet_ref.dismiss();
-
-    public hasFeature(feature: string | string[]) {
-        const features = this._settings.get('app.features') || [];
-        if (Array.isArray(feature)) {
-            return feature.some((f) => features.includes(f));
-        }
-        return features.includes(feature);
-    }
 }

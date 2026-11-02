@@ -7,11 +7,11 @@ import {
     signal,
     untracked,
 } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { queryBookings } from '@placeos/bookings';
 import {
     Booking,
     currentUser,
-    firstTruthyValueFrom,
     mapWithLimit,
     OrganisationService,
     SETTING_KEYS,
@@ -30,7 +30,7 @@ import {
     startOfWeek,
     subWeeks,
 } from 'date-fns';
-import { catchError, lastValueFrom, of } from 'rxjs';
+import { AddColleaguesModalComponent } from '../landing-new/add-colleagues-modal.component';
 import { COLLEAGUE_REQUEST_LIMIT, loadContacts } from '../landing/contacts.fn';
 import {
     DayStatus,
@@ -68,6 +68,7 @@ const DEFAULT_FILTERS: TeamScheduleFilters = {
 export class TeamScheduleService {
     private readonly _org = inject(OrganisationService);
     private readonly _settings = inject(SettingsService);
+    private readonly _dialog = inject(MatDialog);
 
     // Filter state
     private readonly _filters = signal<TeamScheduleFilters>({
@@ -703,6 +704,26 @@ export class TeamScheduleService {
             m.user.email === user.email ? { ...m, is_my_team: false } : m,
         );
         this._team_members.set(members);
+    }
+
+    /**
+     * Open the modal to add colleagues. The service loads the colleagues one
+     * time, so load them again when the modal saved new colleagues.
+     */
+    public openAddColleaguesModal() {
+        const dialog_ref = this._dialog.open<
+            AddColleaguesModalComponent,
+            unknown,
+            boolean
+        >(AddColleaguesModalComponent, {
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            panelClass: 'panel',
+            data: {},
+        });
+        dialog_ref.afterClosed().subscribe((added) => {
+            if (added) this.refresh();
+        });
     }
 
     /**

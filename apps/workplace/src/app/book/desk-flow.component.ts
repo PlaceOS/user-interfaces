@@ -65,19 +65,9 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
         if (!id || booking_type !== 'desk') this._state.newForm('desk');
         this._state.model.update((m) => ({ ...m, booking_type: 'desk' }));
         if (id && booking_type === 'desk') {
-            const booking = new Booking(this._state.model() as any);
-            const is_group =
-                !!booking.parent_id ||
-                !!booking.group ||
-                !!booking.extension_data?.group_members?.length;
-            if (is_group) {
-                const members =
-                    await this._state.loadGroupMembersForBooking(booking);
-                this._state.setOptions({
-                    group: true,
-                    members,
-                });
-            }
+            await this._state.restoreGroupMembers(
+                new Booking(this._state.model() as any),
+            );
         }
         this.subscription(
             'route.params',

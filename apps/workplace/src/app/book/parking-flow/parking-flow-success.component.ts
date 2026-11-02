@@ -8,17 +8,9 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import {
-    IconComponent,
-    SafePipe,
-    SanitizePipe,
-    TranslatePipe,
-} from '@placeos/components';
-import {
-    generateCalendarFileLink,
-    generateGoogleCalendarLink,
-    generateMicrosoftCalendarLink,
-} from '@placeos/events';
+import { TranslatePipe } from '@placeos/components';
+import { CalEvent } from '@placeos/events';
+import { BookingCalendarLinksComponent } from '../booking-calendar-links.component';
 
 @Component({
     selector: 'parking-flow-success',
@@ -57,50 +49,10 @@ import {
                 </p>
                 <img class="h-80" src="assets/icons/parking-success.svg" />
                 @if (show_links) {
-                    <div
-                        class="relative flex flex-col items-center space-y-4 p-4"
-                    >
-                        <a
-                            btn
-                            matRipple
-                            name="desk-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="outlook_link() | sanitize: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <img src="assets/icons/outlook.svg" class="w-6" />
-                            <span>{{
-                                'BOOKINGS.LINK_OUTLOOK' | translate
-                            }}</span>
-                        </a>
-                        <a
-                            btn
-                            matRipple
-                            name="desk-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="google_link() | sanitize: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <img src="assets/icons/gcal.svg" class="w-6" />
-                            <span>{{
-                                'BOOKINGS.LINK_GOOGLE' | translate
-                            }}</span>
-                        </a>
-                        <a
-                            btn
-                            matRipple
-                            name="desk-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="ical_link() | safe: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <icon class="text-xl">download</icon>
-                            <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
-                        </a>
-                    </div>
+                    <booking-calendar-links
+                        prefix="desk"
+                        [event]="cal_event()"
+                    />
                 }
             </main>
             <footer
@@ -118,9 +70,7 @@ import {
         RouterModule,
         TranslatePipe,
         MatRippleModule,
-        SafePipe,
-        SanitizePipe,
-        IconComponent,
+        BookingCalendarLinksComponent,
     ],
 })
 export class ParkingFlowSuccessComponent implements OnInit {
@@ -128,9 +78,8 @@ export class ParkingFlowSuccessComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public outlook_link = signal('');
-    public google_link = signal('');
-    public ical_link = signal('');
+    /** Booking that the calendar links add */
+    public readonly cal_event = signal<CalEvent | null>(null);
 
     public get location() {
         if (!this.last_event) return 'Unknown';
@@ -172,8 +121,6 @@ export class ParkingFlowSuccessComponent implements OnInit {
                 .filter(Boolean)
                 .join(', '),
         };
-        this.outlook_link.set(generateMicrosoftCalendarLink(event));
-        this.google_link.set(generateGoogleCalendarLink(event));
-        this.ical_link.set(generateCalendarFileLink(event));
+        this.cal_event.set(event);
     }
 }

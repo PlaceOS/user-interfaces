@@ -9,6 +9,18 @@ import {
 import { toVisitorInternalOrExternal } from './booking-form.model';
 import { removeBooking } from './bookings.fn';
 
+/**
+ * True when `booking` is part of a group booking: it has a parent, a group
+ * reference or a list of group members.
+ */
+export function isGroupBooking(booking?: Booking | null) {
+    return (
+        !!booking?.parent_id ||
+        !!booking?.group ||
+        !!booking?.extension_data?.group_members?.length
+    );
+}
+
 /** Give each new group its own asset ID and preserve it during edits. */
 export function groupName(existing?: string) {
     return existing || `grp-${randomString(24)}`;
