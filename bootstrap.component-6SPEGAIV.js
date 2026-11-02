@@ -25,7 +25,7 @@ import {
   OrganisationService,
   Space,
   VERSION
-} from "./chunk-GXE2KRJM.js";
+} from "./chunk-47S5TWGX.js";
 import {
   Ra
 } from "./chunk-ZOCOXZLM.js";
@@ -362,7 +362,8 @@ var _SystemBootstrapComponent = class _SystemBootstrapComponent {
       /* istanbul ignore next */
       {}
     )), {
-      params: () => this._debounced_search.value(),
+      // Wait for the organisation so the search is scoped to its zone
+      params: () => this._org.initialised() ? this._debounced_search.value() : "",
       loader: async ({ params: search }) => {
         var _a;
         if (search.length < 2)
@@ -633,7 +634,7 @@ var SystemBootstrapComponent = _SystemBootstrapComponent;
   }], () => [], { store_key: [{ type: Input, args: [{ isSignal: true, alias: "store_key", required: true }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: true }] }], submit_label: [{ type: Input, args: [{ isSignal: true, alias: "submit_label", required: false }] }], system_route: [{ type: Input, args: [{ isSignal: true, alias: "system_route", required: true }] }], configured: [{ type: Output, args: ["configured"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SystemBootstrapComponent, { className: "SystemBootstrapComponent", filePath: "libs/components/src/lib/system-bootstrap.component.ts", lineNumber: 193 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SystemBootstrapComponent, { className: "SystemBootstrapComponent", filePath: "libs/components/src/lib/system-bootstrap.component.ts", lineNumber: 194 });
 })();
 
 // apps/booking-panel/src/app/bootstrap.component.ts
@@ -694,5 +695,5 @@ var BootstrapComponent = _BootstrapComponent;
 export {
   BootstrapComponent
 };
-//# debugId=5d4e1aa0-400c-5413-840d-c1a420b836b4
-//# sourceMappingURL=bootstrap.component-OCSCWHZG.js.map
+//# debugId=b1359ae4-7b46-53de-97a6-7b96a42ab5ff
+//# sourceMappingURL=bootstrap.component-6SPEGAIV.js.map
