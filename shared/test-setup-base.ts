@@ -2,7 +2,7 @@
 // also load `test-setup.ts` after this file. Add both as `setupFiles` (not
 // imports): the root package marks modules as free of side effects, so the
 // bundler drops side-effect-only imports.
-import { Spectator } from '@ngneat/spectator';
+import { defineGlobalsInjections, Spectator } from '@ngneat/spectator';
 import { setNotifyOutlet } from '@placeos/common';
 import { TextDecoder, TextEncoder } from 'util';
 import { installTestStorage } from '../libs/common/src/test-storage';
@@ -10,6 +10,12 @@ import { installTestStorage } from '../libs/common/src/test-storage';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 installTestStorage();
+
+// Spectator turns off TestBed teardown by default, so root services are never
+// destroyed. Their timers then fire after the test environment has gone and
+// fail the run with an unhandled error. Destroy the testing module after each
+// test so `ngOnDestroy` runs.
+defineGlobalsInjections({ teardown: { destroyAfterEach: true } });
 
 // Under the zoneless unit-test builder, `fixture.detectChanges()` only
 // refreshes views that were explicitly marked dirty. Plain host-property
