@@ -297,7 +297,8 @@ export class ChatComponent extends AsyncHandler implements OnInit {
 
     public sendMessage() {
         if (!this.message()) return;
-        this._chat.sendMessage(this.message());
+        // Keep the text in the input if the chat cannot connect
+        if (!this._chat.sendMessage(this.message())) return;
         this.message.set('');
         this.height.set(56);
         setTimeout(() => this._input_el().nativeElement.focus(), 100);

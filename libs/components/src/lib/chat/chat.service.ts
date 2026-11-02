@@ -4,7 +4,9 @@ import {
     OrganisationService,
     SettingsService,
     currentUser,
+    i18n,
     log,
+    notifyError,
     randomString,
 } from '@placeos/common';
 import { apiKey, getModule, token } from '@placeos/ts-client';
@@ -111,23 +113,40 @@ export class ChatService extends AsyncHandler {
     /**
      * Sends a message to the chat. Opens a new connection first if the chat
      * has ended, for example after the idle timeout or `close()`.
+     * Returns `false` and shows an error if no chat system is set, so the
+     * caller can keep the message. An error also shows if the connection
+     * closes before it opens.
      */
-    public sendMessage(message: string) {
-        if (!message) return;
+    public sendMessage(message: string): boolean {
+        if (!message) return false;
 
         const current = this._socket;
         if (!current || current.readyState >= WebSocket.CLOSING) {
             this._cleanup(current);
             this.startChat();
         }
-        this._onMessage({ chat_id: '', message, user_id: currentUser().id });
         const socket = this._socket;
-        // Sending before the socket opens throws, so wait for it to open
-        if (socket?.readyState === WebSocket.CONNECTING) {
-            socket.addEventListener('open', () => socket.send(message), {
-                once: true,
-            });
-        } else socket?.send(message);
+        if (!socket) {
+            notifyError(i18n('APP.WORKPLACE.CHAT_SEND_FAILED'));
+            return false;
+        }
+        this._onMessage({ chat_id: '', message, user_id: currentUser().id });
+        // Sending before the socket opens throws, so wait for it to open.
+        // A socket that fails before it opens always fires `close`.
+        if (socket.readyState === WebSocket.CONNECTING) {
+            const failed = () =>
+                notifyError(i18n('APP.WORKPLACE.CHAT_SEND_FAILED'));
+            socket.addEventListener(
+                'open',
+                () => {
+                    socket.removeEventListener('close', failed);
+                    socket.send(message);
+                },
+                { once: true },
+            );
+            socket.addEventListener('close', failed, { once: true });
+        } else socket.send(message);
+        return true;
     }
 
     private _timeoutSocket(delay = 55 * 1000) {

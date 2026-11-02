@@ -14,7 +14,7 @@ describe('ChatComponent', () => {
         chat_hint: signal(''),
         messages: signal<ChatMessage[]>([]),
         progress: signal<ChatMessage | null>(null),
-        sendMessage: vi.fn(),
+        sendMessage: vi.fn(() => true),
         close: vi.fn(),
     };
 
@@ -67,6 +67,16 @@ describe('ChatComponent', () => {
         expect(chat_mock.sendMessage).toHaveBeenCalledWith('Hello there');
         expect(spectator.component.message()).toBe('');
         vi.advanceTimersByTime(200);
+    });
+
+    it('should keep the message when the chat cannot connect', () => {
+        chat_enabled.set(true);
+        spectator.component.show.set(true);
+        spectator.detectChanges();
+        chat_mock.sendMessage.mockReturnValueOnce(false);
+        spectator.component.message.set('Hello there');
+        spectator.component.sendMessage();
+        expect(spectator.component.message()).toBe('Hello there');
     });
 
     it('should toggle the progress detail when tapped', () => {

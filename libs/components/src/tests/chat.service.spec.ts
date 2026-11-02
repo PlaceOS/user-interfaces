@@ -3,7 +3,11 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    OrganisationService,
+    setNotifyOutlet,
+    SettingsService,
+} from '@placeos/common';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -12,14 +16,23 @@ import { ChatService } from '../lib/chat/chat.service';
 
 /** WebSocket stand-in that records instances */
 class FakeSocket {
+    public static readonly CONNECTING = 0;
+    public static readonly OPEN = 1;
+    public static readonly CLOSING = 2;
     public static instances: FakeSocket[] = [];
-    public readyState = 1;
+    public readyState = FakeSocket.OPEN;
     public onmessage: ((e: MessageEvent) => void) | null = null;
     public onerror: ((e: Event) => void) | null = null;
     public onclose: (() => void) | null = null;
     public close = vi.fn();
     public send = vi.fn();
-    public addEventListener = vi.fn();
+    public listeners: Record<string, () => void> = {};
+    public addEventListener = vi.fn(
+        (name: string, fn: () => void) => (this.listeners[name] = fn),
+    );
+    public removeEventListener = vi.fn(
+        (name: string) => delete this.listeners[name],
+    );
     constructor(public url: string) {
         FakeSocket.instances.push(this);
     }
@@ -42,7 +55,18 @@ describe('ChatService', () => {
         ],
     });
 
+    // Workspace modules cannot be mocked here, so spy on the snackbar outlet
+    // that `notifyError` uses
+    const snackbar = {
+        open: vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        })),
+    };
+
     beforeEach(() => {
+        snackbar.open.mockClear();
+        setNotifyOutlet(snackbar as never);
         FakeSocket.instances = [];
         (window as unknown as { WebSocket: unknown }).WebSocket = FakeSocket;
         vi.mocked(client.getModule).mockImplementation(
@@ -86,5 +110,40 @@ describe('ChatService', () => {
 
         expect(FakeSocket.instances).toHaveLength(2);
         expect(FakeSocket.instances[1].send).toHaveBeenCalledWith('Hello');
+    });
+
+    it('should not show a message that it cannot send', () => {
+        spectator.service.setBinding('');
+
+        expect(spectator.service.sendMessage('Hello')).toBe(false);
+
+        expect(FakeSocket.instances).toHaveLength(0);
+        expect(spectator.service.messages()).toEqual([]);
+        expect(snackbar.open).toHaveBeenCalled();
+    });
+
+    it('should show an error if the chat closes before it opens', () => {
+        spectator.service.startChat();
+        const socket = FakeSocket.instances[0];
+        socket.readyState = FakeSocket.CONNECTING;
+
+        expect(spectator.service.sendMessage('Hello')).toBe(true);
+        socket.listeners['close']();
+
+        expect(socket.send).not.toHaveBeenCalled();
+        expect(snackbar.open).toHaveBeenCalled();
+    });
+
+    it('should send the message once the chat opens', () => {
+        spectator.service.startChat();
+        const socket = FakeSocket.instances[0];
+        socket.readyState = FakeSocket.CONNECTING;
+
+        spectator.service.sendMessage('Hello');
+        socket.listeners['open']();
+
+        expect(socket.send).toHaveBeenCalledWith('Hello');
+        expect(socket.listeners['close']).toBeUndefined();
+        expect(snackbar.open).not.toHaveBeenCalled();
     });
 });
