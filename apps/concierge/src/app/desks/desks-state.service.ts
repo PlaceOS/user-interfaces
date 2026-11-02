@@ -35,6 +35,7 @@ import {
     AsyncHandler,
     Booking,
     BuildingLevel,
+    csvToJson,
     Desk,
     downloadFile,
     getTimezoneDifferenceInHours,
@@ -508,6 +509,17 @@ export class DesksStateService extends AsyncHandler {
             return row;
         });
         downloadFile('desks.csv', jsonToCsv(rows));
+    }
+
+    /** Save the desks in CSV text. Rows without an `id` get a new one. */
+    public importDesksCsv(csv: string) {
+        const rows: Partial<Desk>[] = csvToJson(csv) || [];
+        return this.addDesks(
+            rows.map((row) => ({
+                ...row,
+                id: row.id || `desk-${randomInt(999_999)}`,
+            })),
+        );
     }
 
     /**

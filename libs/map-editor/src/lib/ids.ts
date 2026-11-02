@@ -1,9 +1,5 @@
 import { ID_PATTERN, REFERENCE_ATTRS } from './constants';
 
-export function isValidId(id: string): boolean {
-    return ID_PATTERN.test(id);
-}
-
 export function idIssue(id: string): string | null {
     if (!id) return 'id is empty';
     if (/^[^A-Za-z]/.test(id)) return `id "${id}" must start with a letter`;

@@ -2,7 +2,6 @@ import {
     Component,
     computed,
     effect,
-    forwardRef,
     input,
     OnDestroy,
     signal,
@@ -11,13 +10,13 @@ import {
     ControlValueAccessor,
     FormControl,
     FormGroup,
-    NG_VALUE_ACCESSOR,
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { provideValueAccessor } from '@placeos/common';
 import { Subscription } from 'rxjs';
 import { SettingsToggleComponent } from './settings-toggle.component';
 
@@ -195,13 +194,7 @@ export function buildFormFromFields(
         }
     `,
     styles: [``],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => SchemaFormComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => SchemaFormComponent)],
     imports: [
         ReactiveFormsModule,
         MatFormFieldModule,

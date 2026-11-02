@@ -1,4 +1,4 @@
-import { padString, predictableRandomInt } from '@placeos/common';
+import { padLength, predictableRandomInt } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_MENU } from './catering.data';
 import { MOCK_STAFF } from './users.data';
@@ -59,7 +59,6 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/zones',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             let zones = all_zones();
@@ -82,7 +81,6 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/zones/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const zone = all_zones().find(
@@ -100,21 +98,18 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/settings',
-        metadata: {},
         method: 'GET',
         callback: (_request) => [],
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/settings/:id',
-        metadata: {},
         method: 'GET',
         callback: (_request) => ({}),
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             if (request.query_params.name === 'bindings') {
@@ -239,7 +234,6 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id',
-        metadata: {},
         method: 'PATCH',
         callback: (request) => {
             if (!MOCK_METADATA[request.route_params.id])
@@ -252,7 +246,6 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id',
-        metadata: {},
         method: 'PUT',
         callback: (request) => {
             if (!MOCK_METADATA[request.route_params.id])
@@ -269,8 +262,8 @@ export function registerMockZones() {
         return {
             desks: {
                 details: new Array(30).fill(0).map((_, idx) => ({
-                    id: `table-${padString(id, 2)}.${padString(idx + 1, 3)}`,
-                    name: `Desk ${id}.${padString(idx + 1, 3)}`,
+                    id: `table-${padLength(id, 2)}.${padLength(idx + 1, 3)}`,
+                    name: `Desk ${id}.${padLength(idx + 1, 3)}`,
                     bookable: predictableRandomInt(9999) % 4 !== 0,
                     groups:
                         predictableRandomInt(9999) % 4 === 0 ? ['test-1'] : [],
@@ -287,7 +280,7 @@ export function registerMockZones() {
             LOCKERS[id] = {
                 lockers: {
                     details: new Array(6).fill(0).map((_, idx) => {
-                        const position = padString(idx + 1, 2);
+                        const position = padLength(idx + 1, 2);
                         const assignee =
                             predictableRandomInt(9999) % 4 === 0
                                 ? MOCK_STAFF[
@@ -301,7 +294,7 @@ export function registerMockZones() {
                             name: `Bank ${position}`,
                             height: 3,
                             lockers: new Array(18).fill(0).map((_, idx2) => ({
-                                id: `locker-${position}.${padString(
+                                id: `locker-${position}.${padLength(
                                     idx2 + 1,
                                     3,
                                 )}`,
@@ -322,7 +315,6 @@ export function registerMockZones() {
 
     registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id/children',
-        metadata: {},
         method: 'GET',
         callback: (request) => {
             const zone = MOCK_BUILDINGS.find(

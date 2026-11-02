@@ -28,19 +28,6 @@ export const DIETARY_RESTRICTIONS = [
     { id: 'paleo', name: 'Paleo', icon: '🥩' },
 ];
 
-export const CATERING_CATEGORIES = [
-    { id: 'beverages', name: 'Beverages', order: 1 },
-    { id: 'breakfast', name: 'Breakfast', order: 2 },
-    { id: 'pastries', name: 'Pastries & Baked Goods', order: 3 },
-    { id: 'salads', name: 'Salads', order: 4 },
-    { id: 'sandwiches', name: 'Sandwiches & Wraps', order: 5 },
-    { id: 'hot-meals', name: 'Hot Meals', order: 6 },
-    { id: 'appetizers', name: 'Appetizers', order: 7 },
-    { id: 'desserts', name: 'Desserts', order: 8 },
-    { id: 'platters', name: 'Platters & Sharing', order: 9 },
-    { id: 'snacks', name: 'Snacks', order: 10 },
-];
-
 export const MOCK_MENU = [
     // Beverages
     {

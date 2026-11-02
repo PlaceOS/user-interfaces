@@ -17,7 +17,6 @@ import {
     DeskQrItem,
     DesksStateService,
 } from '../../app/desks/desks-state.service';
-import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
 import { DesksComponent } from '../../app/desks/desks.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
@@ -52,7 +51,6 @@ describe('DesksComponent', () => {
         component: DesksComponent,
         declarations: [
             MockComponent(ApplicationSidebarComponent),
-            MockComponent(DesksTopbarComponent),
             MockComponent(IconComponent),
             MockComponent(SearchbarComponent),
         ],

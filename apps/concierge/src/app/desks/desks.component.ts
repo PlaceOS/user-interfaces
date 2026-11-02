@@ -19,13 +19,11 @@ import {
 import {
     AsyncHandler,
     BuildingLevel,
-    csvToJson,
     downloadFile,
     jsonToCsv,
     loadTextFileFromInputEvent,
     notifyError,
     OrganisationService,
-    randomInt,
     settingSignal,
     SettingsService,
 } from '@placeos/common';
@@ -530,13 +528,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             throw e;
         });
         try {
-            const list = csvToJson(data) || [];
-            this._state.addDesks(
-                list.map((_) => ({
-                    ..._,
-                    id: _.id || `desk-${randomInt(999_999)}`,
-                })),
-            );
+            this._state.importDesksCsv(data);
         } catch (e) {
             console.error(e);
         }

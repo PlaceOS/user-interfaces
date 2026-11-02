@@ -32,16 +32,6 @@ export const ATTR_ALLOW_LIST: ReadonlySet<string> = new Set([
 /** Properties `set_style_rule` declarations may carry. */
 export const STYLE_PROPERTY_ALLOW_LIST: ReadonlySet<string> = ATTR_ALLOW_LIST;
 
-/** Attributes that are never set through `set_attr`, whatever the value. */
-export const ATTR_DENY_LIST: ReadonlySet<string> = new Set([
-    'id',
-    'transform',
-    'href',
-    'xlink:href',
-    'style',
-    'src',
-]);
-
 const DATA_ATTR = /^data-[a-z][a-z0-9_-]*$/i;
 
 /** Names `set_attr` and `insert_shape` may write: the allow-list, or `data-*` outside the editor prefix. */

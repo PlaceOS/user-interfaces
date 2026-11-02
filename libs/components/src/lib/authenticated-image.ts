@@ -1,5 +1,4 @@
-import { ChangeDetectorRef, Pipe, PipeTransform, inject } from '@angular/core';
-import { apiKey, authority, token } from '@placeos/ts-client';
+import { apiKey, token } from '@placeos/ts-client';
 
 const MAX_CACHED_IMAGES = 64;
 const MAX_FAILED_LOADS = 64;
@@ -8,7 +7,7 @@ const LEGACY_CACHE_NAME = 'PlaceOS.image-cache-v1';
 const LEGACY_CACHE_KEYS = 'PlaceOS.image-cache-keys-v1';
 
 /** Shared, bounded object URL cache for authenticated media. */
-export const IMAGE_STORE = new Map<string, string>();
+const IMAGE_STORE = new Map<string, string>();
 const IMAGE_LOADS = new Map<string, Promise<string>>();
 const FAILED_LOADS = new Map<string, number>();
 let _legacy_cache_removed = false;
@@ -42,10 +41,6 @@ export function clearAuthenticatedImageCache(): void {
     for (const url of IMAGE_STORE.values()) URL.revokeObjectURL(url);
     IMAGE_STORE.clear();
     FAILED_LOADS.clear();
-}
-
-export function canLoadAuthenticatedImage(source: string): boolean {
-    return (FAILED_LOADS.get(source) || 0) <= Date.now();
 }
 
 function cacheObjectUrl(source: string, url: string): string {
@@ -85,7 +80,7 @@ export function setAuthCookie(cookie_path: string): void {
     }`;
 }
 
-export function authHeaders(): Record<string, string> {
+function authHeaders(): Record<string, string> {
     const tkn = token();
     return tkn === 'x-api-key'
         ? { 'X-API-Key': apiKey() }
@@ -140,39 +135,4 @@ async function loadImage(
         .finally(() => IMAGE_LOADS.delete(source));
     IMAGE_LOADS.set(source, load);
     return load;
-}
-
-@Pipe({
-    name: 'authenticatedImage,authImage',
-    pure: false,
-})
-export class AuthenticatedImagePipe implements PipeTransform {
-    private readonly _change_detector = inject(ChangeDetectorRef);
-    private readonly _loading = new Set<string>();
-
-    public transform(source: string | undefined | null): string {
-        if (!source || typeof source !== 'string') return '';
-        if (!source.includes('/api/engine/v2/uploads')) return source;
-
-        const cached = getCachedAuthenticatedImage(source);
-        if (cached) return cached;
-        if (
-            !authority() ||
-            this._loading.has(source) ||
-            !canLoadAuthenticatedImage(source)
-        ) {
-            return '';
-        }
-
-        this._loading.add(source);
-        void loadAuthenticatedImage(source, '/api/engine/v2/uploads')
-            .catch((error: unknown) =>
-                console.info('Failed to load image:', source, error),
-            )
-            .finally(() => {
-                this._loading.delete(source);
-                this._change_detector.markForCheck();
-            });
-        return '';
-    }
 }

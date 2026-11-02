@@ -7,7 +7,12 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { isMobileSafari, SETTING_KEYS, SettingsService } from '@placeos/common';
+import {
+    isMobileSafari,
+    SETTING_KEYS,
+    SettingsService,
+    toggleListItem,
+} from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -298,10 +303,7 @@ export class DeskSelectModalComponent {
         const fav_list =
             this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) ||
             this.favorites();
-        const new_state = !fav_list.includes(item.id);
-        const next_favs = new_state
-            ? [...fav_list, item.id]
-            : fav_list.filter((_) => _ !== item.id);
+        const next_favs = toggleListItem(fav_list, item.id);
         this.favorites.set(next_favs);
         this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, next_favs);
     }

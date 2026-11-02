@@ -8,13 +8,12 @@ import { ExploreDeviceInfoComponent } from '../lib/explore-device-info.component
 vi.mock('@placeos/ts-client');
 
 import { MAP_FEATURE_DATA, SettingsService } from '@placeos/common';
-import { FixedPipe } from 'libs/components/src/lib/fixed.pipe';
 
 describe('ExploreDeviceInfoComponent', () => {
     let spectator: Spectator<ExploreDeviceInfoComponent>;
     const createComponent = createComponentFactory({
         component: ExploreDeviceInfoComponent,
-        ...ngMocks.guts(null, [FixedPipe, PortalModule, OverlayModule]),
+        ...ngMocks.guts(null, [PortalModule, OverlayModule]),
         providers: [
             MockProvider(MAP_FEATURE_DATA, {
                 mac: 'User',

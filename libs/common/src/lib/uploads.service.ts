@@ -1,16 +1,6 @@
-import {
-    EnvironmentInjector,
-    inject,
-    Injectable,
-    InjectionToken,
-    signal,
-    Type,
-    WritableSignal,
-} from '@angular/core';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 import { apiKey, authorise, token } from '@placeos/ts-client';
-import { firstValueFrom } from 'rxjs';
 import { AsyncHandler } from './async-handler.class';
-import { log } from './general';
 
 import { randomString } from './general';
 
@@ -36,17 +26,6 @@ export interface UploadDetails {
 }
 
 export type UploadPermissions = 'none' | 'support' | 'admin';
-
-/**
- * Rejection raised when the user dismisses the upload permissions modal.
- * Lets consumers skip error messaging for a deliberate cancellation.
- */
-export class UploadCancelledError extends Error {
-    constructor() {
-        super('Upload cancelled');
-        this.name = 'UploadCancelledError';
-    }
-}
 
 /** Failure of an upload, carrying the details of the attempt that failed */
 export class UploadFailedError extends Error {
@@ -81,19 +60,10 @@ function uploadFailure(details: any) {
     );
 }
 
-export const UPLOAD_PERMISSIONS_MODAL = new InjectionToken<Type<any>>(
-    'UploadPermissionsModalComponent',
-);
-
 @Injectable({
     providedIn: 'root',
 })
 export class UploadsService extends AsyncHandler {
-    private _injector = inject(EnvironmentInjector);
-    private _permissions_modal = inject(UPLOAD_PERMISSIONS_MODAL, {
-        optional: true,
-    });
-
     private _upload_list = signal<UploadDetails[]>([]);
 
     public readonly upload_list = this._upload_list.asReadonly();
@@ -124,24 +94,6 @@ export class UploadsService extends AsyncHandler {
             (file) => file.progress < 100 && !file.error,
         );
         this._upload_list.set(in_progress_list);
-    }
-
-    public async uploadFileWithPermissions(file: File, default_public = false) {
-        if (!this._permissions_modal) {
-            log(
-                'UPLOAD',
-                'Permissions modal not initialized',
-                undefined,
-                'warn',
-            );
-            return this.uploadFile(file, default_public);
-        }
-        const details = await this._askPermissions(file, default_public);
-        return this.uploadFile(
-            details.file,
-            details.is_public,
-            details.permissions,
-        );
     }
 
     public uploadFile(
@@ -189,43 +141,6 @@ export class UploadsService extends AsyncHandler {
         const upload_id = details.upload_id || details.upload?.id || details.id;
         if (!upload_id) throw new Error('Failed to get uploaded file ID');
         return upload_id;
-    }
-
-    public async uploadFileWithPermissionsToCompletion(
-        file: File,
-        default_public = false,
-    ) {
-        if (!this._permissions_modal) {
-            log(
-                'UPLOAD',
-                'Permissions modal not initialized',
-                undefined,
-                'warn',
-            );
-            return this.uploadFileToCompletion(file, default_public);
-        }
-        const details = await this._askPermissions(file, default_public);
-        return this.uploadFileToCompletion(
-            details.file,
-            details.is_public,
-            details.permissions,
-        );
-    }
-
-    /**
-     * Opens the permissions modal and waits for its result. The dialog
-     * service is loaded on demand to keep it out of the initial bundle.
-     */
-    private async _askPermissions(file: File, is_public: boolean) {
-        const { MatDialog } = await import('@angular/material/dialog');
-        const ref = this._injector
-            .get(MatDialog)
-            .open(this._permissions_modal, { data: { file, is_public } });
-        const details = await firstValueFrom(ref.afterClosed(), {
-            defaultValue: null,
-        });
-        if (!details) throw new UploadCancelledError();
-        return details;
     }
 
     public uploadFileWithProgress(

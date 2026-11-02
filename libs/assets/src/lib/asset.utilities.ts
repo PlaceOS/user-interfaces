@@ -9,9 +9,11 @@ import {
     SignalFormRef,
     stringToMinutes,
 } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
 import { isAfter, isBefore, setHours, subHours } from 'date-fns';
-import { AttachedResourceRuleset } from 'libs/components/src/lib/attached-resource-config-modal.component';
+import {
+    AttachedResourceRuleset,
+    zoneRulesetLoader,
+} from 'libs/components/src/lib/attached-resource-config-modal.component';
 
 export function generateAssetCategoryForm(
     category: Partial<PlaceAssetCategory> = {},
@@ -122,21 +124,8 @@ export function generateAssetForm(
     return { model, form: ref_form };
 }
 
-const RULE_REQUESTS: Record<string, Promise<AttachedResourceRuleset[]>> = {};
-
-export function getAssetRulesForZone(zone_id: string, fresh: boolean = false) {
-    if (!zone_id) return Promise.resolve([] as AttachedResourceRuleset[]);
-    if (!RULE_REQUESTS[zone_id] || fresh)
-        RULE_REQUESTS[zone_id] = showMetadata(zone_id, 'assets_config')
-            .then(
-                (_) =>
-                    (_.details instanceof Array
-                        ? _.details
-                        : []) as AttachedResourceRuleset[],
-            )
-            .catch(() => [] as AttachedResourceRuleset[]);
-    return RULE_REQUESTS[zone_id];
-}
+/** Asset rulesets for the zone, cached per zone */
+export const getAssetRulesForZone = zoneRulesetLoader('assets_config');
 
 export function assetAvailable(
     item: AssetGroup,

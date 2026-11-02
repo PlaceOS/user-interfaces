@@ -6,6 +6,7 @@ import {
     OrganisationService,
     SETTING_KEYS,
     SettingsService,
+    toggleListItem,
 } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -54,7 +55,6 @@ const EMPTY_FAVS: string[] = [];
                 >
                     <catering-item-list
                         [active]="displayed()?.custom_id"
-                        [selected]="selected_keys()"
                         [selected_items]="selected()"
                         [favorites]="favorites()"
                         (toggleFav)="toggleFavourite($event.id)"
@@ -179,20 +179,12 @@ export class CateringSelectModalComponent {
     public readonly favorites = computed(() => {
         return (
             this._settings.signal<string[]>(
-                SETTING_KEYS.FAVORITE_DESKS,
+                SETTING_KEYS.FAVORITE_CATERING,
                 EMPTY_FAVS,
                 true,
             )() || EMPTY_FAVS
         );
     });
-
-    public readonly selected_keys = computed(() =>
-        this.selected().map((_) => this.selectionKey(_)),
-    );
-
-    public readonly count = computed(() =>
-        this.selected().reduce((t, i) => t + i.quantity, 0),
-    );
 
     public readonly code = computed(() => {
         this._org.active_building?.();
@@ -283,18 +275,9 @@ export class CateringSelectModalComponent {
     }
 
     public toggleFavourite(item: string) {
-        const fav_list = this.favorites();
-        const new_state = !fav_list.includes(item);
-        if (new_state) {
-            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, [
-                ...fav_list,
-                item,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                SETTING_KEYS.FAVORITE_DESKS,
-                fav_list.filter((_) => _ !== item),
-            );
-        }
+        this._settings.saveUserSetting(
+            SETTING_KEYS.FAVORITE_CATERING,
+            toggleListItem(this.favorites(), item),
+        );
     }
 }

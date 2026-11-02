@@ -2,7 +2,6 @@ import { CommonModule, DatePipe } from '@angular/common';
 import {
     Component,
     computed,
-    forwardRef,
     inject,
     Injector,
     input,
@@ -11,17 +10,13 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import {
-    ControlValueAccessor,
-    FormsModule,
-    NG_VALUE_ACCESSOR,
-    NgControl,
-} from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NgControl } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
     getTimeInTimezone,
     getTimezoneOffsetString,
     markUserDateChange,
+    provideValueAccessor,
     setTimeInTimezone,
 } from '@placeos/common';
 import { addYears, endOfDay, set, startOfDay, startOfMinute } from 'date-fns';
@@ -129,13 +124,7 @@ export enum TimezoneDiffRange {
             }
         `,
     ],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => DateFieldComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => DateFieldComponent)],
     imports: [
         CommonModule,
         FormsModule,
