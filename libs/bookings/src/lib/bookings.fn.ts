@@ -64,8 +64,8 @@ export function isInWaitlistWeek(
     const hour = week_start?.hour ?? 18;
     const minute = week_start?.minute ?? 0;
     const timezone =
-        setting('app.bookings.use_building_timezone') ||
-        setting('app.parking.use_building_timezone')
+        (setting('app.parking.use_building_timezone') ??
+        setting('app.bookings.use_building_timezone'))
             ? building_timezone
             : '';
     const now = Date.now();

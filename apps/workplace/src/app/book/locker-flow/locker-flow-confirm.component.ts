@@ -166,8 +166,8 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
     /** Offset of the timezone that the booking form uses, or empty for local */
     public get tz() {
         const use_building_timezone =
-            this._settings.get('app.bookings.use_building_timezone') ||
-            this._settings.get('app.lockers.use_building_timezone');
+            this._settings.get('app.lockers.use_building_timezone') ??
+            this._settings.get('app.bookings.use_building_timezone');
         const timezone = use_building_timezone
             ? this._org.building?.timezone
             : '';

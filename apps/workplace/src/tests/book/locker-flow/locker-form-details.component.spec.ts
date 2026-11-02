@@ -95,6 +95,13 @@ describe('LockerFormDetailsComponent', () => {
         expect(spectator.component.timezone).toBe('Australia/Sydney');
     });
 
+    it('should let the lockers timezone setting override the bookings setting', () => {
+        settings['app.bookings.use_building_timezone'] = true;
+        expect(spectator.component.timezone).toBe('Australia/Sydney');
+        settings['app.lockers.use_building_timezone'] = false;
+        expect(spectator.component.timezone).toBe('');
+    });
+
     it('should delegate setOptions and setFeature to the service', () => {
         spectator.component.setOptions({ group: true });
         expect(

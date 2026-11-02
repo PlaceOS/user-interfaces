@@ -491,8 +491,8 @@ export class ReportsStateService extends AsyncHandler {
         let end = endOfDay(options.end || start);
         if (
             options.type === 'parking' &&
-            (this._settings.get('app.bookings.use_building_timezone') ||
-                this._settings.get('app.parking.use_building_timezone')) &&
+            (this._settings.get('app.parking.use_building_timezone') ??
+                this._settings.get('app.bookings.use_building_timezone')) &&
             this._org.building?.timezone
         ) {
             const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;

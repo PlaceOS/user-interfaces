@@ -182,7 +182,7 @@
                 },
                 "use_building_timezone": {
                     "type": "boolean",
-                    "description": "Whether booking dates and times are handled in the active building's timezone instead of the local timezone. Affects desks, lockers, visitors and email broadcasts."
+                    "description": "Whether booking dates and times are handled in the active building's timezone instead of the local timezone. Affects desks, lockers, visitors and email broadcasts. Parking uses this value when `parking.use_building_timezone` is unset."
                 },
                 "bookable_hours": {
                     "$ref": "#/$defs/bookable_hours"
@@ -503,7 +503,7 @@
                 },
                 "use_building_timezone": {
                     "type": "boolean",
-                    "description": "Whether parking dates and times are handled in the active building's timezone. The parking pages, the parking report and the parking space select modal use the building timezone when this key or `bookings.use_building_timezone` is `true`."
+                    "description": "Whether parking dates and times are handled in the active building's timezone. The parking pages, the parking report and the parking space select modal read this key. When it is unset, they use `bookings.use_building_timezone`."
                 },
                 "hide_user": {
                     "type": "boolean",

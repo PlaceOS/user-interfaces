@@ -199,6 +199,13 @@ describe('NewDeskFormDetailsComponent', () => {
         expect(spectator.component.timezone).toBe('Australia/Sydney');
     });
 
+    it('should let the desks timezone setting override the bookings setting', () => {
+        settings['app.bookings.use_building_timezone'] = true;
+        expect(spectator.component.timezone).toBe('Australia/Sydney');
+        settings['app.desks.use_building_timezone'] = false;
+        expect(spectator.component.timezone).toBe('');
+    });
+
     it('should compute effective_min_duration from custom options', () => {
         settings['app.desks.min_duration'] = 60;
         settings['app.desks.custom_duration_options'] = [30, 45];

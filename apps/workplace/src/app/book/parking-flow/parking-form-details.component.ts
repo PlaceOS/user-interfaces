@@ -241,8 +241,8 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
     }
 
     public get timezone() {
-        return this._settings.get('app.bookings.use_building_timezone') ||
-            this._settings.get('app.parking.use_building_timezone')
+        return (this._settings.get('app.parking.use_building_timezone') ??
+            this._settings.get('app.bookings.use_building_timezone'))
             ? this._org.building.timezone
             : '';
     }
