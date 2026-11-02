@@ -7,4 +7,11 @@ describe('TIMEZONES_IANA', () => {
         expect(TIMEZONES_IANA).toContain('Australia/Sydney');
         expect(TIMEZONES_IANA).toEqual([...TIMEZONES_IANA].sort());
     });
+
+    it('should use current IANA names in place of legacy names', () => {
+        expect(TIMEZONES_IANA).toContain('Asia/Kolkata');
+        expect(TIMEZONES_IANA).toContain('Europe/Kyiv');
+        expect(TIMEZONES_IANA).not.toContain('Asia/Calcutta');
+        expect(TIMEZONES_IANA).not.toContain('Europe/Kiev');
+    });
 });
