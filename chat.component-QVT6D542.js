@@ -19,7 +19,7 @@ import {
   currentUser,
   current_user,
   settingSignal
-} from "./chunk-KV6S7JWK.js";
+} from "./chunk-X67SZNPY.js";
 import {
   AsyncHandler,
   J,
@@ -3145,4 +3145,4 @@ export {
   ChatComponent
 };
 //# debugId=eb30e917-2825-5683-8e93-55dd69aac9ed
-//# sourceMappingURL=chat.component-PBNSN4EU.js.map
+//# sourceMappingURL=chat.component-QVT6D542.js.map

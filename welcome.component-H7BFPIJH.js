@@ -33,7 +33,7 @@ import {
   SettingsService,
   isPublicMode,
   settingSignal
-} from "./chunk-KV6S7JWK.js";
+} from "./chunk-X67SZNPY.js";
 import {
   AsyncHandler,
   LocaleService
@@ -580,4 +580,4 @@ export {
   WelcomeComponent
 };
 //# debugId=dfaabe13-5c55-59c4-bd02-285374e1de03
-//# sourceMappingURL=welcome.component-VYR7OI2B.js.map
+//# sourceMappingURL=welcome.component-H7BFPIJH.js.map

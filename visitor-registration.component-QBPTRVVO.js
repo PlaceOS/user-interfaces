@@ -2,7 +2,7 @@ import {
   BookingFormService,
   DurationFieldComponent,
   UserSearchFieldComponent
-} from "./chunk-5QEC2VVA.js";
+} from "./chunk-WSRJY4LD.js";
 import "./chunk-SZAKYB7Z.js";
 import {
   minuteClock
@@ -13,19 +13,19 @@ import {
 import {
   MatCheckbox,
   MatCheckboxModule
-} from "./chunk-YLPSETQ4.js";
+} from "./chunk-JOM24BTP.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule
 } from "./chunk-37D7Y2YV.js";
-import "./chunk-LNAE33LB.js";
+import "./chunk-NSW4OPRC.js";
 import {
   AuthenticatedImageDirective
 } from "./chunk-2U3GZAKQ.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-7J3UEPX3.js";
+} from "./chunk-NKBLWBHW.js";
 import {
   MatError,
   MatFormField,
@@ -38,14 +38,14 @@ import "./chunk-H54I6S7Z.js";
 import {
   AnnounceDirective,
   CheckinStateService
-} from "./chunk-P5PLMVS2.js";
-import "./chunk-FVJOEWAI.js";
+} from "./chunk-LHHHDWHV.js";
+import "./chunk-UUX3PFOA.js";
 import {
   VirtualKeyboardComponent
 } from "./chunk-SMXKPZSY.js";
 import {
   FormField
-} from "./chunk-YLHHGPJU.js";
+} from "./chunk-SUKGMUP4.js";
 import {
   TranslatePipe
 } from "./chunk-6LDK3FJ7.js";
@@ -61,7 +61,7 @@ import {
   User,
   isEmptyUser,
   settingSignal
-} from "./chunk-KV6S7JWK.js";
+} from "./chunk-X67SZNPY.js";
 import {
   AsyncHandler,
   getInvalidSignalFields,
@@ -774,4 +774,4 @@ export {
   VisitorRegistrationComponent
 };
 //# debugId=6286fa0d-033f-5ce8-aa0a-7e1811848098
-//# sourceMappingURL=visitor-registration.component-QAJVKPCK.js.map
+//# sourceMappingURL=visitor-registration.component-QBPTRVVO.js.map
