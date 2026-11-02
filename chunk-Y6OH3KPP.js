@@ -5602,8 +5602,9 @@ function csvToJson(csv, delimiter = ",") {
 }
 function jsonToCsv(json, seperator = ",") {
   if (json instanceof Array && json.length > 0) {
-    const keys = Object.keys(json[0]);
-    const valid_keys = keys.filter((key) => key in json[0]);
+    const valid_keys = [
+      ...new Set(json.flatMap((item) => Object.keys(item || {})))
+    ];
     const map_cell = (value) => {
       if (value === null || value === void 0)
         return "";
@@ -7362,15 +7363,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "1947249",
-  "hash": "1947249",
+  "raw": "0966141",
+  "hash": "0966141",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "1947249",
+  "suffix": "0966141",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1793351593035
+  "time": 1793585029244
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -10516,5 +10517,5 @@ export {
   PushNotificationService,
   toQueryString
 };
-//# debugId=3efe2461-c90d-5306-9aa7-1e359fcb06ef
-//# sourceMappingURL=chunk-J6MPVJN4.js.map
+//# debugId=95ddf429-baa6-51ca-acd0-d717e3adb714
+//# sourceMappingURL=chunk-Y6OH3KPP.js.map
