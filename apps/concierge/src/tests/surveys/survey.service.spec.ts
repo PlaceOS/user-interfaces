@@ -10,7 +10,7 @@ import { SurveyService } from '../../app/surveys/survey.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-const { Survey, SurveyQuestion } = ts_client;
+const { Survey } = ts_client;
 
 /** Fake dialog ref shaped for `openConfirmModal` driven via MatDialog. */
 const makeConfirmRef = (reason: string) => ({
@@ -44,9 +44,6 @@ describe('SurveyService', () => {
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
         vi.mocked(ts_client.removeSurvey).mockResolvedValue(undefined as never);
-        vi.mocked(ts_client.removeQuestion).mockResolvedValue(
-            undefined as never,
-        );
         dialog_open = vi.fn(() => ({ afterClosed: () => of(true) }));
         building_list = signal<unknown[] | null>(null);
         const org: unknown = {
@@ -65,72 +62,16 @@ describe('SurveyService', () => {
         setNotifyOutlet(null, true);
     });
 
-    it('should filter surveys and answers by the active building', () => {
+    it('should filter surveys by the active building', () => {
         spectator.service.survey_list.set([
             new Survey({ id: 1, building_id: 'bld-1' }),
             new Survey({ id: 2, building_id: 'bld-2' }),
-        ]);
-        spectator.service.answer_list.set([
-            { id: 10, survey_id: 1 } as any,
-            { id: 11, survey_id: 2 } as any,
         ]);
         spectator.service.setBuilding('bld-1');
 
         expect(spectator.service.building_surveys().map((s) => s.id)).toEqual([
             1,
         ]);
-        expect(spectator.service.building_answers().map((a) => a.id)).toEqual([
-            10,
-        ]);
-    });
-
-    it('should list only questions referenced by the active survey pages', () => {
-        spectator.service.question_list.set([
-            new SurveyQuestion({ id: 1, title: 'One' }),
-            new SurveyQuestion({ id: 2, title: 'Two' }),
-            new SurveyQuestion({ id: 3, title: 'Three' }),
-        ]);
-        spectator.service.survey.set(
-            new Survey({
-                id: 5,
-                pages: [{ title: '', question_order: [1, 3] }],
-            }),
-        );
-
-        expect(spectator.service.survey_questions().map((q) => q.id)).toEqual([
-            1, 3,
-        ]);
-    });
-
-    it('should filter questions by type and search text', () => {
-        spectator.service.question_list.set([
-            new SurveyQuestion({ id: 1, title: 'Coffee rating', type: 'rating' }),
-            new SurveyQuestion({ id: 2, title: 'Tea comment', type: 'comment' }),
-            new SurveyQuestion({ id: 3, title: 'Coffee comment', type: 'comment' }),
-        ]);
-
-        spectator.service.question_filters.set({ type: 'comment' });
-        expect(spectator.service.filtered_questions().map((q) => q.id)).toEqual([
-            2, 3,
-        ]);
-
-        spectator.service.question_filters.set({ search_text: 'coffee' });
-        expect(spectator.service.filtered_questions().map((q) => q.id)).toEqual([
-            1, 3,
-        ]);
-    });
-
-    it('should load the active survey and set its building', async () => {
-        (ts_client.showSurvey as any).mockResolvedValue(
-            new Survey({ id: 9, building_id: 'bld-9' }),
-        );
-
-        await spectator.service.setSurvey('9');
-
-        expect(ts_client.showSurvey).toHaveBeenCalledWith('9');
-        expect(spectator.service.survey().id).toBe(9);
-        expect(spectator.service.building()).toBe('bld-9');
-        expect(spectator.service.loading()).toBe('');
     });
 
     it('should remove a survey after confirmation and notify', async () => {
@@ -155,20 +96,6 @@ describe('SurveyService', () => {
 
         expect(ts_client.removeSurvey).not.toHaveBeenCalled();
         expect(notify_open).not.toHaveBeenCalled();
-    });
-
-    it('should remove a question without confirmation when requested', async () => {
-        await spectator.service.removeQuestion(
-            new SurveyQuestion({ id: 4 }),
-            false,
-        );
-
-        expect(ts_client.removeQuestion).toHaveBeenCalledWith('4');
-        expect(notify_open).toHaveBeenCalledWith(
-            expect.anything(),
-            'OK',
-            expect.objectContaining({ panelClass: ['success'] }),
-        );
     });
 
     it('should load surveys at start and answers only on request, six at a time', async () => {

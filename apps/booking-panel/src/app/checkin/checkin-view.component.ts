@@ -10,7 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, notifyError } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { TranslatePipe } from '@placeos/components';
 import { getNextFreeTimeSlot } from '@placeos/events';
 import { currentPeriod, nextPeriod } from '../new-panel/helpers';
 import { PanelStateService } from '../panel-state.service';
@@ -176,61 +176,6 @@ const SLOT_MINUTES = 15;
                 (event)="bookSlot($event)"
             ></checkin-timetable>
         </div>
-        @if (false) {
-            <h3 class="p-4 text-xl font-medium">
-                {{ 'COMMON.FEATURES' | translate }}
-            </h3>
-        }
-        @if (false) {
-            <div
-                class="divide-base-200 bg-base-100 h-px flex-1 divide-y overflow-auto"
-            >
-                <button btn matRipple class="flex w-full items-center p-4">
-                    <div
-                        class="bg-neutral rounded-full p-2 text-2xl text-black/40"
-                    >
-                        <icon>lightbulb</icon>
-                    </div>
-                    <div class="flex-1 px-4 text-left font-medium">
-                        {{ 'APP.BOOKING_PANEL.LIGHTS_BLINDS' | translate }}
-                    </div>
-                    <icon class="text-2xl opacity-40">chevron_right</icon>
-                </button>
-                <button btn matRipple class="flex w-full items-center p-4">
-                    <div
-                        class="bg-neutral rounded-full p-2 text-2xl text-black/40"
-                    >
-                        <icon>add_to_queue</icon>
-                    </div>
-                    <div class="flex-1 px-4 text-left font-medium">
-                        {{ 'APP.BOOKING_PANEL.TV' | translate }}
-                    </div>
-                    <icon class="text-2xl opacity-40">chevron_right</icon>
-                </button>
-                <button btn matRipple class="flex w-full items-center p-4">
-                    <div
-                        class="bg-neutral rounded-full p-2 text-2xl text-black/40"
-                    >
-                        <icon>restaurant</icon>
-                    </div>
-                    <div class="flex-1 px-4 text-left font-medium">
-                        {{ 'RESOURCE.CATERING' | translate }}
-                    </div>
-                    <icon class="text-2xl opacity-40">chevron_right</icon>
-                </button>
-                <button btn matRipple class="flex w-full items-center p-4">
-                    <div
-                        class="bg-neutral rounded-full p-2 text-2xl text-black/40"
-                    >
-                        <icon>help</icon>
-                    </div>
-                    <div class="flex-1 px-4 text-left font-medium">
-                        {{ 'APP.BOOKING_PANEL.HELP' | translate }}
-                    </div>
-                    <icon class="text-2xl opacity-40">chevron_right</icon>
-                </button>
-            </div>
-        }
     `,
     styles: [
         `
@@ -246,12 +191,7 @@ const SLOT_MINUTES = 15;
         `,
     ],
     providers: [PanelStateService],
-    imports: [
-        IconComponent,
-        TranslatePipe,
-        MatRippleModule,
-        CheckinTimetableComponent,
-    ],
+    imports: [TranslatePipe, MatRippleModule, CheckinTimetableComponent],
 })
 export class CheckinViewComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);

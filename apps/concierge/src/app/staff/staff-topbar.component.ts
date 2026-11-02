@@ -81,9 +81,7 @@ export class StaffTopbarComponent extends AsyncHandler implements OnInit {
     public readonly levels = signal<any[]>([]);
 
     public readonly filters = signal<any>({});
-    /** Set filtered date */
-    public readonly setDate = (date) => this._state.setFilters({ date });
-    /** Set filtered date */
+    /** Set filters */
     public readonly setFilters = (filters) => this._state.setFilters(filters);
     /** Set filter string */
     public readonly setSearch = (str) => this._state.setSearchString(str);

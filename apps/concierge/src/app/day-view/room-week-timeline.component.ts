@@ -222,8 +222,6 @@ export class RoomWeekBookingsTimelineComponent
     private _filtered = this._state.filtered;
     private _zones = this._state.zones;
 
-    public hours = Array.from({ length: 24 }, (_, i) => i);
-    public readonly ui_options = this._state.options;
     public readonly date = this._state.date;
 
     public readonly remove = (event: CalendarEvent) =>

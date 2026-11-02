@@ -25,7 +25,6 @@ import {
 import {
     AsyncHandler,
     BuildingLevel,
-    Identity,
     nextValueFrom,
     OrganisationService,
     SettingsService,
@@ -183,13 +182,6 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     public readonly start = signal(startOfDay(Date.now()).getTime());
     public readonly end = signal(endOfDay(Date.now()).getTime());
 
-    public readonly types: Identity[] = [
-        { id: 'internal', name: 'Internal' },
-        { id: 'external', name: 'External' },
-        { id: 'cancelled', name: 'Cancelled' },
-    ];
-    /** List of selected types */
-    public type_list: string[] = this.types.map((i) => `${i.id}`);
     private readonly _levels = resource({
         params: () => ({
             bld: this._org.active_building(),

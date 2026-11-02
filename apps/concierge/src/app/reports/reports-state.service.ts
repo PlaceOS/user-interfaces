@@ -33,11 +33,7 @@ import {
     timePeriodsIntersect,
     unique,
 } from '@placeos/common';
-import {
-    queryAllEvents,
-    requestSpacesForZone,
-    SpacePipe,
-} from '@placeos/events';
+import { queryAllEvents, requestSpacesForZone } from '@placeos/events';
 import { PlaceAsset, showMetadata } from '@placeos/ts-client';
 import {
     addDays,
@@ -101,7 +97,6 @@ export class ReportsStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _space_pipe: SpacePipe = new SpacePipe(this._org);
     private _loading = signal<string>('');
     private _active_bookings = signal<(CalendarEvent | Booking)[]>([]);
     /** Aborts the page chain of a superseded booking load */
@@ -466,10 +461,6 @@ export class ReportsStateService extends AsyncHandler {
             start = addDays(start, 1);
         }
         return Math.max(1, count);
-    }
-
-    constructor() {
-        super();
     }
 
     /** Load the bookings and the inventory again for the active options */

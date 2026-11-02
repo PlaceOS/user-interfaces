@@ -180,10 +180,6 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
         return this._state.setting('show_qr_code') !== false;
     }
 
-    public get custom_qr() {
-        return !!this._state.setting('custom_qr_url');
-    }
-
     public get hide_qr_text() {
         return this._state.setting('hide_qr_text');
     }

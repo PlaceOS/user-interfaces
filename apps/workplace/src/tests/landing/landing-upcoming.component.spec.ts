@@ -40,7 +40,6 @@ describe('LandingUpcomingComponent', () => {
                     upcoming_events,
                     refreshUpcomingEvents: vi.fn(),
                     pollUpcomingEvents: vi.fn(),
-                    stopPollingUpcomingEvents: vi.fn(),
                 },
             },
             { provide: SettingsService, useValue: { get: vi.fn() } },

@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import { Component, computed, ElementRef, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -287,7 +287,6 @@ export class DesksManageComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
-    private _element = inject(ElementRef);
     private _clipboard = inject(Clipboard);
 
     public readonly loading = signal<string>('');

@@ -264,10 +264,6 @@ export class WelcomeComponent
 
     public ngOnInit() {
         this.level.set(localStorage?.getItem('KIOSK.level'));
-        const params = this.route.snapshot.paramMap;
-        if (params.has('level')) {
-            this.level.set(params.get('level'));
-        }
         const query_params = this.route.snapshot.queryParamMap;
         if (query_params.has('osk')) {
             const osk_enabled = query_params.get('osk') === 'true';

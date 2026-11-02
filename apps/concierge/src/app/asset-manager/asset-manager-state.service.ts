@@ -71,7 +71,6 @@ export type AssetManagerList =
 export interface AssetOptions {
     date?: number;
     search?: string;
-    sort_by?: string;
     view: 'grid' | 'list';
     active_item?: string;
 }
@@ -366,10 +365,6 @@ export class AssetManagerStateService extends AsyncHandler {
 
     public get model() {
         return this._form_ref.model;
-    }
-
-    public get is_new_ui() {
-        return true;
     }
 
     public get base_route() {

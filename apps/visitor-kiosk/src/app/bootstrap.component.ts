@@ -582,23 +582,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         this._router.navigate(route);
     }
 
-    private getActionParamFromUrl() {
-        return (
-            this.getMergedQueryParamsFromUrl().action?.trim().toLowerCase() ||
-            ''
-        );
-    }
-
     private handleQueryParams() {
         const query_params = this.getMergedQueryParamsFromUrl();
         const query_key = JSON.stringify(query_params);
         if (query_key === this._last_query_params) return;
         this._last_query_params = query_key;
-        if (query_params.action) {
-            this._startup_action = query_params.action.trim().toLowerCase();
-        } else {
-            this._startup_action = this.getActionParamFromUrl();
-        }
+        this._startup_action = query_params.action?.trim().toLowerCase() || '';
         if (query_params.osk !== undefined) {
             const osk_enabled = query_params.osk === 'true';
             localStorage.setItem('OSK.enabled', `${osk_enabled}`);

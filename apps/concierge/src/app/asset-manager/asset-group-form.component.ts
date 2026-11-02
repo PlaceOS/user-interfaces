@@ -1,6 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
-import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -161,7 +160,6 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
     private readonly _uses_lists = this._state.use('categories');
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
-    private _dialog = inject(MatDialog);
 
     private readonly _form_ref = generateAssetGroupForm();
     public readonly form = this._form_ref.form;

@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import {
     DurationPipe,
     IconComponent,
@@ -298,7 +298,6 @@ import { SplitJoinPipe } from './split-join.pipe';
 })
 export class AssetRequestDetailsComponent {
     private _state = inject(AssetManagerStateService);
-    private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
     public readonly requestInput = input<any>(undefined, { alias: 'request' });

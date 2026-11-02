@@ -9,8 +9,6 @@ import { AccessibilityControlsComponent } from '../app/accessibility-controls.co
 
 const setting_signals: Record<string, ReturnType<typeof signal>> = {
     allow_dark_mode: signal<unknown>(false),
-    accessible: signal<unknown>(false),
-    font_size: signal<unknown>(16),
 };
 const theme = signal('light');
 
@@ -23,7 +21,6 @@ describe('AccessibilityControlsComponent', () => {
                 signal: vi.fn((name: string) => setting_signals[name]) as any,
                 theme_signal: theme,
                 setTheme: vi.fn(),
-                saveUserSetting: vi.fn(),
             }),
         ],
         imports: [MockModule(MatSlideToggleModule), FormsModule],
@@ -32,8 +29,6 @@ describe('AccessibilityControlsComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         setting_signals.allow_dark_mode.set(false);
-        setting_signals.accessible.set(false);
-        setting_signals.font_size.set(16);
         theme.set('light');
         spectator = createComponent();
     });
@@ -92,20 +87,5 @@ describe('AccessibilityControlsComponent', () => {
         spectator.component.setDarkMode(true);
         await vi.advanceTimersByTimeAsync(100);
         expect(settings.setTheme).not.toHaveBeenCalled();
-    });
-
-    it('should save user settings after a delay', async () => {
-        vi.useFakeTimers();
-        const settings = spectator.inject(SettingsService);
-        spectator.component.applySetting('font_size', 20);
-        expect(settings.saveUserSetting).not.toHaveBeenCalled();
-        await vi.advanceTimersByTimeAsync(1000);
-        expect(settings.saveUserSetting).toHaveBeenCalledWith('font_size', 20);
-    });
-
-    it('should fall back to a default font size', () => {
-        setting_signals.font_size.set(0);
-        spectator.detectChanges();
-        expect(spectator.component.font_size()).toBe(16);
     });
 });

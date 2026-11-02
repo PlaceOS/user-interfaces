@@ -6,9 +6,7 @@ import { BuildingManagementService } from './building-management.service';
 
 import { MatMenuModule } from '@angular/material/menu';
 import {
-    AuthenticatedImageDirective,
     IconComponent,
-    LevelPipe,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -74,19 +72,6 @@ import {
         </ng-template>
         <ng-template #timezone_template let-data="data">
             <div class="p-4 font-mono text-xs">{{ data }}</div>
-        </ng-template>
-        <ng-template #level_template let-data="data">
-            {{ (data | level)?.display_name || (data | level)?.name }}
-        </ng-template>
-        <ng-template #image_template let-data="data">
-            @if (data.length) {
-                <img alt="" auth [source]="data[0]" class="max-h-12 max-w-32" />
-            }
-            @if (!data.length) {
-                <span class="opacity-70">{{
-                    'COMMON.IMAGES_EMPTY' | translate
-                }}</span>
-            }
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center p-2">
@@ -242,11 +227,9 @@ import {
     styles: [``],
     imports: [
         SimpleTableComponent,
-        AuthenticatedImageDirective,
         MatMenuModule,
         TranslatePipe,
         IconComponent,
-        LevelPipe,
     ],
 })
 export class BuildingListComponent {
@@ -255,7 +238,6 @@ export class BuildingListComponent {
     private _dialog = inject(MatDialog);
 
     public readonly buildings = this._manager.filtered_buildings;
-    public settings = {};
 
     public readonly editBuilding = (building) =>
         this._manager.editBuilding(building);

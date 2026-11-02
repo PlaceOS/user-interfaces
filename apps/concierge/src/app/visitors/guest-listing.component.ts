@@ -915,12 +915,6 @@ export class GuestListingComponent extends AsyncHandler {
         return now >= start && now <= end;
     }
 
-    public get logo() {
-        return this._settings.theme === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
-    }
-
     public printVisitorPass(item: Booking) {
         this.qr_code.set(generateQRCode(item.asset_id));
         this.printing.set(item.id);
@@ -939,15 +933,6 @@ export class GuestListingComponent extends AsyncHandler {
             once: true,
         });
         this.timeout('print', () => window.print());
-    }
-
-    public inducted(item: Booking) {
-        if (item.checked_in) return true;
-        return item.induction == 'declined'
-            ? false
-            : item.induction == 'accepted'
-              ? true
-              : null;
     }
 
     constructor() {

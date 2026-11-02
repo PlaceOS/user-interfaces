@@ -88,7 +88,6 @@ export type DeskView = 'manage' | 'events' | 'map';
 export interface DeskFilters {
     date?: number;
     zones?: string[];
-    show_map?: boolean;
     search?: string;
     view?: DeskView;
 }
@@ -862,21 +861,6 @@ export class DesksStateService extends AsyncHandler {
             width: '32rem',
             maxWidth: '100vw',
         });
-    }
-
-    public async giveAccess(desk: Booking) {
-        const status: any = await saveBooking(
-            new Booking({ ...desk, access: true }).toJSON(),
-        ).catch((_) => ({ failed: true, error: _ }));
-        if (status.failed) {
-            return notifyError(
-                i18n('APP.CONCIERGE.DESKS_ACCESS_ERROR', {
-                    error: status.error,
-                }),
-            );
-        }
-        notifySuccess(i18n('APP.CONCIERGE.DESKS_ACCESS_SUCCESS'));
-        this.setFilters({});
     }
 
     public async rejectAllDesks() {

@@ -27,7 +27,6 @@ import {
     Desk,
     DialogEvent,
     notifyInfo,
-    OrganisationService,
     randomString,
     User,
 } from '@placeos/common';
@@ -353,7 +352,6 @@ export class DeskModalComponent implements OnInit {
     private _data = inject<DeskModalData>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<DeskModalComponent>>(MatDialogRef);
-    private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
     public readonly event = output<DialogEvent>();

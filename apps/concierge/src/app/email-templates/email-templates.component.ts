@@ -1,6 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 
 @Component({
@@ -26,22 +25,4 @@ import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
     ],
     imports: [ApplicationSidebarComponent, RouterModule],
 })
-export class EmailTemplatesComponent extends AsyncHandler {
-    private _router = inject(Router);
-
-    private readonly _url = signal<unknown>(null);
-
-    public readonly path = computed(() => {
-        this._url();
-        const parts = this._router.url.split('/');
-        return parts[parts.length - 1].split('?')[0];
-    });
-
-    constructor() {
-        super();
-        this.subscription(
-            'router',
-            this._router.events.subscribe((event) => this._url.set(event)),
-        );
-    }
-}
+export class EmailTemplatesComponent {}

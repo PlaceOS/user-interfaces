@@ -36,7 +36,6 @@ import {
     rejectBookingInstance,
     removeBooking as removeBookingApi,
     saveBooking,
-    setBookingCheckedIn,
     updateBooking,
     updateBookingInstance,
 } from '@placeos/bookings';
@@ -1093,31 +1092,6 @@ export class ParkingStateService extends AsyncHandler {
                 if (id) this._reloadResources();
             });
         });
-    }
-
-    public async setBookingCheckinState(booking: Booking, state = true) {
-        const promise = setBookingCheckedIn(booking, state).catch((_) => ({
-            state: 'failed',
-            error: _,
-        }));
-        const success = await promise;
-        success.state === 'failed'
-            ? notifyError(
-                  i18n(
-                      state
-                          ? 'APP.CONCIERGE.PARKING_CHECKIN_ERROR'
-                          : 'APP.CONCIERGE.PARKING_CHECKOUT_ERROR',
-                      { error: success.error },
-                  ),
-              )
-            : notifySuccess(
-                  i18n(
-                      state
-                          ? 'APP.CONCIERGE.PARKING_CHECKIN_SUCCESS'
-                          : 'APP.CONCIERGE.PARKING_CHECKOUT_SUCCESS',
-                  ),
-              );
-        if (success.state !== 'failed') this._reloadResources();
     }
 
     public async approveBooking(booking: Booking, series = false) {

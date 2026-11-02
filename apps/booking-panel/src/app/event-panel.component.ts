@@ -261,10 +261,6 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
         return this._state.setting('show_qr_code') !== false;
     }
 
-    public get custom_qr() {
-        return !!this._state.setting('custom_qr_url');
-    }
-
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         const params = this._route.snapshot.paramMap;

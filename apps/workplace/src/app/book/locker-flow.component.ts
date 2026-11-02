@@ -114,10 +114,6 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
         void this._loadTodaysBookings();
     }
 
-    public get last_success() {
-        return this._state.last_success;
-    }
-
     public ngOnInit() {
         this._state.loadForm('locker');
         this._state.setOptions({ type: 'locker' });

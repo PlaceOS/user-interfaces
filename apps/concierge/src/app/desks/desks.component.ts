@@ -3,7 +3,6 @@ import {
     computed,
     effect,
     inject,
-    OnDestroy,
     OnInit,
     resource,
     signal,
@@ -308,7 +307,6 @@ import { DesksStateService } from './desks-state.service';
         MatProgressBarModule,
         MatProgressSpinnerModule,
         RouterModule,
-        MatRippleModule,
         FormsModule,
         IconComponent,
         MatRippleModule,
@@ -323,7 +321,7 @@ import { DesksStateService } from './desks-state.service';
         SafePipe,
     ],
 })
-export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
+export class DesksComponent extends AsyncHandler implements OnInit {
     private _state = inject(DesksStateService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
@@ -466,10 +464,6 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         const parts = this._router.url?.split('/') || [''];
         this.path.set(parts[parts.length - 1].split('?')[0]);
         this._updateView();
-    }
-
-    public ngOnDestroy() {
-        super.ngOnDestroy();
     }
 
     public viewQRCodes() {

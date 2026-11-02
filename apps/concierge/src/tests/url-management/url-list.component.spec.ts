@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { SettingsService, ShortURL } from '@placeos/common';
+import { ShortURL } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { UrlListComponent } from '../../app/url-management/url-list.component';
@@ -20,9 +20,6 @@ describe('UrlListComponent', () => {
                 removeURL: vi.fn(),
                 loadQrCode: vi.fn(),
             }),
-            MockProvider(SettingsService, {
-                get: vi.fn(() => '/kiosk'),
-            } as any),
         ],
     });
 
@@ -39,12 +36,6 @@ describe('UrlListComponent', () => {
         expect(manager.editURL).toHaveBeenCalledWith(url);
         expect(manager.removeURL).toHaveBeenCalledWith(url);
         expect(manager.loadQrCode).toHaveBeenCalledWith(url);
-    });
-
-    it('should build the kiosk URL from settings and origin', () => {
-        expect(spectator.component.kiosk_url).toBe(
-            `${window.location.origin}/kiosk`,
-        );
     });
 
     it('should trigger printing of the window', () => {

@@ -26,7 +26,6 @@ import {
     OrganisationService,
     Point,
     SettingsService,
-    unique,
     User,
 } from '@placeos/common';
 import {
@@ -368,8 +367,6 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     public readonly actions = this._state.map_actions;
     /** Signal for the labels map */
     public readonly labels = this._state.map_labels;
-    /** Signal for the active map */
-    public readonly options = this._state.options;
 
     public readonly locate = signal('');
 
@@ -397,7 +394,6 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     @HostListener('window:touchstart') public onTouch = () =>
         this._restartReset();
 
-    public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setLevel = (lvl) => this._state.setLevel(lvl.id);
 
     public updateZoom(zoom: number) {
@@ -406,15 +402,6 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
 
     public updateCenter(center: Point) {
         this._state.setPositions(this._state.positions.zoom, center);
-    }
-
-    public async toggleZones(enabled: boolean) {
-        const options = this.options();
-        const disable = !enabled
-            ? unique([...(options.disable || []), 'zones', 'devices'])
-            : options.disable.filter((_) => _ !== 'zones' && _ !== 'devices') ||
-              [];
-        this.setOptions({ disable });
     }
 
     public readonly can_search = computed(

@@ -7,11 +7,10 @@ import {
     signal,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { notifySuccess, OrganisationService } from '@placeos/common';
+import { notifySuccess } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
     removeQuestion,
-    removeSurvey,
     showSurvey,
     Survey,
     SurveyQuestion,
@@ -34,11 +33,9 @@ export interface QuestionFilters {
     providedIn: 'root',
 })
 export class NewSurveyService {
-    private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
     private _survey_id = signal<string>('');
-    private _bld_id = signal<string>('');
     private _change = signal(0);
     private _question_filters = signal<QuestionFilters>({});
 
@@ -85,41 +82,12 @@ export class NewSurveyService {
         );
     });
 
-    public get building() {
-        return this._org.buildings.find((bld) => bld.id === this._bld_id());
-    }
-
     public setSurvey(id: string) {
         this._survey_id.set(id);
     }
 
-    public setBuilding(id: string) {
-        this._bld_id.set(id);
-    }
-
     public setQuestionFilters(filters: QuestionFilters) {
         this._question_filters.set(filters);
-    }
-
-    public async removeSurvey(survey: Survey, confirm = true) {
-        if (confirm) {
-            const result = await openConfirmModal(
-                {
-                    title: 'Remove Survey',
-                    content: 'Are you sure you want to remove this survey?',
-                    icon: { content: 'warning' },
-                },
-                this._dialog,
-            );
-            if (result.reason !== 'done') return;
-            result.loading('Removing survey...');
-            await removeSurvey(`${survey.id}`);
-            result.close();
-        } else {
-            await removeSurvey(`${survey.id}`);
-        }
-        notifySuccess('Successfully removed survey.');
-        this._change.update((v) => v + 1);
     }
 
     public editQuestion(question = new SurveyQuestion({ type: 'text' })) {

@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
-    EncryptionLevel,
     addSystem,
     showMetadata,
     updateMetadata,
@@ -538,13 +537,6 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
     public settings_form = form(this.settings_model, {
         injector: this._injector,
     });
-    /** Levels of encyption available for the system's settings */
-    public encryption_levels: any[] = [
-        { id: EncryptionLevel.None, name: 'None' },
-        { id: EncryptionLevel.Support, name: 'Support' },
-        { id: EncryptionLevel.Admin, name: 'Admin' },
-        { id: EncryptionLevel.NeverDisplay, name: 'Never Display' },
-    ];
     /** List of separator characters for features */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
 

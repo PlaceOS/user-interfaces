@@ -169,16 +169,6 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
 
     public readonly form_value = this._booking_form.model;
 
-    public readonly has_title = computed(
-        () => !!this.form_value()?.title?.trim(),
-    );
-
-    public readonly has_item = computed(
-        () =>
-            !!this.form_value()?.resources &&
-            this.form_value()?.resources.length > 0,
-    );
-
     public readonly is_edit_mode = computed(() => !!this.form_value()?.id);
     /** Booking type selected in the details step */
     public readonly active_form = signal<DeskFormType>('single');

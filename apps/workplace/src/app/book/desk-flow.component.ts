@@ -53,10 +53,6 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
 
     public readonly view = this._state.view;
 
-    public get last_success() {
-        return this._state.last_success;
-    }
-
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         await new Promise((resolve) => setTimeout(resolve, 300));

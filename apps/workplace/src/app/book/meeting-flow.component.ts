@@ -44,8 +44,6 @@ export class BookMeetingFlowComponent extends AsyncHandler implements OnInit {
     private _space_pipe = inject(SpacePipe);
 
     public readonly view = this._state.view;
-    public readonly last_success = this._state.last_success;
-
     public ngOnInit() {
         this._state.loadForm();
         this.subscription(

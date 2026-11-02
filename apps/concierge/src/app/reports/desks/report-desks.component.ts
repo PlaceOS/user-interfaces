@@ -226,12 +226,4 @@ export class ReportDesksComponent extends AsyncHandler {
             }),
         );
     }
-
-    public print() {
-        this.printing.set(true);
-        setTimeout(() => {
-            window.print();
-            this.printing.set(false);
-        }, 300);
-    }
 }
