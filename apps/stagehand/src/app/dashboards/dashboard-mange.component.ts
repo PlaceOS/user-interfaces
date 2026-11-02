@@ -45,7 +45,7 @@ import { DashboardsService } from './dashboards.service';
                         aria-label="Close dashboard editor"
                         [routerLink]="
                             dashboard()
-                                ? ['/dashboards', dashboard().id]
+                                ? ['/dashboards', dashboard().id, 'alerts']
                                 : ['/dashboards']
                         "
                     >
@@ -134,14 +134,21 @@ export class DashboardManageComponent extends AsyncHandler implements OnInit {
         if (id) this.setDashboard(id);
     }
 
+    /** Set when the dashboard did not load, so save cannot change another one */
+    private readonly _load_failed = signal(false);
+
     public async setDashboard(id: string) {
-        await this._service.setDashboard(id);
+        const loaded = await this._service.setDashboard(id);
+        this._load_failed.set(!loaded);
         const dash = this._service.dashboard();
-        if (dash) this.model.update((m) => ({ ...m, ...dash }));
+        if (loaded && dash) this.model.update((m) => ({ ...m, ...dash }));
     }
 
     public async save() {
         if (this.loading()) return;
+        if (this._load_failed()) {
+            return notifyError('The dashboard did not load. Reload the page.');
+        }
         this.form().markAsTouched();
         if (!this.form().valid()) {
             return notifyError(
@@ -153,7 +160,7 @@ export class DashboardManageComponent extends AsyncHandler implements OnInit {
                 }),
             );
         }
-        this.loading.set(i18n('STAGEHAND.DASHBOARD_LOADING'));
+        this.loading.set(i18n('COMMON.SAVING'));
         // The model holds the loaded dashboard, so a new dashboard takes
         // nothing from one opened before it
         const new_dash = this.model();
@@ -166,6 +173,6 @@ export class DashboardManageComponent extends AsyncHandler implements OnInit {
             return notifyError('Failed to save the dashboard. Try again.');
         }
         this._service.loadDashboards();
-        this._router.navigate(['/dashboards', result.id]);
+        this._router.navigate(['/dashboards', result.id, 'alerts']);
     }
 }

@@ -207,6 +207,17 @@ describe('DashboardsService', () => {
             );
             expect(spectator.service.alerts_list()).toEqual([{ id: 'a1' }]);
         });
+
+        it('should clear the loading flag and report a failed load', async () => {
+            vi.mocked(ts_client.showAlertDashboard).mockRejectedValue(
+                new Error('offline'),
+            );
+
+            await spectator.service.setDashboard('dash-1');
+
+            expect(spectator.service.loading()).not.toContain('DASHBOARD');
+            expect(notify_open).toHaveBeenCalled();
+        });
     });
 
     describe('loadDashboards', () => {

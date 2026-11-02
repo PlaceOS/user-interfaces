@@ -108,9 +108,18 @@ export class ChatService extends AsyncHandler {
         this._chat_messages.set([]);
     }
 
+    /**
+     * Sends a message to the chat. Opens a new connection first if the chat
+     * has ended, for example after the idle timeout or `close()`.
+     */
     public sendMessage(message: string) {
         if (!message) return;
 
+        const current = this._socket;
+        if (!current || current.readyState >= WebSocket.CLOSING) {
+            this._cleanup(current);
+            this.startChat();
+        }
         this._onMessage({ chat_id: '', message, user_id: currentUser().id });
         const socket = this._socket;
         // Sending before the socket opens throws, so wait for it to open

@@ -51,7 +51,9 @@ import {
                         <p>No applications configured for this domain.</p>
                     </div>
                 } @else {
-                    <div class="app-grid">
+                    <div
+                        class="app-grid grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-3"
+                    >
                         @for (app of applications(); track app.id) {
                             <a
                                 class="border-base-300 bg-base-200 text-base-content hover:border-primary focus-visible:border-primary flex flex-col items-center gap-3 rounded-xl border p-4 text-center no-underline transition hover:-translate-y-0.5 hover:shadow-md focus-visible:shadow-md focus-visible:outline-none"
@@ -72,7 +74,11 @@ import {
                                         <span>{{ appInitial(app.name) }}</span>
                                     }
                                 </div>
-                                <div class="app-name">{{ app.name }}</div>
+                                <div
+                                    class="app-name line-clamp-2 text-center text-base/[1.35] font-semibold wrap-break-word"
+                                >
+                                    {{ app.name }}
+                                </div>
                             </a>
                         }
                     </div>
@@ -80,7 +86,7 @@ import {
             </section>
         </main>
     `,
-    styles: [],
+    host: { class: 'block min-h-full' },
     providers: [SettingsService],
 })
 export class AppComponent implements OnInit {

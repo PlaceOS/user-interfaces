@@ -323,5 +323,15 @@ describe('EnrolmentStateService', () => {
             await spectator.service.checkin();
             expect(ts_client.patch).not.toHaveBeenCalled();
         });
+
+        it('should show the error view and stop loading when check-in fails', async () => {
+            (ts_client.post as any).mockRejectedValue(new Error('offline'));
+
+            await spectator.service.checkin();
+
+            expect(spectator.service.error()).toBe('checkin');
+            expect(spectator.service.view()).toBe('error');
+            expect(spectator.service.loading()).toBe('');
+        });
     });
 });

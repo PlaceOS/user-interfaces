@@ -49,7 +49,7 @@ describe('DashboardManageComponent', () => {
         setNotifyOutlet({ open: notify_open } as any, true);
         service = {
             dashboard: signal<unknown>(undefined),
-            setDashboard: vi.fn(),
+            setDashboard: vi.fn(async () => true),
             loadDashboards: vi.fn(),
         };
     });
@@ -92,6 +92,7 @@ describe('DashboardManageComponent', () => {
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/dashboards',
             'new-1',
+            'alerts',
         ]);
     });
 
@@ -148,6 +149,20 @@ describe('DashboardManageComponent', () => {
 
         expect(service.setDashboard).toHaveBeenCalledWith('dash-7');
         expect(spectator.component.model().name).toBe('Loaded');
+    });
+
+    it('should not save over another dashboard when the load fails', async () => {
+        service.dashboard.set({ id: 'dash-1', name: 'Previous' });
+        service.setDashboard = vi.fn(async () => false);
+        build({ params: { id: 'dash-2' } });
+
+        await spectator.component.setDashboard('dash-2');
+        spectator.component.model.update((m) => ({ ...m, name: 'Edited' }));
+        await spectator.component.save();
+
+        expect(spectator.component.model().id).not.toBe('dash-1');
+        expect(updateAlertDashboard).not.toHaveBeenCalled();
+        expect(addAlertDashboard).not.toHaveBeenCalled();
     });
 
     it('should not load a dashboard when the route has no id', () => {

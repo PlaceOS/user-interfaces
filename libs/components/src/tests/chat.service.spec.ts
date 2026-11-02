@@ -77,4 +77,14 @@ describe('ChatService', () => {
         FakeSocket.instances[0].onclose?.();
         expect(spectator.service.connected).toBe(false);
     });
+
+    it('should open a new chat to send a message after the chat ends', () => {
+        spectator.service.startChat();
+        spectator.service.endChat();
+
+        spectator.service.sendMessage('Hello');
+
+        expect(FakeSocket.instances).toHaveLength(2);
+        expect(FakeSocket.instances[1].send).toHaveBeenCalledWith('Hello');
+    });
 });

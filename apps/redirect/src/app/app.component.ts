@@ -24,7 +24,7 @@ import {
                     <p>{{ initialisation_error() }}</p>
                     <button type="button" (click)="retry()">Try again</button>
                 } @else {
-                    <p>Redirecting</p>
+                    <p class="redirecting">Redirecting</p>
                 }
             </div>
         </article>
@@ -48,7 +48,7 @@ import {
                 font-family: Arial, sans-serif;
             }
 
-            p:after {
+            .redirecting:after {
                 display: inline-block;
                 content: '';
                 vertical-align: bottom;

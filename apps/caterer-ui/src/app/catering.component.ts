@@ -68,8 +68,8 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                     [routerLink]="['/menu']"
                                 >
                                     <div
-                                        class="relative flex w-full flex-1 items-center justify-center"
-                                        [style.background]="'url(assets/img/menus.jpg)'"
+                                        class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center"
+                                        [style.background-image]="'url(assets/img/menus.jpg)'"
                                     >
                                         <div
                                             class="bg-base-content absolute inset-0 z-0 opacity-40"
@@ -98,8 +98,8 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                     [routerLink]="['/orders']"
                                 >
                                     <div
-                                        class="relative flex w-full flex-1 items-center justify-center"
-                                        [style.background]="'url(assets/img/orders.jpg)'"
+                                        class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center"
+                                        [style.background-image]="'url(assets/img/orders.jpg)'"
                                     >
                                         <div
                                             class="bg-base-content absolute inset-0 z-0 opacity-40"

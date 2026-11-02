@@ -360,6 +360,10 @@ export class PanelViewComponent
     }
 
     public async ngOnInit() {
+        // Chat with the system chosen at setup, not the building default
+        this._chat.setBinding(
+            this._route.snapshot.paramMap.get('system_id') || '',
+        );
         await this._org.waitUntilInitialised();
         const start_voice = () => {
             void this._setupVoiceRecognition();
@@ -662,7 +666,6 @@ export class PanelViewComponent
         const last_text = this.last_text();
         if (last_text.length <= 3) return;
         if (last_text === this._previous_message) return;
-        this._chat.startChat();
         this._chat.sendMessage(last_text);
         this._previous_message = last_text;
         this.last_text.set('');

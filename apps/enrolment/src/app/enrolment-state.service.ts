@@ -111,21 +111,34 @@ export class EnrolmentStateService {
         this._loading.set('');
     }
 
+    /** Saves edited details, then checks the guest in. Failures show the error view. */
     public async checkin() {
         if (this.form().dirty()) await this.updateGuest();
+        if (this._error()) return;
         this._loading.set('Checking you in...');
-        await checkinEventGuest(this._event_id(), this._guest_id(), true);
-        this._view.set('complete');
-        this._loading.set('');
+        try {
+            await checkinEventGuest(this._event_id(), this._guest_id(), true);
+            this._view.set('complete');
+        } catch {
+            this.setError('checkin');
+        } finally {
+            this._loading.set('');
+        }
     }
 
+    /** Saves the guest's edited details. A failure shows the error view. */
     public async updateGuest() {
         this.form().markAsTouched();
         if (!this.form().valid()) return;
         this._loading.set('Updating your details...');
         const details = this._guest.value();
-        await updateGuest(details.id, { ...details, ...this.model() });
-        this._loading.set('');
+        try {
+            await updateGuest(details.id, { ...details, ...this.model() });
+        } catch {
+            this.setError('update');
+        } finally {
+            this._loading.set('');
+        }
     }
 
     public handleUserToken(token: string) {

@@ -175,31 +175,64 @@ export class DashboardsService extends AsyncHandler {
         }
     }
 
-    public async setAlert(id: string) {
-        this.loading.update((l) => [...l, 'ALERT']);
-        const alert = await showAlert(id);
-        this.alert.set(alert);
-        this.loading.update((l) => l.filter((i) => i !== 'ALERT'));
+    /**
+     * Shows `key` in `loading` while `task` runs. A failed task is logged
+     * and reported, and the key is always removed.
+     * Resolves true when the task succeeded.
+     */
+    private async _whileLoading(
+        key: string,
+        error: string,
+        task: () => Promise<void>,
+    ): Promise<boolean> {
+        this.loading.update((l) => [...l, key]);
+        try {
+            await task();
+            return true;
+        } catch (e) {
+            log('ALERTS', error, e, 'warn');
+            notifyError(error);
+            return false;
+        } finally {
+            this.loading.update((l) => l.filter((i) => i !== key));
+        }
     }
 
+    /** Load the alert. Resolves true when it loaded. */
+    public async setAlert(id: string) {
+        return this._whileLoading(
+            'ALERT',
+            'Failed to load the alert.',
+            async () => this.alert.set(await showAlert(id)),
+        );
+    }
+
+    /** Load the dashboard. Resolves true when it loaded or was cleared. */
     public async setDashboard(id: string) {
         if (!id) {
             this.dashboard.set(null);
             this.alerts_list.set([]);
-            return;
+            return true;
         }
-        this.loading.update((l) => [...l, 'DASHBOARD']);
-        const dashboard = await showAlertDashboard(id);
-        this.dashboard.set(dashboard);
-        this.loadDashboardAlerts();
-        this.loading.update((l) => l.filter((i) => i !== 'DASHBOARD'));
+        return this._whileLoading(
+            'DASHBOARD',
+            'Failed to load the dashboard.',
+            async () => {
+                this.dashboard.set(await showAlertDashboard(id));
+                this.loadDashboardAlerts();
+            },
+        );
     }
 
     public async loadDashboards() {
-        this.loading.update((l) => [...l, 'DASHBOARD_LIST']);
-        const alerts = await queryAlertDashboards({ limit: 100 });
-        this.dashboard_list.set(alerts.data);
-        this.loading.update((l) => l.filter((i) => i !== 'DASHBOARD_LIST'));
+        await this._whileLoading(
+            'DASHBOARD_LIST',
+            'Failed to load the dashboards.',
+            async () => {
+                const alerts = await queryAlertDashboards({ limit: 100 });
+                this.dashboard_list.set(alerts.data);
+            },
+        );
     }
 
     public async removeDashboard(dashboard: PlaceAlertDashboard) {
@@ -259,16 +292,20 @@ export class DashboardsService extends AsyncHandler {
     async loadDashboardAlerts(id = '') {
         const dashboard = this.dashboard();
         if (!dashboard && !id) return;
-        this.loading.update((l) => [...l, 'ALERT_LIST']);
-        const alerts = await listDashboardAlerts(id || dashboard.id);
-        if (!id) this.alerts_list.set(alerts.data);
-        else {
-            this.dashboard_alert_map.update((m) => ({
-                ...m,
-                [id]: alerts.data,
-            }));
-        }
-        this.loading.update((l) => l.filter((i) => i !== 'ALERT_LIST'));
+        await this._whileLoading(
+            'ALERT_LIST',
+            'Failed to load the dashboard alerts.',
+            async () => {
+                const alerts = await listDashboardAlerts(id || dashboard.id);
+                if (!id) this.alerts_list.set(alerts.data);
+                else {
+                    this.dashboard_alert_map.update((m) => ({
+                        ...m,
+                        [id]: alerts.data,
+                    }));
+                }
+            },
+        );
     }
 
     public async listenForDashboardAlerts(force = false) {

@@ -21,6 +21,8 @@ import { SystemSearchFieldComponent } from '../../app/dashboards/system-search-f
 
 vi.mock('@placeos/ts-client', { spy: true });
 
+import * as ts_client from '@placeos/ts-client';
+
 describe('DashboardAlertManageComponent', () => {
     let spectator: SpectatorRouting<DashboardAlertManageComponent>;
     let service: any;
@@ -69,8 +71,8 @@ describe('DashboardAlertManageComponent', () => {
         service = {
             dashboard: signal<unknown>({ id: 'dash-1', name: 'Lobby' }),
             alert: signal<unknown>(undefined),
-            setDashboard: vi.fn(),
-            setAlert: vi.fn(),
+            setDashboard: vi.fn(async () => true),
+            setAlert: vi.fn(async () => true),
         };
         dialog = { open: vi.fn() };
     });
@@ -232,5 +234,71 @@ describe('DashboardAlertManageComponent', () => {
 
         expect(service.setAlert).toHaveBeenCalledWith('alert-3');
         expect(spectator.component.model().name).toBe('Loaded');
+    });
+
+    it('should not save over another alert when the load fails', async () => {
+        service.alert.set({ id: 'alert-1', name: 'Previous' });
+        service.setAlert = vi.fn(async () => false);
+        build({ params: { id: 'dash-1', alert_id: 'alert-2' } });
+
+        await spectator.component.setAlert('alert-2');
+        spectator.component.model.update((m) => ({ ...m, name: 'Edited' }));
+        await spectator.component.save();
+
+        expect(spectator.component.model().id).not.toBe('alert-1');
+        expect(ts_client.updateAlert).not.toHaveBeenCalled();
+        expect(ts_client.addAlert).not.toHaveBeenCalled();
+    });
+
+    it('should not leave the page when destroyed during the dashboard load', async () => {
+        service.dashboard.set({ id: 'dash-0' });
+        let finish: (loaded: boolean) => void = () => undefined;
+        service.setDashboard = vi.fn(
+            () => new Promise<boolean>((resolve) => (finish = resolve)),
+        );
+        build({ params: { id: 'dash-1' } });
+        const navigate = spectator.inject(Router).navigate;
+
+        const init = spectator.component.ngOnInit();
+        spectator.fixture.destroy();
+        finish(false);
+        await init;
+        // Let any timer the old code set run
+        await new Promise((resolve) => setTimeout(resolve));
+
+        expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('should wait for a slow dashboard load before checking it', async () => {
+        vi.useFakeTimers();
+        service.dashboard.set(undefined);
+        service.setDashboard = vi.fn(
+            () =>
+                new Promise<void>((resolve) =>
+                    setTimeout(() => {
+                        service.dashboard.set({ id: 'dash-1' });
+                        resolve();
+                    }, 1000),
+                ),
+        );
+        build({ params: { id: 'dash-1' } });
+        const navigate = spectator.inject(Router).navigate;
+
+        spectator.component.ngOnInit();
+        await vi.advanceTimersByTimeAsync(1500);
+        vi.useRealTimers();
+
+        expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('should leave when the routed dashboard does not load', async () => {
+        service.dashboard.set({ id: 'dash-0' });
+        build({ params: { id: 'dash-1' } });
+        const navigate = spectator.inject(Router).navigate;
+
+        await spectator.component.ngOnInit();
+        await new Promise((resolve) => setTimeout(resolve));
+
+        expect(navigate).toHaveBeenCalledWith(['/dashboards']);
     });
 });
