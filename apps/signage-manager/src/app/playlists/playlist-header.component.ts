@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { SignageContextService } from '../signage-context.service';
@@ -56,11 +57,18 @@ import { SignagePlaylistService } from './signage-playlist.service';
 export class PlaylistHeaderComponent {
     private readonly _context = inject(SignageContextService);
     private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _router = inject(Router);
 
     public readonly total_count = this._playlist_service.playlists_total;
     public readonly can_create = this._context.can_create;
 
-    public addPlaylist() {
-        this._playlist_service.addPlaylist();
+    /** Create a playlist and open it */
+    public async addPlaylist() {
+        const playlist = await this._playlist_service.addPlaylist();
+        if (playlist) {
+            void this._router.navigate(['/playlists', playlist.id], {
+                queryParamsHandling: 'merge',
+            });
+        }
     }
 }

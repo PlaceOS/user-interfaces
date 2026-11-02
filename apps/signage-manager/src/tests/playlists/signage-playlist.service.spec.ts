@@ -460,6 +460,28 @@ describe('SignagePlaylistService', () => {
         ]);
     });
 
+    it('lists a new playlist before the search index returns it', async () => {
+        const created = new SignagePlaylist({ id: 'pl-new', name: 'New' });
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (value?: unknown) => void) => {
+                    Promise.resolve().then(() => handler(created));
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+        const service = createService();
+        TestBed.tick();
+
+        const playlist = await service.addPlaylist();
+
+        expect(playlist?.id).toBe('pl-new');
+        expect(service.filtered_playlists().map(({ id }) => id)).toContain(
+            'pl-new',
+        );
+        expect(service.playlists().map(({ id }) => id)).toContain('pl-new');
+    });
+
     it('duplicates a playlist with its items and item schedules', async () => {
         const schedules = [{ play_cron: '0 9 * * *', play_period: 30 }];
         (listSignagePlaylistMedia as any).mockResolvedValue({
