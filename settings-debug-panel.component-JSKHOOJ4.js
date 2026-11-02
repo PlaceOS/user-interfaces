@@ -14,7 +14,7 @@ import {
   DEFAULT_SETTINGS,
   OrganisationService,
   SettingsService
-} from "./chunk-RW5G4ITY.js";
+} from "./chunk-J3AGSDPF.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -1250,4 +1250,4 @@ export {
   SettingsDebugPanelComponent
 };
 //# debugId=a21d4ccd-1ae9-51f4-943b-c69732a86eb9
-//# sourceMappingURL=settings-debug-panel.component-35Q6KSTJ.js.map
+//# sourceMappingURL=settings-debug-panel.component-JSKHOOJ4.js.map

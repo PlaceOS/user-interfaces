@@ -30,7 +30,7 @@ import {
   OrganisationService,
   Space,
   VERSION
-} from "./chunk-RW5G4ITY.js";
+} from "./chunk-J3AGSDPF.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -1399,7 +1399,8 @@ var _SystemBootstrapComponent = class _SystemBootstrapComponent {
       /* istanbul ignore next */
       {}
     )), {
-      params: () => this._debounced_search.value(),
+      // Wait for the organisation so the search is scoped to its zone
+      params: () => this._org.initialised() ? this._debounced_search.value() : "",
       loader: async ({ params: search }) => {
         var _a2;
         if (search.length < 2)
@@ -1670,7 +1671,7 @@ var SystemBootstrapComponent = _SystemBootstrapComponent;
   }], () => [], { store_key: [{ type: Input, args: [{ isSignal: true, alias: "store_key", required: true }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: true }] }], submit_label: [{ type: Input, args: [{ isSignal: true, alias: "submit_label", required: false }] }], system_route: [{ type: Input, args: [{ isSignal: true, alias: "system_route", required: true }] }], configured: [{ type: Output, args: ["configured"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SystemBootstrapComponent, { className: "SystemBootstrapComponent", filePath: "libs/components/src/lib/system-bootstrap.component.ts", lineNumber: 193 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SystemBootstrapComponent, { className: "SystemBootstrapComponent", filePath: "libs/components/src/lib/system-bootstrap.component.ts", lineNumber: 194 });
 })();
 
 // apps/control/src/app/bootstrap.component.ts
@@ -1715,5 +1716,5 @@ var BootstrapComponent = _BootstrapComponent;
 export {
   BootstrapComponent
 };
-//# debugId=6fe832bf-4e43-5bb0-8ab6-a500c7791ae0
-//# sourceMappingURL=bootstrap.component-LECK5BBE.js.map
+//# debugId=66887dcb-78ab-597e-bf90-a11dd1204184
+//# sourceMappingURL=bootstrap.component-ZQXBJRTM.js.map
