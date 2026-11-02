@@ -3756,39 +3756,82 @@ export function controlSocket<A extends ControlAudit>(
         }
         // State is connection-local. A reconnect replays each newly bound value.
         const connection: BrowserConnection = { binds: [], delivered: [], unbinds: [] };
-        audit.connections.push(connection);
+        const connection_number = audit.connections.push(connection);
         const bound = new Set<string>();
         const ids = new Set<number>();
         socket.onMessage((message) => {
+            let reason = 'unexpected control handler exception';
             try {
                 if (message === 'ping') {
                     socket.send('pong');
                     return;
                 }
-                const request: unknown = JSON.parse(String(message));
-                if (!request || typeof request !== 'object' || Array.isArray(request))
+                let request: unknown;
+                try {
+                    request = JSON.parse(String(message));
+                } catch {
+                    reason = 'invalid control JSON';
                     throw new Error();
+                }
+                if (!request || typeof request !== 'object' || Array.isArray(request)) {
+                    reason = 'invalid control request structure';
+                    throw new Error();
+                }
                 const r = request as Record<string, unknown>;
                 const keys = ['id', 'cmd', 'sys', 'mod', 'index', 'name'];
-                const values = options.values(r, audit);
-                if (
-                    Object.keys(r).length !== keys.length ||
-                    !keys.every((key) => Object.hasOwn(r, key)) ||
-                    typeof r.id !== 'number' ||
-                    !Number.isSafeInteger(r.id) ||
-                    ids.has(r.id) ||
-                    !values ||
-                    typeof r.name !== 'string' ||
-                    !Object.hasOwn(values, r.name) ||
-                    !['bind', 'unbind'].includes(String(r.cmd))
-                )
+                let values: Record<string, unknown> | undefined;
+                try {
+                    values = options.values(r, audit);
+                } catch {
+                    reason = 'control values callback failed';
                     throw new Error();
+                }
+                if (Object.keys(r).length !== keys.length) {
+                    reason = 'invalid control field count';
+                    throw new Error();
+                }
+                if (!keys.every((key) => Object.hasOwn(r, key))) {
+                    reason = 'missing control field';
+                    throw new Error();
+                }
+                if (typeof r.id !== 'number') {
+                    reason = 'invalid control request ID type';
+                    throw new Error();
+                }
+                if (!Number.isSafeInteger(r.id)) {
+                    reason = 'invalid control request ID value';
+                    throw new Error();
+                }
+                if (ids.has(r.id)) {
+                    reason = 'duplicate control request ID';
+                    throw new Error();
+                }
+                if (!values) {
+                    reason = 'disallowed control binding';
+                    throw new Error();
+                }
+                if (typeof r.name !== 'string') {
+                    reason = 'invalid control variable name type';
+                    throw new Error();
+                }
+                if (!Object.hasOwn(values, r.name)) {
+                    reason = 'disallowed control variable';
+                    throw new Error();
+                }
+                if (!['bind', 'unbind'].includes(String(r.cmd))) {
+                    reason = 'disallowed control command';
+                    throw new Error();
+                }
                 const valid = r as ControlRequest;
                 ids.add(valid.id);
                 const binding_key = key(valid);
                 if (valid.cmd === 'unbind') {
-                    if (!bound.delete(binding_key)) throw new Error();
+                    if (!bound.delete(binding_key)) {
+                        reason = 'control unbind without active binding';
+                        throw new Error();
+                    }
                     connection.unbinds.push(binding_key);
+                    reason = 'control acknowledgement construction or send failed';
                     socket.send(JSON.stringify({ id: valid.id, type: 'success', value: null }));
                     return;
                 }
@@ -3796,7 +3839,9 @@ export function controlSocket<A extends ControlAudit>(
                 // bind and reconnect restoration together. Always replay the value.
                 bound.add(binding_key);
                 connection.binds.push(binding_key);
+                reason = 'control acknowledgement construction or send failed';
                 socket.send(JSON.stringify({ id: valid.id, type: 'success', value: null }));
+                reason = 'unexpected control handler exception';
                 const notify = (value: unknown) =>
                     socket.send(
                         JSON.stringify({
@@ -3816,7 +3861,7 @@ export function controlSocket<A extends ControlAudit>(
                 connection.delivered.push(binding_key);
             } catch {
                 // Never retain raw frames, arguments, URLs, cookies or credentials.
-                audit.refused.push('unexpected control frame/binding/command');
+                audit.refused.push(`control connection ${connection_number}: ${reason}`);
                 void close();
             }
         });
