@@ -5,7 +5,7 @@ import {
   resetBootRetries,
   scheduleBootRetry,
   startWatchdog
-} from "./chunk-3R2QE5V4.js";
+} from "./chunk-UACZJQJ5.js";
 import {
   hasBootstrappedDisplay
 } from "./chunk-OQDJRCPY.js";
@@ -38,7 +38,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-YENFZ7PV.js";
+} from "./chunk-6S3ZFUOY.js";
 import "./chunk-XTT7WF66.js";
 import {
   AsyncHandler,
@@ -8975,7 +8975,7 @@ function hasStoredApiKey() {
 // apps/signage/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-55NUO555.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-H5VOU3LJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9035,7 +9035,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-55NUO555.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-H5VOU3LJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9071,7 +9071,7 @@ var environment = {
 };
 
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-WDUYNOLV.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-62CVFSYN.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -9079,7 +9079,7 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-LCQ7AHJX.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-IIJDBAT7.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {

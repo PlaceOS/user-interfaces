@@ -32,7 +32,7 @@ import {
   OrganisationService,
   SettingsService,
   VERSION
-} from "./chunk-YENFZ7PV.js";
+} from "./chunk-6S3ZFUOY.js";
 import {
   FormGroupDirective,
   FormsModule,
@@ -2473,4 +2473,4 @@ export {
   BootstrapComponent
 };
 //# debugId=be7cca8a-be3d-5e3d-9dab-7207e7d70cd7
-//# sourceMappingURL=bootstrap.component-LCQ7AHJX.js.map
+//# sourceMappingURL=bootstrap.component-IIJDBAT7.js.map
