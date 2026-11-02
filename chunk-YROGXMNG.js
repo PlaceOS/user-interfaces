@@ -2114,15 +2114,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "2241b21",
-  "hash": "2241b21",
+  "raw": "1e60633",
+  "hash": "1e60633",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2241b21",
+  "suffix": "1e60633",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1793661243775
+  "time": 1793661721664
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -4741,5 +4741,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=488d8cb3-c0a7-5a65-9333-55965d9d132c
-//# sourceMappingURL=chunk-IK55RWBP.js.map
+//# debugId=5838a114-38f9-57c9-b2d6-20c64e9b5a91
+//# sourceMappingURL=chunk-YROGXMNG.js.map

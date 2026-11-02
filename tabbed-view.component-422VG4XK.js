@@ -1,10 +1,10 @@
 import {
   ICON_MAP,
   NextMeetingComponent
-} from "./chunk-OEZAK6NJ.js";
+} from "./chunk-6JFHRS53.js";
 import {
   VideoCallPageComponent
-} from "./chunk-5F2DJZ4D.js";
+} from "./chunk-APMEXH5Y.js";
 import {
   AuthenticatedImageDirective,
   BindingDirective,
@@ -26,7 +26,7 @@ import {
   parse,
   selectCamera,
   zoomCamera
-} from "./chunk-24UJAD5B.js";
+} from "./chunk-T6NZJA5N.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule,
@@ -46,7 +46,7 @@ import {
   MatOption
 } from "./chunk-NNDEFQIE.js";
 import "./chunk-VQJLU6YC.js";
-import "./chunk-7SL6K33A.js";
+import "./chunk-WHH34KYD.js";
 import "./chunk-BDIFYFS3.js";
 import {
   TranslatePipe
@@ -56,7 +56,7 @@ import {
   SettingsService,
   currentUser,
   themedLogo
-} from "./chunk-IK55RWBP.js";
+} from "./chunk-YROGXMNG.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -4105,4 +4105,4 @@ export {
   ControlTabbedViewComponent
 };
 //# debugId=9adcfe5c-2ef7-5166-a704-0dd61dbbed7f
-//# sourceMappingURL=tabbed-view.component-B3IBCK3Y.js.map
+//# sourceMappingURL=tabbed-view.component-422VG4XK.js.map

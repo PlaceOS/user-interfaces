@@ -30,7 +30,7 @@ import {
   OrganisationService,
   Space,
   VERSION
-} from "./chunk-IK55RWBP.js";
+} from "./chunk-YROGXMNG.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -1724,4 +1724,4 @@ export {
   BootstrapComponent
 };
 //# debugId=ff115a50-deaa-5611-926b-8f62824377aa
-//# sourceMappingURL=bootstrap.component-VQWDAGLL.js.map
+//# sourceMappingURL=bootstrap.component-T7D3CH2E.js.map

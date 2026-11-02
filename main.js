@@ -1,4 +1,4 @@
-import "./chunk-7SL6K33A.js";
+import "./chunk-WHH34KYD.js";
 import "./chunk-BDIFYFS3.js";
 import {
   TranslatePipe
@@ -27,7 +27,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-IK55RWBP.js";
+} from "./chunk-YROGXMNG.js";
 import "./chunk-LRCUCP3C.js";
 import {
   AsyncHandler,
@@ -9040,7 +9040,7 @@ function mocksInit() {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-BEHI4FT7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-KTYQLBUI.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -9079,7 +9079,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-BEHI4FT7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-KTYQLBUI.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9132,22 +9132,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-VQWDAGLL.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-T7D3CH2E.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-X7RGCZYI.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-2P3TUPOW.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-B3IBCK3Y.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-422VG4XK.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-MEBNDZAK.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-GOO3OBCQ.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
