@@ -300,11 +300,11 @@ describe('DesksStateService', () => {
         vi.mocked(ts_client_mod.addAsset).mockResolvedValue({} as any);
         spectator.service.setFilters({ zones: ['level-1'] });
 
-        // a metadata era CSV row, identified by the original desk id
-        await spectator.service.addDesks([
-            { id: 'desk-6.06.1', name: 'New Name', zone_id: 'level-2' } as any,
-            { id: 'desk-new', name: 'Brand New' },
-        ]);
+        // a metadata era CSV row, identified by the original desk id, and a
+        // new row without an id
+        await spectator.service.importDesksCsv(
+            'id,name,zone_id\ndesk-6.06.1,New Name,level-2\n,Brand New,',
+        );
 
         expect(ts_client_mod.updateAsset).toHaveBeenCalledTimes(1);
         expect(ts_client_mod.updateAsset).toHaveBeenCalledWith(
@@ -324,6 +324,7 @@ describe('DesksStateService', () => {
             expect.objectContaining({
                 zone_id: 'level-1',
                 identifier: 'Brand New',
+                map_id: expect.stringMatching(/^desk-\d+$/),
             }),
         );
     });
