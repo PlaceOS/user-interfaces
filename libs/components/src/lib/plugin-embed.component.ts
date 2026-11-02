@@ -322,6 +322,7 @@ export class PluginEmbedComponent
                 this.details.set(msg.payload);
                 this.schema.set(msg.payload?.config_schema);
                 this._autoConfigure();
+                this._resendMissedMessages();
                 break;
             case 'ready':
                 this._autoConfigure();
@@ -344,6 +345,19 @@ export class PluginEmbedComponent
         this.send('config', this.config());
         this._clearPlayTimer();
         this.timeout('auto-play', () => this._sendPlay(), this.play_delay());
+    }
+
+    /**
+     * The host can send `config` and `play` on the iframe `load` event. A
+     * plugin that adds its message listener after that event, such as one
+     * that starts its framework asynchronously, misses them and plays with
+     * its defaults. `loaded` tells that the plugin now listens, so send them
+     * again. Auto-play waits for `loaded` before it sends, so it is skipped.
+     */
+    private _resendMissedMessages() {
+        if (this.auto_play() || !this.config()) return;
+        if (this.play()) this._sendPlay();
+        else this.send('config', this.config());
     }
 
     private _clearPlayTimer() {
