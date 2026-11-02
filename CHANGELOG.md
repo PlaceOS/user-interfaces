@@ -55,6 +55,7 @@ All notable changes to this project will be documented in this file.
 - Correct the Sentry trace settings
 - Report startup errors to Sentry
 - Remove check-in tokens from Sentry events
+- Use current IANA names in the time zone list
 
 #### Components
 
@@ -117,6 +118,10 @@ All notable changes to this project will be documented in this file.
 #### Form-fields
 
 - Add scrolling to selected item list for time and duration fields
+
+#### Libs
+
+- Keep catering favourites apart from desks and cap desk tooltip retries
 
 #### Lint
 
@@ -357,6 +362,15 @@ All notable changes to this project will be documented in this file.
 
 ### Refactor
 
+#### Assets
+
+- Share the hidden asset category and type lookup
+- Share the desk asset lookup by legacy id
+
+#### Common
+
+- Build the time zone list from the browser
+
 #### Concierge
 
 - Update parking report graphs and metrics to be more useful
@@ -365,6 +379,24 @@ All notable changes to this project will be documented in this file.
 #### Desks
 
 - Drop duplicate default duration from desk forms
+
+#### Form-fields
+
+- Share the upload helper and merge compact-counter
+
+#### Libs
+
+- Remove unused components, pipes and upload permission wiring
+- Remove unused code from common, users and payments
+- Remove unused code from bookings, assets, catering and events
+- Share one helper for toggling favourites
+- Share the zone rules loader and app version details
+- Add provideValueAccessor for form field providers
+
+#### Mocks
+
+- Remove unused mock endpoints and data helpers
+- Build asset CRUD mocks from one helper
 
 #### Workplace
 
