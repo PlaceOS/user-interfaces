@@ -8,7 +8,7 @@ import {
 import "./chunk-ONXFCCVJ.js";
 import {
   Clipboard
-} from "./chunk-6S3ZFUOY.js";
+} from "./chunk-LNOTASZM.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -20,7 +20,7 @@ import {
   HotkeysService,
   Jr,
   Ua
-} from "./chunk-PJ5G4U2X.js";
+} from "./chunk-2SZ64TA4.js";
 import {
   IconComponent
 } from "./chunk-SWIHPKGW.js";
@@ -31,7 +31,7 @@ import {
   MatRippleModule
 } from "./chunk-EMGILCXJ.js";
 import "./chunk-UATN7YIO.js";
-import "./chunk-FUQXD7BI.js";
+import "./chunk-JYGNTC2G.js";
 import {
   Component,
   DOCUMENT,
@@ -1880,4 +1880,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=71b4ca4e-5a22-5b05-826b-24814a6f4f0f
-//# sourceMappingURL=binding-debug-panel.component-ZG57ZRDK.js.map
+//# sourceMappingURL=binding-debug-panel.component-4TI2CIIM.js.map

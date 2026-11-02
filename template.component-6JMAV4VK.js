@@ -16,18 +16,18 @@ import {
 } from "./chunk-KRCTAQI2.js";
 import {
   CustomTooltipComponent
-} from "./chunk-2Q7NFQCG.js";
+} from "./chunk-N3JLBWJF.js";
 import "./chunk-ONXFCCVJ.js";
 import {
   DEBUG_STORAGE_KEY,
   isDebugEnabled,
   recordHeartbeat,
   watchdogState
-} from "./chunk-UACZJQJ5.js";
+} from "./chunk-EEF2TV7J.js";
 import "./chunk-GDMFVFGQ.js";
 import {
   TranslatePipe
-} from "./chunk-XOFXZQZ6.js";
+} from "./chunk-63GNG5EH.js";
 import {
   MINUTES,
   SECONDS,
@@ -38,7 +38,7 @@ import {
   isBefore,
   setAutoReloadGate,
   updateCheckState
-} from "./chunk-6S3ZFUOY.js";
+} from "./chunk-LNOTASZM.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -88,8 +88,9 @@ import {
   u,
   v,
   vr,
+  withTimeout,
   zs
-} from "./chunk-PJ5G4U2X.js";
+} from "./chunk-2SZ64TA4.js";
 import {
   IconComponent,
   SafePipe
@@ -104,7 +105,7 @@ import "./chunk-UATN7YIO.js";
 import {
   ActivatedRoute,
   Router
-} from "./chunk-FUQXD7BI.js";
+} from "./chunk-JYGNTC2G.js";
 import {
   CommonModule,
   Component,
@@ -307,6 +308,210 @@ function isSameMonth(laterDate, earlierDate, options) {
     earlierDate
   );
   return laterDate_.getFullYear() === earlierDate_.getFullYear() && laterDate_.getMonth() === earlierDate_.getMonth();
+}
+
+// libs/common/src/lib/signage/cron.ts
+function cronParts(cron) {
+  const parts = (cron || "").trim().split(/\s+/);
+  return parts.length === 5 ? parts : null;
+}
+function matchesCronPart(value, cron_part) {
+  if (cron_part === "*")
+    return true;
+  if (cron_part.includes(",")) {
+    return cron_part.split(",").some((item) => matchesCronPart(value, item));
+  }
+  if (cron_part.includes("/")) {
+    const [base, step] = cron_part.split("/");
+    const step_value = Number(step);
+    if (!step_value)
+      return false;
+    if (base === "*")
+      return value % step_value === 0;
+    if (base.includes("-")) {
+      const [start, end] = base.split("-").map(Number);
+      if (value < start || value > end)
+        return false;
+      return (value - start) % step_value === 0;
+    }
+    return value % step_value === 0 && matchesCronPart(value, base);
+  }
+  if (cron_part.includes("-")) {
+    const [start, end] = cron_part.split("-").map(Number);
+    return value >= start && value <= end;
+  }
+  return Number(cron_part) === value;
+}
+function parseCronNumber(value, min, max) {
+  if (!/^\d+$/.test(value || ""))
+    return null;
+  const number_value = Number(value);
+  return number_value >= min && number_value <= max ? number_value : null;
+}
+function parseCronWeekdays(value) {
+  if (!value?.trim() || value === "*")
+    return [];
+  const days = /* @__PURE__ */ new Set();
+  for (const part of value.split(",")) {
+    if (part.includes("-")) {
+      const [start, end] = part.split("-").map((_) => parseCronNumber(_, 0, 6));
+      if (start === null || end === null || start > end)
+        return [];
+      for (let day = start; day <= end; day++)
+        days.add(day);
+    } else {
+      const day = parseCronNumber(part, 0, 6);
+      if (day === null)
+        return [];
+      days.add(day);
+    }
+  }
+  return [...days].sort((a, b) => a - b);
+}
+function parseCronWeekOfMonthRange(value) {
+  const match = /^(\d+)-(\d+)$/.exec(value || "");
+  if (!match)
+    return null;
+  const start = Number(match[1]);
+  const end = Number(match[2]);
+  if (start === 29 && end === 31)
+    return 5;
+  if ((start - 1) % 7 !== 0 || end !== start + 6)
+    return null;
+  const week = (start - 1) / 7 + 1;
+  return week >= 1 && week <= 4 ? week : null;
+}
+function parseCronWeeksOfMonth(value) {
+  if (!value?.trim() || value === "*")
+    return [];
+  const weeks = /* @__PURE__ */ new Set();
+  for (const part of value.split(",")) {
+    const week = parseCronWeekOfMonthRange(part);
+    if (week === null)
+      return [];
+    weeks.add(week);
+  }
+  return [...weeks].sort((a, b) => a - b);
+}
+function isCronMonthlyWeekday(day_part, weekday_part) {
+  return !!parseCronWeeksOfMonth(day_part).length && !!parseCronWeekdays(weekday_part).length;
+}
+function doesCronMatchDay(parts, date) {
+  const [, , day_part, month_part, weekday_part] = parts;
+  if (!matchesCronPart(date.getMonth() + 1, month_part))
+    return false;
+  if (day_part === "*" && weekday_part === "*")
+    return true;
+  const day_matches = matchesCronPart(date.getDate(), day_part);
+  if (weekday_part === "*")
+    return day_matches;
+  const weekday_matches = matchesCronPart(date.getDay(), weekday_part);
+  if (day_part === "*")
+    return weekday_matches;
+  if (isCronMonthlyWeekday(day_part, weekday_part)) {
+    return day_matches && weekday_matches;
+  }
+  return day_matches || weekday_matches;
+}
+function cronDaySlots(parts) {
+  const slots = [];
+  for (let hour = 0; hour < 24; hour++) {
+    if (!matchesCronPart(hour, parts[1]))
+      continue;
+    for (let minute = 0; minute < 60; minute++) {
+      if (matchesCronPart(minute, parts[0]))
+        slots.push(hour * 60 + minute);
+    }
+  }
+  return slots;
+}
+
+// libs/common/src/lib/signage/playlist.ts
+var DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
+function isValidScheduleMask(mask) {
+  return mask.length > 0 && mask.length <= 128 && !/[^01]/.test(mask);
+}
+function hasPlayableScheduleMask({ mask = "", valid_from }) {
+  return !mask || isValidScheduleMask(mask) && mask.includes("1") && Number.isFinite(valid_from) && valid_from > 0 && Number.isFinite(new Date(valid_from * 1e3).getTime());
+}
+function isPlayOnceSchedule(schedule) {
+  return !!schedule.play_at || !!schedule.play_at_local;
+}
+var PLAY_AT_LOCAL_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/;
+function parsePlayAtLocal(value) {
+  const match = PLAY_AT_LOCAL_PATTERN.exec(value || "");
+  if (!match)
+    return null;
+  const [year, month, day, hours, minutes, seconds] = match.slice(1).map(Number);
+  const date = new Date(year, month - 1, day, hours, minutes, seconds);
+  return date.getDate() === day && date.getMonth() === month - 1 && minutes < 60 && seconds < 60 ? date.getTime() : null;
+}
+var MEDIA_ANIMATIONS = Object.values(zs);
+function mediaAnimation(value) {
+  if (typeof value === "number") {
+    return Number.isInteger(value) && value >= 0 && value < MEDIA_ANIMATIONS.length ? MEDIA_ANIMATIONS[value] : zs.Default;
+  }
+  return MEDIA_ANIMATIONS.find((animation) => animation === value) || zs.Default;
+}
+
+// libs/common/src/lib/signage/template.ts
+var SIGNAGE_PREVIEW_LAYOUTS_MESSAGE = "signage:template-layouts";
+var SIGNAGE_PREVIEW_READY_MESSAGE = "signage:template-preview-ready";
+var TEMPLATE_EDGE_BAR_HEIGHT_PC = 15;
+var TEMPLATE_SIDEBAR_WIDTH_PC = 20;
+var TEMPLATE_FLOATING_POSITION_PC = 0;
+var clamp = (value, max = 100) => Math.min(Math.max(value, 0), Math.max(max, 0));
+function percentage(value, fallback) {
+  return value === void 0 ? fallback : clamp(value * 100);
+}
+function computeTemplateLayout(layouts) {
+  const player = { left: 0, top: 0, width: 100, height: 100 };
+  const items = layouts.map((layout) => {
+    let rect;
+    switch (layout.position) {
+      case "top": {
+        const height = clamp(percentage(layout.y_pos, TEMPLATE_EDGE_BAR_HEIGHT_PC), player.height);
+        rect = __spreadProps(__spreadValues({}, player), { height });
+        player.top += height;
+        player.height -= height;
+        break;
+      }
+      case "bottom": {
+        const height = clamp(percentage(layout.y_pos, TEMPLATE_EDGE_BAR_HEIGHT_PC), player.height);
+        rect = __spreadProps(__spreadValues({}, player), {
+          top: player.top + player.height - height,
+          height
+        });
+        player.height -= height;
+        break;
+      }
+      case "left": {
+        const width = clamp(percentage(layout.x_pos, TEMPLATE_SIDEBAR_WIDTH_PC), player.width);
+        rect = __spreadProps(__spreadValues({}, player), { width });
+        player.left += width;
+        player.width -= width;
+        break;
+      }
+      case "right": {
+        const width = clamp(percentage(layout.x_pos, TEMPLATE_SIDEBAR_WIDTH_PC), player.width);
+        rect = __spreadProps(__spreadValues({}, player), {
+          left: player.left + player.width - width,
+          width
+        });
+        player.width -= width;
+        break;
+      }
+      case "floating":
+      default: {
+        const left = percentage(layout.x_pos, TEMPLATE_FLOATING_POSITION_PC);
+        const top = percentage(layout.y_pos, TEMPLATE_FLOATING_POSITION_PC);
+        rect = { left, top, width: 100 - left, height: 100 - top };
+        break;
+      }
+    }
+    return { layout, rect };
+  });
+  return { items, player };
 }
 
 // libs/common/src/lib/value-accessor.ts
@@ -566,6 +771,7 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
         this.details.set(msg.payload);
         this.schema.set(msg.payload?.config_schema);
         this._autoConfigure();
+        this._resendMissedMessages();
         break;
       case "ready":
         this._autoConfigure();
@@ -588,6 +794,21 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
     this.send("config", this.config());
     this._clearPlayTimer();
     this.timeout("auto-play", () => this._sendPlay(), this.play_delay());
+  }
+  /**
+   * The host can send `config` and `play` on the iframe `load` event. A
+   * plugin that adds its message listener after that event, such as one
+   * that starts its framework asynchronously, misses them and plays with
+   * its defaults. `loaded` tells that the plugin now listens, so send them
+   * again. Auto-play waits for `loaded` before it sends, so it is skipped.
+   */
+  _resendMissedMessages() {
+    if (this.auto_play() || !this.config())
+      return;
+    if (this.play())
+      this._sendPlay();
+    else
+      this.send("config", this.config());
   }
   _clearPlayTimer() {
     this.clearTimeout("auto-play");
@@ -744,21 +965,6 @@ function cacheOwners(item) {
 }
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-function withTimeout(promise, timeout_ms, message, on_timeout) {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      on_timeout?.();
-      reject(new Error(message));
-    }, timeout_ms);
-    promise.then((value) => {
-      clearTimeout(timer);
-      resolve(value);
-    }, (error) => {
-      clearTimeout(timer);
-      reject(error);
-    });
-  });
 }
 function streamToBlob(body, type, max_bytes, abort) {
   return new Promise((resolve, reject) => {
@@ -1668,93 +1874,6 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
   }], () => [], null);
 })();
 
-// apps/signage/src/app/media-helpers.ts
-function mediaAnimation(value) {
-  const animations = Object.values(zs);
-  if (typeof value === "number") {
-    return Number.isInteger(value) && value >= 0 && value < animations.length ? animations[value] : zs.Default;
-  }
-  return animations.find((animation) => animation === value) || zs.Default;
-}
-var _time_override = 0;
-var _time_anchor = null;
-var _time_speed = 0;
-function setMockTime(date, speed = 0) {
-  _time_override = date;
-  _time_anchor = date ? Date.now() : null;
-  _time_speed = typeof speed === "boolean" ? speed ? 1 : 0 : speed;
-  if (!date)
-    _time_speed = 0;
-}
-function time() {
-  const offset = _time_anchor !== null ? (Date.now() - _time_anchor) * _time_speed : 0;
-  return (_time_override || Date.now()) + offset;
-}
-function mockTimeState() {
-  return {
-    active: !!_time_override,
-    speed: _time_override ? _time_speed : 1,
-    time: time()
-  };
-}
-function isMediaValid(item, now = time()) {
-  if (!item?.id)
-    return false;
-  if (item.valid_from && item.valid_from * 1e3 > now)
-    return false;
-  if (item.valid_until && item.valid_until * 1e3 < now)
-    return false;
-  return true;
-}
-function validateMedia(item) {
-  if (!item)
-    return "Invalid media: missing media data.";
-  if (!item.id)
-    return "Invalid media: missing media ID.";
-  const now = time();
-  if (item.valid_from && item.valid_from * 1e3 > now) {
-    const source = validitySourceLabel(item.validity?.valid_from_source);
-    return `${source} not valid yet. Starts at ${formatMediaTime(item.valid_from)}. Current player time is ${formatMediaTime(now / 1e3)}.`;
-  }
-  if (item.valid_until && item.valid_until * 1e3 < now) {
-    const source = validitySourceLabel(item.validity?.valid_until_source);
-    return `${source} expired. Ended at ${formatMediaTime(item.valid_until)}. Current player time is ${formatMediaTime(now / 1e3)}.`;
-  }
-  return "";
-}
-function validitySourceLabel(source) {
-  if (source === "playlist")
-    return "Playlist";
-  if (source === "media")
-    return "Media item";
-  if (source === "playlist_media")
-    return "Playlist and media item";
-  return "Media";
-}
-function formatMediaTime(seconds) {
-  return new Intl.DateTimeFormat(void 0, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit"
-  }).format(new Date(seconds * 1e3));
-}
-function findValidPlaylistIndex(playlist, start_index, step, include_start = false) {
-  if (!playlist?.length)
-    return -1;
-  let index = start_index;
-  let checked = 0;
-  while (checked < playlist.length) {
-    if ((include_start || checked > 0) && isMediaValid(playlist[index])) {
-      return index;
-    }
-    index = (index + step + playlist.length) % playlist.length;
-    checked += 1;
-  }
-  return -1;
-}
-
 // apps/signage/src/app/debug-overlay.component.ts
 var _c02 = ["*"];
 function DebugOverlayComponent_Conditional_3_Template(rf, ctx) {
@@ -1850,7 +1969,7 @@ function clearDebugOverlayLayouts() {
       localStorage.removeItem(key);
   }
 }
-function clamp(value) {
+function clamp2(value) {
   return Math.min(1, Math.max(0, value));
 }
 function isPosition(value) {
@@ -1946,13 +2065,13 @@ var DebugOverlayComponent = class _DebugOverlayComponent {
     if (!stored_state)
       return;
     this.position.set({
-      x: clamp(stored_state.position.x),
-      y: clamp(stored_state.position.y)
+      x: clamp2(stored_state.position.x),
+      y: clamp2(stored_state.position.y)
     });
     const stored_origin = stored_state.origin || stored_state.position;
     this.origin.set({
-      x: clamp(stored_origin.x),
-      y: clamp(stored_origin.y)
+      x: clamp2(stored_origin.x),
+      y: clamp2(stored_origin.y)
     });
     this.minimized.set(stored_state.minimized);
   }
@@ -1968,12 +2087,12 @@ var DebugOverlayComponent = class _DebugOverlayComponent {
   _resetState() {
     const initial_position = this.initial_position();
     this.position.set({
-      x: clamp(initial_position.x),
-      y: clamp(initial_position.y)
+      x: clamp2(initial_position.x),
+      y: clamp2(initial_position.y)
     });
     this.origin.set({
-      x: clamp(initial_position.x),
-      y: clamp(initial_position.y)
+      x: clamp2(initial_position.x),
+      y: clamp2(initial_position.y)
     });
     this.minimized.set(false);
   }
@@ -2088,14 +2207,14 @@ var DebugOverlayComponent = class _DebugOverlayComponent {
       };
     }
     const origin = {
-      x: clamp((position.x * drag_state.parent_width - drag_state.host_left) / drag_state.host_width),
-      y: clamp((position.y * drag_state.parent_height - drag_state.host_top) / drag_state.host_height)
+      x: clamp2((position.x * drag_state.parent_width - drag_state.host_left) / drag_state.host_width),
+      y: clamp2((position.y * drag_state.parent_height - drag_state.host_top) / drag_state.host_height)
     };
     drag_state.moved ||= Math.abs(origin.x - this.origin().x) > 2e-3 || Math.abs(origin.y - this.origin().y) > 2e-3;
     this.origin.set(origin);
     this.position.set({
-      x: clamp((drag_state.host_left + origin.x * drag_state.host_width) / drag_state.parent_width),
-      y: clamp((drag_state.host_top + origin.y * drag_state.host_height) / drag_state.parent_height)
+      x: clamp2((drag_state.host_left + origin.x * drag_state.host_width) / drag_state.parent_width),
+      y: clamp2((drag_state.host_top + origin.y * drag_state.host_height) / drag_state.parent_height)
     });
     event.stopPropagation();
   }
@@ -2274,6 +2393,86 @@ var DebugOverlayComponent = class _DebugOverlayComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DebugOverlayComponent, { className: "DebugOverlayComponent", filePath: "apps/signage/src/app/debug-overlay.component.ts", lineNumber: 190 });
 })();
+
+// apps/signage/src/app/media-helpers.ts
+var _time_override = 0;
+var _time_anchor = null;
+var _time_speed = 0;
+function setMockTime(date, speed = 0) {
+  _time_override = date;
+  _time_anchor = date ? Date.now() : null;
+  _time_speed = typeof speed === "boolean" ? speed ? 1 : 0 : speed;
+  if (!date)
+    _time_speed = 0;
+}
+function time() {
+  const offset = _time_anchor !== null ? (Date.now() - _time_anchor) * _time_speed : 0;
+  return (_time_override || Date.now()) + offset;
+}
+function mockTimeState() {
+  return {
+    active: !!_time_override,
+    speed: _time_override ? _time_speed : 1,
+    time: time()
+  };
+}
+function isMediaValid(item, now = time()) {
+  if (!item?.id)
+    return false;
+  if (item.valid_from && item.valid_from * 1e3 > now)
+    return false;
+  if (item.valid_until && item.valid_until * 1e3 < now)
+    return false;
+  return true;
+}
+function validateMedia(item) {
+  if (!item)
+    return "Invalid media: missing media data.";
+  if (!item.id)
+    return "Invalid media: missing media ID.";
+  const now = time();
+  if (item.valid_from && item.valid_from * 1e3 > now) {
+    const source = validitySourceLabel(item.validity?.valid_from_source);
+    return `${source} not valid yet. Starts at ${formatMediaTime(item.valid_from)}. Current player time is ${formatMediaTime(now / 1e3)}.`;
+  }
+  if (item.valid_until && item.valid_until * 1e3 < now) {
+    const source = validitySourceLabel(item.validity?.valid_until_source);
+    return `${source} expired. Ended at ${formatMediaTime(item.valid_until)}. Current player time is ${formatMediaTime(now / 1e3)}.`;
+  }
+  return "";
+}
+function validitySourceLabel(source) {
+  if (source === "playlist")
+    return "Playlist";
+  if (source === "media")
+    return "Media item";
+  if (source === "playlist_media")
+    return "Playlist and media item";
+  return "Media";
+}
+function formatMediaTime(seconds) {
+  return new Intl.DateTimeFormat(void 0, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(new Date(seconds * 1e3));
+}
+function findValidPlaylistIndex(playlist, start_index, step, include_start = false) {
+  if (!playlist?.length)
+    return -1;
+  let index = start_index;
+  let checked = 0;
+  while (checked < playlist.length) {
+    if ((include_start || checked > 0) && isMediaValid(playlist[index])) {
+      return index;
+    }
+    index = (index + step + playlist.length) % playlist.length;
+    checked += 1;
+  }
+  return -1;
+}
 
 // apps/signage/src/app/media-controls.component.ts
 var _c03 = ["bar"];
@@ -4863,8 +5062,6 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
         []
       )
     );
-    this.stateChange = output();
-    this.indexChange = output();
     this.mutedChange = output();
     this.playing_id = output();
     this.event = output();
@@ -5196,7 +5393,6 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       this._item_playlist = [...next_playlist];
       const index = this._item_playlist.findIndex((_) => _.id === current_item.id);
       this.index.set(index);
-      this.indexChange.emit(index);
     } else {
       const was_playing = this.state() === "PLAYING";
       this._dropItemState(/* @__PURE__ */ new Set());
@@ -5400,7 +5596,6 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     index = this._normalisePlaylistIndex(index);
     const old_index = this.index();
     this.index.set(index);
-    this.indexChange.emit(index);
     const item = this.active_item;
     const old_item = this._item_playlist[old_index];
     if (!item)
@@ -5945,7 +6140,6 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   _clearActiveItem() {
     if (this.index() !== -1) {
       this.index.set(-1);
-      this.indexChange.emit(-1);
     }
     this.playing_id.emit("");
     this._item_start = 0;
@@ -6350,7 +6544,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275classProp("transparent", ctx.transparent());
       }
-    }, inputs: { playlist: [1, "playlist"], controls: [1, "controls"], layout_editing: [1, "layout_editing"], layout_reset_count: [1, "layout_reset_count"], transparent: [1, "transparent"], override: [1, "override"], can_close: [1, "can_close"], loop: [1, "loop"], shuffle: [1, "shuffle"], indexInput: [1, "index", "indexInput"], animation_time: [1, "animation_time"], mutedInput: [1, "muted", "mutedInput"], stateInput: [1, "state", "stateInput"] }, outputs: { loop: "loopChange", shuffle: "shuffleChange", stateChange: "stateChange", indexChange: "indexChange", mutedChange: "mutedChange", playing_id: "playing_id", event: "event", closed: "closed" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 20, vars: 23, consts: [["media_container_0", ""], ["img_el_0", ""], ["video_el_0", ""], ["web_el_0", ""], ["media_container_1", ""], ["img_el_1", ""], ["video_el_1", ""], ["web_el_1", ""], [1, "absolute", "inset-0"], [1, "pointer-events-none", "absolute", "top-0", "left-0", "h-full", "w-full"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], ["sandbox", "allow-scripts allow-same-origin allow-forms", 1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], ["sandbox", "allow-scripts allow-same-origin allow-forms", 1, "absolute", "top-0", "left-0", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "loaded", "playing", "statusChange", "finished", "plugin_interaction", "plugin_error", "plugin", "config", "play"], ["label", "debug time", "icon", "event", 3, "overlay_id", "editing", "reset_count", "initial_position"], ["label", "playback controls", "icon", "play_circle", 3, "overlay_id", "editing", "reset_count", "initial_position"], [3, "event", "state", "loop", "muted", "shuffle", "progress", "duration", "playback_start", "playback_duration", "animating", "loading"], ["overlay_id", "override-details", "label", "override details", "icon", "priority_high", 3, "editing", "reset_count", "initial_position"], ["label", "playlist", "icon", "queue_music", 3, "overlay_id", "editing", "reset_count", "initial_position"], [3, "selected", "index", "playlist"], [1, "border-base-200", "bg-base-100", "flex", "items-center", "space-x-4", "rounded-full", "border", "p-2"], [1, "max-w-[30vw]", "truncate", "py-2", "pl-4"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["icon", "", "default", "", "matRipple", "", 3, "click"]], template: function MediaPlayerComponent_Template(rf, ctx) {
+    }, inputs: { playlist: [1, "playlist"], controls: [1, "controls"], layout_editing: [1, "layout_editing"], layout_reset_count: [1, "layout_reset_count"], transparent: [1, "transparent"], override: [1, "override"], can_close: [1, "can_close"], loop: [1, "loop"], shuffle: [1, "shuffle"], indexInput: [1, "index", "indexInput"], animation_time: [1, "animation_time"], mutedInput: [1, "muted", "mutedInput"], stateInput: [1, "state", "stateInput"] }, outputs: { loop: "loopChange", shuffle: "shuffleChange", mutedChange: "mutedChange", playing_id: "playing_id", event: "event", closed: "closed" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 20, vars: 23, consts: [["media_container_0", ""], ["img_el_0", ""], ["video_el_0", ""], ["web_el_0", ""], ["media_container_1", ""], ["img_el_1", ""], ["video_el_1", ""], ["web_el_1", ""], [1, "absolute", "inset-0"], [1, "pointer-events-none", "absolute", "top-0", "left-0", "h-full", "w-full"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], ["sandbox", "allow-scripts allow-same-origin allow-forms", 1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], ["sandbox", "allow-scripts allow-same-origin allow-forms", 1, "absolute", "top-0", "left-0", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "loaded", "playing", "statusChange", "finished", "plugin_interaction", "plugin_error", "plugin", "config", "play"], ["label", "debug time", "icon", "event", 3, "overlay_id", "editing", "reset_count", "initial_position"], ["label", "playback controls", "icon", "play_circle", 3, "overlay_id", "editing", "reset_count", "initial_position"], [3, "event", "state", "loop", "muted", "shuffle", "progress", "duration", "playback_start", "playback_duration", "animating", "loading"], ["overlay_id", "override-details", "label", "override details", "icon", "priority_high", 3, "editing", "reset_count", "initial_position"], ["label", "playlist", "icon", "queue_music", 3, "overlay_id", "editing", "reset_count", "initial_position"], [3, "selected", "index", "playlist"], [1, "border-base-200", "bg-base-100", "flex", "items-center", "space-x-4", "rounded-full", "border", "p-2"], [1, "max-w-[30vw]", "truncate", "py-2", "pl-4"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["icon", "", "default", "", "matRipple", "", 3, "click"]], template: function MediaPlayerComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 8)(1, "div", 9, 0)(3, "img", 10, 1);
         \u0275\u0275listener("load", function MediaPlayerComponent_Template_img_load_3_listener() {
@@ -6626,7 +6820,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       TimeControlsComponent,
       PluginEmbedComponent
     ], styles: ["/* angular:styles/component:css;5613b9902f7eaff64fa7b47128753d0c0992f47947c9fe3653769f5bfd4edb00;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/media-player.component.ts */\n:host {\n  display: block;\n  position: relative;\n  height: 100%;\n  width: 100%;\n  background: var(--bg);\n}\n:host(.transparent) {\n  background: transparent;\n}\n/*# sourceMappingURL=media-player.component.css.map */\n"] }]
-  }], null, { playlist: [{ type: Input, args: [{ isSignal: true, alias: "playlist", required: false }] }], controls: [{ type: Input, args: [{ isSignal: true, alias: "controls", required: false }] }], layout_editing: [{ type: Input, args: [{ isSignal: true, alias: "layout_editing", required: false }] }], layout_reset_count: [{ type: Input, args: [{ isSignal: true, alias: "layout_reset_count", required: false }] }], transparent: [{ type: Input, args: [{ isSignal: true, alias: "transparent", required: false }] }], override: [{ type: Input, args: [{ isSignal: true, alias: "override", required: false }] }], can_close: [{ type: Input, args: [{ isSignal: true, alias: "can_close", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }, { type: Output, args: ["loopChange"] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }, { type: Output, args: ["shuffleChange"] }], indexInput: [{ type: Input, args: [{ isSignal: true, alias: "index", required: false }] }], animation_time: [{ type: Input, args: [{ isSignal: true, alias: "animation_time", required: false }] }], mutedInput: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], stateInput: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], stateChange: [{ type: Output, args: ["stateChange"] }], indexChange: [{ type: Output, args: ["indexChange"] }], mutedChange: [{ type: Output, args: ["mutedChange"] }], playing_id: [{ type: Output, args: ["playing_id"] }], event: [{ type: Output, args: ["event"] }], closed: [{ type: Output, args: ["closed"] }], _container_0: [{ type: ViewChild, args: ["media_container_0", { isSignal: true }] }], _container_1: [{ type: ViewChild, args: ["media_container_1", { isSignal: true }] }], _image_element_0: [{ type: ViewChild, args: ["img_el_0", { isSignal: true }] }], _image_element_1: [{ type: ViewChild, args: ["img_el_1", { isSignal: true }] }], _video_element_0: [{ type: ViewChild, args: ["video_el_0", { isSignal: true }] }], _video_element_1: [{ type: ViewChild, args: ["video_el_1", { isSignal: true }] }], _web_element_0: [{ type: ViewChild, args: ["web_el_0", { isSignal: true }] }], _web_element_1: [{ type: ViewChild, args: ["web_el_1", { isSignal: true }] }] });
+  }], null, { playlist: [{ type: Input, args: [{ isSignal: true, alias: "playlist", required: false }] }], controls: [{ type: Input, args: [{ isSignal: true, alias: "controls", required: false }] }], layout_editing: [{ type: Input, args: [{ isSignal: true, alias: "layout_editing", required: false }] }], layout_reset_count: [{ type: Input, args: [{ isSignal: true, alias: "layout_reset_count", required: false }] }], transparent: [{ type: Input, args: [{ isSignal: true, alias: "transparent", required: false }] }], override: [{ type: Input, args: [{ isSignal: true, alias: "override", required: false }] }], can_close: [{ type: Input, args: [{ isSignal: true, alias: "can_close", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }, { type: Output, args: ["loopChange"] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }, { type: Output, args: ["shuffleChange"] }], indexInput: [{ type: Input, args: [{ isSignal: true, alias: "index", required: false }] }], animation_time: [{ type: Input, args: [{ isSignal: true, alias: "animation_time", required: false }] }], mutedInput: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], stateInput: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], mutedChange: [{ type: Output, args: ["mutedChange"] }], playing_id: [{ type: Output, args: ["playing_id"] }], event: [{ type: Output, args: ["event"] }], closed: [{ type: Output, args: ["closed"] }], _container_0: [{ type: ViewChild, args: ["media_container_0", { isSignal: true }] }], _container_1: [{ type: ViewChild, args: ["media_container_1", { isSignal: true }] }], _image_element_0: [{ type: ViewChild, args: ["img_el_0", { isSignal: true }] }], _image_element_1: [{ type: ViewChild, args: ["img_el_1", { isSignal: true }] }], _video_element_0: [{ type: ViewChild, args: ["video_el_0", { isSignal: true }] }], _video_element_1: [{ type: ViewChild, args: ["video_el_1", { isSignal: true }] }], _web_element_0: [{ type: ViewChild, args: ["web_el_0", { isSignal: true }] }], _web_element_1: [{ type: ViewChild, args: ["web_el_1", { isSignal: true }] }] });
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 302 });
@@ -6666,119 +6860,14 @@ function logState(state) {
 }
 
 // apps/signage/src/app/cron-helpers.ts
-function matchesCronPart(value, cron_part) {
-  if (cron_part === "*")
-    return true;
-  if (cron_part.includes(",")) {
-    return cron_part.split(",").some((item) => matchesCronPart(value, item));
-  }
-  if (cron_part.includes("/")) {
-    const [base, step] = cron_part.split("/");
-    const step_value = Number(step);
-    if (!step_value)
-      return false;
-    if (base === "*")
-      return value % step_value === 0;
-    if (base.includes("-")) {
-      const [start, end] = base.split("-").map(Number);
-      if (value < start || value > end)
-        return false;
-      return (value - start) % step_value === 0;
-    }
-    return value % step_value === 0 && matchesCronPart(value, base);
-  }
-  if (cron_part.includes("-")) {
-    const [start, end] = cron_part.split("-").map(Number);
-    return value >= start && value <= end;
-  }
-  return Number(cron_part) === value;
+function doesCronMatchDate(parts, date) {
+  return matchesCronPart(date.getMinutes(), parts[0]) && matchesCronPart(date.getHours(), parts[1]) && doesCronMatchDay(parts, date);
 }
-function cronNumber(value, min, max) {
-  if (!/^\d+$/.test(value || ""))
-    return null;
-  const number_value = Number(value);
-  return number_value >= min && number_value <= max ? number_value : null;
-}
-function parseCronWeekdays(value) {
-  if (!value?.trim() || value === "*")
-    return [];
-  const days = /* @__PURE__ */ new Set();
-  for (const part of value.split(",")) {
-    if (part.includes("-")) {
-      const [start, end] = part.split("-").map((_) => cronNumber(_, 0, 6));
-      if (start === null || end === null || start > end)
-        return [];
-      for (let day = start; day <= end; day++)
-        days.add(day);
-    } else {
-      const day = cronNumber(part, 0, 6);
-      if (day === null)
-        return [];
-      days.add(day);
-    }
-  }
-  return [...days];
-}
-function parseCronWeekOfMonthRange(value) {
-  const match = /^(\d+)-(\d+)$/.exec(value || "");
-  if (!match)
-    return null;
-  const start = Number(match[1]);
-  const end = Number(match[2]);
-  if (start === 29 && end === 31)
-    return 5;
-  if ((start - 1) % 7 !== 0 || end !== start + 6)
-    return null;
-  const week = (start - 1) / 7 + 1;
-  return week >= 1 && week <= 4 ? week : null;
-}
-function parseCronWeeksOfMonth(value) {
-  if (!value?.trim() || value === "*")
-    return [];
-  const weeks = /* @__PURE__ */ new Set();
-  for (const part of value.split(",")) {
-    const week = parseCronWeekOfMonthRange(part);
-    if (week === null)
-      return [];
-    weeks.add(week);
-  }
-  return [...weeks];
-}
-function isCronMonthlyWeekday(day_of_month_part, day_of_week_part) {
-  return !!parseCronWeeksOfMonth(day_of_month_part).length && !!parseCronWeekdays(day_of_week_part).length;
-}
-function doesCronMatchDate(cron_parts, date) {
-  const [minute_part, hour_part, day_of_month_part, month_part, day_of_week_part] = cron_parts;
-  if (!matchesCronPart(date.getMinutes(), minute_part))
-    return false;
-  if (!matchesCronPart(date.getHours(), hour_part))
-    return false;
-  if (!matchesCronPart(date.getMonth() + 1, month_part))
-    return false;
-  const day_of_month_matches = matchesCronPart(date.getDate(), day_of_month_part);
-  const day_of_week_matches = matchesCronPart(date.getDay(), day_of_week_part);
-  if (day_of_month_part === "*" && day_of_week_part === "*")
-    return true;
-  if (day_of_month_part !== "*" && day_of_week_part === "*") {
-    return day_of_month_matches;
-  }
-  if (day_of_month_part === "*" && day_of_week_part !== "*") {
-    return day_of_week_matches;
-  }
-  if (isCronMonthlyWeekday(day_of_month_part, day_of_week_part)) {
-    return day_of_month_matches && day_of_week_matches;
-  }
-  return day_of_month_matches || day_of_week_matches;
-}
-function cronParts(cron_string) {
-  const parts = cron_string.trim().split(/\s+/);
-  if (parts.length !== 5) {
+function requireCronParts(cron_string) {
+  const parts = cronParts(cron_string);
+  if (!parts)
     throw new Error("Invalid CRON string: Must have 5 parts.");
-  }
   return parts;
-}
-function hasPlayableScheduleMask({ mask = "", valid_from }) {
-  return !mask || mask.length <= 128 && !/[^01]/.test(mask) && mask.includes("1") && Number.isFinite(valid_from) && valid_from > 0 && Number.isFinite(new Date(valid_from * 1e3).getTime());
 }
 var MASK_FILTER_CACHE = /* @__PURE__ */ new Map();
 function createScheduleMaskFilter(cron, schedule) {
@@ -6792,24 +6881,15 @@ function createScheduleMaskFilter(cron, schedule) {
   const cached = MASK_FILTER_CACHE.get(key);
   if (cached)
     return cached;
-  const parts = cronParts(cron);
-  const slots = [];
-  for (let hour = 0; hour < 24; hour++) {
-    if (!matchesCronPart(hour, parts[1]))
-      continue;
-    for (let minute = 0; minute < 60; minute++) {
-      if (matchesCronPart(minute, parts[0]))
-        slots.push(hour * 60 + minute);
-    }
-  }
-  const calendar_parts = cronDayParts(parts);
+  const parts = requireCronParts(cron);
+  const slots = cronDaySlots(parts);
   const first_day = new Date(anchor);
   first_day.setHours(0, 0, 0, 0);
   const month_totals = /* @__PURE__ */ new Map();
   const countBefore = (day, before) => {
     if (!slots.length || day.getTime() + 2 * 864e5 < anchor)
       return 0;
-    if (!doesCronMatchDate(calendar_parts, day))
+    if (!doesCronMatchDay(parts, day))
       return 0;
     const next_day = new Date(day);
     next_day.setDate(next_day.getDate() + 1);
@@ -6876,20 +6956,6 @@ function isFirstLocalOccurrence(date) {
 function isCronRun(cron_parts, date) {
   return doesCronMatchDate(cron_parts, date) && isFirstLocalOccurrence(date);
 }
-function hasCronTimeOfDay([minute_part, hour_part]) {
-  for (let hour = 0; hour < 24; hour++) {
-    if (!matchesCronPart(hour, hour_part))
-      continue;
-    for (let minute = 0; minute < 60; minute++) {
-      if (matchesCronPart(minute, minute_part))
-        return true;
-    }
-  }
-  return false;
-}
-function cronDayParts(cron_parts) {
-  return ["*", "*", ...cron_parts.slice(2)];
-}
 function localDayStart(date, offset_days = 0) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + offset_days).getTime();
 }
@@ -6914,22 +6980,21 @@ function cachedCronLookup(key, now, search_limit_in_seconds, lookup) {
   return result;
 }
 function getNextCronRunTimestampInRange(cron_string, search_limit_in_seconds, now = Date.now(), schedule = {}) {
-  const parts = cronParts(cron_string);
+  const parts = requireCronParts(cron_string);
   if (!hasPlayableScheduleMask(schedule))
     return null;
   const allows = createScheduleMaskFilter(cron_string, schedule);
   const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
   const key = `next|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
   return cachedCronLookup(key, now, search_limit_in_seconds, () => {
-    if (!hasCronTimeOfDay(parts))
+    if (!cronDaySlots(parts).length)
       return null;
-    const day_parts = cronDayParts(parts);
     const limit = now + searchLimitMs(search_limit_in_seconds);
     const start = Math.floor(now / MINUTE_MS) * MINUTE_MS + MINUTE_MS;
     const current_date = new Date(start);
     for (let time2 = start; time2 <= limit; ) {
       current_date.setTime(time2);
-      if (!doesCronMatchDate(day_parts, current_date)) {
+      if (!doesCronMatchDay(parts, current_date)) {
         time2 = localDayStart(current_date, 1);
         continue;
       }
@@ -6942,22 +7007,21 @@ function getNextCronRunTimestampInRange(cron_string, search_limit_in_seconds, no
   });
 }
 function getLastCronRunTimestampInRange(cron_string, search_limit_in_seconds, now = Date.now(), schedule = {}) {
-  const parts = cronParts(cron_string);
+  const parts = requireCronParts(cron_string);
   if (!hasPlayableScheduleMask(schedule))
     return null;
   const allows = createScheduleMaskFilter(cron_string, schedule);
   const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
   const key = `last|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
   return cachedCronLookup(key, now, search_limit_in_seconds, () => {
-    if (!hasCronTimeOfDay(parts))
+    if (!cronDaySlots(parts).length)
       return null;
-    const day_parts = cronDayParts(parts);
     const limit = now - searchLimitMs(search_limit_in_seconds);
     const start = Math.floor(now / MINUTE_MS) * MINUTE_MS;
     const current_date = new Date(start);
     for (let time2 = start; time2 >= limit; ) {
       current_date.setTime(time2);
-      if (!doesCronMatchDate(day_parts, current_date)) {
+      if (!doesCronMatchDay(parts, current_date)) {
         time2 = localDayStart(current_date) - MINUTE_MS;
         continue;
       }
@@ -6983,7 +7047,6 @@ var METRIC_TYPES = [
   "playlist_counts",
   "media_counts"
 ];
-var DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 var SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1e3;
 var MEDIA_CACHE_LOOK_AHEAD_SECONDS = 24 * 60 * 60;
 var MEDIA_RECOVERY_INTERVAL_MS = 15 * SECONDS;
@@ -7054,20 +7117,8 @@ function parsePlayAtTimestamp(value) {
     return 0;
   return value * 1e3;
 }
-var PLAY_AT_LOCAL_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/;
-function parsePlayAtLocalTimestamp(value = "") {
-  const match = PLAY_AT_LOCAL_PATTERN.exec(value);
-  if (!match)
-    return 0;
-  const [year, month, day, hours, minutes, seconds] = match.slice(1).map(Number);
-  const date = new Date(year, month - 1, day, hours, minutes, seconds);
-  return date.getDate() === day && date.getMonth() === month - 1 && minutes < 60 && seconds < 60 ? date.getTime() : 0;
-}
-function isPlayOnceSchedule(schedule) {
-  return !!schedule.play_at || !!schedule.play_at_local;
-}
 function playOnceTimestamp(schedule) {
-  return schedule.play_at ? parsePlayAtTimestamp(schedule.play_at) : parsePlayAtLocalTimestamp(schedule.play_at_local);
+  return schedule.play_at ? parsePlayAtTimestamp(schedule.play_at) : parsePlayAtLocal(schedule.play_at_local) ?? 0;
 }
 function parseValidUntilTimestamp(value) {
   if (!Number.isFinite(value) || !value || value <= 0)
@@ -7385,19 +7436,6 @@ var SignageService = class _SignageService extends AsyncHandler {
     this._startPolling();
     this._poll();
   }
-  /** Rejects if `promise` has not settled within `timeout_ms` */
-  _withTimeout(promise, timeout_ms) {
-    return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("Display request timed out")), timeout_ms);
-      promise.then((value) => {
-        clearTimeout(timer);
-        resolve(value);
-      }, (error) => {
-        clearTimeout(timer);
-        reject(error);
-      });
-    });
-  }
   /**
    * Re-fetch the active display details and refresh derived player state.
    * Returns whether the backend answered.
@@ -7419,7 +7457,7 @@ var SignageService = class _SignageService extends AsyncHandler {
     if (payload.id === id)
       this._saveOfflineDisplay(id, payload_json);
     const display = this._parseDisplay(payload);
-    display.plugins = await this._withTimeout(this._resolveDisplayPlugins(display), DISPLAY_FETCH_TIMEOUT_MS).catch((e) => {
+    display.plugins = await withTimeout(this._resolveDisplayPlugins(display), DISPLAY_FETCH_TIMEOUT_MS, "Display plugin request timed out").catch((e) => {
       log3.warn("Failed to resolve display plugins.", e);
       return display.plugins || [];
     });
@@ -7469,7 +7507,7 @@ var SignageService = class _SignageService extends AsyncHandler {
     let payload = null;
     let validators = null;
     try {
-      const response = await this._withTimeout(jh(id, query_params, request_options), DISPLAY_FETCH_TIMEOUT_MS);
+      const response = await withTimeout(jh(id, query_params, request_options), DISPLAY_FETCH_TIMEOUT_MS, "Display request timed out");
       if (isDisplayPayload(response)) {
         payload = response;
         const response_headers = Wi(displayRequestURL(id, query_params));
@@ -8521,7 +8559,6 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
     }, dependencies: [
       DebugOverlayComponent,
       IconComponent,
-      MatRippleModule,
       MediaPlayerComponent,
       MatTooltipModule,
       MatTooltip,
@@ -8664,73 +8701,14 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
       DatePipe,
       DebugOverlayComponent,
       IconComponent,
-      MatRippleModule,
       MediaPlayerComponent,
       MatTooltipModule
     ], styles: ["/* angular:styles/component:css;b14f5503c90bc73fe8e3edbf873bd4e28c274ac3da8973c1859825c5b030b8eb;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/signage.component.ts */\n:host {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n.stroke {\n  -webkit-text-stroke: 1px #000;\n}\n.debug-layout-grid {\n  background-image:\n    linear-gradient(\n      to right,\n      color-mix(in srgb, var(--primary) 35%, transparent) 1px,\n      transparent 1px),\n    linear-gradient(\n      to bottom,\n      color-mix(in srgb, var(--primary) 35%, transparent) 1px,\n      transparent 1px);\n  background-size: 5% 5%;\n}\n@media (min-width: 1024px) {\n  .debug-layout-grid {\n    background-size: 2.5% 2.5%;\n  }\n}\n/*# sourceMappingURL=signage.component.css.map */\n"] }]
   }], null, { transparent: [{ type: Input, args: [{ isSignal: true, alias: "transparent", required: false }] }], _players: [{ type: ViewChildren, args: [forwardRef(() => MediaPlayerComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 222 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 220 });
 })();
-
-// apps/signage/src/app/template-layout.ts
-var EDGE_BAR_SIZE = 15;
-var SIDE_BAR_SIZE = 20;
-var FLOATING_POSITION = 0;
-var clamp2 = (value, max = 100) => Math.min(Math.max(value, 0), Math.max(max, 0));
-function percentage(value, fallback) {
-  return value === void 0 ? fallback : clamp2(value * 100);
-}
-function computeTemplateLayout(layouts) {
-  const player = { left: 0, top: 0, width: 100, height: 100 };
-  const items = layouts.map((layout) => {
-    let rect;
-    switch (layout.position) {
-      case "top": {
-        const height = clamp2(percentage(layout.y_pos, EDGE_BAR_SIZE), player.height);
-        rect = __spreadProps(__spreadValues({}, player), { height });
-        player.top += height;
-        player.height -= height;
-        break;
-      }
-      case "bottom": {
-        const height = clamp2(percentage(layout.y_pos, EDGE_BAR_SIZE), player.height);
-        rect = __spreadProps(__spreadValues({}, player), {
-          top: player.top + player.height - height,
-          height
-        });
-        player.height -= height;
-        break;
-      }
-      case "left": {
-        const width = clamp2(percentage(layout.x_pos, SIDE_BAR_SIZE), player.width);
-        rect = __spreadProps(__spreadValues({}, player), { width });
-        player.left += width;
-        player.width -= width;
-        break;
-      }
-      case "right": {
-        const width = clamp2(percentage(layout.x_pos, SIDE_BAR_SIZE), player.width);
-        rect = __spreadProps(__spreadValues({}, player), {
-          left: player.left + player.width - width,
-          width
-        });
-        player.width -= width;
-        break;
-      }
-      case "floating":
-      default: {
-        const left = percentage(layout.x_pos, FLOATING_POSITION);
-        const top = percentage(layout.y_pos, FLOATING_POSITION);
-        rect = { left, top, width: 100 - left, height: 100 - top };
-        break;
-      }
-    }
-    return { layout, rect };
-  });
-  return { items, player };
-}
 
 // apps/signage/src/app/template.component.ts
 var _forTrack03 = ($index, $item) => $item.config.instance_id;
@@ -8765,8 +8743,6 @@ function SignageTemplateComponent_Conditional_2_Template(rf, ctx) {
   }
 }
 var STORE_DISPLAY_KEY = "PlaceOS.SIGNAGE.display";
-var PREVIEW_LAYOUTS_MESSAGE = "signage:template-layouts";
-var PREVIEW_READY_MESSAGE = "signage:template-preview-ready";
 var RETRY_BASE_MS = 15e3;
 var RETRY_MAX_MS = 5 * 6e4;
 function backgroundPlayerItem(media, plugins, media_cache, cache_owner) {
@@ -8907,7 +8883,7 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
       if (window.parent === window || event?.source !== window.parent)
         return;
       const data = event?.data;
-      if (!this.debug() || data?.type !== PREVIEW_LAYOUTS_MESSAGE)
+      if (!this.debug() || data?.type !== SIGNAGE_PREVIEW_LAYOUTS_MESSAGE)
         return;
       this._preview_layouts.set(Array.isArray(data.layouts) ? data.layouts : null);
     };
@@ -8940,7 +8916,7 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
   _requestPreviewLayouts() {
     if (!this.debug() || window.parent === window)
       return;
-    window.parent.postMessage({ type: PREVIEW_READY_MESSAGE }, "*");
+    window.parent.postMessage({ type: SIGNAGE_PREVIEW_READY_MESSAGE }, "*");
   }
   _bootstrapTemplate(template_id) {
     const display_id = localStorage.getItem(STORE_DISPLAY_KEY);
@@ -9128,10 +9104,10 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageTemplateComponent, { className: "SignageTemplateComponent", filePath: "apps/signage/src/app/template.component.ts", lineNumber: 158 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageTemplateComponent, { className: "SignageTemplateComponent", filePath: "apps/signage/src/app/template.component.ts", lineNumber: 160 });
 })();
 export {
   SignageTemplateComponent
 };
-//# debugId=5fabbeaa-f8f0-5835-b09f-6f93d46a474e
-//# sourceMappingURL=template.component-62CVFSYN.js.map
+//# debugId=88d2cbd7-491a-5b00-aea5-fe0f69d10a22
+//# sourceMappingURL=template.component-6JMAV4VK.js.map

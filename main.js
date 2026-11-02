@@ -5,14 +5,14 @@ import {
   resetBootRetries,
   scheduleBootRetry,
   startWatchdog
-} from "./chunk-UACZJQJ5.js";
+} from "./chunk-EEF2TV7J.js";
 import {
   hasBootstrappedDisplay
 } from "./chunk-OQDJRCPY.js";
 import "./chunk-GDMFVFGQ.js";
 import {
   TranslatePipe
-} from "./chunk-XOFXZQZ6.js";
+} from "./chunk-63GNG5EH.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -38,7 +38,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-6S3ZFUOY.js";
+} from "./chunk-LNOTASZM.js";
 import "./chunk-XTT7WF66.js";
 import {
   AsyncHandler,
@@ -52,6 +52,7 @@ import {
   capitalizeFirstLetter,
   differenceInMinutes,
   eo,
+  errorMessage,
   firstTruthyValueFrom,
   fo,
   log,
@@ -66,7 +67,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-PJ5G4U2X.js";
+} from "./chunk-2SZ64TA4.js";
 import {
   IconComponent
 } from "./chunk-SWIHPKGW.js";
@@ -79,8 +80,9 @@ import {
   RouterLink,
   RouterOutlet,
   provideRouter,
-  withHashLocation
-} from "./chunk-FUQXD7BI.js";
+  withHashLocation,
+  withNavigationErrorHandler
+} from "./chunk-JYGNTC2G.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -178,6 +180,64 @@ function subMonths(date, amount, options) {
 // node_modules/date-fns/subMinutes.js
 function subMinutes(date, amount, options) {
   return addMinutes(date, -amount, options);
+}
+
+// libs/common/src/lib/lazy-route-reload.ts
+var LAZY_ROUTE_RELOAD_KEY = "placeos.lazy_route_reload";
+var RELOAD_THROTTLE = 30 * 1e3;
+var LAZY_ROUTE_ERROR_PATTERNS = [
+  /ChunkLoadError/i,
+  /Loading chunk [\w-]+ failed/i,
+  /Failed to fetch dynamically imported module/i,
+  /Importing a module script failed/i,
+  /error loading dynamically imported module/i
+];
+function isLazyRouteLoadError(error) {
+  const message = getLazyRouteErrorMessage(error);
+  return LAZY_ROUTE_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+}
+function reloadOnChunkLoadError(error, context = {}) {
+  if (!isLazyRouteLoadError(error))
+    throw error;
+  const online = context.online ?? (typeof navigator !== "undefined" ? navigator.onLine : true);
+  if (!online)
+    throw error;
+  const storage = context.storage ?? sessionStorage;
+  const location_ref = context.location ?? location;
+  const now = context.now ?? Date.now();
+  const signature = `${location_ref.pathname}${location_ref.search}${location_ref.hash}:${getLazyRouteErrorMessage(error)}`;
+  const reload_state = parseReloadState(storage.getItem(LAZY_ROUTE_RELOAD_KEY));
+  if (reload_state?.signature === signature && now - reload_state.timestamp < RELOAD_THROTTLE) {
+    throw error;
+  }
+  storage.setItem(LAZY_ROUTE_RELOAD_KEY, JSON.stringify({ signature, timestamp: now }));
+  log("ROUTER", "Lazy route load failed. Reloading application...", error, "warn", true);
+  location_ref.reload();
+}
+function getLazyRouteErrorMessage(error) {
+  if (typeof error === "string")
+    return error;
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  if (error && typeof error === "object") {
+    const name = "name" in error ? `${error.name || ""}` : "";
+    const message = "message" in error ? `${error.message || ""}` : "";
+    return `${name}: ${message}`.trim();
+  }
+  return `${error || ""}`;
+}
+function parseReloadState(state) {
+  if (!state)
+    return null;
+  try {
+    const parsed_state = JSON.parse(state);
+    if (typeof parsed_state?.signature === "string" && typeof parsed_state?.timestamp === "number") {
+      return parsed_state;
+    }
+  } catch {
+  }
+  return null;
 }
 
 // libs/common/src/lib/locale-data.ts
@@ -8975,7 +9035,7 @@ function hasStoredApiKey() {
 // apps/signage/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-H5VOU3LJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-RW5XVZLE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9035,7 +9095,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-H5VOU3LJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-RW5XVZLE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9071,7 +9131,7 @@ var environment = {
 };
 
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-62CVFSYN.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-6JMAV4VK.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -9079,7 +9139,7 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-IIJDBAT7.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-NBN7624G.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
@@ -9106,17 +9166,11 @@ var routes = [
 ];
 
 // apps/signage/src/app/app.config.ts
-function errorMessage(error) {
-  if (typeof error === "object" && error !== null && "message" in error && typeof error.message === "string" && error.message) {
-    return error.message;
-  }
-  return String(error);
-}
 var appConfig = {
   providers: [
     provideZonelessChangeDetection(),
     provideAppInitializer(() => registerActiveLocale(inject(LocaleService).locale)),
-    provideRouter(routes, withHashLocation()),
+    provideRouter(routes, withHashLocation(), withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error))),
     provideServiceWorker("ngsw-worker.js", {
       enabled: environment.production
     }),
@@ -9128,7 +9182,7 @@ var appConfig = {
         const handler = new LazySentryErrorHandler();
         return {
           handleError: (error) => {
-            recordFatalError(errorMessage(error));
+            recordFatalError(errorMessage(error) || String(error));
             handler.handleError(error);
           }
         };
@@ -9147,5 +9201,5 @@ bootstrapApplication(AppComponent, appConfig).then(() => resetBootRetries()).cat
   console.error(err);
   scheduleBootRetry();
 });
-//# debugId=581b2973-2410-5c38-8e3f-3349deee5b43
+//# debugId=cbd840f3-e85c-5940-93ec-e5cb41781104
 //# sourceMappingURL=main.js.map

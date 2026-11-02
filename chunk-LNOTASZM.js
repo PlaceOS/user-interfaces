@@ -72,12 +72,12 @@ import {
   vc,
   wi,
   withTimeout
-} from "./chunk-PJ5G4U2X.js";
+} from "./chunk-2SZ64TA4.js";
 import {
   ActivatedRoute,
   NavigationEnd,
   Router
-} from "./chunk-FUQXD7BI.js";
+} from "./chunk-JYGNTC2G.js";
 import {
   ApplicationRef,
   BehaviorSubject,
@@ -312,15 +312,15 @@ var ClipboardModule = class _ClipboardModule {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "7b19761",
-  "hash": "7b19761",
+  "raw": "2241b21",
+  "hash": "2241b21",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "7b19761",
+  "suffix": "2241b21",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1793653849243
+  "time": 1793661307644
 };
 
 // libs/common/src/lib/settings.ts
@@ -2535,7 +2535,7 @@ async function initSentry(dsn, router, rates = {}) {
   const replays_on_error = sampleRate(rates.replays_on_error, DEFAULT_REPLAYS_SAMPLE_RATE);
   const use_replay = replays_session > 0 || replays_on_error > 0;
   try {
-    const Sentry = await import("./sentry-sdk-7P3LVCBN.js");
+    const Sentry = await import("./sentry-sdk-NTNH2PYH.js");
     Sentry.init(__spreadProps(__spreadValues({
       dsn,
       release: VERSION.hash,
@@ -4171,5 +4171,5 @@ export {
   firstValueWhere,
   OrganisationService
 };
-//# debugId=4460d77a-c5b1-5788-8117-76ea3c5e74cf
-//# sourceMappingURL=chunk-6S3ZFUOY.js.map
+//# debugId=e6cd4dad-e58d-5651-bc0c-bafc8e3b6227
+//# sourceMappingURL=chunk-LNOTASZM.js.map

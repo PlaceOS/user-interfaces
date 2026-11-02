@@ -5,7 +5,7 @@ import {
   NavigationStart,
   ResolveEnd,
   Router
-} from "./chunk-FUQXD7BI.js";
+} from "./chunk-JYGNTC2G.js";
 import {
   Directive,
   ElementRef,
@@ -21108,4 +21108,4 @@ export {
   replayIntegration
 };
 //# debugId=b0388e25-64d9-5c87-9a36-d7f26fa3070f
-//# sourceMappingURL=sentry-sdk-7P3LVCBN.js.map
+//# sourceMappingURL=sentry-sdk-NTNH2PYH.js.map

@@ -5329,11 +5329,14 @@ function shuffleArrayWithFirstItem(array, first_index) {
 function firstTruthyValueFrom(obs) {
   return obs ? lastValueFrom(obs.pipe(first((_) => !!_))) : Promise.resolve(null);
 }
-function withTimeout(promise, timeout_ms, message2 = "Operation timed out.") {
+function withTimeout(promise, timeout_ms, message2 = "Operation timed out.", on_timeout) {
   if (timeout_ms <= 0)
     return promise;
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(message2)), timeout_ms);
+    const timer = setTimeout(() => {
+      on_timeout?.();
+      reject(new Error(message2));
+    }, timeout_ms);
     promise.then((value) => {
       clearTimeout(timer);
       resolve(value);
@@ -5342,6 +5345,20 @@ function withTimeout(promise, timeout_ms, message2 = "Operation timed out.") {
       reject(error);
     });
   });
+}
+function errorMessage(error) {
+  if (typeof error === "string")
+    return error;
+  if (error instanceof Error)
+    return error.message || "";
+  const value = error;
+  if (typeof value?.error === "string")
+    return value.error;
+  if (typeof value?.message === "string")
+    return value.message;
+  if (typeof value?.error?.message === "string")
+    return value.error.message;
+  return "";
 }
 
 // libs/common/src/lib/locale.service.ts
@@ -5759,7 +5776,8 @@ export {
   shuffleArrayWithFirstItem,
   firstTruthyValueFrom,
   withTimeout,
+  errorMessage,
   HotkeysService
 };
-//# debugId=3784bf51-08cb-5974-a192-99761186cd68
-//# sourceMappingURL=chunk-PJ5G4U2X.js.map
+//# debugId=99e3ab58-bca3-5136-b6fe-c9758bb45ed6
+//# sourceMappingURL=chunk-2SZ64TA4.js.map

@@ -5653,10 +5653,10 @@ body {
 }
 :root {
   --bg: #212121;
-  --transition-delay: 1000ms;
+  --transition-duration: 3000ms;
 }
 .player-animate {
-  transition: transform var(--transition-delay) ease-out, opacity var(--transition-delay) ease-out;
+  transition: transform var(--transition-duration) ease-out, opacity var(--transition-duration) ease-out;
 }
 @property --tw-translate-x { syntax: "*"; inherits: false; initial-value: 0; }
 @property --tw-translate-y { syntax: "*"; inherits: false; initial-value: 0; }

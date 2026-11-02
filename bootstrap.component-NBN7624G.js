@@ -27,12 +27,12 @@ import {
 } from "./chunk-GDMFVFGQ.js";
 import {
   TranslatePipe
-} from "./chunk-XOFXZQZ6.js";
+} from "./chunk-63GNG5EH.js";
 import {
   OrganisationService,
   SettingsService,
   VERSION
-} from "./chunk-6S3ZFUOY.js";
+} from "./chunk-LNOTASZM.js";
 import {
   FormGroupDirective,
   FormsModule,
@@ -48,7 +48,7 @@ import {
   i18n,
   log,
   vl
-} from "./chunk-PJ5G4U2X.js";
+} from "./chunk-2SZ64TA4.js";
 import {
   IconComponent
 } from "./chunk-SWIHPKGW.js";
@@ -88,7 +88,7 @@ import {
 import {
   ActivatedRoute,
   Router
-} from "./chunk-FUQXD7BI.js";
+} from "./chunk-JYGNTC2G.js";
 import {
   ChangeDetectorRef,
   CommonModule,
@@ -2473,4 +2473,4 @@ export {
   BootstrapComponent
 };
 //# debugId=be7cca8a-be3d-5e3d-9dab-7207e7d70cd7
-//# sourceMappingURL=bootstrap.component-IIJDBAT7.js.map
+//# sourceMappingURL=bootstrap.component-NBN7624G.js.map
