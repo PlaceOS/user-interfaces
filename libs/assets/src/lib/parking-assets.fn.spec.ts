@@ -52,6 +52,37 @@ describe('[Parking Assets]', () => {
         expect(ts_client.updateAssetType).not.toHaveBeenCalled();
     });
 
+    it('should load every page of parking spaces on a level', async () => {
+        const { parking_assets } = await load_modules();
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            response([{ id: 'cat-1', name: '_PARKING_' }]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            response([
+                {
+                    id: 'type-1',
+                    name: '_PARKING_SPACES_',
+                    category_id: 'cat-1',
+                },
+            ]),
+        );
+        vi.mocked(ts_client.queryAssets).mockReturnValue(
+            Promise.resolve({
+                data: [{ id: 'bay-1' }],
+                total: 2,
+                next: () =>
+                    Promise.resolve({
+                        data: [{ id: 'bay-2' }],
+                        total: 2,
+                        next: () => null,
+                    }),
+            }) as any,
+        );
+
+        const spaces = await parking_assets.queryParkingSpaces('level-1');
+        expect(spaces.map((space) => space.id)).toEqual(['bay-1', 'bay-2']);
+    });
+
     it('should re-query the category when create collides', async () => {
         const { parking_assets } = await load_modules();
         vi.mocked(ts_client.queryAssetCategories)

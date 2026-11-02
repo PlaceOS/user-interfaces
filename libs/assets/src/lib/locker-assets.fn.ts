@@ -2,7 +2,6 @@ import { flatten } from '@placeos/common';
 import {
     PlaceAsset,
     queryAssetCategories,
-    queryAssets,
     queryAssetTypes,
     removeAsset,
 } from '@placeos/ts-client';
@@ -114,7 +113,7 @@ export async function queryLockerBankAssets(
     zone_id: string,
 ): Promise<PlaceAsset[]> {
     const type_id = await resolveLockerBankTypeId();
-    const response = await queryAssets({ zone_id, type_id, limit: 500 });
+    const response = await queryAllAssetPages({ zone_id, type_id });
     return response.data;
 }
 
@@ -125,7 +124,7 @@ export async function queryLockerBankAssetsForZones(
     const type_id = await resolveLockerBankTypeId();
     const results = await Promise.all(
         zone_ids.map((zone_id) =>
-            queryAssets({ zone_id, type_id, limit: 500 }).then((_) => _.data),
+            queryAllAssetPages({ zone_id, type_id }).then((_) => _.data),
         ),
     );
     return flatten<PlaceAsset>(results);
@@ -155,7 +154,7 @@ export async function queryLockerAssets(
     zone_id: string,
 ): Promise<PlaceAsset[]> {
     const type_id = await resolveLockerTypeId();
-    const response = await queryAssets({ zone_id, type_id, limit: 500 });
+    const response = await queryAllAssetPages({ zone_id, type_id });
     return response.data;
 }
 
@@ -166,7 +165,7 @@ export async function queryLockerAssetsForZones(
     const type_id = await resolveLockerTypeId();
     const results = await Promise.all(
         zone_ids.map((zone_id) =>
-            queryAssets({ zone_id, type_id, limit: 500 }).then((_) => _.data),
+            queryAllAssetPages({ zone_id, type_id }).then((_) => _.data),
         ),
     );
     return flatten<PlaceAsset>(results);
