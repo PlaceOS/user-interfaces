@@ -5,29 +5,29 @@ import {
   AuthenticatedImageDirective,
   PanelStateService,
   dayTimeFormat
-} from "./chunk-4NYBKYBP.js";
+} from "./chunk-UQ3CKERZ.js";
 import "./chunk-TKAYMMZI.js";
-import "./chunk-RCCJFMVG.js";
+import "./chunk-S3XVSFND.js";
 import "./chunk-J3KLNAQ7.js";
 import "./chunk-DTUAWLQM.js";
 import {
   SanitizePipe
 } from "./chunk-5B6D75II.js";
 import "./chunk-ZI2XAMMJ.js";
-import "./chunk-PMAESQTD.js";
+import "./chunk-ZHVWZIFK.js";
 import "./chunk-CLFWH2GY.js";
 import {
   TranslatePipe
-} from "./chunk-OELNUUQY.js";
+} from "./chunk-UDPU254Z.js";
 import {
   OrganisationService,
   SettingsService,
   themedLogo
-} from "./chunk-47S5TWGX.js";
+} from "./chunk-43URC3DW.js";
 import {
   AsyncHandler,
   startOfMinute
-} from "./chunk-ZOCOXZLM.js";
+} from "./chunk-SJKNCINK.js";
 import {
   SafePipe
 } from "./chunk-S3KX3YUA.js";
@@ -41,7 +41,7 @@ import {
 import "./chunk-6UCQQB7L.js";
 import {
   ActivatedRoute
-} from "./chunk-H4GJLVDP.js";
+} from "./chunk-PXBGFZT2.js";
 import {
   CommonModule,
   Component,
@@ -568,4 +568,4 @@ export {
   EventPanelComponent
 };
 //# debugId=a4e26ee4-a2c9-5c6d-84db-06819344250f
-//# sourceMappingURL=event-panel.component-53OJZ7TX.js.map
+//# sourceMappingURL=event-panel.component-7F2VG7WI.js.map

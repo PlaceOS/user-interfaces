@@ -5,7 +5,7 @@ import {
   MatAutocompleteTrigger,
   MatProgressSpinner,
   MatProgressSpinnerModule
-} from "./chunk-RCCJFMVG.js";
+} from "./chunk-S3XVSFND.js";
 import {
   MatFormField,
   MatFormFieldModule,
@@ -20,15 +20,15 @@ import {
 import "./chunk-CLFWH2GY.js";
 import {
   TranslatePipe
-} from "./chunk-OELNUUQY.js";
+} from "./chunk-UDPU254Z.js";
 import {
   OrganisationService,
   Space,
   VERSION
-} from "./chunk-47S5TWGX.js";
+} from "./chunk-43URC3DW.js";
 import {
   Ra
-} from "./chunk-ZOCOXZLM.js";
+} from "./chunk-SJKNCINK.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -47,7 +47,7 @@ import "./chunk-6UCQQB7L.js";
 import {
   ActivatedRoute,
   Router
-} from "./chunk-H4GJLVDP.js";
+} from "./chunk-PXBGFZT2.js";
 import {
   CommonModule,
   Component,
@@ -273,7 +273,7 @@ function SystemBootstrapComponent_Conditional_11_Template(rf, ctx) {
     const auto_r4 = \u0275\u0275reference(11);
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 9, "COMMON.BOOTSTRAP_DESCRIPTION"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 9, ctx_r1.description()), " ");
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 11, "COMMON.BOOTSTRAP_LABEL"));
     \u0275\u0275advance(2);
@@ -324,6 +324,13 @@ var _SystemBootstrapComponent = class _SystemBootstrapComponent {
     );
     this.heading = input.required(
       ...ngDevMode ? [{ debugName: "heading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.description = input(
+      "COMMON.BOOTSTRAP_DESCRIPTION",
+      ...ngDevMode ? [{ debugName: "description" }] : (
         /* istanbul ignore next */
         []
       )
@@ -443,7 +450,7 @@ var _SystemBootstrapComponent = class _SystemBootstrapComponent {
 _SystemBootstrapComponent.\u0275fac = function SystemBootstrapComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SystemBootstrapComponent)();
 };
-_SystemBootstrapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SystemBootstrapComponent, selectors: [["system-bootstrap"]], inputs: { store_key: [1, "store_key"], heading: [1, "heading"], submit_label: [1, "submit_label"], system_route: [1, "system_route"] }, outputs: { configured: "configured" }, decls: 21, vars: 19, consts: [["auto", "matAutocomplete"], [1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "items-center", "p-3"], ["form", "", 1, "bg-base-100", "border-base-300", "flex", "w-120", "max-w-[calc(100vw-2rem)]", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "border", "shadow-md"], [1, "bg-secondary", "text-secondary-content", "flex", "w-full", "items-center", "justify-between", "px-4", "py-3", "text-xl", "font-medium"], [1, "relative", "overflow-hidden", "rounded-sm", "px-2", "py-1"], [1, "bg-base-100", "absolute", "inset-0", "z-0", "opacity-10"], [1, "relative", "z-10", "font-mono", "text-sm", "uppercase"], ["load", "", 1, "my-16", "flex", "flex-col", "items-center"], [1, "absolute", "right-0", "bottom-0", "z-10", "p-2", "text-right"], [1, "text-xs", "opacity-70"], [1, "description", "py-4"], ["appearance", "outline"], ["matInput", "", 3, "ngModelChange", "ngModel", "matAutocomplete", "placeholder"], ["matSuffix", "", "aria-hidden", "true", 3, "diameter"], [3, "value"], [1, "pointer-events-none", "opacity-60"], ["btn", "", "matRipple", "", 3, "click", "disabled"], [1, "flex", "w-full", "items-center", "space-x-4", "leading-tight"], [1, "flex", "flex-1", "flex-col"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["aria-hidden", "true", 3, "diameter"], ["announce", "", 1, "m-4"]], template: function SystemBootstrapComponent_Template(rf, ctx) {
+_SystemBootstrapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SystemBootstrapComponent, selectors: [["system-bootstrap"]], inputs: { store_key: [1, "store_key"], heading: [1, "heading"], description: [1, "description"], submit_label: [1, "submit_label"], system_route: [1, "system_route"] }, outputs: { configured: "configured" }, decls: 21, vars: 19, consts: [["auto", "matAutocomplete"], [1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "items-center", "p-3"], ["form", "", 1, "bg-base-100", "border-base-300", "flex", "w-120", "max-w-[calc(100vw-2rem)]", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "border", "shadow-md"], [1, "bg-secondary", "text-secondary-content", "flex", "w-full", "items-center", "justify-between", "px-4", "py-3", "text-xl", "font-medium"], [1, "relative", "overflow-hidden", "rounded-sm", "px-2", "py-1"], [1, "bg-base-100", "absolute", "inset-0", "z-0", "opacity-10"], [1, "relative", "z-10", "font-mono", "text-sm", "uppercase"], ["load", "", 1, "my-16", "flex", "flex-col", "items-center"], [1, "absolute", "right-0", "bottom-0", "z-10", "p-2", "text-right"], [1, "text-xs", "opacity-70"], [1, "description", "py-4"], ["appearance", "outline"], ["matInput", "", 3, "ngModelChange", "ngModel", "matAutocomplete", "placeholder"], ["matSuffix", "", "aria-hidden", "true", 3, "diameter"], [3, "value"], [1, "pointer-events-none", "opacity-60"], ["btn", "", "matRipple", "", 3, "click", "disabled"], [1, "flex", "w-full", "items-center", "space-x-4", "leading-tight"], [1, "flex", "flex-1", "flex-col"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["aria-hidden", "true", 3, "diameter"], ["announce", "", 1, "m-4"]], template: function SystemBootstrapComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "header", 3)(3, "h1");
     \u0275\u0275text(4);
@@ -530,7 +537,7 @@ var SystemBootstrapComponent = _SystemBootstrapComponent;
                 </header>
                 @if (!loading() || loading() === 'search') {
                     <p class="description py-4">
-                        {{ 'COMMON.BOOTSTRAP_DESCRIPTION' | translate }}
+                        {{ description() | translate }}
                     </p>
                     <mat-form-field appearance="outline">
                         <mat-label>{{
@@ -631,7 +638,7 @@ var SystemBootstrapComponent = _SystemBootstrapComponent;
       MatInputModule,
       FormsModule
     ], styles: ["/* angular:styles/component:css;83ba1259b43fec112b8e24077d6edd40b53136cb09baf5aece8e24aaf6d4c48a;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/system-bootstrap.component.ts */\nmat-form-field {\n  width: calc(100% - 2rem);\n}\nbutton {\n  width: 8rem;\n  margin: 0.5rem;\n  margin-top: 0;\n}\n/*# sourceMappingURL=system-bootstrap.component.css.map */\n"] }]
-  }], () => [], { store_key: [{ type: Input, args: [{ isSignal: true, alias: "store_key", required: true }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: true }] }], submit_label: [{ type: Input, args: [{ isSignal: true, alias: "submit_label", required: false }] }], system_route: [{ type: Input, args: [{ isSignal: true, alias: "system_route", required: true }] }], configured: [{ type: Output, args: ["configured"] }] });
+  }], () => [], { store_key: [{ type: Input, args: [{ isSignal: true, alias: "store_key", required: true }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: true }] }], description: [{ type: Input, args: [{ isSignal: true, alias: "description", required: false }] }], submit_label: [{ type: Input, args: [{ isSignal: true, alias: "submit_label", required: false }] }], system_route: [{ type: Input, args: [{ isSignal: true, alias: "system_route", required: true }] }], configured: [{ type: Output, args: ["configured"] }] });
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SystemBootstrapComponent, { className: "SystemBootstrapComponent", filePath: "libs/components/src/lib/system-bootstrap.component.ts", lineNumber: 194 });
@@ -695,5 +702,5 @@ var BootstrapComponent = _BootstrapComponent;
 export {
   BootstrapComponent
 };
-//# debugId=b1359ae4-7b46-53de-97a6-7b96a42ab5ff
-//# sourceMappingURL=bootstrap.component-6SPEGAIV.js.map
+//# debugId=ecb98df0-aea5-5968-8a25-10c6c1af8f3c
+//# sourceMappingURL=bootstrap.component-MOZBZTXS.js.map

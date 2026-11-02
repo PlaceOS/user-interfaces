@@ -13,7 +13,7 @@ import {
   MatProgressSpinnerModule,
   MatSelect,
   MatSelectModule
-} from "./chunk-RCCJFMVG.js";
+} from "./chunk-S3XVSFND.js";
 import {
   MatError,
   MatFormField,
@@ -38,7 +38,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-PMAESQTD.js";
+} from "./chunk-ZHVWZIFK.js";
 import {
   FormField,
   disabled,
@@ -49,7 +49,7 @@ import {
 } from "./chunk-CLFWH2GY.js";
 import {
   TranslatePipe
-} from "./chunk-OELNUUQY.js";
+} from "./chunk-UDPU254Z.js";
 import {
   AssetRequest,
   CalendarEvent,
@@ -84,7 +84,7 @@ import {
   settingSignal,
   toQueryString,
   user_group_names
-} from "./chunk-47S5TWGX.js";
+} from "./chunk-43URC3DW.js";
 import {
   AsyncHandler,
   Cs,
@@ -153,7 +153,7 @@ import {
   unique,
   up,
   v
-} from "./chunk-ZOCOXZLM.js";
+} from "./chunk-SJKNCINK.js";
 import {
   IconComponent,
   SafePipe
@@ -207,7 +207,7 @@ import {
 import {
   NavigationEnd,
   Router
-} from "./chunk-H4GJLVDP.js";
+} from "./chunk-PXBGFZT2.js";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -6062,14 +6062,7 @@ function isPermissionError(error) {
 }
 
 // libs/events/src/lib/event-form.service.ts
-var BOOKING_URLS = [
-  "book/rooms",
-  "book/spaces",
-  "book/meeting",
-  "schedule/view",
-  "confirm/success",
-  "upcoming"
-];
+var BOOKING_URLS = ["book/rooms", "book/spaces", "book/meeting"];
 var Tags;
 (function(Tags2) {
   Tags2["Availability"] = "AVAILABILITY";
@@ -10855,5 +10848,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=b83a48e5-dfbd-596e-881c-ce2ac63bff35
-//# sourceMappingURL=chunk-4NYBKYBP.js.map
+//# debugId=70ec6733-f855-53cd-ab6e-63738841b080
+//# sourceMappingURL=chunk-UQ3CKERZ.js.map

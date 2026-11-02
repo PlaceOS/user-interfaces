@@ -20,31 +20,31 @@ import {
   timelineNow,
   timelineSlot,
   timelineStart
-} from "./chunk-4NYBKYBP.js";
+} from "./chunk-UQ3CKERZ.js";
 import "./chunk-TKAYMMZI.js";
 import {
   AnnounceDirective
-} from "./chunk-RCCJFMVG.js";
+} from "./chunk-S3XVSFND.js";
 import "./chunk-J3KLNAQ7.js";
 import "./chunk-DTUAWLQM.js";
 import {
   RemoteLoggingService
-} from "./chunk-AC5R5ZNH.js";
+} from "./chunk-SR3WXFRJ.js";
 import "./chunk-5B6D75II.js";
 import "./chunk-ZI2XAMMJ.js";
-import "./chunk-PMAESQTD.js";
+import "./chunk-ZHVWZIFK.js";
 import "./chunk-CLFWH2GY.js";
 import {
   TranslatePipe
-} from "./chunk-OELNUUQY.js";
+} from "./chunk-UDPU254Z.js";
 import {
   VERSION
-} from "./chunk-47S5TWGX.js";
+} from "./chunk-43URC3DW.js";
 import {
   AsyncHandler,
   notifyError,
   startOfMinute
-} from "./chunk-ZOCOXZLM.js";
+} from "./chunk-SJKNCINK.js";
 import {
   IconComponent,
   SafePipe
@@ -59,7 +59,7 @@ import {
 import "./chunk-6UCQQB7L.js";
 import {
   ActivatedRoute
-} from "./chunk-H4GJLVDP.js";
+} from "./chunk-PXBGFZT2.js";
 import {
   CommonModule,
   Component,
@@ -2151,4 +2151,4 @@ export {
   PanelViewComponent
 };
 //# debugId=909f1f44-c0b2-50b6-a47d-c4a9be307aa5
-//# sourceMappingURL=panel-view.component-JGYS7W2B.js.map
+//# sourceMappingURL=panel-view.component-YHXW7Q7I.js.map

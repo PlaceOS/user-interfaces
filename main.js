@@ -1,15 +1,15 @@
 import {
   subMinutes
-} from "./chunk-UTDC6DMA.js";
+} from "./chunk-BRJXSPCH.js";
 import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-PMAESQTD.js";
+} from "./chunk-ZHVWZIFK.js";
 import "./chunk-CLFWH2GY.js";
 import {
   TranslatePipe
-} from "./chunk-OELNUUQY.js";
+} from "./chunk-UDPU254Z.js";
 import {
   GroupPermission,
   LazySentryErrorHandler,
@@ -34,7 +34,7 @@ import {
   setMocks,
   settingSignal,
   user_groups_loaded
-} from "./chunk-47S5TWGX.js";
+} from "./chunk-43URC3DW.js";
 import {
   AsyncHandler,
   Bp,
@@ -60,7 +60,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-ZOCOXZLM.js";
+} from "./chunk-SJKNCINK.js";
 import {
   IconComponent
 } from "./chunk-S3KX3YUA.js";
@@ -74,8 +74,9 @@ import {
   RouterLink,
   RouterOutlet,
   provideRouter,
-  withHashLocation
-} from "./chunk-H4GJLVDP.js";
+  withHashLocation,
+  withNavigationErrorHandler
+} from "./chunk-PXBGFZT2.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -158,6 +159,64 @@ function setMinutes(date, minutes, options) {
 // node_modules/date-fns/subMonths.js
 function subMonths(date, amount, options) {
   return addMonths(date, -amount, options);
+}
+
+// libs/common/src/lib/lazy-route-reload.ts
+var LAZY_ROUTE_RELOAD_KEY = "placeos.lazy_route_reload";
+var RELOAD_THROTTLE = 30 * 1e3;
+var LAZY_ROUTE_ERROR_PATTERNS = [
+  /ChunkLoadError/i,
+  /Loading chunk [\w-]+ failed/i,
+  /Failed to fetch dynamically imported module/i,
+  /Importing a module script failed/i,
+  /error loading dynamically imported module/i
+];
+function isLazyRouteLoadError(error) {
+  const message = getLazyRouteErrorMessage(error);
+  return LAZY_ROUTE_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+}
+function reloadOnChunkLoadError(error, context = {}) {
+  if (!isLazyRouteLoadError(error))
+    throw error;
+  const online = context.online ?? (typeof navigator !== "undefined" ? navigator.onLine : true);
+  if (!online)
+    throw error;
+  const storage = context.storage ?? sessionStorage;
+  const location_ref = context.location ?? location;
+  const now = context.now ?? Date.now();
+  const signature = `${location_ref.pathname}${location_ref.search}${location_ref.hash}:${getLazyRouteErrorMessage(error)}`;
+  const reload_state = parseReloadState(storage.getItem(LAZY_ROUTE_RELOAD_KEY));
+  if ((reload_state == null ? void 0 : reload_state.signature) === signature && now - reload_state.timestamp < RELOAD_THROTTLE) {
+    throw error;
+  }
+  storage.setItem(LAZY_ROUTE_RELOAD_KEY, JSON.stringify({ signature, timestamp: now }));
+  log("ROUTER", "Lazy route load failed. Reloading application...", error, "warn", true);
+  location_ref.reload();
+}
+function getLazyRouteErrorMessage(error) {
+  if (typeof error === "string")
+    return error;
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  if (error && typeof error === "object") {
+    const name = "name" in error ? `${error.name || ""}` : "";
+    const message = "message" in error ? `${error.message || ""}` : "";
+    return `${name}: ${message}`.trim();
+  }
+  return `${error || ""}`;
+}
+function parseReloadState(state) {
+  if (!state)
+    return null;
+  try {
+    const parsed_state = JSON.parse(state);
+    if (typeof (parsed_state == null ? void 0 : parsed_state.signature) === "string" && typeof (parsed_state == null ? void 0 : parsed_state.timestamp) === "number") {
+      return parsed_state;
+    }
+  } catch {
+  }
+  return null;
 }
 
 // libs/common/src/lib/locale-data.ts
@@ -8956,11 +9015,11 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-4MWXBW3F.js").then((m) => m.ChatComponent)
+  import("./chat.component-EN6MJP7O.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-IKTO6UTA.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-OQNEBHRY.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9018,9 +9077,9 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-4MWXBW3F.js").then((m) => m.ChatComponent),
+    import("./chat.component-EN6MJP7O.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-IKTO6UTA.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-OQNEBHRY.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9063,22 +9122,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-6SPEGAIV.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-MOZBZTXS.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-JGYS7W2B.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-YHXW7Q7I.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-JCRQIQV6.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-V6SUQ7YP.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-53OJZ7TX.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-7F2VG7WI.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -9089,7 +9148,7 @@ var appConfig = {
   providers: [
     provideZonelessChangeDetection(),
     provideAppInitializer(() => registerActiveLocale(inject(LocaleService).locale)),
-    provideRouter(routes, withHashLocation()),
+    provideRouter(routes, withHashLocation(), withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error))),
     provideServiceWorker("ngsw-worker.js", {
       enabled: environment.production && environment.service_worker
     }),
@@ -9110,5 +9169,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=9c39d832-d672-5162-84a4-decad08d75dd
+//# debugId=68b7b9e1-6d2d-505b-abc8-e06a883d0df6
 //# sourceMappingURL=main.js.map

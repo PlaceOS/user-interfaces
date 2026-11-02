@@ -5573,11 +5573,14 @@ function formatDuration2({ days, hours, minutes, seconds }, { zero } = {}) {
 function firstTruthyValueFrom(obs) {
   return obs ? lastValueFrom(obs.pipe(first((_) => !!_))) : Promise.resolve(null);
 }
-function withTimeout(promise, timeout_ms, message2 = "Operation timed out.") {
+function withTimeout(promise, timeout_ms, message2 = "Operation timed out.", on_timeout) {
   if (timeout_ms <= 0)
     return promise;
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(message2)), timeout_ms);
+    const timer = setTimeout(() => {
+      on_timeout == null ? void 0 : on_timeout();
+      reject(new Error(message2));
+    }, timeout_ms);
     promise.then((value) => {
       clearTimeout(timer);
       resolve(value);
@@ -6405,5 +6408,5 @@ export {
   errorMessage,
   HotkeysService
 };
-//# debugId=d9f72852-00ab-5d4e-9015-e80bfa5fd9f5
-//# sourceMappingURL=chunk-ZOCOXZLM.js.map
+//# debugId=c98d1c5b-ed96-5e39-a0ae-d4d79a3b02e8
+//# sourceMappingURL=chunk-SJKNCINK.js.map

@@ -5877,6 +5877,13 @@ function withHashLocation() {
   }];
   return routerFeature(6, providers);
 }
+function withNavigationErrorHandler(handler) {
+  const providers = [{
+    provide: NAVIGATION_ERROR_HANDLER,
+    useValue: handler
+  }];
+  return routerFeature(7, providers);
+}
 function withComponentInputBinding(options = {}) {
   const providers = [{
     provide: INPUT_BINDER,
@@ -6032,7 +6039,8 @@ export {
   Router,
   RouterLink,
   provideRouter,
-  withHashLocation
+  withHashLocation,
+  withNavigationErrorHandler
 };
-//# debugId=259a881b-e5fb-5261-88c1-de81d23483c8
-//# sourceMappingURL=chunk-H4GJLVDP.js.map
+//# debugId=fb5c483a-3436-565b-a2b3-70be13d6377e
+//# sourceMappingURL=chunk-PXBGFZT2.js.map
