@@ -59,6 +59,19 @@ export function findDeskByLegacyId<T extends { id: string; map_id?: string }>(
     );
 }
 
+/**
+ * Find the desk asset within a building, region or org for an id from a link,
+ * check-in code or favourite. Matches like `findDeskByLegacyId`.
+ */
+export async function queryDeskAssetByLegacyId(
+    zone_id: string,
+    id: string,
+): Promise<PlaceAsset | undefined> {
+    const assets = await queryDeskAssetsInZone(zone_id);
+    const desks = assets.map((asset) => deskFromAsset(asset));
+    return assets[desks.indexOf(findDeskByLegacyId(desks, id))];
+}
+
 /** Fields with a dedicated place on the asset or desk, everything else is kept in `other_data` */
 const DESK_ASSET_KEYS = new Set([
     'id',

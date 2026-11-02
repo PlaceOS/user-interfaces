@@ -10,11 +10,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    deskFromAsset,
-    findDeskByLegacyId,
-    queryDeskAssetsInZone,
-} from '@placeos/assets';
+import { queryDeskAssetByLegacyId } from '@placeos/assets';
 import {
     BookingFormService,
     queryBookings,
@@ -355,9 +351,10 @@ export class BookCodeFlowComponent
         if (!this._settings.get('app.desks.use_assets')) return code;
         const org_id = this._org.organisation?.id;
         if (!org_id) return code;
-        const assets = await queryDeskAssetsInZone(org_id).catch(() => []);
-        const desks = assets.map((asset) => deskFromAsset(asset));
-        return findDeskByLegacyId(desks, code)?.id || code;
+        const asset = await queryDeskAssetByLegacyId(org_id, code).catch(
+            () => undefined,
+        );
+        return asset?.id || code;
     }
 
     private async _checkinEvent(space_id: string, email?: string) {

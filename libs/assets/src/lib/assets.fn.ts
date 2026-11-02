@@ -255,7 +255,7 @@ const MAX_ASSET_PAGES = 100;
  * Query assets, following pagination until every page is loaded.
  * `zones` is a comma separated list, assets must be in every zone listed.
  */
-export async function queryAllAssetPages(
+async function queryAllAssetPages(
     query: Parameters<typeof queryAssetsAPI>[0] & { zones?: string } = {},
 ) {
     let response = await queryAssetsAPI({
