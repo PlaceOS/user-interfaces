@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["system-bootstrap.component.ts"],
+  "sourcesContent": ["\n            mat-form-field {\n                width: calc(100% - 2rem);\n            }\n\n            button {\n                width: 8rem;\n                margin: 0.5rem;\n                margin-top: 0;\n            }\n        "],
+  "mappings": "AACY,eACI,MAAA,KAAA,KAAA,EAAA,KACJ,CAEA,OACI,MAAA,YACA,MACA,WAAA,CACJ",
+  "names": []
+}
