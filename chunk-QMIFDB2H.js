@@ -12,7 +12,7 @@ import {
   parentBookingId,
   queryBookings,
   removeBooking
-} from "./chunk-GYKXVE65.js";
+} from "./chunk-QRMMQ4SQ.js";
 import {
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR
@@ -21,7 +21,7 @@ import {
   AssetRequest,
   Booking,
   getUnixTime
-} from "./chunk-MEQO56ZD.js";
+} from "./chunk-DGLQUDZG.js";
 import {
   Xl,
   _p,
@@ -1563,13 +1563,16 @@ function saveAssetCategory(category) {
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
+var MAX_ASSET_PAGES = 100;
 async function queryAllAssetPages(query = {}) {
   let response = await Xl(__spreadProps(__spreadValues({}, query), {
     limit: query.limit || 500
   }));
   let total = response.total;
   const data = [...response.data];
-  while (typeof response.next === "function") {
+  for (let page = 1; page < MAX_ASSET_PAGES; page++) {
+    if (typeof response.next !== "function")
+      break;
     const next = response.next();
     if (!next)
       break;
@@ -1771,5 +1774,5 @@ export {
   queryGroupAvailability,
   validateAssetRequestsForResource
 };
-//# debugId=1ae86c46-1943-5129-b7be-c7524db46fac
-//# sourceMappingURL=chunk-VEZNRK4K.js.map
+//# debugId=5574f035-bf4b-5cf2-8c0c-1b1c656f51ae
+//# sourceMappingURL=chunk-QMIFDB2H.js.map

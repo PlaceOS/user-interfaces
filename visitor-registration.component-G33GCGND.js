@@ -8,11 +8,11 @@ import {
   BookingFormService,
   DurationFieldComponent,
   UserSearchFieldComponent
-} from "./chunk-YISFY3NM.js";
+} from "./chunk-2DTZGPAU.js";
 import {
   MatCheckbox,
   MatCheckboxModule
-} from "./chunk-VEZNRK4K.js";
+} from "./chunk-QMIFDB2H.js";
 import "./chunk-UNTAQOJN.js";
 import {
   MatProgressSpinner,
@@ -36,12 +36,12 @@ import "./chunk-MRF2PDC6.js";
 import "./chunk-GQB45JWW.js";
 import {
   CheckinStateService
-} from "./chunk-3Y5ZUV3S.js";
+} from "./chunk-CR6OXG6N.js";
 import {
   AnnounceDirective
 } from "./chunk-QUYHVOQZ.js";
 import "./chunk-735F45RE.js";
-import "./chunk-GYKXVE65.js";
+import "./chunk-QRMMQ4SQ.js";
 import {
   VirtualKeyboardComponent
 } from "./chunk-WSXGUQH2.js";
@@ -65,7 +65,7 @@ import {
   User,
   isEmptyUser,
   settingSignal
-} from "./chunk-MEQO56ZD.js";
+} from "./chunk-DGLQUDZG.js";
 import {
   AsyncHandler,
   getInvalidSignalFields,
@@ -779,4 +779,4 @@ export {
   VisitorRegistrationComponent
 };
 //# debugId=57b2079f-1854-543d-a35b-6e5592680d19
-//# sourceMappingURL=visitor-registration.component-T4JF6KHE.js.map
+//# sourceMappingURL=visitor-registration.component-G33GCGND.js.map

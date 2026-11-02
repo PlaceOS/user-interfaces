@@ -2,7 +2,7 @@ import {
   CheckinComponent,
   CheckinErrorComponent,
   CheckinQRScanComponent
-} from "./chunk-MWVAR74T.js";
+} from "./chunk-JCX25AFI.js";
 import "./chunk-FXXFMSZN.js";
 import {
   PageHeadingDirective
@@ -20,7 +20,7 @@ import {
   UserAvatarComponent,
   findOldestByName,
   saveAssetCategory
-} from "./chunk-VEZNRK4K.js";
+} from "./chunk-QMIFDB2H.js";
 import {
   MatSelect,
   MatSelectModule
@@ -52,14 +52,14 @@ import {
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-3Y5ZUV3S.js";
+} from "./chunk-CR6OXG6N.js";
 import {
   AnnounceDirective
 } from "./chunk-QUYHVOQZ.js";
 import {
   getGuestCateringItem,
   setGuestCateringItem
-} from "./chunk-GYKXVE65.js";
+} from "./chunk-QRMMQ4SQ.js";
 import {
   VirtualKeyboardComponent
 } from "./chunk-WSXGUQH2.js";
@@ -85,7 +85,7 @@ import {
   OrganisationService,
   SettingsService,
   settingSignal
-} from "./chunk-MEQO56ZD.js";
+} from "./chunk-DGLQUDZG.js";
 import {
   AsyncHandler,
   Si,
@@ -2824,4 +2824,4 @@ export {
   ROUTES
 };
 //# debugId=6e2d29b2-5aca-59f3-b597-94a399735598
-//# sourceMappingURL=checkin.routes-VWEZFIBJ.js.map
+//# sourceMappingURL=checkin.routes-Q4ACUDR6.js.map

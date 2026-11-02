@@ -37,7 +37,7 @@ import {
   SettingsService,
   VERSION,
   isPublicMode
-} from "./chunk-MEQO56ZD.js";
+} from "./chunk-DGLQUDZG.js";
 import {
   AsyncHandler
 } from "./chunk-5OQBE33N.js";
@@ -1173,4 +1173,4 @@ export {
   BootstrapComponent
 };
 //# debugId=bdb8565d-f217-515a-87a2-9a5d02038cb1
-//# sourceMappingURL=bootstrap.component-7Z37T5FV.js.map
+//# sourceMappingURL=bootstrap.component-HAIKVWAH.js.map

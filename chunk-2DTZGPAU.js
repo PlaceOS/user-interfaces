@@ -11,7 +11,7 @@ import {
   saveAssetCategory,
   saveAssetType,
   validateAssetRequestsForResource
-} from "./chunk-VEZNRK4K.js";
+} from "./chunk-QMIFDB2H.js";
 import {
   MatSelect,
   MatSelectModule
@@ -71,7 +71,7 @@ import {
   saveBooking,
   searchGuests,
   updateBooking
-} from "./chunk-GYKXVE65.js";
+} from "./chunk-QRMMQ4SQ.js";
 import {
   VirtualKeyboardComponent
 } from "./chunk-WSXGUQH2.js";
@@ -141,7 +141,7 @@ import {
   toQueryString,
   toVisitorInternalOrExternal,
   user_group_names
-} from "./chunk-MEQO56ZD.js";
+} from "./chunk-DGLQUDZG.js";
 import {
   AsyncHandler,
   J,
@@ -3810,9 +3810,16 @@ async function queryDeskAssets(zone_id) {
   return response.data;
 }
 async function queryDeskAssetsInZone(zone_id) {
+  if (!zone_id)
+    return [];
   const type_id = await resolveDeskTypeId();
   const response = await queryAllAssetPages({ zones: zone_id, type_id });
   return response.data;
+}
+function findDeskByLegacyId(desks, id) {
+  if (!id)
+    return void 0;
+  return desks.find((desk) => desk.id === id) || desks.find((desk) => desk.map_id === id);
 }
 function deskFromAsset(asset, zone) {
   const other_data = asset.other_data || {};
@@ -9009,9 +9016,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const favourites = this._settings.get(SETTING_KEYS.FAVORITE_DESKS) || [];
     if (!favourites.length)
       return;
-    const ids = new Set(desks.map((desk) => desk.id));
-    const asset_ids = new Map(desks.filter((desk) => desk.map_id && desk.map_id !== desk.id).map((desk) => [desk.map_id, desk.id]));
-    const updated = unique(favourites.map((id) => ids.has(id) ? id : asset_ids.get(id) || id));
+    const updated = unique(favourites.map((id) => findDeskByLegacyId(desks, id)?.id || id));
     if (updated.join() === favourites.join())
       return;
     this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, updated);
@@ -9126,5 +9131,5 @@ export {
   assignedDeskBuilding,
   BookingFormService
 };
-//# debugId=beffe4a6-1d08-571f-9e1e-e46f995b9a62
-//# sourceMappingURL=chunk-YISFY3NM.js.map
+//# debugId=65764577-0637-5670-83f7-cbdeb312103c
+//# sourceMappingURL=chunk-2DTZGPAU.js.map
