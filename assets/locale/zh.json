@@ -894,6 +894,7 @@
             "CHAT_ASSISTANT": "助手",
             "CHAT_WAITING": "等待回复...",
             "CHAT_MESSAGE_PLACEHOLDER": "新消息...",
+            "CHAT_SEND_FAILED": "无法发送消息。助手不可用。",
             "DEAL_COUNT_1": "{{ count }} 个优惠",
             "DEAL_COUNT": "{{ count }} 个优惠",
             "SORT_BY_DATE_DESC": "按日期排序（最新优先）",

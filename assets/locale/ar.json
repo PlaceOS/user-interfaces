@@ -894,6 +894,7 @@
             "CHAT_ASSISTANT": "المساعد",
             "CHAT_WAITING": "في انتظار الرد...",
             "CHAT_MESSAGE_PLACEHOLDER": "رسالة جديدة...",
+            "CHAT_SEND_FAILED": "تعذر إرسال الرسالة. المساعد غير متاح.",
             "DEAL_COUNT_1": "{{ count }} Offer",
             "DEAL_COUNT": "{{ count }} Offers",
             "SORT_BY_DATE_DESC": "ترتيب حسب التاريخ (الأحدث أولاً)",
