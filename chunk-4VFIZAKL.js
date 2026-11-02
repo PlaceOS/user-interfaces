@@ -14,11 +14,11 @@ import {
   SettingsToggleComponent,
   UniqueSelectionDispatcher,
   VirtualKeyboardComponent
-} from "./chunk-UANPCMRS.js";
+} from "./chunk-LSCYPOP7.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-GQSO24CR.js";
+} from "./chunk-K4SNFKB6.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -33,7 +33,7 @@ import {
 } from "./chunk-HNXE7CJM.js";
 import {
   CustomTooltipComponent
-} from "./chunk-WMQWSPO4.js";
+} from "./chunk-CF2JNGOK.js";
 import {
   SanitizePipe
 } from "./chunk-FT5KKSK5.js";
@@ -51,7 +51,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-RBIVYKAK.js";
+} from "./chunk-MDNZ4HJ4.js";
 import {
   FormField,
   disabled,
@@ -59,10 +59,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-TF7LAZD7.js";
+} from "./chunk-ITR3K6CT.js";
 import {
   TranslatePipe
-} from "./chunk-PPGXAHRC.js";
+} from "./chunk-ICAVWFED.js";
 import {
   AssetRequest,
   Booking,
@@ -123,7 +123,7 @@ import {
   userSignal,
   user_group_names,
   ɵNgNoValidate
-} from "./chunk-X2K4CTAC.js";
+} from "./chunk-Q6EBNPXU.js";
 import {
   $,
   AsyncHandler,
@@ -193,7 +193,7 @@ import {
   unique,
   up,
   v
-} from "./chunk-WW6DQMWG.js";
+} from "./chunk-C7DHZMZQ.js";
 import {
   BasePortalOutlet,
   CdkPortalOutlet,
@@ -5565,8 +5565,12 @@ function resolveHiddenAssetTypeId(category_name, type_name) {
   return _hidden_type_ids.get(key);
 }
 async function queryTypeAssetsForZones(type_id, zone_ids) {
-  const results = await Promise.all(zone_ids.map((zone_id) => Xl({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => queryAllAssetPages({ zone_id, type_id }).then((_) => _.data)));
   return flatten(results);
+}
+async function queryTypeAssetsInZone(type_id, zone_id) {
+  const response = await queryAllAssetPages({ zones: zone_id, type_id });
+  return response.data;
 }
 function filter_hidden_items(response) {
   return __spreadProps(__spreadValues({}, response), {
@@ -5584,13 +5588,16 @@ function saveAssetCategory(category) {
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
+var MAX_ASSET_PAGES = 100;
 async function queryAllAssetPages(query = {}) {
   let response = await Xl(__spreadProps(__spreadValues({}, query), {
     limit: query.limit || 500
   }));
   let total = response.total;
   const data = [...response.data];
-  while (typeof response.next === "function") {
+  for (let page = 1; page < MAX_ASSET_PAGES; page++) {
+    if (typeof response.next !== "function")
+      break;
     const next = response.next();
     if (!next)
       break;
@@ -13637,11 +13644,22 @@ async function queryDeskAssetsForZones(zone_ids) {
     return [];
   return queryTypeAssetsForZones(await resolveDeskTypeId(), zone_ids);
 }
+async function queryDeskAssetsInZone(zone_id) {
+  if (!zone_id)
+    return [];
+  return queryTypeAssetsInZone(await resolveDeskTypeId(), zone_id);
+}
+function findDeskByLegacyId(desks, id) {
+  if (!id)
+    return void 0;
+  return desks.find((desk) => desk.id === id) || desks.find((desk) => desk.map_id === id);
+}
 function deskFromAsset(asset, zone) {
+  const other_data = asset.other_data || {};
   const security = asset.security_system_groups?.[0] || "";
-  return new Desk(__spreadProps(__spreadValues({}, asset), {
+  return new Desk(__spreadProps(__spreadValues(__spreadValues({}, other_data), asset), {
     name: asset.identifier || asset.name,
-    map_id: asset.map_id || asset.id,
+    map_id: asset.map_id || other_data["map_id"] || asset.id,
     zone: new en(zone || { id: asset.zone_id }),
     groups: asset.place_groups,
     security
@@ -13662,8 +13680,8 @@ function shareInFlight(key, load) {
 function childMetadata(zone_id, name) {
   return shareInFlight(`metadata|${zone_id}|${name}`, () => bc(zone_id, { name }));
 }
-function deskAssets(level_ids) {
-  return shareInFlight(`desk-assets|${[...level_ids].sort().join(",")}`, () => queryDeskAssetsForZones(level_ids));
+function deskAssets(zone_id) {
+  return shareInFlight(`desk-assets|${zone_id}`, () => queryDeskAssetsInZone(zone_id));
 }
 async function loadParkingResources(org, use_region) {
   const levels = (use_region ? org.levelsForRegion() : org.levelsForBuilding()).filter((_) => _.tags.includes("parking"));
@@ -13675,8 +13693,10 @@ async function loadParkingResources(org, use_region) {
   }));
 }
 async function loadDeskResources(org, use_region) {
-  const levels = use_region ? org.levelsForRegion() : org.levelsForBuilding();
-  const assets = await deskAssets(levels.map((level) => level.id));
+  const zone_id = use_region ? org.building?.parent_id : org.building?.id;
+  if (!zone_id)
+    return [];
+  const assets = await deskAssets(zone_id);
   return assets.map((asset) => deskFromAsset(asset, org.levelWithID([asset.zone_id])));
 }
 async function loadMetadataResources(org, type, use_region) {
@@ -13704,13 +13724,9 @@ function assignedDeskBuilding(org, user_email, use_assets) {
   const key = `assigned-desk|${use_assets}|${email2}|${building_ids.join(",")}`;
   return shareInFlight(key, async () => {
     if (use_assets) {
-      const ids = new Set(building_ids);
-      const levels = org.levels.filter((level) => ids.has(level.parent_id));
-      const desks = await deskAssets(levels.map((level) => level.id)).catch(() => []);
-      const desk = desks.find((item) => item.assigned_to?.toLowerCase() === email2);
-      if (!desk)
-        return null;
-      return levels.find((level) => level.id === desk.zone_id)?.parent_id || null;
+      const lists = await Promise.all(building_ids.map((id) => deskAssets(id).catch(() => [])));
+      const index2 = lists.findIndex((desks) => desks.some((item) => item.assigned_to?.toLowerCase() === email2));
+      return index2 >= 0 ? building_ids[index2] : null;
     }
     const map_metadata = (meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((desk) => new Desk(__spreadProps(__spreadValues({}, desk), { zone: meta.zone })));
     const desk_lists = await Promise.all(building_ids.map((id) => childMetadata(id, "desks").then((data) => flatten(data.map(map_metadata))).catch(() => [])));
@@ -17684,8 +17700,23 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     return loadParkingResources(this._org, this._settings.get("app.use_region"));
   }
   /** Load desk resources from the assets API for the active scope. */
-  loadDeskResources() {
-    return loadDeskResources(this._org, this._settings.get("app.use_region"));
+  async loadDeskResources() {
+    const desks = await loadDeskResources(this._org, this._settings.get("app.use_region"));
+    this._migrateFavouriteDesks(desks);
+    return desks;
+  }
+  /**
+   * Favourites saved before desks moved to assets reference the old desk id,
+   * which migrated desk assets keep as their map id. Point them at the asset.
+   */
+  _migrateFavouriteDesks(desks) {
+    const favourites = this._settings.get(SETTING_KEYS.FAVORITE_DESKS) || [];
+    if (!favourites.length)
+      return;
+    const updated = unique(favourites.map((id) => findDeskByLegacyId(desks, id)?.id || id));
+    if (updated.join() === favourites.join())
+      return;
+    this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, updated);
   }
   /** Load the resources of the given metadata `type`, e.g. `desks`. */
   async loadResourceList(type) {
@@ -18548,10 +18579,10 @@ export {
   ExploreSpacesService,
   SpacesService,
   queryDeskAssets,
-  queryDeskAssetsForZones,
+  queryDeskAssetsInZone,
   deskFromAsset,
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=9ea7a5f8-fde6-51c2-b636-6842a5109e38
-//# sourceMappingURL=chunk-D323CXPX.js.map
+//# debugId=843dd456-3270-5d83-9566-91905abb3030
+//# sourceMappingURL=chunk-4VFIZAKL.js.map

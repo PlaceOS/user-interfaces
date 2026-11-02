@@ -22,10 +22,10 @@ import {
   loadBookingRules,
   queryBookings,
   queryDeskAssets,
-  queryDeskAssetsForZones,
+  queryDeskAssetsInZone,
   searchStaff,
   showStaff
-} from "./chunk-D323CXPX.js";
+} from "./chunk-4VFIZAKL.js";
 import {
   MatMenu,
   MatMenuItem,
@@ -39,8 +39,8 @@ import {
   MatProgressSpinnerModule,
   VirtualKeyboardComponent,
   toSignal
-} from "./chunk-UANPCMRS.js";
-import "./chunk-GQSO24CR.js";
+} from "./chunk-LSCYPOP7.js";
+import "./chunk-K4SNFKB6.js";
 import {
   MatError,
   MatFormFieldModule
@@ -48,7 +48,7 @@ import {
 import "./chunk-HNXE7CJM.js";
 import {
   CustomTooltipComponent
-} from "./chunk-WMQWSPO4.js";
+} from "./chunk-CF2JNGOK.js";
 import "./chunk-FT5KKSK5.js";
 import {
   MatOption,
@@ -56,11 +56,11 @@ import {
 } from "./chunk-32S6TUKN.js";
 import {
   SpacePipe
-} from "./chunk-RBIVYKAK.js";
-import "./chunk-TF7LAZD7.js";
+} from "./chunk-MDNZ4HJ4.js";
+import "./chunk-ITR3K6CT.js";
 import {
   TranslatePipe
-} from "./chunk-PPGXAHRC.js";
+} from "./chunk-ICAVWFED.js";
 import {
   Booking,
   CalendarEvent,
@@ -97,7 +97,7 @@ import {
   settingSignal,
   toQueryString,
   user_group_names
-} from "./chunk-X2K4CTAC.js";
+} from "./chunk-Q6EBNPXU.js";
 import {
   AsyncHandler,
   IconComponent,
@@ -148,7 +148,7 @@ import {
   toDate,
   toZonedTime,
   unique
-} from "./chunk-WW6DQMWG.js";
+} from "./chunk-C7DHZMZQ.js";
 import "./chunk-73APMK6M.js";
 import "./chunk-76O3XVZN.js";
 import {
@@ -3502,16 +3502,18 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     for (const { id, bookable, map_id } of desks) {
       const d_id = map_id || id;
       active_keys.add(d_id);
-      const is_used = in_use.some((i) => d_id === i);
-      const has_presence = presence.some((i) => d_id === i);
-      const has_signs = signs.some((i) => d_id === i);
-      const is_checked_in = checked_in.some((i) => d_id === i) || is_used && this._settings.get(`app.desks.auto_checkin`);
+      const matches = (i) => i === d_id || i === id;
+      const is_used = in_use.some(matches);
+      const has_presence = presence.some(matches);
+      const has_signs = signs.some(matches);
+      const is_checked_in = checked_in.some(matches) || is_used && this._settings.get(`app.desks.auto_checkin`);
       const is_restricted = rulesForResource({
         date: Date.now(),
         duration: 60,
         host: currentUser(),
         resource: {
           id,
+          map_id,
           zones: [level?.parent_id, level?.id]
         }
       }, restrictions)?.hidden;
@@ -3727,6 +3729,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       host: currentUser(),
       resource: {
         id: asset_id,
+        map_id: desk.map_id,
         zones: [desk.zone?.parent_id, desk.zone?.id]
       }
     }, restrictions)?.hidden;
@@ -4359,6 +4362,17 @@ var TYPES = ["space", "feature", "contact", "user"];
 function typeIndex(item) {
   return TYPES.indexOf(item.is_role ? "contact" : item.type);
 }
+function deskSearchResult(desk) {
+  const map_id = desk.map_id || desk.id;
+  return {
+    id: map_id,
+    type: "feature",
+    email: desk.assigned_to,
+    description: map_id,
+    name: desk.name || map_id,
+    zone: desk.zone?.id || ""
+  };
+}
 function compareSearchResultsAscending(item_a, item_b) {
   return ASCENDING_NAME_SORTER.compare(item_a.name || "", item_b.name || "") || ASCENDING_NAME_SORTER.compare(item_a.description || "", item_b.description || "") || typeIndex(item_a) - typeIndex(item_b);
 }
@@ -4524,7 +4538,7 @@ var ExploreSearchService = class _ExploreSearchService {
       loader: ({ params: bld }) => {
         if (this._settings.get("app.desks.use_assets")) {
           const levels = this._org.levelsForBuilding(bld);
-          return queryDeskAssetsForZones(levels.map((level) => level.id)).then((assets) => assets.map((asset) => deskFromAsset(asset, levels.find((level) => level.id === asset.zone_id)))).catch(() => []);
+          return queryDeskAssetsInZone(bld.id).then((assets) => assets.map((asset) => deskFromAsset(asset, levels.find((level) => level.id === asset.zone_id)))).catch(() => []);
         }
         return bc(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => []);
       }
@@ -4640,14 +4654,7 @@ var ExploreSearchService = class _ExploreSearchService {
           })));
         }
         if (!this.hideItem("desks")) {
-          results = results.concat(desks.map((s) => ({
-            id: s.id,
-            type: "feature",
-            email: s.assigned_to,
-            description: s.id,
-            name: s.name || s.id,
-            zone: s.zone?.id || ""
-          })));
+          results = results.concat(desks.map(deskSearchResult));
         }
         if (!this.hideItem("emergency_contacts")) {
           results = results.concat(flatten(roled_contacts.map((u) => u.roles.map((role) => ({
@@ -6592,5 +6599,5 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
 export {
   ExploreComponent
 };
-//# debugId=abaf5e89-7c7a-557f-8ddb-9eaa7c058a3c
-//# sourceMappingURL=explore.component-MBIB5WTE.js.map
+//# debugId=13b0a196-6a0a-5976-93a5-764f6bc11b7e
+//# sourceMappingURL=explore.component-NZORRZDM.js.map

@@ -62,7 +62,7 @@ import {
   vc,
   wi,
   withTimeout
-} from "./chunk-WW6DQMWG.js";
+} from "./chunk-C7DHZMZQ.js";
 import {
   ActivatedRoute,
   NavigationEnd,
@@ -668,15 +668,15 @@ async function lookupNativeDomainByEmail(email) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "1947249",
-  "hash": "1947249",
+  "raw": "0966141",
+  "hash": "0966141",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "1947249",
+  "suffix": "0966141",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1793351590113
+  "time": 1793584928904
 };
 
 // libs/common/src/lib/settings.ts
@@ -10279,7 +10279,7 @@ function checkRulesMatch({ date, duration, host, resource }, ruleset) {
     matches += 1;
   if (conditions.max_length && conditions.max_length >= duration)
     matches += 1;
-  if (conditions.resource_ids && conditions.resource_ids.includes(resource.id))
+  if (conditions.resource_ids && (conditions.resource_ids.includes(resource.id) || resource.map_id && conditions.resource_ids.includes(resource.map_id)))
     matches += 1;
   if (conditions.tags && conditions.tags.every((tag) => (resource.tags || []).find((t) => t === tag)))
     matches += 1;
@@ -11058,5 +11058,5 @@ export {
   Calendar,
   Desk
 };
-//# debugId=084d150d-52e1-5548-ba12-83005b7a1189
-//# sourceMappingURL=chunk-X2K4CTAC.js.map
+//# debugId=b920be6d-7c85-57ca-9495-f04033bf2a51
+//# sourceMappingURL=chunk-Q6EBNPXU.js.map
