@@ -1,7 +1,7 @@
 import {
   ChatService,
   DateFromPipe
-} from "./chunk-CFCZYD72.js";
+} from "./chunk-I7JVI4AB.js";
 import {
   SanitizePipe
 } from "./chunk-2SZSI7JI.js";
@@ -12,7 +12,7 @@ import {
 import {
   OrganisationService,
   currentUser
-} from "./chunk-WFKCRBJB.js";
+} from "./chunk-5JYSWXSR.js";
 import {
   AsyncHandler,
   J,
@@ -2881,4 +2881,4 @@ export {
   PanelViewComponent
 };
 //# debugId=e27e53bf-d9e5-531b-9d6c-2b215cad5783
-//# sourceMappingURL=panel-view.component-EICKT7BK.js.map
+//# sourceMappingURL=panel-view.component-7ESL4SYF.js.map

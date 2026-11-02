@@ -23,7 +23,7 @@ import {
   DEFAULT_SETTINGS,
   OrganisationService,
   SettingsService
-} from "./chunk-WFKCRBJB.js";
+} from "./chunk-5JYSWXSR.js";
 import "./chunk-3ENDH6RC.js";
 import {
   IconComponent
@@ -1247,4 +1247,4 @@ export {
   SettingsDebugPanelComponent
 };
 //# debugId=da94e7d3-1dfe-5222-881a-37b62cc061dc
-//# sourceMappingURL=settings-debug-panel.component-5GX37AQP.js.map
+//# sourceMappingURL=settings-debug-panel.component-U3MI664Q.js.map
