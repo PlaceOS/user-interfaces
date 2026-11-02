@@ -1,0 +1,4 @@
+import{at as Q,lt as Qs,t as $}from"./chunk-DG8xk7zR.js";function k(i,t,e){let r=Q(),d=e?.weekStartsOn??e?.locale?.options?.weekStartsOn??r.weekStartsOn??r.locale?.options?.weekStartsOn??0,o=$(i,e?.in),a=o.getDay(),l=(t%7+7)%7,n=7-d;return Qs(o,t<0||t>6?t-(a+n)%7:(l+n)%7-(a+n)%7,e)}export{k as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="858c3336-2cb3-577f-9cb2-5ea44ae67bcf")}catch(e){}}();
+//# debugId=858c3336-2cb3-577f-9cb2-5ea44ae67bcf
+//# sourceMappingURL=chunk-Cgi_O_R3.js.map
