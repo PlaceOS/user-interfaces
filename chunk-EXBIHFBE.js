@@ -2,7 +2,7 @@ import {
   OrganisationService,
   SettingsService,
   currentUser
-} from "./chunk-3GFPUL6G.js";
+} from "./chunk-ZU3HEE37.js";
 import {
   AsyncHandler,
   J,
@@ -2498,4 +2498,4 @@ export {
   ChatService
 };
 //# debugId=9e991ffc-d499-5f56-a095-78dfdbd222b0
-//# sourceMappingURL=chunk-V57SCQG2.js.map
+//# sourceMappingURL=chunk-EXBIHFBE.js.map
