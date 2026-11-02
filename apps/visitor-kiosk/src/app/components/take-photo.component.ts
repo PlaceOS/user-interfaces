@@ -11,8 +11,11 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, withTimeout } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import { AnnounceDirective } from './announce.directive';
+import {
+    AnnounceDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 
 /** Time to wait for the first camera frame before the camera counts as failed */
 const FIRST_FRAME_TIMEOUT_MS = 10_000;

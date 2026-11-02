@@ -1,6 +1,10 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { notifySuccess, OrganisationService } from '@placeos/common';
+import {
+    mapWithLimit,
+    notifySuccess,
+    OrganisationService,
+} from '@placeos/common';
 import {
     queryAnswers,
     querySurveys,
@@ -12,29 +16,6 @@ import { confirmAction, errorText } from '../ui/modal-actions';
 
 /** Most answer requests that run at the same time */
 const ANSWER_REQUEST_LIMIT = 6;
-
-/**
- * Run `fn` for each item with at most `limit` calls in progress.
- * Results keep the order of the items.
- */
-async function mapWithLimit<T, R>(
-    items: readonly T[],
-    limit: number,
-    fn: (item: T) => Promise<R>,
-): Promise<R[]> {
-    const results = new Array<R>(items.length);
-    let next_index = 0;
-    const worker = async () => {
-        while (next_index < items.length) {
-            const index = next_index++;
-            results[index] = await fn(items[index]);
-        }
-    };
-    await Promise.all(
-        Array.from({ length: Math.min(limit, items.length) }, worker),
-    );
-    return results;
-}
 
 enum LoadType {
     SURVEYS = 'surveys',

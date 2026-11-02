@@ -3,16 +3,18 @@ const { existsSync, readdirSync, readFileSync } = require('node:fs');
 const path = require('node:path');
 const { test } = require('node:test');
 
-// Checks every app's service worker config with the Angular generator, so the
-// patterns are the ones ngsw-worker gets. The worker tests each pattern with
-// `new RegExp(p).test(url)` against the full cross-origin URL, query included.
+// Checks the service worker config of every app build with the Angular
+// generator, so the patterns are the ones ngsw-worker gets. The worker tests
+// each pattern with `new RegExp(p).test(url)` against the full cross-origin
+// URL, query included.
 //
 // An asset group re-fetches a matched request as a GET, whatever its method.
 // A PUT to a signed S3 upload URL then fails with 403 SignatureDoesNotMatch.
 // A data group sends non-GET requests to the network unchanged, so S3 caching
 // belongs there.
 
-const APPS = path.resolve(__dirname, '../apps');
+const ROOT = path.resolve(__dirname, '..');
+const APPS = path.join(ROOT, 'apps');
 const S3_GLOB =
     'https://*.amazonaws.com/**/*.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)';
 const SIGNED_UPLOAD_URL =
@@ -37,13 +39,29 @@ async function manifestFor(config) {
 const matches = (groups, url) =>
     groups.some((group) => group.patterns.some((p) => new RegExp(p).test(url)));
 
-const apps = readdirSync(APPS).filter((app) =>
-    existsSync(path.join(APPS, app, 'ngsw-config.json')),
+/** Service worker config files of the app builds, from each `project.json` */
+const config_files = new Set(
+    readdirSync(APPS)
+        .map((app) => path.join(APPS, app, 'project.json'))
+        .filter((file) => existsSync(file))
+        .flatMap((file) => {
+            const build = JSON.parse(readFileSync(file, 'utf8')).targets?.build;
+            return [
+                build?.options,
+                ...Object.values(build?.configurations || {}),
+            ]
+                .map((options) => options?.serviceWorker)
+                .filter((value) => typeof value === 'string');
+        }),
 );
 
-for (const app of apps) {
-    test(`${app} asset groups do not match signed upload urls`, async () => {
-        const file = path.join(APPS, app, 'ngsw-config.json');
+test('app builds use service worker configs', () => {
+    assert.ok(config_files.size > 0);
+});
+
+for (const config_file of config_files) {
+    test(`${config_file} asset groups do not match signed upload urls`, async () => {
+        const file = path.join(ROOT, config_file);
         const manifest = await manifestFor(
             JSON.parse(readFileSync(file, 'utf8')),
         );

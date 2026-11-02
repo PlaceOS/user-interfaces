@@ -13,6 +13,7 @@ import {
     getNextBookableTime,
     isWithinBookableHours,
     jsonToCsv,
+    mapWithLimit,
     markUserDateChange,
     removeUrlParam,
     responseErrorMessage,
@@ -30,6 +31,26 @@ describe('General Methods', () => {
             expect(toggleListItem(list, 'c')).toEqual(['a', 'b', 'c']);
             expect(toggleListItem(list, 'a')).toEqual(['b']);
             expect(list).toEqual(['a', 'b']);
+        });
+    });
+
+    describe('mapWithLimit', () => {
+        it('should keep the order and limit the calls in progress', async () => {
+            let running = 0;
+            let peak = 0;
+            const result = await mapWithLimit(
+                [5, 1, 4, 2, 3],
+                2,
+                async (delay) => {
+                    peak = Math.max(peak, ++running);
+                    await new Promise((resolve) => setTimeout(resolve, delay));
+                    running--;
+                    return delay * 10;
+                },
+            );
+
+            expect(result).toEqual([50, 10, 40, 20, 30]);
+            expect(peak).toBe(2);
         });
     });
 

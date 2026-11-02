@@ -1,11 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {
-    formatDuration,
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+import { formatDuration, SettingsService, themedLogo } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     SimpleTableComponent,
@@ -79,12 +75,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                 <div
                     class="bg-base-200 m-4 flex items-center overflow-hidden rounded-sm p-4"
                 >
-                    <img
-                        alt=""
-                        auth
-                        class="h-12"
-                        [source]="logo()?.src || logo()"
-                    />
+                    <img alt="" auth class="h-12" [source]="logo()" />
                     <div class="flex-1"></div>
                     <h2 class="px-2 text-2xl font-medium">
                         {{
@@ -213,7 +204,6 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
 export class ContactTracingReportComponent {
     private _state = inject(ContactTracingStateService);
     private _settings = inject(SettingsService);
-    private _org = inject(OrganisationService);
 
     public readonly printing = signal(false);
     public readonly metric_guide = METRIC_GUIDE;
@@ -233,12 +223,5 @@ export class ContactTracingReportComponent {
         return this._settings.time_format;
     }
 
-    public readonly logo = computed(() => {
-        this._org.active_building();
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    });
+    public readonly logo = themedLogo();
 }

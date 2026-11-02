@@ -11,11 +11,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
 import { notifyError, settingSignal } from '@placeos/common';
 import {
+    AnnounceDirective,
     IconComponent,
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
-import { AnnounceDirective } from '../components/announce.directive';
 import { PageHeadingDirective } from '../components/page-heading.directive';
 import { CheckinStateService } from './checkin-state.service';
 

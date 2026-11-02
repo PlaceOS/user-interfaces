@@ -1,5 +1,6 @@
 import {
     Injectable,
+    type Signal,
     type WritableSignal,
     computed,
     inject,
@@ -13,7 +14,7 @@ import { AsyncHandler } from './async-handler.class';
 import { SETTING_KEYS } from './constants';
 import { getItemWithKeys, log, setAppName } from './general';
 import { DEFAULT_SETTINGS } from './settings';
-import { HashMap } from './types';
+import { ApplicationIcon, HashMap } from './types';
 
 import { GoogleAnalyticsService } from './google-analytics.service';
 import { currentUser, reloadUserData } from './user-state';
@@ -99,6 +100,28 @@ export function settingSignal<T = any>(
     return _setting_signals[full_key];
 }
 
+/** Active theme. `'light'` unless the app allows dark mode. */
+const active_theme = computed<string>(() =>
+    settingSignal('allow_dark_mode', false)()
+        ? settingSignal('theme', 'light', true)()
+        : 'light',
+);
+
+const themed_logo = computed(() => {
+    const logo = settingSignal<string | ApplicationIcon>(
+        active_theme() === 'dark' ? 'logo_dark' : 'logo_light',
+    )();
+    return typeof logo === 'string' ? logo : logo?.src || '';
+});
+
+/**
+ * Image URL of the app logo (`app.logo_dark` or `app.logo_light`) for the
+ * active theme. Updates when the theme or the logo settings change.
+ */
+export function themedLogo(): Signal<string> {
+    return themed_logo;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -165,13 +188,8 @@ export class SettingsService extends AsyncHandler {
         return allow_dark_mode ? this.get('theme') : 'light';
     }
 
-    public readonly theme_signal = computed(() => {
-        // Unset means disabled, matching `theme` and `_applyTheme`.
-        const allow_dark_mode = this.signal('allow_dark_mode', false)();
-        return allow_dark_mode
-            ? this.signal('theme', 'light', true)()
-            : 'light';
-    });
+    /** Active theme. Unset `allow_dark_mode` means light, matching `theme` and `_applyTheme`. */
+    public readonly theme_signal = active_theme;
 
     public readonly time_format_signal = computed(() =>
         this.signal('use_24_hour_time', false)() ? 'HH:mm' : 'h:mm a',

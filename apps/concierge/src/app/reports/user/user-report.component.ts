@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { SettingsService, themedLogo } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     DurationPipe,
@@ -74,12 +74,7 @@ import { UserReportOptions, UserReportService } from './user-report.service';
             class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >
             <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                <img
-                    alt=""
-                    auth
-                    class="h-12"
-                    [source]="logo()?.src || logo()"
-                />
+                <img alt="" auth class="h-12" [source]="logo()" />
                 <div class="flex-1"></div>
                 <div class="px-2 text-right">
                     <h2 class="text-2xl font-medium">
@@ -221,7 +216,6 @@ import { UserReportOptions, UserReportService } from './user-report.service';
 export class UserReportComponent {
     private _state = inject(UserReportService);
     private _settings = inject(SettingsService);
-    private _org = inject(OrganisationService);
 
     public readonly printing = signal(false);
     public readonly options = this._state.options;
@@ -242,14 +236,7 @@ export class UserReportComponent {
         ];
     });
 
-    public readonly logo = computed(() => {
-        this._org.active_building();
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    });
+    public readonly logo = themedLogo();
 
     public readonly setOptions = (options: Partial<UserReportOptions>) =>
         this._state.setOptions(options);

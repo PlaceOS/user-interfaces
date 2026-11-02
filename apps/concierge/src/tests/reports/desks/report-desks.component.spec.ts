@@ -2,7 +2,6 @@ import { signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService } from '@placeos/common';
 import { AuthenticatedImageDirective } from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
 
@@ -13,14 +12,13 @@ import { ReportDesksComponent } from 'apps/concierge/src/app/reports/desks/repor
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
-import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
+import { MockComponent, MockDirective } from 'ng-mocks';
 
 describe('ReportDesksComponent', () => {
     let spectator: Spectator<ReportDesksComponent>;
     let query_params: BehaviorSubject<unknown>;
     let stats: ReturnType<typeof signal<unknown>>;
     let loading: ReturnType<typeof signal<string>>;
-    let active_building: ReturnType<typeof signal<unknown>>;
     let set_options: unknown;
     let generate_report: unknown;
     let download_report: unknown;
@@ -36,7 +34,6 @@ describe('ReportDesksComponent', () => {
             MockDirective(AuthenticatedImageDirective),
         ],
         imports: [MatProgressSpinnerModule],
-        providers: [MockProvider(SettingsService, {})],
     });
 
     beforeEach(() => {
@@ -55,7 +52,6 @@ describe('ReportDesksComponent', () => {
             utilisation: 0.25,
         });
         loading = signal('');
-        active_building = signal({ id: 'building-1' });
         set_options = vi.fn();
         generate_report = vi.fn();
         download_report = vi.fn();
@@ -71,20 +67,6 @@ describe('ReportDesksComponent', () => {
                         downloadReport: download_report,
                     },
                 },
-                {
-                    provide: SettingsService,
-                    useValue: {
-                        theme: 'light',
-                        get: vi.fn((key: string) => {
-                            if (key === 'app.logo_light')
-                                return { src: 'light-logo.svg' };
-                            if (key === 'app.logo_dark')
-                                return { src: 'dark-logo.svg' };
-                            return undefined;
-                        }),
-                    },
-                },
-                { provide: OrganisationService, useValue: { active_building } },
                 {
                     provide: ActivatedRoute,
                     useValue: { queryParamMap: query_params },
@@ -120,9 +102,5 @@ describe('ReportDesksComponent', () => {
         spectator.component.downloadReport();
         expect(generate_report).toHaveBeenCalled();
         expect(download_report).toHaveBeenCalled();
-    });
-
-    it('should select the light logo by default', () => {
-        expect(spectator.component.logo()).toEqual({ src: 'light-logo.svg' });
     });
 });

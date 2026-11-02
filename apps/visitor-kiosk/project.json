@@ -60,7 +60,7 @@
                             "with": "apps/visitor-kiosk/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/visitor-kiosk/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -98,7 +98,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": "apps/visitor-kiosk/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 }
             }
         },

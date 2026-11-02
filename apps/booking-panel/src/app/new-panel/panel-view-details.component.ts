@@ -6,11 +6,11 @@ import { generateQRCode } from '@placeos/common/qr-code';
 
 import { CommonModule } from '@angular/common';
 import {
+    AnnounceDirective,
     AuthenticatedImageDirective,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { AnnounceDirective } from '../announce.directive';
 import { PanelStateService } from '../panel-state.service';
 import { endingSoon } from './helpers';
 

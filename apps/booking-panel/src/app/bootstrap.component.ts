@@ -18,8 +18,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Space } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
-import { AnnounceDirective } from './announce.directive';
+import { AnnounceDirective, TranslatePipe } from '@placeos/components';
 
 @Component({
     selector: '[app-bootstrap]',

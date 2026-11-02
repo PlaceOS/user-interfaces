@@ -1,6 +1,7 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import {
     afterNextRender,
+    DestroyRef,
     Directive,
     ElementRef,
     inject,
@@ -21,10 +22,13 @@ export class AnnounceDirective {
         const announcer = inject(LiveAnnouncer);
         const locale = inject(LocaleService);
         const injector = inject(Injector);
+        const destroy_ref = inject(DestroyRef);
         afterNextRender(async () => {
             // Text that renders before the translations load shows the key.
             // Wait for them, then read the text after the next render.
             await locale.loaded();
+            // The element can be gone by then, e.g. a loading message.
+            if (destroy_ref.destroyed) return;
             afterNextRender(
                 () => {
                     const text = el.textContent?.trim();

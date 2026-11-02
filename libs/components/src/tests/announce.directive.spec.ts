@@ -3,7 +3,7 @@ import { Component, signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { LocaleService } from '@placeos/common';
 
-import { AnnounceDirective } from '../app/announce.directive';
+import { AnnounceDirective } from '../lib/announce.directive';
 
 @Component({
     selector: 'announce-host',
@@ -50,5 +50,19 @@ describe('AnnounceDirective', () => {
         await spectator.fixture.whenStable();
 
         expect(announce).toHaveBeenCalledWith('Reconnecting…', 'polite');
+    });
+
+    it('should not announce when the element is removed before the translations load', async () => {
+        let finishLoading: () => void;
+        loaded = new Promise<void>((resolve) => (finishLoading = resolve));
+        spectator = createComponent();
+        await spectator.fixture.whenStable();
+
+        spectator.fixture.destroy();
+        finishLoading();
+        await loaded;
+        await Promise.resolve();
+
+        expect(announce).not.toHaveBeenCalled();
     });
 });

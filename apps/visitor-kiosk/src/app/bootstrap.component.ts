@@ -19,8 +19,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
-import { AnnounceDirective } from './components/announce.directive';
+import {
+    AnnounceDirective,
+    TranslatePipe,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
 import { PageHeadingDirective } from './components/page-heading.directive';
 
 @Component({

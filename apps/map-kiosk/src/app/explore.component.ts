@@ -26,6 +26,7 @@ import {
     OrganisationService,
     Point,
     SettingsService,
+    themedLogo,
     User,
 } from '@placeos/common';
 import {
@@ -58,12 +59,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
             class="border-base-300 bg-base-100 text-base-content relative flex items-center justify-between border-b px-4 py-2"
         >
             <a matRipple routerLink="/" class="rounded-sm p-2 text-2xl">
-                <img
-                    auth
-                    class="h-12"
-                    alt="Logo"
-                    [source]="logo()?.src || logo()"
-                />
+                <img auth class="h-12" alt="Logo" [source]="logo()" />
             </a>
             <div
                 class="absolute top-1/2 right-2 flex -translate-y-1/2 items-center"
@@ -347,11 +343,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     });
     public readonly level = this._state.level;
 
-    public readonly logo = computed(() =>
-        this._settings.theme_signal() === 'dark'
-            ? this._settings.signal('logo_dark')()
-            : this._settings.signal('logo_light')(),
-    );
+    public readonly logo = themedLogo();
     public readonly legend_visible = computed(
         () => this._settings.signal('explore.show_legend')() !== false,
     );

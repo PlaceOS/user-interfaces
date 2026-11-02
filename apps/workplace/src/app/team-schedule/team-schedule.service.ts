@@ -12,6 +12,7 @@ import {
     Booking,
     currentUser,
     firstTruthyValueFrom,
+    mapWithLimit,
     OrganisationService,
     SETTING_KEYS,
     SettingsService,
@@ -30,11 +31,7 @@ import {
     subWeeks,
 } from 'date-fns';
 import { catchError, lastValueFrom, of } from 'rxjs';
-import {
-    COLLEAGUE_REQUEST_LIMIT,
-    loadContacts,
-    mapWithLimit,
-} from '../landing/contacts.fn';
+import { COLLEAGUE_REQUEST_LIMIT, loadContacts } from '../landing/contacts.fn';
 import {
     DayStatus,
     DeskBooking,

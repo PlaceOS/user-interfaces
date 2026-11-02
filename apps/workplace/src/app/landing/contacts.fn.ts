@@ -1,30 +1,8 @@
-import { StaffUser } from '@placeos/common';
+import { mapWithLimit, StaffUser } from '@placeos/common';
 import { PlaceMetadata, showMetadata, showUser } from '@placeos/ts-client';
 
 /** Maximum number of requests for each colleague that run at one time */
 export const COLLEAGUE_REQUEST_LIMIT = 6;
-
-/**
- * Map `items` with `fn`, with at most `limit` calls in progress at one time.
- * The results have the order of `items`. `fn` must not reject.
- */
-export async function mapWithLimit<T, R>(
-    items: readonly T[],
-    limit: number,
-    fn: (item: T) => Promise<R>,
-): Promise<R[]> {
-    const results = new Array<R>(items.length);
-    let next = 0;
-    const worker = async () => {
-        while (next < items.length) {
-            const index = next++;
-            results[index] = await fn(items[index]);
-        }
-    };
-    const count = Math.max(1, Math.min(limit, items.length));
-    await Promise.all(Array.from({ length: count }, worker));
-    return results;
-}
 
 let _contacts_request: { user_id: string; promise: Promise<StaffUser[]> } =
     null;

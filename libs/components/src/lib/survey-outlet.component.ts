@@ -1,6 +1,5 @@
 import {
     Component,
-    computed,
     inject,
     input,
     model,
@@ -26,7 +25,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { AsyncHandler, notifySuccess, SettingsService } from '@placeos/common';
+import { AsyncHandler, notifySuccess, themedLogo } from '@placeos/common';
 import {
     addAnswer,
     showQuestion,
@@ -53,7 +52,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         auth
                         class="h-12 sm:block"
                         alt="Logo"
-                        [source]="logo()?.src || logo()"
+                        [source]="logo()"
                     />
                 </header>
                 @if (!loading()) {
@@ -347,10 +346,6 @@ export class SurveyOutletComponent
     implements OnChanges, OnInit
 {
     private readonly _route = inject(ActivatedRoute);
-    private readonly _settings = inject(SettingsService);
-    private readonly _theme = this._settings.theme_signal;
-    private readonly _logo_dark = this._settings.signal('logo_dark', null);
-    private readonly _logo_light = this._settings.signal('logo_light', null);
 
     public readonly preview = input<boolean>(false);
     public readonly not_found = output<boolean>();
@@ -363,12 +358,7 @@ export class SurveyOutletComponent
     public readonly questions: Record<string | number, SurveyQuestion> = {};
     public readonly form = signal<UntypedFormGroup>(null);
 
-    public readonly logo = computed(
-        () =>
-            (this._theme() === 'dark'
-                ? this._logo_dark()
-                : this._logo_light()) || {},
-    );
+    public readonly logo = themedLogo();
 
     public ngOnInit() {
         this.subscription(

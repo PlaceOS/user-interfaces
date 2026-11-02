@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks, settingSignal } from '@placeos/common';
 import {
+    AnnounceDirective,
     GlobalBannerComponent,
     GlobalLoadingComponent,
     TranslatePipe,
@@ -11,7 +12,6 @@ import { ChatComponent } from '@placeos/components/chat';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
 import { parseTokenFromUrl } from './checkin/token-from-url';
-import { AnnounceDirective } from './components/announce.directive';
 import { returnToWelcomeWhenIdle } from './inactivity-reset';
 
 @Component({

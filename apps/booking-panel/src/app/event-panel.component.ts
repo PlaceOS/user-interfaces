@@ -6,6 +6,7 @@ import {
     AsyncHandler,
     OrganisationService,
     SettingsService,
+    themedLogo,
 } from '@placeos/common';
 import { generateQRCode } from '@placeos/common/qr-code';
 
@@ -30,12 +31,7 @@ import { PanelStateService } from './panel-state.service';
                     <p class="text-2xl">
                         {{ time() | date: time_format() }}
                     </p>
-                    <img
-                        auth
-                        class="h-10"
-                        alt="Logo"
-                        [source]="logo()?.src || logo() || ''"
-                    />
+                    <img auth class="h-10" alt="Logo" [source]="logo()" />
                 </div>
             </header>
             <main
@@ -119,12 +115,7 @@ import { PanelStateService } from './panel-state.service';
             <footer
                 class="bg-base-100 flex w-full items-center justify-between px-8 py-3 landscape:hidden"
             >
-                <img
-                    auth
-                    class="h-10"
-                    alt="Logo"
-                    [source]="logo()?.src || logo()"
-                />
+                <img auth class="h-10" alt="Logo" [source]="logo()" />
                 <p class="text-2xl">
                     {{ time() | date: time_format() }}
                 </p>
@@ -228,14 +219,7 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
             '',
     );
 
-    public readonly logo = computed(
-        () => (
-            this._org.active_building(),
-            (this._settings.theme_signal() === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        ),
-    );
+    public readonly logo = themedLogo();
 
     public get text_color() {
         return this._settings.get('app.text_color') || '#FFFFFF';

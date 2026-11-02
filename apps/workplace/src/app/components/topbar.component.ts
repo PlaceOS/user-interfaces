@@ -1,11 +1,6 @@
-import { Component, computed, inject, viewChild } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import {
-    OrganisationService,
-    settingSignal,
-    SettingsService,
-    userSignal,
-} from '@placeos/common';
+import { SettingsService, themedLogo, userSignal } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     UserAvatarComponent,
@@ -33,7 +28,7 @@ const EMPTY = [];
                     class="h-10 sm:block"
                     [class.hidden]="title"
                     alt="Logo"
-                    [source]="$any(logo())?.src || logo()"
+                    [source]="logo()"
                 />
                 @if (title) {
                     <span>{{ title }}</span>
@@ -72,17 +67,12 @@ const EMPTY = [];
 })
 export class TopbarComponent {
     private _settings = inject(SettingsService);
-    private _org = inject(OrganisationService);
 
     public show_menu: boolean;
     public readonly user = userSignal();
     public readonly user_controls = viewChild(UserControlsSidebarComponent);
 
-    public readonly logo = computed(() => {
-        return this._settings.theme_signal() === 'dark'
-            ? settingSignal('logo_dark', '')()
-            : settingSignal('logo_light', '')();
-    });
+    public readonly logo = themedLogo();
 
     /** Text to display for page title */
     public get title(): string {

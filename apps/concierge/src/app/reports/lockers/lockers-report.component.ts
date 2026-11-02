@@ -1,11 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import {
-    AsyncHandler,
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+import { AsyncHandler, themedLogo } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     TranslatePipe,
@@ -64,12 +60,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
         >
             <div class="w-full">
                 <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                    <img
-                        alt=""
-                        auth
-                        class="h-12"
-                        [source]="logo()?.src || logo()"
-                    />
+                    <img alt="" auth class="h-12" [source]="logo()" />
                     <div class="flex-1"></div>
                     <h2 class="px-2 text-2xl font-medium">
                         {{ 'APP.CONCIERGE.REPORTS_LOCKERS_HEADER' | translate }}
@@ -132,9 +123,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
 })
 export class LockersReportComponent extends AsyncHandler {
     private _state = inject(LockersReportService);
-    private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
-    private _org = inject(OrganisationService);
     private readonly _bookings = this._state.bookings;
     public readonly printing = signal(false);
     public readonly metric_guide = METRIC_GUIDE;
@@ -144,14 +133,7 @@ export class LockersReportComponent extends AsyncHandler {
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = computed(() => {
-        this._org.active_building();
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    });
+    public readonly logo = themedLogo();
 
     constructor() {
         super();

@@ -13,6 +13,7 @@ import {
     AsyncHandler,
     OrganisationService,
     SettingsService,
+    themedLogo,
     user_group_names,
     userSignal,
 } from '@placeos/common';
@@ -343,7 +344,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 <img
                     auth
                     class="h-10"
-                    [source]="logo_src()"
+                    [source]="logo()"
                     [alt]="'COMMON.HOME' | translate"
                 />
             </a>
@@ -527,17 +528,6 @@ export class ApplicationSidebarComponent
     private _element_ref = inject<ElementRef<HTMLElement>>(ElementRef);
     private _shortcuts = inject(KeyboardShortcutsService);
 
-    private readonly _logo_dark = this._settings.signal(
-        'app.logo_dark',
-        {},
-        true,
-    );
-    private readonly _logo_light = this._settings.signal(
-        'app.logo_light',
-        {},
-        true,
-    );
-
     public readonly collapsed = collapsed_groups;
     /** Whether the sidebar shows icons only */
     public readonly rail = rail_mode.asReadonly();
@@ -548,13 +538,7 @@ export class ApplicationSidebarComponent
     );
 
     /** Source of the logo for the current theme */
-    public readonly logo_src = computed(() => {
-        const logo: string | { src?: string } =
-            (this._settings.theme_signal() === 'dark'
-                ? this._logo_dark()
-                : this._logo_light()) || {};
-        return typeof logo === 'string' ? logo : logo?.src || '';
-    });
+    public readonly logo = themedLogo();
 
     private readonly _is_admin = computed(() => {
         const groups = user_group_names();

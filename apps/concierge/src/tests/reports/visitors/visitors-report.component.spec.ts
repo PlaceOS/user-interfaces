@@ -5,7 +5,6 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
-import { OrganisationService, SettingsService } from '@placeos/common';
 import { AuthenticatedImageDirective } from '@placeos/components';
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
@@ -43,10 +42,6 @@ describe('VisitorsReportComponent', () => {
                 generateReport: vi.fn(),
                 downloadReport: vi.fn(),
             }),
-            MockProvider(SettingsService, { theme: 'light', get: vi.fn() }),
-            MockProvider(OrganisationService, {
-                active_building: signal({ id: 'building-1' }),
-            } as any),
             MockProvider(ActivatedRoute, {
                 queryParamMap: new BehaviorSubject(convertToParamMap({})),
             }),
@@ -79,17 +74,6 @@ describe('VisitorsReportComponent', () => {
                     },
                 },
                 {
-                    provide: SettingsService,
-                    useValue: {
-                        theme: 'light',
-                        get: vi.fn((key: string) =>
-                            key === 'app.logo_light'
-                                ? { src: 'light.svg' }
-                                : undefined,
-                        ),
-                    },
-                },
-                {
                     provide: ActivatedRoute,
                     useValue: { queryParamMap: query_params },
                 },
@@ -116,10 +100,6 @@ describe('VisitorsReportComponent', () => {
         bookings.set([{ asset_id: 'a' }]);
         expect(spectator.component.total_count()).toBe(1);
         expect(spectator.component.has_data()).toBe(true);
-    });
-
-    it('should select the light logo by default', () => {
-        expect(spectator.component.logo()).toEqual({ src: 'light.svg' });
     });
 
     it('should delegate generate and download to the report service', () => {

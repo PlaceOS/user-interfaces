@@ -1,4 +1,5 @@
 export * from './lib/action-icon.component';
+export * from './lib/announce.directive';
 export * from './lib/attached-resource-config-modal.component';
 export * from './lib/authenticated-image';
 export * from './lib/authenticated-image.directive';
