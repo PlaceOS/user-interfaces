@@ -31,6 +31,8 @@ export interface BookingFlowOptions {
 export interface BookingAsset {
     id: string;
     map_id?: string;
+    /** Original desk id of a desk asset when it differs from the map id */
+    place_id?: string;
     display_name?: string;
     name: string;
     bookable: boolean;

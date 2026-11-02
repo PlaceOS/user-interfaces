@@ -290,7 +290,8 @@ describe('DesksStateService', () => {
                                       map_id: 'desk-6.06.1',
                                       bookable: true,
                                       images: ['desk.png'],
-                                      other_data: { floorsense_id: 'fs-1' },
+                                      client_ids: { floorsense_id: 'fs-1' },
+                                      other_data: { tags: ['quiet'] },
                                   },
                               ]
                             : [],
@@ -316,7 +317,8 @@ describe('DesksStateService', () => {
                 // columns missing from the row keep the asset's values
                 bookable: true,
                 images: ['desk.png'],
-                other_data: expect.objectContaining({ floorsense_id: 'fs-1' }),
+                client_ids: { floorsense_id: 'fs-1' },
+                other_data: { tags: ['quiet'] },
             }),
         );
         // rows without a level of their own use the selected level
@@ -325,6 +327,45 @@ describe('DesksStateService', () => {
                 zone_id: 'level-1',
                 identifier: 'Brand New',
                 map_id: expect.stringMatching(/^desk-\d+$/),
+            }),
+        );
+    });
+
+    it('should update desk assets matching the original desk id in place_id when importing', async () => {
+        settings_map['app.desks.use_assets'] = true;
+        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
+            data: [{ id: 'desk-category', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
+            data: [{ id: 'desk-type', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client_mod.queryAssets).mockResolvedValue({
+            data: [
+                {
+                    id: 'asset-9',
+                    asset_type_id: 'desk-type',
+                    zone_id: 'level-1',
+                    identifier: 'Old Name',
+                    map_id: 'map-9',
+                    client_ids: { place_id: 'desk-6.06.1' },
+                },
+            ],
+        } as any);
+        vi.mocked(ts_client_mod.updateAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client_mod.addAsset).mockResolvedValue({} as any);
+        spectator.service.setFilters({ zones: ['level-1'] });
+
+        await spectator.service.addDesks([
+            { id: 'desk-6.06.1', name: 'New Name' } as any,
+        ]);
+
+        expect(ts_client_mod.addAsset).not.toHaveBeenCalled();
+        expect(ts_client_mod.updateAsset).toHaveBeenCalledWith(
+            'asset-9',
+            expect.objectContaining({
+                identifier: 'New Name',
+                map_id: 'map-9',
+                client_ids: { place_id: 'desk-6.06.1' },
             }),
         );
     });
@@ -655,6 +696,22 @@ describe('DesksStateService', () => {
         expect(spectator.service.bookings().map((_) => _.asset_name)).toEqual([
             'Desk One',
             'Desk Two',
+        ]);
+
+        // or as their place_id when it differs from the map id
+        desks.set([
+            new Desk({
+                id: 'asset-1',
+                map_id: 'map-1',
+                place_id: 'desk-1',
+                name: 'Desk One',
+            } as any),
+            new Desk({ id: 'asset-2', map_id: 'desk-1', name: 'Other' }),
+        ]);
+
+        expect(spectator.service.bookings().map((_) => _.asset_name)).toEqual([
+            'Desk One',
+            'desk-2',
         ]);
     });
 

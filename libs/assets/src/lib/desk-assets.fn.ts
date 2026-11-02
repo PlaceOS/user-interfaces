@@ -45,16 +45,16 @@ export async function queryDeskAssetsInZone(
 
 /**
  * Find the desk for an id from a link, check-in code, favourite or import.
- * Matches the desk asset id first, then the map id, which migrated desk assets
- * keep as the original metadata desk id.
+ * Matches the desk asset id first, then the legacy metadata desk id: migrated
+ * desk assets keep it as `client_ids.place_id` when it differs from the map id.
  */
-export function findDeskByLegacyId<T extends { id: string; map_id?: string }>(
-    desks: T[],
-    id: string | undefined,
-): T | undefined {
+export function findDeskByLegacyId<
+    T extends { id: string; map_id?: string; place_id?: string },
+>(desks: T[], id: string | undefined): T | undefined {
     if (!id) return undefined;
     return (
         desks.find((desk) => desk.id === id) ||
+        desks.find((desk) => desk.place_id === id) ||
         desks.find((desk) => desk.map_id === id)
     );
 }
@@ -72,7 +72,10 @@ export async function queryDeskAssetByLegacyId(
     return assets[desks.indexOf(findDeskByLegacyId(desks, id))];
 }
 
-/** Fields with a dedicated place on the asset or desk, everything else is kept in `other_data` */
+/**
+ * Fields with a dedicated place on the asset or desk. Other string fields are
+ * kept in `client_ids`, everything else in `other_data`.
+ */
 const DESK_ASSET_KEYS = new Set([
     'id',
     'parent_id',
@@ -85,6 +88,7 @@ const DESK_ASSET_KEYS = new Set([
     'barcode',
     'name',
     'client_ids',
+    'place_id',
     'map_id',
     'bookable',
     'accessible',
@@ -112,24 +116,34 @@ function isPlainValue(value: unknown) {
     return typeof value !== 'object' && typeof value !== 'function';
 }
 
+/** String custom fields that are still kept in `other_data` */
+const DESK_OTHER_DATA_KEYS = new Set(['homebase']);
+
 /** Convert a desk asset to the desk model used by booking and map views. */
 export function deskFromAsset(asset: PlaceAsset, zone?: DeskZone): Desk {
-    const other_data = asset.other_data || {};
     const security = asset.security_system_groups?.[0] || '';
     return new Desk({
-        // custom desk fields (tags, homebase, third party ids) live in `other_data`
-        ...other_data,
+        // custom desk fields: tags and homebase live in `other_data`, third
+        // party ids and the legacy desk id (`place_id`) in `client_ids`
+        ...(asset.other_data || {}),
+        ...(asset.client_ids || {}),
         ...asset,
         name: asset.identifier || asset.name,
-        map_id: asset.map_id || other_data['map_id'] || asset.id,
+        map_id: asset.map_id || asset.id,
         zone: new PlaceZone(zone || { id: asset.zone_id }),
         groups: asset.place_groups,
         security,
     });
 }
 
-/** Merge the desk's custom fields into the existing `other_data` */
-function deskOtherData(desk: Desk): Record<string, unknown> {
+/**
+ * Merge the desk's custom fields into the existing `client_ids` (string
+ * values) and `other_data` (everything else and `homebase`).
+ */
+function deskCustomData(desk: Desk) {
+    const client_ids: Record<string, string> = {
+        ...(desk['client_ids'] || {}),
+    };
     const other_data: Record<string, unknown> = {
         ...(desk['other_data'] || {}),
     };
@@ -137,12 +151,20 @@ function deskOtherData(desk: Desk): Record<string, unknown> {
         if (DESK_ASSET_KEYS.has(key) || key.startsWith('_')) continue;
         const value = desk[key];
         if (value === '' || (Array.isArray(value) && !value.length)) {
+            delete client_ids[key];
+            delete other_data[key];
+        } else if (
+            typeof value === 'string' &&
+            !DESK_OTHER_DATA_KEYS.has(key)
+        ) {
+            client_ids[key] = value;
             delete other_data[key];
         } else if (isPlainValue(value)) {
             other_data[key] = value;
+            delete client_ids[key];
         }
     }
-    return other_data;
+    return { client_ids, other_data };
 }
 
 /** Keep any additional security groups unless the primary group was changed */
@@ -159,6 +181,7 @@ export function deskToAsset(
     zones?: string[],
 ): Partial<PlaceAsset> {
     const is_existing_asset = !!desk['asset_type_id'];
+    const { client_ids, other_data } = deskCustomData(desk);
     return {
         ...(is_existing_asset ? { id: desk.id } : {}),
         zone_id,
@@ -175,7 +198,8 @@ export function deskToAsset(
         images: desk.images,
         notes: desk['notes'] || '',
         security_system_groups: deskSecurityGroups(desk),
-        other_data: deskOtherData(desk) as Record<string, string>,
+        client_ids,
+        other_data: other_data as Record<string, string>,
     };
 }
 

@@ -254,7 +254,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     ) {
         const level = this._state.level();
         const active_keys = new Set<string>();
-        for (const { id, bookable, map_id } of desks) {
+        for (const desk of desks) {
+            const { id, bookable, map_id } = desk;
             const d_id = map_id || id;
             active_keys.add(d_id);
             // API bookings reference the desk asset id, AreaManagement uses the map id
@@ -273,6 +274,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     resource: {
                         id,
                         map_id,
+                        place_id: desk['place_id'],
                         zones: [level?.parent_id, level?.id],
                     },
                 },
@@ -595,6 +597,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 resource: {
                     id: asset_id,
                     map_id: desk.map_id,
+                    place_id: desk['place_id'],
                     zones: [desk.zone?.parent_id, desk.zone?.id],
                 },
             },

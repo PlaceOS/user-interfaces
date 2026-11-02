@@ -68,17 +68,20 @@ describe('ZoneSelectModalComponent', () => {
         fixture.detectChanges();
         fixture.componentInstance.selected_zone.set({ id: 'z1' } as any);
         fixture.componentInstance.list.search.set(' lobby ');
-        await new Promise((resolve) => setTimeout(resolve, 450));
-
-        expect(querySelectableZones).toHaveBeenCalledWith(' lobby ', 'z1');
+        // wait out the search debounce, slow under parallel test load
+        await vi.waitFor(() =>
+            expect(querySelectableZones).toHaveBeenCalledWith(' lobby ', 'z1'),
+        );
     });
 
     it('searches without selecting a zone first', async () => {
         const fixture = TestBed.createComponent(ZoneSelectModalComponent);
         fixture.detectChanges();
         fixture.componentInstance.list.search.set(' lobby ');
-        await new Promise((resolve) => setTimeout(resolve, 450));
-        expect(querySelectableZones).toHaveBeenCalledWith(' lobby ', '');
+        // wait out the search debounce, slow under parallel test load
+        await vi.waitFor(() =>
+            expect(querySelectableZones).toHaveBeenCalledWith(' lobby ', ''),
+        );
     });
 
     it('keeps the picker empty after a failed search', async () => {
@@ -86,8 +89,10 @@ describe('ZoneSelectModalComponent', () => {
         const fixture = TestBed.createComponent(ZoneSelectModalComponent);
         fixture.detectChanges();
         fixture.componentInstance.list.search.set('lobby');
-        await new Promise((resolve) => setTimeout(resolve, 450));
-        expect(querySelectableZones).toHaveBeenCalledWith('lobby', '');
+        // wait out the search debounce, slow under parallel test load
+        await vi.waitFor(() =>
+            expect(querySelectableZones).toHaveBeenCalledWith('lobby', ''),
+        );
         expect(fixture.componentInstance.list.items()).toEqual([]);
     });
 

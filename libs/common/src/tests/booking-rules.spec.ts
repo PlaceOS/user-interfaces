@@ -95,6 +95,26 @@ describe('checkRulesMatch', () => {
         expect(checkRulesMatch(asset(), ruleset)).toBe(false);
     });
 
+    it('should match desk assets by the original desk id in their place_id', () => {
+        const ruleset: BookingRuleset = {
+            zone: '*',
+            rules: {},
+            conditions: { resource_ids: ['desk-6.06.1'] },
+        };
+        const asset = (place_id?: string) =>
+            details({
+                resource: {
+                    id: 'asset-1',
+                    map_id: 'map-1',
+                    place_id,
+                    zones: ['zone-1'],
+                },
+            });
+        expect(checkRulesMatch(asset('desk-6.06.1'), ruleset)).toBe(true);
+        expect(checkRulesMatch(asset('desk-other'), ruleset)).toBe(false);
+        expect(checkRulesMatch(asset(), ruleset)).toBe(false);
+    });
+
     it('should match host groups', () => {
         const ruleset: BookingRuleset = {
             zone: '*',

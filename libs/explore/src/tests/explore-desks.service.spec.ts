@@ -176,6 +176,31 @@ describe('ExploreDesksService', () => {
         expect(service._statuses['desk-4']()).toBe('free');
     });
 
+    it('should apply booking rules for the original desk id of desk assets', () => {
+        const service = spectator.service as any;
+        const desks = [
+            new Desk({
+                id: 'asset-1',
+                map_id: 'map-1',
+                place_id: 'desk-old',
+                bookable: true,
+            } as any),
+            new Desk({ id: 'asset-2', map_id: 'map-2', bookable: true }),
+        ];
+        const rules = [
+            {
+                zone: '*',
+                rules: { hidden: true },
+                conditions: { resource_ids: ['desk-old'] },
+            },
+        ];
+
+        service._updateDeskStatuses(desks, [], [], [], [], rules);
+
+        expect(service._statuses['map-1']()).toBe('not-bookable');
+        expect(service._statuses['map-2']()).toBe('free');
+    });
+
     it('should match AreaManagement map ids to desk assets', () => {
         const service = spectator.service as any;
         const desks = [

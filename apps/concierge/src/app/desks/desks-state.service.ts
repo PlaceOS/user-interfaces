@@ -316,13 +316,20 @@ export class DesksStateService extends AsyncHandler {
     public readonly bookings = computed(() => {
         const desks = new Map(this.desks().map((desk) => [desk.id, desk]));
         // bookings that predate desk assets reference the original desk id
+        const place_desks = new Map(
+            this.desks()
+                .filter((desk) => desk['place_id'])
+                .map((desk) => [desk['place_id'] as string, desk]),
+        );
         const map_desks = new Map(
             this.desks().map((desk) => [desk.map_id || desk.id, desk]),
         );
         const bookings = this.paged_bookings().list;
         for (const booking of bookings) {
             const desk =
-                desks.get(booking.asset_id) || map_desks.get(booking.asset_id);
+                desks.get(booking.asset_id) ||
+                place_desks.get(booking.asset_id) ||
+                map_desks.get(booking.asset_id);
             Object.assign(booking, {
                 asset_name: desk?.name || booking.asset_id,
             });
@@ -577,9 +584,10 @@ export class DesksStateService extends AsyncHandler {
     }
 
     /**
-     * Imported rows update the desk asset with the same id or map id rather
-     * than creating a duplicate. Migrated desk assets keep the original desk
-     * id as their map id. Columns missing from the row keep the asset's values.
+     * Imported rows update the desk asset with the same id, original desk id
+     * (`place_id`) or map id rather than creating a duplicate. Migrated desk
+     * assets keep the original desk id as their map id, or as `place_id` when
+     * it differs. Columns missing from the row keep the asset's values.
      */
     private _matchDeskAsset(row: Partial<Desk>, existing: Desk[]): Desk {
         const match =
@@ -592,6 +600,7 @@ export class DesksStateService extends AsyncHandler {
             id: match.id,
             map_id: match.map_id,
             asset_type_id: match['asset_type_id'],
+            client_ids: match['client_ids'],
             other_data: match['other_data'],
         } as Partial<Desk>);
     }

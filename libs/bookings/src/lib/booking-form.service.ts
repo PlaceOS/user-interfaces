@@ -2667,7 +2667,8 @@ export class BookingFormService extends AsyncHandler {
 
     /**
      * Favourites saved before desks moved to assets reference the old desk id,
-     * which migrated desk assets keep as their map id. Point them at the asset.
+     * which migrated desk assets keep as their `place_id` or map id. Point
+     * them at the asset.
      */
     private _migrateFavouriteDesks(desks: BookingAsset[]) {
         const favourites =
