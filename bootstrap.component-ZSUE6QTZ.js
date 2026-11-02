@@ -32,7 +32,7 @@ import {
   OrganisationService,
   SettingsService,
   VERSION
-} from "./chunk-3L7TO5ZH.js";
+} from "./chunk-D65TXEAN.js";
 import {
   AsyncHandler,
   Ra,
@@ -2475,4 +2475,4 @@ export {
   BootstrapComponent
 };
 //# debugId=3abe80e2-e4a1-5323-8742-55acb134a506
-//# sourceMappingURL=bootstrap.component-S4JMOSYJ.js.map
+//# sourceMappingURL=bootstrap.component-ZSUE6QTZ.js.map
