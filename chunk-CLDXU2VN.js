@@ -72,7 +72,7 @@ import {
   vc,
   wi,
   withTimeout
-} from "./chunk-WFWJF4AD.js";
+} from "./chunk-FXFWSA6I.js";
 import {
   ActivatedRoute,
   NavigationEnd,
@@ -312,15 +312,15 @@ var ClipboardModule = class _ClipboardModule {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "1947249",
-  "hash": "1947249",
+  "raw": "0966141",
+  "hash": "0966141",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "1947249",
+  "suffix": "0966141",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1793351662681
+  "time": 1793584932276
 };
 
 // libs/common/src/lib/settings.ts
@@ -4163,5 +4163,5 @@ export {
   firstValueWhere,
   OrganisationService
 };
-//# debugId=9a7b9de5-54ef-5ee2-984c-19c775a57bcd
-//# sourceMappingURL=chunk-5UKUJYLS.js.map
+//# debugId=c5edd761-3861-5534-b27a-09fa7b90cdd7
+//# sourceMappingURL=chunk-CLDXU2VN.js.map

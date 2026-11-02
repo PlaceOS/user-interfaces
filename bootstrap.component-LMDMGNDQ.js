@@ -27,12 +27,12 @@ import {
 } from "./chunk-GDMFVFGQ.js";
 import {
   TranslatePipe
-} from "./chunk-NDLBSOUK.js";
+} from "./chunk-X5UIVZBJ.js";
 import {
   OrganisationService,
   SettingsService,
   VERSION
-} from "./chunk-5UKUJYLS.js";
+} from "./chunk-CLDXU2VN.js";
 import {
   FormGroupDirective,
   FormsModule,
@@ -48,7 +48,7 @@ import {
   i18n,
   log,
   vl
-} from "./chunk-WFWJF4AD.js";
+} from "./chunk-FXFWSA6I.js";
 import {
   IconComponent
 } from "./chunk-SWIHPKGW.js";
@@ -2473,4 +2473,4 @@ export {
   BootstrapComponent
 };
 //# debugId=be7cca8a-be3d-5e3d-9dab-7207e7d70cd7
-//# sourceMappingURL=bootstrap.component-IQD4J2G4.js.map
+//# sourceMappingURL=bootstrap.component-LMDMGNDQ.js.map
