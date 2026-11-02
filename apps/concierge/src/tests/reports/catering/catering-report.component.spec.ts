@@ -2,13 +2,11 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { signal } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { SettingsService } from '@placeos/common';
-import { AuthenticatedImageDirective } from '@placeos/components';
 import { CateringReportItemsComponent } from 'apps/concierge/src/app/reports/catering/catering-report-items.component';
 import { CateringReportOrdersComponent } from 'apps/concierge/src/app/reports/catering/catering-report-orders.component';
 import { CateringReportOverallComponent } from 'apps/concierge/src/app/reports/catering/catering-report-overall.component';
@@ -25,7 +23,6 @@ describe('CateringReportComponent', () => {
             MockComponent(CateringReportItemsComponent),
             MockComponent(CateringReportOrdersComponent),
             MockComponent(ReportsOptionsComponent),
-            MockDirective(AuthenticatedImageDirective),
         ],
         providers: [
             MockProvider(ReportsStateService, {
@@ -36,7 +33,6 @@ describe('CateringReportComponent', () => {
             MockProvider(Router, {}),
             MockProvider(SettingsService, { get: vi.fn() }),
         ],
-        imports: [MatProgressSpinnerModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

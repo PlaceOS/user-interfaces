@@ -7,10 +7,9 @@ import {
     OnDestroy,
     viewChild,
 } from '@angular/core';
-import { ReportsStateService } from '../reports-state.service';
-
 import {
     AsyncHandler,
+    HashMap,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -28,6 +27,7 @@ import {
     Tooltip,
 } from 'chart.js';
 import { format } from 'date-fns';
+import { ReportOptions, ReportsStateService } from './reports-state.service';
 
 Chart.register(
     LineController,
@@ -41,8 +41,13 @@ Chart.register(
     Legend,
 );
 
+/**
+ * Daily utilisation line chart and level utilisation pie chart for the
+ * desks and spaces reports. Reads the day list, options and counts from
+ * `ReportsStateService`.
+ */
 @Component({
-    selector: 'report-spaces-charts',
+    selector: 'report-usage-charts',
     template: `
         <div
             class="flex w-full items-center space-x-4 px-4"
@@ -97,7 +102,7 @@ Chart.register(
     ],
     imports: [TranslatePipe],
 })
-export class ReportSpacesChartsComponent
+export class ReportUsageChartsComponent
     extends AsyncHandler
     implements OnDestroy
 {
@@ -147,7 +152,7 @@ export class ReportSpacesChartsComponent
         );
     }
 
-    public updateDailyChart(list) {
+    public updateDailyChart(list: ReturnType<ReportsStateService['day_list']>) {
         const el = this._daily_chart_el()?.nativeElement;
         if (!el) return;
         this._day_chart?.destroy();
@@ -181,7 +186,7 @@ export class ReportSpacesChartsComponent
         });
     }
 
-    public updateLevelChart(mapping, count) {
+    public updateLevelChart(mapping: ReportOptions, count: HashMap<number>) {
         const el = this._level_chart_el()?.nativeElement;
         if (!el) return;
         let { zones } = mapping || { zones: [] };

@@ -1,20 +1,18 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, themedLogo } from '@placeos/common';
-import {
-    AuthenticatedImageDirective,
-    TranslatePipe,
-} from '@placeos/components';
+import { AsyncHandler } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
+import { ReportPageComponent } from '../report-page.component';
+import { ReportUsageChartsComponent } from '../report-usage-charts.component';
+import { ReportUsageListComponent } from '../report-usage-list.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
 import { ReportsStateService } from '../reports-state.service';
-import { ReportDesksChartsComponent } from './report-desks-charts.component';
+import { reportQueryOptions } from '../reports.utilities';
 import { ReportDesksLevelListComponent } from './report-desks-level-list.component';
-import { ReportDesksOverallListComponent } from './report-desks-overall-list.component';
 
 const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
@@ -54,85 +52,56 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             (download)="downloadReport()"
             (generate)="generateReport()"
         />
-        <div
-            class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
+        <report-page
+            header="APP.CONCIERGE.REPORTS_DESKS_HEADER"
+            [loading]="!!loading()"
+            [has_data]="!!total_count()"
         >
-            <div class="w-full">
-                <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                    <img alt="" auth class="h-12" [source]="logo()" />
-                    <div class="flex-1"></div>
-                    <h2 class="px-2 text-2xl font-medium">
-                        {{ 'APP.CONCIERGE.REPORTS_DESKS_HEADER' | translate }}
-                    </h2>
-                </div>
-            </div>
-            @if (!loading()) {
-                @if (total_count()) {
-                    <placeos-report-metric-guide
-                        [absolute]="true"
-                        [items]="metric_guide"
-                    />
-                    <div
-                        class="border-base-200 bg-base-100 m-4 flex items-center justify-center space-x-2 rounded-sm border p-4"
-                    >
-                        <div class="flex flex-1 flex-col items-center">
-                            <h3>
-                                {{
-                                    'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS'
-                                        | translate
-                                }}
-                            </h3>
-                            <p>{{ total_count() || 0 }}</p>
-                        </div>
-                        <div class="flex flex-1 flex-col items-center">
-                            <h3>Active</h3>
-                            <p>{{ active_count() || 0 }}</p>
-                        </div>
-                        <div class="flex flex-1 flex-col items-center">
-                            <h3>Rejected</h3>
-                            <p>{{ cancelled_count() || 0 }}</p>
-                        </div>
-                        <div class="flex flex-1 flex-col items-center">
-                            <h3>Cancelled</h3>
-                            <p>{{ deleted_count() || 0 }}</p>
-                        </div>
-                        <div class="flex flex-1 flex-col items-center">
-                            <h3>
-                                {{
-                                    'APP.CONCIERGE.REPORTS_UTILISATION'
-                                        | translate
-                                }}
-                            </h3>
-                            <p>{{ utilisation() || 0 }}%</p>
-                        </div>
+            <ng-template>
+                <placeos-report-metric-guide
+                    [absolute]="true"
+                    [items]="metric_guide"
+                />
+                <div
+                    class="border-base-200 bg-base-100 m-4 flex items-center justify-center space-x-2 rounded-sm border p-4"
+                >
+                    <div class="flex flex-1 flex-col items-center">
+                        <h3>
+                            {{
+                                'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS'
+                                    | translate
+                            }}
+                        </h3>
+                        <p>{{ total_count() || 0 }}</p>
                     </div>
-                    <report-desks-charts
-                        [print]="printing()"
-                    ></report-desks-charts>
-                    <report-desks-overall-list
-                        [print]="printing()"
-                    ></report-desks-overall-list>
-                    <report-desks-levels-list
-                        [print]="printing()"
-                    ></report-desks-levels-list>
-                } @else {
-                    <div
-                        class="screen-only flex h-full w-full flex-col items-center p-8"
-                    >
-                        <p class="opacity-70">
-                            {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
-                        </p>
+                    <div class="flex flex-1 flex-col items-center">
+                        <h3>Active</h3>
+                        <p>{{ active_count() || 0 }}</p>
                     </div>
-                }
-            } @else {
-                <div class="flex h-full w-full flex-col items-center p-8">
-                    <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                    <p class="opacity-70">
-                        {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
-                    </p>
+                    <div class="flex flex-1 flex-col items-center">
+                        <h3>Rejected</h3>
+                        <p>{{ cancelled_count() || 0 }}</p>
+                    </div>
+                    <div class="flex flex-1 flex-col items-center">
+                        <h3>Cancelled</h3>
+                        <p>{{ deleted_count() || 0 }}</p>
+                    </div>
+                    <div class="flex flex-1 flex-col items-center">
+                        <h3>
+                            {{
+                                'APP.CONCIERGE.REPORTS_UTILISATION' | translate
+                            }}
+                        </h3>
+                        <p>{{ utilisation() || 0 }}%</p>
+                    </div>
                 </div>
-            }
-        </div>
+                <report-usage-charts [print]="printing()" />
+                <report-usage-list type="desks" [print]="printing()" />
+                <report-desks-levels-list
+                    [print]="printing()"
+                ></report-desks-levels-list>
+            </ng-template>
+        </report-page>
     `,
     styles: [
         `
@@ -148,14 +117,13 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
         `,
     ],
     imports: [
+        ReportPageComponent,
         TranslatePipe,
-        MatProgressSpinnerModule,
         ReportsOptionsComponent,
         ReportMetricGuideComponent,
-        ReportDesksChartsComponent,
+        ReportUsageChartsComponent,
         ReportDesksLevelListComponent,
-        ReportDesksOverallListComponent,
-        AuthenticatedImageDirective,
+        ReportUsageListComponent,
     ],
 })
 export class ReportDesksComponent extends AsyncHandler {
@@ -183,29 +151,14 @@ export class ReportDesksComponent extends AsyncHandler {
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = themedLogo();
-
     constructor() {
         super();
         this._state.setOptions({ type: 'desks' });
         this.subscription(
             'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('start')) {
-                    this._state.setOptions({ start: +params.get('start') });
-                }
-                if (params.has('end')) {
-                    this._state.setOptions({ end: +params.get('end') });
-                }
-                if (params.has('zones') || params.has('zone_ids')) {
-                    const id_list =
-                        params.get('zones') || params.get('zone_ids');
-                    const zones = id_list.split(',').filter((_) => _);
-                    if (zones.length) this._state.setOptions({ zones });
-                } else {
-                    this._state.setOptions({ zones: [] });
-                }
-            }),
+            this._route.queryParamMap.subscribe((params) =>
+                this._state.setOptions(reportQueryOptions(params, true)),
+            ),
         );
     }
 }

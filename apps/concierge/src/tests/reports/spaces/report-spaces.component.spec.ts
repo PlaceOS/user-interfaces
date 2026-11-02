@@ -1,16 +1,14 @@
 import { signal } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
-import { AuthenticatedImageDirective } from '@placeos/components';
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
+import { ReportUsageChartsComponent } from 'apps/concierge/src/app/reports/report-usage-charts.component';
+import { ReportUsageListComponent } from 'apps/concierge/src/app/reports/report-usage-list.component';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
-import { ReportSpacesChartsComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-charts.component';
-import { ReportSpacesOverallListComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-overall-list.component';
 import { ReportSpacesOverallComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-overall.component';
 import { ReportSpacesSpaceListingComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-space-listing.component';
 import { ReportSpacesUserListingComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-user-listing.component';
@@ -31,13 +29,11 @@ describe('ReportSpacesComponent', () => {
             MockComponent(ReportsOptionsComponent),
             MockComponent(ReportMetricGuideComponent),
             MockComponent(ReportSpacesOverallComponent),
-            MockComponent(ReportSpacesChartsComponent),
-            MockComponent(ReportSpacesOverallListComponent),
+            MockComponent(ReportUsageChartsComponent),
+            MockComponent(ReportUsageListComponent),
             MockComponent(ReportSpacesSpaceListingComponent),
             MockComponent(ReportSpacesUserListingComponent),
-            MockDirective(AuthenticatedImageDirective),
         ],
-        imports: [MatProgressSpinnerModule],
         providers: [
             MockProvider(ReportsStateService, {
                 stats: signal<unknown>({ count: 0 }),
@@ -90,16 +86,20 @@ describe('ReportSpacesComponent', () => {
     });
 
     it('should apply query params to the report options', () => {
-        expect(set_options).toHaveBeenCalledWith({ start: 100 });
-        expect(set_options).toHaveBeenCalledWith({ end: 200 });
         expect(set_options).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
             zones: ['lvl-1', 'lvl-2'],
         });
     });
 
     it('should clear zones when the query params omit them', () => {
         query_params.next(convertToParamMap({ start: '100', end: '200' }));
-        expect(set_options).toHaveBeenCalledWith({ zones: [] });
+        expect(set_options).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
+            zones: [],
+        });
     });
 
     it('should derive total_count and has_data from the report stats', () => {

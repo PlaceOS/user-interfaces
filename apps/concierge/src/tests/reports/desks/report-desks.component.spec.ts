@@ -1,18 +1,16 @@
 import { signal } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { AuthenticatedImageDirective } from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
 
-import { ReportDesksChartsComponent } from 'apps/concierge/src/app/reports/desks/report-desks-charts.component';
 import { ReportDesksLevelListComponent } from 'apps/concierge/src/app/reports/desks/report-desks-level-list.component';
-import { ReportDesksOverallListComponent } from 'apps/concierge/src/app/reports/desks/report-desks-overall-list.component';
 import { ReportDesksComponent } from 'apps/concierge/src/app/reports/desks/report-desks.component';
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
+import { ReportUsageChartsComponent } from 'apps/concierge/src/app/reports/report-usage-charts.component';
+import { ReportUsageListComponent } from 'apps/concierge/src/app/reports/report-usage-list.component';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
-import { MockComponent, MockDirective } from 'ng-mocks';
+import { MockComponent } from 'ng-mocks';
 
 describe('ReportDesksComponent', () => {
     let spectator: Spectator<ReportDesksComponent>;
@@ -28,12 +26,10 @@ describe('ReportDesksComponent', () => {
         declarations: [
             MockComponent(ReportsOptionsComponent),
             MockComponent(ReportMetricGuideComponent),
-            MockComponent(ReportDesksChartsComponent),
+            MockComponent(ReportUsageChartsComponent),
             MockComponent(ReportDesksLevelListComponent),
-            MockComponent(ReportDesksOverallListComponent),
-            MockDirective(AuthenticatedImageDirective),
+            MockComponent(ReportUsageListComponent),
         ],
-        imports: [MatProgressSpinnerModule],
     });
 
     beforeEach(() => {
@@ -77,16 +73,20 @@ describe('ReportDesksComponent', () => {
 
     it('should set the report type to desks and apply query params', () => {
         expect(set_options).toHaveBeenCalledWith({ type: 'desks' });
-        expect(set_options).toHaveBeenCalledWith({ start: 100 });
-        expect(set_options).toHaveBeenCalledWith({ end: 200 });
         expect(set_options).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
             zones: ['level-1', 'level-2'],
         });
     });
 
     it('should clear zones when query params omit them', () => {
         query_params.next(convertToParamMap({ start: '100', end: '200' }));
-        expect(set_options).toHaveBeenCalledWith({ zones: [] });
+        expect(set_options).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
+            zones: [],
+        });
     });
 
     it('should derive booking counts and utilisation from stats', () => {

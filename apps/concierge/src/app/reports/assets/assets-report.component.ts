@@ -1,17 +1,14 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, themedLogo } from '@placeos/common';
-import {
-    AuthenticatedImageDirective,
-    TranslatePipe,
-} from '@placeos/components';
+import { AsyncHandler } from '@placeos/common';
 
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
+import { ReportPageComponent } from '../report-page.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
+import { reportQueryOptions } from '../reports.utilities';
 import { AssetReportDailyUsageComponent } from './asset-report-daily-usage.component';
 import { AssetReportExpiredItemsComponent } from './asset-report-expired-items.component';
 import { AssetReportOverallComponent } from './asset-report-overall.component';
@@ -61,55 +58,29 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             (download)="downloadReport()"
             (generate)="generateReport()"
         />
-        <div
-            class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
+        <report-page
+            header="APP.CONCIERGE.REPORTS_ASSETS_HEADER"
+            [loading]="loading()"
+            [has_data]="has_data()"
         >
-            <div class="w-full">
-                <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                    <img alt="" auth class="h-12" [source]="logo()" />
-                    <div class="flex-1"></div>
-                    <h2 class="px-2 text-2xl font-medium">
-                        {{ 'APP.CONCIERGE.REPORTS_ASSETS_HEADER' | translate }}
-                    </h2>
-                </div>
-            </div>
-            @if (!loading()) {
-                @if (total_count()) {
-                    <placeos-report-metric-guide
-                        [absolute]="true"
-                        [items]="metric_guide"
-                    />
-                    <asset-report-overall></asset-report-overall>
-                    <asset-report-daily-usage
-                        [print]="printing()"
-                    ></asset-report-daily-usage>
-                    <asset-report-product-usage
-                        [print]="printing()"
-                    ></asset-report-product-usage>
-                    <asset-report-users
-                        [print]="printing()"
-                    ></asset-report-users>
-                    <asset-report-expired-items
-                        [print]="printing()"
-                    ></asset-report-expired-items>
-                } @else {
-                    <div
-                        class="screen-only flex h-full w-full flex-col items-center p-8"
-                    >
-                        <p class="opacity-70">
-                            {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
-                        </p>
-                    </div>
-                }
-            } @else {
-                <div class="flex h-full w-full flex-col items-center p-8">
-                    <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                    <p class="opacity-70">
-                        {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
-                    </p>
-                </div>
-            }
-        </div>
+            <ng-template>
+                <placeos-report-metric-guide
+                    [absolute]="true"
+                    [items]="metric_guide"
+                />
+                <asset-report-overall></asset-report-overall>
+                <asset-report-daily-usage
+                    [print]="printing()"
+                ></asset-report-daily-usage>
+                <asset-report-product-usage
+                    [print]="printing()"
+                ></asset-report-product-usage>
+                <asset-report-users [print]="printing()"></asset-report-users>
+                <asset-report-expired-items
+                    [print]="printing()"
+                ></asset-report-expired-items>
+            </ng-template>
+        </report-page>
     `,
     styles: [
         `
@@ -121,9 +92,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
         `,
     ],
     imports: [
-        TranslatePipe,
-        MatProgressSpinnerModule,
-        AuthenticatedImageDirective,
+        ReportPageComponent,
         ReportsOptionsComponent,
         ReportMetricGuideComponent,
         AssetReportDailyUsageComponent,
@@ -149,25 +118,12 @@ export class AssetsReportComponent extends AsyncHandler implements OnInit {
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = themedLogo();
-
     public ngOnInit() {
         this.subscription(
             'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('start')) {
-                    this._state.setOptions({ start: +params.get('start') });
-                }
-                if (params.has('end')) {
-                    this._state.setOptions({ end: +params.get('end') });
-                }
-                if (params.has('zones') || params.has('zone_ids')) {
-                    const zones = (
-                        params.get('zones') || params.get('zone_ids')
-                    ).split(',');
-                    if (zones.length) this._state.setOptions({ zones });
-                } else this._state.setOptions({ zones: [] });
-            }),
+            this._route.queryParamMap.subscribe((params) =>
+                this._state.setOptions(reportQueryOptions(params)),
+            ),
         );
     }
 }

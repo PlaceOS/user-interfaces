@@ -1,48 +1,70 @@
-import { Component, inject, input } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@placeos/common';
-import { format } from 'date-fns';
-
 import { CommonModule } from '@angular/common';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { downloadFile, jsonToCsv } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { format } from 'date-fns';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
-} from '../report-metric-guide.component';
-import { ReportsStateService } from '../reports-state.service';
-import { formatReportPercentage } from '../reports.utilities';
+} from './report-metric-guide.component';
+import { ReportsStateService } from './reports-state.service';
+import { formatReportPercentage } from './reports.utilities';
 
-const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
-    {
-        label: 'Approved',
-        description: 'Bookings on the day where the booking is approved.',
+/** Column guide for the daily usage table. Only two descriptions differ. */
+function tableMetricGuide(
+    total_requests: string,
+    utilisation: string,
+): ReportMetricGuideItem[] {
+    return [
+        {
+            label: 'Approved',
+            description: 'Bookings on the day where the booking is approved.',
+        },
+        { label: 'Total requests', description: total_requests },
+        {
+            label: 'Rejected / Cancelled',
+            description:
+                'Displayed as count and percentage of total requests for that day.',
+        },
+        { label: 'Utilisation', description: utilisation },
+    ];
+}
+
+/** Report text and export settings for each usage table type */
+const USAGE_LISTS = {
+    desks: {
+        metric_guide: tableMetricGuide(
+            'All desk bookings on the day, including active, rejected, and cancelled bookings.',
+            'Active desk bookings divided by the greater of active bookings or available desk count for that day.',
+        ),
+        date_format: 'MMM d, y(EEE)',
+        file_name: 'desks-usage.csv',
     },
-    {
-        label: 'Total requests',
-        description:
+    spaces: {
+        metric_guide: tableMetricGuide(
             'All room bookings on the day, including active, rejected, and cancelled events.',
-    },
-    {
-        label: 'Rejected / Cancelled',
-        description:
-            'Displayed as count and percentage of total requests for that day.',
-    },
-    {
-        label: 'Utilisation',
-        description:
             'Booked room time divided by available room time for that day.',
+        ),
+        date_format: 'MMMM d, y(EEE)',
+        file_name: 'spaces-usage.csv',
     },
-];
+};
 
+/**
+ * Daily usage table for the desks and spaces reports, with a CSV download.
+ * Reads the day list from `ReportsStateService`. `type` selects the
+ * column guide text and the export date format and file name.
+ */
 @Component({
-    selector: 'report-spaces-overall-list',
+    selector: 'report-usage-list',
     template: `
-        <div class="w-full">
+        <div class="w-full" [class.pb-2]="type() === 'desks'">
             <div
                 class="border-base-200 bg-base-100 m-4 overflow-hidden rounded-sm border"
             >
@@ -70,7 +92,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     }
                     <placeos-report-metric-guide
                         title="Table column calculations"
-                        [items]="table_metric_guide"
+                        [items]="config().metric_guide"
                         [inline]="true"
                     />
                 </div>
@@ -144,22 +166,24 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
         ReportMetricGuideComponent,
     ],
 })
-export class ReportSpacesOverallListComponent {
+export class ReportUsageListComponent {
     private _state = inject(ReportsStateService);
 
+    public readonly type = input.required<keyof typeof USAGE_LISTS>();
     public readonly print = input(false);
-    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
+    public readonly config = computed(() => USAGE_LISTS[this.type()]);
 
     public readonly day_list = this._state.day_list;
 
     public readonly download = async () => {
+        const { date_format, file_name } = this.config();
         const data = this.day_list().map((d) => ({
             ...d,
-            date: format(d.date, 'MMMM d, y(EEE)'),
+            date: format(d.date, date_format),
             cancelled: formatReportPercentage(d.cancelled, d.count),
             deleted: formatReportPercentage(d.deleted, d.count),
         }));
-        downloadFile('spaces-usage.csv', jsonToCsv(data));
+        downloadFile(file_name, jsonToCsv(data));
     };
 
     public readonly formatPercent = formatReportPercentage;

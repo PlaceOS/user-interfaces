@@ -1,8 +1,6 @@
 import { signal } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { AuthenticatedImageDirective } from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
 
 import { AssetReportDailyUsageComponent } from 'apps/concierge/src/app/reports/assets/asset-report-daily-usage.component';
@@ -14,7 +12,7 @@ import { AssetsReportComponent } from 'apps/concierge/src/app/reports/assets/ass
 import { AssetsReportService } from 'apps/concierge/src/app/reports/assets/assets-report.service';
 import { ReportMetricGuideComponent } from 'apps/concierge/src/app/reports/report-metric-guide.component';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
-import { MockComponent, MockDirective } from 'ng-mocks';
+import { MockComponent } from 'ng-mocks';
 
 describe('AssetsReportComponent', () => {
     let spectator: Spectator<AssetsReportComponent>;
@@ -35,9 +33,7 @@ describe('AssetsReportComponent', () => {
             MockComponent(AssetReportProductUsageComponent),
             MockComponent(AssetReportUsersComponent),
             MockComponent(AssetReportExpiredItemsComponent),
-            MockDirective(AuthenticatedImageDirective),
         ],
-        imports: [MatProgressSpinnerModule],
     });
 
     beforeEach(() => {
@@ -74,16 +70,20 @@ describe('AssetsReportComponent', () => {
     });
 
     it('should apply query params to report options', () => {
-        expect(set_options).toHaveBeenCalledWith({ start: 100 });
-        expect(set_options).toHaveBeenCalledWith({ end: 200 });
         expect(set_options).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
             zones: ['level-1', 'level-2'],
         });
     });
 
     it('should clear zones when query params omit them', () => {
         query_params.next(convertToParamMap({ start: '100', end: '200' }));
-        expect(set_options).toHaveBeenCalledWith({ zones: [] });
+        expect(set_options).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
+            zones: [],
+        });
     });
 
     it('should expose total count and has_data from stats', () => {

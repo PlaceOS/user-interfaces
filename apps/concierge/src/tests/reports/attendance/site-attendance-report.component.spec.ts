@@ -108,13 +108,11 @@ describe('SiteAttendanceReportComponent', () => {
     it('should apply query params to report options', () => {
         expect(
             spectator.inject(SiteAttendanceReportService).setOptions,
-        ).toHaveBeenCalledWith({ start: 100 });
-        expect(
-            spectator.inject(SiteAttendanceReportService).setOptions,
-        ).toHaveBeenCalledWith({ end: 200 });
-        expect(
-            spectator.inject(SiteAttendanceReportService).setOptions,
-        ).toHaveBeenCalledWith({ zones: ['level-1', 'level-2'] });
+        ).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
+            zones: ['level-1', 'level-2'],
+        });
     });
 
     it('should expose report state and has_data from the service', () => {
@@ -160,6 +158,6 @@ describe('SiteAttendanceReportComponent', () => {
 
         expect(
             spectator.inject(SiteAttendanceReportService).setOptions,
-        ).toHaveBeenCalledWith({ zones: [] });
+        ).toHaveBeenCalledWith({ start: 100, end: 200, zones: [] });
     });
 });

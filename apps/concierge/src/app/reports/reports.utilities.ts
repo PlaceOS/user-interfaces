@@ -1,9 +1,35 @@
+import { ParamMap } from '@angular/router';
 import {
     BookableHoursRange,
     Booking,
     CalendarEvent,
     HashMap,
 } from '@placeos/common';
+
+/**
+ * Report options from a report page URL query. Reads `start`, `end` and the
+ * comma list in `zones` or `zone_ids`. Without a zone list, zones are
+ * cleared. With `drop_empty_zones`, empty ids are removed, and a list with no
+ * ids leaves the current zones as they are.
+ */
+export function reportQueryOptions(
+    params: ParamMap,
+    drop_empty_zones = false,
+): { start?: number; end?: number; zones?: string[] } {
+    const options: { start?: number; end?: number; zones?: string[] } = {};
+    if (params.has('start')) options.start = +params.get('start');
+    if (params.has('end')) options.end = +params.get('end');
+    if (params.has('zones') || params.has('zone_ids')) {
+        const id_list = params.get('zones') || params.get('zone_ids') || '';
+        const zones = id_list
+            .split(',')
+            .filter((id) => !drop_empty_zones || !!id);
+        if (zones.length) options.zones = zones;
+    } else {
+        options.zones = [];
+    }
+    return options;
+}
 
 function isActiveReportBooking(booking: Booking): boolean {
     return !booking.deleted && !isDeclinedReportBooking(booking);
