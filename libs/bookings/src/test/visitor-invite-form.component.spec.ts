@@ -82,6 +82,7 @@ describe('VisitorInviteFormComponent', () => {
         settingSignal('bookings.min_duration').set(30);
         settingSignal('bookings.max_duration').set(180);
         settingSignal('bookings.custom_duration_options').set([]);
+        settingSignal('visitors.use_building_timezone').set(undefined);
         spectator = createComponent();
     });
 
@@ -104,13 +105,31 @@ describe('VisitorInviteFormComponent', () => {
             id: 'bld-1',
             timezone: 'Australia/Sydney',
         };
-        settingSignal('bookings.use_building_timezone').set(true);
-        settingSignal('visitors.use_building_timezone').set(undefined);
+        const settings = spectator.inject(SettingsService);
+        const values: Record<string, boolean> = {
+            'app.bookings.use_building_timezone': true,
+        };
+        (settings.get as Mock).mockImplementation((key: string) => values[key]);
         expect(spectator.component.timezone()).toBe('Australia/Sydney');
-        settingSignal('visitors.use_building_timezone').set(false);
+        values['app.visitors.use_building_timezone'] = false;
+        (settings.get as Mock).mockImplementation((key: string) => values[key]);
         expect(spectator.component.timezone()).toBe('');
-        settingSignal('bookings.use_building_timezone').set(false);
-        settingSignal('visitors.use_building_timezone').set(undefined);
+    });
+
+    it('should fall back to the bookings timezone setting when a building switch leaves a stale visitors signal', () => {
+        (spectator.inject(OrganisationService) as any).building = {
+            id: 'bld-1',
+            timezone: 'Australia/Sydney',
+        };
+        // The cached signal keeps `false` from the last building, but the
+        // new building does not set the visitors key.
+        settingSignal('visitors.use_building_timezone').set(false);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation(
+            (key: string) =>
+                ({ 'app.bookings.use_building_timezone': true })[key],
+        );
+        expect(spectator.component.timezone()).toBe('Australia/Sydney');
     });
 
     it('should filter visitor suggestions by the search term', () => {

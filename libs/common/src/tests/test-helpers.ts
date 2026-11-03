@@ -169,18 +169,23 @@ export const createSettingsServiceMock = (
     overrides: Record<string, any> = {},
 ) => {
     const version = signal(0);
-    const get = test_mock.fn(<T = unknown>(_: string): T => undefined as T);
+    // `get` reads `version`, so a `computed` that calls `get()` recomputes
+    // when a spec changes the mock, like the real service on override changes.
+    const get = test_mock.fn(<T = unknown>(_: string): T => {
+        version();
+        return undefined as T;
+    });
     const bump = () => version.update((value) => value + 1);
     const mock_implementation = get.mockImplementation.bind(get);
-    const mock_return_value = get.mockReturnValue.bind(get);
     get.mockImplementation = ((fn) => {
         bump();
-        return mock_implementation(fn);
-    });
-    get.mockReturnValue = ((value) => {
-        bump();
-        return mock_return_value(value);
-    });
+        return mock_implementation((...args) => {
+            version();
+            return fn(...args);
+        });
+    }) as typeof get.mockImplementation;
+    get.mockReturnValue = ((value) =>
+        get.mockImplementation(() => value)) as typeof get.mockReturnValue;
     return {
         get,
         saveUserSetting: test_mock.fn(),
