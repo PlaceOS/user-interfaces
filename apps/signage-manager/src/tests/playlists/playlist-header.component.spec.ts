@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { PlaylistHeaderComponent } from '../../app/playlists/playlist-header.component';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../../app/signage-context.service';
@@ -48,9 +49,23 @@ describe('PlaylistHeaderComponent', () => {
         expect(component.can_create()).toBe(true);
     });
 
-    it('delegates new playlist creation to the service', async () => {
+    it('opens the playlist it creates', async () => {
+        add_playlist.mockResolvedValue({ id: 'playlist-new' });
         const component = await make();
-        component.addPlaylist();
-        expect(add_playlist).toHaveBeenCalledTimes(1);
+        const navigate = vi
+            .spyOn(TestBed.inject(Router), 'navigate')
+            .mockResolvedValue(true);
+        await component.addPlaylist();
+        expect(navigate).toHaveBeenCalledWith(['/playlists', 'playlist-new'], {
+            queryParamsHandling: 'merge',
+        });
+    });
+
+    it('stays put when no playlist is created', async () => {
+        add_playlist.mockResolvedValue(null);
+        const component = await make();
+        const navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
+        await component.addPlaylist();
+        expect(navigate).not.toHaveBeenCalled();
     });
 });

@@ -32,6 +32,14 @@ import { EnrolmentStateService } from './enrolment-state.service';
                         Meeting was cancelled, please check your calendar for
                         updates.
                     }
+                    @case ('checkin') {
+                        We could not check you in. Reload the page and try
+                        again.
+                    }
+                    @case ('update') {
+                        We could not save your details. Reload the page and try
+                        again.
+                    }
                 }
             </p>
         </div>

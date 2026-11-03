@@ -24,6 +24,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingFormService } from '@placeos/bookings';
 import {
+    AnnounceDirective,
     AuthenticatedImageDirective,
     IconComponent,
     TranslatePipe,
@@ -34,7 +35,6 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { CheckinStateService } from './checkin/checkin-state.service';
-import { AnnounceDirective } from './components/announce.directive';
 import { PageHeadingDirective } from './components/page-heading.directive';
 import { minuteClock } from './minute-clock';
 

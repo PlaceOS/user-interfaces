@@ -1,11 +1,4 @@
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
@@ -167,6 +160,7 @@ import { BookingFormService } from '../booking-form.service';
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone()"
                                 [range]="bookable_hours()"
+                                [min_duration]="60"
                             ></a-time-field>
                         </div>
                         <div class="w-1/3 flex-1">
@@ -247,7 +241,6 @@ export class DeskFiltersComponent {
 
     public readonly hide_levels = input<boolean>(undefined);
 
-    public readonly can_close = signal(false);
     public readonly options = this._state.options;
     public readonly features = this._state.features;
     public readonly buildings = this._org.active_buildings;

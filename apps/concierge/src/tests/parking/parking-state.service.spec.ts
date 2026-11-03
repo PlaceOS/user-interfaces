@@ -9,6 +9,8 @@ import {
     Booking,
     OrganisationService,
     SettingsService,
+    StaffUser,
+    setCurrentUser,
     setNotifyOutlet,
     setTimeInTimezone,
 } from '@placeos/common';
@@ -175,6 +177,7 @@ describe('ParkingStateService', () => {
 
     afterEach(() => {
         setNotifyOutlet(null, true);
+        setCurrentUser(new StaffUser({}));
         vi.restoreAllMocks();
     });
 
@@ -488,7 +491,7 @@ describe('ParkingStateService', () => {
         );
     });
 
-    it('should not update zone fields when editing a parking space', async () => {
+    it('should keep the level but refresh the zones when editing a parking space', async () => {
         spectator.service.setOptions({ zones: ['lvl-selected'] });
         const original_space = {
             id: 'space-1',
@@ -523,8 +526,14 @@ describe('ParkingStateService', () => {
         expect(update_data).toEqual(
             expect.objectContaining({ id: 'space-1', bookable: false }),
         );
+        // the space stays on its level, the modal level is not applied
         expect(update_data).not.toHaveProperty('zone_id');
-        expect(update_data).not.toHaveProperty('zones');
+        expect(update_data.zones).toEqual([
+            'org-1',
+            'region-1',
+            'bld-1',
+            'lvl-original',
+        ]);
     });
 
     it('should set zone fields when creating a parking space', async () => {
@@ -799,6 +808,29 @@ describe('ParkingStateService', () => {
         expect(
             spectator.service.filterEventList([request], 'requests'),
         ).toEqual([request]);
+    });
+
+    it('should hide parking requests from users outside the request groups', () => {
+        settings_map['app.parking.show_requests'] = true;
+        settings_map['app.feature_groups'] = {
+            'parking-requests': ['parking-team'],
+        };
+        setCurrentUser(new StaffUser({ groups: ['staff'] }));
+        expect(spectator.service.can_view_requests).toBe(false);
+
+        setCurrentUser(new StaffUser({ groups: ['parking-team'] }));
+        expect(spectator.service.can_view_requests).toBe(true);
+    });
+
+    it('should show parking requests to admins only when requests are enabled', () => {
+        settings_map['app.feature_groups'] = {
+            'parking-requests': ['parking-team'],
+        };
+        setCurrentUser(new StaffUser({ groups: ['admin'] }));
+        expect(spectator.service.can_view_requests).toBe(false);
+
+        settings_map['app.parking.show_requests'] = true;
+        expect(spectator.service.can_view_requests).toBe(true);
     });
 
     it('should fall back to request filtering when waitlist display is disabled', () => {
@@ -1428,6 +1460,29 @@ describe('ParkingStateService', () => {
                 zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
             }),
         );
+    });
+
+    it('should refresh the zones of spaces updated by CSV', async () => {
+        Object.defineProperty(spectator.service, 'spaces', {
+            value: () => [{ id: 'space-1', zone_id: 'lvl-1' }],
+            configurable: true,
+        });
+        const csv = 'id,identifier,bookable\n' + 'space-1,A1,true';
+        const file = new File([csv], 'spaces.csv', { type: 'text/csv' });
+        const event = {
+            target: { files: [file], value: '' },
+        } as unknown as InputEvent;
+
+        await spectator.service.uploadSpacesCSV(event);
+
+        const update = vi.mocked(ts_client.updateAsset).mock.calls[0][1];
+        expect(update).toEqual(
+            expect.objectContaining({
+                id: 'space-1',
+                zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
+            }),
+        );
+        expect(update).not.toHaveProperty('zone_id');
     });
 
     it('should upload numeric parking space identifiers as strings', async () => {

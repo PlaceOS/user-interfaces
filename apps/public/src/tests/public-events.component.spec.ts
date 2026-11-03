@@ -150,6 +150,16 @@ describe('PublicEventsComponent', () => {
         expect(fixture.componentInstance.registered()).toBe(true);
     });
 
+    it('stays unregistered when registration fails', async () => {
+        service.authenticated.set(true);
+        service.guest.set({ name: 'A', email: 'a@b.com' });
+        service.default_system_id.set('sys-1');
+        service.register.mockRejectedValueOnce(new Error('Full'));
+        const fixture = await init();
+        await fixture.componentInstance.register({ id: 'e1' });
+        expect(fixture.componentInstance.registered()).toBe(false);
+    });
+
     it('does not load events when there is no system id', async () => {
         service.authenticated.set(true);
         service.guest.set({ name: 'A', email: 'a@b.com' });

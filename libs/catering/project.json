@@ -12,7 +12,10 @@
             "outputs": ["{workspaceRoot}/coverage/libs/catering"],
             "options": {
                 "tsConfig": "libs/catering/tsconfig.spec.json",
-                "setupFiles": ["libs/catering/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "libs/catering/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "catering:test-build:development"

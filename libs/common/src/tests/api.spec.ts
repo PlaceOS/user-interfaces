@@ -1,4 +1,4 @@
-import { toQueryString } from '../lib/api';
+import { errorStatus, toQueryString } from '../lib/api';
 
 describe('toQueryString', () => {
     it('should convert a map into a query string', () => {
@@ -6,9 +6,9 @@ describe('toQueryString', () => {
     });
 
     it('should ignore empty values', () => {
-        expect(
-            toQueryString({ a: undefined, b: null, c: '', d: 'keep' }),
-        ).toBe('d=keep');
+        expect(toQueryString({ a: undefined, b: null, c: '', d: 'keep' })).toBe(
+            'd=keep',
+        );
     });
 
     it('should keep falsy but meaningful values', () => {
@@ -22,5 +22,13 @@ describe('toQueryString', () => {
     it('should handle empty or missing maps', () => {
         expect(toQueryString({})).toBe('');
         expect(toQueryString(null)).toBe('');
+    });
+});
+
+describe('errorStatus', () => {
+    it('should read direct and wrapped HTTP status codes', () => {
+        expect(errorStatus({ status: 429, message: 'quota' })).toBe(429);
+        expect(errorStatus({ error: { status: 503 } })).toBe(503);
+        expect(errorStatus(new Error('network'))).toBeUndefined();
     });
 });

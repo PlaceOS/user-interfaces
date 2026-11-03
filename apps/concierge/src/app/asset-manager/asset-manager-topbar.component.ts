@@ -13,7 +13,6 @@ import {
     notifySuccess,
     OrganisationService,
     settingSignal,
-    SettingsService,
 } from '@placeos/common';
 import {
     AvailableRoomsStateModalComponent,
@@ -195,7 +194,6 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 export class AssetManagerTopbarComponent extends AsyncHandler {
     private _state = inject(AssetManagerStateService);
     private _org = inject(OrganisationService);
-    private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
     public readonly active = input('');

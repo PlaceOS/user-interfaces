@@ -1,15 +1,7 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import {
-    Component,
-    Injector,
-    OnInit,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, Injector, OnInit, inject, signal } from '@angular/core';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
-    EncryptionLevel,
     addSystem,
     showMetadata,
     updateMetadata,
@@ -18,7 +10,6 @@ import {
 
 import { CommonModule } from '@angular/common';
 import { FormField, form } from '@angular/forms/signals';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -37,11 +28,9 @@ import {
     i18n,
     notifyError,
     notifyWarn,
-    onFieldChange,
     patchSignalModel,
     unique,
 } from '@placeos/common';
-import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import {
     FullscreenModalShellComponent,
     IconComponent,
@@ -56,6 +45,7 @@ import {
 } from '@placeos/form-fields';
 import { errorText } from '../ui/modal-actions';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
+import { TimezoneFieldComponent } from '../ui/timezone-field.component';
 
 @Component({
     selector: 'room-form-modal',
@@ -375,33 +365,10 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                         </div>
                     </div>
                 }
-                <div class="flex flex-col">
-                    <label for="room-modal-timezone">{{
-                        'COMMON.TIMEZONE' | translate
-                    }}</label>
-                    <mat-form-field appearance="outline">
-                        <icon matPrefix class="text-2xl">search</icon>
-                        <input
-                            id="room-modal-timezone"
-                            matInput
-                            [formField]="form.timezone"
-                            [placeholder]="'COMMON.TIMEZONE' | translate"
-                            [matAutocomplete]="auto"
-                        />
-                    </mat-form-field>
-                    <mat-autocomplete #auto="matAutocomplete">
-                        @for (tz of filtered_timezones(); track tz) {
-                            <mat-option [value]="tz">
-                                {{ tz }}
-                            </mat-option>
-                        }
-                        @if (!timezones().length) {
-                            <mat-option [disabled]="true">
-                                {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
-                            </mat-option>
-                        }
-                    </mat-autocomplete>
-                </div>
+                <timezone-field
+                    field_id="room-modal-timezone"
+                    [field]="form.timezone"
+                />
                 @if (form.images) {
                     <div class="flex flex-col">
                         <label
@@ -492,7 +459,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
         FullscreenModalShellComponent,
         ImageListFieldComponent,
         FormField,
-        MatAutocompleteModule,
+        TimezoneFieldComponent,
         MatFormFieldModule,
         MatInputModule,
         MatChipsModule,
@@ -526,40 +493,15 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
     );
     public form = this._form_ref.form;
     public model = this._form_ref.model;
-    public readonly timezones = signal(TIMEZONES_IANA);
-    private readonly _timezone_query = signal(this.model().timezone || '');
-    public readonly filtered_timezones = computed(() => {
-        const timezone = `${this._timezone_query() || ''}`.toLowerCase();
-        return this.timezones().filter((item) =>
-            item.toLowerCase().includes(timezone),
-        );
-    });
     public readonly settings_model = signal({ setup: 0, breakdown: 0 });
     public settings_form = form(this.settings_model, {
         injector: this._injector,
     });
-    /** Levels of encyption available for the system's settings */
-    public encryption_levels: any[] = [
-        { id: EncryptionLevel.None, name: 'None' },
-        { id: EncryptionLevel.Support, name: 'Support' },
-        { id: EncryptionLevel.Admin, name: 'Admin' },
-        { id: EncryptionLevel.NeverDisplay, name: 'Never Display' },
-    ];
     /** List of separator characters for features */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
 
     public get feature_list(): string[] {
         return this.model().features || [];
-    }
-
-    constructor() {
-        super();
-        onFieldChange(
-            this.model,
-            (value) => value.timezone,
-            (value) => this._timezone_query.set(value || ''),
-            this._injector,
-        );
     }
 
     public async ngOnInit() {

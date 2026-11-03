@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
+/**
+ * Page layout of the public pages: the branded header, then the page content.
+ * When `configured` is false, a message that public events are not set up
+ * shows after the content.
+ */
 @Component({
     selector: 'placeos-public-page-shell',
     template: `
@@ -35,6 +40,20 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
                     </div>
                 </header>
                 <ng-content />
+                @if (!configured()) {
+                    <section
+                        class="border-base-300 bg-base-100/95 w-full rounded-xl border p-5 shadow-md backdrop-blur"
+                    >
+                        <h2 class="text-xl font-medium">
+                            Public events are not configured yet
+                        </h2>
+                        <p class="mt-2 max-w-3xl text-sm opacity-70">
+                            Configure a default public events source in the
+                            authority settings, or provide one with the shared
+                            event link.
+                        </p>
+                    </section>
+                }
             </section>
         </main>
     `,
@@ -81,4 +100,6 @@ export class PublicPageShellComponent {
     public readonly description = input(
         'Browse public events, view details, and register to attend.',
     );
+    /** False when there is no events source to show */
+    public readonly configured = input(true);
 }

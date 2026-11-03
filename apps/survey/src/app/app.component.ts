@@ -70,7 +70,6 @@ const START_QUERY = location.search;
     ],
 })
 export class AppComponent extends AsyncHandler implements OnInit {
-    protected title = 'survey';
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _hotkey = inject(HotkeysService);
@@ -165,7 +164,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
             );
             return;
         }
-        this.clearTimeout('wait_for_user');
         this._initLocale();
         markInitialisationComplete();
     }

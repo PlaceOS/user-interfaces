@@ -9,10 +9,10 @@ import { ControlStateService } from '../app/control-state.service';
 import {
     BindingDirective,
     IconComponent,
+    MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
 import { ControlStatusBarComponent } from '../app/status-bar.component';
-import { DurationPipe } from '../app/ui/duration.pipe';
 
 describe('ControlStatusBarComponent', () => {
     let spectator: Spectator<ControlStatusBarComponent>;
@@ -21,7 +21,7 @@ describe('ControlStatusBarComponent', () => {
         declarations: [
             mockComponent(IconComponent),
             mockDirective(BindingDirective),
-            MockPipe(DurationPipe),
+            MockPipe(MediaDurationPipe),
             MockPipe(TranslatePipe, (v) => v),
         ],
         providers: [

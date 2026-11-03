@@ -71,35 +71,6 @@ export async function nearbyResources(
     return nearby_resources;
 }
 
-/** Split the resources into groups of `member_count` that share a level. */
-export function groupAvailability(
-    resources: BookingAsset[],
-    member_count: number,
-): BookingAsset[][] {
-    const groups: BookingAsset[][] = [];
-    const asset_list = [...resources].sort((a, b) =>
-        a.zone?.id?.localeCompare(b.zone?.id),
-    );
-    // Each pass pops at least one asset, so this ends when the list is empty.
-    while (asset_list.length) {
-        const group: BookingAsset[] = [];
-        let asset = asset_list.pop();
-        while (group.length < member_count) {
-            if (
-                group.length &&
-                !group.find((_) => _.zone?.id === asset.zone?.id)
-            ) {
-                break;
-            }
-            group.push(asset);
-            asset = asset_list.pop();
-        }
-        if (group.length < member_count) continue;
-        groups.push(group);
-    }
-    return groups;
-}
-
 /**
  * Resources whose tags or homebase match the user's groups.
  * Priority: both > homebase > tags > all available.

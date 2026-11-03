@@ -5,6 +5,7 @@ import { TranslatePipe } from '@placeos/components';
 import { PlaceZone, showZone } from '@placeos/ts-client';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { SectionTabsComponent } from '../../app/shared/section-tabs.component';
 import { SignageContextService } from '../../app/signage-context.service';
 import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
@@ -67,7 +68,10 @@ describe('ZonesSectionComponent', () => {
         })
             .overrideComponent(ZonesSectionComponent, {
                 set: render_template
-                    ? { imports: [TranslatePipe], schemas: [NO_ERRORS_SCHEMA] }
+                    ? {
+                          imports: [TranslatePipe, SectionTabsComponent],
+                          schemas: [NO_ERRORS_SCHEMA],
+                      }
                     : { template: '' },
             })
             .compileComponents();

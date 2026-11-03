@@ -71,7 +71,7 @@
                             "with": "apps/assistant-panel/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/assistant-panel/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -109,7 +109,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": "apps/assistant-panel/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 }
             }
         },
@@ -136,7 +136,11 @@
             "outputs": ["{workspaceRoot}/coverage/apps/assistant-panel"],
             "options": {
                 "tsConfig": "apps/assistant-panel/tsconfig.spec.json",
-                "setupFiles": ["apps/assistant-panel/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "shared/test-setup-base.ts",
+                    "shared/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "assistant-panel:test-build:development"

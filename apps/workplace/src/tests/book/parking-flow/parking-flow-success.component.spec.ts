@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -55,12 +58,12 @@ describe('ParkingFlowSuccessComponent', () => {
         expect(spectator.component.location).toBe('Unknown');
     });
 
-    it('should generate calendar links on init', () => {
+    it('should set the calendar event with the location on init', () => {
         spectator.component.ngOnInit();
 
-        expect(spectator.component.outlook_link()).toContain('http');
-        expect(spectator.component.google_link()).toContain('http');
-        expect(spectator.component.ical_link().length).toBeGreaterThan(0);
+        expect(spectator.component.cal_event()?.location).toBe(
+            'Headquarters, Level 1, Bay 1',
+        );
     });
 
     it('should hide the calendar links when the setting is disabled', () => {

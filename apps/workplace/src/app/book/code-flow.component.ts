@@ -10,6 +10,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { queryDeskAssetByLegacyId } from '@placeos/assets';
 import {
     BookingFormService,
     queryBookings,
@@ -23,6 +24,7 @@ import {
     currentUser,
     i18n,
     notifyError,
+    SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
@@ -211,6 +213,7 @@ export class BookCodeFlowComponent
     private readonly _event_form = inject(EventFormService);
     private readonly _booking_form = inject(BookingFormService);
     private readonly _org = inject(OrganisationService);
+    private readonly _settings = inject(SettingsService);
 
     public readonly menu = output();
     public readonly is_scanning = signal(false);
@@ -297,7 +300,11 @@ export class BookCodeFlowComponent
             type,
             email: currentUser().email,
         }).catch((_) => [] as Booking[]);
-        const item = current_bookings.find((_) => _.asset_id === asset_id);
+        let item = current_bookings.find((_) => _.asset_id === asset_id);
+        if (!item && type === 'desk') {
+            asset_id = await this._deskAssetId(asset_id);
+            item = current_bookings.find((_) => _.asset_id === asset_id);
+        }
         if (item) {
             await setBookingCheckedIn(item, true).catch((_) => {
                 notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
@@ -333,6 +340,22 @@ export class BookCodeFlowComponent
             this._booking_form.setOptions({ type });
         }
         this.loading.set(false);
+    }
+
+    /**
+     * Codes printed before desks moved to assets hold the original desk id,
+     * which desk assets keep as their `place_id` or map id. Bookings reference
+     * the asset id.
+     * The booked desk can be in any building, so search the whole org.
+     */
+    private async _deskAssetId(code: string): Promise<string> {
+        if (!this._settings.get('app.desks.use_assets')) return code;
+        const org_id = this._org.organisation?.id;
+        if (!org_id) return code;
+        const asset = await queryDeskAssetByLegacyId(org_id, code).catch(
+            () => undefined,
+        );
+        return asset?.id || code;
     }
 
     private async _checkinEvent(space_id: string, email?: string) {

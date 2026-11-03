@@ -8,11 +8,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import {
-    MAT_DIALOG_DATA,
-    MatDialog,
-    MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
@@ -208,7 +204,6 @@ export class LockerBookingModalComponent
         inject<MatDialogRef<LockerBookingModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
     private _injector = inject(Injector);
-    private _dialog = inject(MatDialog);
 
     public readonly loading = signal(false);
     public readonly user = this._data.user;

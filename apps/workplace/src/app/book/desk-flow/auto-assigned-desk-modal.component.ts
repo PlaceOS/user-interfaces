@@ -333,9 +333,10 @@ export class AutoAssignedDeskModalComponent
                         const desk_ids = available_desks.map(
                             (d) => d.map_id || d.id,
                         );
+                        // bookings reference desk assets by id, the map by map id
                         const closest_id = await findNearbyFeature(
                             level.map_id,
-                            nearby_desk_id,
+                            nearby_resource.map_id || nearby_desk_id,
                             desk_ids,
                         );
                         if (closest_id) {

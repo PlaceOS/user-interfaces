@@ -104,6 +104,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [range]="bookable_hours()"
+                                [min_duration]="effective_min_duration()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
                                 [disabled]="start_time_disabled()"
@@ -316,6 +317,11 @@ export class MeetingFlowDetailsComponent {
     public readonly custom_duration_options = settingSignal<number[]>(
         'events.custom_duration_options',
         [],
+    );
+    /** Shortest length the duration field offers. The start-time field uses it
+     *  so that the last start leaves room for a booking before closing time. */
+    public readonly effective_min_duration = computed(() =>
+        Math.min(this.min_duration(), ...this.custom_duration_options()),
     );
     /** Number of days ahead that the user can book a meeting */
     public readonly allowed_future_days = settingSignal(

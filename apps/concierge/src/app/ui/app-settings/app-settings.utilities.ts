@@ -1,3 +1,6 @@
+import { currentUser, SettingsService, VERSION } from '@placeos/common';
+import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
+
 export type AppSettings = Record<string, unknown>;
 
 function isSettingsGroup(value: unknown): value is AppSettings {
@@ -177,4 +180,129 @@ export function appSettingOverrides(
         }
     }
     return overrides;
+}
+
+/** Zone fields that the App Settings modals read. The organisation fits too. */
+export type AppSettingsZone = Pick<PlaceZone, 'id' | 'name'> &
+    Partial<Pick<PlaceZone, 'display_name' | 'parent_id'>>;
+
+/** Applications that store their settings in zone metadata. */
+export type MetadataApp = 'concierge' | 'workplace' | 'visitor-kiosk';
+
+/** Settings checked in order for each app's metadata key, then the default. */
+const APP_METADATA_KEYS: Record<
+    MetadataApp,
+    { settings: readonly string[]; fallback: string }
+> = {
+    concierge: {
+        settings: ['app.concierge_metadata_key', 'app.concierge_app'],
+        fallback: 'concierge_app',
+    },
+    workplace: {
+        settings: ['app.workplace_metadata_key'],
+        fallback: 'workplace_app',
+    },
+    'visitor-kiosk': {
+        settings: ['app.visitor_kiosk_metadata_key', 'app.visitor_kiosk_app'],
+        fallback: 'visitor-kiosk_app',
+    },
+};
+
+/** Name of the zone metadata that holds the settings of `app`. */
+export function appMetadataKey(
+    settings: SettingsService,
+    app: MetadataApp,
+): string {
+    const { settings: keys, fallback } = APP_METADATA_KEYS[app];
+    for (const key of keys) {
+        const value = settings.get<string>(key);
+        if (value) return value;
+    }
+    return fallback;
+}
+
+/** Modal heading: the title and a badge with the zone name. */
+export function appSettingsHeading(
+    title: string,
+    zone: AppSettingsZone,
+): string {
+    return `${title} <div class="font-mono text-xs px-2 py-1 rounded bg-base-300 ml-2">${zone.display_name || zone.name || 'Organisation'}</div>`;
+}
+
+/** Settings layers that an App Settings modal loads for a zone. */
+export interface AppSettingsLayers {
+    /** Application defaults, then organisation and parent zone settings. */
+    inherited: AppSettings;
+    /** Settings stored on the zone. */
+    stored: AppSettings;
+}
+
+async function loadMetadata(id: string, key: string): Promise<AppSettings> {
+    const metadata = await showMetadata(id, key);
+    return (metadata.details || {}) as AppSettings;
+}
+
+/**
+ * Load the `key` metadata of `zone` and of the zones it inherits from.
+ * The organisation is skipped when it is the zone, and the parent zone is
+ * skipped when it is the organisation. Rejects when a request fails.
+ */
+export async function loadLayeredAppSettings(
+    zone: AppSettingsZone,
+    org_id: string,
+    key: string,
+    defaults: AppSettings,
+): Promise<AppSettingsLayers> {
+    const is_org = zone.id === org_id;
+    const org = is_org ? {} : await loadMetadata(org_id, key);
+    const parent =
+        !is_org && zone.parent_id && zone.parent_id !== org_id
+            ? await loadMetadata(zone.parent_id, key)
+            : {};
+    const stored = await loadMetadata(zone.id, key);
+    return { inherited: mergeAppSettings(defaults, org, parent), stored };
+}
+
+/** Current user details saved with each settings change. */
+function editedBy(): AppSettings {
+    const user = currentUser();
+    return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        domain: location.hostname,
+        role: user.groups.includes('placeos_admin')
+            ? 'Admin'
+            : user.groups.includes('placeos_support')
+              ? 'Support'
+              : 'User',
+    };
+}
+
+/**
+ * Save the form `values` as the `key` metadata of `zone_id`. Only the
+ * overrides of `layers.inherited` are saved (see `appSettingOverrides`),
+ * with an `edited_by` stamp for the current user. `initial` holds the form
+ * values right after loading. `app_name` goes in the metadata description.
+ */
+export async function saveAppSettings(
+    zone_id: string,
+    key: string,
+    app_name: string,
+    layers: AppSettingsLayers,
+    initial: AppSettings,
+    values: AppSettings,
+): Promise<void> {
+    const details = appSettingOverrides(
+        mergeAppSettings(layers.stored, values),
+        layers.inherited,
+        initial,
+        layers.stored,
+    );
+    details.edited_by = editedBy();
+    await updateMetadata(zone_id, {
+        name: key,
+        details,
+        description: `[${VERSION.hash}|C] ${app_name} Application Settings`,
+    });
 }

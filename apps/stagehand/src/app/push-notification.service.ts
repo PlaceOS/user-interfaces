@@ -63,12 +63,6 @@ export class AlertNotificationService extends BasePushNotificationService {
         });
     }
 
-    /** Update the entire notification config */
-    public setConfig(config: AlertNotificationConfig): void {
-        this.config.set(config);
-        this._saveConfig(config);
-    }
-
     /** Check if notifications should be sent for a given severity */
     public shouldNotify(severity: AlertSeverity): boolean {
         const is_enabled = this.enabled();

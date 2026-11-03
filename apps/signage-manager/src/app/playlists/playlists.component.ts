@@ -1,10 +1,15 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { i18n, notifyWarn } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
+import { routedTab } from '../shared/routed-tab.util';
+import {
+    SectionTab,
+    SectionTabsComponent,
+} from '../shared/section-tabs.component';
 import { SignageContextService } from '../signage-context.service';
 import { PlaylistActionsComponent } from './playlist-actions.component';
 import { PlaylistHeaderComponent } from './playlist-header.component';
@@ -13,9 +18,9 @@ import { PlaylistItemsComponent } from './playlist-items.component';
 import { PlaylistListComponent } from './playlist-list.component';
 import { SignagePlaylistService } from './signage-playlist.service';
 
-const TAB_QUERY_PARAM = 'tab';
+type PlaylistTab = 'items' | 'details';
 
-function parsePlaylistTab(value: string | null): 'items' | 'details' {
+function parsePlaylistTab(value: string | null): PlaylistTab {
     return value === 'details' ? 'details' : 'items';
 }
 
@@ -68,63 +73,17 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                 <div></div>
                                 <playlist-actions />
                             </div>
-                            <div
-                                class="bg-base-100 border-base-300 mx-2 my-2 flex rounded-lg border lg:hidden"
-                                role="tablist"
+                            <section-tabs
+                                class="bg-base-100 border-base-300 mx-2 my-2 flex overflow-hidden rounded-lg border lg:hidden"
+                                id_prefix="playlist"
+                                [tabs]="tabs"
+                                [active]="view_tab()"
+                                (activeChange)="setViewTab($event)"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.PLAYLIST_DETAILS_TABS'
                                         | translate
                                 "
-                            >
-                                <button
-                                    type="button"
-                                    role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
-                                    [class.border-primary]="
-                                        view_tab() === 'items'
-                                    "
-                                    [class.border-b-2]="view_tab() === 'items'"
-                                    [class.text-primary]="
-                                        view_tab() === 'items'
-                                    "
-                                    [class.opacity-60]="view_tab() !== 'items'"
-                                    (click)="setViewTab('items')"
-                                    [attr.aria-selected]="
-                                        view_tab() === 'items'
-                                    "
-                                    aria-controls="playlist-items-panel"
-                                    id="playlist-items-tab"
-                                >
-                                    {{
-                                        'SIGNAGE_MANAGER.TAB_ITEMS' | translate
-                                    }}
-                                </button>
-                                <button
-                                    type="button"
-                                    role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
-                                    [class.border-primary]="
-                                        view_tab() === 'details'
-                                    "
-                                    [class.border-b-2]="
-                                        view_tab() === 'details'
-                                    "
-                                    [class.text-primary]="
-                                        view_tab() === 'details'
-                                    "
-                                    [class.opacity-60]="
-                                        view_tab() !== 'details'
-                                    "
-                                    (click)="setViewTab('details')"
-                                    [attr.aria-selected]="
-                                        view_tab() === 'details'
-                                    "
-                                    aria-controls="playlist-details-panel"
-                                    id="playlist-details-tab"
-                                >
-                                    {{ 'COMMON.DETAILS' | translate }}
-                                </button>
-                            </div>
+                            />
                         }
                         <div class="flex min-h-0 flex-1 flex-row">
                             <playlist-items
@@ -149,34 +108,6 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
             <nav-footer />
         </div>
     `,
-    styles: [
-        `
-            .tablet-hidden {
-                @media (max-width: 1023px) {
-                    display: none !important;
-                }
-            }
-
-            .tablet-full {
-                @media (max-width: 1023px) {
-                    flex: 1;
-                    min-width: 0;
-                }
-            }
-
-            .mobile-hidden {
-                @media (max-width: 639px) {
-                    display: none !important;
-                }
-            }
-
-            .mobile-full {
-                @media (max-width: 639px) {
-                    flex: 1;
-                }
-            }
-        `,
-    ],
     imports: [
         NavSidebarComponent,
         NavFooterComponent,
@@ -185,6 +116,7 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
         PlaylistItemsComponent,
         PlaylistItemDetailsComponent,
         PlaylistActionsComponent,
+        SectionTabsComponent,
         MatRippleModule,
         IconComponent,
         TranslatePipe,
@@ -193,13 +125,18 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
 export class PlaylistsSectionComponent {
     private readonly _context = inject(SignageContextService);
     private readonly _playlist_service = inject(SignagePlaylistService);
-    private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
     public readonly id = input('');
     public readonly tab = input<string | null>(null);
     public readonly item = input<string | null>(null);
-    public readonly view_tab = signal<'items' | 'details'>('items');
+    private readonly _view_tab = routedTab(this.tab, parsePlaylistTab);
+    public readonly view_tab = this._view_tab.active;
+    /** Tabs shown below the lg breakpoint. Wider screens show both panels. */
+    public readonly tabs: SectionTab<PlaylistTab>[] = [
+        { id: 'items', label: 'SIGNAGE_MANAGER.TAB_ITEMS' },
+        { id: 'details', label: 'COMMON.DETAILS' },
+    ];
     public readonly selected_playlist =
         this._playlist_service.selected_playlist;
 
@@ -212,13 +149,6 @@ export class PlaylistsSectionComponent {
     private _fetched_id = '';
 
     constructor() {
-        effect(() => {
-            const route_tab = parsePlaylistTab(this.tab());
-            if (route_tab !== this.view_tab()) {
-                this.view_tab.set(route_tab);
-            }
-        });
-
         // Sync selected playlist from route param
         effect(() => {
             const id = this.id();
@@ -301,14 +231,7 @@ export class PlaylistsSectionComponent {
         this._router.navigate(['/playlists'], {});
     }
 
-    public setViewTab(tab: 'items' | 'details') {
-        if (tab === this.view_tab()) return;
-        this.view_tab.set(tab);
-        void this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { [TAB_QUERY_PARAM]: tab },
-            queryParamsHandling: 'merge',
-            replaceUrl: true,
-        });
+    public setViewTab(tab: PlaylistTab) {
+        this._view_tab.select(tab);
     }
 }

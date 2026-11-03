@@ -116,7 +116,7 @@ export class VisitorsReportService {
                   'yyyy-MM-dd',
               )}`;
         downloadFile(
-            `report+assets+${date}.tsv`,
+            `report+visitors+${date}.tsv`,
             jsonToCsv(
                 bookings.map((booking) => {
                     const b: any = booking.toJSON();

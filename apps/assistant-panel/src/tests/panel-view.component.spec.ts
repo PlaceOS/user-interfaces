@@ -45,6 +45,7 @@ describe('PanelViewComponent', () => {
     let chat: {
         messages: ReturnType<typeof signal<MockMessage[]>>;
         progress: ReturnType<typeof signal<unknown>>;
+        setBinding: ReturnType<typeof vi.fn>;
         startChat: ReturnType<typeof vi.fn>;
         sendMessage: ReturnType<typeof vi.fn>;
         close: ReturnType<typeof vi.fn>;
@@ -97,17 +98,32 @@ describe('PanelViewComponent', () => {
         chat = {
             messages: signal<MockMessage[]>([]),
             progress: signal<unknown>(null),
+            setBinding: vi.fn(),
             startChat: vi.fn(),
             sendMessage: vi.fn(),
             close: vi.fn(),
         };
         spectator = create_component({
             providers: [{ provide: ChatService, useValue: chat }],
+            params: { system_id: 'sys-7' },
         });
     });
 
     it('should create the component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should chat with the routed system', async () => {
+        vi.useFakeTimers();
+        spectator.detectChanges();
+        await vi.advanceTimersByTimeAsync(0);
+        vi.useRealTimers();
+
+        expect(chat.setBinding).toHaveBeenCalledWith('sys-7');
+        expect(chat.startChat).toHaveBeenCalled();
+        expect(chat.setBinding.mock.invocationCallOrder[0]).toBeLessThan(
+            chat.startChat.mock.invocationCallOrder[0],
+        );
     });
 
     it('should reveal a message timestamp when the message is tapped', async () => {

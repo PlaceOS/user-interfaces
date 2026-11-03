@@ -1,4 +1,5 @@
 import { AvailabilityState, MapObject } from '../data/types';
+import { isBookable } from '../editor/availability';
 
 export interface HeatmapCell {
     x: number;
@@ -61,10 +62,7 @@ export function computeHeatmap(
         Array.from({ length: cols }, () => ({ score: 0, count: 0 })),
     );
 
-    const bookable = objects.filter(
-        (o) =>
-            o.visible && (o.object_type === 'room' || o.object_type === 'desk'),
-    );
+    const bookable = objects.filter((o) => o.visible && isBookable(o));
 
     const radius = 2;
     for (const object of bookable) {

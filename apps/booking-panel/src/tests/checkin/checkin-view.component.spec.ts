@@ -4,7 +4,7 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { TranslatePipe } from '@placeos/components';
 import { ngMocks } from 'ng-mocks';
 
 import { CheckinTimetableComponent } from '../../app/checkin/checkin-timetable.component';
@@ -40,10 +40,7 @@ describe('CheckinViewComponent', () => {
         component: CheckinViewComponent,
         detectChanges: false,
         params: { system_id: 'sys-42' },
-        declarations: [
-            mockComponent(CheckinTimetableComponent),
-            mockComponent(IconComponent),
-        ],
+        declarations: [mockComponent(CheckinTimetableComponent)],
         componentProviders: [
             { provide: PanelStateService, useValue: state_service },
         ],

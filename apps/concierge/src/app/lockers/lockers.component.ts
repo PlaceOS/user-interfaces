@@ -1,12 +1,10 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { Router, RouterModule } from '@angular/router';
+import { AsyncHandler } from '@placeos/common';
 import { LockerStateService } from './locker-state.service';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
-import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { LockersTopbarComponent } from './locker-topbar.component';
 
 @Component({
@@ -49,9 +47,6 @@ import { LockersTopbarComponent } from './locker-topbar.component';
 export class LockersComponent extends AsyncHandler implements OnInit {
     private _state = inject(LockerStateService);
     private _router = inject(Router);
-    private _route = inject(ActivatedRoute);
-    private _dialog = inject(MatDialog);
-    private _settings = inject(SettingsService);
 
     private readonly _url = signal<unknown>(null);
 
@@ -61,27 +56,6 @@ export class LockersComponent extends AsyncHandler implements OnInit {
         const parts = this._router.url.split('/');
         return parts[parts.length - 1].split('?')[0];
     });
-    /** List of levels for the active building */
-    public readonly filters = this._state.filters;
-    /** List of levels for the active building */
-    public readonly levels = this._state.levels;
-    public readonly setDate = (date) => this._state.setFilters({ date });
-    public readonly setFilters = (o) => this._state.setFilters(o);
-    public readonly refresh = () => this._state.refresh();
-    public readonly rejectAll = () => this._state.rejectAllLockers();
-    /** Update active zones for lockers */
-    public readonly updateZones = (zones: string[]) => {
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { zone_ids: zones.join(',') },
-            queryParamsHandling: 'merge',
-        });
-        this._state.setFilters({ zones });
-    };
-
-    public get use_region() {
-        return !!this._settings.get('app.use_region');
-    }
 
     constructor() {
         super();
@@ -93,11 +67,5 @@ export class LockersComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this._state.refresh();
-    }
-
-    public manageRestrictions() {
-        this._dialog.open(BookingRulesModalComponent, {
-            data: { type: 'locker' },
-        });
     }
 }

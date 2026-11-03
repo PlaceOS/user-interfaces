@@ -2,18 +2,16 @@ import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
-import {
-    Building,
-    CateringItem,
-    CateringOrder,
-    OrganisationService,
-} from '@placeos/common';
+import { Building, CateringItem, OrganisationService } from '@placeos/common';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { AvailableRoomsStateModalComponent } from 'libs/components/src/lib/available-rooms-state-modal.component';
 
 import { CateringStateService } from '../lib/catering-state.service';
+import { ChargeCodeListModalComponent } from '../lib/charge-code-list-modal.component';
 
 // The `@placeos/assets` catering fns run for real; only the ts-client API
 // layer beneath them (asset/type/category queries + mutations) is stubbed.
@@ -137,18 +135,6 @@ describe('CateringStateService', () => {
         );
     });
 
-    it('should allow user to select catering options to orders', async () => {
-        const dialog = spectator.inject(MatDialog);
-        (dialog.open as any).mockImplementation(dialog_fn(true));
-        let options = await spectator.service.selectOptions([]);
-        expect(options).toEqual([]);
-        (dialog.open as any).mockImplementation(
-            dialog_fn(false, { options: [{} as any] }),
-        );
-        options = await spectator.service.selectOptions([]);
-        expect(options).toEqual([{}]);
-    });
-
     it('should allow user to remove catering items from menu', async () => {
         const dialog = spectator.inject(MatDialog);
         (dialog.open as any).mockImplementation(dialog_fn(true));
@@ -190,6 +176,78 @@ describe('CateringStateService', () => {
         });
     });
 
+    it('should open the charge codes modal', () => {
+        spectator.service.setChargeCodes();
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            ChargeCodeListModalComponent,
+        );
+    });
+
+    describe('setRoomAvailability', () => {
+        const change = new Subject<string[]>();
+        const loading = signal(true);
+        // The change handler awaits the save before it clears the loading flag
+        const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+        const notify_open = vi.fn(() => ({
+            onAction: () => of(),
+            dismiss: vi.fn(),
+        }));
+
+        beforeEach(() => {
+            loading.set(true);
+            setNotifyOutlet({ open: notify_open } as any, true);
+            (spectator.inject(MatDialog).open as any).mockReturnValue({
+                componentInstance: { change, loading },
+            });
+        });
+
+        afterEach(() => setNotifyOutlet(null, true));
+
+        it('should open the modal and save the selected rooms', async () => {
+            spectator.service.setRoomAvailability();
+            expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+                AvailableRoomsStateModalComponent,
+                { data: { type: 'Catering', disabled_rooms: [] } },
+            );
+
+            change.next(['room-2']);
+            await settle();
+
+            expect(ts_client.updateMetadata).toHaveBeenCalledWith(
+                'bld-1',
+                expect.objectContaining({
+                    name: 'catering-settings',
+                    details: expect.objectContaining({
+                        disabled_rooms: ['room-2'],
+                    }),
+                }),
+            );
+            expect(notify_open).toHaveBeenCalledWith(
+                'Room availability settings saved',
+                'OK',
+                expect.objectContaining({ panelClass: ['success'] }),
+            );
+            expect(loading()).toBe(false);
+        });
+
+        it('should show the error and stop loading when the save fails', async () => {
+            vi.mocked(ts_client.updateMetadata).mockRejectedValueOnce(
+                new Error('save failed'),
+            );
+            spectator.service.setRoomAvailability();
+
+            change.next(['room-2']);
+            await settle();
+
+            expect(notify_open).toHaveBeenCalledWith(
+                'Failed to save room availability. save failed',
+                'OK',
+                expect.objectContaining({ panelClass: ['error'] }),
+            );
+            expect(loading()).toBe(false);
+        });
+    });
+
     it('should allow user to get catering config', async () => {
         vi.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
         let config = await spectator.service.getCateringConfig();
@@ -205,17 +263,6 @@ describe('CateringStateService', () => {
             'bld-2',
             'catering_config',
         );
-    });
-
-    it('should allow user to add items to order', () => {
-        const order = new CateringOrder();
-        const item = new CateringItem({ id: '1' });
-        let updated_order = spectator.service.addItemToOrder(order, item);
-        expect(updated_order.items).toHaveLength(1);
-        expect(updated_order.items[0].quantity).toBe(1);
-        updated_order = spectator.service.addItemToOrder(updated_order, item);
-        expect(updated_order.items).toHaveLength(1);
-        expect(updated_order.items[0].quantity).toBe(2);
     });
 
     it('should open a copy of an item without its ID', async () => {

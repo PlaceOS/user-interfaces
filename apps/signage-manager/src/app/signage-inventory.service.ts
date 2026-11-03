@@ -1,4 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
+import { mapWithLimit } from '@placeos/common';
 import {
     PlaceSystem,
     PlaceZone,
@@ -177,10 +178,8 @@ export class SignageInventoryService {
      * @returns The items in use and the number of expired items not checked
      */
     private async _expiredMediaInPlaylists(now: number) {
-        const usage: { media: SignageMedia; playlists: SignagePlaylist[] }[] =
-            [];
         if (!this._context.canQueryLists()) {
-            return { items: usage, unchecked: 0 };
+            return { items: [], unchecked: 0 };
         }
         const media = await queryAll(
             querySignageMedia(
@@ -192,32 +191,19 @@ export class SignageInventoryService {
         );
         const expired = all_expired.slice(0, MAX_EXPIRED_MEDIA_CHECKS);
         const query_params = this._context.groupQueryParams({});
-        let next = 0;
-        const check = async () => {
-            // Each pass takes one item, so the loop ends after the list
-            while (next < expired.length) {
-                const index = next++;
-                const item = expired[index];
-                try {
-                    const detail = await showSignageMedia(
-                        item.id,
-                        query_params,
-                    );
-                    // Keep the media order, whichever request ends first
-                    usage[index] = {
-                        media: item,
-                        playlists: detail.playlists || [],
-                    };
-                } catch {
-                    // Leave out media that cannot be read
-                }
-            }
-        };
-        await Promise.all(
-            Array.from({ length: EXPIRED_MEDIA_CONCURRENCY }, check),
+        // Results keep the media order, whichever request ends first
+        const usage = await mapWithLimit(
+            expired,
+            EXPIRED_MEDIA_CONCURRENCY,
+            (media) =>
+                showSignageMedia(media.id, query_params).then(
+                    (detail) => ({ media, playlists: detail.playlists || [] }),
+                    // Media that cannot be read is left out below
+                    () => ({ media, playlists: [] as SignagePlaylist[] }),
+                ),
         );
         return {
-            items: usage.filter((item) => item?.playlists.length),
+            items: usage.filter((item) => item.playlists.length),
             unchecked: all_expired.length - expired.length,
         };
     }

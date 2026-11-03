@@ -5,7 +5,6 @@ import {
     computed,
     inject,
     input,
-    linkedSignal,
     resource,
     signal,
 } from '@angular/core';
@@ -15,7 +14,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, isSameDay, startOfDay } from 'date-fns';
@@ -23,6 +21,8 @@ import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
+import { routedTab } from '../shared/routed-tab.util';
+import { tabKeyIndex } from '../shared/section-tabs.component';
 import { SignageInventoryService } from '../signage-inventory.service';
 import { ScheduleTimelineComponent } from './schedule-timeline.component';
 import {
@@ -32,9 +32,11 @@ import {
     buildZoneScheduleAssignments,
 } from './signage-schedule.util';
 
-const TAB_QUERY_PARAM = 'tab';
+type ScheduleTab = 'displays' | 'zones';
 
-function parseScheduleTab(value: string | null): 'displays' | 'zones' {
+const SCHEDULE_TABS: readonly ScheduleTab[] = ['displays', 'zones'];
+
+function parseScheduleTab(value: string | null): ScheduleTab {
     return value === 'zones' ? 'zones' : 'displays';
 }
 
@@ -323,13 +325,11 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
 export class SchedulesSectionComponent {
     private readonly _inventory_service = inject(SignageInventoryService);
     private readonly _playlist_service = inject(SignagePlaylistService);
-    private readonly _route = inject(ActivatedRoute);
-    private readonly _router = inject(Router);
     private readonly _destroy_ref = inject(DestroyRef);
 
     public readonly tab = input<string | null>(null);
-    /** Follows the route, and changes at once when users pick a tab */
-    public readonly view_tab = linkedSignal(() => parseScheduleTab(this.tab()));
+    private readonly _view_tab = routedTab(this.tab, parseScheduleTab);
+    public readonly view_tab = this._view_tab.active;
     public readonly search_term = signal('');
     public readonly selected_date = signal(startOfDay(new Date()));
     public readonly current_time = signal(new Date());
@@ -505,28 +505,20 @@ export class SchedulesSectionComponent {
         this.search_term.set('');
     }
 
-    public setViewTab(tab: 'displays' | 'zones') {
-        if (tab === this.view_tab()) return;
-        this.view_tab.set(tab);
-        void this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { [TAB_QUERY_PARAM]: tab },
-            queryParamsHandling: 'merge',
-            replaceUrl: true,
-        });
+    public setViewTab(tab: ScheduleTab) {
+        this._view_tab.select(tab);
     }
 
     /** Move between the tabs with the arrow, Home and End keys */
     public onTabKeydown(event: KeyboardEvent) {
-        const keys: Record<string, 'displays' | 'zones'> = {
-            ArrowLeft: 'displays',
-            Home: 'displays',
-            ArrowRight: 'zones',
-            End: 'zones',
-        };
-        const tab = keys[event.key];
-        if (!tab) return;
+        const next = tabKeyIndex(
+            event.key,
+            SCHEDULE_TABS.indexOf(this.view_tab()),
+            SCHEDULE_TABS.length,
+        );
+        if (next === null) return;
         event.preventDefault();
+        const tab = SCHEDULE_TABS[next];
         this.setViewTab(tab);
         document.getElementById(`schedules-tab-${tab}`)?.focus();
     }

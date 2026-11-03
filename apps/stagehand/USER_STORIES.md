@@ -241,20 +241,6 @@ Stagehand is an AV systems monitoring and management application for facility ma
 
 ---
 
-### US-SM-016: Add Time-Based Condition
-
-**As a** facility manager
-**I want to** add time-based trigger conditions
-**So that** I can schedule alerts for specific times
-
-**Acceptance Criteria:**
-
-- Support specific time (AT) conditions
-- Support CRON expression conditions
-- Combine with other conditions using AND/OR logic
-
----
-
 ### US-SM-017: Edit Alert Condition
 
 **As a** facility manager

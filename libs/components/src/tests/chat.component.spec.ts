@@ -14,9 +14,7 @@ describe('ChatComponent', () => {
         chat_hint: signal(''),
         messages: signal<ChatMessage[]>([]),
         progress: signal<ChatMessage | null>(null),
-        connected: true,
-        startChat: vi.fn(),
-        sendMessage: vi.fn(),
+        sendMessage: vi.fn(() => true),
         close: vi.fn(),
     };
 
@@ -31,7 +29,6 @@ describe('ChatComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         chat_enabled.set(false);
-        chat_mock.connected = true;
         chat_mock.chat_hint.set('');
         chat_mock.messages.set([]);
         chat_mock.progress.set(null);
@@ -72,13 +69,32 @@ describe('ChatComponent', () => {
         vi.advanceTimersByTime(200);
     });
 
-    it('should start a chat before sending when not connected', () => {
-        vi.useFakeTimers();
-        chat_mock.connected = false;
+    it('should keep the message when the chat cannot connect', () => {
+        chat_enabled.set(true);
+        spectator.component.show.set(true);
+        spectator.detectChanges();
+        chat_mock.sendMessage.mockReturnValueOnce(false);
         spectator.component.message.set('Hello there');
         spectator.component.sendMessage();
-        expect(chat_mock.startChat).toHaveBeenCalled();
-        expect(chat_mock.sendMessage).not.toHaveBeenCalled();
+        expect(spectator.component.message()).toBe('Hello there');
+    });
+
+    it('should toggle the progress detail when tapped', () => {
+        chat_enabled.set(true);
+        spectator.component.show.set(true);
+        chat_mock.progress.set({
+            id: 'p-1',
+            message: 'Working',
+            content: 'Step detail',
+        } as ChatMessage);
+        spectator.detectChanges();
+        expect(spectator.component.show_info()).toBe(false);
+
+        spectator.click('button.bg-info');
+        expect(spectator.component.show_info()).toBe(true);
+
+        spectator.click('button.bg-info');
+        expect(spectator.component.show_info()).toBe(false);
     });
 
     it('should render messages from the chat service', () => {

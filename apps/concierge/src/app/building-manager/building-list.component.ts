@@ -1,14 +1,12 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifySuccess } from '@placeos/common';
+import { AppSettingsMenuComponent } from '../ui/app-settings/app-settings-menu.component';
 import { BuildingManagementService } from './building-management.service';
 
 import { MatMenuModule } from '@angular/material/menu';
 import {
-    AuthenticatedImageDirective,
     IconComponent,
-    LevelPipe,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -75,19 +73,6 @@ import {
         <ng-template #timezone_template let-data="data">
             <div class="p-4 font-mono text-xs">{{ data }}</div>
         </ng-template>
-        <ng-template #level_template let-data="data">
-            {{ (data | level)?.display_name || (data | level)?.name }}
-        </ng-template>
-        <ng-template #image_template let-data="data">
-            @if (data.length) {
-                <img alt="" auth [source]="data[0]" class="max-h-12 max-w-32" />
-            }
-            @if (!data.length) {
-                <span class="opacity-70">{{
-                    'COMMON.IMAGES_EMPTY' | translate
-                }}</span>
-            }
-        </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center p-2">
                 <button
@@ -102,7 +87,7 @@ import {
                 <mat-menu #menu="matMenu">
                     <button
                         mat-menu-item
-                        [matMenuTriggerFor]="app_settings_menu"
+                        [matMenuTriggerFor]="app_settings_menu.menu()"
                     >
                         <div class="flex items-center space-x-2">
                             <icon class="text-xl">edit_square</icon>
@@ -111,64 +96,7 @@ import {
                             </div>
                         </div>
                     </button>
-                    <mat-menu #app_settings_menu="matMenu">
-                        <button
-                            mat-menu-item
-                            (click)="editWorkplaceSettings(row)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">meeting_room</icon>
-                                <div>
-                                    {{
-                                        'APP.CONCIERGE.APP_SETTINGS_WORKPLACE'
-                                            | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                        <button
-                            mat-menu-item
-                            (click)="editConciergeSettings(row)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">support_agent</icon>
-                                <div>
-                                    {{
-                                        'APP.CONCIERGE.APP_SETTINGS_CONCIERGE'
-                                            | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                        <button
-                            mat-menu-item
-                            (click)="editBookingPanelSettings(row)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">event_busy</icon>
-                                <div>
-                                    {{
-                                        'APP.CONCIERGE.APP_SETTINGS_BOOKING_PANEL'
-                                            | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                        <button
-                            mat-menu-item
-                            (click)="editVisitorKioskSettings(row)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">qr_code</icon>
-                                <div>
-                                    {{
-                                        'APP.CONCIERGE.APP_SETTINGS_VISITOR_KIOSK'
-                                            | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                    </mat-menu>
+                    <app-settings-menu #app_settings_menu [zone]="row" />
                     <button mat-menu-item (click)="editBuilding(row)">
                         <div class="flex items-center space-x-2">
                             <icon class="text-xl">edit</icon>
@@ -242,26 +170,20 @@ import {
     styles: [``],
     imports: [
         SimpleTableComponent,
-        AuthenticatedImageDirective,
         MatMenuModule,
         TranslatePipe,
         IconComponent,
-        LevelPipe,
+        AppSettingsMenuComponent,
     ],
 })
 export class BuildingListComponent {
     private _manager = inject(BuildingManagementService);
     private _clipboard = inject(Clipboard);
-    private _dialog = inject(MatDialog);
 
     public readonly buildings = this._manager.filtered_buildings;
-    public settings = {};
 
     public readonly editBuilding = (building) =>
         this._manager.editBuilding(building);
-
-    public readonly editBuildingMetadata = (building) =>
-        this._manager.editBuildingMetadata(building);
 
     public readonly removeBuilding = (building) =>
         this._manager.removeBuilding(building);
@@ -279,36 +201,4 @@ export class BuildingListComponent {
         const success = this._clipboard.copy(id);
         if (success) notifySuccess(i18n('APP.CONCIERGE.BUILDINGS_COPIED_ID'));
     };
-
-    public async editWorkplaceSettings(zone) {
-        const { WorkplaceSettingsFormModalComponent } =
-            await import('../ui/app-settings/workplace-settings-form-modal.component');
-        this._dialog.open(WorkplaceSettingsFormModalComponent, {
-            data: { zone },
-        });
-    }
-
-    public async editConciergeSettings(zone) {
-        const { ConciergeSettingsFormModalComponent } =
-            await import('../ui/app-settings/concierge-settings-form-modal.component');
-        this._dialog.open(ConciergeSettingsFormModalComponent, {
-            data: { zone },
-        });
-    }
-
-    public async editBookingPanelSettings(zone) {
-        const { BookingPanelSettingsModalComponent } =
-            await import('../ui/app-settings/booking-panel-settings-modal.component');
-        this._dialog.open(BookingPanelSettingsModalComponent, {
-            data: { zone },
-        });
-    }
-
-    public async editVisitorKioskSettings(zone) {
-        const { VisitorKioskSettingsFormModalComponent } =
-            await import('../ui/app-settings/visitor-kiosk-settings-form-modal.component');
-        this._dialog.open(VisitorKioskSettingsFormModalComponent, {
-            data: { zone },
-        });
-    }
 }

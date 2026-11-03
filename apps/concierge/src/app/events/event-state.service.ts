@@ -8,16 +8,15 @@ import {
     OrganisationService,
     SettingsService,
     i18n,
-    notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import {
     GroupEventDetailsModalComponent,
     queryEvents,
     removeEvent,
 } from '@placeos/events';
 import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
+import { confirmAction, errorText } from '../ui/modal-actions';
 
 export interface GroupEventOptions {
     period: 'week' | 'month';
@@ -163,15 +162,16 @@ export class EventStateService extends AsyncHandler {
                         event.id,
                     ]),
                 remove_fn: async () => {
-                    await this.removeEvent(event);
-                    ref.close();
+                    if (await this.removeEvent(event)) ref.close();
                 },
             },
         });
     }
 
-    public async removeEvent(event: CalendarEvent) {
-        const result = await openConfirmModal(
+    /** Ask, then remove the event. Resolves true when it was removed. */
+    public async removeEvent(event: CalendarEvent): Promise<boolean> {
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.EVENTS_REMOVE_TITLE'),
                 content: i18n('APP.CONCIERGE.EVENTS_REMOVE_MSG', {
@@ -180,21 +180,19 @@ export class EventStateService extends AsyncHandler {
                 icon: { content: 'delete' },
                 confirm_text: i18n('COMMON.REMOVE'),
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.EVENTS_REMOVE_LOADING'),
+                action: () =>
+                    removeEvent(event.id, { calendar: this.calendar }),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.EVENTS_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
+            },
         );
-        if (result.reason !== 'done') return;
-        result.loading(i18n('APP.CONCIERGE.EVENTS_REMOVE_LOADING'));
-        await removeEvent(event.id, {
-            calendar: this.calendar,
-        }).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.EVENTS_REMOVE_ERROR', { error: e }),
-            );
-            result.close();
-            throw e;
-        });
-        result.close();
+        if (!removed) return false;
         notifySuccess(i18n('APP.CONCIERGE.EVENTS_REMOVE_SUCCESS'));
         this._changed.set(Date.now());
+        return true;
     }
 }

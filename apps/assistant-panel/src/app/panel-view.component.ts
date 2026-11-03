@@ -75,7 +75,6 @@ type AssistantWindow = Window & {
                     </div>
                 </div>
 
-                <div class="absolute inset-x-0 bottom-0 p-4 text-center"></div>
                 @if (error().speech_recognition || error().speech_synthesis) {
                     <div
                         class="bg-error text-error-content absolute top-2 left-1/2 -translate-x-1/2 rounded-3xl px-4 py-2 text-center text-xs"
@@ -168,10 +167,7 @@ type AssistantWindow = Window & {
                                             message-time
                                             class="text-base-content w-full px-2 py-1 text-right text-xs opacity-40"
                                         >
-                                            {{
-                                                message.timestamp + offset
-                                                    | dateFrom
-                                            }}
+                                            {{ message.timestamp | dateFrom }}
                                         </div>
                                     }
                                 </div>
@@ -284,7 +280,6 @@ export class PanelViewComponent
     private _chat = inject(ChatService);
     private _org = inject(OrganisationService);
 
-    public scale = 1;
     public readonly current_text = signal('');
     public readonly last_text = signal('');
     public readonly listening = signal(false);
@@ -294,8 +289,6 @@ export class PanelViewComponent
     public readonly error = signal<Record<string, boolean>>({});
     public readonly show_time = signal<Record<string, boolean>>({});
     public readonly show_info = signal(false);
-    public offset = 0;
-    private _time = 0;
     private _last_message = '';
     private _previous_message = '';
     private _context: CanvasRenderingContext2D;
@@ -360,6 +353,10 @@ export class PanelViewComponent
     }
 
     public async ngOnInit() {
+        // Chat with the system chosen at setup, not the building default
+        this._chat.setBinding(
+            this._route.snapshot.paramMap.get('system_id') || '',
+        );
         await this._org.waitUntilInitialised();
         const start_voice = () => {
             void this._setupVoiceRecognition();
@@ -657,12 +654,9 @@ export class PanelViewComponent
         if (!this.setup()) return;
         this.last_text.set(this.current_text());
         this.current_text.set('');
-        this.clearInterval('scale');
-        this.scale = 1;
         const last_text = this.last_text();
         if (last_text.length <= 3) return;
         if (last_text === this._previous_message) return;
-        this._chat.startChat();
         this._chat.sendMessage(last_text);
         this._previous_message = last_text;
         this.last_text.set('');

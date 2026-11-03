@@ -1,5 +1,11 @@
-import { i18n } from '@placeos/common';
-import { SignagePlaylist } from '@placeos/ts-client';
+import {
+    cronDaySlots,
+    cronParts,
+    doesCronMatchDay,
+    i18n,
+    isPlayOnceSchedule,
+} from '@placeos/common';
+import { SignagePlaylist, SignagePlaylistSchedule } from '@placeos/ts-client';
 import {
     addDays,
     differenceInCalendarDays,
@@ -7,16 +13,11 @@ import {
     isSameDay,
     startOfDay,
 } from 'date-fns';
-import {
-    cronDaySlots,
-    cronParts,
-    doesCronMatchDay,
-} from '../signage-cron.util';
+import { formatClockTime } from '../shared/schedule-summary.util';
 import {
     createScheduleMaskFilter,
-    isPlayOnceSchedule,
-    type PlaylistSchedule,
     playOnceStart,
+    playPeriodMinutes,
 } from '../signage-playlist.util';
 
 const BLOCK_PALETTE = [
@@ -33,7 +34,6 @@ export const DAY_COUNT = 7;
 export const MINUTES_PER_DAY = 1440;
 /** Shortest block length that the timeline shows, so short plays stay visible */
 const MIN_VISIBLE_MINUTES = 15;
-const DEFAULT_PLAYLIST_DURATION = 24 * 60;
 
 export interface ScheduleBlock {
     playlist: SignagePlaylist;
@@ -91,7 +91,7 @@ export interface ScheduleItem {
 }
 
 /** Schedule of a playlist with no schedules */
-const ALL_DAY_SCHEDULE: Partial<PlaylistSchedule> = {
+const ALL_DAY_SCHEDULE: Partial<SignagePlaylistSchedule> = {
     play_cron: '0 0 * * *',
     play_period: MINUTES_PER_DAY,
 };
@@ -103,7 +103,7 @@ const ALL_DAY_SCHEDULE: Partial<PlaylistSchedule> = {
  */
 export function playlistSchedules(
     playlist: Pick<SignagePlaylist, 'schedules'>,
-): Partial<PlaylistSchedule>[] {
+): Partial<SignagePlaylistSchedule>[] {
     return playlist.schedules?.length ? playlist.schedules : [ALL_DAY_SCHEDULE];
 }
 
@@ -114,23 +114,11 @@ export function hasTakeoverSchedule(playlist: SignagePlaylist) {
     );
 }
 
-function playPeriodMinutes(schedule: Partial<PlaylistSchedule>) {
-    return Number.isFinite(schedule.play_period)
-        ? Math.max(0, schedule.play_period || 0)
-        : DEFAULT_PLAYLIST_DURATION;
-}
-
-function formatTime(minutes: number): string {
-    const hours = Math.floor(minutes / 60) % 24;
-    const mins = minutes % 60;
-    return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
-}
-
 function formatTimeRange(
     start_minutes: number,
     duration_minutes: number,
 ): string {
-    return `${formatTime(start_minutes)} – ${formatTime(start_minutes + duration_minutes)}`;
+    return `${formatClockTime(start_minutes)} – ${formatClockTime(start_minutes + duration_minutes)}`;
 }
 
 /** Label and all day flag of a block. A length of 0 plays the playlist once. */
@@ -177,7 +165,7 @@ function playedRun(
     day: Date,
     starts_at: Date,
     duration: number,
-    schedule: Partial<PlaylistSchedule>,
+    schedule: Partial<SignagePlaylistSchedule>,
     playlist: Pick<SignagePlaylist, 'valid_from' | 'valid_until'>,
 ) {
     const time = starts_at.getTime();
@@ -208,7 +196,7 @@ function playedRun(
 
 /** Start times of a schedule on a day, before the dates and mask apply */
 function scheduleStarts(
-    schedule: Partial<PlaylistSchedule>,
+    schedule: Partial<SignagePlaylistSchedule>,
     slots: readonly number[],
     parts: readonly string[] | null,
     day: Date,

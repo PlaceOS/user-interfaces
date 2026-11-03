@@ -16,6 +16,7 @@ import {
     settingSignal,
     SettingsService,
     Space,
+    toggleListItem,
 } from '@placeos/common';
 import { IconComponent, LevelPipe, TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
@@ -359,10 +360,7 @@ export class MeetingFlowSpaceListComponent {
     );
 
     public toggleFavourite(space: Space) {
-        const existing = this.favourites();
-        const updated = existing.find((id) => space.id === id)
-            ? existing.filter((id) => id !== space.id)
-            : [...existing, space.id];
+        const updated = toggleListItem(this.favourites(), space.id);
 
         // Optimistically update UI
         this.favourites.set(updated);

@@ -91,7 +91,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/app-loader"],
             "options": {
                 "tsConfig": "apps/app-loader/tsconfig.spec.json",
-                "setupFiles": ["apps/app-loader/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "shared/test-setup-base.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "app-loader:test-build:development"

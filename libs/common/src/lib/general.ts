@@ -6,7 +6,6 @@ import {
     type WritableSignal,
 } from '@angular/core';
 import type { AbstractControl, FormGroup } from '@angular/forms';
-import { Signal as TSSignal } from '@placeos/ts-client';
 import {
     addDays,
     addHours,
@@ -19,14 +18,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
-import {
-    first,
-    lastValueFrom,
-    map,
-    Observable,
-    Subscription,
-    take,
-} from 'rxjs';
+import { first, lastValueFrom, Observable, Subscription, take } from 'rxjs';
 import { i18n, i18nAvailable } from './locale.service';
 import { notifyWarn } from './notifications';
 import { endOfDayInTimezone, startOfDayInTimezone } from './timezone-helpers';
@@ -127,9 +119,7 @@ export function padLength(
     length = 2,
     character = '0',
 ): string {
-    let str = `${value}`;
-    while (str.length < length) str = `${character}${str}`;
-    return str;
+    return `${value}`.padStart(length, character);
 }
 
 /**
@@ -145,6 +135,16 @@ export function getItemWithKeys(keys: string[], map: HashMap) {
             : map[key];
     }
     return null;
+}
+
+/**
+ * Add the item to the list, or remove it if the list already has it.
+ * Returns a new array, e.g. for toggling an ID in a favourites setting.
+ */
+export function toggleListItem<T>(list: readonly T[], item: T): T[] {
+    return list.includes(item)
+        ? list.filter((_) => _ !== item)
+        : [...list, item];
 }
 
 /**
@@ -169,17 +169,6 @@ export function unique<T = any>(array: T[] = [], key = ''): T[] {
  */
 export function randomInt(ceil: number, floor = 0) {
     return Math.floor(Math.random() * (ceil - floor)) + floor;
-}
-
-/**
- * Pad string to the given length
- * @param str Base string
- * @param length Length to pad the string
- */
-export function padString(str: string | number, length = 5) {
-    str = `${str}`;
-    while (str.length < length) str = `0${str}`;
-    return str;
 }
 
 /**
@@ -271,8 +260,10 @@ export function loadTextFileFromInputEvent(event: InputEvent) {
  */
 export function jsonToCsv(json: HashMap[], seperator = ',') {
     if (json instanceof Array && json.length > 0) {
-        const keys = Object.keys(json[0]);
-        const valid_keys = keys.filter((key) => key in json[0]);
+        // every column, rows can have different keys (e.g. custom desk fields)
+        const valid_keys = [
+            ...new Set(json.flatMap((item) => Object.keys(item || {}))),
+        ];
         const map_cell = (value: unknown) => {
             if (value === null || value === undefined) return '';
             if (typeof value === 'object') return JSON.stringify(value);
@@ -360,20 +351,7 @@ export function parseJWT(token: string) {
  * @param an_array Array to flatten
  */
 export function flatten<T = any>(an_array: any[]): T[] {
-    const stack = [...an_array];
-    const res = [];
-    while (stack.length) {
-        // pop value from stack
-        const next = stack.pop();
-        if (Array.isArray(next)) {
-            // push back array items, won't modify the original input
-            stack.push(...next);
-        } else {
-            res.push(next);
-        }
-    }
-    // reverse to restore input order
-    return res.reverse();
+    return an_array.flat(Infinity) as T[];
 }
 
 /**
@@ -434,23 +412,6 @@ function sfc32(a, b, c, d) {
     };
 }
 
-/** Get time format string for locale */
-export function timeFormatString(): string {
-    return is24HourTime() ? 'HH:mm' : 'h:mm a';
-}
-
-/** Whether locale string is displayed in 24 hour time */
-export function is24HourTime(): boolean {
-    const date = new Date();
-    const localeString = date
-        .toLocaleTimeString(
-            document.querySelector('html').getAttribute('lang') ||
-                navigator.language,
-        )
-        .toLowerCase();
-    return localeString.indexOf('am') < 0 && localeString.indexOf('pm') < 0;
-}
-
 /**
  * Structural `instanceof FormGroup` check, so this file does not load
  * `@angular/forms` into every app's initial bundle. A `FormArray` has an
@@ -498,25 +459,6 @@ export function capitalizeFirstLetter(word: string): string {
     return `${word[0].toUpperCase()}${word.substring(1)}`;
 }
 
-export function cleanArray(
-    array: any[],
-    removal_items: unknown[] = [undefined, null, ''],
-) {
-    return array.filter((_) => !removal_items.includes(_));
-}
-
-export function addStringKey(value: string, key: string) {
-    return removeStringKey(value, key) + `[${key}]`;
-}
-
-export function removeStringKey(value: string, key: string) {
-    const key_value = `[${key}]`;
-    while (value.includes(key_value)) {
-        value = value.replace(`[${key}]`, '');
-    }
-    return value;
-}
-
 export function isMobileSafari() {
     return (
         [
@@ -530,10 +472,6 @@ export function isMobileSafari() {
         // iPad on iOS 13 detection
         (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
     );
-}
-
-export function isNestedFrame() {
-    return window.location !== window.parent.location;
 }
 
 // Calculate the distance between geographical cooridinates
@@ -728,15 +666,23 @@ export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
         : Promise.resolve(null);
 }
 
-/** Reject a promise if it does not settle within the specified time. */
+/**
+ * Reject a promise if it does not settle within the specified time.
+ * `on_timeout` runs before the rejection, so the caller can abandon the work
+ * that the promise waits on (for example, abort a fetch).
+ */
 export function withTimeout<T>(
     promise: Promise<T>,
     timeout_ms: number,
     message = 'Operation timed out.',
+    on_timeout?: () => void,
 ): Promise<T> {
     if (timeout_ms <= 0) return promise;
     return new Promise<T>((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error(message)), timeout_ms);
+        const timer = setTimeout(() => {
+            on_timeout?.();
+            reject(new Error(message));
+        }, timeout_ms);
         promise.then(
             (value) => {
                 clearTimeout(timer);
@@ -751,18 +697,25 @@ export function withTimeout<T>(
 }
 
 /**
- * Convert a ts-client signal into an rxjs observable.
- * Emits the signal's current value on subscription, like a BehaviorSubject.
- * @param signal Signal to convert
+ * Map `items` with `fn`, with at most `limit` calls in progress at one time.
+ * The results have the order of `items`. `fn` must not reject.
  */
-export function observableFromSignal<T>(signal: TSSignal<T>): Observable<T> {
-    if (typeof signal !== 'function' && (signal as any)?.subscribe) {
-        return signal as unknown as Observable<T>;
-    }
-    return new Observable<T>((observer) => {
-        observer.next(signal());
-        return signal.subscribe((value) => observer.next(value));
-    });
+export async function mapWithLimit<T, R>(
+    items: readonly T[],
+    limit: number,
+    fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+    const results = new Array<R>(items.length);
+    let next = 0;
+    const worker = async () => {
+        while (next < items.length) {
+            const index = next++;
+            results[index] = await fn(items[index]);
+        }
+    };
+    const count = Math.max(1, Math.min(limit, items.length));
+    await Promise.all(Array.from({ length: count }, worker));
+    return results;
 }
 
 export interface BookableHoursRange {
@@ -935,17 +888,6 @@ export function isWithinBookableHours(
     const time = timezone ? toZonedTime(date, timezone) : new Date(date);
     const minutes = time.getHours() * 60 + time.getMinutes();
     return minutes >= start * 60 && minutes < end * 60;
-}
-
-export function mapLastValueFrom<T = any>(
-    obs: Observable<T>,
-    map_fn: (value: any) => T,
-): Promise<T> {
-    return obs
-        ? map
-            ? lastValueFrom(obs.pipe(map(map_fn)))
-            : lastValueFrom(obs)
-        : Promise.resolve(null);
 }
 
 // ---------------------------------------------------------------------------

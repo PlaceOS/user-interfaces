@@ -33,13 +33,13 @@ import {
     updateBooking,
 } from '@placeos/bookings';
 import {
+    assetZones,
     AsyncHandler,
     Booking,
     getTimezoneDifferenceInHours,
     i18n,
     nextValueFrom,
     notifyError,
-    notifyInfo,
     notifySuccess,
     OrganisationService,
     RecurrenceDays,
@@ -70,7 +70,6 @@ import { ViewLockerBankModalComponent } from './view-locker-bank-modal.component
 export interface LockerFilters {
     date?: number;
     zones?: string[];
-    show_map?: boolean;
 }
 
 const addToken = (l: string, t: string) => l.replace(t, '') + t;
@@ -79,6 +78,7 @@ const removeToken = (l: string, t: string) => l.replace(t, '');
 function lockerBankToAsset(
     bank: Partial<LockerBank>,
     zone_id: string,
+    zones: string[],
 ): Partial<PlaceAsset> {
     return {
         ...(bank.id ? { id: bank.id } : {}),
@@ -86,7 +86,7 @@ function lockerBankToAsset(
         map_id: bank.map_id || '',
         notes: (bank as any).notes || '',
         zone_id,
-        zones: bank.zones || [zone_id],
+        zones,
         tags: bank.tags || [],
         other_data: {
             name: bank.name || '',
@@ -101,13 +101,14 @@ function lockerBankToAsset(
 function lockerToAsset(
     locker: Partial<Locker>,
     zone_id: string,
+    zones: string[],
 ): Partial<PlaceAsset> {
     return {
         ...(locker.id ? { id: locker.id } : {}),
         identifier: locker.name || '',
         map_id: locker.map_id || '',
         zone_id,
-        zones: locker.bank?.zones || [],
+        zones,
         features: locker.features || [],
         bookable: locker.bookable !== false,
         parent_id: locker.bank_id || '',
@@ -137,7 +138,6 @@ export class LockerStateService extends AsyncHandler {
 
     private _search = signal('');
     private _filters = signal<LockerFilters>({});
-    private _locker_bookings: Booking[] = [];
     private _loading = signal<string>('');
     private _change = signal(0);
     /** List of available locker levels for the current building, parking-only levels last */
@@ -620,7 +620,11 @@ export class LockerStateService extends AsyncHandler {
             const zone_id = state.metadata.level_id || this._org.building.id;
             const new_bank = { ...state.metadata, id: bank.id };
             const saved = await saveLockerBankAsset(
-                lockerBankToAsset(new_bank, zone_id),
+                lockerBankToAsset(
+                    new_bank,
+                    zone_id,
+                    assetZones(this._org, zone_id),
+                ),
             ).catch((e) => {
                 notifyError(`Failed to save locker bank. ${errorText(e)}`);
                 throw e;
@@ -639,7 +643,9 @@ export class LockerStateService extends AsyncHandler {
         await saveFromModal(ref, async (state) => {
             let saved: PlaceAsset;
             try {
-                const zone_id = bank.zones?.[0] || this._org.building.id;
+                // banks list every zone they are in, `level_id` is the bank's level
+                const zone_id =
+                    bank.level_id || bank.zones?.[0] || this._org.building.id;
                 const new_locker = {
                     ...state.metadata,
                     bank_id: bank.id,
@@ -649,7 +655,11 @@ export class LockerStateService extends AsyncHandler {
                 // Save the locker before clearing the old assignee's booking, so a
                 // failed save does not remove the booking.
                 saved = await saveLockerAsset(
-                    lockerToAsset(new_locker, zone_id),
+                    lockerToAsset(
+                        new_locker,
+                        zone_id,
+                        assetZones(this._org, zone_id),
+                    ),
                 );
                 if (
                     locker.assigned_to &&
@@ -831,7 +841,7 @@ export class LockerStateService extends AsyncHandler {
                 i18n(
                     state
                         ? 'BOOKINGS.CHECK_IN_ERROR'
-                        : 'BOOKINGS_CHECK_OUT_ERROR',
+                        : 'BOOKINGS.CHECK_OUT_ERROR',
                 ),
             );
             throw status.error;
@@ -840,7 +850,7 @@ export class LockerStateService extends AsyncHandler {
             i18n(
                 state
                     ? 'BOOKINGS.CHECK_IN_SUCCESS'
-                    : 'BOOKINGS_CHECK_OUT_SUCCESS',
+                    : 'BOOKINGS.CHECK_OUT_SUCCESS',
             ),
         );
     }
@@ -877,18 +887,6 @@ export class LockerStateService extends AsyncHandler {
         this.refresh();
     }
 
-    public async giveAccess(locker: Booking) {
-        const success = await saveBooking(
-            new Booking({ ...locker, access: true }),
-        ).catch((_) => 'failed');
-        if (success === 'failed')
-            return notifyError('Error giving building access booking host');
-        notifySuccess(
-            `Successfully gave building access to ${locker.user_name} for locker booking.`,
-        );
-        this._locker_bookings = [...this._locker_bookings, success] as any;
-    }
-
     /**
      * Approve or reject several bookings. Asks before it rejects.
      * @returns `false` if the user cancelled
@@ -903,35 +901,6 @@ export class LockerStateService extends AsyncHandler {
         if (failed === null) return false;
         this.refresh();
         return true;
-    }
-
-    public async rejectAllLockers() {
-        const list = this._locker_bookings || [];
-        if (list.length <= 0)
-            return notifyInfo('No lockers to reject for the selected date');
-        const resp = await openConfirmModal(
-            {
-                title: i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_TITLE'),
-                content: i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_MSG'),
-                icon: {
-                    type: 'icon',
-                    class: 'material-symbols-rounded',
-                    content: 'delete',
-                },
-            },
-            this._dialog,
-        );
-        if (resp.reason !== 'done') return;
-        resp.loading(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_LOADING'));
-        await Promise.all(list.map((locker) => rejectBooking(locker.id))).catch(
-            (e) => {
-                notifyError(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_ERROR'));
-                throw e;
-            },
-        );
-        notifySuccess(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_SUCCESS'));
-        resp.close();
-        this.refresh();
     }
 
     private async _clearAssignedBooking(resource: Locker) {

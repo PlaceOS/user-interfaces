@@ -1,20 +1,18 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import { Component, computed, ElementRef, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
-    csvToJson,
     Desk,
     i18n,
     loadTextFileFromInputEvent,
     notifyError,
     notifySuccess,
     OrganisationService,
-    randomInt,
     settingSignal,
     SettingsService,
 } from '@placeos/common';
@@ -289,7 +287,6 @@ export class DesksManageComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
-    private _element = inject(ElementRef);
     private _clipboard = inject(Clipboard);
 
     public readonly loading = signal<string>('');
@@ -386,16 +383,7 @@ export class DesksManageComponent extends AsyncHandler {
             throw e;
         });
         try {
-            const list = csvToJson(data) || [];
-            this._state.addDesks(
-                list.map(
-                    (_) =>
-                        new Desk({
-                            ..._,
-                            id: _.id || `desk-${randomInt(999_999)}`,
-                        }),
-                ),
-            );
+            this._state.importDesksCsv(data);
         } catch (e) {
             console.error(e);
         }

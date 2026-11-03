@@ -4,7 +4,7 @@ import {
     SpectatorRouting,
     createRoutingFactory,
 } from '@ngneat/spectator/vitest';
-import { SettingsService, StaffUser, setCurrentUser } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { ParkingStateService } from '../../app/parking/parking-state.service';
@@ -25,6 +25,7 @@ describe('ParkingComponent', () => {
                 org_refreshing: signal(false),
                 startPolling: vi.fn(),
                 setOptions: vi.fn(),
+                can_view_requests: false,
             } as any),
             MockProvider(SettingsService, {
                 get: vi.fn((name: string) => settings_map[name]),
@@ -38,22 +39,15 @@ describe('ParkingComponent', () => {
 
     beforeEach(() => {
         settings_map = {
-            'app.parking.show_requests': true,
             'app.parking.hide_users': false,
             'app.parking.hide_vehicles': false,
             'app.parking.hide_users_and_vehicles': false,
-            'app.feature_groups': { 'parking-requests': ['parking-team'] },
-            'app.admin_group': 'admin',
         };
-        // currentUser() is a workspace-lib fn (not spyable under the bundling
-        // builder); seed the real user store instead.
-        setCurrentUser(new StaffUser({ groups: ['staff'] }));
         spectator = createComponent();
     });
 
     afterEach(() => {
         vi.restoreAllMocks();
-        setCurrentUser(new StaffUser({ groups: ['staff'] }));
     });
 
     it('should not show the no parking floors message while org data refreshes', () => {
@@ -67,16 +61,6 @@ describe('ParkingComponent', () => {
         state.org_refreshing.set(false);
         spectator.detectChanges();
         expect(overlay()).not.toBeNull();
-    });
-
-    it('should hide requests from users outside the configured group', () => {
-        expect(spectator.component.can_view_requests).toBe(false);
-    });
-
-    it('should allow admins to view requests', () => {
-        setCurrentUser(new StaffUser({ groups: ['admin'] }));
-
-        expect(spectator.component.can_view_requests).toBe(true);
     });
 
     it('should redirect blocked users from the requests route', () => {

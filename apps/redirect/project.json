@@ -82,7 +82,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/redirect"],
             "options": {
                 "tsConfig": "apps/redirect/tsconfig.spec.json",
-                "setupFiles": ["apps/redirect/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "shared/test-setup-base.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "redirect:test-build:development"

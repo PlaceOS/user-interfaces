@@ -2,11 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import {
-    AsyncHandler,
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+import { AsyncHandler, settingSignal, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -23,7 +19,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
             <div
                 class="bg-secondary text-secondary-content z-20 h-16 w-full p-2 shadow-sm"
             >
-                @let logo_path = logo()?.src || logo();
+                @let logo_path = logo();
                 <img
                     auth
                     class="h-12"
@@ -61,7 +57,8 @@ import { EnrolmentStateService } from './enrolment-state.service';
                                     {{
                                         event()?.date
                                             ? 'at ' +
-                                              (event()?.date | date: 'shortTime')
+                                              (event()?.date
+                                                  | date: 'shortTime')
                                             : 'soon'
                                     }}
                                 </p>
@@ -97,20 +94,22 @@ export class EnrolmentComponent extends AsyncHandler implements OnInit {
     private _state = inject(EnrolmentStateService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
-    private _org = inject(OrganisationService);
 
     public readonly loading = this._state.loading;
     public readonly view = this._state.view;
     public readonly event = this._state.event;
 
+    /**
+     * Image URL of the header logo. The header uses the opposite logo to the
+     * theme: `logo_dark` with the light theme and `logo_light` with the dark theme.
+     */
     public readonly logo = computed(() => {
-        // Recompute when the active building changes
-        this._org.active_building();
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_light')
-                : this._settings.get('app.logo_dark')) || {}
-        );
+        const logo = settingSignal<string | { src?: string }>(
+            this._settings.theme_signal() === 'dark'
+                ? 'logo_light'
+                : 'logo_dark',
+        )();
+        return typeof logo === 'string' ? logo : logo?.src || '';
     });
 
     public ngOnInit() {

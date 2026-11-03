@@ -37,7 +37,7 @@
                     "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                     "shared/styles/application.css"
                 ],
-                "serviceWorker": "apps/survey/ngsw-config.json"
+                "serviceWorker": "shared/ngsw-config.json"
             },
             "configurations": {
                 "production": {
@@ -103,7 +103,11 @@
             "outputs": ["{workspaceRoot}/coverage/apps/survey"],
             "options": {
                 "tsConfig": "apps/survey/tsconfig.spec.json",
-                "setupFiles": ["apps/survey/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "shared/test-setup-base.ts",
+                    "shared/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "survey:test-build:development"

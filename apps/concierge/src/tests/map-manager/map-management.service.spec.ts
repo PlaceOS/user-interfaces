@@ -103,9 +103,6 @@ describe('MapManagementService', () => {
         );
         const file: File = uploads.uploadFileToCompletion.mock.calls[0][0];
         expect(file.name).toBe('old.svg');
-        expect(
-            spectator.service.mapName('/api/engine/v2/uploads/upload-9/url'),
-        ).toBe('old.svg');
         expect(file.type).toBe('image/svg+xml');
         expect(saved.upload_id).toBe('upload-9');
         expect(saved.map_id).toBe('/api/engine/v2/uploads/upload-9/url');
@@ -196,6 +193,39 @@ describe('MapManagementService', () => {
         expect(spectator.service.studioUrl()).toBe(
             'https://studio.example.com/',
         );
+    });
+
+    it('protects desk asset map ids when desks use assets', async () => {
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.desks.use_assets' ? true : undefined,
+        );
+        const page = (data: any[]) =>
+            Promise.resolve({ data, total: data.length, next: () => null });
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+        );
+        vi.mocked(ts_client.queryAssets).mockReturnValue(
+            page([
+                {
+                    id: 'asset-1',
+                    zone_id: 'l1',
+                    identifier: 'Desk 1',
+                    map_id: 'desk-1',
+                },
+            ]) as any,
+        );
+
+        const sources = spectator.service.protectedIdSources({
+            id: 'l1',
+        } as any);
+
+        await expect(sources.desks()).resolves.toEqual([
+            { id: 'desk-1', kind: 'desk', label: 'Desk 1' },
+        ]);
+        expect(ts_client.showMetadata).not.toHaveBeenCalledWith('l1', 'desks');
     });
 
     it('stores an AI snapshot as a file and answers with the upload id', async () => {

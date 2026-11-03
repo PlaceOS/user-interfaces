@@ -4,7 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { themedLogo } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -23,7 +23,7 @@ import { marked } from 'marked';
                 <img
                     auth
                     class="mx-auto my-2 w-48 sm:mt-6 sm:mb-8 sm:w-32"
-                    [source]="logo()?.src || logo()"
+                    [source]="logo()"
                 />
                 <ul class="hidden list-none space-y-2 p-0 pl-4 sm:block">
                     @for (item of items; track item) {
@@ -119,8 +119,6 @@ export class HelpModalComponent {
         }[];
         active_id?: string;
     }>(MAT_DIALOG_DATA);
-    private _settings = inject(SettingsService);
-    private _org = inject(OrganisationService);
 
     public readonly items = this._data.items;
     public readonly active_item = signal(
@@ -128,14 +126,7 @@ export class HelpModalComponent {
             this.items?.[0] || { id: '', content: `` },
     );
 
-    public readonly logo = computed(() => {
-        this._org.active_building();
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    });
+    public readonly logo = themedLogo();
 
     public readonly content = computed(() => {
         const item = this.active_item();

@@ -4,14 +4,17 @@ import { ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { BookingFormService, ParkingService } from '@placeos/bookings';
+import {
+    BookingFormService,
+    ParkingRequestFormDetailsComponent,
+    ParkingService,
+} from '@placeos/bookings';
 import {
     OrganisationService,
     settingSignal,
     SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { ParkingRequestFormDetailsComponent } from '../../app/book/parking-request-flow/parking-request-form-details.component';
 import { ParkingRequestFormComponent } from '../../app/book/parking-request-flow/parking-request-form.component';
 
 describe('ParkingRequestFormComponent', () => {

@@ -75,6 +75,7 @@ import type {
 } from './booking-form.types';
 import {
     groupName,
+    isGroupBooking,
     mapGroupMembers,
     mapGroupMembersFromBookings,
     mapGroupMembersFromExtension,
@@ -91,7 +92,6 @@ import {
 } from './booking-resource.loaders';
 import {
     findResourceById,
-    groupAvailability,
     nearbyResources,
     pickAutoAllocatedResource,
     preferredAllocationPool,
@@ -111,6 +111,7 @@ import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
+import { findDeskByLegacyId } from 'libs/assets/src/lib/desk-assets.fn';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
@@ -623,15 +624,6 @@ export class BookingFormService extends AsyncHandler {
     public reloadResources() {
         this._resources_resource.reload();
     }
-
-    /** Signal grouping available resources for group bookings */
-    public readonly grouped_availability = computed<BookingAsset[][]>(() => {
-        const options = this._options();
-        const members = options.members?.length
-            ? options.members
-            : [currentUser()];
-        return groupAvailability(this.available_resources(), members.length);
-    });
 
     public get booking() {
         return this._booking();
@@ -2035,6 +2027,25 @@ export class BookingFormService extends AsyncHandler {
         );
     }
 
+    /**
+     * Set the `group` and `members` options when the user edits a group
+     * booking. Does nothing for other bookings. The members are empty when
+     * they fail to load, so the save fails. It does not save the booking of
+     * the organiser only. Pass `isCancelled` to skip the update when the
+     * caller has gone.
+     */
+    public async restoreGroupMembers(
+        booking: Booking,
+        isCancelled: () => boolean = () => false,
+    ) {
+        if (!booking?.id || !isGroupBooking(booking)) return;
+        const members = await this.loadGroupMembersForBooking(booking).catch(
+            (): User[] => [],
+        );
+        if (isCancelled()) return;
+        this.setOptions({ group: true, members });
+    }
+
     public async editFormForGroup(
         existing_siblings: Booking[],
     ): Promise<Booking> {
@@ -2665,11 +2676,29 @@ export class BookingFormService extends AsyncHandler {
     }
 
     /** Load desk resources from the assets API for the active scope. */
-    public loadDeskResources(): Promise<BookingAsset[]> {
-        return loadDeskResources(
+    public async loadDeskResources(): Promise<BookingAsset[]> {
+        const desks = await loadDeskResources(
             this._org,
             this._settings.get('app.use_region'),
         );
+        this._migrateFavouriteDesks(desks);
+        return desks;
+    }
+
+    /**
+     * Favourites saved before desks moved to assets reference the old desk id,
+     * which migrated desk assets keep as their `place_id` or map id. Point
+     * them at the asset.
+     */
+    private _migrateFavouriteDesks(desks: BookingAsset[]) {
+        const favourites =
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) || [];
+        if (!favourites.length) return;
+        const updated = unique(
+            favourites.map((id) => findDeskByLegacyId(desks, id)?.id || id),
+        );
+        if (updated.join() === favourites.join()) return;
+        this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, updated);
     }
 
     /** Load the resources of the given metadata `type`, e.g. `desks`. */

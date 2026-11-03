@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
@@ -18,34 +18,25 @@ import {
     CalendarEvent,
     OrganisationService,
     SettingsService,
-    getTimezoneDifferenceInHours,
     getTimezoneOffsetString,
     HashMap,
-    nextValueFrom,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
 import { TranslatePipe, openConfirmModal } from '@placeos/components';
-import {
-    EventDetailsModalComponent,
-    SetupBreakdownModalComponent,
-    declineEvent,
-} from '@placeos/events';
+import { declineEvent } from '@placeos/events';
 import { DateOptionsComponent } from '@placeos/form-fields';
-import {
-    addHours,
-    differenceInMinutes,
-    format,
-    isSameDay,
-    setHours,
-    startOfDay,
-    startOfMinute,
-} from 'date-fns';
+import { format, isSameDay, startOfMinute } from 'date-fns';
 import { EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
 import {
-    groupRoomTimelineEvents,
-    isActiveRoomTimelineEvent,
+    timelineEvents,
+    timelineHourLabel,
+    timelineHours,
+    timelineLength,
+    timelineOffset,
+    timelineTooltip,
+    timelineWindow,
 } from './room-timeline.utilities';
 
 @Component({
@@ -76,7 +67,7 @@ import {
             }
             <div class="absolute top-1/2 right-8 -translate-y-1/2">
                 <room-booking-search
-                    (selected)="viewEvent($event, $event.system?.id, true)"
+                    (selected)="viewEvent($event, $event.system?.id)"
                 ></room-booking-search>
             </div>
         </div>
@@ -320,58 +311,39 @@ export class RoomBookingsInvertedTimelineComponent
     );
     public readonly show_time = computed(() => {
         this._building();
-        const date = this.date();
-        const today = isSameDay(date, Date.now());
-        const offset = this.timezone
-            ? getTimezoneDifferenceInHours(this.timezone)
-            : 0;
-        const start = addHours(
-            setHours(startOfDay(Date.now()), this.block_start),
-            -offset,
-        ).valueOf();
-        const end = addHours(
-            setHours(startOfDay(Date.now()), this.block_end),
-            -offset,
-        ).valueOf();
-        return today && Date.now() >= start && Date.now() <= end;
+        const now = Date.now();
+        const { start, end } = timelineWindow(
+            now,
+            this.block_start,
+            this.block_end,
+            this.timezone,
+        );
+        return isSameDay(this.date(), now) && now >= start && now <= end;
     });
     public readonly events = computed(() => {
-        const spaces = this.spaces();
-        const events = this._filtered().filter(isActiveRoomTimelineEvent);
-        const date = this.date();
-        const offset = this.timezone
-            ? getTimezoneDifferenceInHours(this.timezone)
-            : 0;
-        const start = addHours(
-            setHours(startOfDay(date), this.block_start),
-            -offset,
-        ).valueOf();
-        const end = addHours(
-            setHours(startOfDay(date), this.block_end),
-            -offset,
-        ).valueOf();
+        const window = timelineWindow(
+            this.date(),
+            this.block_start,
+            this.block_end,
+            this.timezone,
+        );
         // HashMap keeps the loose template types of the old `{}` map
-        const event_map: HashMap = groupRoomTimelineEvents(
-            spaces,
-            events.filter(
-                (event) => event.date_end >= start && event.date <= end,
-            ),
+        const event_map: HashMap = timelineEvents(
+            this.spaces(),
+            this._filtered(),
+            window,
         );
         return event_map;
     });
 
-    private _hour_list = Array.from({ length: 24 }, (_, i) => i);
     public readonly hours = computed(() =>
-        this._hour_list.filter(
-            (hour) => hour >= this.block_start && hour < this.block_end,
-        ),
+        timelineHours(this.block_start, this.block_end),
     );
 
     public get now() {
         return startOfMinute(Date.now()).valueOf();
     }
 
-    public readonly edit = (e) => this._state.newBooking(e);
     public readonly setDate = (d) => this._state.setDate(d);
 
     private _local_tz = getTimezoneOffsetString(
@@ -408,19 +380,14 @@ export class RoomBookingsInvertedTimelineComponent
     }
 
     public formatHour(hour: number) {
-        const date = setHours(Date.now(), hour);
-        return this._settings.get('app.use_24_hour_time')
-            ? format(date, 'HH:00')
-            : format(date, 'h a');
+        return timelineHourLabel(
+            hour,
+            !!this._settings.get('app.use_24_hour_time'),
+        );
     }
 
-    private _date_pipe = new DatePipe('en');
-
     public eventTooltip(event: CalendarEvent) {
-        const tooltip = `Start: ${event.all_day ? 'All Day' : this._date_pipe.transform(event.date, this.time_format)}
-Title:  ${event.title}
-Host:  ${event.organiser?.name || event.host}`;
-        return tooltip;
+        return timelineTooltip(event, this.time_format);
     }
 
     public ngOnInit() {
@@ -437,53 +404,22 @@ Host:  ${event.organiser?.name || event.host}`;
     }
 
     public timeToOffset(date: number) {
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const offset = !this.timezone
-            ? 0
-            : getTimezoneDifferenceInHours(this.timezone, current_tz);
-        const start_time = setHours(
-            startOfDay(this._state.getDate()),
-            this.block_start - offset,
+        return timelineOffset(
+            date,
+            this._state.getDate(),
+            this.block_start,
+            this.block_range,
+            this.timezone,
         );
-        const diff = differenceInMinutes(date, start_time);
-
-        return +((Math.max(0, diff / 60) / this.block_range) * 100).toFixed(2);
     }
 
     public endToOffset(duration: number) {
-        return +(
-            (Math.min(this.block_range, duration / 60) / this.block_range) *
-            100
-        ).toFixed(2);
+        return timelineLength(duration, this.block_range);
     }
 
-    public viewEvent(
-        event: CalendarEvent,
-        space_id: string,
-        _scroll_to = false,
-    ) {
-        if (event.is_system_event) return;
-        const ref = this._dialog.open(EventDetailsModalComponent, {
-            data: {
-                event,
-                edit_fn: (e) => this.edit(e),
-                remove_fn: (e) => this.remove(e, space_id),
-            },
-        });
-        ref.componentInstance.hide_edit.set(
-            !this._settings.get('app.events.allow_edit'),
-        );
-        this.subscription(
-            'actions',
-            ref.componentInstance.action.subscribe(async (action) => {
-                if (!action.includes('breakdown')) return;
-                const ref = this._dialog.open(SetupBreakdownModalComponent, {
-                    data: event,
-                });
-                const data = await nextValueFrom(ref.afterClosed());
-                if (data) this._state.replace(data);
-            }),
-        );
+    /** Open the details of a booking shown in the column of `space_id` */
+    public viewEvent(event: CalendarEvent, space_id: string) {
+        this._state.viewEvent(event, (e) => this.remove(e, space_id));
     }
 
     public async remove(item: CalendarEvent, space_id: string) {

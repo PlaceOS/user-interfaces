@@ -7,19 +7,16 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import {
-    currentUser,
     notifyError,
     notifySuccess,
     OrganisationService,
     SettingsService,
-    VERSION,
 } from '@placeos/common';
-import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
+import { PlaceZone } from '@placeos/ts-client';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import {
     FullscreenModalShellComponent,
     SettingsToggleComponent,
@@ -28,14 +25,17 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
 import { errorText } from '../modal-actions';
 import {
     applyAppSettings,
-    appSettingOverrides,
+    appMetadataKey,
     AppSettings,
-    mergeAppSettings,
+    AppSettingsLayers,
+    loadLayeredAppSettings,
+    saveAppSettings,
 } from './app-settings.utilities';
 import {
     EXPLORE_FEATURE_OPTIONS,
     MAX_DURATION_MINI_OPTIONS,
 } from './settings-option.constants';
+import { SettingsSelectComponent } from './settings-select.component';
 import { UploadButtonComponent } from './upload-button.component';
 
 /** Device tooltip fields that `explore.hide_device_fields` can hide */
@@ -328,154 +328,62 @@ const DEVICE_FIELD_OPTIONS = [
                     >
                         PlaceOS Maps
                     </h3>
-                    <div>
-                        <label
-                            for="visitor-kiosk-settings-form-modal-disable"
-                            id="visitor-kiosk-settings-form-modal-disable-label"
-                        >
-                            Disabled Features
-                        </label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                aria-labelledby="visitor-kiosk-settings-form-modal-disable-label"
-                                [formField]="form.explore.disable"
-                                placeholder="No disabled features"
-                                multiple
-                            >
-                                @for (opt of EXPLORE_FEATURE; track opt.value) {
-                                    <mat-option [value]="opt.value">{{
-                                        opt.label
-                                    }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
+                    <settings-select
+                        field_id="visitor-kiosk-settings-form-modal-disable"
+                        label="Disabled Features"
+                        [field]="form.explore.disable"
+                        [options]="EXPLORE_FEATURE"
+                        placeholder="No disabled features"
+                        multiple
+                    />
+                    <div class="flex items-center space-x-4">
+                        <settings-select
+                            class="flex-1"
+                            field_id="visitor-kiosk-settings-form-modal-disable-actions"
+                            label="Disabled Feature Actions"
+                            [field]="form.explore.disable_actions"
+                            [options]="EXPLORE_FEATURE"
+                            placeholder="No disabled actions"
+                            multiple
+                        />
+                        <settings-select
+                            class="flex-1"
+                            field_id="visitor-kiosk-settings-form-modal-available-period"
+                            label="Disabled Feature Labels"
+                            [field]="form.explore.disable_labels"
+                            [options]="EXPLORE_FEATURE"
+                            placeholder="No disabled labels"
+                            multiple
+                        />
                     </div>
                     <div class="flex items-center space-x-4">
-                        <div class="flex-1">
-                            <label
-                                for="visitor-kiosk-settings-form-modal-disable-actions"
-                                id="visitor-kiosk-settings-form-modal-disable-actions-label"
-                            >
-                                Disabled Feature Actions
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    aria-labelledby="visitor-kiosk-settings-form-modal-disable-actions-label"
-                                    [formField]="form.explore.disable_actions"
-                                    placeholder="No disabled actions"
-                                    multiple
-                                >
-                                    @for (
-                                        opt of EXPLORE_FEATURE;
-                                        track opt.value
-                                    ) {
-                                        <mat-option [value]="opt.value">{{
-                                            opt.label
-                                        }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div class="flex-1">
-                            <label
-                                for="visitor-kiosk-settings-form-modal-available-period"
-                                id="visitor-kiosk-settings-form-modal-available-period-label"
-                            >
-                                Disabled Feature Labels
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    aria-labelledby="visitor-kiosk-settings-form-modal-available-period-label"
-                                    [formField]="form.explore.disable_labels"
-                                    placeholder="No disabled labels"
-                                    multiple
-                                >
-                                    @for (
-                                        opt of EXPLORE_FEATURE;
-                                        track opt.value
-                                    ) {
-                                        <mat-option [value]="opt.value">{{
-                                            opt.label
-                                        }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
+                        <settings-select
+                            class="flex-1"
+                            field_id="visitor-kiosk-settings-form-modal-disable-features"
+                            label="Disabled Feature Displays"
+                            [field]="form.explore.disable_features"
+                            [options]="EXPLORE_FEATURE"
+                            placeholder="No disabled displays"
+                            multiple
+                        />
+                        <settings-select
+                            class="flex-1"
+                            field_id="visitor-kiosk-settings-form-modal-disable-styles"
+                            label="Disabled Feature Styles"
+                            [field]="form.explore.disable_styles"
+                            [options]="EXPLORE_FEATURE"
+                            placeholder="No disabled styles"
+                            multiple
+                        />
                     </div>
-                    <div class="flex items-center space-x-4">
-                        <div class="flex-1">
-                            <label
-                                for="visitor-kiosk-settings-form-modal-disable-features"
-                                id="visitor-kiosk-settings-form-modal-disable-features-label"
-                            >
-                                Disabled Feature Displays
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    aria-labelledby="visitor-kiosk-settings-form-modal-disable-features-label"
-                                    [formField]="form.explore.disable_features"
-                                    placeholder="No disabled displays"
-                                    multiple
-                                >
-                                    @for (
-                                        opt of EXPLORE_FEATURE;
-                                        track opt.value
-                                    ) {
-                                        <mat-option [value]="opt.value">{{
-                                            opt.label
-                                        }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div class="flex-1">
-                            <label
-                                for="visitor-kiosk-settings-form-modal-disable-styles"
-                                id="visitor-kiosk-settings-form-modal-disable-styles-label"
-                            >
-                                Disabled Feature Styles
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    aria-labelledby="visitor-kiosk-settings-form-modal-disable-styles-label"
-                                    [formField]="form.explore.disable_styles"
-                                    placeholder="No disabled styles"
-                                    multiple
-                                >
-                                    @for (
-                                        opt of EXPLORE_FEATURE;
-                                        track opt.value
-                                    ) {
-                                        <mat-option [value]="opt.value">{{
-                                            opt.label
-                                        }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                    </div>
-                    <div>
-                        <label
-                            for="visitor-kiosk-settings-form-modal-hide-device-fields"
-                            id="visitor-kiosk-settings-form-modal-hide-device-fields-label"
-                        >
-                            Hidden Device Fields
-                        </label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                aria-labelledby="visitor-kiosk-settings-form-modal-hide-device-fields-label"
-                                [formField]="form.explore.hide_device_fields"
-                                placeholder="No hidden fields"
-                                multiple
-                            >
-                                @for (opt of DEVICE_FIELDS; track opt.value) {
-                                    <mat-option [value]="opt.value">{{
-                                        opt.label
-                                    }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
+                    <settings-select
+                        field_id="visitor-kiosk-settings-form-modal-hide-device-fields"
+                        label="Hidden Device Fields"
+                        [field]="form.explore.hide_device_fields"
+                        [options]="DEVICE_FIELDS"
+                        placeholder="No hidden fields"
+                        multiple
+                    />
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
                             label="Show Legend"
@@ -508,28 +416,12 @@ const DEVICE_FIELD_OPTIONS = [
                     >
                         Visitor Booking Rules
                     </h3>
-                    <div>
-                        <label
-                            for="visitor-kiosk-settings-form-modal-max-duration"
-                            id="visitor-kiosk-settings-form-modal-max-duration-label"
-                            >Max Duration</label
-                        >
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                aria-labelledby="visitor-kiosk-settings-form-modal-max-duration-label"
-                                [formField]="form.visitors.max_duration"
-                            >
-                                @for (
-                                    opt of MAX_DURATION_MINI;
-                                    track opt.value
-                                ) {
-                                    <mat-option [value]="opt.value">{{
-                                        opt.label
-                                    }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
+                    <settings-select
+                        field_id="visitor-kiosk-settings-form-modal-max-duration"
+                        label="Max Duration"
+                        [field]="form.visitors.max_duration"
+                        [options]="MAX_DURATION_MINI"
+                    />
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
                             label="Allow all day bookings"
@@ -554,11 +446,11 @@ const DEVICE_FIELD_OPTIONS = [
         MatProgressSpinnerModule,
         SettingsToggleComponent,
         MatFormFieldModule,
-        MatSelectModule,
         MatInputModule,
         UploadButtonComponent,
         FormField,
         FormsModule,
+        SettingsSelectComponent,
     ],
 })
 export class VisitorKioskSettingsFormModalComponent implements OnInit {
@@ -572,19 +464,18 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public existing_settings: Record<string, any> = {};
-    public old_settings: Record<string, any> = {};
+    private _layers: AppSettingsLayers = { inherited: {}, stored: {} };
     /** Form values right after loading, used to find user changes on save. */
-    public initial_settings: AppSettings = {};
+    private _initial: AppSettings = {};
     public readonly loading = signal('');
     public readonly zone = this._data.zone;
     public readonly MAX_DURATION_MINI = MAX_DURATION_MINI_OPTIONS;
     public readonly EXPLORE_FEATURE = EXPLORE_FEATURE_OPTIONS;
     public readonly DEVICE_FIELDS = DEVICE_FIELD_OPTIONS;
-    public readonly settings_key =
-        this._settings.get('app.visitor_kiosk_metadata_key') ||
-        this._settings.get('app.visitor_kiosk_app') ||
-        'visitor-kiosk_app';
+    public readonly settings_key = appMetadataKey(
+        this._settings,
+        'visitor-kiosk',
+    );
 
     public readonly model = signal({
         logo_light: 'assets/logo-light.svg',
@@ -634,28 +525,18 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
     public readonly form = form(this.model);
 
     public async ngOnInit() {
-        const zone = this._data.zone;
         this.loading.set('Loading existing settings...');
         try {
-            const org_id = this._org.organisation.id;
-            const org_metadata =
-                zone.id !== org_id ? await this._getMetadata(org_id) : {};
-            const parent_metadata =
-                zone.id !== org_id &&
-                !!zone.parent_id &&
-                org_id !== zone.parent_id
-                    ? await this._getMetadata(zone.parent_id)
-                    : {};
-            const metadata = await this._getMetadata(zone.id);
-            this.existing_settings = mergeAppSettings(
+            this._layers = await loadLayeredAppSettings(
+                this.zone,
+                this._org.organisation.id,
+                this.settings_key,
                 DEFAULT_SETTINGS.app,
-                org_metadata,
-                parent_metadata,
             );
-            this._patchModel(this.existing_settings);
-            this._patchModel(metadata || {});
-            this.old_settings = metadata;
-            this.initial_settings = this.model();
+            const { inherited, stored } = this._layers;
+            this._patchModel(inherited);
+            this._patchModel(stored);
+            this._initial = this.model();
         } catch (e) {
             // Saving defaults over settings that failed to load would lose
             // them, so close instead.
@@ -680,35 +561,15 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
 
     public async save() {
         this.loading.set('Saving settings...');
-        const zone = this._data.zone;
-        const working_settings = mergeAppSettings(
-            this.old_settings,
-            this.model(),
-        );
-        const new_settings = appSettingOverrides(
-            working_settings,
-            this.existing_settings,
-            this.initial_settings,
-            this.old_settings,
-        );
-        const user = currentUser();
-        new_settings.edited_by = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            domain: location.hostname,
-            role: user.groups.includes('placeos_admin')
-                ? 'Admin'
-                : user.groups.includes('placeos_support')
-                  ? 'Support'
-                  : 'User',
-        };
         try {
-            await updateMetadata(zone.id, {
-                name: `${this.settings_key}`,
-                details: new_settings,
-                description: `[${VERSION.hash}|C] Visitor-kiosk Application Settings`,
-            });
+            await saveAppSettings(
+                this.zone.id,
+                this.settings_key,
+                'Visitor-kiosk',
+                this._layers,
+                this._initial,
+                this.model(),
+            );
         } catch (e) {
             console.error(e);
             this.loading.set('');
@@ -720,10 +581,5 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         this.loading.set('');
         notifySuccess('Successfully saved visitor kiosk app settings');
         this._dialog_ref.close();
-    }
-
-    private async _getMetadata(id) {
-        const metadata = await showMetadata(id, this.settings_key);
-        return (metadata.details || {}) as Record<string, unknown>;
     }
 }

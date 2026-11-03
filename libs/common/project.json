@@ -12,7 +12,10 @@
             "outputs": ["{workspaceRoot}/coverage/libs/common"],
             "options": {
                 "tsConfig": "libs/common/tsconfig.spec.json",
-                "setupFiles": ["libs/common/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "libs/common/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "common:test-build:development"

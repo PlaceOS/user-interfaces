@@ -60,7 +60,7 @@
                             "with": "apps/booking-panel/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/booking-panel/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -98,7 +98,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": "apps/booking-panel/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "mobile": {
                     "fileReplacements": [
@@ -155,7 +155,11 @@
             "outputs": ["{workspaceRoot}/coverage/apps/booking-panel"],
             "options": {
                 "tsConfig": "apps/booking-panel/tsconfig.spec.json",
-                "setupFiles": ["apps/booking-panel/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "shared/test-setup-base.ts",
+                    "shared/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "booking-panel:test-build:development"

@@ -1,5 +1,4 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component } from '@angular/core';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { RoomBookingsComponent } from './room-bookings.component';
 
@@ -32,22 +31,4 @@ import { RoomBookingsComponent } from './room-bookings.component';
     ],
     imports: [ApplicationSidebarComponent, RoomBookingsComponent],
 })
-export class DayViewComponent {
-    private _router = inject(Router);
-    private _destroy = inject(DestroyRef);
-
-    private readonly _url = signal<unknown>(null);
-
-    constructor() {
-        const sub = this._router.events.subscribe(() =>
-            this._url.set(this._router.url),
-        );
-        this._destroy.onDestroy(() => sub.unsubscribe());
-    }
-
-    public readonly path = computed(() => {
-        this._url();
-        const parts = (this._router.url || '').split('/');
-        return parts[parts.length - 1].split('?')[0];
-    });
-}
+export class DayViewComponent {}

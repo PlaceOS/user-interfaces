@@ -70,7 +70,13 @@ function fixture() {
     );
     commit('apps/workplace/initial.txt', 'feat(workplace): July feature');
     run('git', ['tag', 'v2607.1']);
+    commit('apps/control/september.txt', 'fix(control): September control fix');
     commit('libs/common/fix.txt', 'fix(common): September shared fix');
+    // This tag is on a commit that does not change control.
+    commit(
+        'apps/workplace/september.txt',
+        'fix(workplace): September workplace fix',
+    );
     run('git', ['tag', 'v2609.1']);
     commit('apps/workplace/new.txt', 'fix(workplace): current workplace fix');
     commit('apps/control/new.txt', 'fix(control): current control fix');
@@ -128,6 +134,11 @@ test(
             assert.match(changelog, /Current shared fix/);
             assert.ok(changelog.includes(`Current ${app} fix`));
             assert.ok(!changelog.includes(`Current ${other} fix`));
+            const september = changelog
+                .split('\n## ')
+                .find((release) => release.startsWith('[2609.1]'));
+            assert.ok(september?.includes(`September ${app} fix`));
+            assert.ok(!september.includes(`September ${other} fix`));
             const output = path.join(root, 'dist/apps', app, 'browser');
             mkdirSync(output, { recursive: true });
             for (const file of ['build.yml', 'pull-request.yml']) {

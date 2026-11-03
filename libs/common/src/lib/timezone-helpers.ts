@@ -20,15 +20,6 @@ export function localToTimezone(
     return addMilliseconds(date, offset_diff).valueOf();
 }
 
-export function timezoneToLocal(
-    date: Date | number,
-    tz: string = LOCAL_TIMEZONE,
-) {
-    const offset_diff =
-        getTimezoneOffset(LOCAL_TIMEZONE) - getTimezoneOffset(tz);
-    return addMilliseconds(date, offset_diff).valueOf();
-}
-
 export function startOfDayInTimezone(
     date: Date | number,
     tz: string = LOCAL_TIMEZONE,

@@ -8,7 +8,7 @@
     "targets": {
         "build": {
             "executor": "@angular/build:application",
-            "outputs": ["{options.outputPath.base}"],
+            "outputs": ["{options.outputPath}"],
             "defaultConfiguration": "production",
             "options": {
                 "outputPath": "dist/apps/enrolment",
@@ -43,7 +43,7 @@
                     }
                 ],
                 "scripts": [],
-                "serviceWorker": "apps/enrolment/ngsw-config.json",
+                "serviceWorker": "shared/ngsw-config.json",
                 "browser": "apps/enrolment/src/main.ts"
             },
             "configurations": {
@@ -60,7 +60,7 @@
                             "with": "apps/enrolment/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/enrolment/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "sourceMap": {
@@ -81,10 +81,6 @@
                         }
                     ],
                     "fileReplacements": [
-                        {
-                            "replace": "libs/mocks/src/index.ts",
-                            "with": "libs/mocks/src/empty.ts"
-                        },
                         {
                             "replace": "apps/enrolment/src/environments/environment.ts",
                             "with": "apps/enrolment/src/environments/environment.prod.ts"
@@ -123,7 +119,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/enrolment"],
             "options": {
                 "tsConfig": "apps/enrolment/tsconfig.spec.json",
-                "setupFiles": ["apps/enrolment/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/enrolment/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "enrolment:test-build:development"

@@ -1,8 +1,9 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { mapWithLimit } from '@placeos/common';
 
 import { DbService } from './db';
 import type { PlaceOSZone } from './placeos.service';
-import { PlaceOSService } from './placeos.service';
+import { PlaceOSService, withoutLocalFields } from './placeos.service';
 import { analyzeSvg, SvgAnalysis } from './svg-import';
 import { makeThumbnail } from './thumbnail';
 import {
@@ -10,11 +11,9 @@ import {
     Floorplan,
     FloorplanCanvas,
     FloorplanSummary,
-    FloorplanVersion,
     MapObject,
     MapObjectType,
     Project,
-    ValidationIssue,
 } from './types';
 
 type ZoneReference = Pick<PlaceOSZone, 'id' | 'name' | 'display_name'>;
@@ -25,17 +24,6 @@ const SYNC_CONCURRENCY = 6;
 /** Progress of the background import of PlaceOS buildings and levels */
 export type PlaceOSSyncState = 'idle' | 'syncing' | 'done' | 'error';
 
-function localFloorplanData(metadata: Partial<Floorplan> = {}) {
-    const saved = { ...metadata };
-    delete saved.id;
-    delete saved.project_id;
-    delete saved.level_zone_id;
-    delete saved.source_image_path;
-    delete saved.source_type;
-    delete saved.created_at;
-    return saved;
-}
-
 const key = {
     project: (id: string) => `project:${id}`,
     floorplan: (id: string) => `floorplan:${id}`,
@@ -43,10 +31,6 @@ const key = {
     object: (floorplan_id: string, id: string) =>
         `object:${floorplan_id}:${id}`,
     objects: (floorplan_id: string) => `object:${floorplan_id}:`,
-    /** Zero-padded so a prefix scan comes back in version order */
-    version: (floorplan_id: string, version: number) =>
-        `version:${floorplan_id}:${`${version}`.padStart(8, '0')}`,
-    versions: (floorplan_id: string) => `version:${floorplan_id}:`,
     image: (floorplan_id: string) => `image:${floorplan_id}`,
     thumbnail: (floorplan_id: string) => `thumbnail:${floorplan_id}`,
     /** PlaceOS zone whose local project or floorplan the user deleted */
@@ -97,29 +81,6 @@ function serverSaveMessage(error: unknown): string {
 }
 const uuid = () => crypto.randomUUID();
 
-const CSV_COLUMNS = [
-    'id',
-    'floorplan_id',
-    'object_type',
-    'svg_id',
-    'label',
-    'geometry',
-    'entity_type',
-    'entity_id',
-    'layer',
-    'fill_color',
-    'stroke_color',
-    'opacity',
-    'capacity',
-    'amenities',
-    'tags',
-    'metadata',
-    'group_id',
-    'z_index',
-    'locked',
-    'visible',
-] as const;
-
 /** Split a CSV line, honouring quoted fields containing commas or quotes */
 export function parseCsvLine(line: string): string[] {
     const fields: string[] = [];
@@ -151,7 +112,7 @@ const CSV_FORMULA_RE = /^[=+\-@\t\r']/;
 
 /**
  * One CSV cell. Labels can come from shared PlaceOS data, so text that a
- * spreadsheet would run gets a leading `'`, which `importObjectsCsv` removes.
+ * spreadsheet would run gets a leading `'`, which `fromCsvField` removes.
  */
 export function toCsvField(value: unknown): string {
     if (value === null || value === undefined) return '';
@@ -310,7 +271,7 @@ export class StoreService {
             version: 1,
             created_at: now(),
             updated_at: now(),
-            ...localFloorplanData(metadata),
+            ...withoutLocalFields(metadata),
         };
         await this._db.write({
             put: [
@@ -382,26 +343,23 @@ export class StoreService {
                     building_lists.flat().map((zone) => [zone.id, zone]),
                 );
                 const zones = [...zones_by_id.values()];
-                const buildings: {
-                    zone: ZoneReference;
-                    levels: ZoneReference[];
-                }[] = [];
-                // A few buildings at a time, so large deployments do not flood the API
-                for (let i = 0; i < zones.length; i += SYNC_CONCURRENCY) {
-                    buildings.push(
-                        ...(await Promise.all(
-                            zones
-                                .slice(i, i + SYNC_CONCURRENCY)
-                                .map(async (zone) => ({
-                                    zone,
-                                    levels: await this._placeos.getZones(
-                                        'level',
-                                        zone.id,
-                                    ),
-                                })),
-                        )),
-                    );
-                }
+                // A few buildings at a time, so large deployments do not flood
+                // the API. A failed level query fails the sync once the
+                // other queries end.
+                const failures: unknown[] = [];
+                const buildings = await mapWithLimit(
+                    zones,
+                    SYNC_CONCURRENCY,
+                    (zone) =>
+                        this._placeos.getZones('level', zone.id).then(
+                            (levels) => ({ zone, levels }),
+                            (error: unknown) => {
+                                failures.push(error);
+                                return { zone, levels: [] };
+                            },
+                        ),
+                );
+                if (failures.length) throw failures[0];
                 await this.syncPlaceOSZones(buildings);
             }
             this._placeos_sync.set('done');
@@ -441,28 +399,26 @@ export class StoreService {
                 ([, level]) =>
                     !existing_levels.has(level.id) && !deleted.has(level.id),
             );
-            // Fetch metadata a few levels at a time rather than one by one
-            for (let i = 0; i < missing.length; i += SYNC_CONCURRENCY) {
-                const batch = missing.slice(i, i + SYNC_CONCURRENCY);
-                const metadata = await Promise.all(
-                    batch.map(([, level]) =>
-                        this._placeos
-                            .getFloorplanMetadata(level.id)
-                            .catch(() => null),
-                    ),
+            // Fetch metadata a few levels at a time, then add the floors in order
+            const metadata = await mapWithLimit(
+                missing,
+                SYNC_CONCURRENCY,
+                ([, level]) =>
+                    this._placeos
+                        .getFloorplanMetadata(level.id)
+                        .catch(() => null),
+            );
+            for (const [index, [floor_index, level]] of missing.entries()) {
+                if (existing_levels.has(level.id)) continue;
+                const floorplan = await this.addFloorplan(
+                    project.id,
+                    level.display_name || level.name || level.id,
+                    floor_index,
+                    level.id,
+                    metadata[index] ?? undefined,
                 );
-                for (const [index, [floor_index, level]] of batch.entries()) {
-                    if (existing_levels.has(level.id)) continue;
-                    const floorplan = await this.addFloorplan(
-                        project.id,
-                        level.display_name || level.name || level.id,
-                        floor_index,
-                        level.id,
-                        metadata[index] ?? undefined,
-                    );
-                    project.floorplans?.push(floorplan);
-                    existing_levels.add(level.id);
-                }
+                project.floorplans?.push(floorplan);
+                existing_levels.add(level.id);
             }
         }
         this.zone_sync_version.update((version) => version + 1);
@@ -506,7 +462,7 @@ export class StoreService {
         const floorplan = await this.getFloorplan(id);
         const updated = {
             ...floorplan,
-            ...localFloorplanData(metadata),
+            ...withoutLocalFields(metadata),
             id,
         };
         await this._db.write({
@@ -564,7 +520,7 @@ export class StoreService {
     }
 
     /**
-     * Removes the floorplan, its objects, versions and image. A floorplan made
+     * Removes the floorplan, its objects and image. A floorplan made
      * from a PlaceOS level is remembered so that the zone sync does not create
      * it again.
      */
@@ -574,7 +530,6 @@ export class StoreService {
         );
         await Promise.all([
             this._db.deleteWhere(key.objects(id)),
-            this._db.deleteWhere(key.versions(id)),
             this._db.write({
                 delete: [
                     key.image(id),
@@ -599,62 +554,6 @@ export class StoreService {
         canvas_state: EditorState,
     ): Promise<void> {
         await this.updateFloorplan(id, { canvas_state });
-    }
-
-    /** Snapshots the current canvas as a new version and marks it published */
-    public async publishFloorplan(id: string): Promise<void> {
-        const floorplan = await this.getFloorplan(id);
-        if (!floorplan.canvas_state)
-            throw new Error('No canvas state to publish');
-        const version = (floorplan.version ?? 1) + 1;
-        await this._writeVersion(floorplan, version, 'Published');
-        await this.updateFloorplan(id, { status: 'published', version });
-    }
-
-    public async listVersions(id: string): Promise<FloorplanVersion[]> {
-        const versions = await this._db.list<FloorplanVersion>(
-            key.versions(id),
-        );
-        return versions.reverse();
-    }
-
-    public async createVersion(id: string, note?: string): Promise<void> {
-        const floorplan = await this.getFloorplan(id);
-        const version = (floorplan.version ?? 1) + 1;
-        await this._writeVersion(floorplan, version, note ?? null);
-        await this.updateFloorplan(id, { version });
-    }
-
-    public async restoreVersion(id: string, version_id: string): Promise<void> {
-        const version = (await this.listVersions(id)).find(
-            (v) => v.id === version_id,
-        );
-        if (!version) throw new Error('Version not found');
-        await this.updateFloorplan(id, {
-            canvas_state: version.canvas_state,
-            svg_source: version.svg_source ?? null,
-            svg_source_ids: version.svg_source_ids,
-            svg_output: version.svg_output,
-        });
-    }
-
-    private async _writeVersion(
-        floorplan: Floorplan,
-        version: number,
-        note: string | null,
-    ): Promise<void> {
-        const snapshot: FloorplanVersion = {
-            id: uuid(),
-            floorplan_id: floorplan.id,
-            version,
-            canvas_state: floorplan.canvas_state as EditorState,
-            svg_source: floorplan.svg_source,
-            svg_source_ids: floorplan.svg_source_ids,
-            svg_output: floorplan.svg_output,
-            note,
-            created_at: now(),
-        };
-        await this._db.set(key.version(floorplan.id, version), snapshot);
     }
 
     // ── Source images ───────────────────────────────────────────────────────
@@ -766,10 +665,8 @@ export class StoreService {
         floor_name: string;
         /** SVG ids to import, with the type and label the user settled on */
         mappings: { svgId: string; objectType: string; label?: string }[];
-        outline_points?: { x: number; y: number }[];
     }): Promise<{ project_id: string; floorplan_id: string; objects: number }> {
-        const { svg_content, analysis, floor_name, mappings, outline_points } =
-            options;
+        const { svg_content, analysis, floor_name, mappings } = options;
 
         if (!analysis.sourceSvg)
             throw new Error('The file is not a valid SVG map.');
@@ -779,29 +676,6 @@ export class StoreService {
         const source_ids = objects.flatMap((object) =>
             object.svg_id ? [object.svg_id] : [],
         );
-        const has_outline = (outline_points?.length ?? 0) >= 3;
-        if (has_outline) {
-            const points = outline_points as { x: number; y: number }[];
-            const xs = points.map((p) => p.x);
-            const ys = points.map((p) => p.y);
-            objects.push({
-                object_type: 'area',
-                svg_id: 'floor-outline',
-                label: 'Floor Outline',
-                geometry: {
-                    type: 'polygon',
-                    points,
-                    x: Math.min(...xs),
-                    y: Math.min(...ys),
-                    width: Math.max(...xs) - Math.min(...xs),
-                    height: Math.max(...ys) - Math.min(...ys),
-                },
-                layer: 'background',
-                fill_color: 'rgba(107,114,128,0.15)',
-                stroke_color: '#6b7280',
-                z_index: 0,
-            });
-        }
 
         const project_id =
             options.project_id ??
@@ -838,26 +712,28 @@ export class StoreService {
         for (const [index, parsed] of analysis.objects.entries()) {
             const mapping = mappings?.get(parsed.svgId);
             if (mappings && !mapping) continue;
+            const fill =
+                parsed.presentation?.fill || parsed.attributes['fill'] || null;
+            const stroke =
+                parsed.presentation?.stroke ||
+                parsed.attributes['stroke'] ||
+                null;
+            const opacity =
+                parsed.presentation?.opacity ??
+                Number(parsed.attributes['opacity'] ?? 1);
+            const label =
+                mapping?.label ||
+                parsed.label ||
+                (parsed.tag === 'text' ? '' : parsed.svgId);
             objects.push({
                 object_type: (mapping?.objectType ??
                     parsed.suggestedType) as MapObjectType,
                 svg_id: parsed.svgId,
-                label:
-                    mapping?.label ||
-                    parsed.label ||
-                    (parsed.tag === 'text' ? '' : parsed.svgId),
+                label,
                 geometry: parsed.geometry,
-                fill_color:
-                    parsed.presentation?.fill ||
-                    parsed.attributes['fill'] ||
-                    null,
-                stroke_color:
-                    parsed.presentation?.stroke ||
-                    parsed.attributes['stroke'] ||
-                    null,
-                opacity:
-                    parsed.presentation?.opacity ??
-                    Number(parsed.attributes['opacity'] ?? 1),
+                fill_color: fill,
+                stroke_color: stroke,
+                opacity,
                 layer: parsed.layer,
                 group_id: parsed.groupId,
                 z_index: index,
@@ -866,21 +742,10 @@ export class StoreService {
                     originalTag: parsed.tag,
                     originalAttributes: parsed.attributes,
                     originalGeometry: parsed.geometry,
-                    originalFill:
-                        parsed.presentation?.fill ||
-                        parsed.attributes['fill'] ||
-                        null,
-                    originalStroke:
-                        parsed.presentation?.stroke ||
-                        parsed.attributes['stroke'] ||
-                        null,
-                    originalOpacity:
-                        parsed.presentation?.opacity ??
-                        Number(parsed.attributes['opacity'] ?? 1),
-                    originalLabel:
-                        mapping?.label ||
-                        parsed.label ||
-                        (parsed.tag === 'text' ? '' : parsed.svgId),
+                    originalFill: fill,
+                    originalStroke: stroke,
+                    originalOpacity: opacity,
+                    originalLabel: label,
                     parentMatrix: parsed.parentMatrix,
                 },
             });
@@ -946,26 +811,6 @@ export class StoreService {
         });
     }
 
-    public async updateObject(
-        floorplan_id: string,
-        id: string,
-        data: Partial<MapObject>,
-    ): Promise<void> {
-        const object = await this._db.get<MapObject>(
-            key.object(floorplan_id, id),
-        );
-        if (!object) throw new Error('Object not found');
-        await this._db.set(key.object(floorplan_id, id), {
-            ...object,
-            ...data,
-            id,
-        });
-    }
-
-    public async deleteObject(floorplan_id: string, id: string): Promise<void> {
-        await this._db.delete(key.object(floorplan_id, id));
-    }
-
     /**
      * Writes `objects` and removes `remove_ids` in one transaction. Returns the
      * objects as stored, with defaults filled in.
@@ -981,123 +826,5 @@ export class StoreService {
             put: records,
         });
         return records.map(([, object]) => object);
-    }
-
-    /** Replaces the stored objects for a floorplan with exactly `objects` */
-    public async replaceObjects(
-        floorplan_id: string,
-        objects: Partial<MapObject>[],
-    ): Promise<void> {
-        await this._db.write({
-            clear: key.objects(floorplan_id),
-            put: this._objectRecords(floorplan_id, objects),
-        });
-    }
-
-    // ── CSV ─────────────────────────────────────────────────────────────────
-
-    public async exportObjectsCsv(floorplan_id: string): Promise<string> {
-        const objects = await this.listObjects(floorplan_id);
-        const rows = objects.map((obj) =>
-            CSV_COLUMNS.map((column) =>
-                toCsvField((obj as unknown as Record<string, unknown>)[column]),
-            ).join(','),
-        );
-        return [CSV_COLUMNS.join(','), ...rows].join('\n');
-    }
-
-    /**
-     * Merges a CSV export back in. Rows matching an existing `svg_id` update
-     * that object; everything else is created.
-     */
-    public async importObjectsCsv(
-        floorplan_id: string,
-        csv: string,
-    ): Promise<{ imported: number; updated: number }> {
-        const lines = csv.trim().split('\n');
-        if (lines.length < 2)
-            throw new Error(
-                'CSV must have a header row and at least one data row',
-            );
-
-        const headers = parseCsvLine(lines[0]);
-        const existing = new Map(
-            (await this.listObjects(floorplan_id))
-                .filter((o) => o.svg_id)
-                .map((o) => [o.svg_id as string, o]),
-        );
-
-        let imported = 0;
-        let updated = 0;
-        const changed: Partial<MapObject>[] = [];
-        for (const line of lines.slice(1)) {
-            const values = parseCsvLine(line);
-            const row: Record<string, unknown> = {};
-            headers.forEach((header, index) => {
-                const value = fromCsvField(values[index] ?? '');
-                if (value !== '') row[header] = value;
-            });
-            if (row['geometry'])
-                row['geometry'] = JSON.parse(row['geometry'] as string);
-
-            const match = existing.get(row['svg_id'] as string);
-            if (match) {
-                delete row['id'];
-                delete row['floorplan_id'];
-                const merged = { ...match, ...row, id: match.id };
-                // A later row for the same svg_id builds on this one
-                existing.set(match.svg_id as string, merged);
-                changed.push(merged);
-                updated++;
-            } else {
-                changed.push({ ...row, floorplan_id } as Partial<MapObject>);
-                imported++;
-            }
-        }
-        await this.bulkUpsertObjects(floorplan_id, changed);
-        return { imported, updated };
-    }
-
-    // ── Validation ──────────────────────────────────────────────────────────
-
-    public async validateFloorplan(
-        floorplan_id: string,
-    ): Promise<ValidationIssue[]> {
-        const objects = await this.listObjects(floorplan_id);
-        const issues: ValidationIssue[] = [];
-        const seen = new Set<string>();
-        const duplicates = new Set<string>();
-
-        for (const obj of objects) {
-            if (!obj.label) {
-                issues.push({
-                    type: 'warning',
-                    objectId: obj.id,
-                    message: `Object ${obj.id} (${obj.object_type}) has no label`,
-                });
-            }
-            if (obj.svg_id) {
-                if (seen.has(obj.svg_id)) duplicates.add(obj.svg_id);
-                seen.add(obj.svg_id);
-            }
-            if (!obj.geometry || Object.keys(obj.geometry).length === 0) {
-                issues.push({
-                    type: 'error',
-                    objectId: obj.id,
-                    message: `Object ${obj.id} (${obj.object_type}) has empty geometry`,
-                });
-            }
-        }
-
-        for (const svg_id of duplicates) {
-            for (const obj of objects.filter((o) => o.svg_id === svg_id)) {
-                issues.push({
-                    type: 'error',
-                    objectId: obj.id,
-                    message: `Duplicate svg_id "${svg_id}" on object ${obj.id}`,
-                });
-            }
-        }
-        return issues;
     }
 }

@@ -1,12 +1,5 @@
-import {
-    Component,
-    OnInit,
-    effect,
-    inject,
-    signal,
-    untracked,
-} from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit, effect, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { DateOptionsComponent } from '@placeos/form-fields';
+import { levelSelection } from '../ui/level-selection';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -77,12 +71,15 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(VisitorsStateService);
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
-    private _router = inject(Router);
+
+    private _levels = levelSelection((filters) =>
+        this._state.setFilters(filters),
+    );
 
     /** List of selected levels */
-    public readonly zones = signal<string[]>([]);
+    public readonly zones = this._levels.zones;
     /** List of levels for the active building */
-    public readonly levels = signal<any[]>([]);
+    public readonly levels = this._levels.levels;
 
     public readonly filters = signal<any>({});
     /** Set filtered date */
@@ -91,34 +88,13 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
     public readonly setFilters = (filters) => this._state.setFilters(filters);
     /** Set filter string */
     public readonly setSearch = (str) => this._state.setSearchString(str);
-    /** Update active zones for desks */
-    public readonly updateZones = (zones) => {
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { zone_ids: zones.join(',') },
-            queryParamsHandling: 'merge',
-        });
-        this._state.setFilters({ zones });
-    };
+    /** Update active zones */
+    public readonly updateZones = this._levels.updateZones;
 
     constructor() {
         super();
         effect(() => {
             this.filters.set(this._state.filters() || {});
-        });
-        effect(() => {
-            const current_levels = this._org.active_levels() || [];
-            untracked(() => {
-                this.levels.set(current_levels);
-                const zones = this.zones().filter((zone) =>
-                    current_levels.find((lvl) => lvl.id === zone),
-                );
-                if (!zones.length && current_levels.length) {
-                    zones.push(current_levels[0].id);
-                }
-                this.zones.set(zones);
-                this.updateZones(zones);
-            });
         });
     }
 

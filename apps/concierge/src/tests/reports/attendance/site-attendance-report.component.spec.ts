@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/common';
 import { SiteAttendanceReportComponent } from 'apps/concierge/src/app/reports/attendance/site-attendance-report.component';
 import {
     EMPTY_REPORT,
@@ -30,16 +30,6 @@ describe('SiteAttendanceReportComponent', () => {
                 downloadReport: vi.fn(),
                 generateReport: vi.fn(),
             }),
-            MockProvider(SettingsService, {
-                theme: 'light',
-                get: vi.fn((key: string) => {
-                    if (key === 'app.logo_light')
-                        return { src: 'light-logo.svg' };
-                    if (key === 'app.logo_dark')
-                        return { src: 'dark-logo.svg' };
-                    return undefined;
-                }),
-            } as any),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 waitUntilInitialised: () => Promise.resolve(),
@@ -118,13 +108,11 @@ describe('SiteAttendanceReportComponent', () => {
     it('should apply query params to report options', () => {
         expect(
             spectator.inject(SiteAttendanceReportService).setOptions,
-        ).toHaveBeenCalledWith({ start: 100 });
-        expect(
-            spectator.inject(SiteAttendanceReportService).setOptions,
-        ).toHaveBeenCalledWith({ end: 200 });
-        expect(
-            spectator.inject(SiteAttendanceReportService).setOptions,
-        ).toHaveBeenCalledWith({ zones: ['level-1', 'level-2'] });
+        ).toHaveBeenCalledWith({
+            start: 100,
+            end: 200,
+            zones: ['level-1', 'level-2'],
+        });
     });
 
     it('should expose report state and has_data from the service', () => {
@@ -164,16 +152,12 @@ describe('SiteAttendanceReportComponent', () => {
         ).toHaveBeenCalled();
     });
 
-    it('should select the light logo by default', () => {
-        expect(spectator.component.logo()).toEqual({ src: 'light-logo.svg' });
-    });
-
     it('should clear zones when query params do not include them', () => {
         query_params.next(convertToParamMap({ start: '100', end: '200' }));
         spectator.detectChanges();
 
         expect(
             spectator.inject(SiteAttendanceReportService).setOptions,
-        ).toHaveBeenCalledWith({ zones: [] });
+        ).toHaveBeenCalledWith({ start: 100, end: 200, zones: [] });
     });
 });

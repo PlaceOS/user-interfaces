@@ -61,6 +61,19 @@ import { SignagePlaylistService } from './signage-playlist.service';
                 default
                 type="button"
                 matRipple
+                [matTooltip]="'SIGNAGE_MANAGER.ADD_MEDIA_TOOLTIP' | translate"
+                (click)="addMedia()"
+                [attr.aria-label]="
+                    'SIGNAGE_MANAGER.ADD_MEDIA_TO_PLAYLIST' | translate
+                "
+            >
+                <icon>playlist_add</icon>
+            </button>
+            <button
+                icon
+                default
+                type="button"
+                matRipple
                 [matTooltip]="
                     'SIGNAGE_MANAGER.EDIT_PLAYLIST_TOOLTIP' | translate
                 "
@@ -162,6 +175,11 @@ export class PlaylistActionsComponent {
     public readonly approval_request_loading =
         this._playlist_service.playlist_approval_request_loading;
     public readonly duplicating = this._playlist_service.playlist_duplicating;
+
+    public addMedia() {
+        const playlist = this.selected_playlist();
+        if (playlist) this._playlist_service.pickMediaForPlaylist(playlist);
+    }
 
     public editPlaylist() {
         const playlist = this.selected_playlist();

@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     approveBooking as approveBookingApi,
     BookingFormService,
+    ParkingRequestFormDetailsComponent,
     ParkingService,
 } from '@placeos/bookings';
 import {
@@ -27,7 +28,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { roundToNearestMinutes, startOfDay } from 'date-fns';
-import { ParkingRequestFormDetailsComponent } from 'apps/workplace/src/app/book/parking-request-flow/parking-request-form-details.component';
 
 @Component({
     selector: 'parking-request-modal',

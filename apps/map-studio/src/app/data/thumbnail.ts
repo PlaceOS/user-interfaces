@@ -1,3 +1,5 @@
+import { loadImage } from './load-image';
+
 /** Longest edge of a stored preview, in pixels */
 const THUMBNAIL_SIZE = 480;
 
@@ -7,11 +9,8 @@ const THUMBNAIL_SIZE = 480;
  * to the original image if it cannot be drawn.
  */
 export async function makeThumbnail(image: Blob): Promise<Blob> {
-    const url = URL.createObjectURL(image);
     try {
-        const element = new Image();
-        element.src = url;
-        await element.decode();
+        const element = await loadImage(image);
         const width = element.naturalWidth;
         const height = element.naturalHeight;
         if (!width || !height) return image;
@@ -28,7 +27,5 @@ export async function makeThumbnail(image: Blob): Promise<Blob> {
         return thumbnail ?? image;
     } catch {
         return image;
-    } finally {
-        URL.revokeObjectURL(url);
     }
 }

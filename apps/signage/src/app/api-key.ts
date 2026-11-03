@@ -9,8 +9,9 @@
 export function hasStoredApiKey() {
     for (const store of [localStorage, sessionStorage]) {
         try {
-            for (const key of Object.keys(store)) {
-                if (key.endsWith('_x-api-key') && !!store.getItem(key)) {
+            for (let i = 0; i < store.length; i++) {
+                const key = store.key(i);
+                if (key?.endsWith('_x-api-key') && !!store.getItem(key)) {
                     return true;
                 }
             }

@@ -1,12 +1,11 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Locker } from '@placeos/bookings';
-import { AsyncHandler, Booking, i18n, notifySuccess } from '@placeos/common';
+import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -366,21 +365,14 @@ import { LockerStateService } from './locker-state.service';
         MatProgressBarModule,
     ],
 })
-export class LockerListComponent extends AsyncHandler implements OnInit {
+export class LockerListComponent extends AsyncHandler {
     private _state = inject(LockerStateService);
     private _clipboard = inject(Clipboard);
 
     public readonly show_children = signal<Record<string, boolean>>({});
     public readonly locker_banks = this._state.filtered_banks;
-    public readonly lockers = this._state.filtered_lockers;
-    public readonly options = this._state.filters;
     public readonly loading = this._state.loading;
-    public readonly bookings = this._state.bookings;
     public readonly search = this._state.search;
-
-    public readonly locker_status = computed(() =>
-        this._status_list(this.lockers(), this.bookings()),
-    );
 
     public readonly viewBank = (b) => this._state.viewLockerBank(b);
     public readonly editLocker = (bid, s?) => this._state.editLocker(bid, s);
@@ -394,8 +386,6 @@ export class LockerListComponent extends AsyncHandler implements OnInit {
     public get has_driver() {
         return this._state.has_driver;
     }
-
-    public ngOnInit() {}
 
     public toggleChildren(id: string) {
         this.show_children.update((state) => ({
@@ -414,54 +404,5 @@ export class LockerListComponent extends AsyncHandler implements OnInit {
                         : 'APP.CONCIERGE.LOCKERS_COPIED_ID',
                 ),
             );
-    }
-
-    public statusTooltip(status: string) {
-        switch (status) {
-            case 'assigned_free':
-                return 'APP.CONCIERGE.LOCKERS_STATUS_ASSIGNED_FREE';
-            case 'assigned_busy':
-                return 'APP.CONCIERGE.LOCKERS_STATUS_ASSIGNED_BUSY';
-            case 'reuse_busy':
-                return 'APP.CONCIERGE.LOCKERS_STATUS_ASSIGNED_OTHER';
-            case 'busy':
-                return 'APP.CONCIERGE.LOCKERS_STATUS_BUSY';
-            case 'free':
-                return 'APP.CONCIERGE.LOCKERS_STATUS_FREE';
-        }
-        return 'APP.CONCIERGE.LOCKERS_STATUS_FREE';
-    }
-
-    private _status_list(lockers: Locker[], bookings: Booking[]) {
-        const status_list: Record<string, string> = {};
-        for (const locker of lockers) {
-            const booking = bookings.find(
-                (_) =>
-                    _.asset_id === locker.id &&
-                    _.status !== 'declined' &&
-                    _.status !== 'cancelled' &&
-                    _.status !== 'ended',
-            );
-            if (locker.assigned_to && !booking) {
-                status_list[locker.id] = 'assigned_free';
-            } else if (
-                locker.assigned_to &&
-                booking &&
-                booking.user_email === locker.assigned_to
-            ) {
-                status_list[locker.id] = 'assigned_busy';
-            } else if (
-                locker.assigned_to &&
-                booking &&
-                booking.user_email !== locker.assigned_to
-            ) {
-                status_list[locker.id] = 'reuse_busy';
-            } else if (!locker.assigned_to && booking) {
-                status_list[locker.id] = 'busy';
-            } else {
-                status_list[locker.id] = 'free';
-            }
-        }
-        return status_list;
     }
 }

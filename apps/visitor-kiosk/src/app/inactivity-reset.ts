@@ -1,4 +1,5 @@
 import { DestroyRef, inject, Signal, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 
@@ -23,15 +24,16 @@ export interface IdleReset {
 
 /**
  * Return the kiosk to the welcome page when a visitor leaves it mid-flow.
- * This stops the camera on the scan pages and removes visitor details from
- * the screen. The `inactivity_timeout_secs` setting sets the delay. A value
- * of `0` turns the reset off. The warning starts `IDLE_WARNING_SECS` before
- * the reset, so the visitor can ask for more time. Call in an injection
- * context.
+ * This stops the camera on the scan pages, closes open dialogs and removes
+ * visitor details from the screen. The `inactivity_timeout_secs` setting
+ * sets the delay. A value of `0` turns the reset off. The warning starts
+ * `IDLE_WARNING_SECS` before the reset, so the visitor can ask for more
+ * time. Call in an injection context.
  */
 export function returnToWelcomeWhenIdle(): IdleReset {
     const router = inject(Router);
     const checkin = inject(CheckinStateService);
+    const dialog = inject(MatDialog);
     const timeout_secs = settingSignal<number>(
         'inactivity_timeout_secs',
         DEFAULT_INACTIVITY_TIMEOUT_SECS,
@@ -73,6 +75,8 @@ export function returnToWelcomeWhenIdle(): IdleReset {
         timer = setTimeout(() => {
             clear();
             if (isIdleRoute()) return;
+            // Navigation does not close dialogs, so close them here
+            dialog.closeAll();
             checkin.clear();
             router.navigate(['/welcome']);
         }, secs * 1000);

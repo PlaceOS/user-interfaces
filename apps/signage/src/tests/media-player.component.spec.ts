@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import {
     createComponentFactory,
     createHostFactory,
@@ -2392,5 +2395,21 @@ describe('MediaPlayerComponent in a host', () => {
                 host.component['_video_element'](output).nativeElement.muted,
             ).toBe(true);
         }
+    });
+
+    it('should set the transition duration that the global styles read', () => {
+        create_host(`<media-player [animation_time]="1500" />`);
+        const styles = readFileSync(
+            join(process.cwd(), 'apps/signage/src/styles.css'),
+            'utf8',
+        );
+        const name = styles.match(
+            /transition:\s*transform var\((--[\w-]+)\)/,
+        )?.[1];
+
+        expect(name).toBeTruthy();
+        expect(
+            document.documentElement.style.getPropertyValue(name ?? ''),
+        ).toBe('1500ms');
     });
 });

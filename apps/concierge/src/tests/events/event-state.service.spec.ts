@@ -7,9 +7,11 @@ import {
     Building,
     OrganisationService,
     SettingsService,
+    setNotifyOutlet,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
+import { NEVER, of } from 'rxjs';
 import { EventStateService } from '../../app/events/event-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -53,6 +55,40 @@ describe('EventStateService', () => {
 
     afterEach(() => {
         vi.clearAllMocks();
+    });
+
+    it('should keep the event details open when removal fails', async () => {
+        setNotifyOutlet(
+            {
+                open: vi.fn(() => ({
+                    onAction: () => ({ subscribe: () => undefined }),
+                    dismiss: () => undefined,
+                })),
+            } as any,
+            true,
+        );
+        const details = { close: vi.fn() };
+        const confirm = {
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            afterClosed: () => of({ reason: 'done' }),
+            close: vi.fn(),
+        };
+        const open = vi.mocked(TestBed.inject(MatDialog).open);
+        open.mockReturnValueOnce(details as any);
+        open.mockReturnValueOnce(confirm as any);
+        vi.mocked(ts_client.del).mockRejectedValueOnce(
+            new Error('Server down'),
+        );
+
+        spectator.service.viewEvent({ id: 'evt-1', title: 'Event' } as any);
+        const data = open.mock.calls[0][1].data as {
+            remove_fn: () => Promise<void>;
+        };
+        await data.remove_fn();
+
+        expect(confirm.close).toHaveBeenCalled();
+        expect(details.close).not.toHaveBeenCalled();
+        setNotifyOutlet(null, true);
     });
 
     it('should not re-request events when options are unchanged', async () => {

@@ -15,7 +15,7 @@ function response(data: any[]) {
 }
 
 async function load_modules() {
-    const locker = (await import('./locker-assets.fn'));
+    const locker = await import('./locker-assets.fn');
     return { locker };
 }
 
@@ -117,29 +117,6 @@ describe('[Locker Assets]', () => {
         });
     });
 
-    describe('queryLockerBankAssets', () => {
-        it('should query assets for the zone and bank type', async () => {
-            const { locker } = await load_modules();
-            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-                response([{ id: 'cat-1', name: '_LOCKERS_' }]),
-            );
-            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-                response([{ id: 'type-1', name: '_LOCKER_BANKS_' }]),
-            );
-            vi.mocked(ts_client.queryAssets).mockReturnValue(
-                response([{ id: 'a1' }, { id: 'a2' }]),
-            );
-
-            const list = await locker.queryLockerBankAssets('zone-1');
-            expect(ts_client.queryAssets).toHaveBeenCalledWith({
-                zone_id: 'zone-1',
-                type_id: 'type-1',
-                limit: 500,
-            });
-            expect(list.map((a: any) => a.id)).toEqual(['a1', 'a2']);
-        });
-    });
-
     describe('queryLockerBankAssetsForZones', () => {
         it('should resolve empty for no zones', async () => {
             const { locker } = await load_modules();
@@ -154,8 +131,8 @@ describe('[Locker Assets]', () => {
             vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 'type-1', name: '_LOCKER_BANKS_' }]),
             );
-            vi.mocked(ts_client.queryAssets).mockImplementation(
-                ({ zone_id }) => response([{ id: `${zone_id}-a` }]),
+            vi.mocked(ts_client.queryAssets).mockImplementation(({ zone_id }) =>
+                response([{ id: `${zone_id}-a` }]),
             );
 
             const list = await locker.queryLockerBankAssetsForZones([
@@ -175,7 +152,9 @@ describe('[Locker Assets]', () => {
             vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 'type-1', name: '_LOCKER_BANKS_' }]),
             );
-            vi.mocked(ts_client.addAsset).mockResolvedValue({ id: 'a1' } as any);
+            vi.mocked(ts_client.addAsset).mockResolvedValue({
+                id: 'a1',
+            } as any);
 
             const res = await locker.saveLockerBankAsset({ name: 'Bank 1' });
             expect(ts_client.addAsset).toHaveBeenCalledWith({
@@ -195,7 +174,9 @@ describe('[Locker Assets]', () => {
             vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
                 response([{ id: 'type-2', name: '_LOCKERS_' }]),
             );
-            vi.mocked(ts_client.addAsset).mockResolvedValue({ id: 'l1' } as any);
+            vi.mocked(ts_client.addAsset).mockResolvedValue({
+                id: 'l1',
+            } as any);
 
             const res = await locker.saveLockerAsset({ name: 'Locker 1' });
             expect(ts_client.addAsset).toHaveBeenCalledWith({

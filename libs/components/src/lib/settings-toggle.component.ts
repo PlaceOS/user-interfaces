@@ -1,11 +1,8 @@
-import { Component, forwardRef, input, signal } from '@angular/core';
-import {
-    ControlValueAccessor,
-    FormsModule,
-    NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { Component, input, signal } from '@angular/core';
+import { ControlValueAccessor, FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { provideValueAccessor } from '@placeos/common';
 import { IconComponent } from './icon.component';
 
 @Component({
@@ -89,13 +86,7 @@ import { IconComponent } from './icon.component';
             }
         `,
     ],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => SettingsToggleComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => SettingsToggleComponent)],
     imports: [MatCheckboxModule, FormsModule, IconComponent, MatTooltipModule],
 })
 export class SettingsToggleComponent implements ControlValueAccessor {

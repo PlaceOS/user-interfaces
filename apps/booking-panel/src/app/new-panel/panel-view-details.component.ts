@@ -6,11 +6,11 @@ import { generateQRCode } from '@placeos/common/qr-code';
 
 import { CommonModule } from '@angular/common';
 import {
+    AnnounceDirective,
     AuthenticatedImageDirective,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { AnnounceDirective } from '../announce.directive';
 import { PanelStateService } from '../panel-state.service';
 import { endingSoon } from './helpers';
 
@@ -178,10 +178,6 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
 
     public get checkin() {
         return this._state.setting('show_qr_code') !== false;
-    }
-
-    public get custom_qr() {
-        return !!this._state.setting('custom_qr_url');
     }
 
     public get hide_qr_text() {

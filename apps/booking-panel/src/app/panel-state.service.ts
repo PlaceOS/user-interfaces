@@ -29,7 +29,6 @@ import {
     notifyWarn,
     SettingsService,
     Space,
-    timePeriodsIntersect,
 } from '@placeos/common';
 import { EventFormService, updateEvent } from '@placeos/events';
 
@@ -132,26 +131,6 @@ export interface PanelSettings {
     timeline_position?: PanelTimelinePosition;
 }
 
-export function currentBooking(
-    list: CalendarEvent[],
-    date: number = new Date().valueOf(),
-) {
-    return list.find((bkn) =>
-        timePeriodsIntersect(
-            date,
-            date,
-            bkn.date,
-            bkn.date + bkn.duration * 1000,
-        ),
-    );
-}
-
-export type CalendarEventStatus =
-    | 'available'
-    | 'pending'
-    | 'busy'
-    | 'not-bookable';
-
 declare global {
     interface Window {
         panel_module?: PlaceModuleBinding;
@@ -177,8 +156,6 @@ export class PanelStateService extends AsyncHandler {
     private _load_id = 0;
     /** Current time. Updates every 5 seconds */
     public readonly clock = this._clock.asReadonly();
-    /** Whether the websocket to the PlaceOS backend is connected */
-    public readonly connected = signal(true);
     /** Time the websocket disconnected. `0` while connected */
     public readonly offline_since = signal(0);
     private _bound_system = '';
@@ -356,7 +333,6 @@ export class PanelStateService extends AsyncHandler {
         this.subscription(
             'websocket-status',
             websocketStatus().subscribe((online) => {
-                this.connected.set(online);
                 if (online) this.offline_since.set(0);
                 else if (!this.offline_since())
                     this.offline_since.set(Date.now());
@@ -425,9 +401,6 @@ export class PanelStateService extends AsyncHandler {
         future = false,
         force_api = false,
     ) {
-        // if (date <= Date.now() && !user) {
-        //     return this.confirmBookNow();
-        // }
         const current = this._current();
         if (
             current &&
@@ -493,61 +466,6 @@ export class PanelStateService extends AsyncHandler {
             details.close();
             this.clearTimeout('reset_view');
         }
-    }
-
-    public async confirmBookNow() {
-        this.timeout(
-            'reset_view',
-            () => this._dialog.closeAll(),
-            2 * 60 * 1000,
-        );
-        const date = Date.now();
-        const current = this._current();
-        if (
-            current &&
-            isAfter(date, current.date) &&
-            isBefore(date, addMinutes(current.date, current.duration))
-        ) {
-            return notifyError('Booking already exists for this time');
-        }
-        let max_duration = undefined;
-        const next = this._next();
-        if (next && date <= Date.now()) {
-            const diff = Math.abs(differenceInMinutes(next.date, date));
-            const max = this._settings().max_duration || 480;
-            max_duration = diff < max ? diff : max;
-        }
-        if (max_duration != null && max_duration < 15) {
-            return notifyError(
-                'Unable to make bookings as the time available before the next meeting is less than 15 minutes',
-            );
-        }
-        const ref = await openConfirmModal(
-            {
-                title: 'Book Meeting',
-                content: `Do you wish to book a meeting in this room for ${Math.min(
-                    max_duration || 180,
-                    30,
-                )} minutes?`,
-                icon: { content: 'event' },
-            },
-            this._dialog,
-        );
-        if (ref.reason !== 'done') return;
-        ref.loading('Creating Meeting...');
-        try {
-            const module = getModule(this.system, 'Bookings');
-            if (!module) throw 'Unable to find module';
-            await module.execute('book_now', [
-                Math.min(max_duration || 180, 30) * 60,
-                'Ad-hoc Panel Booking',
-            ]);
-            notifySuccess('Successfully created meeting.');
-        } catch (e) {
-            notifyError(`Error creating meeting. ${e}`);
-        }
-        ref.close();
-        this.clearTimeout('reset_view');
     }
 
     /**
@@ -634,33 +552,6 @@ export class PanelStateService extends AsyncHandler {
             }
         }
         notifySuccess('Successfully created meeting.');
-    }
-
-    /**
-     * Open confirmation modal for starting the meeting
-     */
-    public async confirmStart() {
-        this.timeout(
-            'reset_view',
-            () => this._dialog.closeAll(),
-            2 * 60 * 1000,
-        );
-        const details = await openConfirmModal(
-            {
-                title: 'Do you wish to start your meeting?',
-                content: `If you don't start your meeting it will be cancelled ${
-                    this._settings().pending_period
-                } minutes after the start time.`,
-                icon: {
-                    class: 'material-symbols-rounded',
-                    content: 'play_arrow',
-                },
-            },
-            this._dialog,
-        );
-        if (details.reason !== 'done') return;
-        this.startMeeting();
-        this.clearTimeout('reset_view');
     }
 
     /**

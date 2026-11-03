@@ -3,7 +3,6 @@ import {
     computed,
     effect,
     inject,
-    OnDestroy,
     OnInit,
     resource,
     signal,
@@ -19,14 +18,11 @@ import {
 import {
     AsyncHandler,
     BuildingLevel,
-    csvToJson,
-    Desk,
     downloadFile,
     jsonToCsv,
     loadTextFileFromInputEvent,
     notifyError,
     OrganisationService,
-    randomInt,
     settingSignal,
     SettingsService,
 } from '@placeos/common';
@@ -52,7 +48,12 @@ import { showMetadata } from '@placeos/ts-client';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
-import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
+import {
+    loadPersistedZones,
+    persistZones,
+    sameZones,
+    zoneScopeId,
+} from '../ui/zone-persistence';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
 import { DesksStateService } from './desks-state.service';
@@ -311,7 +312,6 @@ import { DesksStateService } from './desks-state.service';
         MatProgressBarModule,
         MatProgressSpinnerModule,
         RouterModule,
-        MatRippleModule,
         FormsModule,
         IconComponent,
         MatRippleModule,
@@ -326,7 +326,7 @@ import { DesksStateService } from './desks-state.service';
         SafePipe,
     ],
 })
-export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
+export class DesksComponent extends AsyncHandler implements OnInit {
     private _state = inject(DesksStateService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
@@ -428,7 +428,11 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
               ? 'desks'
               : '';
         if (persistence_view) {
-            persistZones(persistence_view, this._persistScopeId(), clean_zones);
+            persistZones(
+                persistence_view,
+                zoneScopeId(this._org, this.use_region),
+                clean_zones,
+            );
         }
     };
 
@@ -469,10 +473,6 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         const parts = this._router.url?.split('/') || [''];
         this.path.set(parts[parts.length - 1].split('?')[0]);
         this._updateView();
-    }
-
-    public ngOnDestroy() {
-        super.ngOnDestroy();
     }
 
     public viewQRCodes() {
@@ -531,16 +531,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             throw e;
         });
         try {
-            const list = csvToJson(data) || [];
-            this._state.addDesks(
-                list.map(
-                    (_) =>
-                        new Desk({
-                            ..._,
-                            id: _.id || `desk-${randomInt(999_999)}`,
-                        }),
-                ),
-            );
+            this._state.importDesksCsv(data);
         } catch (e) {
             console.error(e);
         }
@@ -574,29 +565,13 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         if (!next_zones.length && persistence_view) {
             const persisted = loadPersistedZones(
                 persistence_view,
-                this._persistScopeId(),
+                zoneScopeId(this._org, this.use_region),
             ).filter((zone) => levels.find((lvl) => lvl.id === zone));
             if (persisted.length) {
                 next_zones = persisted;
             }
         }
-        if (this._sameZones(current_zones, next_zones)) return;
+        if (sameZones(current_zones, next_zones)) return;
         this.updateZones(next_zones);
-    }
-
-    private _sameZones(
-        current_zones: string[] = [],
-        next_zones: string[] = [],
-    ) {
-        return (
-            current_zones.length === next_zones.length &&
-            current_zones.every((zone, index) => zone === next_zones[index])
-        );
-    }
-
-    private _persistScopeId() {
-        return this.use_region
-            ? this._org.region?.id || ''
-            : this._org.building?.id || '';
     }
 }

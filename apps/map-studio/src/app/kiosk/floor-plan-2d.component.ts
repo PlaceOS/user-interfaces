@@ -16,7 +16,11 @@ import {
 import { IconComponent } from '@placeos/components';
 
 import { AvailabilityState, Floorplan, MapObject } from '../data/types';
-import { STATE_COLORS } from '../editor/availability';
+import {
+    isBookable,
+    STATE_COLORS,
+    toFillOpacity,
+} from '../editor/availability';
 import { composeSourceSvg, importedObject } from '../editor/source-svg';
 import { computeHeatmap } from './heatmap';
 
@@ -36,12 +40,6 @@ export const STATE_SYMBOLS: Record<AvailabilityState, string> = {
 /** Human label for a state, e.g. "out of service" */
 export const stateLabel = (state: AvailabilityState) =>
     state.replace(/-/g, ' ');
-
-/** `#rrggbb` to `rgba()` so fills share the legend palette */
-function withAlpha(hex: string, alpha: number) {
-    const value = parseInt(hex.slice(1), 16);
-    return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
-}
 
 const DEFAULT_FILL = 'rgba(100, 116, 139, 0.2)';
 /** Desks with no state yet stay neutral rather than looking free */
@@ -910,19 +908,16 @@ export class FloorPlan2dComponent {
     public fillOf(object: MapObject): string {
         const desk = object.object_type === 'desk';
         // Under the heatmap, rooms and desks fade so the colours read through
-        if (this.heatmap_enabled() && (desk || object.object_type === 'room'))
+        if (this.heatmap_enabled() && isBookable(object))
             return 'rgba(255, 255, 255, 0.08)';
         const state = this.availability()[object.id];
         // Desks read better on a dark plan when their fill is more solid
-        if (state) return withAlpha(STATE_COLORS[state], desk ? 0.7 : 0.55);
+        if (state) return toFillOpacity(STATE_COLORS[state], desk ? 0.7 : 0.55);
         return desk ? DEFAULT_DESK_FILL : DEFAULT_FILL;
     }
 
     public strokeOf(object: MapObject): string {
-        if (
-            this.heatmap_enabled() &&
-            (object.object_type === 'room' || object.object_type === 'desk')
-        )
+        if (this.heatmap_enabled() && isBookable(object))
             return 'rgba(255, 255, 255, 0.2)';
         const state = this.availability()[object.id];
         return state ? STATE_COLORS[state] : DEFAULT_STROKE;

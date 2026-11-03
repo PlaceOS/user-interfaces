@@ -19,6 +19,7 @@ import {
     currentUserCanApprove,
     currentUserIsLoaded,
     currentUserLoaded,
+    errorMessage,
     ExternalCateringService,
     filterResourcesFromRules,
     firstValueWhere,
@@ -67,7 +68,6 @@ import {
     checkRecurringClashes,
     checkSpaceRules,
     checkSpacesAvailable,
-    errorMessage,
     eventSaveQuery,
     isPermissionError,
     spaceNames,
@@ -83,14 +83,7 @@ import {
     newCalendarEventFromBooking,
 } from './utilities';
 
-const BOOKING_URLS = [
-    'book/rooms',
-    'book/spaces',
-    'book/meeting',
-    'schedule/view',
-    'confirm/success',
-    'upcoming',
-];
+const BOOKING_URLS = ['book/rooms', 'book/spaces', 'book/meeting'];
 
 enum Tags {
     Availability = 'AVAILABILITY',
@@ -465,9 +458,7 @@ export class EventFormService extends AsyncHandler {
     public readonly unavailable_resources = computed(() => {
         if (this.loading() || this._spaces_failed()) return [];
         const filtered = new Set(this.filtered_spaces().map(({ id }) => id));
-        const available = new Set(
-            this.available_spaces().map(({ id }) => id),
-        );
+        const available = new Set(this.available_spaces().map(({ id }) => id));
         return (this._model().resources || []).filter(
             ({ id }) => filtered.has(id) && !available.has(id),
         );

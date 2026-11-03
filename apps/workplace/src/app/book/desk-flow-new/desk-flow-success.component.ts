@@ -30,16 +30,11 @@ import {
     BuildingPipe,
     IconComponent,
     LevelPipe,
-    SafePipe,
-    SanitizePipe,
     TranslatePipe,
     UserAvatarComponent,
 } from '@placeos/components';
-import {
-    generateCalendarFileLink,
-    generateGoogleCalendarLink,
-    generateMicrosoftCalendarLink,
-} from '@placeos/events';
+import { CalEvent } from '@placeos/events';
+import { BookingCalendarLinksComponent } from '../booking-calendar-links.component';
 
 interface GroupBookingListItem {
     id: string;
@@ -223,50 +218,10 @@ interface GroupBookingListItem {
                     </p>
                 }
                 @if (show_links) {
-                    <div
-                        class="relative flex flex-col items-center space-y-4 p-4"
-                    >
-                        <a
-                            btn
-                            matRipple
-                            name="desk-outlook-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="outlook_link() | sanitize: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <img src="assets/icons/outlook.svg" class="w-6" />
-                            <span>{{
-                                'BOOKINGS.LINK_OUTLOOK' | translate
-                            }}</span>
-                        </a>
-                        <a
-                            btn
-                            matRipple
-                            name="desk-google-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="google_link() | sanitize: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <img src="assets/icons/gcal.svg" class="w-6" />
-                            <span>{{
-                                'BOOKINGS.LINK_GOOGLE' | translate
-                            }}</span>
-                        </a>
-                        <a
-                            btn
-                            matRipple
-                            name="desk-ical-link"
-                            class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="ical_link() | safe: 'url'"
-                            target="_blank"
-                            rel="noopener noreferer"
-                        >
-                            <icon class="text-xl">download</icon>
-                            <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
-                        </a>
-                    </div>
+                    <booking-calendar-links
+                        prefix="desk"
+                        [event]="cal_event()"
+                    />
                 }
             </main>
             <footer
@@ -291,8 +246,7 @@ interface GroupBookingListItem {
         IconComponent,
         MatRippleModule,
         RouterModule,
-        SanitizePipe,
-        SafePipe,
+        BookingCalendarLinksComponent,
         UserAvatarComponent,
     ],
 })
@@ -305,9 +259,8 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
 
     public readonly level = signal(new BuildingLevel());
     public readonly building = signal(new Building());
-    public readonly outlook_link = signal('');
-    public readonly google_link = signal('');
-    public readonly ical_link = signal('');
+    /** Booking that the calendar links add */
+    public readonly cal_event = signal<CalEvent | null>(null);
     public readonly group_bookings = signal<Booking[]>([]);
     public readonly group_loading = signal(true);
     public readonly group_load_error = signal(false);
@@ -410,16 +363,14 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
                 stored_errors ? JSON.parse(stored_errors) : [],
             );
         }
+        const zones = this.last_event()?.zones;
+        this.level.set(this._level_pipe.transform(zones));
+        this.building.set(this._building_pipe.transform(zones));
         const event: any = {
             ...this.last_event(),
             location: `${this.location()}, ${this.last_event()?.asset_name || ''}`,
         };
-        this.outlook_link.set(generateMicrosoftCalendarLink(event));
-        this.google_link.set(generateGoogleCalendarLink(event));
-        this.ical_link.set(generateCalendarFileLink(event));
-
-        this.level.set(this._level_pipe.transform(event.zones));
-        this.building.set(this._building_pipe.transform(event.zones));
+        this.cal_event.set(event);
 
         // Load group bookings if this is a group booking
         this._group_bookings_timer = setTimeout(async () => {

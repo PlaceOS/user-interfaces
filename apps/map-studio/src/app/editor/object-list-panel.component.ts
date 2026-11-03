@@ -2,18 +2,8 @@ import { Component, computed, inject, output, signal } from '@angular/core';
 import { IconComponent } from '@placeos/components';
 
 import { MapObject } from '../data/types';
+import { TYPE_ACCENT_COLORS } from './constants';
 import { EditorStateService } from './editor-state.service';
-
-const TYPE_COLORS: Record<string, string> = {
-    room: '#3b82f6',
-    desk: '#22c55e',
-    zone: '#a855f7',
-    area: '#f59e0b',
-    amenity: '#06b6d4',
-    decorative: '#6b7280',
-    parking: '#8b5cf6',
-    locker: '#ec4899',
-};
 
 const TYPE_ORDER = [
     'room',
@@ -158,7 +148,7 @@ export class ObjectListPanelComponent {
     public readonly asValue = (event: Event) =>
         (event.target as HTMLInputElement).value;
 
-    public readonly colorFor = (type: string) => TYPE_COLORS[type] ?? '#6b7280';
+    public readonly colorFor = (type: string) => TYPE_ACCENT_COLORS[type] ?? '#6b7280';
 
     public readonly plural = (type: string) =>
         type === 'amenity' ? 'amenities' : `${type}s`;

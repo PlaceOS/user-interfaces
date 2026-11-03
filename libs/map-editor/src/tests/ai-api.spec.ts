@@ -2,7 +2,6 @@ import {
     backoffDelay,
     cancelMapAIJob,
     errorMessage,
-    errorStatus,
     isFinalJob,
     isTransientError,
     mapAICapabilities,
@@ -71,10 +70,7 @@ describe('map AI client', () => {
         });
     });
 
-    it('reads the status and message of a ts-client error', () => {
-        expect(errorStatus({ status: 429, message: 'quota' })).toBe(429);
-        expect(errorStatus({ error: { status: 503 } })).toBe(503);
-        expect(errorStatus(new Error('network'))).toBeUndefined();
+    it('reads the message of a ts-client error', () => {
         expect(
             errorMessage({ status: 422, response: { message: 'bad' } }),
         ).toBe('bad');

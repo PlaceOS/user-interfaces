@@ -32,7 +32,11 @@ import {
     startOfWeek,
     subMonths,
 } from 'date-fns';
-import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
+import {
+    loadPersistedZones,
+    persistZones,
+    zoneScopeId,
+} from '../ui/zone-persistence';
 import { EventCalendarComponent } from './event-calendar.component';
 import { EventListingComponent } from './event-listing.component';
 import { EventStateService } from './event-state.service';
@@ -229,7 +233,10 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
                 // No selection yet: restore persisted zones (if any).
                 const persisted = loadPersistedZones(
                     'events',
-                    this._persistScopeId(),
+                    zoneScopeId(
+                        this._org,
+                        !!this._settings.get('app.use_region'),
+                    ),
                 ).filter((zone) => levels.find((lvl) => lvl.id === zone));
                 if (persisted.length) this._applyZones(persisted, true);
             });
@@ -313,14 +320,12 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
                 },
                 queryParamsHandling: 'merge',
             });
-            persistZones('events', this._persistScopeId(), zones);
+            persistZones(
+                'events',
+                zoneScopeId(this._org, !!this._settings.get('app.use_region')),
+                zones,
+            );
         }
-    }
-
-    private _persistScopeId() {
-        return this._settings.get('app.use_region')
-            ? this._org.region?.id || ''
-            : this._org.building?.id || '';
     }
 
     public setView(view: 'list' | 'calendar') {

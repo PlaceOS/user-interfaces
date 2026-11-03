@@ -55,9 +55,6 @@ describe('BookLockerFlowComponent', () => {
                     setOptions: vi.fn(),
                     loadForm: load_form,
                     newForm: new_form,
-                    loadGroupMembersForBooking: vi.fn(() =>
-                        Promise.resolve([]),
-                    ),
                     last_success: null,
                 } as any),
             ],

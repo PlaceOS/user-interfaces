@@ -114,31 +114,15 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
         void this._loadTodaysBookings();
     }
 
-    public get last_success() {
-        return this._state.last_success;
-    }
-
     public ngOnInit() {
         this._state.loadForm('locker');
         this._state.setOptions({ type: 'locker' });
         if (!this._state.model().id) this._state.newForm('locker');
         this._state.model.update((m) => ({ ...m, booking_type: 'locker' }));
         if (this._state.model().id) {
-            const booking = new Booking(this._state.model() as any);
-            const is_group =
-                !!booking.parent_id ||
-                !!booking.group ||
-                !!booking.extension_data?.group_members?.length;
-            if (is_group) {
-                this._state
-                    .loadGroupMembersForBooking(booking)
-                    .then((members) =>
-                        this._state.setOptions({
-                            group: true,
-                            members,
-                        }),
-                    );
-            }
+            void this._state.restoreGroupMembers(
+                new Booking(this._state.model() as any),
+            );
         }
         const param = this._route.snapshot.paramMap;
         if (param.has('step')) this._state.setView(param.get('step') as any);

@@ -30,7 +30,8 @@ export async function useSettings(
 }
 
 /**
- * Cap the booking length and confine it to office hours.
+ * Cap the booking length and confine it to office hours. The minimum length
+ * sets the last start time: a booking must end by closing time.
  *
  * Both unset by default, so nothing else in the suite sees them, and both fail
  * quietly in the same way: an out-of-range option is simply ABSENT from the
@@ -38,6 +39,7 @@ export async function useSettings(
  * offered.
  */
 export const LIMITED_HOURS = {
+    'app.bookings.min_duration': 30,
     'app.bookings.max_duration': 60,
     'app.bookings.bookable_hours': { start: 9, end: 17 },
 };

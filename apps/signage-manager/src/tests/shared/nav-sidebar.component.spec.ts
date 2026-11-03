@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { LocaleService, SettingsService } from '@placeos/common';
+import { LocaleService, settingSignal, SettingsService } from '@placeos/common';
 import { NavSidebarComponent } from '../../app/shared/nav-sidebar.component';
 import { SignageContextService } from '../../app/signage-context.service';
 
@@ -14,7 +14,6 @@ describe('NavSidebarComponent', () => {
             key === 'locales' ? locales_signal : show_locale_signal,
         ),
         get: vi.fn(),
-        theme: 'light',
     };
     const locale = {
         locale: 'en',
@@ -77,7 +76,6 @@ describe('NavSidebarComponent', () => {
         can_manage_all_groups.set(false);
         can_manage_groups.set(false);
         templates_enabled.set(false);
-        settings.theme = 'light';
         settings.get.mockReset();
         locale.locale = 'en';
         TestBed.resetTestingModule();
@@ -168,23 +166,39 @@ describe('NavSidebarComponent', () => {
         set_item.mockRestore();
     });
 
-    it('reads the light logo from settings by default', async () => {
-        settings.get.mockImplementation((key: string) =>
-            key === 'app.logo_light' ? 'light.png' : 'dark.png',
-        );
-        const component = await createComponent();
+    describe('logo', () => {
+        beforeEach(() => {
+            settingSignal('logo_light').set('light.png');
+            settingSignal('logo_dark').set({ src: 'dark.png' });
+        });
 
-        expect(component.logo_src).toBe('light.png');
-    });
+        afterEach(() => {
+            settingSignal('logo_light').set(undefined);
+            settingSignal('logo_dark').set(undefined);
+            settingSignal('allow_dark_mode').set(false);
+            settingSignal('theme', 'light', true).set('light');
+        });
 
-    it('reads the dark logo when the theme is dark', async () => {
-        settings.theme = 'dark';
-        settings.get.mockImplementation((key: string) =>
-            key === 'app.logo_dark' ? { src: 'dark.png' } : 'light.png',
-        );
-        const component = await createComponent();
+        it('reads the light logo from settings by default', async () => {
+            const component = await createComponent();
 
-        expect(component.logo_src).toBe('dark.png');
+            expect(component.logo_src()).toBe('light.png');
+        });
+
+        it('reads the dark logo when the theme is dark', async () => {
+            settingSignal('allow_dark_mode').set(true);
+            settingSignal('theme', 'light', true).set('dark');
+            const component = await createComponent();
+
+            expect(component.logo_src()).toBe('dark.png');
+        });
+
+        it('keeps the light logo when the app does not allow dark mode', async () => {
+            settingSignal('theme', 'light', true).set('dark');
+            const component = await createComponent();
+
+            expect(component.logo_src()).toBe('light.png');
+        });
     });
 
     describe('nav list overflow', () => {

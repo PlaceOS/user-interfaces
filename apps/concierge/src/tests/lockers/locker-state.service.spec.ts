@@ -317,6 +317,13 @@ describe('LockerStateService', () => {
         expect(spectator.service.lockers_banks().map((_) => _.id)).toContain(
             'bank-new',
         );
+        // banks list every zone they are in so they can be found by building
+        expect(ts_client.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({
+                zone_id: 'lvl-1',
+                zones: expect.arrayContaining(['bld-1', 'lvl-1']),
+            }),
+        );
     });
 
     it('should tolerate malformed locker metadata', async () => {

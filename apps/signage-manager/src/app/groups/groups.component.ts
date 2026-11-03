@@ -2,12 +2,15 @@ import { Component, inject } from '@angular/core';
 import { TranslatePipe } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
+import {
+    SectionTab,
+    SectionTabsComponent,
+} from '../shared/section-tabs.component';
 import { SignageGroupAdminService } from './signage-group-admin.service';
 import { SignageGroupContentComponent } from './signage-group-content.component';
 import { SignageGroupDetailHeaderComponent } from './signage-group-detail-header.component';
 import { SignageGroupHeaderComponent } from './signage-group-header.component';
 import { SignageGroupListComponent } from './signage-group-list.component';
-import { SignageGroupTabsComponent } from './signage-group-tabs.component';
 
 @Component({
     selector: 'groups-section',
@@ -24,7 +27,16 @@ import { SignageGroupTabsComponent } from './signage-group-tabs.component';
                     >
                         @if (selected_group()) {
                             <signage-group-detail-header />
-                            <signage-group-tabs class="lg:hidden" />
+                            <section-tabs
+                                class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border lg:hidden"
+                                id_prefix="group"
+                                [tabs]="tabs"
+                                [(active)]="active_tab"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.GROUP_DETAILS_TABS'
+                                        | translate
+                                "
+                            />
                             <signage-group-content class="h-1/2 flex-1" />
                         } @else {
                             <div
@@ -42,22 +54,13 @@ import { SignageGroupTabsComponent } from './signage-group-tabs.component';
             <nav-footer />
         </div>
     `,
-    styles: [
-        `
-            .mobile-hidden {
-                @media (max-width: 639px) {
-                    display: none !important;
-                }
-            }
-        `,
-    ],
     imports: [
         NavSidebarComponent,
         NavFooterComponent,
         SignageGroupHeaderComponent,
         SignageGroupListComponent,
         SignageGroupDetailHeaderComponent,
-        SignageGroupTabsComponent,
+        SectionTabsComponent,
         SignageGroupContentComponent,
         TranslatePipe,
     ],
@@ -66,4 +69,10 @@ export class GroupsSectionComponent {
     private readonly _group_admin = inject(SignageGroupAdminService);
 
     public readonly selected_group = this._group_admin.managed_group;
+    public readonly active_tab = this._group_admin.managed_group_tab;
+    /** Tabs shown below the lg breakpoint. Wider screens show both panels. */
+    public readonly tabs: SectionTab<'users' | 'zones'>[] = [
+        { id: 'users', label: 'SIGNAGE_MANAGER.TAB_USERS' },
+        { id: 'zones', label: 'SIGNAGE_MANAGER.TAB_ZONES' },
+    ];
 }

@@ -2,7 +2,6 @@ import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
-import { Subject } from 'rxjs';
 import { TeamMember } from '../../app/team-schedule/common';
 import { TeamScheduleListComponent } from '../../app/team-schedule/team-schedule-list.component';
 import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
@@ -37,11 +36,10 @@ describe('TeamScheduleListComponent', () => {
         level_id: { set: vi.fn() },
         duration: { set: vi.fn() },
     };
-    let closed: Subject<boolean>;
     const refresh = vi.fn();
+    const open_add_colleagues = vi.fn();
     const dialog_open = vi.fn(() => ({
         componentInstance: component_instance,
-        afterClosed: () => closed,
     }));
 
     const createComponent = createComponentFactory({
@@ -57,6 +55,7 @@ describe('TeamScheduleListComponent', () => {
                 loading: signal(false),
                 failed: signal(false),
                 refresh,
+                openAddColleaguesModal: open_add_colleagues,
                 setFilters: set_filters,
                 toggleMemberSelection: toggle_selection,
                 isMemberSelected: is_selected,
@@ -70,7 +69,6 @@ describe('TeamScheduleListComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        closed = new Subject<boolean>();
         active_day_index.set(1);
         spectator = createComponent();
     });
@@ -137,17 +135,8 @@ describe('TeamScheduleListComponent', () => {
         expect(component_instance.level_id.set).not.toHaveBeenCalled();
     });
 
-    it('should open the add colleagues modal', () => {
+    it('should open the add colleagues modal from the service', () => {
         spectator.component.openAddColleaguesModal();
-        expect(dialog_open).toHaveBeenCalled();
-    });
-
-    it('should reload the colleagues only when the modal added some', () => {
-        spectator.component.openAddColleaguesModal();
-        closed.next(false);
-        expect(refresh).not.toHaveBeenCalled();
-
-        closed.next(true);
-        expect(refresh).toHaveBeenCalledTimes(1);
+        expect(open_add_colleagues).toHaveBeenCalled();
     });
 });

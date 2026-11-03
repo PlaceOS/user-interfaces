@@ -5,12 +5,14 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { BookingFormService } from '@placeos/bookings';
+import {
+    BookingFormService,
+    NewDeskFormDetailsComponent,
+} from '@placeos/bookings';
 import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import { NewDeskFlowFormComponent } from '../../../app/book/desk-flow/desk-flow-form.component';
-import { NewDeskFormDetailsComponent } from '../../../app/book/desk-flow/desk-form-details.component';
 
 describe('NewDeskFlowFormComponent', () => {
     let spectator: SpectatorRouting<NewDeskFlowFormComponent>;

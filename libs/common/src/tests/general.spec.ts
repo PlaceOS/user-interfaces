@@ -13,16 +13,48 @@ import {
     getNextBookableTime,
     isWithinBookableHours,
     jsonToCsv,
+    mapWithLimit,
     markUserDateChange,
+    parseJWT,
     removeUrlParam,
     responseErrorMessage,
     setupFormTimeSync,
     timePeriodsIntersect,
+    toggleListItem,
     withTimeout,
 } from '../lib/general';
 import * as notifications from '../lib/notifications';
 
 describe('General Methods', () => {
+    describe('toggleListItem', () => {
+        it('should add a missing item and remove a present one', () => {
+            const list = ['a', 'b'];
+            expect(toggleListItem(list, 'c')).toEqual(['a', 'b', 'c']);
+            expect(toggleListItem(list, 'a')).toEqual(['b']);
+            expect(list).toEqual(['a', 'b']);
+        });
+    });
+
+    describe('mapWithLimit', () => {
+        it('should keep the order and limit the calls in progress', async () => {
+            let running = 0;
+            let peak = 0;
+            const result = await mapWithLimit(
+                [5, 1, 4, 2, 3],
+                2,
+                async (delay) => {
+                    peak = Math.max(peak, ++running);
+                    await new Promise((resolve) => setTimeout(resolve, delay));
+                    running--;
+                    return delay * 10;
+                },
+            );
+
+            expect(result).toEqual([50, 10, 40, 20, 30]);
+            expect(peak).toBe(2);
+        });
+    });
+
     describe('withTimeout', () => {
         it('should reject work that does not settle before its deadline', async () => {
             vi.useFakeTimers();
@@ -38,6 +70,47 @@ describe('General Methods', () => {
 
             await assertion;
             vi.useRealTimers();
+        });
+
+        it('should call on_timeout before it rejects', async () => {
+            vi.useFakeTimers();
+            const on_timeout = vi.fn();
+            const result = withTimeout(
+                new Promise(() => undefined),
+                1000,
+                'Timed out.',
+                on_timeout,
+            );
+            const assertion = expect(result).rejects.toThrow('Timed out.');
+
+            await vi.advanceTimersByTimeAsync(1000);
+
+            await assertion;
+            expect(on_timeout).toHaveBeenCalledTimes(1);
+            vi.useRealTimers();
+        });
+    });
+
+    describe('parseJWT', () => {
+        /** JWT-shaped token with a base64url payload */
+        const token = (payload: Record<string, unknown>) =>
+            `header.${btoa(JSON.stringify(payload))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')}.signature`;
+
+        it('should decode the payload segment of a token', () => {
+            expect(parseJWT(token({ exp: 42, u: { e: 'a@b.com' } }))).toEqual({
+                exp: 42,
+                u: { e: 'a@b.com' },
+            });
+        });
+
+        it('should decode base64url-specific characters', () => {
+            // '>>>' and '???' encode to base64 containing '+' and '/', which the
+            // base64url variant replaces with '-' and '_'
+            const payload = { note: '>>>???' };
+            expect(token(payload)).toMatch(/[-_]/);
+            expect(parseJWT(token(payload))).toEqual(payload);
         });
     });
 
@@ -85,6 +158,16 @@ describe('General Methods', () => {
             ]);
             expect(csv).toBe(
                 'name,note,count,meta\r\n"Jane, Doe","Line 1\nLine ""2""",2,"{""a"":1,""b"":2}"',
+            );
+        });
+
+        it('should include columns that only later rows have', () => {
+            const csv = jsonToCsv([
+                { id: 'desk-1', name: 'Desk 1' },
+                { id: 'desk-2', floorsense_id: 'fs-2' },
+            ]);
+            expect(csv).toBe(
+                'id,name,floorsense_id\r\ndesk-1,Desk 1,\r\ndesk-2,,fs-2',
             );
         });
 

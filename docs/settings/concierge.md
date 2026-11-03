@@ -146,7 +146,7 @@ These act as fallbacks for the desk, parking and locker booking flows — a valu
 | Setting | Type | Default | Description |
 |---|---|---|---|
 | `bookings.can_book_for_others` | boolean | `true` | Allow users to create bookings on behalf of other users. |
-| `bookings.use_building_timezone` | boolean | `false` | Handle booking dates and times in the active building's timezone instead of the local timezone. Affects desks, lockers, visitors and email broadcasts. |
+| `bookings.use_building_timezone` | boolean | `false` | Handle booking dates and times in the active building's timezone instead of the local timezone. Affects desks, lockers, visitors and email broadcasts. Parking uses this value when `parking.use_building_timezone` is unset. |
 | `bookings.bookable_hours` | object | – | Time window during which bookings are allowed, as hours of the day (0-24). |
 | `bookings.min_duration` | number | – | Minimum booking duration in minutes. Defaults to `30`. |
 | `bookings.max_duration` | number | – | Maximum booking duration in minutes. Defaults to `480` (8 hours) for parking and locker bookings. Visitor invites use `180` when `visitors.max_duration` and this key are not set. |
@@ -265,7 +265,7 @@ Each custom action requires an `id` (passed to the action handler when selected)
 | `parking.max_assigned_count` | number | `0` | Maximum number of parking spaces that can be assigned to a single user. `0` for unlimited. |
 | `parking.custom_booking_columns` | array | `[]` | Additional columns to display in the parking bookings list, sourced from booking extension data. |
 | `parking.show_user_groups` | string[] | `[]` | User group names to show in the parking bookings list. The column shows the groups of each booking that are in this list. It is hidden when the list is empty. |
-| `parking.use_building_timezone` | boolean | – | Handle parking dates and times in the active building's timezone. The parking pages, the parking report and the parking space select modal use the building timezone when this key or `bookings.use_building_timezone` is `true`. |
+| `parking.use_building_timezone` | boolean | – | Handle parking dates and times in the active building's timezone. The parking pages, the parking report and the parking space select modal read this key. When it is unset, they use `bookings.use_building_timezone`. |
 | `parking.hide_user` | boolean | – | Hide the details of each parking space, such as its status and user, on the map of the parking space select modal. When unset, the modal reads the legacy `parkings.hide_user` key. |
 | `parking.bookable_hours` | object | – | Time window during which parking bookings are allowed, as hours of the day (0-24). |
 | `parking.min_duration` | number | – | Minimum parking booking duration in minutes. Falls back to `bookings.min_duration`. |
@@ -327,7 +327,6 @@ Each custom column requires a `field` (the booking extension data field to displ
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `reports.features` | string[] | – | List of report cards shown on the reports menu page: `attendance`, `desks`, `spaces`, `catering`, `contact-tracing` and `user`. Defaults to all of them except `user`. The `/reports` route opens the desk report, so this page does not show at this time. The sidebar report links use the `*-report` values of `features`. |
 | `reports.attendance_include_weekends` | boolean | `false` | Include weekends in attendance report calculations. |
 | `reports.ignore_days` | array | – | Days of the week to exclude from report calculations. Either day names (e.g. `"saturday"`) or day indexes (0-6). |
 | `custom_reports` | array | `[]` | Custom report pages to add to the reports section. Each report is rendered as an embedded page. The sidebar shows a link to each report, whatever the value of `features`. |

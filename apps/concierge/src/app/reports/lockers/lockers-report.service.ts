@@ -131,7 +131,7 @@ export class LockersReportService {
                   'yyyy-MM-dd',
               )}`;
         downloadFile(
-            `report+assets+${date}.tsv`,
+            `report+lockers+${date}.tsv`,
             jsonToCsv(
                 bookings.map((booking) => {
                     const b: any = booking.toJSON();

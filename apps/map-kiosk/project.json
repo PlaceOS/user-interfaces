@@ -60,7 +60,7 @@
                             "with": "apps/map-kiosk/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/map-kiosk/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -98,7 +98,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": "apps/map-kiosk/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 }
             }
         },
@@ -121,7 +121,11 @@
             "outputs": ["{workspaceRoot}/coverage/apps/map-kiosk"],
             "options": {
                 "tsConfig": "apps/map-kiosk/tsconfig.spec.json",
-                "setupFiles": ["apps/map-kiosk/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "shared/test-setup-base.ts",
+                    "shared/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "map-kiosk:test-build:development"

@@ -1,7 +1,5 @@
-import { signal } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -14,13 +12,6 @@ const ITEMS = [
     { id: 'a', title: 'Alpha', content: '# Alpha Heading', icon: 'star' },
     { id: 'b', title: 'Beta', content: '## Beta Heading' },
 ];
-
-const settingsMock = (theme: string) => ({
-    theme,
-    get: vi.fn((key: string) =>
-        key === 'app.logo_light' ? { src: 'light.png' } : { src: 'dark.png' },
-    ),
-});
 
 describe('HelpModalComponent', () => {
     let spectator: Spectator<HelpModalComponent>;
@@ -35,23 +26,12 @@ describe('HelpModalComponent', () => {
                 provide: MAT_DIALOG_DATA,
                 useValue: { items: ITEMS, active_id: 'b' },
             },
-            { provide: SettingsService, useValue: settingsMock('light') },
-            {
-                provide: OrganisationService,
-                useValue: { active_building: signal({ id: 'bld-1' }) },
-            },
         ],
     });
 
-    const setup = (
-        data: unknown = { items: ITEMS, active_id: 'b' },
-        theme = 'light',
-    ) =>
+    const setup = (data: unknown = { items: ITEMS, active_id: 'b' }) =>
         (spectator = createComponent({
-            providers: [
-                { provide: MAT_DIALOG_DATA, useValue: data },
-                { provide: SettingsService, useValue: settingsMock(theme) },
-            ],
+            providers: [{ provide: MAT_DIALOG_DATA, useValue: data }],
         }));
 
     it('should create component', () => {
@@ -84,16 +64,6 @@ describe('HelpModalComponent', () => {
         spectator.detectChanges();
         expect(spectator.queryAll('li')[0]).toHaveClass('active');
         expect(spectator.component.content()).toContain('Alpha Heading');
-    });
-
-    it('should resolve the light logo when theme is light', () => {
-        setup(undefined, 'light');
-        expect(spectator.component.logo()).toEqual({ src: 'light.png' });
-    });
-
-    it('should resolve the dark logo when theme is dark', () => {
-        setup(undefined, 'dark');
-        expect(spectator.component.logo()).toEqual({ src: 'dark.png' });
     });
 
     it('should strip script handlers from help content', () => {

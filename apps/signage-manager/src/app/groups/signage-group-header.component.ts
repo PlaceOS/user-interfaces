@@ -39,6 +39,9 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
                     type="button"
                     class="text-xl"
                     matRipple
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.GROUPS_NEW_TOOLTIP' | translate
+                    "
                     [matTooltip]="
                         'SIGNAGE_MANAGER.GROUPS_NEW_TOOLTIP' | translate
                     "

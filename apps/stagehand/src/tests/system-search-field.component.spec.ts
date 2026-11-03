@@ -30,19 +30,6 @@ describe('SystemSearchFieldComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should prefer the provided options over the loaded item list', () => {
-        const options = [makeSystem({ id: 'sys-1', name: 'Provided' })];
-        spectator.setInput('options', options);
-        component.item_list.set([makeSystem({ id: 'sys-2', name: 'Loaded' })]);
-        expect(component.items).toBe(options);
-    });
-
-    it('should fall back to the loaded item list when no options given', () => {
-        const loaded = [makeSystem({ id: 'sys-2', name: 'Loaded' })];
-        component.item_list.set(loaded);
-        expect(component.items).toBe(loaded);
-    });
-
     it('should exclude items that do not match by name, email or description', () => {
         const exclude = component.exclude();
         const match = makeSystem({ id: 's', name: 'Meeting Room', email: '' });
@@ -97,17 +84,5 @@ describe('SystemSearchFieldComponent', () => {
         const name = document.querySelector('mat-option [name]');
         expect(name?.textContent).toBe('<img src="https://x.test/a">');
         expect(name?.querySelector('img')).toBeNull();
-    });
-
-    it('should skip the server query when below the minimum length', async () => {
-        const query_fn = vi.fn().mockResolvedValue([]);
-        spectator.setInput('query_fn', query_fn);
-        spectator.setInput('minLength', 3);
-        component.search_str.set('me');
-
-        await (component as any)._loadSearchResults('me');
-
-        expect(query_fn).not.toHaveBeenCalled();
-        expect(component.item_list()).toEqual([]);
     });
 });

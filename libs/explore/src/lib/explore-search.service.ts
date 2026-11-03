@@ -34,7 +34,7 @@ import {
 } from '@placeos/ts-client';
 import {
     deskFromAsset,
-    queryDeskAssetsForZones,
+    queryDeskAssetsInZone,
 } from 'libs/assets/src/lib/desk-assets.fn';
 
 import { toQueryString } from '@placeos/common';
@@ -111,6 +111,21 @@ const TYPES = ['space', 'feature', 'contact', 'user'];
 
 function typeIndex(item: SearchResult): number {
     return TYPES.indexOf(item.is_role ? 'contact' : item.type);
+}
+
+/** Desk search result, located on the map by the desk's map id */
+export function deskSearchResult(
+    desk: Desk,
+): SearchResult & { email?: string } {
+    const map_id = desk.map_id || desk.id;
+    return {
+        id: map_id,
+        type: 'feature',
+        email: desk.assigned_to,
+        description: map_id,
+        name: desk.name || map_id,
+        zone: desk.zone?.id || '',
+    };
 }
 
 export function compareSearchResultsAscending(
@@ -287,7 +302,7 @@ export class ExploreSearchService {
         loader: ({ params: bld }) => {
             if (this._settings.get('app.desks.use_assets')) {
                 const levels = this._org.levelsForBuilding(bld);
-                return queryDeskAssetsForZones(levels.map((level) => level.id))
+                return queryDeskAssetsInZone(bld.id)
                     .then((assets) =>
                         assets.map((asset) =>
                             deskFromAsset(
@@ -436,16 +451,7 @@ export class ExploreSearchService {
             );
         }
         if (!this.hideItem('desks')) {
-            results = results.concat(
-                desks.map((s) => ({
-                    id: s.id,
-                    type: 'feature',
-                    email: s.assigned_to,
-                    description: s.id,
-                    name: s.name || s.id,
-                    zone: s.zone?.id || '',
-                })),
-            );
+            results = results.concat(desks.map(deskSearchResult));
         }
         if (!this.hideItem('emergency_contacts')) {
             results = results.concat(

@@ -44,6 +44,19 @@ describe('PublicPageShellComponent', () => {
         expect(projected?.textContent).toContain('Projected body');
     });
 
+    it('shows the not-configured message only when not configured', () => {
+        const fixture = TestBed.createComponent(PublicPageShellComponent);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).not.toContain(
+            'not configured yet',
+        );
+        fixture.componentRef.setInput('configured', false);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).toContain(
+            'Public events are not configured yet',
+        );
+    });
+
     it('falls back to the default logo and description', () => {
         const fixture = TestBed.createComponent(PublicPageShellComponent);
         fixture.detectChanges();

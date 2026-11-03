@@ -12,7 +12,10 @@
             "outputs": ["{workspaceRoot}/coverage/libs/mocks"],
             "options": {
                 "tsConfig": "libs/mocks/tsconfig.spec.json",
-                "setupFiles": ["libs/mocks/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "libs/mocks/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "mocks:test-build:development"

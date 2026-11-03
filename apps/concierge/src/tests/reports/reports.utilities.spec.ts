@@ -1,3 +1,4 @@
+import { convertToParamMap } from '@angular/router';
 import {
     activeReportBookings,
     activeReportEvents,
@@ -8,9 +9,37 @@ import {
     reportBookingDuration,
     reportBookingStatusStats,
     reportEventStatusStats,
+    reportQueryOptions,
 } from 'apps/concierge/src/app/reports/reports.utilities';
 
 describe('report utilities', () => {
+    describe('reportQueryOptions', () => {
+        it('should read dates and the zone_ids list from the query', () => {
+            const params = convertToParamMap({
+                start: '100',
+                end: '200',
+                zone_ids: 'lvl-1,lvl-2',
+            });
+            expect(reportQueryOptions(params)).toEqual({
+                start: 100,
+                end: 200,
+                zones: ['lvl-1', 'lvl-2'],
+            });
+        });
+
+        it('should clear zones when the query has no zone list', () => {
+            expect(reportQueryOptions(convertToParamMap({}))).toEqual({
+                zones: [],
+            });
+        });
+
+        it('should keep the current zones for an empty list when dropping empty ids', () => {
+            const params = convertToParamMap({ zones: ',' });
+            expect(reportQueryOptions(params, true)).toEqual({});
+            expect(reportQueryOptions(params)).toEqual({ zones: ['', ''] });
+        });
+    });
+
     describe('noShowReportBookings', () => {
         it('should exclude unallocated parking bookings', () => {
             const booking_end = Math.floor(Date.now() / 1000) - 60;

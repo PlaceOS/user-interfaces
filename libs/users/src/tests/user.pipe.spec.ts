@@ -2,7 +2,7 @@ vi.mock('@placeos/ts-client');
 
 import { GuestUser, StaffUser } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
-import { addUser, replaceUser, UserPipe } from '../lib/user.pipe';
+import { addUser, UserPipe } from '../lib/user.pipe';
 
 describe('UserPipe', () => {
     let pipe: UserPipe;
@@ -36,24 +36,6 @@ describe('UserPipe', () => {
         addUser(staff);
         const user = await pipe.transform('b@place.tech');
         expect(user).toBe(staff);
-    });
-
-    it('should replace an existing user in the cache', async () => {
-        const original = new StaffUser({
-            id: 'user-id-3',
-            email: 'c@place.tech',
-            name: 'Original',
-        });
-        addUser(original);
-        const updated = new StaffUser({
-            id: 'user-id-3',
-            email: 'c@place.tech',
-            name: 'Updated',
-        });
-        replaceUser(updated);
-        const user = await pipe.transform('user-id-3');
-        expect(user).toBe(updated);
-        expect(user.name).toBe('Updated');
     });
 
     it('should fetch staff details for an unknown id', async () => {

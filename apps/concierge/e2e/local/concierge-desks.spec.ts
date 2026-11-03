@@ -23,9 +23,8 @@
  *
  * 2. **The listing shows one day, and `?date=` does not work on this route.**
  *    `DesksComponent` reads only `zone_ids` from the query string and returns
- *    early without it; the `date` parameter is handled by
- *    `desks-topbar.component.ts`, which is referenced only by unit tests and is
- *    not rendered here. So these specs book for TODAY.
+ *    early without it; nothing on this route reads the `date` parameter. So
+ *    these specs book for TODAY.
  *
  * ## Why every assertion ends at the backend
  *

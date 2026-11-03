@@ -67,7 +67,7 @@
                             "with": "apps/control/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/control/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -105,7 +105,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": "apps/control/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "mobile": {
                     "fileReplacements": [
@@ -162,7 +162,11 @@
             "outputs": ["{workspaceRoot}/coverage/apps/control"],
             "options": {
                 "tsConfig": "apps/control/tsconfig.spec.json",
-                "setupFiles": ["apps/control/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "shared/test-setup-base.ts",
+                    "shared/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "control:test-build:development"

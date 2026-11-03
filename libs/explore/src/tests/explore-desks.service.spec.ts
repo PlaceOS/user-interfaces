@@ -10,7 +10,6 @@ import {
 
 import { generateBookingForm } from 'libs/bookings/src/lib/booking-form.model';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
-import { DesksService } from 'libs/bookings/src/lib/desk.service';
 
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreStateService } from '../lib/explore-state.service';
@@ -41,7 +40,6 @@ describe('ExploreDesksService', () => {
                 buildings: [],
             }),
             MockProvider(SettingsService, { get: vi.fn() }),
-            MockProvider(DesksService, {}),
             MockProvider(BookingFormService, {}),
             MockProvider(MatDialog, { open: vi.fn() }),
         ],
@@ -150,6 +148,68 @@ describe('ExploreDesksService', () => {
         expect(booking_service.model().asset_id).toBe('map-desk-1');
         expect(booking_service.model().resources[0].id).toBe('map-desk-1');
         expect(booking_service.confirmPost).toHaveBeenCalled();
+    });
+
+    it('should match API bookings to desk assets with a separate map id', () => {
+        const service = spectator.service as any;
+        const desks = [
+            // a desk asset, bookings reference the asset id
+            new Desk({ id: 'asset-1', map_id: 'desk-1', bookable: true }),
+            new Desk({ id: 'asset-2', map_id: 'desk-2', bookable: true }),
+            // a metadata desk, bookings reference the map id
+            new Desk({ id: 'desk-3', bookable: true }),
+            new Desk({ id: 'asset-4', map_id: 'desk-4', bookable: true }),
+        ];
+
+        service._updateDeskStatuses(
+            desks,
+            ['asset-1', 'asset-2', 'desk-3'],
+            [],
+            ['asset-2'],
+            [],
+            [],
+        );
+
+        expect(service._statuses['desk-1']()).toBe('pending');
+        expect(service._statuses['desk-2']()).toBe('busy');
+        expect(service._statuses['desk-3']()).toBe('pending');
+        expect(service._statuses['desk-4']()).toBe('free');
+    });
+
+    it('should apply booking rules for the original desk id of desk assets', () => {
+        const service = spectator.service as any;
+        const desks = [
+            new Desk({
+                id: 'asset-1',
+                map_id: 'map-1',
+                place_id: 'desk-old',
+                bookable: true,
+            } as any),
+            new Desk({ id: 'asset-2', map_id: 'map-2', bookable: true }),
+        ];
+        const rules = [
+            {
+                zone: '*',
+                rules: { hidden: true },
+                conditions: { resource_ids: ['desk-old'] },
+            },
+        ];
+
+        service._updateDeskStatuses(desks, [], [], [], [], rules);
+
+        expect(service._statuses['map-1']()).toBe('not-bookable');
+        expect(service._statuses['map-2']()).toBe('free');
+    });
+
+    it('should match AreaManagement map ids to desk assets', () => {
+        const service = spectator.service as any;
+        const desks = [
+            new Desk({ id: 'asset-1', map_id: 'desk-1', bookable: true }),
+        ];
+
+        service._updateDeskStatuses(desks, [], ['desk-1'], [], [], []);
+
+        expect(service._statuses['desk-1']()).toBe('busy');
     });
 
     it('should give device features the AreaManagement system id', () => {

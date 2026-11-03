@@ -1,8 +1,9 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, errorMessage } from '@placeos/common';
 
 import type { DetectedRoom } from '../data/floorplan-ai.service';
+import { loadImage } from '../data/load-image';
 import { PlaceOSService } from '../data/placeos.service';
 import { StoreService } from '../data/store.service';
 import {
@@ -13,11 +14,15 @@ import {
     MapObject,
     MapObjectType,
 } from '../data/types';
-import { cycleState, defaultStateFor, getStatesForType } from './availability';
+import {
+    cycleState,
+    defaultStateFor,
+    getStatesForType,
+    isBookable,
+} from './availability';
 import {
     AMENITY_ICONS,
     DESK_LAYOUTS,
-    EditorMode,
     FURNITURE_ASSETS,
     TYPE_COLORS,
     Tool,
@@ -146,14 +151,12 @@ export class EditorStateService extends AsyncHandler {
     private readonly _selected_id = signal<string | null>(null);
     private readonly _active_tool = signal<Tool>('select');
     private readonly _active_layer_id = signal('rooms');
-    private readonly _mode = signal<EditorMode>('design');
     private readonly _zoom = signal(1);
     private readonly _grid_enabled = signal(true);
     private readonly _snap_enabled = signal(true);
     private readonly _grid_size = signal(20);
     private readonly _dirty = signal(false);
     private readonly _saving = signal(false);
-    private readonly _last_saved = signal<Date | null>(null);
     private readonly _loading = signal(true);
     private readonly _error = signal('');
     private readonly _project_name = signal('');
@@ -191,21 +194,18 @@ export class EditorStateService extends AsyncHandler {
     public readonly selected_id = this._selected_id.asReadonly();
     public readonly active_tool = this._active_tool.asReadonly();
     public readonly active_layer_id = this._active_layer_id.asReadonly();
-    public readonly mode = this._mode.asReadonly();
     public readonly zoom = this._zoom.asReadonly();
     public readonly grid_enabled = this._grid_enabled.asReadonly();
     public readonly snap_enabled = this._snap_enabled.asReadonly();
     public readonly grid_size = this._grid_size.asReadonly();
     public readonly dirty = this._dirty.asReadonly();
     public readonly saving = this._saving.asReadonly();
-    public readonly last_saved = this._last_saved.asReadonly();
     public readonly loading = this._loading.asReadonly();
     public readonly error = this._error.asReadonly();
     public readonly server_save_error =
         this._store.server_save_error.asReadonly();
     public readonly project_name = this._project_name.asReadonly();
     public readonly image_url = this._image_url.asReadonly();
-    public readonly image_dims = this._image_dims.asReadonly();
     public readonly place_size = this._place_size.asReadonly();
     public readonly can_undo = this._can_undo.asReadonly();
     public readonly can_redo = this._can_redo.asReadonly();
@@ -315,7 +315,7 @@ export class EditorStateService extends AsyncHandler {
             await this.load(this._floorplan_id);
             await this.save();
         } catch (error) {
-            this._error.set(this._message(error, 'Failed to reimport SVG'));
+            this._error.set(errorMessage(error) || 'Failed to reimport SVG');
         } finally {
             this._loading.set(false);
         }
@@ -455,7 +455,7 @@ export class EditorStateService extends AsyncHandler {
             await this._loadImage(floorplan_id);
             if (imported_svg) await this.save();
         } catch (error) {
-            this._error.set(this._message(error, 'Failed to load floorplan'));
+            this._error.set(errorMessage(error) || 'Failed to load floorplan');
         } finally {
             this._loading.set(false);
         }
@@ -480,20 +480,37 @@ export class EditorStateService extends AsyncHandler {
             this._image_dims.set(null);
             return;
         }
-        const dims = await new Promise<{
-            width: number;
-            height: number;
-        } | null>((resolve) => {
-            const img = new Image();
-            img.onload = () =>
-                resolve({
-                    width: img.naturalWidth,
-                    height: img.naturalHeight,
-                });
-            img.onerror = () => resolve(null);
-            img.src = url;
-        });
+        const dims = await loadImage(url).then(
+            (img) => ({ width: img.naturalWidth, height: img.naturalHeight }),
+            () => null,
+        );
         this._image_dims.set(dims);
+        await this._storeImageSize(floorplan_id, dims);
+    }
+
+    /**
+     * Saves a traced image's pixel size as the floor's canvas size. The kiosk
+     * reads only the stored size, so this keeps it in step with the editor.
+     * Floors with an SVG source already store the SVG's size.
+     */
+    private async _storeImageSize(
+        floorplan_id: string,
+        dims: { width: number; height: number } | null,
+    ) {
+        const floorplan = this._floorplan();
+        if (!dims || floorplan?.id !== floorplan_id || floorplan.svg_source)
+            return;
+        if (
+            floorplan.canvas_width === dims.width &&
+            floorplan.canvas_height === dims.height
+        )
+            return;
+        const updated = await this._store.updateFloorplan(floorplan_id, {
+            canvas_width: dims.width,
+            canvas_height: dims.height,
+        });
+        if (!this._destroyed && this._floorplan_id === floorplan_id)
+            this._floorplan.set(updated);
     }
 
     public async uploadSourceImage(file: File) {
@@ -504,7 +521,7 @@ export class EditorStateService extends AsyncHandler {
             );
             await this._loadImage(this._floorplan_id);
         } catch (error) {
-            this._error.set(this._message(error, 'Upload failed'));
+            this._error.set(errorMessage(error) || 'Upload failed');
         }
     }
 
@@ -514,18 +531,10 @@ export class EditorStateService extends AsyncHandler {
         this._active_tool.set(tool);
     }
 
-    public setMode(mode: EditorMode) {
-        this._mode.set(mode);
-    }
-
     public setActiveLayer(id: string) {
         this._active_layer_id.set(id);
         const size = PLACE_SIZES[id];
         if (size) this._place_size.set(size);
-    }
-
-    public setPlaceSize(width: number, height: number) {
-        this._place_size.set({ width, height });
     }
 
     public select(id: string | null) {
@@ -630,7 +639,7 @@ export class EditorStateService extends AsyncHandler {
         const name = type.charAt(0).toUpperCase() + type.slice(1);
         return {
             label: `${name} ${count + 1}`,
-            svg_id: `${type}-${String(count + 1).padStart(3, '0')}`,
+            svg_id: sequentialId(`${type}-`, count + 1),
         };
     }
 
@@ -739,19 +748,14 @@ export class EditorStateService extends AsyncHandler {
     public async updateObject(id: string, updates: Partial<MapObject>) {
         this.patchLocal(id, updates);
         this.markDirty();
-        await this._store
-            .updateObject(this._floorplan_id, id, updates)
-            .catch(() => undefined);
+        await this._persist([id]);
     }
 
     /** Persists whatever geometry the object currently holds after a drag */
     public async commitGeometry(id: string) {
-        const object = this._objects().find((o) => o.id === id);
-        if (!object) return;
+        if (!this._objects().some((o) => o.id === id)) return;
         this.markDirty();
-        await this._store
-            .updateObject(this._floorplan_id, id, { geometry: object.geometry })
-            .catch(() => undefined);
+        await this._persist([id]);
     }
 
     public async deleteObject(id: string) {
@@ -851,7 +855,7 @@ export class EditorStateService extends AsyncHandler {
         this.patchLocal(existing.id, values);
         this._selected_id.set(existing.id);
         this.markDirty();
-        await this._store.updateObject(this._floorplan_id, existing.id, values);
+        await this._persist([existing.id]);
         return { ...existing, ...values } as MapObject;
     }
 
@@ -943,7 +947,7 @@ export class EditorStateService extends AsyncHandler {
         await this.createObject({
             object_type: 'amenity',
             label: asset?.label ?? 'Amenity',
-            svg_id: `amenity-${String(count + 1).padStart(3, '0')}`,
+            svg_id: sequentialId('amenity-', count + 1),
             geometry: { type: 'circle', x, y, r: 12 },
             layer: PLACE_LAYERS.amenity,
             fill_color: '#dc2626',
@@ -961,7 +965,7 @@ export class EditorStateService extends AsyncHandler {
         await this.createObject({
             object_type: 'decorative',
             label: asset.label,
-            svg_id: `furniture-${String(count + 1).padStart(3, '0')}`,
+            svg_id: sequentialId('furniture-', count + 1),
             geometry: {
                 type: 'rect',
                 x: x - asset.w / 2,
@@ -999,7 +1003,7 @@ export class EditorStateService extends AsyncHandler {
                 desks.push({
                     object_type: 'desk',
                     label: `Desk ${index}`,
-                    svg_id: `desk-${String(index).padStart(3, '0')}`,
+                    svg_id: sequentialId('desk-', index),
                     geometry: {
                         type: 'rect',
                         x: start_x + col * (layout.deskW + layout.gap),
@@ -1064,9 +1068,7 @@ export class EditorStateService extends AsyncHandler {
     }
 
     public readonly bookable = computed(() =>
-        this._objects().filter(
-            (o) => o.object_type === 'room' || o.object_type === 'desk',
-        ),
+        this._objects().filter(isBookable),
     );
 
     // ── Multi-select ────────────────────────────────────────────────────────
@@ -1279,35 +1281,11 @@ export class EditorStateService extends AsyncHandler {
             await this._store.saveCanvasState(this._floorplan_id, state);
             // Edits made while writing stay pending for the next save
             if (this._change_count === change) this._dirty.set(false);
-            this._last_saved.set(new Date());
             this._error.set('');
         } catch (error) {
-            this._error.set(this._message(error, 'Failed to save'));
+            this._error.set(errorMessage(error) || 'Failed to save');
         } finally {
             this._saving.set(false);
         }
-    }
-
-    public async exportCsv() {
-        const csv = await this._store.exportObjectsCsv(this._floorplan_id);
-        const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `objects-${this._floorplan_id}.csv`;
-        link.click();
-        URL.revokeObjectURL(url);
-    }
-
-    public async importCsv(file: File) {
-        await this._store.importObjectsCsv(
-            this._floorplan_id,
-            await file.text(),
-        );
-        this._objects.set(await this._store.listObjects(this._floorplan_id));
-        this.markDirty();
-    }
-
-    private _message(error: unknown, fallback: string) {
-        return error instanceof Error ? error.message : fallback;
     }
 }

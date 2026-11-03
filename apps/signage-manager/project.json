@@ -65,7 +65,7 @@
                             "with": "apps/signage-manager/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/signage-manager/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -103,7 +103,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": "apps/signage-manager/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 }
             }
         },
@@ -126,7 +126,10 @@
             "outputs": ["{workspaceRoot}/coverage/apps/signage-manager"],
             "options": {
                 "tsConfig": "apps/signage-manager/tsconfig.spec.json",
-                "setupFiles": ["apps/signage-manager/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "apps/signage-manager/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "signage-manager:test-build:development"

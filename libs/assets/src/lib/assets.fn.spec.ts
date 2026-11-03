@@ -64,6 +64,51 @@ describe('[Assets]', () => {
         });
     });
 
+    describe('resolveHiddenAssetTypeId', () => {
+        it('should share the hidden category list across types', async () => {
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+                response([{ id: 'cat-1', name: '_LOCKERS_' }]),
+            );
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+                response([
+                    { id: 'type-1', name: '_LOCKERS_' },
+                    { id: 'type-2', name: '_LOCKER_BANKS_' },
+                ]),
+            );
+
+            const ids = await Promise.all([
+                assets_fn.resolveHiddenAssetTypeId('_LOCKERS_', '_LOCKERS_'),
+                assets_fn.resolveHiddenAssetTypeId(
+                    '_LOCKERS_',
+                    '_LOCKER_BANKS_',
+                ),
+            ]);
+
+            expect(ids).toEqual(['type-1', 'type-2']);
+            expect(ts_client.queryAssetCategories).toHaveBeenCalledTimes(1);
+            expect(ts_client.queryAssetTypes).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not create a type when the type list fails to load', async () => {
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+                response([{ id: 'cat-1', name: '_DESKS_' }]),
+            );
+            vi.mocked(ts_client.queryAssetTypes)
+                .mockRejectedValueOnce(new Error('offline'))
+                .mockReturnValue(response([{ id: 'type-1', name: '_DESKS_' }]));
+
+            await expect(
+                assets_fn.resolveHiddenAssetTypeId('_DESKS_', '_DESKS_'),
+            ).rejects.toThrow('offline');
+            expect(ts_client.addAssetType).not.toHaveBeenCalled();
+            expect(
+                await assets_fn.resolveHiddenAssetTypeId('_DESKS_', '_DESKS_'),
+            ).toBe('type-1');
+        });
+    });
+
     describe('queryAssetCategories', () => {
         it('should pass through when explicitly querying hidden categories', async () => {
             const { assets_fn } = await load_modules();
@@ -323,42 +368,6 @@ describe('[Assets]', () => {
             const again = await assets_fn.showGroupFull('g1');
             expect(again).toBe(product);
             expect(ts_client.showAssetType).toHaveBeenCalledTimes(1);
-        });
-    });
-
-    describe('queryAvailableAssets', () => {
-        it('should exclude booked assets but keep ignored ones', async () => {
-            const { assets_fn } = await load_modules();
-            vi.mocked(ts_client.queryAssets).mockReturnValue(
-                response([
-                    { id: 'a1', asset_type_id: 't1' },
-                    { id: 'a2', asset_type_id: 't1' },
-                ]),
-            );
-            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-                response([{ id: 't1', category_id: 'c1' }]),
-            );
-            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-                response([{ id: 'c1' }]),
-            );
-            // bookedResourceList -> ts_client.query returns ['a1'] as booked
-            vi.mocked(ts_client.query).mockResolvedValue({
-                data: ['a1'],
-                next: undefined,
-                total: 1,
-            });
-
-            const available = await assets_fn.queryAvailableAssets({
-                period_start: 1,
-                period_end: 2,
-            });
-            expect(available.map((a: any) => a.id)).toEqual(['a2']);
-
-            const with_ignore = await assets_fn.queryAvailableAssets(
-                { period_start: 1, period_end: 2 },
-                ['a1'],
-            );
-            expect(with_ignore.map((a: any) => a.id)).toEqual(['a1', 'a2']);
         });
     });
 

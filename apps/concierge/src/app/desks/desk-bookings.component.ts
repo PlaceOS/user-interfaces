@@ -462,7 +462,6 @@ export class DeskBookingsComponent implements OnInit {
         );
     });
 
-    public readonly rejectAll = () => this._state.rejectAllDesks();
     public readonly cancel = (b) => this._state.cancelBooking(b);
     public readonly cancelSeries = (b) => this._state.cancelBooking(b, true);
     public readonly viewBookingHistory = (b) =>

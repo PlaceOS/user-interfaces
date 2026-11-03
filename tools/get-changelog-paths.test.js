@@ -28,8 +28,8 @@ chmodSync(fakeBunx, 0o755);
 
 after(() => rmSync(fixtureDirectory, { recursive: true }));
 
-function runSelector(project = 'workplace', environment = {}) {
-    return spawnSync(process.execPath, [pathSelector, project], {
+function runSelector(projects = ['workplace'], environment = {}) {
+    return spawnSync(process.execPath, [pathSelector, ...projects], {
         cwd: repoRoot,
         encoding: 'utf8',
         env: {
@@ -40,7 +40,7 @@ function runSelector(project = 'workplace', environment = {}) {
     });
 }
 
-test('returns the application, transitive dependencies, and shared paths', () => {
+test('returns each application, its transitive dependencies, and shared paths', () => {
     const graph = {
         graph: {
             nodes: {
@@ -57,18 +57,21 @@ test('returns the application, transitive dependencies, and shared paths', () =>
             },
         },
     };
-    const result = runSelector('workplace', {
+    const result = runSelector(['workplace', 'signage'], {
         GRAPH_FIXTURE_OUTPUT: JSON.stringify(graph),
     });
 
     assert.equal(result.status, 0);
     assert.equal(result.stderr, '');
-    assert.deepEqual(JSON.parse(result.stdout), [
-        'apps/workplace/**/*',
-        'libs/bookings/**/*',
-        'libs/common/**/*',
-        'shared/**/*',
-    ]);
+    assert.deepEqual(JSON.parse(result.stdout), {
+        workplace: [
+            'apps/workplace/**/*',
+            'libs/bookings/**/*',
+            'libs/common/**/*',
+            'shared/**/*',
+        ],
+        signage: ['apps/signage/**/*', 'libs/common/**/*', 'shared/**/*'],
+    });
 });
 
 test('handles dependency cycles', () => {
@@ -84,20 +87,18 @@ test('handles dependency cycles', () => {
             },
         },
     };
-    const result = runSelector('app', {
+    const result = runSelector(['app'], {
         GRAPH_FIXTURE_OUTPUT: JSON.stringify(graph),
     });
 
     assert.equal(result.status, 0);
-    assert.deepEqual(JSON.parse(result.stdout), [
-        'apps/app/**/*',
-        'libs/common/**/*',
-        'shared/**/*',
-    ]);
+    assert.deepEqual(JSON.parse(result.stdout), {
+        app: ['apps/app/**/*', 'libs/common/**/*', 'shared/**/*'],
+    });
 });
 
 test('fails when the application is not in the Nx graph', () => {
-    const result = runSelector('missing', {
+    const result = runSelector(['missing'], {
         GRAPH_FIXTURE_OUTPUT: JSON.stringify({
             graph: { nodes: {}, dependencies: {} },
         }),
@@ -109,7 +110,7 @@ test('fails when the application is not in the Nx graph', () => {
 });
 
 test('fails when Nx cannot create the project graph', () => {
-    const result = runSelector('workplace', { GRAPH_FIXTURE_FAIL: 'true' });
+    const result = runSelector(['workplace'], { GRAPH_FIXTURE_FAIL: 'true' });
 
     assert.notEqual(result.status, 0);
     assert.equal(result.stdout, '');

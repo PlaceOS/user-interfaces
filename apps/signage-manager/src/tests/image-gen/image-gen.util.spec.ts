@@ -1,6 +1,5 @@
 import {
     actionError,
-    errorStatus,
     hexColour,
     orientationOf,
     perceivedLightness,
@@ -21,12 +20,6 @@ describe('image generation utilities', () => {
                 'The logo could not be saved',
             ),
         ).toBe('This domain has no organisation zone');
-    });
-
-    it('reads direct and wrapped HTTP status codes', () => {
-        expect(errorStatus({ status: 404 })).toBe(404);
-        expect(errorStatus({ error: { status: 403 } })).toBe(403);
-        expect(errorStatus(new Error('offline'))).toBeUndefined();
     });
 
     it('uses one luminance calculation for black and white', () => {

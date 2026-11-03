@@ -4,6 +4,11 @@ The player prepares the next plugin in a hidden iframe. It sends `config`, then
 `play`, and keeps the current item visible until the next plugin can display.
 The item duration starts when the player reveals the next plugin.
 
+The player can send `config` and `play` when the iframe `load` event fires,
+before a plugin that starts asynchronously listens for messages. Send `loaded`
+when the message listener is ready. If the player already sent `config`, it
+sends `config` again, and also `play` if it already sent `play`.
+
 ## Confirm the first paint
 
 A plugin can add `can_report_playing: true` to the capabilities in its `loaded`

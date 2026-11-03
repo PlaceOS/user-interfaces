@@ -164,7 +164,7 @@ These apply to all resource booking flows (desks, parking, lockers). Most can be
 | `bookings.allowed_daily_parking_count` | number | – | Number of parking bookings a user can make for a single day. Use `0` for unlimited. Falls back to `1`. |
 | `bookings.allowed_daily_locker_count` | number | – | Number of locker bookings a user can make for a single day. Use `0` for unlimited. Falls back to `1`. |
 | `bookings.all_day_period` | object | – | Time window used for "all day" resource bookings, as hours of the day, e.g. `{ "start": 8, "end": 18 }`. Override per type under `desks.*`, `parking.*` or `lockers.*`. |
-| `bookings.bookable_hours` | object | – | Time window in which bookings can be made, as hours of the day, e.g. `{ "start": 8, "end": 19 }`. |
+| `bookings.bookable_hours` | object | – | Time window in which bookings can be made, as hours of the day, e.g. `{ "start": 8, "end": 19 }`. A booking must end by `end`, so the last start time is `end` minus the shortest duration option. |
 | `bookings.can_book_for_others` | boolean | – | Allow users to make bookings on behalf of other users. |
 | `bookings.can_book_for_anyone` | boolean | – | Allow users to make bookings on behalf of anyone, including people outside the organisation. |
 | `bookings.custom_duration_options` | number[] | – | Custom list of duration options, in minutes, offered when selecting a booking duration. |
@@ -203,7 +203,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `events.bookable_hours` | object | – | Time window in which meetings can be booked, as hours of the day, e.g. `{ "start": 8, "end": 19 }`. |
+| `events.bookable_hours` | object | – | Time window in which meetings can be booked, as hours of the day, e.g. `{ "start": 8, "end": 19 }`. A meeting must end by `end`, so the last start time is `end` minus the shortest duration option. |
 | `events.all_day_period` | object | – | Time window used for "all day" meetings, as hours of the day. |
 | `events.multiple_spaces` | boolean | `false` | Allow users to book multiple spaces in a single meeting. |
 | `events.allow_multiple_spaces` | boolean | – | Legacy alias for `events.multiple_spaces`. Either key set to `true` enables multiple room selection. Use `events.multiple_spaces` for new configuration. |
@@ -501,7 +501,6 @@ A button for the virtual concierge shows on the schedule, team schedule, explore
 | `virtual_concierge.icon` | string | – | URL of the image for the button. A default icon shows when this is empty. |
 | `virtual_concierge.display` | string | `"fullscreen"` | How the embed opens: `fullscreen` or `sidebar`. |
 | `virtual_concierge.side` | string | `"left"` | Side of the screen for the sidebar: `left` or `right`. |
-| `virtual_concierge.prompts` | string[] | three example prompts | Suggested prompts for the virtual concierge UI. |
 
 ```json
 {

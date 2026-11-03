@@ -409,6 +409,42 @@ describe('SignagePlaylistService', () => {
         );
     });
 
+    it('restores the approved media after the user confirms the undo', async () => {
+        const service = createService();
+        const refresh = vi.spyOn(service, 'refreshPlaylist');
+        confirmNextDialog();
+        vi.mocked(updateSignagePlaylistMedia).mockResolvedValue({} as never);
+
+        const undone = await service.undoPlaylistChanges(
+            new SignagePlaylist({ id: 'pl-1', name: 'Lobby' }),
+            new SignagePlaylistMedia({ items: ['media-1'] }),
+        );
+
+        expect(undone).toBe(true);
+        expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('pl-1', [
+            'media-1',
+        ]);
+        expect(refresh).toHaveBeenCalledWith('pl-1');
+        expect(dialog.open.mock.results[0].value.close).toHaveBeenCalled();
+    });
+
+    it('keeps the playlist media when the user cancels the undo', async () => {
+        const service = createService();
+        dialog.open.mockReturnValue({
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            afterClosed: () => of(undefined),
+            close: vi.fn(),
+        });
+
+        const undone = await service.undoPlaylistChanges(
+            new SignagePlaylist({ id: 'pl-1', name: 'Lobby' }),
+            new SignagePlaylistMedia({ items: ['media-1'] }),
+        );
+
+        expect(undone).toBe(false);
+        expect(updateSignagePlaylistMedia).not.toHaveBeenCalled();
+    });
+
     it('closes the confirm modal and restores the items when removing them fails', async () => {
         const service = createService();
         showPlaylistMedia(service, 'playlist-1', {
@@ -458,6 +494,28 @@ describe('SignagePlaylistService', () => {
         expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('pl-1', [
             'sched-2',
         ]);
+    });
+
+    it('lists a new playlist before the search index returns it', async () => {
+        const created = new SignagePlaylist({ id: 'pl-new', name: 'New' });
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (value?: unknown) => void) => {
+                    Promise.resolve().then(() => handler(created));
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+        const service = createService();
+        TestBed.tick();
+
+        const playlist = await service.addPlaylist();
+
+        expect(playlist?.id).toBe('pl-new');
+        expect(service.filtered_playlists().map(({ id }) => id)).toContain(
+            'pl-new',
+        );
+        expect(service.playlists().map(({ id }) => id)).toContain('pl-new');
     });
 
     it('duplicates a playlist with its items and item schedules', async () => {
@@ -755,6 +813,64 @@ describe('SignagePlaylistService', () => {
                 expect.anything(),
             );
             expect(updateSignagePlaylistMedia).not.toHaveBeenCalled();
+        });
+
+        it('adds the media picked from the library to the playlist', async () => {
+            const picked = [
+                new SignageMedia({ id: 'media-1' }),
+                new SignageMedia({ id: 'media-2' }),
+            ];
+            dialog.open.mockReturnValue({
+                afterClosed: () => ({
+                    subscribe: (handler: (value?: unknown) => void) => {
+                        Promise.resolve().then(() => handler(picked));
+                        return { unsubscribe: vi.fn() };
+                    },
+                }),
+            });
+            vi.mocked(showSignagePlaylist).mockResolvedValue(
+                new SignagePlaylist({ id: 'pl-1' }),
+            );
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({ items: ['media-1'] }),
+            );
+            vi.mocked(updateSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({}),
+            );
+            const service = createService();
+
+            const added = await service.pickMediaForPlaylist(
+                new SignagePlaylist({ id: 'pl-1' }),
+            );
+
+            expect(added).toBe(true);
+            expect(dialog.open.mock.calls[0][1].data).toMatchObject({
+                multiple: true,
+            });
+            expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('pl-1', [
+                'media-1',
+                'media-2',
+            ]);
+        });
+
+        it('skips media that a distribution playlist already schedules', async () => {
+            vi.mocked(showSignagePlaylist).mockResolvedValue(
+                new SignagePlaylist({ id: 'pl-1', distribution: true }),
+            );
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({
+                    items: ['schedule-1'],
+                    schedules: [{ id: 'schedule-1', item_id: 'media-1' }],
+                } as any),
+            );
+            const service = createService();
+
+            const added = await service.addMediaItemsToPlaylist('pl-1', [
+                'media-1',
+            ]);
+
+            expect(added).toBe(false);
+            expect(dialog.open).not.toHaveBeenCalled();
         });
 
         it('reports an error, not a rejection, when adding media fails', async () => {

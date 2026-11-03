@@ -1,5 +1,4 @@
 import { signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import {
     createRoutingFactory,
     SpectatorRouting,
@@ -13,7 +12,7 @@ import {
 import { UserPipe } from '@placeos/users';
 import { setHours, startOfDay, subWeeks } from 'date-fns';
 import { MockPipe, MockProvider } from 'ng-mocks';
-import { Subject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { EventsStateService } from '../../app/day-view/events-state.service';
 import { RoomWeekBookingsTimelineComponent } from '../../app/day-view/room-week-timeline.component';
@@ -32,7 +31,6 @@ describe('RoomWeekBookingsTimelineComponent', () => {
             }),
     );
     const MockUserPipe = MockPipe(UserPipe, user_pipe_transform);
-    let dialog_open: any;
 
     const createComponent = createRoutingFactory({
         component: RoomWeekBookingsTimelineComponent,
@@ -60,6 +58,7 @@ describe('RoomWeekBookingsTimelineComponent', () => {
                     removeBooking: vi.fn(),
                     poll: vi.fn(() => new Subscription()),
                     replace: vi.fn(),
+                    viewEvent: vi.fn(),
                 },
             },
             MockProvider(SettingsService, {
@@ -80,16 +79,7 @@ describe('RoomWeekBookingsTimelineComponent', () => {
         filtered.set([]);
         zones.set([]);
         date.set(startOfDay(Date.now()).valueOf());
-        dialog_open = vi.fn(() => ({
-            componentInstance: {
-                hide_edit: signal(false),
-                action: new Subject(),
-            },
-            afterClosed: () => new Subject(),
-        }));
-        spectator = createComponent({
-            providers: [MockProvider(MatDialog, { open: dialog_open })],
-        });
+        spectator = createComponent();
         spectator.detectChanges();
     });
 
@@ -221,16 +211,13 @@ describe('RoomWeekBookingsTimelineComponent', () => {
         expect(spectator.component.this_week()).toBe(false);
     });
 
-    it('should not open a dialog for system events', () => {
-        spectator.component.viewEvent({ is_system_event: true } as any, 'sp1');
-        expect(dialog_open).not.toHaveBeenCalled();
-    });
-
-    it('should open the details dialog for standard events', () => {
-        spectator.component.viewEvent(
-            { is_system_event: false, id: 'e1' } as any,
-            'sp1',
+    it('should open booking details through the events state service', () => {
+        const state = spectator.inject(EventsStateService);
+        const event = { id: 'e1' } as any;
+        spectator.component.viewEvent(event);
+        expect(state.viewEvent).toHaveBeenCalledWith(
+            event,
+            expect.any(Function),
         );
-        expect(dialog_open).toHaveBeenCalled();
     });
 });

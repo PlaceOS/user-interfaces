@@ -2,10 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import {
-    listSignagePlaylistMediaRevisions,
-    updateSignagePlaylistMedia,
-} from '@placeos/ts-client';
+import { listSignagePlaylistMediaRevisions } from '@placeos/ts-client';
 import { MediaPreviewService } from '../../app/media/media-preview.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { PlaylistRequestApprovalModalComponent } from '../../app/shared/playlist-request-approval-modal.component';
@@ -34,7 +31,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         changed: vi.fn(),
     };
     const media_service = { previewMedia: vi.fn() };
-    const playlist_service = { setPlaylistApprovalStatus: vi.fn() };
+    const playlist_service = { undoPlaylistChanges: vi.fn() };
 
     beforeEach(async () => {
         vi.clearAllMocks();
@@ -66,7 +63,6 @@ describe('PlaylistRequestApprovalModalComponent', () => {
                 approved: true,
             },
         ]);
-        (updateSignagePlaylistMedia as any).mockResolvedValue({});
         await TestBed.configureTestingModule({
             imports: [PlaylistRequestApprovalModalComponent],
             providers: [
@@ -222,24 +218,8 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         expect(fixture.nativeElement.textContent).not.toContain('Undo Changes');
     });
 
-    it('does not undo changes when user does not have update permissions', async () => {
-        context.can_update.set(false);
-        const fixture = TestBed.createComponent(
-            PlaylistRequestApprovalModalComponent,
-        );
-        const component = fixture.componentInstance;
-
-        await component.undoChanges();
-
-        expect(updateSignagePlaylistMedia).not.toHaveBeenCalled();
-        expect(notify_open).toHaveBeenCalledWith(
-            'You cannot update playlists in this group.',
-            expect.anything(),
-            expect.objectContaining({ panelClass: ['warn'] }),
-        );
-    });
-
-    it('reverts playlist media to the previous version', async () => {
+    it('restores the approved version through the service', async () => {
+        playlist_service.undoPlaylistChanges.mockResolvedValue(true);
         const fixture = TestBed.createComponent(
             PlaylistRequestApprovalModalComponent,
         );
@@ -248,14 +228,22 @@ describe('PlaylistRequestApprovalModalComponent', () => {
 
         await component.undoChanges();
 
-        expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('playlist-1', [
-            'media-2',
-        ]);
-        expect(playlist_service.setPlaylistApprovalStatus).toHaveBeenCalledWith(
-            'playlist-1',
-            false,
+        expect(playlist_service.undoPlaylistChanges).toHaveBeenCalledWith(
+            { id: 'playlist-1', name: 'Lobby Loop' },
+            expect.objectContaining({ id: 'previous-version' }),
         );
         expect(dialog_ref.close).toHaveBeenCalledWith();
-        expect(context.changed).toHaveBeenCalled();
+    });
+
+    it('stays open when the undo is cancelled', async () => {
+        playlist_service.undoPlaylistChanges.mockResolvedValue(false);
+        const fixture = TestBed.createComponent(
+            PlaylistRequestApprovalModalComponent,
+        );
+        fixture.detectChanges();
+
+        await fixture.componentInstance.undoChanges();
+
+        expect(dialog_ref.close).not.toHaveBeenCalled();
     });
 });

@@ -12,8 +12,10 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
     deleteDeskAsset,
     deskFromAsset,
+    findDeskByLegacyId,
     queryDeskAssets,
     queryDeskAssetsForZones,
+    queryDeskAssetsInZone,
     saveDeskAsset,
 } from '@placeos/assets';
 import {
@@ -29,9 +31,11 @@ import {
     updateBooking,
 } from '@placeos/bookings';
 import {
+    assetZones,
     AsyncHandler,
     Booking,
     BuildingLevel,
+    csvToJson,
     Desk,
     downloadFile,
     getTimezoneDifferenceInHours,
@@ -84,7 +88,6 @@ export type DeskView = 'manage' | 'events' | 'map';
 export interface DeskFilters {
     date?: number;
     zones?: string[];
-    show_map?: boolean;
     search?: string;
     view?: DeskView;
 }
@@ -191,17 +194,19 @@ export class DesksStateService extends AsyncHandler {
             try {
                 const zones = this._getActiveZones(params.zones);
                 if (params.use_assets) {
-                    const level_ids =
-                        zones.length && !params.zones.includes('All')
-                            ? zones
-                            : this._currentLevelList().map((level) => level.id);
                     const levels = new Map(
                         this._currentLevelList().map((level) => [
                             level.id,
                             level,
                         ]),
                     );
-                    const assets = await queryDeskAssetsForZones(level_ids);
+                    // all levels are one query for the building or region
+                    const assets =
+                        zones.length && !params.zones.includes('All')
+                            ? await queryDeskAssetsForZones(zones)
+                            : await queryDeskAssetsInZone(
+                                  this._currentScopeId(),
+                              );
                     return assets
                         .map((asset) =>
                             deskFromAsset(asset, levels.get(asset.zone_id)),
@@ -309,11 +314,23 @@ export class DesksStateService extends AsyncHandler {
     );
     public readonly bookings = computed(() => {
         const desks = new Map(this.desks().map((desk) => [desk.id, desk]));
+        // bookings that predate desk assets reference the original desk id
+        const place_desks = new Map(
+            this.desks()
+                .filter((desk) => desk['place_id'])
+                .map((desk) => [desk['place_id'] as string, desk]),
+        );
+        const map_desks = new Map(
+            this.desks().map((desk) => [desk.map_id || desk.id, desk]),
+        );
         const bookings = this.paged_bookings().list;
         for (const booking of bookings) {
+            const desk =
+                desks.get(booking.asset_id) ||
+                place_desks.get(booking.asset_id) ||
+                map_desks.get(booking.asset_id);
             Object.assign(booking, {
-                asset_name:
-                    desks.get(booking.asset_id)?.name || booking.asset_id,
+                asset_name: desk?.name || booking.asset_id,
             });
         }
         return [...bookings];
@@ -500,16 +517,32 @@ export class DesksStateService extends AsyncHandler {
         downloadFile('desks.csv', jsonToCsv(rows));
     }
 
-    public async addDesks(list: Desk[]) {
+    /** Save the desks in CSV text. Rows without an `id` get a new one. */
+    public importDesksCsv(csv: string) {
+        const rows: Partial<Desk>[] = csvToJson(csv) || [];
+        return this.addDesks(
+            rows.map((row) => ({
+                ...row,
+                id: row.id || `desk-${randomInt(999_999)}`,
+            })),
+        );
+    }
+
+    /**
+     * Save new or imported desks. Pass imported CSV rows as plain objects, not
+     * `Desk` instances, so only the row's own columns update an existing desk.
+     */
+    public async addDesks(list: Partial<Desk>[]) {
         const selected_zones = this._getSelectedZones();
         const all_zones = this._filters().zones?.includes('All');
         const fallback_zone =
             !all_zones && selected_zones.length ? selected_zones[0] : '';
         // Group the desks by their level so each level's metadata is only
         // written with its own desks.
-        const groups = new Map<string, Desk[]>();
+        const groups = new Map<string, Partial<Desk>[]>();
         for (const desk of list) {
-            const zone = desk.zone?.id || fallback_zone;
+            // imported rows carry the level as `zone_id`
+            const zone = desk.zone?.id || desk['zone_id'] || fallback_zone;
             if (!zone) {
                 notifyError(i18n('APP.CONCIERGE.DESKS_SELECT_LEVEL'));
                 return;
@@ -519,13 +552,23 @@ export class DesksStateService extends AsyncHandler {
         for (const [zone, desks] of groups) {
             if (this._settings.get('app.desks.use_assets')) {
                 const asset_zones = this._deskAssetZones(zone);
+                const existing = (
+                    await queryDeskAssets(zone).catch(() => [])
+                ).map((asset) => deskFromAsset(asset));
                 await Promise.all(
-                    desks.map((desk) => saveDeskAsset(desk, zone, asset_zones)),
+                    desks.map((desk) =>
+                        saveDeskAsset(
+                            this._matchDeskAsset(desk, existing),
+                            zone,
+                            asset_zones,
+                        ),
+                    ),
                 );
                 continue;
             }
             const desk_list = await this._storedDeskList(zone);
-            for (const desk of desks) {
+            for (const row of desks) {
+                const desk = row instanceof Desk ? row : new Desk(row);
                 const idx = desk_list.findIndex((_) => _.id === desk.id);
                 if (idx >= 0) desk_list[idx] = desk;
                 else desk_list.push(desk);
@@ -537,6 +580,28 @@ export class DesksStateService extends AsyncHandler {
             });
         }
         this._change.set(Date.now());
+    }
+
+    /**
+     * Imported rows update the desk asset with the same id, original desk id
+     * (`place_id`) or map id rather than creating a duplicate. Migrated desk
+     * assets keep the original desk id as their map id, or as `place_id` when
+     * it differs. Columns missing from the row keep the asset's values.
+     */
+    private _matchDeskAsset(row: Partial<Desk>, existing: Desk[]): Desk {
+        const match =
+            findDeskByLegacyId(existing, row.id) ||
+            findDeskByLegacyId(existing, row.map_id);
+        if (!match) return new Desk(row);
+        return new Desk({
+            ...match,
+            ...row,
+            id: match.id,
+            map_id: match.map_id,
+            asset_type_id: match['asset_type_id'],
+            client_ids: match['client_ids'],
+            other_data: match['other_data'],
+        } as Partial<Desk>);
     }
 
     /** Remove one desk from the configured resource store. */
@@ -588,9 +653,13 @@ export class DesksStateService extends AsyncHandler {
             use_assets,
         ).catch((e) => this._failDeskSave(ref, e));
         const desk_list = upsertDesk(original_desk_list, desk.id, new_desk);
-        // Saving would store two desks with the same ID on this level.
-        if (desk_list.filter((_) => _.id === new_desk.id).length > 1) {
-            notifyError(`A desk with the ID "${new_desk.id}" already exists.`);
+        // Saving would store two desks with the same ID on this level. Desk
+        // assets are identified by their map id, the asset id is generated.
+        const desk_key = (item: Desk) =>
+            use_assets ? item.map_id || item.id : item.id;
+        const new_key = desk_key(new_desk);
+        if (desk_list.filter((_) => desk_key(_) === new_key).length > 1) {
+            notifyError(`A desk with the ID "${new_key}" already exists.`);
             ref.componentInstance.loading.set(false);
             ref.close();
             return;
@@ -794,21 +863,6 @@ export class DesksStateService extends AsyncHandler {
         });
     }
 
-    public async giveAccess(desk: Booking) {
-        const status: any = await saveBooking(
-            new Booking({ ...desk, access: true }).toJSON(),
-        ).catch((_) => ({ failed: true, error: _ }));
-        if (status.failed) {
-            return notifyError(
-                i18n('APP.CONCIERGE.DESKS_ACCESS_ERROR', {
-                    error: status.error,
-                }),
-            );
-        }
-        notifySuccess(i18n('APP.CONCIERGE.DESKS_ACCESS_SUCCESS'));
-        this.setFilters({});
-    }
-
     public async rejectAllDesks() {
         const search = this._filters().search;
         const list = this.bookings().filter(
@@ -911,7 +965,7 @@ export class DesksStateService extends AsyncHandler {
         const email = user_email.toLowerCase();
         const levels = this._currentLevelList();
         const desks = this._settings.get('app.desks.use_assets')
-            ? await queryDeskAssetsForZones(levels.map((level) => level.id))
+            ? await queryDeskAssetsInZone(this._currentScopeId())
             : (
                   await Promise.all(
                       levels.map((level) =>
@@ -1111,18 +1165,7 @@ export class DesksStateService extends AsyncHandler {
 
     /** Build the complete zone path required for asset scope queries. */
     private _deskAssetZones(level_id: string) {
-        const level = this._org.levels?.find((item) => item.id === level_id);
-        const building =
-            this._org.buildings?.find((item) => item.id === level?.parent_id) ||
-            (this._org.building?.id === level?.parent_id
-                ? this._org.building
-                : undefined);
-        return unique([
-            this._org.organisation?.id,
-            building?.parent_id || this._org.region?.id,
-            building?.id || level?.parent_id,
-            level_id,
-        ]).filter((id) => !!id);
+        return assetZones(this._org, level_id);
     }
 
     private _createAssignedBooking(desk: Desk, zone?: string) {
@@ -1217,6 +1260,13 @@ export class DesksStateService extends AsyncHandler {
             (zone) =>
                 !this._all_zones_keys.includes(zone) && level_ids.has(zone),
         );
+    }
+
+    /** The building, or region with `use_region`, that the level list covers */
+    private _currentScopeId(): string {
+        return this._settings.get('app.use_region')
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
     }
 
     private _currentLevelList(): BuildingLevel[] {

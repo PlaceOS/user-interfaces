@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { requestTokenFromOpener } from '@placeos/common';
+import { requestTokenFromOpener, withTimeout } from '@placeos/common';
 import {
     authorise,
     authority,
@@ -17,27 +17,26 @@ const SETTINGS_KEY = 'MAP_BUILDER.placeos';
 const FLOORPLAN_METADATA_KEY = 'map-studio';
 const PLACEOS_REQUEST_TIMEOUT = 10 * 1000;
 const HANDOFF_MIN_DELAY_MS = 30 * 1000;
-/** Zones per request, and the most pages read for one query */
-const ZONE_PAGE_SIZE = 100;
-const ZONE_PAGE_LIMIT = 50;
+/** Items per request, and the most pages read for one list query */
+const PAGE_SIZE = 100;
+const PAGE_LIMIT = 50;
 
-function withDeadline<T>(promise: Promise<T>, message: string): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-        const timer = setTimeout(
-            () => reject(new Error(message)),
-            PLACEOS_REQUEST_TIMEOUT,
-        );
-        promise.then(
-            (value) => {
-                clearTimeout(timer);
-                resolve(value);
-            },
-            (error) => {
-                clearTimeout(timer);
-                reject(error);
-            },
-        );
-    });
+/**
+ * Copy of `floorplan` without the fields that only this browser keeps: IDs,
+ * the PlaceOS level link, the source file details and the creation time.
+ * Used for floorplan metadata sent to or read from PlaceOS.
+ */
+export function withoutLocalFields(
+    floorplan: Partial<Floorplan> = {},
+): Partial<Floorplan> {
+    const data = { ...floorplan };
+    delete data.id;
+    delete data.project_id;
+    delete data.level_zone_id;
+    delete data.source_image_path;
+    delete data.source_type;
+    delete data.created_at;
+    return data;
 }
 
 function fetchWithDeadline<T>(
@@ -49,9 +48,11 @@ function fetchWithDeadline<T>(
     const request = fetch(input, { ...init, signal: controller.signal }).then(
         read,
     );
-    return withDeadline(request, 'PlaceOS request timed out.').finally(() =>
-        controller.abort(),
-    );
+    return withTimeout(
+        request,
+        PLACEOS_REQUEST_TIMEOUT,
+        'PlaceOS request timed out.',
+    ).finally(() => controller.abort());
 }
 
 export interface PlaceOSSettings {
@@ -211,7 +212,11 @@ export class PlaceOSService {
             handle_login: false,
         };
         try {
-            await withDeadline(setup(options), 'PlaceOS setup timed out.');
+            await withTimeout(
+                setup(options),
+                PLACEOS_REQUEST_TIMEOUT,
+                'PlaceOS setup timed out.',
+            );
             if (!token()) await this._useOpenerToken();
             options.handle_login = true;
             // With handle_login on, this redirects to the login page
@@ -318,22 +323,11 @@ export class PlaceOSService {
     // ── Zones ───────────────────────────────────────────────────────────────
 
     /** Every matching zone, reading one page after another */
-    public async getZones(
-        tags?: string,
-        parent_id?: string,
-    ): Promise<PlaceOSZone[]> {
-        const zones: PlaceOSZone[] = [];
-        for (let page = 0; page < ZONE_PAGE_LIMIT; page++) {
-            const results = await this._request<PlaceOSZone[]>('/zones', {
-                limit: `${ZONE_PAGE_SIZE}`,
-                offset: `${page * ZONE_PAGE_SIZE}`,
-                ...(tags ? { tags } : {}),
-                ...(parent_id ? { parent_id } : {}),
-            });
-            zones.push(...results);
-            if (results.length < ZONE_PAGE_SIZE) break;
-        }
-        return zones;
+    public getZones(tags?: string, parent_id?: string): Promise<PlaceOSZone[]> {
+        return this._requestAll<PlaceOSZone>('/zones', {
+            ...(tags ? { tags } : {}),
+            ...(parent_id ? { parent_id } : {}),
+        });
     }
 
     public async getActiveOrganisation(): Promise<PlaceOSZone | null> {
@@ -383,13 +377,7 @@ export class PlaceOSService {
         level_id: string,
         floorplan: Floorplan,
     ): Promise<string> {
-        const details: Partial<Floorplan> = { ...floorplan };
-        delete details.id;
-        delete details.project_id;
-        delete details.level_zone_id;
-        delete details.source_image_path;
-        delete details.source_type;
-        delete details.created_at;
+        const details = withoutLocalFields(floorplan);
         // Imports keep the same SVG, often megabytes, in both fields. Send it
         // once; reimport only reads svg_output when there is no svg_source.
         if (details.svg_output === details.svg_source)
@@ -404,10 +392,6 @@ export class PlaceOSService {
         return Number.isFinite(metadata?.updated_at)
             ? new Date(metadata.updated_at).toISOString()
             : details.updated_at;
-    }
-
-    public async getLevelSvg(level_id: string): Promise<string | null> {
-        return (await this.getLevelMap(level_id))?.svg ?? null;
     }
 
     /** The level's current `map_id` and its SVG; null when the level has no map. */
@@ -451,8 +435,7 @@ export class PlaceOSService {
         zone_id?: string,
         bookable?: boolean,
     ): Promise<PlaceOSSystem[]> {
-        return this._request<PlaceOSSystem[]>('/systems', {
-            limit: '100',
+        return this._requestAll<PlaceOSSystem>('/systems', {
             ...(zone_id ? { zone_id } : {}),
             ...(bookable === undefined ? {} : { bookable: `${bookable}` }),
         });
@@ -560,6 +543,24 @@ export class PlaceOSService {
                 finalised.public_url ??
                 `/api/engine/v2/uploads/${upload.id}/url`,
         };
+    }
+
+    /** Reads every page of a list endpoint, up to {@link PAGE_LIMIT} pages */
+    private async _requestAll<T>(
+        path: string,
+        params: Record<string, string>,
+    ): Promise<T[]> {
+        const items: T[] = [];
+        for (let page = 0; page < PAGE_LIMIT; page++) {
+            const results = await this._request<T[]>(path, {
+                ...params,
+                limit: `${PAGE_SIZE}`,
+                offset: `${page * PAGE_SIZE}`,
+            });
+            items.push(...results);
+            if (results.length < PAGE_SIZE) break;
+        }
+        return items;
     }
 
     private async _request<T>(

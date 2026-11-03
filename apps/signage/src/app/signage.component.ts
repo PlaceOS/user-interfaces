@@ -8,7 +8,6 @@ import {
     signal,
     viewChildren,
 } from '@angular/core';
-import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -214,7 +213,6 @@ function isCoveredByLoadingOverlay() {
         DatePipe,
         DebugOverlayComponent,
         IconComponent,
-        MatRippleModule,
         MediaPlayerComponent,
         MatTooltipModule,
     ],

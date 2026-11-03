@@ -39,6 +39,7 @@ describe('RoomBookingsTimelineComponent', () => {
                     replace: vi.fn(),
                     remove: vi.fn(),
                     restore: vi.fn(),
+                    viewEvent: vi.fn(),
                 },
             },
             MockProvider(SettingsService, {
@@ -151,16 +152,13 @@ describe('RoomBookingsTimelineComponent', () => {
         expect(spectator.component.is_today()).toBe(false);
     });
 
-    it('should not open a dialog for system events', () => {
-        spectator.component.viewEvent({ is_system_event: true } as any, 'sp1');
-        expect(dialog_open).not.toHaveBeenCalled();
-    });
-
-    it('should open the details dialog for standard events', () => {
-        spectator.component.viewEvent(
-            { is_system_event: false, id: 'e1' } as any,
-            'sp1',
+    it('should open booking details through the events state service', () => {
+        const state = spectator.inject(EventsStateService);
+        const event = { id: 'e1' } as any;
+        spectator.component.viewEvent(event, 'sp1');
+        expect(state.viewEvent).toHaveBeenCalledWith(
+            event,
+            expect.any(Function),
         );
-        expect(dialog_open).toHaveBeenCalled();
     });
 });

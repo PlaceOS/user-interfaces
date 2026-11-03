@@ -8,7 +8,7 @@
     "targets": {
         "build": {
             "executor": "@angular/build:application",
-            "outputs": ["{options.outputPath.base}"],
+            "outputs": ["{options.outputPath}"],
             "defaultConfiguration": "production",
             "options": {
                 "outputPath": "dist/apps/timetable",
@@ -43,7 +43,7 @@
                     "shared/styles/application.css"
                 ],
                 "scripts": [],
-                "serviceWorker": "apps/timetable/ngsw-config.json",
+                "serviceWorker": "shared/ngsw-config.json",
                 "browser": "apps/timetable/src/main.ts"
             },
             "configurations": {
@@ -60,7 +60,7 @@
                             "with": "apps/timetable/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": "apps/timetable/ngsw-config.json"
+                    "serviceWorker": "shared/ngsw-config.json"
                 },
                 "production": {
                     "sourceMap": {
@@ -126,7 +126,11 @@
             "outputs": ["{workspaceRoot}/coverage/apps/timetable"],
             "options": {
                 "tsConfig": "apps/timetable/tsconfig.spec.json",
-                "setupFiles": ["apps/timetable/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "shared/test-setup-base.ts",
+                    "shared/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "timetable:test-build:development"

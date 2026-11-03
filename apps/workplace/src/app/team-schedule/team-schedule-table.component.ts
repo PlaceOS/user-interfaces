@@ -9,7 +9,6 @@ import {
     UserAvatarComponent,
 } from '@placeos/components';
 import { AutoAssignedDeskModalComponent } from '../book/desk-flow/auto-assigned-desk-modal.component';
-import { AddColleaguesModalComponent } from '../landing-new/add-colleagues-modal.component';
 import {
     DayStatus,
     LocationStatus,
@@ -425,21 +424,6 @@ export class TeamScheduleTableComponent {
         }
     }
 
-    public openAddColleaguesModal() {
-        const dialog_ref = this._dialog.open<
-            AddColleaguesModalComponent,
-            unknown,
-            boolean
-        >(AddColleaguesModalComponent, {
-            maxWidth: '100vw',
-            maxHeight: '100vh',
-            panelClass: 'panel',
-            data: {},
-        });
-        // The service loads the colleagues one time. Load them again when
-        // the modal saved new colleagues.
-        dialog_ref.afterClosed().subscribe((added) => {
-            if (added) this._service.refresh();
-        });
-    }
+    public readonly openAddColleaguesModal = () =>
+        this._service.openAddColleaguesModal();
 }

@@ -1,22 +1,16 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
     CalendarEvent,
     getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
     i18n,
-    nextValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import {
-    EventDetailsModalComponent,
-    SetupBreakdownModalComponent,
-} from '@placeos/events';
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { UserPipe } from '@placeos/users';
 import {
@@ -62,7 +56,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             }
             <div class="absolute top-1/2 right-8 -translate-y-1/2">
                 <room-booking-search
-                    (selected)="viewEvent($event, $event.system?.id, true)"
+                    (selected)="viewEvent($event)"
                 ></room-booking-search>
             </div>
         </div>
@@ -126,13 +120,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
                             <button
                                 matRipple
                                 class="hover:bg-base-200 flex w-full space-x-2 rounded-sm p-2 text-left"
-                                (click)="
-                                    viewEvent(
-                                        event,
-
-                                        event.system?.id
-                                    )
-                                "
+                                (click)="viewEvent(event)"
                             >
                                 <div
                                     class="my-1.5 h-2 w-2 rounded-full"
@@ -215,15 +203,12 @@ export class RoomWeekBookingsTimelineComponent
     implements OnInit
 {
     private _state = inject(EventsStateService);
-    private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _building = this._org.active_building;
     private _filtered = this._state.filtered;
     private _zones = this._state.zones;
 
-    public hours = Array.from({ length: 24 }, (_, i) => i);
-    public readonly ui_options = this._state.options;
     public readonly date = this._state.date;
 
     public readonly remove = (event: CalendarEvent) =>
@@ -343,7 +328,6 @@ export class RoomWeekBookingsTimelineComponent
         return isSameDay(date, Date.now());
     }
 
-    public readonly edit = (e) => this._state.newBooking(e);
     public readonly setDate = (d) => this._state.setDate(d);
 
     public get time_format() {
@@ -384,33 +368,8 @@ export class RoomWeekBookingsTimelineComponent
         return this.types().find((_) => _.id === type)?.color || '#EEE';
     }
 
-    public viewEvent(
-        event: CalendarEvent,
-        space_id: string,
-        _scroll_to = false,
-    ) {
-        if (event.is_system_event) return;
-        const ref = this._dialog.open(EventDetailsModalComponent, {
-            data: {
-                event,
-                edit_fn: (e) => this.edit(e),
-                remove_fn: (e) => this.remove(e),
-            },
-        });
-        ref.componentInstance.hide_edit.set(
-            !this._settings.get('app.events.allow_edit'),
-        );
-        this.subscription(
-            'actions',
-            ref.componentInstance.action.subscribe((action) => {
-                if (!action.includes('breakdown')) return;
-                const ref = this._dialog.open(SetupBreakdownModalComponent, {
-                    data: event,
-                });
-                nextValueFrom(ref.afterClosed()).then((data) => {
-                    if (data) this._state.replace(data);
-                });
-            }),
-        );
+    /** Open the details of a booking */
+    public viewEvent(event: CalendarEvent) {
+        this._state.viewEvent(event, this.remove);
     }
 }

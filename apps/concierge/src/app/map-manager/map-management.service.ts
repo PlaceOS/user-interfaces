@@ -80,11 +80,6 @@ export class MapManagementService {
         );
     }
 
-    /** The file name the map was last saved under, when known. */
-    public mapName(map_id: string): string | undefined {
-        return this._map_names().get(map_id);
-    }
-
     /** Looks up the file name a level's map was saved under; one lookup per map URL. */
     private _resolveMapName(level: BuildingLevel): Promise<void> {
         const url = level.map_id;
@@ -164,7 +159,11 @@ export class MapManagementService {
     public protectedIdSources(
         level: BuildingLevel,
     ): Record<string, ProtectedIdSource> {
-        return conciergeProtectedIdSources(level, this._org.organisation.id);
+        return conciergeProtectedIdSources(
+            level,
+            this._org.organisation.id,
+            !!this._settings.get('app.desks.use_assets'),
+        );
     }
 
     /**

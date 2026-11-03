@@ -1,22 +1,5 @@
 import { computed, type Signal } from '@angular/core';
-import {
-    Booking,
-    CalendarEvent,
-    SettingsService,
-    timePeriodsIntersect,
-    unique,
-    User,
-} from '@placeos/common';
-import {
-    addMinutes,
-    differenceInMinutes,
-    format,
-    formatDuration,
-    getTime,
-    isSameDay,
-} from 'date-fns';
-
-import { getNextFreeTimeSlot } from './helpers';
+import { Booking, CalendarEvent, SettingsService, User } from '@placeos/common';
 
 /** Whether the current settings allow one event to use multiple spaces. */
 export function multipleSpacesEnabled(settings: SettingsService): boolean {
@@ -45,74 +28,6 @@ export function organiserTimezone(user?: User): string {
         | undefined;
     const timezone = details?.timezone || details?.time_zone;
     return typeof timezone === 'string' ? timezone : '';
-}
-
-/**
- * Get current status within bookings
- * @param bookings List of bookings
- * @param host Host of the new event
- * @param date Datetime of the new event
- */
-export function statusFromBookings(
-    bookings: CalendarEvent[],
-    bookable: boolean,
-    requestable: boolean,
-    date: number = getTime(new Date()),
-) {
-    const now = new Date(date);
-    const next_free_slot = getNextFreeTimeSlot(bookings, date, 5);
-    const start = new Date(next_free_slot.start);
-    const end = new Date(next_free_slot.end);
-    const currently_free = timePeriodsIntersect(
-        date,
-        date,
-        next_free_slot.start,
-        next_free_slot.end,
-    );
-    const time_until_next_block = formatDuration({
-        minutes: currently_free
-            ? differenceInMinutes(end, now)
-            : differenceInMinutes(start, now),
-    });
-    const free_tomorrow = !currently_free && !isSameDay(start, now);
-    const free_today = currently_free && !isSameDay(end, now);
-    return {
-        status: !bookable
-            ? 'Not Bookable'
-            : currently_free
-              ? requestable
-                  ? 'Available by Request'
-                  : 'Available'
-              : 'Meeting in Progress',
-        available_until: free_today
-            ? 'No meetings today'
-            : currently_free
-              ? `Free until ${format(end, 'h:mm B')}(${time_until_next_block})`
-              : free_tomorrow
-                ? 'Unavailable today'
-                : `Free at ${format(start, 'h:mm B')}(${time_until_next_block})`,
-    };
-}
-
-export function replaceBookings(
-    list: CalendarEvent[],
-    new_bookings: CalendarEvent[],
-    filter_options: { space: string; from: number; to: number },
-) {
-    const from = filter_options.from;
-    const to = filter_options.to;
-    const filtered_list = list.filter((booking) => {
-        const start = new Date(booking.date);
-        const end = addMinutes(start, booking.duration);
-        return (
-            !booking.resources?.find(
-                (space) => space.email === filter_options.space,
-            ) || !timePeriodsIntersect(from, to, start.valueOf(), end.valueOf())
-        );
-    });
-    const updated_list = filtered_list.concat(new_bookings);
-    updated_list.sort((a, b) => a.date - b.date);
-    return unique(updated_list, 'id');
 }
 
 export function newCalendarEventFromBooking(booking: Booking) {

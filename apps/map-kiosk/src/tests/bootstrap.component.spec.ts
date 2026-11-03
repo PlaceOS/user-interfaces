@@ -1,7 +1,4 @@
 import { signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import {
     SpectatorRouting,
@@ -43,7 +40,6 @@ describe('BootstrapComponent', () => {
                 initialised: signal(true),
             }),
         ],
-        imports: [MatFormFieldModule, MatSelectModule, FormsModule],
     });
 
     beforeEach(() => {
@@ -57,77 +53,24 @@ describe('BootstrapComponent', () => {
         vi.useRealTimers();
     });
 
-    it('should allow selecting level', async () => {
-        expect('[level]').not.toExist();
-        expect('mat-select').toHaveLength(1);
-        expect('button').toBeDisabled();
-        spectator.click('[building]');
-        spectator.click(document.querySelector('mat-option'));
-        spectator.detectChanges();
+    it('should save the parking flag and route to the matching view', () => {
+        const router = spectator.inject(Router);
+        const kiosk = {
+            building: null,
+            level: new BuildingLevel({ id: 'lvl-1', parent_id: 'bld-1' }),
+            orientation: null,
+            location: null,
+        };
+        spectator.component.parking.set(true);
+        spectator.component.bootstrapKiosk(kiosk);
+        expect(localStorage.getItem('KIOSK.level')).toBe('lvl-1');
+        expect(localStorage.getItem('KIOSK.parking')).toBe('true');
+        expect(router.navigate).toHaveBeenCalledWith(['/parking']);
 
-        expect(spectator.component.active_building()?.id).toBe('1');
-        expect(spectator.component.active_level()).toBeFalsy();
-        expect(spectator.component.levels().length).toBe(2);
-        expect('[level]').toExist();
-        expect('button').toBeDisabled();
-        spectator.click('[level]');
-        spectator.click(document.querySelector('mat-option'));
-        spectator.detectChanges();
-        expect(spectator.component.active_level()).toBeTruthy();
-        expect('button').not.toBeDisabled();
-    });
-
-    it('should handling bootstrapping', () => {
-        vi.spyOn(Storage.prototype, 'setItem');
-        vi.spyOn(Storage.prototype, 'removeItem');
-        expect(localStorage.setItem).not.toHaveBeenCalled();
-        spectator.component.bootstrapKiosk();
-        expect(localStorage.setItem).not.toHaveBeenCalled();
-        spectator.component.active_building.set(new Building({ id: 'bld-1' }));
-        spectator.component.bootstrapKiosk();
-        expect(localStorage.setItem).not.toHaveBeenCalled();
-        spectator.component.active_level.set(
-            new BuildingLevel({ id: 'lvl-1' }),
-        );
-        localStorage.setItem('KIOSK.parking', 'true');
-        localStorage.setItem('KIOSK.orientation', '180');
-        localStorage.setItem('KIOSK.location', 'old-kiosk');
-        spectator.component.bootstrapKiosk();
-        expect(localStorage.setItem).toHaveBeenCalledWith(
-            'KIOSK.building',
-            'bld-1',
-        );
-        expect(localStorage.setItem).toHaveBeenCalledWith(
-            'KIOSK.level',
-            'lvl-1',
-        );
-        expect(localStorage.setItem).not.toHaveBeenCalledWith(
-            'KIOSK.orientation',
-            '90',
-        );
-        expect(localStorage.setItem).not.toHaveBeenCalledWith(
-            'KIOSK.location',
-            'kiosk-1',
-        );
-        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.parking');
-        expect(localStorage.removeItem).toHaveBeenCalledWith(
-            'KIOSK.orientation',
-        );
-        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.location');
-        spectator.component.active_rotation.set({ id: '90', name: '' });
-        spectator.component.active_location.set({
-            id: 'kiosk-1',
-            name: 'South West',
-        });
-        spectator.component.bootstrapKiosk();
-        expect(localStorage.setItem).toHaveBeenCalledWith(
-            'KIOSK.orientation',
-            '90',
-        );
-        expect(localStorage.setItem).toHaveBeenCalledWith(
-            'KIOSK.location',
-            'kiosk-1',
-        );
+        spectator.component.parking.set(false);
+        spectator.component.bootstrapKiosk(kiosk);
+        expect(localStorage.getItem('KIOSK.parking')).toBeNull();
+        expect(router.navigate).toHaveBeenCalledWith(['/explore']);
     });
 
     it('should handle clearing bootstrap details', () => {

@@ -1,13 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
-import { MockProvider } from 'ng-mocks';
+import { MatDialog } from '@angular/material/dialog';
 import {
-    addDays,
-    addWeeks,
-    format,
-    startOfWeek,
-    subWeeks,
-} from 'date-fns';
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
+import { addDays, addWeeks, format, startOfWeek, subWeeks } from 'date-fns';
+import { MockProvider } from 'ng-mocks';
+import { Subject } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -18,8 +17,8 @@ import {
     StaffUser,
 } from '@placeos/common';
 import { get, showMetadata, showUser } from '@placeos/ts-client';
-import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
 import { TeamMember } from '../../app/team-schedule/common';
+import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
 
 const wait = (ms = 5) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -45,6 +44,10 @@ describe('TeamScheduleService', () => {
     const save_setting = vi.fn(
         (key: string, value: any) => (settings_store[key] = value),
     );
+    const dialog_closed = new Subject<boolean>();
+    const dialog_open = vi.fn(() => ({
+        afterClosed: () => dialog_closed,
+    }));
 
     const createService = createServiceFactory({
         service: TeamScheduleService,
@@ -65,6 +68,7 @@ describe('TeamScheduleService', () => {
                 get: vi.fn((key: string) => settings_store[key]),
                 saveUserSetting: save_setting,
             } as any),
+            MockProvider(MatDialog, { open: dialog_open } as any),
         ],
     });
 
@@ -83,6 +87,18 @@ describe('TeamScheduleService', () => {
 
     const set_members = (members: TeamMember[]) =>
         (service as any)._team_members.set(members);
+
+    it('should reload the colleagues only when the add colleagues modal added some', () => {
+        const refresh = vi.spyOn(service, 'refresh').mockResolvedValue();
+        service.openAddColleaguesModal();
+        expect(dialog_open).toHaveBeenCalled();
+
+        dialog_closed.next(false);
+        expect(refresh).not.toHaveBeenCalled();
+
+        dialog_closed.next(true);
+        expect(refresh).toHaveBeenCalledTimes(1);
+    });
 
     it('should compute the working week as five week days', () => {
         const days = service.week_days();
@@ -351,9 +367,7 @@ describe('TeamScheduleService', () => {
                 ['fav@example.com'],
             );
             expect(service.isFavorite(user)).toBe(true);
-            expect(
-                (service as any)._team_members()[0].is_favorite,
-            ).toBe(true);
+            expect((service as any)._team_members()[0].is_favorite).toBe(true);
         });
 
         it('should not persist a duplicate favourite', () => {
@@ -371,9 +385,7 @@ describe('TeamScheduleService', () => {
                 [],
             );
             expect(service.isFavorite(user)).toBe(false);
-            expect(
-                (service as any)._team_members()[0].is_favorite,
-            ).toBe(false);
+            expect((service as any)._team_members()[0].is_favorite).toBe(false);
         });
 
         it('should add and remove team members via settings', () => {
@@ -525,7 +537,11 @@ describe('TeamScheduleService', () => {
 
         it('should default to unspecified when no work preference exists', async () => {
             setupColleagues([
-                { email: 'none@example.com', name: 'None', work_preferences: [] },
+                {
+                    email: 'none@example.com',
+                    name: 'None',
+                    work_preferences: [],
+                },
             ]);
             await service.refresh();
             await wait();
@@ -598,8 +614,16 @@ describe('TeamScheduleService', () => {
             settings_store['team_members'] = ['team@example.com'];
             setupColleagues([
                 { email: 'fav@example.com', name: 'Fav', work_preferences: [] },
-                { email: 'team@example.com', name: 'Team', work_preferences: [] },
-                { email: 'plain@example.com', name: 'Plain', work_preferences: [] },
+                {
+                    email: 'team@example.com',
+                    name: 'Team',
+                    work_preferences: [],
+                },
+                {
+                    email: 'plain@example.com',
+                    name: 'Plain',
+                    work_preferences: [],
+                },
             ]);
 
             await service.refresh();
@@ -607,7 +631,9 @@ describe('TeamScheduleService', () => {
 
             const members = (service as any)._team_members() as TeamMember[];
             const fav = members.find((m) => m.user.email === 'fav@example.com');
-            const team = members.find((m) => m.user.email === 'team@example.com');
+            const team = members.find(
+                (m) => m.user.email === 'team@example.com',
+            );
             const plain = members.find(
                 (m) => m.user.email === 'plain@example.com',
             );

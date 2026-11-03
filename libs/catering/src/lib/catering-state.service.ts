@@ -14,13 +14,13 @@ import {
 import {
     AsyncHandler,
     CateringItem,
-    CateringOrder,
     OrganisationService,
     SettingsService,
     flatten,
     i18n,
     notifyError,
     notifySuccess,
+    responseErrorMessage,
     unique,
     user_group_names,
 } from '@placeos/common';
@@ -33,17 +33,15 @@ import {
     CateringItemOptionModalComponent,
     CateringItemOptionModalData,
 } from './catering-option-modal.component';
-import {
-    CateringOrderOptionsModalComponent,
-    CateringOrderOptionsModalData,
-} from './catering-order-options-modal.component';
 import { CateringOption } from './catering.interfaces';
+import { ChargeCodeListModalComponent } from './charge-code-list-modal.component';
 
 import {
     AttachedResourceConfigModalComponent,
     AttachedResourceConfigModalData,
     AttachedResourceRuleset,
 } from 'libs/components/src/lib/attached-resource-config-modal.component';
+import { AvailableRoomsStateModalComponent } from 'libs/components/src/lib/available-rooms-state-modal.component';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 
 export interface CateringSettings {
@@ -59,7 +57,6 @@ export class CateringStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
-    private _updated = signal(0);
     /** Active menu */
     private _menu = signal<CateringItem[]>([]);
     /** Whether the menu for the active building is loading */
@@ -285,25 +282,6 @@ export class CateringStateService extends AsyncHandler {
         );
     }
 
-    public async selectOptions(options: CateringOption[]) {
-        const ref = this._dialog.open<
-            CateringOrderOptionsModalComponent,
-            CateringOrderOptionsModalData
-        >(CateringOrderOptionsModalComponent, {
-            data: {
-                code: this._currency(),
-                options,
-            },
-        });
-        const details = await Promise.race([
-            this._doneEvent(ref.componentInstance.event),
-            this._closedEvent(ref.afterClosed()),
-        ]);
-        if (details?.reason !== 'done') return [];
-        ref.close();
-        return details.metadata.options;
-    }
-
     public async deleteItem(item: CateringItem) {
         const details = await openConfirmModal(
             {
@@ -438,6 +416,39 @@ export class CateringStateService extends AsyncHandler {
         ref.close();
     }
 
+    /**
+     * Open the room availability modal. Each change the user makes saves
+     * the rooms that cannot order catering to the catering settings.
+     */
+    public setRoomAvailability() {
+        const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
+            data: {
+                type: 'Catering',
+                disabled_rooms: this.availability(),
+            },
+        });
+        this.subscription(
+            'room-availability',
+            ref.componentInstance.change.subscribe(async (list) => {
+                try {
+                    await this.saveSettings({ disabled_rooms: list });
+                    notifySuccess('Room availability settings saved');
+                } catch (e) {
+                    const detail =
+                        (await responseErrorMessage(e)) || 'Unknown error';
+                    notifyError(`Failed to save room availability. ${detail}`);
+                } finally {
+                    ref.componentInstance.loading.set(false);
+                }
+            }),
+        );
+    }
+
+    /** Open the modal that edits the charge codes of the building */
+    public setChargeCodes() {
+        this._dialog.open(ChargeCodeListModalComponent);
+    }
+
     public async saveSettings(settings: CateringSettings) {
         const old_settings = this.settings();
         const result = await updateMetadata(this._org.building.id, {
@@ -464,34 +475,6 @@ export class CateringStateService extends AsyncHandler {
             details: config,
             description: `Catering menu config for ${zone_id}`,
         });
-    }
-
-    public addItemToOrder(order: CateringOrder, new_item: CateringItem) {
-        let items = order.items;
-        const match = items.find(
-            (item) =>
-                item.id === new_item.id &&
-                new_item.options?.length ===
-                    item.options?.reduce(
-                        (c, o) =>
-                            c +
-                            (new_item.options.find((opt) => o.id === opt.id)
-                                ? 1
-                                : 0),
-                        0,
-                    ),
-        );
-        match
-            ? ((match as any).quantity += 1)
-            : (items = items.concat([
-                  new CateringItem({ ...new_item, quantity: 1 }),
-              ]));
-        const new_order = new CateringOrder({
-            ...order,
-            items,
-            event: null,
-        });
-        return new_order;
     }
 
     private async _loadBuilding(building_id: string, currency: string) {

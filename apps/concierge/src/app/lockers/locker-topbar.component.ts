@@ -30,7 +30,12 @@ import {
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
-import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
+import {
+    loadPersistedZones,
+    persistZones,
+    sameZones,
+    zoneScopeId,
+} from '../ui/zone-persistence';
 import { LockerStateService } from './locker-state.service';
 
 @Component({
@@ -235,7 +240,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
         this._state.setFilters({ zones });
         persistZones(
             this.path() === 'manage' ? 'lockers-manage' : 'lockers',
-            this._persistScopeId(),
+            zoneScopeId(this._org, this.use_region),
             zones,
         );
     };
@@ -292,18 +297,12 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
                 // selection means all levels.
                 zones = loadPersistedZones(
                     this.path() === 'manage' ? 'lockers-manage' : 'lockers',
-                    this._persistScopeId(),
+                    zoneScopeId(this._org, this.use_region),
                 ).filter((zone) => levels.find((lvl) => lvl.id === zone));
             }
-            if (this._same_zones(zones, this.zones())) return;
+            if (sameZones(zones, this.zones())) return;
             this.updateZones(zones);
         });
-    }
-
-    private _persistScopeId() {
-        return this.use_region
-            ? this._org.region?.id || ''
-            : this._org.building?.id || '';
     }
 
     private _updatePath() {
@@ -328,12 +327,5 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
             date: date || Date.now(),
             allow_time_changes: true,
         });
-    }
-
-    private _same_zones(left: string[], right: string[]) {
-        return (
-            left.length === right.length &&
-            left.every((zone, index) => zone === right[index])
-        );
     }
 }

@@ -36,11 +36,11 @@ import {
     rejectBookingInstance,
     removeBooking as removeBookingApi,
     saveBooking,
-    setBookingCheckedIn,
     updateBooking,
     updateBookingInstance,
 } from '@placeos/bookings';
 import {
+    assetZones,
     AsyncHandler,
     Booking,
     csvToJson,
@@ -152,8 +152,8 @@ export class ParkingStateService extends AsyncHandler {
     });
 
     public get timezone() {
-        return this._settings.get('app.bookings.use_building_timezone') ||
-            this._settings.get('app.parking.use_building_timezone')
+        return (this._settings.get('app.parking.use_building_timezone') ??
+            this._settings.get('app.bookings.use_building_timezone'))
             ? this._org.building?.timezone
             : '';
     }
@@ -498,7 +498,11 @@ export class ParkingStateService extends AsyncHandler {
             if (email && !users.has(email)) users.set(email, user);
         }
         let list = reset ? [] : this._bookings_state().list;
-        for (let page_count = 1; page_count <= MAX_BOOKING_PAGES; page_count++) {
+        for (
+            let page_count = 1;
+            page_count <= MAX_BOOKING_PAGES;
+            page_count++
+        ) {
             let failed = false;
             const resp = await Promise.resolve(fetch()).catch(() => {
                 failed = true;
@@ -604,6 +608,28 @@ export class ParkingStateService extends AsyncHandler {
         return (
             booking.status === 'tentative' &&
             parkingRequestStatus(booking) === 'waitlist'
+        );
+    }
+
+    /**
+     * Whether the current user can see parking requests. Needs the
+     * `app.parking.show_requests` setting. Admins can always see them. Other
+     * users must be in a `parking-requests` feature group, when that list
+     * has groups.
+     */
+    public get can_view_requests(): boolean {
+        if (!this._settings.get('app.parking.show_requests')) return false;
+        const feature_groups = this._settings.get('app.feature_groups') || {};
+        const request_groups: string[] =
+            feature_groups['parking-requests'] || [];
+        const admin_group = this._settings.get('app.admin_group') || 'admin';
+        const groups = currentUser()?.groups || [];
+        return (
+            groups.includes(admin_group) ||
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support') ||
+            !request_groups.length ||
+            groups.some((grp) => request_groups.includes(grp))
         );
     }
 
@@ -731,17 +757,17 @@ export class ParkingStateService extends AsyncHandler {
                 return;
             }
             // New spaces get the same zones as spaces created in the modal.
-            const zones = unique([
-                this._org.organisation.id,
-                this._org.region?.id,
-                this._org.building?.id,
-                zone_id,
-            ]).filter((_) => !!_);
+            const zones = assetZones(this._org, zone_id);
             let success_count = 0;
             let error_count = 0;
             const saved_spaces: PlaceAsset[] = [];
+            const loaded_spaces = new Map(
+                this.spaces().map((space) => [space.id, space]),
+            );
             for (const row of rows) {
                 try {
+                    // updated spaces keep their level, refresh their zone path
+                    const existing = loaded_spaces.get(csvString(row.id));
                     const space_data: Partial<ParkingSpace> = {
                         ...(csvString(row.id) ? { id: csvString(row.id) } : {}),
                         identifier: csvString(row.identifier),
@@ -753,6 +779,9 @@ export class ParkingStateService extends AsyncHandler {
                         features: csvList(row.features),
                         notes: csvString(row.notes),
                         ...(!csvString(row.id) ? { zone_id, zones } : {}),
+                        ...(existing?.zone_id
+                            ? { zones: assetZones(this._org, existing.zone_id) }
+                            : {}),
                     };
                     if (space_data.assigned_to) {
                         await this._checkAssignedParkingLimit(
@@ -842,15 +871,10 @@ export class ParkingStateService extends AsyncHandler {
                 }
                 recreate = true;
             }
-            const zones = unique([
-                this._org.organisation.id,
-                this._org.region?.id,
-                this._org.building?.id,
-                selected_zone_id,
-            ]).filter((_) => !!_);
+            const zones = assetZones(this._org, selected_zone_id);
             const saved = await saveParkingSpace(
                 space.id
-                    ? asset_data
+                    ? { ...asset_data, zones }
                     : { ...asset_data, zone_id: selected_zone_id, zones },
             ).catch((e) => {
                 notifyError(
@@ -1090,31 +1114,6 @@ export class ParkingStateService extends AsyncHandler {
                 if (id) this._reloadResources();
             });
         });
-    }
-
-    public async setBookingCheckinState(booking: Booking, state = true) {
-        const promise = setBookingCheckedIn(booking, state).catch((_) => ({
-            state: 'failed',
-            error: _,
-        }));
-        const success = await promise;
-        success.state === 'failed'
-            ? notifyError(
-                  i18n(
-                      state
-                          ? 'APP.CONCIERGE.PARKING_CHECKIN_ERROR'
-                          : 'APP.CONCIERGE.PARKING_CHECKOUT_ERROR',
-                      { error: success.error },
-                  ),
-              )
-            : notifySuccess(
-                  i18n(
-                      state
-                          ? 'APP.CONCIERGE.PARKING_CHECKIN_SUCCESS'
-                          : 'APP.CONCIERGE.PARKING_CHECKOUT_SUCCESS',
-                  ),
-              );
-        if (success.state !== 'failed') this._reloadResources();
     }
 
     public async approveBooking(booking: Booking, series = false) {

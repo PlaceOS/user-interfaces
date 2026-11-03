@@ -322,8 +322,6 @@ export class MediaPlayerComponent
         alias: 'state',
     });
     public readonly state = linkedSignal(this.stateInput);
-    public readonly stateChange = output<MediaPlayerState>();
-    public readonly indexChange = output<number>();
     public readonly mutedChange = output<boolean>();
     public readonly playing_id = output<string>();
     public readonly event = output<MediaEvent>();
@@ -632,7 +630,6 @@ export class MediaPlayerComponent
                 (_) => _.id === current_item.id,
             );
             this.index.set(index);
-            this.indexChange.emit(index);
         } else {
             const was_playing = this.state() === 'PLAYING';
             this._dropItemState(new Set());
@@ -884,7 +881,6 @@ export class MediaPlayerComponent
         index = this._normalisePlaylistIndex(index);
         const old_index = this.index();
         this.index.set(index);
-        this.indexChange.emit(index);
         const item = this.active_item;
 
         const old_item = this._item_playlist[old_index];
@@ -1626,7 +1622,6 @@ export class MediaPlayerComponent
     private _clearActiveItem() {
         if (this.index() !== -1) {
             this.index.set(-1);
-            this.indexChange.emit(-1);
         }
         this.playing_id.emit('');
         this._item_start = 0;

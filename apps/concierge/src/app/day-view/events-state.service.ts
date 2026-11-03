@@ -28,6 +28,8 @@ import {
 } from '@placeos/common';
 import {
     CalendarEventList,
+    EventDetailsModalComponent,
+    SetupBreakdownModalComponent,
     declineEvent,
     queryEventListOrThrow,
     requestSpacesForZone,
@@ -67,10 +69,6 @@ export interface BookingFilters {
 export interface BookingUIOptions {
     /** Whether to show setup and breakdown times for events */
     show_overflow?: boolean;
-    /** Whether to show cleaning status of the events */
-    show_cleaning?: boolean;
-    /** Whether weekends should be shown on week view */
-    show_weekends?: boolean;
 }
 
 type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -119,8 +117,6 @@ export class EventsStateService extends AsyncHandler {
     private _poll = signal<number>(0);
     /** Period to list bookings for */
     private _period = signal<'month' | 'week' | 'day'>('day');
-    /** Event to display */
-    private _event = signal<CalendarEvent>(null);
     /** Events optimistically removed from the bookings list */
     private _removed_events = signal<CalendarEvent[]>([]);
     /** Events optimistically added to the bookings list */
@@ -146,8 +142,6 @@ export class EventsStateService extends AsyncHandler {
     public readonly zones = this._zones.asReadonly();
     /** Signal for UI display options */
     public readonly options = this._options.asReadonly();
-    /** Signal for the viewed event */
-    public readonly event = this._event.asReadonly();
     /** Period of time to show events for */
     public readonly period = this._period.asReadonly();
     /** Pending room booking approval requests */
@@ -453,7 +447,6 @@ export class EventsStateService extends AsyncHandler {
         this._period.set(period);
     public readonly setZones = (zones: string[]) =>
         this._zones.set(this._clean_zone_ids(zones));
-    public readonly setEvent = (event: CalendarEvent) => this._event.set(event);
 
     public setUIOptions(options: BookingUIOptions) {
         this._options.update((old_options) => ({ ...old_options, ...options }));
@@ -502,6 +495,38 @@ export class EventsStateService extends AsyncHandler {
         ]);
         if (details?.reason !== 'done') return;
         this.replace(details.metadata);
+    }
+
+    /**
+     * Open the details modal for a booking. `remove` runs when the user
+     * removes the booking from the modal. Ignores system events.
+     */
+    public viewEvent(
+        event: CalendarEvent,
+        remove: (event: CalendarEvent) => unknown,
+    ) {
+        if (event.is_system_event) return;
+        const ref = this._dialog.open(EventDetailsModalComponent, {
+            data: {
+                event,
+                edit_fn: (e: CalendarEvent) => this.newBooking(e),
+                remove_fn: (e: CalendarEvent) => remove(e),
+            },
+        });
+        ref.componentInstance.hide_edit.set(
+            !this._settings.get('app.events.allow_edit'),
+        );
+        this.subscription(
+            'actions',
+            ref.componentInstance.action.subscribe(async (action) => {
+                if (!action.includes('breakdown')) return;
+                const ref = this._dialog.open(SetupBreakdownModalComponent, {
+                    data: event,
+                });
+                const data = await nextValueFrom(ref.afterClosed());
+                if (data) this.replace(data);
+            }),
+        );
     }
 
     public async removeBooking(event: CalendarEvent, series = false) {

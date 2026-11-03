@@ -2,7 +2,6 @@ import {
     AfterViewInit,
     Component,
     ElementRef,
-    forwardRef,
     inject,
     input,
     NgZone,
@@ -12,12 +11,12 @@ import {
     SimpleChanges,
     viewChild,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
     AsyncHandler,
     notifyError,
-    UploadCancelledError,
+    provideValueAccessor,
     UploadsService,
 } from '@placeos/common';
 import { apiKey, token } from '@placeos/ts-client';
@@ -195,14 +194,7 @@ import type Squire from 'squire-rte';
             }
         `,
     ],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            /* istanbul ignore next */
-            useExisting: forwardRef(() => RichTextInputComponent),
-            multi: true,
-        },
-    ],
+    providers: [provideValueAccessor(() => RichTextInputComponent)],
     imports: [IconComponent, TranslatePipe],
 })
 export class RichTextInputComponent
@@ -406,7 +398,6 @@ export class RichTextInputComponent
                     this._syncValue();
                 })
                 .catch((error) => {
-                    if (error instanceof UploadCancelledError) return;
                     notifyError(
                         `Failed to upload ${file.name}: ${error?.message || 'Unknown error'}`,
                     );

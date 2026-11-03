@@ -5,6 +5,7 @@ import {
     signal,
     WritableSignal,
 } from '@angular/core';
+import { errorMessage } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 
 import {
@@ -15,7 +16,7 @@ import {
 import { StoreService } from '../data/store.service';
 import { Floorplan, MapObject } from '../data/types';
 import { EditorStateService } from './editor-state.service';
-import { bookableObjects, buildSvg, preflightChecks } from './svg-export';
+import { buildSvg, preflightChecks } from './svg-export';
 import { ToastService } from './toast.service';
 
 /** A PlaceOS list request and its result */
@@ -480,9 +481,7 @@ export class PublishPanelComponent {
         this.checks().every((check) => check.pass),
     );
 
-    public readonly bookable = computed(() =>
-        bookableObjects(this.state.objects()),
-    );
+    public readonly bookable = this.state.bookable;
 
     public readonly bookableSystems = computed(() =>
         this.systems().items.filter((system) => system.bookable),
@@ -595,7 +594,7 @@ export class PublishPanelComponent {
             if (isCurrent()) target.set({ state: 'ready', items, error: '' });
         } catch (error) {
             if (!isCurrent()) return;
-            const message = this._message(error, 'Request failed');
+            const message = errorMessage(error) || 'Request failed';
             target.set({ state: 'error', items: [], error: message });
         }
     }
@@ -678,7 +677,7 @@ export class PublishPanelComponent {
                 failed_links ? 'error' : 'success',
             );
         } catch (error) {
-            const message = this._message(error, 'Publish failed');
+            const message = errorMessage(error) || 'Publish failed';
             this.status.set(message);
             this._toasts.show(message, 'error');
         } finally {
@@ -704,9 +703,5 @@ export class PublishPanelComponent {
             }
         }
         return failed;
-    }
-
-    private _message(error: unknown, fallback: string) {
-        return error instanceof Error ? error.message : fallback;
     }
 }

@@ -50,6 +50,7 @@ import {
 } from '@placeos/form-fields';
 
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
+import { appMetadataKey } from '../ui/app-settings/app-settings.utilities';
 import { errorText } from '../ui/modal-actions';
 
 @Component({
@@ -460,9 +461,7 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
                 ? await updateSettings(unencrypted.id, unencrypted)
                 : await addSettings(unencrypted);
 
-            const metadata_key =
-                this._settings.get('app.workplace_metadata_key') ||
-                'workplace_app';
+            const metadata_key = appMetadataKey(this._settings, 'workplace');
             const metadata = await showMetadata(this.id, metadata_key);
             const details: any = metadata.details || {};
             details.auto_release = new_settings;

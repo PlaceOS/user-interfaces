@@ -7,8 +7,6 @@ import { SignageContextService } from '../../app/signage-context.service';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
 import { ZoneContentComponent } from '../../app/zones/zone-content.component';
 
-const NOW_S = Math.floor(Date.now() / 1000);
-
 describe('ZoneContentComponent', () => {
     const selected_zone = signal<unknown>(null);
     const playlists = signal<unknown[]>([]);
@@ -114,39 +112,18 @@ describe('ZoneContentComponent', () => {
         expect(component.zone_displays()).toEqual([]);
     });
 
-    it('classifies playlist status by validity window and approval state', async () => {
-        playlist_approval_status.set({ p_wait: false });
-        const component = await make();
-
-        expect(
-            component.getStatus({ id: 'p', valid_until: NOW_S - 10 } as any),
-        ).toBe('expired');
-        expect(
-            component.getStatus({ id: 'p', valid_from: NOW_S + 10 } as any),
-        ).toBe('pending');
-        expect(component.getStatus({ id: 'p_wait' } as any)).toBe(
-            'awaiting_approval',
-        );
-        expect(component.getStatus({ id: 'p' } as any)).toBeNull();
-    });
-
     it('routes add/remove actions through the service for the selected zone', async () => {
         const zone = { id: 'z1', playlists: ['p1'] };
         selected_zone.set(zone);
         const component = await make();
-        const event = {
-            preventDefault: vi.fn(),
-            stopPropagation: vi.fn(),
-        };
 
         component.addPlaylist();
         component.addDisplay();
-        component.removePlaylist(event as any, 'p1');
+        component.removePlaylist('p1');
 
         expect(add_playlist).toHaveBeenCalledWith(zone);
         expect(add_display).toHaveBeenCalledWith(zone);
         expect(remove_playlist).toHaveBeenCalledWith(zone, 'p1');
-        expect(event.preventDefault).toHaveBeenCalled();
     });
 
     // The empty states use these icons

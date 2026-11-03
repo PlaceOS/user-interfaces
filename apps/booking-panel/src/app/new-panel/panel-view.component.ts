@@ -9,8 +9,12 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, RemoteLoggingService, VERSION } from '@placeos/common';
-import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
-import { AnnounceDirective } from '../announce.directive';
+import {
+    AnnounceDirective,
+    IconComponent,
+    SafePipe,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     PanelStateService,
     PanelTimelinePosition,

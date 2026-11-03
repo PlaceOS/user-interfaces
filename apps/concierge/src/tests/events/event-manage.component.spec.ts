@@ -98,18 +98,6 @@ describe('EventManageComponent', () => {
         expect(spectator.component.tag_list()).toEqual([]);
     });
 
-    it('should filter timezones by the model value', () => {
-        spectator.component.model.update((m) => ({
-            ...m,
-            timezone: 'Sydney',
-        }));
-        const list = spectator.component.filtered_timezones();
-        expect(list.length).toBeGreaterThan(0);
-        expect(list.every((tz) => tz.toLowerCase().includes('sydney'))).toBe(
-            true,
-        );
-    });
-
     it('should set the level zone through the form service', () => {
         spectator.component.setLevel({ id: 'lvl-9' } as any);
         expect(set_options).toHaveBeenCalledWith({ zones: ['lvl-9'] });

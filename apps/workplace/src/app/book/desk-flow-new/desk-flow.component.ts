@@ -10,6 +10,11 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+    deskFromAsset,
+    findDeskByLegacyId,
+    queryDeskAssetByLegacyId,
+} from '@placeos/assets';
+import {
     BookingAsset,
     BookingFlowView,
     BookingFormService,
@@ -20,18 +25,18 @@ import {
     currentUser,
     errorMessage,
     flatten,
-    getInvalidSignalFields,
     i18n,
     isEmptyUser,
     notifyError,
     notifySuccess,
     OrganisationService,
-    User,
+    SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 import { listChildMetadata } from '@placeos/ts-client';
 import { set } from 'date-fns';
+import { notifyInvalidBookingFields } from '../booking-invalid-fields';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import {
     DeskFlowDetailsComponent,
@@ -152,6 +157,7 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
 export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
@@ -161,16 +167,6 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     public readonly options = this._booking_form.options;
 
     public readonly form_value = this._booking_form.model;
-
-    public readonly has_title = computed(
-        () => !!this.form_value()?.title?.trim(),
-    );
-
-    public readonly has_item = computed(
-        () =>
-            !!this.form_value()?.resources &&
-            this.form_value()?.resources.length > 0,
-    );
 
     public readonly is_edit_mode = computed(() => !!this.form_value()?.id);
     /** Booking type selected in the details step */
@@ -276,20 +272,11 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
      * part of a group, so that a save updates every member.
      */
     private async _loadGroupMembers() {
-        const booking = this._booking_form.booking;
-        if (!this._booking_form.model().id || !booking?.id) return;
-        const is_group =
-            !!booking.parent_id ||
-            !!booking.group ||
-            !!booking.extension_data?.group_members?.length;
-        if (!is_group) return;
-        // With no members the save fails with an error. It does not save
-        // the booking of the organiser only.
-        const members = await this._booking_form
-            .loadGroupMembersForBooking(booking)
-            .catch((): User[] => []);
-        if (this._destroyed) return;
-        this._booking_form.setOptions({ group: true, members });
+        if (!this._booking_form.model().id) return;
+        await this._booking_form.restoreGroupMembers(
+            this._booking_form.booking,
+            () => this._destroyed,
+        );
     }
 
     /**
@@ -324,7 +311,7 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         const deadline = Date.now() + wait_ms;
         do {
             const resources = await this._booking_form.listResources();
-            const resource = resources.find((item) => item.id === asset_id);
+            const resource = findDeskByLegacyId(resources, asset_id);
             if (resource) return resource;
             if (Date.now() >= deadline) break;
             await new Promise((resolve) => setTimeout(resolve, 50));
@@ -335,6 +322,9 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     private async _findDeskResourceFromBuildings(
         asset_id: string,
     ): Promise<BookingAsset | null> {
+        if (this._settings.get('app.desks.use_assets')) {
+            return this._findDeskAssetFromBuildings(asset_id);
+        }
         for (const building of this._org.buildings || []) {
             const data = await listChildMetadata(building.id, {
                 name: 'desks',
@@ -355,6 +345,25 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
             if (resource) return resource;
         }
         return null;
+    }
+
+    /**
+     * Desk assets list the org in their `zones`, so one query covers every
+     * building. The desk's building may be in a region that is not loaded yet.
+     */
+    private async _findDeskAssetFromBuildings(
+        asset_id: string,
+    ): Promise<BookingAsset | null> {
+        const asset = await queryDeskAssetByLegacyId(
+            this._org.organisation?.id,
+            asset_id,
+        ).catch(() => undefined);
+        if (!asset) return null;
+        await this._org.loadBuildingsForZones([asset.zones || []]);
+        const level = (this._org.levels || []).find(
+            ({ id }) => id === asset.zone_id,
+        );
+        return deskFromAsset(asset, level) as unknown as BookingAsset;
     }
 
     private async _initNearbyDeskBooking(space_id: string, event_date: number) {
@@ -435,17 +444,11 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                     asset_id: resources[0].id,
                 }));
             }
-            this._booking_form.form().markAsTouched();
             if (!this._booking_form.form().valid()) {
-                return notifyError(
-                    i18n('FORM.INVALID_FIELDS', {
-                        field_list: getInvalidSignalFields(
-                            this._booking_form.form,
-                            this._booking_form.model,
-                        )
-                            .join(', ')
-                            .replace('asset_id', i18n('RESOURCE.DESK')),
-                    }),
+                return notifyInvalidBookingFields(
+                    this._booking_form.form,
+                    this._booking_form.model,
+                    'RESOURCE.DESK',
                 );
             }
             await this._postBooking();

@@ -269,7 +269,7 @@ describe('SignageZoneService zone search', () => {
         TestBed.tick();
         await flush();
 
-        (service as any)._cacheZone(
+        (service as any)._assignments.cache(
             new PlaceZone({ id: 'level-1', display_name: 'Level 1' }),
         );
 

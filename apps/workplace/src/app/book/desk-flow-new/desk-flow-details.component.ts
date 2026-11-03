@@ -206,6 +206,7 @@ export type DeskFormType = 'single' | 'group' | 'other';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [range]="bookable_hours()"
+                                [min_duration]="effective_min_duration()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
                             />
@@ -449,6 +450,11 @@ export class DeskFlowDetailsComponent {
             settingSignal('desks.custom_duration_options')() ||
             settingSignal('bookings.custom_duration_options', [] as number[])(),
     );
+    /** Shortest length the duration field offers. The start-time field uses it
+     *  so that the last start leaves room for a booking before closing time. */
+    public readonly effective_min_duration = computed(() =>
+        Math.min(this.min_duration(), ...this.custom_duration_options()),
+    );
     public readonly can_book_lockers = settingSignal(
         'desks.can_book_lockers',
         false,
@@ -475,8 +481,8 @@ export class DeskFlowDetailsComponent {
     }
 
     public get timezone() {
-        return this._settings.get('app.bookings.use_building_timezone') ||
-            this._settings.get('app.desks.use_building_timezone')
+        return (this._settings.get('app.desks.use_building_timezone') ??
+            this._settings.get('app.bookings.use_building_timezone'))
             ? this._org.building.timezone
             : '';
     }

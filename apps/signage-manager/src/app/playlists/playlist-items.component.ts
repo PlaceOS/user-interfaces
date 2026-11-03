@@ -19,7 +19,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { i18n } from '@placeos/common';
+import { i18n, LocaleService } from '@placeos/common';
 import {
     IconComponent,
     LoadErrorComponent,
@@ -33,36 +33,19 @@ import {
 } from '@placeos/ts-client';
 import { MediaPreviewService } from '../media/media-preview.service';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
+import { scheduleSummary } from '../shared/schedule-summary.util';
+import { storedSignal } from '../shared/stored-signal';
 import { SignageContextService } from '../signage-context.service';
 import {
     playlistLoopDuration,
     playlistNextPlayTime,
     playlistScheduleExpiryTooltip,
-    playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
 } from '../signage-playlist.util';
 import { PlaylistActionsComponent } from './playlist-actions.component';
 import { SignagePlaylistService } from './signage-playlist.service';
 
 const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
-
-function loadNextPlaySort() {
-    if (typeof localStorage === 'undefined') return false;
-    try {
-        return localStorage.getItem(NEXT_PLAY_SORT_STORAGE_KEY) === 'true';
-    } catch {
-        return false;
-    }
-}
-
-function persistNextPlaySort(sorted: boolean) {
-    if (typeof localStorage === 'undefined') return;
-    try {
-        localStorage.setItem(NEXT_PLAY_SORT_STORAGE_KEY, `${sorted}`);
-    } catch {
-        // Local storage can be unavailable in private browsing or restricted embeds.
-    }
-}
 
 @Component({
     selector: 'playlist-items',
@@ -330,7 +313,9 @@ function persistNextPlaySort(sorted: boolean) {
                             [class.hover:bg-base-200]="!sort_by_next_play()"
                             [class.bg-base-content]="sort_by_next_play()"
                             [class.text-base-100]="sort_by_next_play()"
-                            [class.hover:bg-base-content/80]="sort_by_next_play()"
+                            [class.hover:bg-base-content/80]="
+                                sort_by_next_play()
+                            "
                             matRipple
                             [attr.aria-pressed]="sort_by_next_play()"
                             [matTooltip]="
@@ -626,6 +611,19 @@ function persistNextPlaySort(sorted: boolean) {
                 >
                     <icon class="text-6xl">queue_music</icon>
                     <p>{{ 'SIGNAGE_MANAGER.NO_PLAYLIST_ITEMS' | translate }}</p>
+                    @if (can_update()) {
+                        <button
+                            btn
+                            type="button"
+                            matRipple
+                            class="inverse"
+                            (click)="addMedia()"
+                        >
+                            {{
+                                'SIGNAGE_MANAGER.ADD_MEDIA_TOOLTIP' | translate
+                            }}
+                        </button>
+                    }
                 </div>
             }
             @if (selected_count() > 0) {
@@ -748,6 +746,7 @@ function persistNextPlaySort(sorted: boolean) {
 })
 export class PlaylistItemsComponent {
     private readonly _context = inject(SignageContextService);
+    private readonly _locale = inject(LocaleService);
     private readonly _media_preview = inject(MediaPreviewService);
     private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _injector = inject(Injector);
@@ -761,6 +760,8 @@ export class PlaylistItemsComponent {
         this._playlist_service.selected_playlist_item_index;
     public readonly can_update = this._context.can_update;
     public readonly items = this._playlist_service.playlist_media_items;
+    /** Saved items with their media. Same order and indices as `items` */
+    private readonly _entries = this._playlist_service.playlist_item_entries;
     /**
      * Items with a key that moves with each item when the list is reordered,
      * so the rows between the two positions are not rebuilt. A media item can
@@ -768,17 +769,20 @@ export class PlaylistItemsComponent {
      */
     public readonly keyed_items = computed(() => {
         const copies = new Map<string, number>();
-        return this.items().map((item, index) => {
-            const copy = copies.get(item.id) ?? 0;
-            copies.set(item.id, copy + 1);
-            return { key: `${item.id}#${copy}`, item, index };
+        return this._entries().map(({ id, media }, index) => {
+            const copy = copies.get(id) ?? 0;
+            copies.set(id, copy + 1);
+            return { key: `${id}#${copy}`, item: media, index };
         });
     });
     /**
      * Shows distribution items by when they next play. Only changes the view.
      * Kept in the browser, so distribution playlists open sorted once chosen.
      */
-    public readonly sort_by_next_play = signal(loadNextPlaySort());
+    public readonly sort_by_next_play = storedSignal(
+        NEXT_PLAY_SORT_STORAGE_KEY,
+        (stored) => stored === 'true',
+    );
     /**
      * Time the next plays are counted from. Set when the sort is turned on
      * and when the playlist or its schedules change, so rows do not move
@@ -853,6 +857,11 @@ export class PlaylistItemsComponent {
         () => this.selected_items().length,
     );
 
+    public addMedia() {
+        const playlist = this.selected_playlist();
+        if (playlist) this._playlist_service.pickMediaForPlaylist(playlist);
+    }
+
     public selectItem(item: SignageMedia, index: number) {
         this._playlist_service.selected_playlist_item.set(item);
         this._playlist_service.selected_playlist_item_index.set(index);
@@ -883,11 +892,13 @@ export class PlaylistItemsComponent {
         this.selected_indices.set(new Set<number>());
     }
 
+    /**
+     * Schedule of the item at an index. Distribution items are schedule
+     * item ids, so each copy of a media item has its own schedule.
+     */
     public itemSchedule(item: SignageMedia, index = -1) {
-        const schedule = this.item_schedule_list()[index];
-        if (schedule?.media?.id === item.id) return schedule;
         return (
-            this.item_schedules().get(item.id) ||
+            this.item_schedules().get(this._itemId(item, index)) ||
             new SignagePlaylistItemSchedule({
                 item_id: item.id,
                 media: item,
@@ -897,10 +908,11 @@ export class PlaylistItemsComponent {
 
     public toggleNextPlaySort() {
         this.sort_by_next_play.update((sorted) => !sorted);
-        persistNextPlaySort(this.sort_by_next_play());
     }
 
-    public scheduleLabel = playlistScheduleLabel;
+    public scheduleLabel(schedule: Partial<SignagePlaylistSchedule>) {
+        return scheduleSummary(schedule, this._locale.locale);
+    }
 
     /** Next plays tooltip of each item schedule. Updates when the schedules change. */
     public readonly schedule_tooltips = computed(
@@ -1004,13 +1016,9 @@ export class PlaylistItemsComponent {
     public async removeItem(item: SignageMedia, item_index: number) {
         const playlist = this.selected_playlist();
         if (!playlist?.id || !item?.id) return;
-        const schedule = playlist.distribution
-            ? this.itemSchedule(item, item_index)
-            : null;
-        const playlist_item_id = schedule?.id || schedule?.item_id || item.id;
         await this._playlist_service.removeMediaFromPlaylist(
             playlist.id,
-            playlist_item_id,
+            this._itemId(item, item_index),
             item_index,
         );
         if (this.isItemSelected(item, item_index)) {
@@ -1022,15 +1030,9 @@ export class PlaylistItemsComponent {
     public async deleteSelected() {
         const playlist = this.selected_playlist();
         if (!playlist?.id) return;
-        const selected_items = this.selected_items().map(({ item, index }) => {
-            const schedule = playlist.distribution
-                ? this.itemSchedule(item, index)
-                : null;
-            return {
-                id: schedule?.id || schedule?.item_id || item.id,
-                index,
-            };
-        });
+        const selected_items = this.selected_items().map(
+            ({ item, index }) => ({ id: this._itemId(item, index), index }),
+        );
         if (
             await this._playlist_service.removeMediaItemsFromPlaylist(
                 playlist.id,
@@ -1039,6 +1041,11 @@ export class PlaylistItemsComponent {
         ) {
             this.clearSelection();
         }
+    }
+
+    /** Saved item id of the item at an index */
+    private _itemId(item: SignageMedia, index: number) {
+        return this._entries()[index]?.id || item.id;
     }
 
     public reloadItems() {

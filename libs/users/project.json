@@ -12,7 +12,10 @@
             "outputs": ["{workspaceRoot}/coverage/libs/users"],
             "options": {
                 "tsConfig": "libs/users/tsconfig.spec.json",
-                "setupFiles": ["libs/users/src/test-setup.ts"],
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "libs/users/src/test-setup.ts"
+                ],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "users:test-build:development"

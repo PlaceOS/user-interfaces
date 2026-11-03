@@ -16,21 +16,6 @@ export function actionError(error: unknown, fallback: string): string {
     return fallback;
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null;
-}
-
-/** Return an HTTP status from either the error or its wrapped API response. */
-export function errorStatus(error: unknown): number | undefined {
-    if (!isRecord(error)) return undefined;
-    const status = error['status'];
-    if (typeof status === 'number') return status;
-    const nested = error['error'];
-    if (!isRecord(nested)) return undefined;
-    const nested_status = nested['status'];
-    return typeof nested_status === 'number' ? nested_status : undefined;
-}
-
 /** Perceived sRGB brightness on a 0 to 255 scale. */
 export function perceivedLightness(
     red: number,

@@ -133,7 +133,7 @@ jobs:
             # everything else combined.
             #
             # The toolchain is provisioned once on the machine instead:
-            #   brew install colima docker docker-compose node@24
+            #   brew install colima docker docker-compose node@26
             # See e2e/stack/SELF_HOSTED_RUNNER.md.
 
             # Keep bun-version the same as build.yml and pull-request.yml: bun.lock
@@ -342,6 +342,7 @@ jobs:
                   path: |
                       dist/.playwright
                       e2e-logs
+                  include-hidden-files: true
                   retention-days: 14
                   if-no-files-found: warn
 

@@ -11,14 +11,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
+import { i18n, notifyError } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     SignageMedia,
     SignagePlaylist,
     type SignagePlaylistApprover,
     SignagePlaylistMedia,
-    updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
 import { MediaPreviewService } from '../media/media-preview.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
@@ -297,33 +296,15 @@ export class PlaylistRequestApprovalModalComponent {
         });
     }
 
+    /** Restore the last approved version. The service asks the user to confirm. */
     public async undoChanges() {
-        if (!this.can_update()) {
-            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'));
-            return;
-        }
         const [, previous_version] = await this._loadPlaylistVersions();
-        if (!previous_version?.items) return;
-        this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
-        this._dialog_ref.disableClose = true;
-        try {
-            await updateSignagePlaylistMedia(
-                this.data.playlist.id,
-                previous_version.items,
-            );
-            this._playlist_service.setPlaylistApprovalStatus(
-                this.data.playlist.id,
-                false,
-            );
-            notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERTED'));
-            this._dialog_ref.close();
-            this._context.changed();
-        } catch {
-            notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR'));
-        } finally {
-            this.loading.set('');
-            this._dialog_ref.disableClose = false;
-        }
+        if (!previous_version) return;
+        const undone = await this._playlist_service.undoPlaylistChanges(
+            this.data.playlist,
+            previous_version,
+        );
+        if (undone) this._dialog_ref.close();
     }
 
     public previewItem(item: SignageMedia) {

@@ -19,6 +19,7 @@ import {
     AsyncHandler,
     BookableHoursRange,
     Booking,
+    BookingType,
     CalendarEvent,
     downloadFile,
     flatten,
@@ -33,11 +34,7 @@ import {
     timePeriodsIntersect,
     unique,
 } from '@placeos/common';
-import {
-    queryAllEvents,
-    requestSpacesForZone,
-    SpacePipe,
-} from '@placeos/events';
+import { queryAllEvents, requestSpacesForZone } from '@placeos/events';
 import { PlaceAsset, showMetadata } from '@placeos/ts-client';
 import {
     addDays,
@@ -67,6 +64,18 @@ export interface ReportOptions {
     end?: number | Date;
     zones?: string[];
 }
+
+/** Booking API type for each report type that loads bookings */
+const BOOKING_TYPES: Record<
+    Exclude<ReportOptions['type'], 'events'>,
+    BookingType
+> = {
+    desks: 'desk',
+    parking: 'parking',
+    lockers: 'locker',
+    assets: 'asset-request',
+    catering: 'catering-order',
+};
 
 const DAYS_OF_WEEK_INDEX = {
     0: 'sunday',
@@ -101,7 +110,6 @@ export class ReportsStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _space_pipe: SpacePipe = new SpacePipe(this._org);
     private _loading = signal<string>('');
     private _active_bookings = signal<(CalendarEvent | Booking)[]>([]);
     /** Aborts the page chain of a superseded booking load */
@@ -331,22 +339,15 @@ export class ReportsStateService extends AsyncHandler {
         resource_type: ReportOptions['type'],
         use_assets: boolean,
     ): Promise<[string, number]> {
-        switch (resource_type) {
-            case 'desks': {
-                if (use_assets) {
-                    const desks = await queryDeskAssets(zone_id).catch(
-                        () => [],
-                    );
-                    return [zone_id, desks.length];
-                }
-                const metadata = await showMetadata(zone_id, 'desks').catch(
-                    () => ({ details: [] }),
-                );
-                return [zone_id, metadata.details.length];
-            }
-            default:
-                return [zone_id, 0];
+        if (resource_type !== 'desks') return [zone_id, 0];
+        if (use_assets) {
+            const desks = await queryDeskAssets(zone_id).catch(() => []);
+            return [zone_id, desks.length];
         }
+        const metadata = await showMetadata(zone_id, 'desks').catch(() => ({
+            details: [],
+        }));
+        return [zone_id, metadata.details.length];
     }
 
     /** Aggregated statistics for the active bookings and resource counts */
@@ -468,10 +469,6 @@ export class ReportsStateService extends AsyncHandler {
         return Math.max(1, count);
     }
 
-    constructor() {
-        super();
-    }
-
     /** Load the bookings and the inventory again for the active options */
     public generateReport() {
         this._inventory_version.update((v) => v + 1);
@@ -491,8 +488,8 @@ export class ReportsStateService extends AsyncHandler {
         let end = endOfDay(options.end || start);
         if (
             options.type === 'parking' &&
-            (this._settings.get('app.bookings.use_building_timezone') ||
-                this._settings.get('app.parking.use_building_timezone')) &&
+            (this._settings.get('app.parking.use_building_timezone') ??
+                this._settings.get('app.bookings.use_building_timezone')) &&
             this._org.building?.timezone
         ) {
             const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -515,11 +512,6 @@ export class ReportsStateService extends AsyncHandler {
             period_start: getUnixTime(start),
             period_end: getUnixTime(end),
         };
-        const bookings_query = {
-            ...query,
-            include_deleted: true,
-            include_checked_out: true,
-        };
         this._load_controller?.abort();
         const controller = new AbortController();
         this._load_controller = controller;
@@ -527,75 +519,29 @@ export class ReportsStateService extends AsyncHandler {
         let list: (CalendarEvent | Booking)[] = [];
         let failed = false;
         try {
-            switch (options.type) {
-                case 'desks':
-                    list = await queryAllBookings(
-                        {
-                            ...bookings_query,
-                            zones,
-                            type: 'desk',
-                            limit: 200,
-                        },
-                        { signal },
-                    );
-                    break;
-                case 'parking':
-                    list = await queryAllBookings(
-                        {
-                            ...bookings_query,
-                            zones,
-                            type: 'parking',
-                            limit: 200,
-                        },
-                        { signal },
-                    );
-                    break;
-                case 'lockers':
-                    list = await queryAllBookings(
-                        {
-                            ...bookings_query,
-                            zones,
-                            type: 'locker',
-                            limit: 200,
-                        },
-                        { signal },
-                    );
-                    break;
-                case 'assets':
-                    list = await queryAllBookings(
-                        {
-                            ...bookings_query,
-                            zones,
-                            type: 'asset-request',
-                            limit: 200,
-                        },
-                        { signal },
-                    );
-                    break;
-                case 'catering':
-                    list = await queryAllBookings(
-                        {
-                            ...bookings_query,
-                            zones,
-                            type: 'catering-order',
-                            limit: 200,
-                        },
-                        { signal },
-                    );
-                    break;
-                case 'events':
-                    list = await queryAllEvents(
-                        {
-                            ...query,
-                            zone_ids: zones,
-                            include_cancelled: true,
-                            limit: 200,
-                        },
-                        { signal },
-                    );
-                    break;
-                default:
-                    list = [];
+            const booking_type = BOOKING_TYPES[options.type];
+            if (options.type === 'events') {
+                list = await queryAllEvents(
+                    {
+                        ...query,
+                        zone_ids: zones,
+                        include_cancelled: true,
+                        limit: 200,
+                    },
+                    { signal },
+                );
+            } else if (booking_type) {
+                list = await queryAllBookings(
+                    {
+                        ...query,
+                        include_deleted: true,
+                        include_checked_out: true,
+                        zones,
+                        type: booking_type,
+                        limit: 200,
+                    },
+                    { signal },
+                );
             }
         } catch (_) {
             list = [];

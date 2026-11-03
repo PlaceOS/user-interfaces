@@ -10,7 +10,6 @@
         "libs/**/src/lib/**/*.ts",
         "libs/**/src/test-setup.ts",
         "libs/mocks/src/empty.ts",
-        "libs/mocks/src/mocks.ts",
         "shared/assets/**",
         "shared/styles/**",
         "tools/**/*.js",

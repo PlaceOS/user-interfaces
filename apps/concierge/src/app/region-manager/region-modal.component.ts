@@ -1,6 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,14 +10,13 @@ import {
     OrganisationService,
     Region,
 } from '@placeos/common';
-import { TIMEZONES_IANA } from '@placeos/common/timezones';
 import {
     FullscreenModalShellComponent,
-    IconComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 import { errorText } from '../ui/modal-actions';
+import { TimezoneFieldComponent } from '../ui/timezone-field.component';
 
 @Component({
     selector: 'region-modal',
@@ -49,42 +47,20 @@ import { errorText } from '../ui/modal-actions';
                         />
                     </mat-form-field>
                 </div>
-                <div class="flex flex-col">
-                    <label for="region-modal-display-name-2">
-                        {{ 'COMMON.TIMEZONE' | translate }}
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <icon matPrefix class="text-2xl">search</icon>
-                        <input
-                            id="region-modal-display-name-2"
-                            matInput
-                            [formField]="form.timezone"
-                            [placeholder]="'COMMON.TIMEZONE' | translate"
-                            [matAutocomplete]="auto"
-                        />
-                    </mat-form-field>
-                    <mat-autocomplete #auto="matAutocomplete">
-                        @for (tz of filtered_timezones(); track tz) {
-                            <mat-option [value]="tz">{{ tz }}</mat-option>
-                        }
-                        @if (!timezones.length) {
-                            <mat-option [disabled]="true">
-                                {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
-                            </mat-option>
-                        }
-                    </mat-autocomplete>
-                </div>
+                <timezone-field
+                    field_id="region-modal-display-name-2"
+                    [field]="form.timezone"
+                />
             </form>
         </fullscreen-modal-shell>
     `,
     styles: [``],
     imports: [
         FullscreenModalShellComponent,
-        MatAutocompleteModule,
         MatFormFieldModule,
         MatInputModule,
         TranslatePipe,
-        IconComponent,
+        TimezoneFieldComponent,
         FormField,
     ],
 })
@@ -95,7 +71,6 @@ export class RegionModalComponent extends AsyncHandler {
         inject<MatDialogRef<RegionModalComponent>>(MatDialogRef);
 
     public readonly loading = signal(false);
-    public readonly timezones = TIMEZONES_IANA;
 
     public readonly model = signal({
         id: this._data?.id || '',
@@ -109,11 +84,6 @@ export class RegionModalComponent extends AsyncHandler {
 
     public readonly form = form(this.model, (p) => {
         required(p.display_name);
-    });
-
-    public readonly filtered_timezones = computed(() => {
-        const timezone = (this.model().timezone || '').toLowerCase();
-        return this.timezones.filter((_) => _.toLowerCase().includes(timezone));
     });
 
     public async save() {

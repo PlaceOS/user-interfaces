@@ -6,6 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
+import { mediaAnimation } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -16,19 +17,18 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    MediaAnimation,
     showSignageMedia,
     SignageMedia,
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { mediaAnimation } from '../media/media-view.util';
 import { SignageMediaService } from '../media/signage-media.service';
 import {
     playlistMediaThumbnailUrl,
     playlistMediaUrl,
 } from '../signage-playlist.util';
 import { webPageFrameUrl } from '../signage-url.util';
+import { animationLabel, mediaTypeLabel } from './media-labels.util';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 interface MediaPreviewModalData {
@@ -447,39 +447,13 @@ export class MediaPreviewModalComponent implements OnInit {
         }),
     );
 
-    public readonly type_label = computed(() => {
-        switch (this.item.media_type) {
-            case 'video':
-                return 'COMMON.VIDEO';
-            case 'image':
-                return 'COMMON.IMAGE';
-            case 'webpage':
-                return 'COMMON.WEBPAGE';
-            case 'plugin':
-                return 'SIGNAGE_MANAGER.TYPE_PLUGIN';
-            default:
-                return this.item.media_type;
-        }
-    });
+    public readonly type_label = computed(
+        () => mediaTypeLabel(this.item.media_type) ?? this.item.media_type,
+    );
 
-    public readonly animation_label = computed(() => {
-        switch (mediaAnimation(this.item.animation)) {
-            case MediaAnimation.Cut:
-                return 'SIGNAGE_MANAGER.ANIM_CUT';
-            case MediaAnimation.CrossFade:
-                return 'SIGNAGE_MANAGER.ANIM_CROSS_FADE';
-            case MediaAnimation.SlideTop:
-                return 'SIGNAGE_MANAGER.ANIM_SLIDE_TOP';
-            case MediaAnimation.SlideLeft:
-                return 'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT';
-            case MediaAnimation.SlideRight:
-                return 'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT';
-            case MediaAnimation.SlideBottom:
-                return 'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM';
-            default:
-                return 'COMMON.DEFAULT';
-        }
-    });
+    public readonly animation_label = computed(() =>
+        animationLabel(mediaAnimation(this.item.animation)),
+    );
 
     public ngOnInit() {
         return this.loadPlaylists();

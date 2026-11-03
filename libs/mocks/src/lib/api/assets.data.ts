@@ -1,6 +1,7 @@
-import { padString, predictableRandomInt } from '@placeos/common';
+import { padLength, predictableRandomInt } from '@placeos/common';
 import { getUnixTime, subDays, subMonths } from 'date-fns';
 import { MOCK_STAFF } from './users.data';
+import { MOCK_BUILDINGS, MOCK_LEVELS, MOCK_REGIONS } from './zone.data';
 
 export const MOCK_CATEGORIES = [
     {
@@ -607,43 +608,27 @@ export const MOCK_PURCHASE_ORDERS = Array(30)
         };
     });
 
-// Helper functions for asset management
-export const getAssetsByCategory = (categoryId: string) =>
-    (MOCK_ASSETS as any).filter((asset) => asset.category_id === categoryId);
-
-export const getAssetsByStatus = (status: string) =>
-    (MOCK_ASSETS as any).filter((asset) => asset.status === status);
-
-export const getAssetsByLocation = (building: string, floor?: number) =>
-    (MOCK_ASSETS as any).filter(
-        (asset) =>
-            asset.location?.building === building &&
-            (!floor || asset.location?.floor === floor),
-    );
-
-export const getAvailableAssets = () =>
-    (MOCK_ASSETS as any).filter((asset) => asset.status === 'Available');
-
-export const getAssetsRequiringMaintenance = () =>
-    MOCK_ASSETS.filter((asset) => {
-        const schedule = asset.other_data?.maintenance_schedule;
-        if (!schedule) return false;
-        return (
-            schedule.next_service <=
-            getUnixTime(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))
-        ); // Due within 7 days
-    });
-
 const MOCK_PARKING_ASSETS_CACHE: Record<string, any[]> = {};
+
+/** Every zone a mock level is in: org, region, building and level */
+export function mockLevelZones(level_id: string): string[] {
+    const level = MOCK_LEVELS.find((_) => _.id === level_id);
+    const building = MOCK_BUILDINGS.find((_) => _.id === level?.parent_id);
+    const region = MOCK_REGIONS.find((_) => _.id === building?.parent_id);
+    return [region?.parent_id, region?.id, building?.id, level_id].filter(
+        Boolean,
+    );
+}
 
 export function generateMockParkingAssets(zone_id: string) {
     if (!MOCK_PARKING_ASSETS_CACHE[zone_id]) {
+        const zones = mockLevelZones(zone_id);
         const parts = zone_id.split('-');
         const id = parts[parts.length - 1];
         MOCK_PARKING_ASSETS_CACHE[zone_id] = new Array(18 * 6)
             .fill(0)
             .map((_, idx) => {
-                const position = padString(
+                const position = padLength(
                     (idx % 18) + Math.floor(idx / 18) * 100,
                     3,
                 );
@@ -660,6 +645,7 @@ export function generateMockParkingAssets(zone_id: string) {
                     assigned_name: assignee.name || '',
                     asset_type_id: '_parking_type_',
                     zone_id,
+                    zones,
                     notes: '',
                     place_groups: [],
                     features: [],

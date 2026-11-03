@@ -4,7 +4,10 @@ import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { AutoAssignedDeskModalComponent } from '../../app/book/desk-flow/auto-assigned-desk-modal.component';
 
@@ -30,9 +33,9 @@ describe('AutoAssignedDeskModalComponent', () => {
                 postForm: vi.fn(() => Promise.resolve()) as any,
                 postFormForGroup: vi.fn(() => Promise.resolve()) as any,
                 listResources: vi.fn(async () => [desk_resource]) as any,
-                listAvailableResources: vi.fn(
-                    async () => [desk_resource],
-                ) as any,
+                listAvailableResources: vi.fn(async () => [
+                    desk_resource,
+                ]) as any,
                 options: signal({ type: 'desk' }),
                 resources: signal([desk_resource]),
                 available_resources: signal([desk_resource]),
@@ -81,6 +84,76 @@ describe('AutoAssignedDeskModalComponent', () => {
         spectator = createComponent();
     });
 
+    it('should find desks near a colleague using the desk map id', async () => {
+        const near = {
+            id: 'asset-near',
+            name: 'Near',
+            map_id: 'desk-map-near',
+            zone: { id: 'level-1', parent_id: 'building-1' },
+            tags: [],
+        };
+        const centre = {
+            id: 'asset-centre',
+            name: 'Centre',
+            map_id: 'desk-map-centre',
+            zone: { id: 'level-1', parent_id: 'building-1' },
+            tags: [],
+        };
+        const state = spectator.inject(BookingFormService) as any;
+        state.listResources.mockResolvedValue([desk_resource, near, centre]);
+        state.listAvailableResources.mockResolvedValue([near, centre]);
+        vi.mocked(
+            spectator.inject(OrganisationService).levelWithID,
+        ).mockReturnValue({ id: 'level-1', map_id: 'level-1-map.svg' } as any);
+        vi.mocked(ts_client.authority).mockReturnValue({} as any);
+        vi.mocked(ts_client.token).mockReturnValue('');
+        // the colleague's desk is in a corner, beside one desk and away from the centre
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(
+                async () =>
+                    new Response(
+                        `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <rect id="desk-map-123" x="5" y="5" width="2" height="2" />
+                            <rect id="desk-map-near" x="10" y="10" width="2" height="2" />
+                            <rect id="desk-map-centre" x="49" y="49" width="2" height="2" />
+                        </svg>`,
+                    ),
+            ),
+        );
+        // jsdom has no SVG geometry, read it from the rect attributes
+        const svg_proto = (window as any).SVGElement.prototype;
+        svg_proto.getBBox = function () {
+            const value = (name: string) =>
+                Number(this.getAttribute(name)) || 0;
+            return {
+                x: value('x'),
+                y: value('y'),
+                width: value('width'),
+                height: value('height'),
+            };
+        };
+        // colleague bookings reference the desk asset id
+        spectator.setInput('nearby_desk_id', 'desk-123');
+
+        try {
+            await spectator.component.ngOnInit();
+        } finally {
+            delete svg_proto.getBBox;
+            vi.unstubAllGlobals();
+            // the providers are shared by every test in the file
+            state.listResources.mockImplementation(async () => [desk_resource]);
+            state.listAvailableResources.mockImplementation(async () => [
+                desk_resource,
+            ]);
+            vi.mocked(
+                spectator.inject(OrganisationService).levelWithID,
+            ).mockImplementation(() => ({ id: 'level-1' }) as any);
+        }
+
+        expect(spectator.component.assigned_desk()).toEqual(near);
+    });
+
     it('should search for a desk with an all-day booking', async () => {
         await spectator.component.ngOnInit();
 
@@ -98,7 +171,9 @@ describe('AutoAssignedDeskModalComponent', () => {
 
         expect(model().asset_id).toBe('desk-123');
         expect(model().resources).toEqual([desk_resource]);
-        expect(spectator.inject(BookingFormService).postForm).toHaveBeenCalled();
+        expect(
+            spectator.inject(BookingFormService).postForm,
+        ).toHaveBeenCalled();
     });
 
     it('should restore the shared form when the modal closes without a booking', async () => {
