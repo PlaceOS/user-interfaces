@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1793747372247,
+  "timestamp": 1793747961198,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -184,9 +184,9 @@
         "./visitor-kiosk-settings-form-modal.component-ioaaJNtA.js",
         "./visitors-report.component-DdMnySZL.js",
         "./visitors.routes-CTsi8ZzP.js",
-        "./workplace-settings-form-modal.component-Bf2oozjn.js",
+        "./workplace-settings-form-modal.component-Cl7q-PZX.js",
         "./zh-CenHhTig.js",
-        "./zone-manager.routes-BHgWk-Lp.js"
+        "./zone-manager.routes-3FzeUt6m.js"
       ],
       "patterns": []
     },
@@ -537,7 +537,7 @@
     "./keyboard-shortcuts-modal.component-CYYlUqg0.js": "d8698f032471c32227d81eee82c015dcda3a0c37",
     "./lockers-report.component-CMlbJ6U6.js": "e90517881b6296a3c9f6cb3e5d007abd4c601d0c",
     "./lockers.routes-BvZY0SSl.js": "2c234774be7a11a6741ebb3d81d66d1fea920251",
-    "./main.js": "c3bde35fb290a71f814d577dfedcaa3291d3a8ea",
+    "./main.js": "26972a6fef4eaa9e72cb38be96d5f857de6f2ca2",
     "./manifest.webmanifest": "8fb029e2b745a70817e4200920c410daf0425443",
     "./map-editor-page.component-BBSxK2ph.js": "abc4153a4ff6a755aee0a80364ee065bd0abbaac",
     "./map-manager.routes-CdHKAT21.js": "209ba7c294698012d8c1f09abcc138ce73a0c3ce",
@@ -567,9 +567,9 @@
     "./visitor-kiosk-settings-form-modal.component-ioaaJNtA.js": "7cd10b2f7f2816f923510b253585181ea8441754",
     "./visitors-report.component-DdMnySZL.js": "749880fc6d8bb28849c5145c363f4184be117961",
     "./visitors.routes-CTsi8ZzP.js": "d9c22490e47fa020019dd2c2e4bd8468e0b57982",
-    "./workplace-settings-form-modal.component-Bf2oozjn.js": "41404cbb323874c15ecb15076db25085b363246f",
+    "./workplace-settings-form-modal.component-Cl7q-PZX.js": "2877be3989df51218472f049522a29b2de2b6fa1",
     "./zh-CenHhTig.js": "55aa38d3d73c00096c34a8d8f83a648e696e944a",
-    "./zone-manager.routes-BHgWk-Lp.js": "36e18c80aa56f271bf3341b05b8f3c4f4862132b"
+    "./zone-manager.routes-3FzeUt6m.js": "e5eb4a6c892d24438430b156f338fc0532d8b6fd"
   },
   "navigationUrls": [
     {
