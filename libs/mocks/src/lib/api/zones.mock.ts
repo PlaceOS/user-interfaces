@@ -1,6 +1,7 @@
 import { padLength, predictableRandomInt } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_MENU } from './catering.data';
+import { MOCK_SPACES } from './spaces.data';
 import { MOCK_STAFF } from './users.data';
 import {
     MOCK_BUILDINGS,
@@ -113,14 +114,16 @@ export function registerMockZones() {
         method: 'GET',
         callback: (request) => {
             if (request.query_params.name === 'bindings') {
+                // Point at a registered mock system, or websocket binds fail
+                const system_id = MOCK_SPACES[0].id;
                 return {
                     bindings: {
                         details: {
-                            area_management: 'space-0',
-                            location_services: 'space-0',
-                            contact_tracing: 'space-0',
-                            lockers: 'space-0',
-                            // payments: 'space-0',
+                            area_management: system_id,
+                            location_services: system_id,
+                            contact_tracing: system_id,
+                            lockers: system_id,
+                            // payments: system_id,
                         },
                     },
                 };

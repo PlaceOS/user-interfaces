@@ -1,5 +1,6 @@
 import { registerMockEndpoint } from '@placeos/ts-client';
 
+import { MOCK_SPACES } from '../lib/api/spaces.data';
 import {
     MOCK_BUILDINGS,
     MOCK_LEVELS,
@@ -128,6 +129,20 @@ describe('registerMockZones', () => {
 
             // Orphans break the org hierarchy that every app builds in mock mode
             expect(orphans).toEqual([]);
+        });
+
+        it('should point every module binding at a registered mock system', () => {
+            const showMetadata = handler('GET', '/api/engine/v2/metadata/:id');
+            const { bindings } = showMetadata(
+                request({ query_params: { name: 'bindings' } }),
+            ) as { bindings: { details: Record<string, string> } };
+            const system_ids = new Set(MOCK_SPACES.map((s) => s.id));
+            const missing = Object.entries(bindings.details)
+                .filter(([, sys]) => !system_ids.has(sys))
+                .map(([name, sys]) => `${name} -> ${sys}`);
+
+            // A missing system makes every websocket bind fail in mock mode
+            expect(missing).toEqual([]);
         });
 
         it('should tag levels, buildings and regions for hierarchy lookups', () => {
