@@ -292,7 +292,7 @@
                 },
                 "use_building_timezone": {
                     "type": "boolean",
-                    "description": "Whether visitor invite times use the building's timezone. app.bookings.use_building_timezone also turns this on"
+                    "description": "Whether visitor invite times use the building's timezone. Overrides app.bookings.use_building_timezone"
                 },
                 "allow_international": {
                     "type": "boolean",

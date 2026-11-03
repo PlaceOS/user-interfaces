@@ -545,16 +545,15 @@ export class VisitorInviteFormComponent
         false,
     );
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
-    private readonly _visitor_use_bld_tz = settingSignal(
-        'visitors.use_building_timezone',
-        false,
-    );
-    private readonly _booking_use_bld_tz = settingSignal(
-        'bookings.use_building_timezone',
-        false,
-    );
+    /**
+     * Building timezone when enabled, else '' for local time.
+     * `visitors.use_building_timezone` overrides the bookings setting when set.
+     * Reads `get()` because the cached setting signals keep their last value
+     * when a building switch unsets a key, which breaks the fallback.
+     */
     public readonly timezone = computed(() =>
-        this._visitor_use_bld_tz() || this._booking_use_bld_tz()
+        (this._settings.get('app.visitors.use_building_timezone') ??
+        this._settings.get('app.bookings.use_building_timezone'))
             ? this._org.building?.timezone || ''
             : '',
     );

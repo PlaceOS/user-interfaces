@@ -17,6 +17,7 @@ import {
 } from '@placeos/common';
 import { VisitorFlowDetailsComponent } from 'apps/workplace/src/app/book/visitor-flow-new/visitor-flow-details.component';
 import { MockProvider } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 describe('VisitorFlowDetailsComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowDetailsComponent>;
@@ -131,6 +132,20 @@ describe('VisitorFlowDetailsComponent', () => {
         expect(spectator.component.max_duration()).toBe(45);
         expect(spectator.component.custom_duration_options()).toEqual([45]);
         expect(spectator.component.effective_min_duration()).toBe(45);
+    });
+
+    it('should let the visitors timezone setting override the bookings setting', () => {
+        const values: Record<string, boolean> = {
+            'app.bookings.use_building_timezone': true,
+        };
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) => values[key],
+        );
+        const org = spectator.inject(OrganisationService) as any;
+        org.building = { ...org.building, timezone: 'Australia/Sydney' };
+        expect(spectator.component.timezone).toBe('Australia/Sydney');
+        values['app.visitors.use_building_timezone'] = false;
+        expect(spectator.component.timezone).toBe('');
     });
 
     it('should hide visitor type switching when editing an existing booking', () => {

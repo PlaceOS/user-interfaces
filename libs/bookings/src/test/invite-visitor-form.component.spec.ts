@@ -233,6 +233,22 @@ describe('InviteVisitorFormComponent', () => {
         expect('a-user-search-field').not.toExist();
     });
 
+    it('should let the visitors timezone setting override the bookings setting', () => {
+        const settings = spectator.inject(SettingsService);
+        (spectator.inject(OrganisationService) as any).building = {
+            id: 'bld-1',
+            timezone: 'Australia/Sydney',
+        };
+        const values: Record<string, boolean> = {
+            'app.bookings.use_building_timezone': true,
+        };
+        (settings.get as Mock).mockImplementation((key: string) => values[key]);
+        expect(spectator.component.timezone()).toBe('Australia/Sydney');
+        values['app.visitors.use_building_timezone'] = false;
+        (settings.get as Mock).mockImplementation((key: string) => values[key]);
+        expect(spectator.component.timezone()).toBe('');
+    });
+
     it('should show unrestricted host search when visitor settings allow anyone', () => {
         const settings = spectator.inject(SettingsService);
         (settings.get as Mock).mockImplementation((key: string) =>

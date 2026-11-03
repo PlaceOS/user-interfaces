@@ -812,14 +812,6 @@ export class InviteVisitorFormComponent implements OnInit {
         'use_24_hour_time',
         false,
     );
-    private readonly _booking_use_building_timezone = this._settings.signal(
-        'bookings.use_building_timezone',
-        false,
-    );
-    private readonly _visitor_use_building_timezone = this._settings.signal(
-        'visitors.use_building_timezone',
-        false,
-    );
     private readonly _visitor_min_duration = this._settings.signal(
         'visitors.min_duration',
         null,
@@ -871,9 +863,15 @@ export class InviteVisitorFormComponent implements OnInit {
 
     public readonly time_format = this._settings.time_format_signal;
     public readonly use_24hr = this._use_24hr;
+    /**
+     * Building timezone when enabled, else '' for local time.
+     * `visitors.use_building_timezone` overrides the bookings setting when set.
+     * Reads `get()` because the cached setting signals keep their last value
+     * when a building switch unsets a key, which breaks the fallback.
+     */
     public readonly timezone = computed(() =>
-        this._booking_use_building_timezone() ||
-        this._visitor_use_building_timezone()
+        (this._settings.get('app.visitors.use_building_timezone') ??
+        this._settings.get('app.bookings.use_building_timezone'))
             ? this._org.building?.timezone || ''
             : '',
     );

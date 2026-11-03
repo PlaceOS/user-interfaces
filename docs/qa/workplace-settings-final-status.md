@@ -6,7 +6,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, with develop
 
 | Group | Specs | Unique Settings | Scenarios | Status |
 |---|---|---|---|---|
-| **In PR #595** | **187** | **215** | **445** | **443 passed locally on 3 Nov with develop merged in; the 2 PPT-2871 override cases added in 2e9a3f467 passed 35/35 (5 repeats) on 3 Nov** |
+| **In PR #595** | **187** | **215** | **447** | **443 passed locally on 3 Nov with develop merged in; the 2 PPT-2871 override cases added in 2e9a3f467 passed 35/35 (5 repeats) on 3 Nov** |
 | Held locally, not in the PR | 2 (+1 product check) | 2 | 6 | See "Held locally" |
 | Excluded or ignored by developer decision | – | 4 | – | Not tested |
 
@@ -46,9 +46,9 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings-b
 bunx playwright test -c apps/workplace/playwright.config.ts --project=settings --list                # counts without running
 ```
 
-| Project | `--list` (3 Nov 2026, 2e9a3f467) | Needs the stack |
+| Project | `--list` (4 Nov 2026, PR #665) | Needs the stack |
 |---|---|---|
-| `settings` | 409 tests in 171 spec files (plus the 2 `preflight` tests it depends on) | yes |
+| `settings` | 411 tests in 171 spec files (plus the 2 `preflight` tests it depends on) | yes |
 | `settings-browser` | 36 tests in 16 spec files | no |
 
 - `settings`: every settings spec except the browser-only ones. Depends on `preflight`, so it fails fast when the stack is down.
@@ -74,7 +74,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | bookings.max_duration | bookings.duration-bounds | 2 | PASS | |
 | bookings.duration_step | bookings.duration-step | 2 | PASS | |
 | bookings.has_assets | bookings.has-assets | 4 | PASS | Generic key with desks.has_assets unset, plus desks.has_assets overriding it both ways (PPT-2864) |
-| bookings.use_building_timezone | bookings.use-building-timezone | 2 | PASS | Also tested on the locker form (lockers area) |
+| bookings.use_building_timezone | bookings.use-building-timezone | 2 | PASS | Tested on the visitor form with visitors.use_building_timezone unset. Also tested on the locker form (lockers area) |
 
 ### chat (1 spec, 1 Setting, 2 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
@@ -307,7 +307,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | schedule.use_driver | schedule.use-driver | 2 | PASS | |
 | schedule.use_websocket | schedule.use-websocket | 2 | PASS | |
 
-### visitor-invite (13 specs, 16 Settings, 29 scenarios)
+### visitor-invite (13 specs, 16 Settings, 31 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
 |---|---|---|---|---|
 | visitors.allow_all_day | visitor-invite.allow-all-day | 2 | PASS | |
@@ -315,7 +315,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | visitors.allow_pass_number | visitor-invite.allow-pass-number | 2 | PASS | |
 | visitors.allow_visitor_internal_or_external | visitor-invite.allow-visitor-internal-or-external | 2 | PASS | |
 | visitors.bookable_hours | visitor-invite.bookable-hours | 3 | PASS | Overrides bookings.bookable_hours, falls back to it, and both unset offer the whole day |
-| visitors.use_building_timezone | visitor-invite.building-timezone | 2 | PASS | |
+| visitors.use_building_timezone | visitor-invite.building-timezone, bookings.use-building-timezone | 4 | PASS | True with bookings.use_building_timezone false, and false overriding bookings.use_building_timezone true. The forms read visitors ?? bookings |
 | visitors.can_book_for_anyone | visitor-invite.can-book-for-anyone | 2 | PASS | |
 | visitors.can_book_for_others | visitor-invite.can-book-for-others | 2 | PASS | |
 | visitors.min_duration | visitor-invite.duration-options | 1 | PASS | |

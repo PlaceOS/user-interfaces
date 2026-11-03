@@ -321,7 +321,7 @@ Each custom column requires a `field` (the booking extension data field to displ
 | `visitors.max_duration` | number | – | Maximum visitor invite duration in minutes. Falls back to `bookings.max_duration`, then `180`. |
 | `visitors.duration_step` | number | – | Step in minutes between the durations of the visitor invite duration field. Falls back to `bookings.duration_step`, then `15`. |
 | `visitors.custom_duration_options` | number[] | – | Custom list of selectable visitor invite durations, in minutes. Falls back to `bookings.custom_duration_options`. |
-| `visitors.use_building_timezone` | boolean | – | Handle visitor invite dates and times in the active building's timezone. The invite form uses the building timezone when this key or `bookings.use_building_timezone` is `true`. |
+| `visitors.use_building_timezone` | boolean | – | Handle visitor invite dates and times in the active building's timezone. The invite form reads this key. When it is unset, it uses `bookings.use_building_timezone`. |
 
 ## Reports
 
