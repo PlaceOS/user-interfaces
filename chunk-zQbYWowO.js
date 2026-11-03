@@ -1,4 +1,0 @@
-import{j as Hs}from"./chunk-BYmycdsg.js";function n(o,s){return Hs(o,`${s}_booking_rules`).then(t=>t?.details instanceof Array?t.details:[]).catch(()=>[])}var d={free:`#43a047`,pending:`#ffb300`,reserved:`#e65100`,busy:`#e53935`,"signs-of-life":`#1565c0`,"not-bookable":`#757575`,unknown:`#757575`};export{n,d as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="ab2604ab-76c7-5dfb-a27a-30ed2b49ff66")}catch(e){}}();
-//# debugId=ab2604ab-76c7-5dfb-a27a-30ed2b49ff66
-//# sourceMappingURL=chunk-zQbYWowO.js.map
