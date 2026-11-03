@@ -6,11 +6,13 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, with develop
 
 | Group | Specs | Unique Settings | Scenarios | Status |
 |---|---|---|---|---|
-| **In PR #595** | **187** | **215** | **443** | **All 443 ran as expected locally on 30 Oct: 442 passed, 1 expected failure** |
+| **In PR #595** | **187** | **215** | **443** | **All 443 passed locally on 3 Nov, with develop merged in** |
 | Held locally, not in the PR | 2 (+1 product check) | 2 | 6 | See "Held locally" |
 | Excluded or ignored by developer decision | – | 4 | – | Not tested |
 
 **Evidence for the PR coverage**
+- Full Settings run, 3 Nov 2026, after merging develop (#654, #655, #656) and updating the four specs they changed, 4 workers, 0 retries:
+  - `--project=settings` and `--project=settings-browser`: 443 tests (plus 2 preflight), all passed in 5.9 min.
 - Full Settings run, 30 Oct 2026, after the review fixes, 2 workers, 0 retries:
   - `--project=settings`: 407 tests (plus 2 preflight), all as expected in 12.6 min, 0 flaky. The 1 expected failure is the parking.use_building_timezone override case.
   - `--project=settings-browser`: 36 tests, 36 passed in 1.2 min.
@@ -90,7 +92,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | desks.auto_allocation | desk-booking.auto-allocation | 2 | PASS | |
 | desks.auto_checkin | desk-booking.auto-checkin | 2 | PASS | |
 | desks.available_period | desk-booking.available-period | 2 | PASS | |
-| desks.bookable_hours | desk-booking.bookable-hours | 4 | PASS | Each range checks its exact first and last start; the start offered at closing time is its own case, named as current behaviour |
+| desks.bookable_hours | desk-booking.bookable-hours | 4 | PASS | Each range checks its exact first and last start, which leaves room for the shortest duration; a separate case checks no start is offered at closing time (PPT-2872) |
 | desks.can_book_for_others | desk-booking.can-book-for-others | 4 | PASS | Adds the explicit-false override and the fallback to bookings.can_book_for_others (PPT-2869) |
 | desks.can_book_lockers | desk-booking.can-book-lockers | 2 | PASS | |
 | desks.custom_duration_options | desk-booking.custom-duration-options | 2 | PASS | |
@@ -105,7 +107,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | desks.min_duration | desk-booking.min-duration | 1 | PASS | |
 | desks.show_calendar_links | desk-booking.show-calendar-links | 2 | PASS | |
 | desks.show_users | desk-booking.show-users | 3 | PASS | |
-| desks.use_assets | desk-booking.use-assets | 2 | PASS | |
+| desks.use_assets | desk-booking.use-assets | 2 | PASS | The assets fixture answers both the per-level query (`zone_id`) and the building-wide one the desk list uses (`zones`) |
 | desks.use_building_timezone | desk-booking.use-building-timezone | 2 | PASS | |
 
 ### directory (2 specs, 2 Settings, 4 scenarios)
@@ -221,7 +223,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | parking.restrict_home_location | parking-booking.restrict-home-location | 3 | PASS | |
 | parking.show_calendar_links | parking-booking.show-calendar-links | 2 | PASS | |
 | parking.show_waitlist | parking-booking.show-waitlist | 2 | PASS | |
-| parking.use_building_timezone | parking-booking.use-building-timezone | 3 | PASS (2), EXPECTED FAILURE (1) | The override case is marked test.fail: the getter is still bookings \|\| parking (no ticket yet). Its setup runs before test.fail, so only the label assertion can be the expected failure |
+| parking.use_building_timezone | parking-booking.use-building-timezone | 3 | PASS | The override case checks an explicit parking false hides the label while bookings is true (PPT-2871) |
 | parking.show_status_details | parking-booking.map-tooltip | 2 | PASS | |
 | parking.show_users | parking-booking.map-tooltip | 1 | PASS | |
 | parking.waitlist_week_start | parking-booking.waitlist-week-start | 2 | PASS | |
@@ -259,7 +261,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | events.allow_online_meetings | room-booking.allow-online-meetings | 2 | PASS | |
 | events.allow_recurrence | room-booking.allow-recurrence | 2 | PASS | |
 | events.allowed_future_days | room-booking.allowed-future-days | 2 | PASS | |
-| events.bookable_hours | room-booking.bookable-hours | 4 | PASS | Each range checks its exact first and last start; the start offered at closing time is its own case, named as current behaviour |
+| events.bookable_hours | room-booking.bookable-hours | 4 | PASS | Each range checks its exact first and last start, which leaves room for the shortest duration; a separate case checks no start is offered at closing time (PPT-2872) |
 | events.booking_unavailable | room-booking.booking-unavailable | 2 | PASS | |
 | events.can_book_for_anyone | room-booking.can-book-for-anyone | 4 | PASS | Legacy meeting form; every combination with events.can_book_for_others |
 | events.can_book_for_others | room-booking.can-book-for-others | 2 | PASS | |
@@ -352,4 +354,5 @@ Docs still describe `new_features`, `spaces.show_images` and `desks.hide_reason`
 | PPT-2868 | explore.hide_device_fields (tooltip) | Device owner lookup uses the module id | Fix merged on develop (#651) |
 | PPT-2869 | desks / parking.can_book_for_others | Explicit false doesn't override the generic value | Fix merged on develop (#650); specs updated |
 | PPT-2870 | lockers (picker) | TypeError while the picker's lockers load | Fix merged on develop (#652) |
-| no ticket yet | parking.use_building_timezone | Explicit false doesn't override bookings.use_building_timezone | Open; covered by a test.fail case |
+| PPT-2871 | desks / parking / lockers.use_building_timezone | Explicit false doesn't override bookings.use_building_timezone | Fix merged on develop (#655); spec updated |
+| PPT-2872 | desks / events.bookable_hours | A start is offered at closing time when no duration fits | Fix merged on develop (#654); specs updated |

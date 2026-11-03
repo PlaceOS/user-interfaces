@@ -14,7 +14,16 @@ function exactQuery(url: URL, expected: Record<string, string>) {
         Object.entries(expected).every(([key, value]) => url.searchParams.get(key) === value);
 }
 
-type LevelRow = { zone?: { id?: string }; metadata?: Record<string, unknown> };
+/** The zone filter of an exact desk asset query, or undefined for any other query. */
+function assetScope(url: URL): { key: 'zone_id' | 'zones'; zone: string } | undefined {
+    for (const key of ['zone_id', 'zones'] as const) {
+        const zone = url.searchParams.get(key);
+        if (zone && exactQuery(url, { [key]: zone, type_id: TYPE, limit: '500' })) return { key, zone };
+    }
+    return undefined;
+}
+
+type LevelRow ={ zone?: { id?: string }; metadata?: Record<string, unknown> };
 
 async function prepareSources(page: Page, audit: Audit) {
     const seen = { metadata: 0, categories: 0, types: 0, assets: 0 };
@@ -39,17 +48,36 @@ async function prepareSources(page: Page, audit: Audit) {
                 exactQuery(url, { category_id: CATEGORY, limit: '500' })) {
                 seen.types++;
                 body = [{ id: TYPE, category_id: CATEGORY, name: '_DESKS_', brand: 'PlaceOS', created_at: 1 }];
-            } else if (url.pathname === `${ENGINE}assets` && url.searchParams.get('zone_id') &&
-                exactQuery(url, { zone_id: url.searchParams.get('zone_id')!, type_id: TYPE, limit: '500' })) {
+            } else if (url.pathname === `${ENGINE}assets` && assetScope(url)) {
+                // One level (zone_id=<level>), or every level of a building or
+                // region (zones=<zone>), which is how the desk booking list asks.
+                const scope = assetScope(url)!;
+                let levels = [scope.zone];
+                if (scope.key === 'zones') {
+                    // A GET to the same origin-checked backend, so it cannot reach an
+                    // unchecked origin or change data.
+                    const levelsUrl = new URL(`${ENGINE}zones`, url.origin);
+                    levelsUrl.search = new URLSearchParams({ parent_id: scope.zone, tags: 'level', limit: '500' }).toString();
+                    const response = await route.fetch({ url: levelsUrl.toString(), method: 'GET', maxRedirects: 0, maxRetries: 0 });
+                    const rows: unknown = response.ok() ? await response.json() : undefined;
+                    const list = Array.isArray(rows) ? rows : (rows as { results?: unknown[] } | undefined)?.results;
+                    levels = (list ?? []).map((zone) => (zone as { id?: string })?.id).filter((id): id is string => !!id);
+                    if (!levels.length) {
+                        audit.monitoring_errors.push('desk assets fixture: ' +
+                            (response.ok() ? 'the zone has no levels' : 'levels GET must succeed (status ' + response.status() + ')'));
+                        await route.abort('failed');
+                        return;
+                    }
+                }
                 seen.assets++;
-                const zone_id = url.searchParams.get('zone_id')!;
-                body = [{
+                body = levels.map((zone_id) => ({
                     id: `e2e-readonly-asset-${zone_id}`, asset_type_id: TYPE,
-                    zone_id, map_id: `e2e-readonly-asset-map-${zone_id}`,
+                    zone_id, zones: scope.key === 'zones' ? [scope.zone, zone_id] : [zone_id],
+                    map_id: `e2e-readonly-asset-map-${zone_id}`,
                     identifier: ASSET_NAME, name: ASSET_NAME, bookable: true,
                     assigned_to: '', place_groups: [], features: [], images: [],
                     security_system_groups: [],
-                }];
+                }));
             } else if (/^\/api\/engine\/v2\/metadata\/[^/]+\/children$/.test(url.pathname) &&
                 exactQuery(url, { name: 'desks' })) {
                 // Preserve real level identities from the app's own GET. Replace
