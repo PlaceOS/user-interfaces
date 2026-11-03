@@ -760,6 +760,8 @@ export class PlaylistItemsComponent {
         this._playlist_service.selected_playlist_item_index;
     public readonly can_update = this._context.can_update;
     public readonly items = this._playlist_service.playlist_media_items;
+    /** Saved items with their media. Same order and indices as `items` */
+    private readonly _entries = this._playlist_service.playlist_item_entries;
     /**
      * Items with a key that moves with each item when the list is reordered,
      * so the rows between the two positions are not rebuilt. A media item can
@@ -767,10 +769,10 @@ export class PlaylistItemsComponent {
      */
     public readonly keyed_items = computed(() => {
         const copies = new Map<string, number>();
-        return this.items().map((item, index) => {
-            const copy = copies.get(item.id) ?? 0;
-            copies.set(item.id, copy + 1);
-            return { key: `${item.id}#${copy}`, item, index };
+        return this._entries().map(({ id, media }, index) => {
+            const copy = copies.get(id) ?? 0;
+            copies.set(id, copy + 1);
+            return { key: `${id}#${copy}`, item: media, index };
         });
     });
     /**
@@ -890,11 +892,13 @@ export class PlaylistItemsComponent {
         this.selected_indices.set(new Set<number>());
     }
 
+    /**
+     * Schedule of the item at an index. Distribution items are schedule
+     * item ids, so each copy of a media item has its own schedule.
+     */
     public itemSchedule(item: SignageMedia, index = -1) {
-        const schedule = this.item_schedule_list()[index];
-        if (schedule?.media?.id === item.id) return schedule;
         return (
-            this.item_schedules().get(item.id) ||
+            this.item_schedules().get(this._itemId(item, index)) ||
             new SignagePlaylistItemSchedule({
                 item_id: item.id,
                 media: item,
@@ -1012,13 +1016,9 @@ export class PlaylistItemsComponent {
     public async removeItem(item: SignageMedia, item_index: number) {
         const playlist = this.selected_playlist();
         if (!playlist?.id || !item?.id) return;
-        const schedule = playlist.distribution
-            ? this.itemSchedule(item, item_index)
-            : null;
-        const playlist_item_id = schedule?.id || schedule?.item_id || item.id;
         await this._playlist_service.removeMediaFromPlaylist(
             playlist.id,
-            playlist_item_id,
+            this._itemId(item, item_index),
             item_index,
         );
         if (this.isItemSelected(item, item_index)) {
@@ -1030,15 +1030,9 @@ export class PlaylistItemsComponent {
     public async deleteSelected() {
         const playlist = this.selected_playlist();
         if (!playlist?.id) return;
-        const selected_items = this.selected_items().map(({ item, index }) => {
-            const schedule = playlist.distribution
-                ? this.itemSchedule(item, index)
-                : null;
-            return {
-                id: schedule?.id || schedule?.item_id || item.id,
-                index,
-            };
-        });
+        const selected_items = this.selected_items().map(
+            ({ item, index }) => ({ id: this._itemId(item, index), index }),
+        );
         if (
             await this._playlist_service.removeMediaItemsFromPlaylist(
                 playlist.id,
@@ -1047,6 +1041,11 @@ export class PlaylistItemsComponent {
         ) {
             this.clearSelection();
         }
+    }
+
+    /** Saved item id of the item at an index */
+    private _itemId(item: SignageMedia, index: number) {
+        return this._entries()[index]?.id || item.id;
     }
 
     public reloadItems() {

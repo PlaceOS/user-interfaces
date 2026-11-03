@@ -4,6 +4,8 @@ import {
     createScheduleMaskFilter,
     playEndTime,
     playlistAnimation,
+    playlistItemEntries,
+    playlistItemMediaIds,
     playlistItemScheduleMap,
     playlistLoopDuration,
     playlistMediaIds,
@@ -33,10 +35,59 @@ describe('signage playlist util', () => {
             playlistMediaItems({
                 items: ['schedule-1', 'schedule-2'],
                 schedules: [
-                    { item_id: 'media-1', media: { id: 'media-1' } },
-                    { item_id: 'media-2', media: { id: 'media-2' } },
+                    {
+                        id: 'schedule-1',
+                        item_id: 'media-1',
+                        media: { id: 'media-1' },
+                    },
+                    {
+                        id: 'schedule-2',
+                        item_id: 'media-2',
+                        media: { id: 'media-2' },
+                    },
                 ] as any,
             }).map((item) => item.id),
+        ).toEqual(['media-1', 'media-2']);
+    });
+
+    it('follows the saved distribution items, not the schedule list', () => {
+        const schedule = (id: string, media_id: string) => ({
+            id,
+            item_id: media_id,
+            media: { id: media_id },
+        });
+        expect(
+            playlistItemEntries({
+                // schedule-1 was removed, and the schedules are out of order
+                items: ['schedule-3', 'schedule-2'],
+                schedules: [
+                    schedule('schedule-1', 'media-1'),
+                    schedule('schedule-2', 'media-1'),
+                    schedule('schedule-3', 'media-2'),
+                ] as any,
+            }).map(({ id, media }) => [id, media.id]),
+        ).toEqual([
+            ['schedule-3', 'media-2'],
+            ['schedule-2', 'media-1'],
+        ]);
+        // After the last item is removed
+        expect(
+            playlistItemEntries({
+                items: [],
+                media: [{ id: 'media-1' }] as any,
+                schedules: [schedule('schedule-1', 'media-1')] as any,
+            }),
+        ).toEqual([]);
+    });
+
+    it('maps saved items to media ids', () => {
+        expect(
+            playlistItemMediaIds({
+                items: ['schedule-1', 'media-2'],
+                schedules: [
+                    { id: 'schedule-1', item_id: 'media-1' },
+                ] as any,
+            }),
         ).toEqual(['media-1', 'media-2']);
     });
 
@@ -45,7 +96,11 @@ describe('signage playlist util', () => {
             playlistMediaIds({
                 items: ['schedule-1'],
                 schedules: [
-                    { item_id: 'media-1', media: { id: 'media-1' } },
+                    {
+                        id: 'schedule-1',
+                        item_id: 'media-1',
+                        media: { id: 'media-1' },
+                    },
                 ] as any,
             }),
         ).toEqual(['media-1']);
