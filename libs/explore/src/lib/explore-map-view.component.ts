@@ -309,8 +309,9 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                 } else if (params.has('user')) {
                     let user = this._settings.value('last_search');
                     if (!user || params.get('user') !== user.email) {
-                        user = null;
-                        user = await showStaff(params.get('user'));
+                        user = await showStaff(params.get('user')).catch(
+                            () => null,
+                        );
                     }
                     if (!user)
                         return notifyError(
