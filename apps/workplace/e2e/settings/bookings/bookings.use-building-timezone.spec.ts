@@ -26,7 +26,7 @@ const SCENARIOS = [
 ];
 
 for (const scenario of SCENARIOS) {
-    test(scenario.label, async ({ staffPage, audit }) => {
+    test(`${scenario.label}`, async ({ staffPage, audit }) => {
         await timezoneBuildings(staffPage, audit);
         const form = await visitor(staffPage, audit, {
             'app.bookings.use_building_timezone': scenario.bookings,

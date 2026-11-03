@@ -43,7 +43,7 @@ const SCENARIOS = [
 
 test.describe('use_building_timezone on the locker form', () => {
     for (const scenario of SCENARIOS) {
-        test(scenario.label, async ({ staffPage, audit }) => {
+        test(`${scenario.label}`, async ({ staffPage, audit }) => {
             await timezoneBuildings(staffPage, audit);
             const root = await lockerForm(staffPage, audit, {
                 'app.bookings.use_building_timezone': scenario.bookings,
