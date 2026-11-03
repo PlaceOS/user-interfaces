@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
+import { computed, NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SignagePlaylistItemSchedule } from '@placeos/ts-client';
 import { MediaPreviewService } from '../../app/media/media-preview.service';
@@ -6,6 +6,7 @@ import { PlaylistActionsComponent } from '../../app/playlists/playlist-actions.c
 import { PlaylistItemsComponent } from '../../app/playlists/playlist-items.component';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../../app/signage-context.service';
+import { playlistItemScheduleMap } from '../../app/signage-playlist.util';
 
 const NEXT_PLAY_SORT_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
 
@@ -17,13 +18,25 @@ describe('PlaylistItemsComponent', () => {
     const selected_playlist = signal<unknown>(null);
     const selected_playlist_item = signal<unknown>(null);
     const selected_playlist_item_index = signal<number | null>(null);
-    const playlist_media_items = signal<unknown[]>([]);
-    const playlist_item_schedules = signal(
-        new Map<string, SignagePlaylistItemSchedule>(),
+    const playlist_item_entries = signal<{ id: string; media: any }[]>([]);
+    const playlist_media_items = computed(() =>
+        playlist_item_entries().map(({ media }) => media),
     );
     const playlist_item_schedule_list = signal<SignagePlaylistItemSchedule[]>(
         [],
     );
+    const playlist_item_schedules = computed(() =>
+        playlistItemScheduleMap({ schedules: playlist_item_schedule_list() }),
+    );
+    /**
+     * Show items in the playlist. Saved ids default to the media ids, as in
+     * a playlist that is not a distribution playlist.
+     */
+    function setItems(items: any[], ids = items.map(({ id }) => id)) {
+        playlist_item_entries.set(
+            items.map((media, index) => ({ id: ids[index], media })),
+        );
+    }
     const can_update = signal(true);
     const playlist_media_loading = signal(false);
     const playlist_media_error = signal(false);
@@ -43,6 +56,7 @@ describe('PlaylistItemsComponent', () => {
         playlist_media_loading,
         playlist_media_error,
         reloadPlaylistMedia: reload_media,
+        playlist_item_entries,
         playlist_media_items,
         playlist_item_schedules,
         playlist_item_schedule_list,
@@ -74,8 +88,7 @@ describe('PlaylistItemsComponent', () => {
         selected_playlist.set(null);
         selected_playlist_item.set(null);
         selected_playlist_item_index.set(null);
-        playlist_media_items.set([]);
-        playlist_item_schedules.set(new Map());
+        playlist_item_entries.set([]);
         playlist_item_schedule_list.set([]);
         can_update.set(true);
         playlist_media_loading.set(false);
@@ -108,7 +121,7 @@ describe('PlaylistItemsComponent', () => {
         playlist_media_loading.set(true);
         expect(component.loading()).toBe(true);
 
-        playlist_media_items.set([media('a')]);
+        setItems([media('a')]);
         expect(component.loading()).toBe(false);
     });
 
@@ -132,7 +145,7 @@ describe('PlaylistItemsComponent', () => {
 
     it('bulk-selects duplicate media by playlist position', async () => {
         const item = media('a');
-        playlist_media_items.set([item, item]);
+        setItems([item, item]);
         const component = await make();
 
         component.toggleSelection(0);
@@ -147,11 +160,11 @@ describe('PlaylistItemsComponent', () => {
     });
 
     it('clears the bulk selection when playlist items change', async () => {
-        playlist_media_items.set([media('a')]);
+        setItems([media('a')]);
         const component = await make();
         component.toggleSelection(0);
 
-        playlist_media_items.set([media('b')]);
+        setItems([media('b')]);
 
         expect(component.selected_count()).toBe(0);
     });
@@ -162,33 +175,43 @@ describe('PlaylistItemsComponent', () => {
         expect(component.is_distribution()).toBe(true);
     });
 
-    it('prefers the positional schedule when its media matches the item', async () => {
+    it('uses the schedule of each saved distribution item', async () => {
         const item = media('a');
-        const positional = new SignagePlaylistItemSchedule({
-            item_id: 'a',
-            media: item,
-        });
-        playlist_item_schedule_list.set([positional]);
+        const [first, second] = ['schedule-1', 'schedule-2'].map(
+            (id) =>
+                new SignagePlaylistItemSchedule({
+                    id,
+                    item_id: item.id,
+                    media: item,
+                }),
+        );
+        selected_playlist.set({ id: 'pl-1', distribution: true });
+        setItems([item, item], ['schedule-1', 'schedule-2']);
+        // The API does not list schedules in the saved item order
+        playlist_item_schedule_list.set([second, first]);
         const component = await make();
-        expect(component.itemSchedule(item, 0)).toBe(positional);
+
+        expect(component.itemSchedule(item, 0)).toBe(first);
+        expect(component.itemSchedule(item, 1)).toBe(second);
     });
 
-    it('falls back to the schedule map, then a fresh schedule', async () => {
+    it('uses the schedule of the media, then a fresh schedule', async () => {
         const item = media('b');
         const mapped = new SignagePlaylistItemSchedule({ item_id: 'b' });
-        playlist_item_schedules.set(new Map([['b', mapped]]));
+        setItems([item]);
+        playlist_item_schedule_list.set([mapped]);
         const component = await make();
-        expect(component.itemSchedule(item, 5)).toBe(mapped);
+        expect(component.itemSchedule(item, 0)).toBe(mapped);
 
-        playlist_item_schedules.set(new Map());
-        const fresh = component.itemSchedule(item, 5);
+        playlist_item_schedule_list.set([]);
+        const fresh = component.itemSchedule(item, 0);
         expect(fresh).toBeInstanceOf(SignagePlaylistItemSchedule);
         expect(fresh.item_id).toBe('b');
     });
 
     it('toggles a single item schedule open/closed', async () => {
         const item = media('a');
-        playlist_media_items.set([item]);
+        setItems([item]);
         const component = await make();
         const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
         // Schedules default to open.
@@ -199,7 +222,7 @@ describe('PlaylistItemsComponent', () => {
 
     it('collapses and expands all schedules together', async () => {
         const items = [media('a'), media('b')];
-        playlist_media_items.set(items);
+        setItems(items);
         const component = await make();
         const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
 
@@ -226,7 +249,7 @@ describe('PlaylistItemsComponent', () => {
 
     it('reorders media on drop when updates are permitted', async () => {
         const items = [media('a'), media('b'), media('c')];
-        playlist_media_items.set(items);
+        setItems(items);
         selected_playlist.set({ id: 'pl-1' });
         const component = await make();
 
@@ -236,7 +259,7 @@ describe('PlaylistItemsComponent', () => {
     });
 
     it('moves an item one place for keyboard users', async () => {
-        playlist_media_items.set([media('a'), media('b'), media('c')]);
+        setItems([media('a'), media('b'), media('c')]);
         selected_playlist.set({ id: 'pl-1' });
         const component = await make();
 
@@ -253,7 +276,7 @@ describe('PlaylistItemsComponent', () => {
     });
 
     it('renders items as list items', async () => {
-        playlist_media_items.set([media('a'), media('b')]);
+        setItems([media('a'), media('b')]);
         selected_playlist.set({ id: 'pl-1' });
         const fixture = await render();
         const element: HTMLElement = fixture.nativeElement;
@@ -267,7 +290,7 @@ describe('PlaylistItemsComponent', () => {
 
     it('keeps each row when the items are reordered', async () => {
         const [a, b, c] = [media('a'), media('b'), media('c')];
-        playlist_media_items.set([a, b, a, c]);
+        setItems([a, b, a, c]);
         selected_playlist.set({ id: 'pl-1' });
         const fixture = await render();
         const rows = () =>
@@ -276,7 +299,7 @@ describe('PlaylistItemsComponent', () => {
             );
         const [a0, b0, a1, c0] = rows();
 
-        playlist_media_items.set([c, a, b, a]);
+        setItems([c, a, b, a]);
         fixture.detectChanges();
 
         // The same elements, moved, not new rows
@@ -286,7 +309,7 @@ describe('PlaylistItemsComponent', () => {
 
     it('leaves Enter and Space to the controls inside a row', async () => {
         const item = media('a');
-        playlist_media_items.set([item]);
+        setItems([item]);
         selected_playlist.set({ id: 'pl-1' });
         const fixture = await render();
         const element: HTMLElement = fixture.nativeElement;
@@ -327,7 +350,7 @@ describe('PlaylistItemsComponent', () => {
     });
 
     it('does not reorder distribution playlists or without update rights', async () => {
-        playlist_media_items.set([media('a'), media('b')]);
+        setItems([media('a'), media('b')]);
         selected_playlist.set({ id: 'pl-1', distribution: true });
         const component = await make();
         await component.onDrop({ previousIndex: 0, currentIndex: 1 } as any);
@@ -353,26 +376,21 @@ describe('PlaylistItemsComponent', () => {
         expect(selected_playlist_item_index()).toBeNull();
     });
 
-    it('removes a distribution schedule by its playlist item id', async () => {
+    it('removes a distribution item by its saved schedule item id', async () => {
         const item = media('media-1');
-        const schedule = new SignagePlaylistItemSchedule({
-            id: 'schedule-1',
-            item_id: item.id,
-            media: item,
-        });
         selected_playlist.set({ id: 'pl-1', distribution: true });
-        playlist_item_schedule_list.set([schedule]);
+        setItems([item, item], ['schedule-1', 'schedule-2']);
         const component = await make();
 
-        await component.removeItem(item, 0);
+        await component.removeItem(item, 1);
 
-        expect(remove_media).toHaveBeenCalledWith('pl-1', 'schedule-1', 0);
+        expect(remove_media).toHaveBeenCalledWith('pl-1', 'schedule-2', 1);
     });
 
     it('removes selected playlist occurrences and clears the bulk selection', async () => {
         const items = [media('a'), media('b'), media('a')];
         selected_playlist.set({ id: 'pl-1' });
-        playlist_media_items.set(items);
+        setItems(items);
         const component = await make();
         component.toggleSelection(0);
         component.toggleSelection(2);
@@ -407,7 +425,7 @@ describe('PlaylistItemsComponent', () => {
             media: second_item,
         });
         selected_playlist.set({ id: 'pl-1', distribution: true });
-        playlist_media_items.set([first_item, second_item]);
+        setItems([first_item, second_item], ['schedule-1', 'schedule-2']);
         playlist_item_schedule_list.set([first_schedule, second_schedule]);
         const component = await make();
         component.toggleSelection(0);
@@ -439,7 +457,10 @@ describe('PlaylistItemsComponent', () => {
                 past: hours(-48),
             };
             selected_playlist.set({ id: 'playlist-1', distribution: true });
-            playlist_media_items.set(items);
+            setItems(
+                items,
+                items.map(({ id }) => `schedule-${id}`),
+            );
             playlist_item_schedule_list.set(
                 items.map(
                     (item) =>

@@ -853,6 +853,26 @@ describe('SignagePlaylistService', () => {
             ]);
         });
 
+        it('skips media that a distribution playlist already schedules', async () => {
+            vi.mocked(showSignagePlaylist).mockResolvedValue(
+                new SignagePlaylist({ id: 'pl-1', distribution: true }),
+            );
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({
+                    items: ['schedule-1'],
+                    schedules: [{ id: 'schedule-1', item_id: 'media-1' }],
+                } as any),
+            );
+            const service = createService();
+
+            const added = await service.addMediaItemsToPlaylist('pl-1', [
+                'media-1',
+            ]);
+
+            expect(added).toBe(false);
+            expect(dialog.open).not.toHaveBeenCalled();
+        });
+
         it('reports an error, not a rejection, when adding media fails', async () => {
             const service = createService();
             vi.mocked(showSignagePlaylist).mockResolvedValue(

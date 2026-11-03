@@ -65,9 +65,10 @@ import {
 } from '../signage-inventory.service';
 import {
     playlistAnimation,
+    playlistItemEntries,
+    playlistItemMediaIds,
     playlistItemScheduleMap,
     playlistMediaIds,
-    playlistMediaItems,
     reorderPlaylistItemIds,
 } from '../signage-playlist.util';
 import { dialogClosed, PAGE_SIZE, searchParam } from '../signage-service.util';
@@ -489,8 +490,12 @@ export class SignagePlaylistService {
     public readonly playlist_media_error = computed(
         () => this._playlist_media_items.status() === 'error',
     );
+    /** Saved items of the selected playlist with their media, in saved order */
+    public readonly playlist_item_entries = computed(() =>
+        playlistItemEntries(this._mediaList() || {}),
+    );
     public readonly playlist_media_items = computed(() =>
-        playlistMediaItems(this._mediaList() || {}),
+        this.playlist_item_entries().map(({ media }) => media),
     );
     public readonly playlist_item_schedules = computed(() =>
         playlistItemScheduleMap(this._mediaList() || {}),
@@ -1043,27 +1048,19 @@ export class SignagePlaylistService {
                     item_id: media_id,
                     media,
                 }),
-                save: async (item_id, schedules) => {
-                    const media_list = await scheduleSignagePlaylistMedia(
-                        playlist_id,
-                        {
-                            item_id,
-                            schedules,
-                        },
-                    );
-                    this._setPlaylistMediaState(
-                        playlist_id,
-                        media_list.items || [],
-                        { approved: false, schedules: media_list.schedules },
-                    );
-                    return media_list;
-                },
+                save: (item_id, schedules) =>
+                    scheduleSignagePlaylistMedia(playlist_id, {
+                        item_id,
+                        schedules,
+                    }),
             },
             panelClass: 'mobile-fullscreen',
         });
         const result = await dialogClosed(ref);
         if (!result) return false;
-        this._playlist_change.update((count) => count + 1);
+        // The schedule response has no item schedules to map the new item
+        // to its media, so load the playlist items again
+        this.refreshPlaylist(playlist_id);
         return true;
     }
 
@@ -1139,7 +1136,7 @@ export class SignagePlaylistService {
                 this._playlistRecord(playlist_id),
                 listSignagePlaylistMedia(playlist_id),
             ]);
-            if (media_list.items?.includes(media_id)) {
+            if (playlistItemMediaIds(media_list).includes(media_id)) {
                 const result = await openConfirmModal(
                     {
                         title: i18n('SIGNAGE_MANAGER.SVC_ADD_DUPLICATE_TITLE'),
@@ -1232,8 +1229,9 @@ export class SignagePlaylistService {
                 listSignagePlaylistMedia(playlist_id),
             ]);
             const existing_items = media_list.items || [];
+            const existing_media_ids = playlistItemMediaIds(media_list);
             const new_media_ids = unique_media_ids.filter(
-                (id) => !existing_items.includes(id),
+                (id) => !existing_media_ids.includes(id),
             );
             if (!new_media_ids.length) {
                 notifyWarn(i18n('SIGNAGE_MANAGER.SVC_MEDIA_ALREADY_IN'));
@@ -1367,14 +1365,12 @@ export class SignagePlaylistService {
         } = {},
     ) {
         const { approved, approval_requested, schedules } = state;
-        // Distribution playlist items are schedule item ids; map them to the
-        // scheduled media ids so thumbnail URLs resolve.
-        const schedule_map = playlistItemScheduleMap({
+        // Map distribution schedule item ids to their media so thumbnail
+        // URLs resolve
+        const media_ids = playlistItemMediaIds({
+            items: item_ids,
             schedules: schedules || this._mediaList()?.schedules,
         });
-        const media_ids = item_ids.map(
-            (id) => schedule_map.get(id)?.media?.id || id,
-        );
         const playlist =
             this.playlists().find((item) => item.id === playlist_id) ||
             this.selected_playlist();
@@ -1428,11 +1424,9 @@ export class SignagePlaylistService {
         for (const playlist_id of linked_playlist_ids) {
             const list = await listSignagePlaylistMedia(playlist_id);
             const current_items = list.items || [];
-            // Distribution playlist items are schedule item ids, so match
-            // them on the media they schedule.
-            const schedule_map = playlistItemScheduleMap(list);
+            const item_media_ids = playlistItemMediaIds(list);
             const updated_items = current_items.filter(
-                (id) => !removed_ids.has(schedule_map.get(id)?.media?.id || id),
+                (_, index) => !removed_ids.has(item_media_ids[index]),
             );
             if (updated_items.length === current_items.length) continue;
             await updateSignagePlaylistMedia(playlist_id, updated_items);

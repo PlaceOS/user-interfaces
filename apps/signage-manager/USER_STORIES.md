@@ -163,6 +163,7 @@ These stories cover the current app workflows:
 - Distribution playlists can show their items by when they next play from the current time. An item that is playing counts as playing now, and items with no plays left go last in saved order. The sort only changes the view: the saved playlist order does not change, and item actions and selection apply to the same items. The browser keeps the sort choice, so distribution playlists open sorted until the user turns it off.
 - Users with update permission can remove media from the playlist.
 - Adding media to a distribution playlist always asks for the item schedule first. When adding media fails, an error shows.
+- When media is already in the playlist, adding one item asks for confirmation, and adding many items skips it. In a distribution playlist, media that has an item schedule is in the playlist.
 - Users can expand, collapse, and edit item schedules.
 - Keyboard selection is supported for playlist items. Enter and Space on the checkbox or the actions button of a row operate that control.
 

@@ -75,17 +75,30 @@ export function playlistMediaIcon(item: SignageMedia) {
             : 'image';
 }
 
-export function playlistMediaItems(list: {
+/** Saved item of a playlist with the media it plays */
+export interface PlaylistItemEntry {
+    /** Saved item id: a media id, or a schedule item id in a distribution playlist */
+    id: string;
+    media: SignageMedia;
+}
+
+type PlaylistMediaList = {
     items?: string[];
     media?: SignageMedia[];
     schedules?: SignagePlaylistItemSchedule[];
-}) {
-    const scheduled_media = (list.schedules || [])
-        .map((item) => item.media)
-        .filter((item): item is SignageMedia => !!item?.id);
-    if (!list.media?.length && scheduled_media.length) return scheduled_media;
-    const media = list.media?.length ? list.media : scheduled_media;
-    const media_by_id = new Map(media.map((item) => [item.id, item]));
+};
+
+/**
+ * Saved items of a playlist that resolve to media, in saved order. Items
+ * whose media cannot be found are left out. The media and schedule lists
+ * can still hold removed items, so only the saved items are shown.
+ */
+export function playlistItemEntries(
+    list: PlaylistMediaList,
+): PlaylistItemEntry[] {
+    const media_by_id = new Map(
+        (list.media || []).map((item) => [item.id, item]),
+    );
     // Distribution playlist items reference schedule item ids, not media ids
     for (const schedule of list.schedules || []) {
         if (!schedule.media?.id) continue;
@@ -94,11 +107,29 @@ export function playlistMediaItems(list: {
             media_by_id.set(schedule.item_id, schedule.media);
         }
     }
-    return list.items?.length
-        ? list.items
-              .map((id) => media_by_id.get(id))
-              .filter((item): item is SignageMedia => !!item)
-        : media;
+    return (list.items || []).flatMap((id) => {
+        const item = media_by_id.get(id);
+        return item ? [{ id, media: item }] : [];
+    });
+}
+
+export function playlistMediaItems(list: PlaylistMediaList) {
+    return playlistItemEntries(list).map(({ media }) => media);
+}
+
+/**
+ * Media id of each saved item, in saved order. Distribution playlist items
+ * are schedule item ids, so they map to the media that they schedule.
+ */
+export function playlistItemMediaIds(list: {
+    items?: string[];
+    schedules?: SignagePlaylistItemSchedule[];
+}) {
+    const schedule_map = playlistItemScheduleMap(list);
+    return (list.items || []).map((id) => {
+        const schedule = schedule_map.get(id);
+        return schedule?.media?.id || schedule?.item_id || id;
+    });
 }
 
 /**
@@ -122,11 +153,7 @@ export function reorderPlaylistItemIds(
     );
 }
 
-export function playlistMediaIds(list: {
-    items?: string[];
-    media?: SignageMedia[];
-    schedules?: SignagePlaylistItemSchedule[];
-}) {
+export function playlistMediaIds(list: PlaylistMediaList) {
     return playlistMediaItems(list).map((item) => item.id);
 }
 
