@@ -129,7 +129,11 @@ export default defineConfig({
         },
     ],
     webServer: {
-        command: `bunx nx serve workplace --port=${PORT}`,
+        // No HMR: every compiled component otherwise imports
+        // /@ng/component?c=…&t=… at load (96 of the 159 asset requests on each
+        // browser-only meeting page), which those specs proxy through route.fetch, and
+        // the app never receives HMR updates here anyway.
+        command: `bunx nx serve workplace --port=${PORT} --hmr=false`,
         url: APP_URL,
         reuseExistingServer: !CI,
         cwd: workspaceRoot,
