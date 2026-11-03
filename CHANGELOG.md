@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 #### Assets
 
 - Update parking space pipe to return unallocated for unallocated spaces
+- Prefer same-authority categories for desks, lockers and parking
 
 #### Auth
 
