@@ -106,9 +106,16 @@ export function autoConfirmNativeDomain() {
     return AUTO_CONFIRM_DOMAIN;
 }
 
-let _mocks: (() => void) | null = null;
+/** Registers mock endpoints. May be async so apps can lazy load the mocks. */
+type MocksInit = () => void | Promise<void>;
 
-export function setMocks(value: () => void) {
+let _mocks: MocksInit | null = null;
+
+/**
+ * Sets the mock registration called by `PlaceOS_Service.init` when mock mode
+ * is on. Pass a dynamic import so the mock data stays out of the main bundle.
+ */
+export function setMocks(value: MocksInit) {
     _mocks = value;
 }
 
@@ -189,7 +196,7 @@ export class PlaceOS_Service extends AsyncHandler {
         return this._settings.get('app.has_uploads') || false;
     }
 
-    public set mocks(value: () => void) {
+    public set mocks(value: MocksInit) {
         _mocks = value;
     }
 
@@ -238,7 +245,7 @@ export class PlaceOS_Service extends AsyncHandler {
                     location.origin.includes('demo.place.tech'));
             if (mocks_enabled) {
                 setLoadingMessage('Initializing mocks...');
-                _mocks();
+                await _mocks();
             }
             this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
                 localStorage.setItem(

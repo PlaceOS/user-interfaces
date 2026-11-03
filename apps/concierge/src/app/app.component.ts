@@ -12,7 +12,6 @@ import {
 } from '@placeos/components';
 import { ChatComponent } from '@placeos/components/chat';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
-import { mocksInit } from '@placeos/mocks';
 
 import { KeyboardShortcutsService } from './ui/keyboard-shortcuts.service';
 
@@ -68,7 +67,10 @@ export class AppComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        setMocks(mocksInit);
+        // Lazy load: mock data generation blocks startup when bundled eagerly
+        setMocks(() =>
+            import('@placeos/mocks').then(({ mocksInit }) => mocksInit()),
+        );
         await this._placeos.init();
 
         this.has_chat.set(this._placeos.has_chat);
