@@ -12,6 +12,7 @@ import {
     addAssetPurchaseOrder,
     addAssetType,
     apiEndpoint,
+    authority,
     PlaceAsset,
     PlaceAssetCategory,
     PlaceAssetPurchaseOrder,
@@ -50,6 +51,20 @@ export function findOldestByName(list: any[], name: string = '') {
     return list
         .filter((_) => (_.name || '').trim().toLowerCase() === match_name)
         .sort((a, b) => (a.created_at || 0) - (b.created_at || 0))[0];
+}
+
+/**
+ * Find the hidden category with the given name. Categories of the current
+ * authority come first. Legacy categories with no authority are the fallback,
+ * as the API also returns them. Types belong to a category, so this choice
+ * also sets which types are used.
+ */
+function findHiddenCategory(list: any[], name: string) {
+    const authority_id = authority()?.id;
+    const own = authority_id
+        ? list.filter((_) => _.authority_id === authority_id)
+        : [];
+    return findOldestByName(own, name) || findOldestByName(list, name);
 }
 
 // Hidden categories and types store app resources (desks, lockers, parking,
@@ -94,10 +109,10 @@ function queryCategoryTypes(category_id: string) {
  * When the create collides with another client, the list is read again.
  */
 export async function ensureHiddenCategory(name: string) {
-    let category = findOldestByName(await queryHiddenCategories(), name);
+    let category = findHiddenCategory(await queryHiddenCategories(), name);
     if (category) return category;
     _hidden_categories = null;
-    category = findOldestByName(await queryHiddenCategories(), name);
+    category = findHiddenCategory(await queryHiddenCategories(), name);
     if (category) return category;
     try {
         category = await saveAssetCategory({ name, hidden: true });
@@ -105,7 +120,7 @@ export async function ensureHiddenCategory(name: string) {
         return category;
     } catch (error) {
         _hidden_categories = null;
-        category = findOldestByName(await queryHiddenCategories(), name);
+        category = findHiddenCategory(await queryHiddenCategories(), name);
         if (category) return category;
         throw error;
     }
