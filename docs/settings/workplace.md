@@ -197,7 +197,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `visitors.duration_step` | number | – | Step, in minutes, between duration options for visitor invites. Falls back to `bookings.duration_step`, then `15`. |
 | `visitors.custom_duration_options` | number[] | – | Custom list of duration options, in minutes, for visitor invites. Falls back to `bookings.custom_duration_options`. |
 | `visitors.show_calendar_links` | boolean | – | Show "add to calendar" links on the visitor invite success view. Off when not set. |
-| `visitors.use_building_timezone` | boolean | – | Display and book visitor invite times using the building's timezone. `bookings.use_building_timezone` also turns this on. |
+| `visitors.use_building_timezone` | boolean | – | Display and book visitor invite times using the building's timezone. Overrides `bookings.use_building_timezone`. |
 
 ## Meetings & Events (`events.*`)
 

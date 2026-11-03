@@ -74,7 +74,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | bookings.max_duration | bookings.duration-bounds | 2 | PASS | |
 | bookings.duration_step | bookings.duration-step | 2 | PASS | |
 | bookings.has_assets | bookings.has-assets | 4 | PASS | Generic key with desks.has_assets unset, plus desks.has_assets overriding it both ways (PPT-2864) |
-| bookings.use_building_timezone | bookings.use-building-timezone | 2 | PASS | Also tested on the locker form (lockers area) |
+| bookings.use_building_timezone | bookings.use-building-timezone | 2 | PASS | Tested on the visitor form with visitors.use_building_timezone unset. Also tested on the locker form (lockers area) |
 
 ### chat (1 spec, 1 Setting, 2 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
@@ -315,7 +315,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | visitors.allow_pass_number | visitor-invite.allow-pass-number | 2 | PASS | |
 | visitors.allow_visitor_internal_or_external | visitor-invite.allow-visitor-internal-or-external | 2 | PASS | |
 | visitors.bookable_hours | visitor-invite.bookable-hours | 3 | PASS | Overrides bookings.bookable_hours, falls back to it, and both unset offer the whole day |
-| visitors.use_building_timezone | visitor-invite.building-timezone | 2 | PASS | |
+| visitors.use_building_timezone | visitor-invite.building-timezone, bookings.use-building-timezone | 4 | PASS | True with bookings.use_building_timezone false, and false overriding bookings.use_building_timezone true. The forms read visitors ?? bookings |
 | visitors.can_book_for_anyone | visitor-invite.can-book-for-anyone | 2 | PASS | |
 | visitors.can_book_for_others | visitor-invite.can-book-for-others | 2 | PASS | |
 | visitors.min_duration | visitor-invite.duration-options | 1 | PASS | |

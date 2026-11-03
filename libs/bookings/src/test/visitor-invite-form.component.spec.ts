@@ -99,6 +99,20 @@ describe('VisitorInviteFormComponent', () => {
         expect(spectator.component.effective_min_duration()).toBe(45);
     });
 
+    it('should let the visitors timezone setting override the bookings setting', () => {
+        (spectator.inject(OrganisationService) as any).building = {
+            id: 'bld-1',
+            timezone: 'Australia/Sydney',
+        };
+        settingSignal('bookings.use_building_timezone').set(true);
+        settingSignal('visitors.use_building_timezone').set(undefined);
+        expect(spectator.component.timezone()).toBe('Australia/Sydney');
+        settingSignal('visitors.use_building_timezone').set(false);
+        expect(spectator.component.timezone()).toBe('');
+        settingSignal('bookings.use_building_timezone').set(false);
+        settingSignal('visitors.use_building_timezone').set(undefined);
+    });
+
     it('should filter visitor suggestions by the search term', () => {
         spectator.component.visitors.set([
             { email: 'alice@example.com', name: 'Alice', company: 'Acme' },

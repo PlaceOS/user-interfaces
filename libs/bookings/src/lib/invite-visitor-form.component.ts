@@ -818,7 +818,7 @@ export class InviteVisitorFormComponent implements OnInit {
     );
     private readonly _visitor_use_building_timezone = this._settings.signal(
         'visitors.use_building_timezone',
-        false,
+        undefined,
     );
     private readonly _visitor_min_duration = this._settings.signal(
         'visitors.min_duration',
@@ -872,8 +872,8 @@ export class InviteVisitorFormComponent implements OnInit {
     public readonly time_format = this._settings.time_format_signal;
     public readonly use_24hr = this._use_24hr;
     public readonly timezone = computed(() =>
-        this._booking_use_building_timezone() ||
-        this._visitor_use_building_timezone()
+        (this._visitor_use_building_timezone() ??
+        this._booking_use_building_timezone())
             ? this._org.building?.timezone || ''
             : '',
     );
