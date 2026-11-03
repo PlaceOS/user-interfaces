@@ -441,7 +441,37 @@ Default map colours:
 | `users.show_avatars` | boolean | – | Show user avatars in the directory user list. Off when not set. |
 | `users.min_search_length` | number | – | Minimum number of characters required before performing a directory search. Falls back to `3`. |
 | `basic_user_search` | boolean | `false` | Use basic user directory queries for colleague search instead of the staff search API. |
+| `staff_search_exclude_guests` | boolean | `true` | Exclude Microsoft Entra Guest accounts from staff directory searches. See [Staff directory search](#staff-directory-search). |
 | `colleagues_require_auth` | boolean | – | Require colleague search to query the user directory as an authenticated user. On when not set. When `false`, the staff search API is used instead. |
+
+### Staff directory search
+
+`staff_search_exclude_guests` applies to every staff directory search in Workplace:
+
+- The **Directory** page.
+- The Explore global search.
+- The landing page colleague search, when `colleagues_require_auth` is `false`.
+- Single-person user fields. These include the desk, visitor and parking **Host**
+  or **Book for** fields, the meeting **Host** field, the Explore booking host field
+  and the find availability user field.
+
+The search follows directory result pages until it finds up to 100 eligible users
+or reaches the end. It excludes accounts with a `userType` of `Guest`. When that
+field is not available, it uses the `#EXT#` username marker. Accounts without
+either marker, including Google directory users, stay eligible.
+
+Multi-person attendee lists keep directory guests. When external attendees are
+enabled, they also keep PlaceOS guest search and saved external email suggestions.
+The setting does not affect `basic_user_search` queries or PlaceOS visitor records.
+
+To include directory guests again, set this in the zone's `workplace_app`
+metadata details and reload Workplace:
+
+```json
+{
+    "staff_search_exclude_guests": false
+}
+```
 
 ## Auto Release (`auto_release.*`)
 

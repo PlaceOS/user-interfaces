@@ -269,9 +269,9 @@ export class ExploreSearchService {
 
     private _user_search = resource({
         params: () => ({ q: this._debounced_filter.value() }),
-        loader: ({ params: { q } }) =>
+        loader: ({ params: { q }, abortSignal }) =>
             q?.length > 2
-                ? this.search_fn(q).catch(() => [] as StaffUser[])
+                ? this.search_fn(q, abortSignal).catch(() => [] as StaffUser[])
                 : Promise.resolve([] as StaffUser[]),
     });
 
@@ -606,12 +606,15 @@ export class ExploreSearchService {
             this._space_search.isLoading(),
     );
     /** Function used to query for users */
-    public search_fn = (q: string): Promise<StaffUser[]> =>
+    public search_fn = (
+        q: string,
+        signal?: AbortSignal,
+    ): Promise<StaffUser[]> =>
         this._settings.get('app.basic_user_search')
             ? queryUsers({ q, authority_id: authority()?.id }).then(
                   (_) => _.data as any as StaffUser[],
               )
-            : searchStaff(q);
+            : searchStaff(q, { signal });
 
     public hideItem(name: string) {
         const hide_items =
