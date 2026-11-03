@@ -221,6 +221,7 @@ All notable changes to this project will be documented in this file.
 - Add Google Analytics (#496)
 - Add dark theme colour overrides and a domain loading gradient
 - Add opt-in Sentry Session Replay
+- Enable Sentry by default with dev and prod sample rates
 
 #### Components
 
