@@ -441,7 +441,28 @@ Default map colours:
 | `users.show_avatars` | boolean | – | Show user avatars in the directory user list. Off when not set. |
 | `users.min_search_length` | number | – | Minimum number of characters required before performing a directory search. Falls back to `3`. |
 | `basic_user_search` | boolean | `false` | Use basic user directory queries for colleague search instead of the staff search API. |
+| `staff_search_exclude_guests` | boolean | `true` | Exclude Microsoft Entra Guest accounts from staff and host directory searches, including the new desk booking **Book for** field and the legacy desk booking **Host** field. Multi-person attendee pickers retain directory guests. Does not affect `basic_user_search` or PlaceOS visitor records. |
 | `colleagues_require_auth` | boolean | – | Require colleague search to query the user directory as an authenticated user. On when not set. When `false`, the staff search API is used instead. |
+
+Staff and host searches follow directory result pages until they find up to 100
+eligible users or reach the end. Accounts with an explicit `userType` of `Guest`
+are excluded; when that field is unavailable, the search checks the `#EXT#`
+username marker. Accounts without either marker, including Google directory
+users, remain eligible. Entra membership does not guarantee an employee or a
+particular location.
+
+To include directory guests again, set this in the zone's `workplace_app`
+metadata details and reload Workplace:
+
+```json
+{
+    "staff_search_exclude_guests": false
+}
+```
+
+Meeting attendee lists retain their existing directory guest search, PlaceOS
+guest search and saved external email suggestions when external attendees are
+enabled.
 
 ## Auto Release (`auto_release.*`)
 

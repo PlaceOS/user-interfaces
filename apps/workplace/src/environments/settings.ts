@@ -161,6 +161,7 @@ const app = {
     show_changelog: true,
     new_features: true,
     basic_user_search: false,
+    staff_search_exclude_guests: true,
     show_presence_indicators: false,
     help,
     events,
