@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 
 - Update parking space pipe to return unallocated for unallocated spaces
 - Prefer same-authority categories for desks, lockers and parking
+- Pick authority categories without waiting for authority()
 
 #### Auth
 
