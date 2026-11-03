@@ -1,0 +1,4 @@
+import{Hn as Ft}from"./main.js";function r(e){return`${e.id}:${e.instance||``}`}function E(e,t){let o=new Set(t);return e.filter(i=>o.has(r(i)))}function s(e,t){return{dialog:t,confirm:{title:Ft(`APP.CONCIERGE.BULK_REJECT_TITLE`),content:Ft(`APP.CONCIERGE.BULK_REJECT_MSG`,{count:e}),icon:`event_busy`}}}export{r as n,s as r,E as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="74bf73bd-6a42-5d8a-a978-216873f6284e")}catch(e){}}();
+//# debugId=74bf73bd-6a42-5d8a-a978-216873f6284e
+//# sourceMappingURL=chunk-BtIPEAK-.js.map
