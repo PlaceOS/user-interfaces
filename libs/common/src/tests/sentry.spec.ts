@@ -4,12 +4,14 @@ import { Router } from '@angular/router';
 import * as Sentry from '@sentry/angular';
 
 import {
+    DEFAULT_SENTRY_DSN,
     initSentry,
     initSentryFromSettings,
     LazySentryErrorHandler,
     scrubEnvelope,
     scrubSecrets,
 } from '../lib/sentry';
+import { DEFAULT_SENTRY_RATES } from '../lib/sentry-rates';
 import { settingSignal } from '../lib/settings.service';
 
 vi.mock('@sentry/angular', () => ({
@@ -116,18 +118,14 @@ describe('LazySentryErrorHandler', () => {
 
 // Last, as Sentry stays started for the rest of the file
 describe('initSentryFromSettings', () => {
-    it('should start once the DSN is set and send early errors', async () => {
+    it('should start with the default DSN and send early errors', async () => {
         vi.spyOn(ErrorHandler.prototype, 'handleError').mockImplementation(
             () => undefined,
         );
         const early_error = new Error('Before Sentry');
         new LazySentryErrorHandler().handleError(early_error);
-        settingSignal('sentry_replays_on_error_sample_rate').set(1);
+        settingSignal('sentry_replays_on_error_sample_rate').set(0.5);
         TestBed.runInInjectionContext(() => initSentryFromSettings());
-        TestBed.tick();
-        expect(Sentry.init).not.toHaveBeenCalled();
-
-        settingSignal('sentry_dsn').set('https://key@sentry.io/1');
         TestBed.tick();
         // A second start while the first is loading the SDK
         void initSentry('https://key@sentry.io/1', TestBed.inject(Router));
@@ -138,9 +136,10 @@ describe('initSentryFromSettings', () => {
         expect(Sentry.init).toHaveBeenCalledTimes(1);
         expect(Sentry.init).toHaveBeenCalledWith(
             expect.objectContaining({
-                tracesSampleRate: 0.1,
-                replaysSessionSampleRate: 0,
-                replaysOnErrorSampleRate: 1,
+                dsn: DEFAULT_SENTRY_DSN,
+                tracesSampleRate: DEFAULT_SENTRY_RATES.traces,
+                replaysSessionSampleRate: DEFAULT_SENTRY_RATES.replays_session,
+                replaysOnErrorSampleRate: 0.5,
             }),
         );
         expect(Sentry.replayIntegration).toHaveBeenCalledWith({

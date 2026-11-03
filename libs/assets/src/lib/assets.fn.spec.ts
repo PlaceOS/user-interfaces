@@ -90,6 +90,30 @@ describe('[Assets]', () => {
             expect(ts_client.queryAssetTypes).toHaveBeenCalledTimes(1);
         });
 
+        it('should prefer a category with an authority over a legacy one', async () => {
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+                response([
+                    { id: 'legacy', name: '_DESKS_', created_at: 1 },
+                    {
+                        id: 'own',
+                        name: '_DESKS_',
+                        authority_id: 'auth-1',
+                        created_at: 2,
+                    },
+                ]),
+            );
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+                response([{ id: 'type-1', name: '_DESKS_' }]),
+            );
+
+            await assets_fn.resolveHiddenAssetTypeId('_DESKS_', '_DESKS_');
+
+            expect(ts_client.queryAssetTypes).toHaveBeenCalledWith(
+                expect.objectContaining({ category_id: 'own' }),
+            );
+        });
+
         it('should not create a type when the type list fails to load', async () => {
             const { assets_fn } = await load_modules();
             vi.mocked(ts_client.queryAssetCategories).mockReturnValue(

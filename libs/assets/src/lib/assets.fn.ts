@@ -52,6 +52,19 @@ export function findOldestByName(list: any[], name: string = '') {
         .sort((a, b) => (a.created_at || 0) - (b.created_at || 0))[0];
 }
 
+/**
+ * Find the hidden category with the given name. The API returns only the
+ * caller's own categories and legacy categories with no authority, so any
+ * category with an `authority_id` belongs to the current authority. These come
+ * first, and legacy categories are the fallback. This does not read
+ * `authority()`, which can still be unset when the list loads. Types belong
+ * to a category, so this choice also sets which types are used.
+ */
+function findHiddenCategory(list: any[], name: string) {
+    const own = list.filter((_) => _.authority_id);
+    return findOldestByName(own, name) || findOldestByName(list, name);
+}
+
 // Hidden categories and types store app resources (desks, lockers, parking,
 // catering) as assets. The lookups below are shared so each list is only
 // requested once. A failed list request rejects and is not cached, so a
@@ -94,10 +107,10 @@ function queryCategoryTypes(category_id: string) {
  * When the create collides with another client, the list is read again.
  */
 export async function ensureHiddenCategory(name: string) {
-    let category = findOldestByName(await queryHiddenCategories(), name);
+    let category = findHiddenCategory(await queryHiddenCategories(), name);
     if (category) return category;
     _hidden_categories = null;
-    category = findOldestByName(await queryHiddenCategories(), name);
+    category = findHiddenCategory(await queryHiddenCategories(), name);
     if (category) return category;
     try {
         category = await saveAssetCategory({ name, hidden: true });
@@ -105,7 +118,7 @@ export async function ensureHiddenCategory(name: string) {
         return category;
     } catch (error) {
         _hidden_categories = null;
-        category = findOldestByName(await queryHiddenCategories(), name);
+        category = findHiddenCategory(await queryHiddenCategories(), name);
         if (category) return category;
         throw error;
     }

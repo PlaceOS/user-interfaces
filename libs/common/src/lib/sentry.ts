@@ -1,14 +1,14 @@
 import { effect, ErrorHandler, inject, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import { log } from './general';
+import { DEFAULT_SENTRY_RATES } from './sentry-rates';
 import type { makeFetchTransport } from './sentry-sdk';
 import { settingSignal } from './settings.service';
 import { VERSION } from './version';
 
-/** Share of transactions to trace when the app does not set one */
-const DEFAULT_TRACES_SAMPLE_RATE = 0.1;
-/** Replay records no sessions unless the app sets a sample rate */
-const DEFAULT_REPLAYS_SAMPLE_RATE = 0;
+/** PlaceOS Sentry project. Used when the app does not set `sentry_dsn`. */
+export const DEFAULT_SENTRY_DSN =
+    'https://0498d2da2a46bfbe89599f3bfbec7c4b@o437082.ingest.us.sentry.io/4506817038909440';
 /** Parts of header and URL parameter names that Sentry 10 kept from Sentry */
 const PII_KEYS = ['forwarded', '-ip', 'remote-', 'via', '-user'];
 
@@ -137,7 +137,8 @@ function sampleRate(value: unknown, fallback: number) {
  * @param dsn Sentry DSN from the `app.sentry_dsn` setting
  * @param router Router to trace navigations for
  * @param rates Sample rates. Values that are not numbers, such as a missing
- * setting, use the default. Replay starts only when one of its rates is above 0.
+ * setting, use `DEFAULT_SENTRY_RATES` for the build. Replay starts only when
+ * one of its rates is above 0.
  */
 export async function initSentry(
     dsn: string,
@@ -148,11 +149,11 @@ export async function initSentry(
     _started = true;
     const replays_session = sampleRate(
         rates.replays_session,
-        DEFAULT_REPLAYS_SAMPLE_RATE,
+        DEFAULT_SENTRY_RATES.replays_session,
     );
     const replays_on_error = sampleRate(
         rates.replays_on_error,
-        DEFAULT_REPLAYS_SAMPLE_RATE,
+        DEFAULT_SENTRY_RATES.replays_on_error,
     );
     const use_replay = replays_session > 0 || replays_on_error > 0;
     try {
@@ -173,7 +174,7 @@ export async function initSentry(
             ],
             tracesSampleRate: sampleRate(
                 rates.traces,
-                DEFAULT_TRACES_SAMPLE_RATE,
+                DEFAULT_SENTRY_RATES.traces,
             ),
             replaysSessionSampleRate: replays_session,
             replaysOnErrorSampleRate: replays_on_error,
@@ -218,13 +219,15 @@ export async function initSentry(
 }
 
 /**
- * Starts Sentry when the `app.sentry_dsn` setting gets a value. Organisation
- * settings can set it soon after the organisation loads, before sign in
- * completes. Call in an injection context, such as a constructor.
+ * Starts Sentry when the `app.sentry_dsn` setting has a value. Without a value,
+ * it uses `DEFAULT_SENTRY_DSN`, so Sentry starts when the app starts.
+ * Organisation settings load later and cannot change the DSN. To change it or
+ * turn Sentry off (`''`), set it in the build-time settings. Call in an
+ * injection context, such as a constructor.
  */
 export function initSentryFromSettings() {
     const router = inject(Router);
-    const dsn = settingSignal<string>('sentry_dsn');
+    const dsn = settingSignal<string>('sentry_dsn', DEFAULT_SENTRY_DSN);
     const traces = settingSignal<number>('sentry_traces_sample_rate');
     const replays_session = settingSignal<number>(
         'sentry_replays_session_sample_rate',

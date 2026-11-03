@@ -79,14 +79,18 @@ Apps that use the shared settings service read two maps of CSS variables. Each k
 
 ## Error reporting
 
-Apps that use the shared organisation loader, and Enrolment, send errors and traces to Sentry when `sentry_dsn` is set. Survey, Outlook Add-in, App Loader, Map Studio, `public` and `redirect` do not use Sentry.
+Apps that use the shared organisation loader, and Enrolment, send errors and traces to Sentry. By default, they use the PlaceOS Sentry project. Survey, Outlook Add-in, App Loader, Map Studio, `public` and `redirect` do not use Sentry.
+
+Sentry starts when the app starts, before the organisation metadata loads. Thus, set the Sentry settings in the app's build-time settings or as a debug override. Zone and organisation metadata do not change them. To turn off Sentry, set `sentry_dsn` to `""`.
+
+The default sample rates depend on the build. The `production` and `mobile` build configurations use the production rates. All other builds, such as `staging` and local serve, use the dev rates in the table. `libs/common/src/lib/sentry-rates.ts` holds the dev rates, and `sentry-rates.prod.ts` holds the production rates. An app that uses Sentry must replace the first file with the second in these configurations.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `sentry_dsn` | string | – | Sentry DSN. When set, the app loads Sentry and reports errors to it. |
-| `sentry_traces_sample_rate` | number | `0.1` | Share of page loads and navigations that Sentry traces, from `0` to `1`. Needs `sentry_dsn`. |
+| `sentry_dsn` | string | PlaceOS project | Sentry DSN. The app loads Sentry and reports errors to it. `""` turns off Sentry. |
+| `sentry_traces_sample_rate` | number | `0.1` (dev: `1`) | Share of page loads and navigations that Sentry traces, from `0` to `1`. Needs `sentry_dsn`. |
 | `sentry_replays_session_sample_rate` | number | `0` | Share of sessions that Sentry Replay records, from `0` to `1`. Needs `sentry_dsn`. |
-| `sentry_replays_on_error_sample_rate` | number | `0` | Share of sessions with an error that Sentry Replay records, from `0` to `1`. Replay keeps the last 60 seconds before the error. Needs `sentry_dsn`. |
+| `sentry_replays_on_error_sample_rate` | number | `0` (dev: `1`) | Share of sessions with an error that Sentry Replay records, from `0` to `1`. Replay keeps the last 60 seconds before the error. Needs `sentry_dsn`. |
 
 The app removes API keys and tokens from URLs before it sends an event, a span or a replay. It does not send cookies, request or response bodies, or user details such as the IP address.
 
