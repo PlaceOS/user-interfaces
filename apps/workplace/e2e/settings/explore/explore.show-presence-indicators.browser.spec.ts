@@ -20,89 +20,31 @@
 // hover card also subscribes to `hide_meeting_details` and
 // `hide_meeting_title` (explore-space-info.component.ts).
 //
-// Synthetic live values: the app's
-// control WebSocket (/api/engine/v2/systems/control) is answered entirely
-// inside the browser with Playwright routeWebSocket; connectToServer() is
-// never called, so no socket reaches the backend. The fixture follows the
-// client protocol in @placeos/ts-client src/realtime/functions.ts: the client
-// counts as connected on the first server message and sends `ping` at once
-// and every 15 s, so `ping` is answered `pong`; requests
-// are `{id, cmd, sys, mod, index, name}`; a `bind` is answered
-// `{id, type: 'success'}` and the value is delivered as
-// `{type: 'notify', value, meta}`. Only bind/unbind of the five
-// variables above, on the synthetic room's `Bookings` module index 1
-// (module.ts, status-variable.ts), are answered. Every other
-// message, every `exec` (module command) and any other bind is refused with
-// a recorded refusal and socket close, failing the scenario. The `presence` value is
-// delivered before the `status` value, so the room fill appearing proves the
+// Safety: settings-harness browserOnlyTest (fresh empty context, synthetic
+// fake-bearer sign-in, every request answered in the browser, strict teardown
+// audit) and controlSocket (the app's control WebSocket is answered in the
+// browser and never reaches a backend). Only bind/unbind of the five
+// variables above, on the synthetic room's `Bookings` module index 1, with a
+// positive request id, are answered; anything else is refused and fails the
+// scenario. On every connection the `status` value is held until the
+// `presence` value has been sent, so the room fill appearing proves the
 // presence update has already run; absence is never inferred from waiting.
-//
-// Authentication is synthetic and browser-local: a fresh empty context gets
-// a fake bearer and its client-ID/expiry keys. Authority and current-user GETs
-// are fulfilled locally. No disk auth, shared staff/admin fixture, token mint,
-// refresh or APIRequestContext is imported or used.
-//
-// HTTP policy: one context-wide dispatcher validates origin, method and
-// redirects BEFORE matching exact local GET fixtures. Non-GET, unknown API/auth,
-// unexpected HTTP and external requests are aborted and fail the audit. Only
-// allowlisted frontend GET assets use route.fetch with redirects disabled.
-// No request uses continue/fallback; no page route can bypass the dispatcher.
-// The known Google Fonts CSS reference is fulfilled locally without a fetch.
-// Every socket is intercepted before navigation, never forwarded. Binding
-// state/deliveries are per connection; unrecognised commands/frames fail.
-// Guards remain installed through context close and pending-handler audits.
-import { createHash } from 'node:crypto';
+import { expect, type Page, type WebSocketRoute } from '@playwright/test';
 import {
-    test as base, expect, type Page, type WebSocketRoute,
-} from '@playwright/test';
-import {
-    browserGet,
-    clearOrganisationCache,
-    findBrowserFixture,
+    browserOnlyTest,
+    browserSignIn,
+    type ControlAudit,
+    controlAudit,
+    CONTROL_PATH,
+    controlSocket,
+    type DebugWindow,
+    fakeBearer,
     type Settings,
-    startBrowserFixtures,
     syntheticExplore,
     syntheticOrgGets,
 } from '../support/settings-harness';
-import { pauseBackground } from '../../../../../e2e/support/background';
-type DebugWindow = Window & {
-    ng?: { getComponent(element: Element): unknown };
-    setting?: (key: string) => unknown;
-};
-/** What the synthetic control socket received and sent. */
-type SocketAudit = {
-    /** Control sockets opened. */
-    connections: number;
-    /** Variables bound, in order. */
-    binds: string[];
-    /** Variables whose value has been delivered, in order. */
-    delivered: string[];
-    /** Refused messages (no values or arguments recorded). */
-    refused: string[];
-};
-type NetworkAudit = {
-    api: string[];
-    local_writes: string[];
-    external: string[];
-    websocket: string[];
-    appErrors: string[];
-    control: SocketAudit;
-    closing: Promise<void>[];
-    pending: Set<Promise<void>>;
-    monitoring: string[];
-    controls: SocketAudit[];
-    gets: Record<string, number>;
-    stopping: boolean;
-};
-const APP_URL = process.env.E2E_APP_URL ?? 'http://localhost:4214';
-const APP = new URL(APP_URL);
-if (!['localhost', '127.0.0.1', '[::1]'].includes(APP.hostname) ||
-    !['http:', 'https:'].includes(APP.protocol) || APP.username || APP.password ||
-    APP.pathname !== '/' || APP.search || APP.hash) {
-    throw new Error('Presence scenarios require a root-path loopback frontend.');
-}
-const CONTROL_PATH = '/api/engine/v2/systems/control';
-const FAKE_BEARER = 'browser-only-presence-not-a-valid-credential';
+
+const FAKE_BEARER = fakeBearer('presence');
 const USER = { id: 'e2e-presence-user', name: 'Synthetic Presence Staff',
     email: 'presence-staff@example.invalid', groups: [], sys_admin: false, support: false };
 const READ_ONLY_SETTINGS: Settings = {
@@ -113,80 +55,8 @@ const READ_ONLY_SETTINGS: Settings = {
     'app.desks.use_assets': false,
 };
 
-function createAudit(): NetworkAudit {
-    return {
-        api: [], local_writes: [], external: [], websocket: [], appErrors: [],
-        control: { connections: 0, binds: [], delivered: [], refused: [] },
-        closing: [], pending: new Set(), monitoring: [], controls: [],
-        gets: {}, stopping: false,
-    };
-}
-
-// Standalone fixtures: never inherit disk-loading staff/admin authentication.
-const test = base.extend<{ staffPage: Page; batchAudit: NetworkAudit }>({
-    staffPage: async ({ browser }, use, info) => {
-        const context = await browser.newContext({
-            baseURL: APP.origin, storageState: { cookies: [], origins: [] },
-            serviceWorkers: 'block', timezoneId: 'Etc/UTC',
-            ignoreHTTPSErrors: true, viewport: { width: 1440, height: 1000 },
-        });
-        await pauseBackground(context);
-        const audit = createAudit();
-        try {
-            const page = await context.newPage();
-            await protectNetwork(page, audit);
-            await use(page);
-        } finally {
-            audit.stopping = true;
-            // The guards remain active until all browser producers stop.
-            try { await context.close(); }
-            catch { audit.monitoring.push('context close failed'); }
-            try {
-                while (audit.pending.size) await Promise.all([...audit.pending]);
-                await info.attach('settings-safety-audit', {
-                    body: Buffer.from(JSON.stringify(audit, (_key, value) =>
-                        value instanceof Set ? [...value] : value, 2)),
-                    contentType: 'application/json',
-                });
-            } finally {
-                await expectSafe(audit);
-            }
-        }
-    },
-    batchAudit: [
-        async ({ staffPage }, use) => {
-            const audit = PAGE_AUDITS.get(staffPage);
-            if (!audit) throw new Error('Presence network protection is not installed');
-            await use(audit);
-        },
-        { auto: true },
-    ],
-});
-
-async function useSettings(page: Page, settings: Settings) {
-    if (Object.keys(settings).some((key) => !key.startsWith('app.'))) {
-        throw new Error('Settings overrides require exact app.* keys');
-    }
-    await page.addInitScript((value) => {
-        localStorage.setItem('PLACEOS.setting_overrides', JSON.stringify(value));
-    }, settings);
-}
-
-async function syntheticAuthentication(page: Page) {
-    // setupPlace derives this redirect URI at a root-path frontend;
-    // ts-client uses MD5(redirect_uri) as its storage prefix.
-    const cid = createHash('md5').update(APP.origin + '/oauth-resp.html').digest('hex');
-    await page.addInitScript(({ origin, cid, bearer }) => {
-        if (location.origin !== origin) return;
-        localStorage.setItem(cid + '_access_token', bearer);
-        localStorage.setItem(cid + '_expires_at', String(Date.now() + 60 * 60_000));
-        localStorage.setItem('mock', 'false');
-    }, { origin: APP.origin, cid, bearer: FAKE_BEARER });
-}
-
-
 const ORG = syntheticExplore('e2e-presence-');
-const { PREFIX, ORGANISATION, REGION, BUILDING, LEVEL, hasParams } = ORG;
+const { PREFIX, ORGANISATION, REGION, BUILDING, LEVEL } = ORG;
 
 /** The one synthetic room on the level. */
 const ROOM = {
@@ -248,251 +118,75 @@ const CONTROLS: Settings = {
     'app.maps_people.use_zones': [],
 };
 
-
-const PAGE_AUDITS = new WeakMap<Page, NetworkAudit>();
-
+/** The audit, plus the live variables sent on each control connection, in send order. */
+type PresenceAudit = ControlAudit & { sends: string[][] };
 
 /**
- * Answer one control-socket message, entirely in the browser. Only `ping`
- * and bind/unbind of the room's five live variables are accepted; anything
- * else is refused with an error reply and recorded. The `status` value is
- * held back until the `presence` value has been delivered.
+ * One controlSocket per WebSocket, so each control connection keeps its own
+ * send order and its own held `status` value, including after a reconnect.
+ * Only the synthetic room's `Bookings` variables with a positive request id
+ * are answered.
  */
-function controlMessage(
-    message: string | Buffer,
-    send: (data: string) => void,
-    socket: SocketAudit,
-    state: { bound: Set<string>; ids: Set<number> },
+function presenceSocket(
+    socket: WebSocketRoute,
+    audit: PresenceAudit,
+    pending: Set<Promise<void>>,
 ) {
-    if (message === 'ping') { send('pong'); return; }
-    let request: Record<string, unknown>;
-    try {
-        const parsed: unknown = JSON.parse(String(message));
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error();
-        request = parsed as Record<string, unknown>;
-    } catch {
-        socket.refused.push('non-object/invalid control frame');
-        return;
-    }
-    const { id, cmd, sys, mod, index, name } = request;
-    const keys = ['id', 'cmd', 'sys', 'mod', 'index', 'name'];
-    const known = Object.keys(request).length === keys.length &&
-        keys.every((key) => Object.hasOwn(request, key)) &&
-        typeof id === 'number' && Number.isSafeInteger(id) && id > 0 &&
-        !state.ids.has(id) && sys === ROOM.id && mod === ROOM_MODULE &&
-        index === ROOM_MODULE_INDEX && typeof name === 'string' &&
-        Object.hasOwn(LIVE_VALUES, name) && (cmd === 'bind' || cmd === 'unbind');
-    if (!known || typeof id !== 'number' || typeof name !== 'string') {
-        socket.refused.push('unexpected control command/binding/frame');
-        return;
-    }
-    state.ids.add(id);
-    if (cmd === 'unbind') {
-        if (!state.bound.delete(name)) {
-            socket.refused.push('unbound variable unbind');
-            return;
-        }
-        send(JSON.stringify({ id, type: 'success', value: null }));
-        return;
-    }
-    state.bound.add(name);
-    socket.binds.push(name);
-    send(JSON.stringify({ id, type: 'success', value: null }));
-    const deliver = (variable: string) => {
-        send(JSON.stringify({ type: 'notify', value: LIVE_VALUES[variable],
-            meta: { sys: ROOM.id, mod: ROOM_MODULE, index: ROOM_MODULE_INDEX, name: variable } }));
-        socket.delivered.push(variable);
-    };
-    // Fresh deliveries on every known bind/rebind. Preserve the original
-    // presence-before-status ordering and its busy-fill readiness guarantee.
-    if (name === 'status') {
-        if (state.bound.has('presence') && socket.delivered.includes('presence')) deliver('status');
-        return;
-    }
-    deliver(name);
-    if (name === 'presence' && state.bound.has('status')) deliver('status');
-}
-
-async function protectNetwork(page: Page, supplied?: NetworkAudit): Promise<NetworkAudit> {
-    const existing = PAGE_AUDITS.get(page);
-    if (existing) return existing;
-    const audit = supplied ?? createAudit();
-    PAGE_AUDITS.set(page, audit);
-    startBrowserFixtures(page);
-    const context = page.context();
-    const track = (task: Promise<void>) => {
-        audit.pending.add(task);
-        void task.finally(() => audit.pending.delete(task));
-        return task;
-    };
-    const observe = (opened: Page) => {
-        opened.on('pageerror', () => audit.appErrors.push('uncaught page error'));
-        opened.on('console', (message) => {
-            if (message.type() === 'error') audit.appErrors.push('console error');
-        });
-        opened.on('requestfailed', () => {
-            if (!audit.stopping) audit.appErrors.push('failed HTTP request');
-        });
-        opened.on('response', (response) => {
-            if (response.status() >= 300) audit.appErrors.push('HTTP error/redirect');
-        });
-        opened.on('crash', () => audit.appErrors.push('page crash'));
-    };
-    observe(page);
-    context.on('page', (opened) => {
-        audit.websocket.push('unexpected additional page');
-        observe(opened);
-    });
-    await context.route('**/*', (route) => track((async () => {
-        const request = route.request();
-        const url = new URL(request.url());
-        const refuse = async (list: string[], reason: string) => {
-            list.push(reason);
-            await route.abort('blockedbyclient');
-        };
-        if (request.redirectedFrom() || url.username || url.password || url.hash) {
-            await refuse(audit.external, 'redirect/credential-bearing HTTP request'); return;
-        }
-        // Known index.html reference, answered locally; never contacts Google.
-        if (request.method() === 'GET' && url.origin === 'https://fonts.googleapis.com' &&
-            url.pathname === '/css2' && hasParams(url, {
-                family: 'Roboto:wght@300;400;500', display: 'swap',
-            })) {
-            await route.fulfill({ contentType: 'text/css', body: '' }); return;
-        }
-        if (url.origin !== APP.origin) {
-            await refuse(audit.external, 'external HTTP request'); return;
-        }
-        if (request.method() !== 'GET') {
-            await refuse(audit.local_writes, 'non-GET HTTP request'); return;
-        }
-        const fixture = findBrowserFixture(page, url);
-        if (fixture) {
-            if (fixture.contentType) {
-                await route.fulfill({ contentType: fixture.contentType, body: String(fixture.body(url)) });
-            } else {
-                await route.fulfill({ json: fixture.body(url) });
-            }
-            audit.gets[url.pathname] = (audit.gets[url.pathname] ?? 0) + 1;
-            return;
-        }
-        const pathname = decodeURIComponent(url.pathname);
-        if (/^\/(api|auth|control)(\/|$)/.test(pathname)) {
-            await refuse(audit.api, 'unmatched API/auth/control GET'); return;
-        }
-        // Static frontend reads only. Unknown fetch/XHR and navigation requests
-        // cannot fall through to the development proxy.
-        const document = request.resourceType() === 'document' &&
-            url.pathname === '/' && !url.search;
-        const asset = ['script', 'stylesheet', 'image', 'font'].includes(request.resourceType()) &&
-            /\.(?:[cm]?js|ts|css|svg|png|ico|jpe?g|webp|woff2?|ttf)$/.test(url.pathname);
-        const module = request.resourceType() === 'script' &&
-            ['/@vite/client', '/@angular/build', '/@ng/component'].includes(url.pathname);
-        const fetched_asset = request.resourceType() === 'fetch' && [
-            '/assets/locale/en-US.json', '/assets/locale/en-AU.json',
-            '/assets/logo-light.svg', '/assets/logo-dark.svg',
-        ].includes(url.pathname) && !url.search;
-        const symbols = /^\/assets\/(material-symbols-(?:outlined|rounded|sharp)\.woff2)$/
-            .exec(url.pathname);
-        if (symbols && (asset || fetched_asset)) {
-            await route.fulfill({
-                path: require.resolve('material-symbols/' + symbols[1]),
-                contentType: 'font/woff2',
-            });
-            return;
-        }
-        if (!document && !asset && !module && !fetched_asset) {
-            await refuse(audit.external, 'unexpected local HTTP GET'); return;
-        }
-        // Only this GET-only frontend branch can perform a network read.
-        // Redirects are not followed, including redirects into API/auth paths.
-        const response = await route.fetch({ maxRedirects: 0 });
-        if (response.status() >= 300 && response.status() < 400) {
-            await refuse(audit.external, 'frontend HTTP redirect'); return;
-        }
-        await route.fulfill({ response });
-    })().catch(async () => {
-        audit.monitoring.push('HTTP interception failed');
-        await route.abort('blockedbyclient').catch(() => {
-            audit.monitoring.push('HTTP abort failed');
-        });
-    })));
-    await context.routeWebSocket('**/*', (socket: WebSocketRoute) => {
-        const close = () => {
-            const task = Promise.resolve().then(() => socket.close()).catch(() => {
-                audit.monitoring.push('WebSocket close failed');
-            });
-            audit.closing.push(task);
-            void track(task);
-        };
-        try {
-            const url = new URL(socket.url());
-            const local = url.host === APP.host &&
-                url.protocol === (APP.protocol === 'https:' ? 'wss:' : 'ws:') &&
-                !url.username && !url.password && !url.hash;
-            if (local && url.pathname === '/' && url.searchParams.getAll('token').length === 1 &&
-                !!url.searchParams.get('token') && [...url.searchParams.keys()].length === 1) {
-                // Vite is held locally too; no message is forwarded.
-                socket.onMessage(() => {
-                    audit.websocket.push('unexpected tooling WebSocket frame'); close();
-                });
+    const sends: string[] = [];
+    let held_status: (() => void) | undefined;
+    if (new URL(socket.url()).pathname === CONTROL_PATH) audit.sends.push(sends);
+    controlSocket<PresenceAudit>({
+        bearer: FAKE_BEARER,
+        key: (request) => request.name,
+        values: (request) =>
+            typeof request.id === 'number' &&
+            request.id > 0 &&
+            request.sys === ROOM.id &&
+            request.mod === ROOM_MODULE &&
+            request.index === ROOM_MODULE_INDEX
+                ? LIVE_VALUES
+                : undefined,
+        deliver: (request, value, notify) => {
+            const send = () => {
+                notify(value);
+                sends.push(request.name);
+            };
+            if (request.name === 'status' && !sends.includes('presence')) {
+                held_status = send;
                 return;
             }
-            const keys = [...url.searchParams.keys()];
-            const valid_query = keys.length === 0 ||
-                (keys.length === 1 && keys[0] === 'bearer_token' &&
-                    url.searchParams.get('bearer_token') === FAKE_BEARER);
-            if (!local || url.pathname !== CONTROL_PATH || !valid_query) {
-                audit.websocket.push('unexpected WebSocket endpoint'); close(); return;
+            send();
+            if (request.name === 'presence' && held_status) {
+                const release = held_status;
+                held_status = undefined;
+                release();
             }
-            const connection: SocketAudit = {
-                connections: audit.controls.length + 1, binds: [], delivered: [], refused: [],
-            };
-            audit.controls.push(connection);
-            audit.control = connection;
-            const state = { bound: new Set<string>(), ids: new Set<number>() };
-            socket.onMessage((message) => {
-                try {
-                    controlMessage(message, (data) => socket.send(data), connection, state);
-                    if (connection.refused.length) close();
-                } catch {
-                    audit.monitoring.push('control handler failed'); close();
-                }
-            });
-            socket.send('pong');
-        } catch {
-            audit.monitoring.push('WebSocket interception failed'); close();
-        }
+        },
+    })(socket, audit, pending);
+}
+
+const test = browserOnlyTest<PresenceAudit>({
+    audit: () => ({ ...controlAudit(), sends: [] }),
+    socket: presenceSocket,
+    fetchAssets: true,
+});
+
+async function openExplore(page: Page, audit: PresenceAudit, enabled: boolean) {
+    await browserSignIn(page, ORG, {
+        bearer: FAKE_BEARER,
+        user: USER,
+        authority: 'Synthetic Presence Authority',
+        settings: {
+            ...READ_ONLY_SETTINGS,
+            ...CONTROLS,
+            'app.features': ['explore'],
+            'app.use_region': false,
+            'app.use_geolocation': false,
+            'app.allow_dark_mode': false,
+            'app.default_building': BUILDING,
+            'app.show_presence_indicators': enabled,
+        },
     });
-    return audit;
-}
-
-async function expectSafe(audit: NetworkAudit) {
-    while (audit.pending.size) await Promise.all([...audit.pending]);
-    await Promise.all(audit.closing);
-    expect(audit.api, 'only exact synthetic API/auth GET fixtures').toEqual([]);
-    expect(audit.local_writes, 'no non-GET request, including auth refresh').toEqual([]);
-    expect(audit.external, 'no external/unexpected HTTP actions').toEqual([]);
-    expect(audit.websocket, 'no other WebSocket or extra page').toEqual([]);
-    expect(audit.controls.flatMap((socket) => socket.refused),
-        'no unexpected command, binding or frame on any connection').toEqual([]);
-    expect(audit.control.binds.filter((name) => !Object.hasOwn(LIVE_VALUES, name)),
-        'only room live variables are bound').toEqual([]);
-    expect(audit.appErrors, 'no application/HTTP errors').toEqual([]);
-    expect(audit.monitoring, 'no interception/teardown failure').toEqual([]);
-}
-
-
-/** Exact synthetic GET fixtures for one level with one room on Explore. */
-async function syntheticGets(page: Page) {
-    await browserGet(page, (url) =>
-        url.pathname === '/auth/authority' && hasParams(url, {}),
-    () => ({ id: PREFIX + 'authority', name: 'Synthetic Presence Authority',
-        domain: APP.host, version: '3.0.0', session: false, production: false,
-        config: { org_zone: ORGANISATION } }));
-    await browserGet(page, (url) =>
-        url.pathname === '/api/engine/v2/users/current' && hasParams(url, {}),
-    () => USER);
     // Bulk metadata, including `bindings`, is empty: no area, location or
     // locker module is bound, so only the room variables reach the socket.
     await syntheticOrgGets(page, ORG, {
@@ -506,24 +200,6 @@ async function syntheticGets(page: Page) {
             `<rect id="${ROOM.map_id}" x="80" y="60" width="120" height="80" fill="#aaaaaa"/>` +
             '</svg>',
     });
-}
-
-async function openExplore(page: Page, enabled: boolean) {
-    const audit = await protectNetwork(page);
-    await page.setViewportSize({ width: 1440, height: 1000 });
-    await syntheticAuthentication(page);
-    await clearOrganisationCache(page);
-    await useSettings(page, {
-        ...READ_ONLY_SETTINGS,
-        ...CONTROLS,
-        'app.features': ['explore'],
-        'app.use_region': false,
-        'app.use_geolocation': false,
-        'app.allow_dark_mode': false,
-        'app.default_building': BUILDING,
-        'app.show_presence_indicators': enabled,
-    });
-    await syntheticGets(page);
     await page.goto('/#/explore');
     await expect(page.locator('global-loading')).toHaveCount(1);
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
@@ -531,9 +207,8 @@ async function openExplore(page: Page, enabled: boolean) {
         page.locator('global-loading [initialisation-error]'),
     ).toHaveCount(0);
     await expect(page.locator('explore-map-view')).toHaveCount(1);
-    await expect.poll(() => audit.gets['/auth/authority'] ?? 0).toBeGreaterThan(0);
-    await expect.poll(() => audit.gets['/api/engine/v2/users/current'] ?? 0).toBeGreaterThan(0);
-    return audit;
+    await expect.poll(() => audit.fixtures['/auth/authority'] ?? 0).toBeGreaterThan(0);
+    await expect.poll(() => audit.fixtures['/api/engine/v2/users/current'] ?? 0).toBeGreaterThan(0);
 }
 
 function presenceSetting(page: Page) {
@@ -543,9 +218,9 @@ function presenceSetting(page: Page) {
 }
 
 /**
- * Read-only probe of the map view's inputs (explore-map-view.component.ts
- * :202-215): the room's fill and the presence icon features. Fails closed if
- * the signals are unavailable.
+ * Read-only probe of the map view's inputs (explore-map-view.component.ts):
+ * the room's fill and the presence icon features. Fails closed if the signals
+ * are unavailable.
  */
 function mapState(page: Page) {
     return page
@@ -592,38 +267,51 @@ const SCENARIOS = [
 
 for (const scenario of SCENARIOS) {
     test(`show_presence_indicators ${scenario.enabled} sets the room presence icon on the Explore map`, async ({
-        staffPage,
-        batchAudit,
+        isolated: { page, audit },
     }) => {
-        await openExplore(staffPage, scenario.enabled);
+        await openExplore(page, audit, scenario.enabled);
         await expect
-            .poll(() => presenceSetting(staffPage), {
+            .poll(() => presenceSetting(page), {
                 message: 'effective app.show_presence_indicators',
             })
             .toBe(scenario.enabled);
-        // The synthetic socket delivered presence, then status.
+        // The synthetic socket sent presence, then status.
         await expect
-            .poll(() => batchAudit.control.delivered.slice(), {
-                message: 'live values delivered by the synthetic socket',
+            .poll(() => audit.sends.at(-1)?.slice() ?? [], {
+                message: 'live values sent by the synthetic socket',
             })
             .toEqual(
                 expect.arrayContaining(['bookings', 'presence', 'status']),
             );
-        expect(
-            batchAudit.control.delivered.indexOf('presence'),
-            'presence is delivered before status',
-        ).toBeLessThan(batchAudit.control.delivered.indexOf('status'));
+        for (const sends of audit.sends.filter((sent) => sent.includes('status'))) {
+            expect(
+                sends.indexOf('presence'),
+                'presence is sent before status on every connection',
+            ).toBeGreaterThanOrEqual(0);
+            expect(
+                sends.indexOf('presence'),
+                'presence is sent before status on every connection',
+            ).toBeLessThan(sends.indexOf('status'));
+        }
         // The room fill comes from the later status value, so once it is
         // shown the presence update has already run.
         await expect
-            .poll(async () => (await mapState(staffPage)).room_fill, {
+            .poll(async () => (await mapState(page)).room_fill, {
                 message: 'room fill from the live status',
             })
             .toBe(BUSY_FILL);
-        expect((await mapState(staffPage)).presence_icons).toStrictEqual(
+        expect((await mapState(page)).presence_icons).toStrictEqual(
             scenario.icons,
         );
-        await expect(presenceIcons(staffPage)).toHaveCount(scenario.rendered);
-        await expectSafe(batchAudit);
+        await expect(presenceIcons(page)).toHaveCount(scenario.rendered);
+        expect(audit.refused, 'no refused request, socket frame or extra page').toEqual([]);
+        expect(audit.errors, 'no application or HTTP errors').toEqual([]);
+        expect(audit.monitoring, 'no interception failure').toEqual([]);
+        expect(
+            audit.connections
+                .flatMap((connection) => connection.binds)
+                .filter((name) => !Object.hasOwn(LIVE_VALUES, name)),
+            'only room live variables are bound',
+        ).toEqual([]);
     });
 }
