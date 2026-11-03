@@ -464,11 +464,14 @@ export const MOCK_EVENTS = (() => {
         }
     }
 
-    // Remove duplicates and sort by time
-    const uniqueEvents = events.filter(
-        (event, index, array) =>
-            index === array.findIndex((e) => e.id === event.id),
-    );
+    // Remove duplicates (keep the first event for each id) and sort by time.
+    // This runs on every app load, so it uses a set, not a search per event.
+    const seen = new Set<string>();
+    const uniqueEvents = events.filter((event) => {
+        if (seen.has(event.id)) return false;
+        seen.add(event.id);
+        return true;
+    });
 
     return uniqueEvents.sort((a, b) => a.event_start - b.event_start);
 })();

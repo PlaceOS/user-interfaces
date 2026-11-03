@@ -38,6 +38,7 @@ import {
     listBookings,
     uniqueTitle,
 } from '../../../../e2e/support/api';
+import { pauseBackground } from '../../../../e2e/support/background';
 import { WORKERS, roleFor, staffEmail } from '../../../../e2e/support/env';
 import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
 import { deleteGuest, releaseVisitor } from '../../../../e2e/support/visitor/visitor.api';
@@ -176,6 +177,7 @@ test.describe('visitor invite on behalf of another host', () => {
                 storageState: host.role.storagePath,
                 ignoreHTTPSErrors: true,
             });
+            await pauseBackground(host_ctx);
             const host_page = await host_ctx.newPage();
             try {
                 const theirs = new YourBookingsPage(host_page);

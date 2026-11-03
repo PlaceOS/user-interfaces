@@ -16,6 +16,7 @@ import {
     uniqueTitle,
 } from '../../../../e2e/support/api';
 import { buildStorageState, mintToken } from '../../../../e2e/support/auth';
+import { pauseBackground } from '../../../../e2e/support/background';
 import {
     createBookingViaApi,
     releaseFor,
@@ -84,6 +85,7 @@ test.describe('your bookings — high cancelled history', () => {
             context = await browser.newContext({
                 storageState: buildStorageState(token, APP_URL),
             });
+            await pauseBackground(context);
             const page = await context.newPage();
             page.on('response', async (response) => {
                 if (!response.url().includes(`${STAFF_API}/bookings`)) return;

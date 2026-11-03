@@ -189,7 +189,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `visitors.can_book_for_others` | boolean | – | Allow users to invite visitors on behalf of another internal host. Falls back to `bookings.can_book_for_others`. |
 | `visitors.can_book_for_anyone` | boolean | – | Allow users to invite visitors on behalf of any host, including an external host. Falls back to `bookings.can_book_for_anyone`. |
 | `visitors.allow_visitor_internal_or_external` | boolean | `false` | Show a control on the visitor invites step that marks each visitor as internal (default) or external. |
-| `visitors.allow_international` | boolean | – | Accept international phone numbers for visitors. Off when not set. |
+| `visitors.allow_international` | boolean | – | Show an International checkbox for each visitor. Off when not set. |
 | `visitors.allow_pass_number` | boolean | – | Show a pass number field for each visitor. Off when not set. |
 | `visitors.bookable_hours` | object | – | Time window in which visitors can be invited, as hours of the day. Falls back to `bookings.bookable_hours`. |
 | `visitors.min_duration` | number | – | Minimum visitor invite duration, in minutes. Falls back to `bookings.min_duration`, then `30`. |

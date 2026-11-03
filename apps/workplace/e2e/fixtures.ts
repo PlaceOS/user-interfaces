@@ -1,4 +1,5 @@
 import { test as base, expect } from '@playwright/test';
+import { pauseBackground } from '../../../e2e/support/background';
 
 /**
  * Shared Playwright fixtures for the Workplace e2e suite.
@@ -16,8 +17,14 @@ import { test as base, expect } from '@playwright/test';
  * Setting localStorage via `addInitScript` (before any app script runs) is
  * therefore required for the app to be functional offline in tests. This
  * fixture applies it to every test/page automatically.
+ *
+ * The context also pauses the animated page background (see background.ts).
  */
 export const test = base.extend({
+    context: async ({ context }, use) => {
+        await pauseBackground(context);
+        await use(context);
+    },
     page: async ({ page }, use) => {
         await page.addInitScript(() =>
             window.localStorage.setItem('mock', 'true'),

@@ -163,7 +163,7 @@ was built in. Extending there is a separate piece of work, not an oversight.
 | VIS-17 | P1 | Declining that confirmation leaves the invite alone. | **done** — `local/visitor-cancel.spec.ts`. A dialog whose decline button also deletes is worse than one that fails to delete, and only this catches it. |
 | VIS-18 | P1 | An address that is not an email is refused **before anything is sent**. | **done** — `local/visitor-validation.spec.ts`. Asserts on the network, not on a message: the backend stores whatever it is given, so the form is the only guard. Includes a control that a valid address does send. |
 | VIS-19 | P2 | A visitor taken off the list before sending is not invited, and the rest still are. | **done** — `local/visitor-validation.spec.ts` |
-| VIS-20 | P2 | A pass number and the international-visitor flag are stored with the invite. | **partial** — `local/visitor-details.spec.ts`. The pass number is stored. The international flag is `test.fixme`: with `visitors.allow_international` on, the new invite flow has no control for it and sends `international: false`. |
+| VIS-20 | P2 | A pass number and the international-visitor flag are stored with the invite. | **done**: `local/visitor-details.spec.ts`. With `visitors.allow_international` on, the invite flow shows an international checkbox for a named visitor, and the tick is stored as `extension_data.international`. |
 | VIS-21 | P2 | The company is stored, and the separate guest record carries the visitor's name. | **done** — `local/visitor-details.spec.ts`. The guest record is what reception reads and it outlives the booking. |
 | VIS-22 | P1 | The start time and length chosen on the form are the ones stored. | **done** — `local/visitor-times.spec.ts`. Everything else here takes the default hour, so a form that ignored the picker would have passed the whole suite. |
 | VIS-23 | P2 | A maximum visit length and bookable hours limit what the form offers. | **done** — `local/visitor-times.spec.ts`. Asserts on the options offered, because an out-of-range choice is absent rather than refused. Red-checked: without the settings the form offers 240 minutes against a 60 minute cap. |
@@ -287,8 +287,8 @@ PR #561 changed the components that these routes open:
   assertions. `desk-flow.page.ts`, `meeting-flow.page.ts`, `invite-form.page.ts`,
   `landing-new.page.ts` and `your-bookings.page.ts` are the page objects of the new views. The
   page objects of the replaced views are deleted.
-- **Four stories are blocked by the new views** and are `test.fixme`. They are in the table
-  "Blocked by the new views" below.
+- **Four stories were blocked by the new views** and were `test.fixme`. The ones still blocked
+  are in the table "Blocked by the new views" below.
 - **Six rows that were blocked on the replaced flows now pass**: ROOM-11, ROOM-13, ROOM-14,
   ROOM-21, ROOM-22 and VIS-15.
 - **After the move, a full local run of 161 tests has 154 passes, 7 `fixme` and no failure**
@@ -358,12 +358,11 @@ of WP-E2E-05, and its two checks of the success view are now in that test.
 
 ### Blocked by the new views
 
-Each of these is `test.fixme` with the measurement in its comment. The first two passed on the
-views before PR #561.
+Each of these is `test.fixme` with the measurement in its comment. The first passed on the views
+before PR #561.
 
 | ID | Story | What blocks it |
 |----|-------|----------------|
-| VIS-20 (half) | The international-visitor flag is stored with the invite. | With `visitors.allow_international` on, the new invite flow has no control for the flag and sends `international: false`. |
 | ROOM-28 | A meeting booked for a colleague is stored with that colleague as the host. | The new meeting flow cannot name a colleague on this stack. `events.can_book_for_anyone` renders no host field. `events.can_book_for_others` renders a select that is filled from `GET /calendars`, which answers `500` without a calendar tenant, so the select holds only the signed-in user. |
 | NEW-DESK-03 | A desk can be selected when another desk of the building has no `features` list. | `desk-flow-select.component.ts` calls `.trim()` on the features of every desk with no guard. One desk without the list throws `TypeError: Cannot read properties of undefined (reading 'trim')`, and after that no row of the list shows as selected. The earlier flow read the list through `BookingFormService.features`, which has the guard. |
 
@@ -518,8 +517,8 @@ nothing, so the broker keeps its last value. source would need redis keyspace no
   or through `use_bookings`?** Nobody has answered it. If the answer is "the calendar", the
   green rows in §1b guard a path those customers never take. This needs a product answer, not more
   specs.
-- **Five rows are blocked on product fixes, not on test effort** (REG-08, REG-09, the
-  international half of VIS-20, ROOM-28 and NEW-DESK-03). The last three are gaps or faults of
+- **Four rows are blocked on product fixes, not on test effort** (REG-08, REG-09, ROOM-28 and
+  NEW-DESK-03). The last two are gaps or faults of
   the views that PR #561 made the default; §1c has them. All were found by this suite. Leaving
   them visible here is the point — a blocked row is coverage information, a deleted row is not.
 - **One row is blocked by the environment rather than by a bug** (AUTH-E2E-08), and it says

@@ -312,9 +312,8 @@ function createdBookings(posts: CapturedPost[]): VisitorBooking[] {
  * Invite ONE visitor through the full UI, in single-visitor mode.
  * Returns the booking the API created.
  *
- * `allDay` and `passNumber` each need the setting that shows the control (see
- * `visitor.settings.ts`), and fail if the control is missing. The page has no
- * control for `international` at the moment, so that option always fails.
+ * `allDay`, `passNumber` and `international` each need the setting that shows
+ * the control (see `visitor.settings.ts`), and fail if the control is missing.
  */
 export async function inviteVisitorViaUI(
     page: Page,
