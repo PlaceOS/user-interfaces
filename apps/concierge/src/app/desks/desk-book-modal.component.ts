@@ -4,12 +4,7 @@ import {
     BookingFormService,
     NewDeskFormDetailsComponent,
 } from '@placeos/bookings';
-import {
-    DialogEvent,
-    i18n,
-    notifyError,
-    notifySuccess,
-} from '@placeos/common';
+import { DialogEvent, i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     TranslatePipe,
@@ -62,6 +57,12 @@ export class DeskBookModalComponent implements OnInit {
         this._booking_form.newForm('desk');
     }
 
+    /**
+     * Post the desk booking from the modal's confirm button. A failure (for
+     * example invalid form fields) shows an error notification and keeps the
+     * modal open. It does not reject, because the template event handler
+     * cannot catch a rejection.
+     */
     public async save() {
         this.loading.set(true);
         this.model.update((m) => ({ ...m, booking_type: 'desk' }));
@@ -70,15 +71,20 @@ export class DeskBookModalComponent implements OnInit {
         if (is_group) {
             method = () => this._booking_form.postFormForGroup();
         }
-        const event = await method().catch((_) => {
-            if (_?.status === 409) {
-                notifyError(i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR'));
-            } else {
-                notifyError(_);
-            }
+        let event: Awaited<ReturnType<typeof method>>;
+        try {
+            event = await method();
+        } catch (e) {
+            // Errors are strings (validation) or HTTP error responses.
+            const is_conflict = (e as { status?: number })?.status === 409;
+            notifyError(
+                is_conflict
+                    ? i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR')
+                    : (e as string),
+            );
             this.loading.set(false);
-            throw _;
-        });
+            return;
+        }
         this.event.emit({ reason: 'done', metadata: event });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_SUCCESS'));
         this._dialog_ref.close();
