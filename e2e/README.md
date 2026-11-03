@@ -37,8 +37,10 @@ bunx playwright test --config apps/workplace/playwright.config.ts --ui          
 `local` and `settings` depend on `preflight`, which checks the stack is up. Add
 `--no-deps` to skip it.
 
-Playwright starts the Angular dev server itself (`nx serve workplace --port=4214`)
-and points its API proxy at the stack. Nothing reaches the network.
+Playwright starts the Angular dev server itself
+(`nx serve workplace --configuration=e2e --port=4214`) and points its API proxy
+at the stack. The `e2e` configuration turns Sentry off, so nothing reaches the
+network.
 
 If a run dies with "Executable doesn't exist", the workspace's pinned Playwright
 needs its browser: `bunx playwright install chromium`.

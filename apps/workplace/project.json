@@ -53,6 +53,14 @@
                 "browser": "apps/workplace/src/main.ts"
             },
             "configurations": {
+                "e2e": {
+                    "fileReplacements": [
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/workplace/src/environments/settings.e2e.ts"
+                        }
+                    ]
+                },
                 "staging": {
                     "optimization": true,
                     "fileReplacements": [
@@ -157,6 +165,9 @@
                 "buildTarget": "workplace:build"
             },
             "configurations": {
+                "e2e": {
+                    "buildTarget": "workplace:build:e2e"
+                },
                 "production": {
                     "buildTarget": "workplace:build:production"
                 }
