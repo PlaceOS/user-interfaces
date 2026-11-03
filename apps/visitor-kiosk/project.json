@@ -75,6 +75,10 @@
                         {
                             "replace": "libs/common/src/lib/settings.ts",
                             "with": "apps/visitor-kiosk/src/environments/settings.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/sentry-rates.ts",
+                            "with": "libs/common/src/lib/sentry-rates.prod.ts"
                         }
                     ],
                     "optimization": true,

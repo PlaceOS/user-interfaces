@@ -88,6 +88,10 @@
                         {
                             "replace": "libs/common/src/lib/settings.ts",
                             "with": "apps/enrolment/src/environments/settings.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/sentry-rates.ts",
+                            "with": "libs/common/src/lib/sentry-rates.prod.ts"
                         }
                     ],
                     "outputHashing": "all"

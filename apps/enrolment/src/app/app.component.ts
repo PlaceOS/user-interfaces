@@ -122,8 +122,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         settings.mock =
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
-        // Apply the domain config before sign in, so a `sentry_dsn` in it can
-        // report a sign in failure. It also sets `internal_user_domain`.
+        // Apply the domain config before sign in. It sets `internal_user_domain`.
         this._settings.setOverrides([authority.config?.enrolment || {}]);
         /** Wait for authentication details to load */
         try {

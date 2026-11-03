@@ -8,13 +8,13 @@
         },
         "sentry_dsn": {
             "type": "string",
-            "description": "Connector string for setting up Sentry"
+            "description": "Connector string for setting up Sentry. Defaults to the PlaceOS project. An empty string turns off Sentry. Read when the app starts, so zone metadata does not change it."
         },
         "sentry_traces_sample_rate": {
             "type": "number",
             "minimum": 0,
             "maximum": 1,
-            "description": "Share of page loads and navigations that Sentry traces, from 0 to 1. Defaults to 0.1."
+            "description": "Share of page loads and navigations that Sentry traces, from 0 to 1. Defaults to 0.1, or 1 in builds other than production."
         },
         "sentry_replays_session_sample_rate": {
             "type": "number",
@@ -26,7 +26,7 @@
             "type": "number",
             "minimum": 0,
             "maximum": 1,
-            "description": "Share of sessions with an error that Sentry Replay records, from 0 to 1. Defaults to 0."
+            "description": "Share of sessions with an error that Sentry Replay records, from 0 to 1. Defaults to 0, or 1 in builds other than production."
         },
         "show_changelog": {
             "type": "boolean",
