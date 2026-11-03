@@ -6,7 +6,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, with develop
 
 | Group | Specs | Unique Settings | Scenarios | Status |
 |---|---|---|---|---|
-| **In PR #595** | **187** | **215** | **443** | **All 443 passed locally on 3 Nov, with develop merged in** |
+| | **In PR #595** | **187** | **215** | **445** | **443 passed locally on 3 Nov with develop merged in; the 2 PPT-2871 override cases added in 2e9a3f467 passed 35/35 (5 repeats) on 3 Nov** |
 | Held locally, not in the PR | 2 (+1 product check) | 2 | 6 | See "Held locally" |
 | Excluded or ignored by developer decision | – | 4 | – | Not tested |
 
@@ -20,6 +20,8 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, with develop
   - 422 tests, 417 passed.
   - The 5 failures were 4 held local tests and 1 dev-server hiccup (`events.room_as_host` with `force_host`), which passed 6/6 on a repeat run.
 - Typecheck: no errors.
+- PPT-2871 override cases, 3 Nov 2026 (2e9a3f467, on 2db5cef6a), 2 workers, 0 retries, 5 repeats:
+- `desk-booking.use-building-timezone` and `lockers.use-building-timezone`: 35 tests (desk 3 + locker 4, ×5), all passed in 1.8 min.
 
 **Status key**
 - **PASS**: the test passes and checks the documented behaviour.
@@ -44,9 +46,9 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings-b
 bunx playwright test -c apps/workplace/playwright.config.ts --project=settings --list                # counts without running
 ```
 
-| Project | `--list` (30 Oct 2026) | Needs the stack |
+| Project | `--list` (3 Nov 2026, 2e9a3f467) | Needs the stack |
 |---|---|---|
-| `settings` | 407 tests in 171 spec files (plus the 2 `preflight` tests it depends on) | yes |
+| `settings` | 409 tests in 171 spec files (plus the 2 `preflight` tests it depends on) | yes |
 | `settings-browser` | 36 tests in 16 spec files | no |
 
 - `settings`: every settings spec except the browser-only ones. Depends on `preflight`, so it fails fast when the stack is down.
@@ -79,7 +81,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 |---|---|---|---|---|
 | chat.enabled | chat.enabled | 2 | PASS | |
 
-### desk-booking (27 specs, 27 Settings, 60 scenarios)
+### desk-booking (27 specs, 27 Settings, 61 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
 |---|---|---|---|---|
 | desks.allow_all_day | desk-booking.allow-all-day | 2 | PASS | |
@@ -108,7 +110,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | desks.show_calendar_links | desk-booking.show-calendar-links | 2 | PASS | |
 | desks.show_users | desk-booking.show-users | 3 | PASS | |
 | desks.use_assets | desk-booking.use-assets | 2 | PASS | The assets fixture answers both the per-level query (`zone_id`) and the building-wide one the desk list uses (`zones`) |
-| desks.use_building_timezone | desk-booking.use-building-timezone | 2 | PASS | |
+| desks.use_building_timezone | desk-booking.use-building-timezone | 3 | PASS | The override case checks an explicit desks false hides the secondary time line while bookings is true (PPT-2871) |
 
 ### directory (2 specs, 2 Settings, 4 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
@@ -192,7 +194,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | show_quick_book | landing.show-quick-book | 1 | PASS | |
 | show_quick_links | landing.show-quick-links | 1 | PASS | |
 
-### lockers (11 specs, 11 unique Settings, 23 scenarios)
+### lockers (11 specs, 11 unique Settings, 24 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
 |---|---|---|---|---|
 | lockers.allow_all_day | lockers.allow-all-day | 2 | PASS | |
@@ -206,7 +208,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | lockers.max_duration | lockers.max-duration | 2 | PASS | |
 | lockers.show_calendar_links | lockers.show-calendar-links | 2 | PASS | |
 | bookings.use_building_timezone (locker form) | lockers.use-building-timezone | 2 | PASS | Same Setting as in bookings, so not counted again |
-| lockers.use_building_timezone | lockers.use-building-timezone | 1 | PASS | True with bookings.use_building_timezone false; the form reads bookings \|\| lockers, so each key is set alone. The developer considers this setting not useful, so it has this one case only |
+| lockers.use_building_timezone | lockers.use-building-timezone | 2 | PASS | True with bookings.use_building_timezone false, and false overriding bookings.use_building_timezone true (PPT-2871). The form reads lockers ?? bookings |
 
 ### parking-booking (15 specs, 16 Settings, 40 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
