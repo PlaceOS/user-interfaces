@@ -12,7 +12,6 @@ import {
     addAssetPurchaseOrder,
     addAssetType,
     apiEndpoint,
-    authority,
     PlaceAsset,
     PlaceAssetCategory,
     PlaceAssetPurchaseOrder,
@@ -54,16 +53,15 @@ export function findOldestByName(list: any[], name: string = '') {
 }
 
 /**
- * Find the hidden category with the given name. Categories of the current
- * authority come first. Legacy categories with no authority are the fallback,
- * as the API also returns them. Types belong to a category, so this choice
- * also sets which types are used.
+ * Find the hidden category with the given name. The API returns only the
+ * caller's own categories and legacy categories with no authority, so any
+ * category with an `authority_id` belongs to the current authority. These come
+ * first, and legacy categories are the fallback. This does not read
+ * `authority()`, which can still be unset when the list loads. Types belong
+ * to a category, so this choice also sets which types are used.
  */
 function findHiddenCategory(list: any[], name: string) {
-    const authority_id = authority()?.id;
-    const own = authority_id
-        ? list.filter((_) => _.authority_id === authority_id)
-        : [];
+    const own = list.filter((_) => _.authority_id);
     return findOldestByName(own, name) || findOldestByName(list, name);
 }
 
