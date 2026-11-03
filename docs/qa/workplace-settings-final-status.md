@@ -6,7 +6,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, with develop
 
 | Group | Specs | Unique Settings | Scenarios | Status |
 |---|---|---|---|---|
-| | **In PR #595** | **187** | **215** | **445** | **443 passed locally on 3 Nov with develop merged in; the 2 PPT-2871 override cases added in 2e9a3f467 passed 35/35 (5 repeats) on 3 Nov** |
+| **In PR #595** | **187** | **215** | **445** | **443 passed locally on 3 Nov with develop merged in; the 2 PPT-2871 override cases added in 2e9a3f467 passed 35/35 (5 repeats) on 3 Nov** |
 | Held locally, not in the PR | 2 (+1 product check) | 2 | 6 | See "Held locally" |
 | Excluded or ignored by developer decision | – | 4 | – | Not tested |
 
@@ -21,7 +21,7 @@ Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, with develop
   - The 5 failures were 4 held local tests and 1 dev-server hiccup (`events.room_as_host` with `force_host`), which passed 6/6 on a repeat run.
 - Typecheck: no errors.
 - PPT-2871 override cases, 3 Nov 2026 (2e9a3f467, on 2db5cef6a), 2 workers, 0 retries, 5 repeats:
-- `desk-booking.use-building-timezone` and `lockers.use-building-timezone`: 35 tests (desk 3 + locker 4, ×5), all passed in 1.8 min.
+  - `desk-booking.use-building-timezone` and `lockers.use-building-timezone`: 35 tests (desk 3 + locker 4, ×5), all passed in 1.8 min.
 
 **Status key**
 - **PASS**: the test passes and checks the documented behaviour.
