@@ -238,6 +238,25 @@ describe('ExploreMapViewComponent', () => {
         vi.useRealTimers();
     });
 
+    it('should notify when the user to locate is not found', async () => {
+        const execute = vi.fn();
+        vi.mocked(spectator.inject(OrganisationService).module).mockReturnValue(
+            { execute } as any,
+        );
+        vi.mocked(ts_client.get).mockRejectedValue({
+            status: 404,
+            message: 'User not found',
+        });
+        setNotifyOutlet(fake_snackbar as any, true);
+        fake_snackbar.open.mockClear();
+        vi.useFakeTimers();
+        spectator.setRouteQueryParam('user', 'user-1');
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(execute).not.toHaveBeenCalled();
+        expect(fake_snackbar.open).toHaveBeenCalled();
+        vi.useRealTimers();
+    });
+
     it('should handle location spaces', () => {
         const state = spectator.inject(ExploreStateService);
         const spaces = spectator.inject(SpacesService);
