@@ -1,4 +1,4 @@
-// Coverage: 1 unique setting, 2 scenarios.
+// Coverage: 1 unique setting, 3 scenarios.
 // Setting: desks.use_building_timezone (docs/settings/workplace.md; source:
 //   apps/workplace/src/app/book/desk-flow-new/desk-flow-details.component.ts,
 //   rendered by libs/form-fields/src/lib/duration-field.component.ts).
@@ -8,11 +8,15 @@
 // UTC and the real building rows are rewritten to Pacific/Honolulu, so the
 // offset is deterministic without changing any backend record. No desk is
 // selected, no asset is attached and no booking is confirmed.
+//
+// DeskFlowDetails reads desks.use_building_timezone ?? bookings.use_building_timezone
+// (PPT-2871), so an explicit desks false overrides bookings true.
 import type { Locator, Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
     type Audit,
+    type Debug,
     futureDesk,
     prepareSettings,
     type Settings,
@@ -69,12 +73,18 @@ const DESK: Settings = {
     'app.bookings.custom_duration_options': [],
 };
 
-async function prepare(page: Page, audit: Audit, enabled: boolean) {
+async function prepare(
+    page: Page,
+    audit: Audit,
+    enabled: boolean,
+    bookings: boolean = false,
+) {
     // Real building rows, rewritten to Pacific/Honolulu, which differs from the
     // browser's pinned Etc/UTC. This is a browser GET response only.
     await timezoneBuildings(page, audit);
     const fixture = await prepareSettings(page, {
         'app.desks.use_building_timezone': enabled,
+        'app.bookings.use_building_timezone': bookings,
     }, { audit, base: DESK, hidden: 'e2e-desk-timezone', landingRooms: false });
     await page.goto('/#/book/desk/form');
     await fixture.ready({
@@ -84,6 +94,18 @@ async function prepare(page: Page, audit: Audit, enabled: boolean) {
     await expect(details.locator('input[name$=".title"]')).toBeEditable();
     await expect(details.locator('date-field button').first()).toBeEnabled();
     return details;
+}
+
+/** The effective value of a setting, as the app reads it (unset is null). */
+const effective = (page: Page, key: string) =>
+    page.evaluate((name) => (window as Debug).setting?.(name) ?? null, key);
+
+/** The duration field's bound timezone ('' when the building time is off). */
+function durationTimezone(details: Locator) {
+    return details.locator('duration-field').evaluate((element) => {
+        const field = (window as Debug).ng?.getComponent(element) as { timezone(): string } | undefined;
+        return field?.timezone();
+    });
 }
 
 /** Tomorrow at 10:00 with the first duration offered. */
@@ -109,3 +131,25 @@ for (const enabled of [false, true]) {
             await expect(staffPage.locator('desk-flow-success')).toHaveCount(0);
         });
 }
+
+// PPT-2871
+test('desks.use_building_timezone false overrides bookings.use_building_timezone true and hides the duration secondary time line',
+    async ({ staffPage, audit }) => {
+        const details = await prepare(staffPage, audit, false, true);
+        expect(audit.fixtures['timezone buildings'] ?? 0, 'building-timezone rows served').toBeGreaterThan(0);
+        await expect
+            .poll(() => effective(staffPage, 'app.bookings.use_building_timezone'))
+            .toBe(true);
+        await expect
+            .poll(() => effective(staffPage, 'app.desks.use_building_timezone'))
+            .toBe(false);
+        await futureDeskWithDuration(staffPage, details);
+        // The bound timezone proves the effective setting, so the count below
+        // is not inferred from waiting.
+        await expect
+            .poll(() => durationTimezone(details), { message: 'desk duration-field timezone' })
+            .toBe('');
+        await expect(details.locator('duration-field div.opacity-30')).toHaveCount(0);
+        await expect(staffPage).toHaveURL(/#\/book\/desk\/form$/);
+        await expect(staffPage.locator('desk-flow-success')).toHaveCount(0);
+    });
