@@ -237,6 +237,8 @@ export class DirectoryUserListComponent extends AsyncHandler {
         effect((onCleanup) => {
             const query = this.search();
             this._retry();
+            // Stop a replaced search from fetching more directory pages.
+            const controller = new AbortController();
             const timeout = setTimeout(async () => {
                 this.failed.set(false);
                 if (query.length < this.min_search_length) {
@@ -245,14 +247,18 @@ export class DirectoryUserListComponent extends AsyncHandler {
                     return;
                 }
                 this.loading.set(true);
-                const list = await searchStaff(query).catch(() => {
-                    this.failed.set(true);
-                    return [];
-                });
-                this.search_results.set(list);
+                const list = await searchStaff(query, {
+                    signal: controller.signal,
+                }).catch(() => null);
+                if (controller.signal.aborted) return;
+                this.failed.set(!list);
+                this.search_results.set(list ?? []);
                 this.loading.set(false);
             }, 400);
-            onCleanup(() => clearTimeout(timeout));
+            onCleanup(() => {
+                clearTimeout(timeout);
+                controller.abort();
+            });
         });
     }
 

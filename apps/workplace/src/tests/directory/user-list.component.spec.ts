@@ -113,6 +113,34 @@ describe('DirectoryUserListComponent', () => {
         expect(spectator.component.failed()).toBe(true);
     });
 
+    it('should ignore a search that a newer search replaced', async () => {
+        settings_get.mockImplementation((key: string) =>
+            key === 'app.users.min_search_length' ? 3 : undefined,
+        );
+        let resolveStale: (list: unknown) => void = () => undefined;
+        vi.mocked(ts_client.get)
+            .mockReturnValueOnce(
+                new Promise((resolve) => (resolveStale = resolve)) as any,
+            )
+            .mockResolvedValueOnce([
+                { name: 'Janet', email: 'janet@x.com' },
+            ] as any);
+
+        spectator.component.search.set('jane');
+        spectator.detectChanges();
+        await wait(450);
+        spectator.component.search.set('janet');
+        spectator.detectChanges();
+        await wait(450);
+        resolveStale([{ name: 'Jane', email: 'jane@x.com' }]);
+        await wait(0);
+
+        const list = spectator.component.search_results();
+        expect(list.map((_) => _.name)).toEqual(['Janet']);
+        expect(spectator.component.failed()).toBe(false);
+        expect(spectator.component.loading()).toBe(false);
+    });
+
     it('should group and sort users by the first letter of their name', () => {
         spectator.component.search_results.set([
             { name: 'Bob', email: 'b@x.com' },

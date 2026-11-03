@@ -1,10 +1,7 @@
-import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
 import { createServiceFactory } from '@ngneat/spectator/vitest';
-import { setCurrentUser, SettingsService, StaffUser } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
-import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
-import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { MockProvider } from 'ng-mocks';
 import { DEFAULT_SETTINGS } from '../environments/settings';
@@ -17,6 +14,8 @@ const mockGet = vi.mocked(
     ) => Promise<Record<string, unknown>[]>,
 );
 
+// Search behaviour is covered in libs/users and the Concierge spec.
+// These tests cover only the Workplace default and its metadata opt-out.
 describe('Workplace staff directory search settings', () => {
     const createSettings = createServiceFactory({
         service: SettingsService,
@@ -25,10 +24,6 @@ describe('Workplace staff directory search settings', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        setCurrentUser(new StaffUser({ id: 'test-user' }));
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as any);
         vi.mocked(ts_client.responseHeaders).mockReturnValue({});
         mockGet.mockResolvedValue([
             {
@@ -45,16 +40,14 @@ describe('Workplace staff directory search settings', () => {
     });
 
     it('excludes directory guests with the Workplace default', async () => {
-        const settings = createSettings().service;
-        settings.setOverrides([DEFAULT_SETTINGS.app]);
+        createSettings().service.setOverrides([DEFAULT_SETTINGS.app]);
         expect((await searchStaff('Jack')).map((u) => u.id)).toEqual([
             'member',
         ]);
     });
 
     it('includes guests when zone workplace_app metadata overrides the default', async () => {
-        const settings = createSettings().service;
-        settings.setOverrides([
+        createSettings().service.setOverrides([
             { staff_search_exclude_guests: false },
             DEFAULT_SETTINGS.app,
         ]);
@@ -62,111 +55,5 @@ describe('Workplace staff directory search settings', () => {
             'guest',
             'member',
         ]);
-        expect(mockGet.mock.calls[0][0]).not.toContain('additional_fields');
-    });
-
-    it('finds desk booking hosts beyond a page of directory guests', async () => {
-        const settings = createSettings().service;
-        settings.setOverrides([DEFAULT_SETTINGS.app]);
-        mockGet
-            .mockResolvedValueOnce(
-                Array.from({ length: 100 }, (_, index) => ({
-                    id: `guest-${index}`,
-                    name: 'Jack Guest',
-                    username: `jack${index}#EXT#@example.onmicrosoft.com`,
-                })),
-            )
-            .mockResolvedValueOnce([
-                {
-                    id: 'employee',
-                    name: 'Jack Employee',
-                    unmapped: { userType: 'Member' },
-                },
-            ]);
-        vi.mocked(ts_client.responseHeaders).mockReturnValueOnce({
-            link: `</api/staff/v1/people?q=Jack&page=2>; rel="next"`,
-        });
-
-        const fixture = TestBed.createComponent(UserSearchFieldComponent);
-        fixture.detectChanges();
-        const users = await fixture.componentInstance.query_fn()('Jack');
-
-        expect(users.map((user) => user.id)).toEqual(['employee']);
-        expect(mockGet).toHaveBeenCalledTimes(2);
-    });
-
-    it('excludes directory guests from the shared desk booking host picker with external attendees enabled', async () => {
-        const settings = createSettings().service;
-        settings.setOverrides([
-            { basic_user_search: false, events: { allow_externals: true } },
-            DEFAULT_SETTINGS.app,
-        ]);
-        const fixture = TestBed.createComponent(UserSearchFieldComponent);
-        fixture.detectChanges();
-        const users = await fixture.componentInstance.query_fn()('Jack');
-        expect(users.map((u) => u.id)).toEqual(['member']);
-        expect(mockGet.mock.calls[0][0]).toContain(
-            'additional_fields=userType',
-        );
-    });
-
-    it('retains directory guests, PlaceOS guests and saved suggestions in the attendee picker', async () => {
-        const settings = createSettings().service;
-        settings.setOverrides([
-            { basic_user_search: false },
-            DEFAULT_SETTINGS.app,
-        ]);
-        settings.saveUserSetting('visitor-invitees', [
-            'saved@example.com|Jack Saved|Example|0',
-        ]);
-        mockGet.mockImplementation(async (url) =>
-            url.startsWith('/api/staff/v1/guests')
-                ? [
-                      {
-                          id: 'visitor',
-                          name: 'Jack Visitor',
-                          email: 'visitor@example.com',
-                      },
-                  ]
-                : [
-                      {
-                          id: 'guest',
-                          name: 'Jack Guest',
-                          email: 'guest@example.com',
-                          unmapped: { userType: 'Guest' },
-                      },
-                      {
-                          id: 'member',
-                          name: 'Jack Employee',
-                          email: 'member@example.com',
-                          unmapped: { userType: 'Member' },
-                      },
-                  ],
-        );
-        const fixture = TestBed.createComponent(UserListFieldComponent);
-        fixture.componentRef.setInput('guests', true);
-        fixture.detectChanges();
-        fixture.componentInstance.search.set('Jack');
-        await new Promise((resolve) => setTimeout(resolve, 350));
-        await fixture.whenStable();
-        fixture.detectChanges();
-        expect(
-            fixture.componentInstance.user_list().map((u) => u.email),
-        ).toEqual([
-            'member@example.com',
-            'guest@example.com',
-            'saved@example.com',
-            'visitor@example.com',
-        ]);
-        expect(
-            mockGet.mock.calls.some(([url]) =>
-                url.startsWith('/api/staff/v1/guests'),
-            ),
-        ).toBe(true);
-        expect(
-            mockGet.mock.calls
-                .filter(([url]) => url.startsWith('/api/staff/v1/people'))
-                .every(([url]) => !url.includes('additional_fields')),
-        ).toBe(true);
     });
 });

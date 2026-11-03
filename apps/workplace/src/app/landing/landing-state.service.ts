@@ -104,13 +104,13 @@ export class LandingStateService extends AsyncHandler {
     public readonly search_failed = this._search_failed.asReadonly();
     public level_occupancy = this._level_occupancy.asReadonly();
 
-    public search_fn = async (q: string) =>
+    public search_fn = async (q: string, signal?: AbortSignal) =>
         this._settings.get('app.basic_user_search') ||
         this._settings.get('app.colleagues_require_auth') !== false
             ? queryUsers({ q, authority_id: authority()?.id }).then(
                   ({ data }) => data.map((_) => new StaffUser(_)),
               )
-            : searchStaff(q);
+            : searchStaff(q, { signal });
 
     constructor() {
         super();
@@ -157,16 +157,20 @@ export class LandingStateService extends AsyncHandler {
         effect((onCleanup) => {
             const { search } = this._options();
             const id = ++search_id;
+            // Stop a replaced search from fetching more directory pages.
+            const controller = new AbortController();
             const timeout = setTimeout(async () => {
                 this._loading.set(
                     i18n('APP.WORKPLACE.COLLEAGUE_SEARCH_LOADING'),
                 );
                 let failed = false;
                 const results = search
-                    ? await this.search_fn(search).catch(() => {
-                          failed = true;
-                          return [] as StaffUser[];
-                      })
+                    ? await this.search_fn(search, controller.signal).catch(
+                          () => {
+                              failed = true;
+                              return [] as StaffUser[];
+                          },
+                      )
                     : [];
                 // Ignore the response of a search that a newer one replaced
                 if (id !== search_id) return;
@@ -174,7 +178,10 @@ export class LandingStateService extends AsyncHandler {
                 this._search_failed.set(failed);
                 this._loading.set('');
             }, 500);
-            onCleanup(() => clearTimeout(timeout));
+            onCleanup(() => {
+                clearTimeout(timeout);
+                controller.abort();
+            });
         });
         effect(() => {
             this._upcoming_events.set(
