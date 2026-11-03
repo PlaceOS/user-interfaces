@@ -50,9 +50,9 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | `settings-browser` | 36 tests in 16 spec files | no |
 
 - `settings`: every settings spec except the browser-only ones. Depends on `preflight`, so it fails fast when the stack is down.
-- `settings-browser`: the 16 specs that answer every request in the browser (`BROWSER_ONLY_SETTINGS` in `apps/workplace/playwright.config.ts`).
+- `settings-browser`: the 16 specs that answer every request in the browser (files that end in `.browser.spec.ts`).
 - `--project=local` runs only the original local-backend suite (159 tests), not the settings specs.
-- To run one spec, pass its path after the project, for example `--project=settings apps/workplace/e2e/settings/lockers/lockers.hide-user.spec.ts`. A spec in `BROWSER_ONLY_SETTINGS` runs only under `--project=settings-browser`.
+- To run one spec, pass its path after the project, for example `--project=settings apps/workplace/e2e/settings/lockers/lockers.hide-user.spec.ts`. A `*.browser.spec.ts` spec runs only under `--project=settings-browser`.
 - On a busy machine, a failure on the 15 s `global-loading` wait is usually load: re-run that file alone with `--workers=1` before treating it as a code failure.
 - `E2E_WEBSERVER_TIMEOUT_MS` sets how long Playwright waits for the Workplace dev server (default 180000).
 - In CI (`.github/workflows/e2e-advisory.yml`), `settings` runs on the nightly schedule and on "Run workflow"; `settings-browser` runs on every run (push, nightly and "Run workflow"), on a GitHub-hosted runner, with `E2E_WEBSERVER_TIMEOUT_MS=900000` for the cold dev server.

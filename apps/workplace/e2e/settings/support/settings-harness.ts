@@ -104,10 +104,7 @@ export const ORIGINS = new Set([
 
 /** The URL with every query value replaced, for audit records. */
 export function safeURL(raw: string) {
-    const url = new URL(raw);
-    for (const key of [...url.searchParams.keys()])
-        url.searchParams.set(key, '[redacted]');
-    return url.href;
+    return redact(new URL(raw));
 }
 
 export const test = readOnlyTest.extend<{
@@ -136,12 +133,8 @@ export const test = readOnlyTest.extend<{
                     audit.page_errors.push(error.name + ': ' + error.message),
                 );
                 page.on('console', (message) => {
-                    if (
-                        message.type() === 'error' &&
-                        /^(ERROR\b|NG0\d+)/.test(message.text())
-                    ) {
+                    if (isAppError(message))
                         audit.app_errors.push(message.text().slice(0, 500));
-                    }
                 });
             };
             observe(staffPage);
@@ -194,24 +187,14 @@ export const test = readOnlyTest.extend<{
                     try {
                         const url = new URL(socket.url());
                         socket_url = safeURL(url.href);
-                        const app = new URL(APP_URL);
-                        const local =
-                            url.host === app.host &&
-                            url.protocol ===
-                                (app.protocol === 'https:' ? 'wss:' : 'ws:');
                         // The Vite client opens this socket; closing it makes the
                         // client poll and reload. Held open, never connected.
-                        if (
-                            local &&
-                            url.pathname === '/' &&
-                            [...url.searchParams.keys()].join(',') === 'token'
-                        ) {
+                        if (isDevServerSocket(url)) {
                             audit.tooling_websockets.push(socket_url);
                             return;
                         }
                         if (
-                            local &&
-                            url.pathname === '/api/engine/v2/systems/control' &&
+                            isLocalControlSocket(url) &&
                             auditSockets === 'close-control'
                         ) {
                             audit.blocked_control_attempts.push(socket_url);
@@ -2429,12 +2412,8 @@ export async function protectNetwork(
         audit.appErrors.push(error.name + ': ' + error.message),
     );
     page.on('console', (message) => {
-        if (
-            message.type() === 'error' &&
-            /^(ERROR\b|NG0\d+)/.test(message.text())
-        ) {
+        if (isAppError(message))
             audit.appErrors.push(message.text().slice(0, 500));
-        }
     });
     await page.context().route('**/*', async (route) => {
         const request = route.request();
@@ -2483,22 +2462,16 @@ export async function protectNetwork(
     });
     await page.context().routeWebSocket('**/*', (socket) => {
         const url = new URL(socket.url());
-        const app = new URL(APP_URL);
-        const local =
-            url.host === app.host &&
-            url.protocol === (app.protocol === 'https:' ? 'wss:' : 'ws:');
-        if (
-            local &&
-            url.pathname === '/' &&
-            [...url.searchParams.keys()].join(',') === 'token'
-        )
-            return;
-        if (local && url.pathname === '/api/engine/v2/systems/control') {
-            audit.blockedControl.push(url.pathname);
-        } else {
-            audit.websocket.push(url.pathname);
-        }
-        audit.closing.push(socket.close());
+        if (isDevServerSocket(url)) return;
+        if (isLocalControlSocket(url)) audit.blockedControl.push(url.pathname);
+        else audit.websocket.push(url.pathname);
+        // A close still pending when the context closes fails with a
+        // closed-target error; expectSafe must not throw on it.
+        audit.closing.push(
+            socket.close().catch((error: unknown) => {
+                if (!closedByTeardown(error)) throw error;
+            }),
+        );
     });
     PAGE_AUDITS.set(page, audit);
     return audit;
@@ -2708,9 +2681,7 @@ export function landingSafetyTest(
                 const observePage = (page: Page) => {
                     page.on('pageerror', (error) => audit.page_errors.push({ name: error.name, message: error.message, stack: error.stack }));
                     page.on('console', (message) => {
-                        if (message.type() === 'error' && /^(ERROR\b|NG0\d+)/.test(message.text())) {
-                            audit.app_errors.push(message.text().slice(0, 500));
-                        }
+                        if (isAppError(message)) audit.app_errors.push(message.text().slice(0, 500));
                     });
                 };
                 for (const page of context.pages()) observePage(page);
@@ -2722,21 +2693,18 @@ export function landingSafetyTest(
             await context.routeWebSocket('**/*', (socket) => {
                 try {
                     const url = new URL(socket.url());
-                    const app = new URL(APP_URL);
-                    const protocol = app.protocol === 'https:' ? 'wss:' : 'ws:';
-                    const local = url.protocol === protocol && url.host === app.host;
-                    const tooling = local && url.pathname === '/' && [...url.searchParams.keys()].join(',') === 'token';
-                    const control = local && url.pathname === '/api/engine/v2/systems/control';
-                    for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, '[redacted]');
+                    const tooling = isDevServerSocket(url);
+                    const control = isLocalControlSocket(url);
+                    const href = redact(url);
                     if (tooling) {
-                        audit.tooling_websockets.push({ url: url.href, classification: 'dev-server live reload; mocked and held open, never connected' });
+                        audit.tooling_websockets.push({ url: href, classification: 'dev-server live reload; mocked and held open, never connected' });
                         return;
                     }
                     if (control) {
-                        audit.blocked_control_attempts.push({ url: url.href,
+                        audit.blocked_control_attempts.push({ url: href,
                             classification: 'known Workplace shell initialization; intercepted and closed before server connection' });
                     } else {
-                        audit.websocket_attempts.push({ url: url.href, classification: 'UNEXPECTED socket; these presentation scenarios are HTTP-only' });
+                        audit.websocket_attempts.push({ url: href, classification: 'UNEXPECTED socket; these presentation scenarios are HTTP-only' });
                     }
                 } catch (error) {
                     audit.monitoring_errors.push(`WebSocket interception failed: ${String(error)}`);
@@ -3070,10 +3038,7 @@ export function migrationAuditFor(
                             audit.page_errors.push(String(error)),
                         );
                         page.on('console', (message) => {
-                            if (
-                                message.type() === 'error' &&
-                                /^(ERROR\b|NG0\d+)/.test(message.text())
-                            )
+                            if (isAppError(message))
                                 audit.app_errors.push(message.text().slice(0, 500));
                         });
                         page.on('response', (response) => {
@@ -3166,23 +3131,12 @@ export function migrationAuditFor(
                     await context.routeWebSocket('**/*', (socket) => {
                         try {
                             const url = new URL(socket.url());
-                            const app = new URL(APP_URL);
-                            const local =
-                                url.host === app.host &&
-                                url.protocol ===
-                                    (app.protocol === 'https:' ? 'wss:' : 'ws:');
-                            const tooling =
-                                local &&
-                                url.pathname === '/' &&
-                                [...url.searchParams.keys()].join(',') === 'token';
-                            const control =
-                                local &&
-                                url.pathname === '/api/engine/v2/systems/control';
-                            for (const key of [...url.searchParams.keys()])
-                                url.searchParams.set(key, '[redacted]');
+                            const tooling = isDevServerSocket(url);
+                            const control = isLocalControlSocket(url);
+                            const href = redact(url);
                             if (tooling) {
                                 audit.tooling_websockets.push({
-                                    url: url.href,
+                                    url: href,
                                     classification:
                                         'dev-server live reload; mocked and held open, never connected',
                                 });
@@ -3190,13 +3144,13 @@ export function migrationAuditFor(
                             }
                             if (control)
                                 audit.blocked_control_attempts.push({
-                                    url: url.href,
+                                    url: href,
                                     classification:
                                         'known Workplace shell initialization; intercepted and closed before server connection',
                                 });
                             else
                                 audit.websocket_attempts.push({
-                                    url: url.href,
+                                    url: href,
                                     classification:
                                         'UNEXPECTED connection; intercepted before server connection',
                                 });
@@ -3329,13 +3283,11 @@ export const migrationTest = baseTest.extend<{
 // a WebSocket that the spec's handler does not accept are refused. Fresh
 // storage, blocked service workers and a strict teardown audit: refused
 // requests, page/console errors, failed requests and responses >= 300 all fail
-// the test. These specs run in the settings-browser project, which has no
-// preflight dependency.
+// the test. These specs (named *.browser.spec.ts) run in the settings-browser
+// project, which has no preflight dependency.
 
 /** The local frontend the browser-only specs load. */
-export const BROWSER_APP = new URL(
-    process.env.E2E_APP_URL ?? 'http://localhost:4214',
-);
+export const BROWSER_APP = new URL(APP_URL);
 /** The ts-client control WebSocket path. */
 export const CONTROL_PATH = '/api/engine/v2/systems/control';
 
@@ -3556,9 +3508,14 @@ export function browserOnlyTest<A extends BrowserAudit>(
                             return;
                         }
                         await route.fulfill({ response });
-                    })().catch(async () => {
+                    })().catch(async (error: unknown) => {
+                        // A request still in flight when the context closes
+                        // fails with a closed-target error. The teardown
+                        // causes it, not the app.
+                        if (stopping && closedByTeardown(error)) return;
                         audit.monitoring.push('HTTP handler failed');
-                        await route.abort('blockedbyclient').catch(() => {
+                        await route.abort('blockedbyclient').catch((abortError: unknown) => {
+                            if (stopping && closedByTeardown(abortError)) return;
                             audit.monitoring.push('HTTP abort failed');
                         });
                     });
@@ -3602,7 +3559,19 @@ export function browserOnlyTest<A extends BrowserAudit>(
                 } catch {
                     audit.monitoring.push('context close failed');
                 }
-                while (pending.size) await Promise.all([...pending]);
+                // Bounded: a task that never settles must not hang teardown.
+                const deadline = Date.now() + 10_000;
+                while (pending.size && Date.now() < deadline) {
+                    let timer: ReturnType<typeof setTimeout> | undefined;
+                    await Promise.race([
+                        Promise.all([...pending]),
+                        new Promise((done) => {
+                            timer = setTimeout(done, deadline - Date.now());
+                        }),
+                    ]);
+                    clearTimeout(timer);
+                }
+                if (pending.size) audit.monitoring.push('pending tasks did not settle');
                 try {
                     await info.attach('settings-safety-audit', {
                         body: Buffer.from(JSON.stringify(audit, null, 2)),

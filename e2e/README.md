@@ -32,7 +32,7 @@ bunx playwright test --config apps/workplace/playwright.config.ts --ui          
 | `local` | `apps/workplace/e2e/local/` | yes | every run |
 | `mock` | `apps/workplace/e2e/*.spec.ts` | no | every run |
 | `settings` | `apps/workplace/e2e/settings/`, except the browser-only ones | yes | nightly and "Run workflow" only |
-| `settings-browser` | the browser-only settings specs listed in `BROWSER_ONLY_SETTINGS` in the config | no | every run, on a GitHub-hosted runner |
+| `settings-browser` | the browser-only settings specs (`apps/workplace/e2e/settings/**/*.browser.spec.ts`) | no | every run, on a GitHub-hosted runner |
 
 `local` and `settings` depend on `preflight`, which checks the stack is up. Add
 `--no-deps` to skip it.
