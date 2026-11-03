@@ -164,6 +164,7 @@ All notable changes to this project will be documented in this file.
 - Fill the next play sort button while pressed
 - Report Angular errors to Sentry
 - Show and open new playlists right away
+- Keep distribution playlist items in sync after add and remove
 
 #### Test
 
