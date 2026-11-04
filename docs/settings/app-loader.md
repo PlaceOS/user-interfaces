@@ -2,7 +2,7 @@
 
 The App Loader is a simple application launcher. It shows a grid of the applications registered against the current PlaceOS domain (the applications configured in Backoffice under the domain), each displayed with its name and favicon and linking through to that application. It hides itself from the list, only shows applications with a valid `http`/`https` redirect URI, and sorts the tiles alphabetically.
 
-**Note on configuration:** unlike most PlaceOS applications, the App Loader does not load settings from Zone metadata — it only reads its build-time defaults from `apps/app-loader/src/environments/settings.ts`. To change these settings you need to update that file and rebuild/redeploy the application. For quick testing, individual `app.*` settings can be overridden locally in a browser via the settings debug overrides (stored in the browser's local storage under `PLACEOS.setting_overrides`).
+**Note on configuration:** unlike most PlaceOS applications, the App Loader does not load settings from Zone metadata — it only reads its build-time defaults from `apps/app-loader/src/environments/settings.ts`. To change these settings you need to update that file and rebuild/redeploy the application. For quick testing, individual `app.*` settings can be overridden locally in a browser via the settings debug overrides (stored in the browser's local storage under `PLACEOS.setting_overrides.<app>` and `PLACEOS.setting_overrides`, see [Local settings overrides](README.md#local-settings-overrides)).
 
 All keys below live under the `app` settings key.
 

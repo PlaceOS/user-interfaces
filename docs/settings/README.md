@@ -114,9 +114,14 @@ The browser stores the last gradient, so a reload shows it immediately. After a 
 
 ## Local settings overrides
 
-Apps with a settings debug panel use **Ctrl+Alt+Shift+S** to open it. A saved override applies only in that browser. It does not update Backoffice. Overrides persist in local storage under `PLACEOS.setting_overrides` and take priority over zone settings.
+Apps with a settings debug panel use **Ctrl+Alt+Shift+S** to open it. Only users in the `placeos_admin` or `placeos_support` group can open the debug panels. A saved override applies only in that browser. It does not update Backoffice. Overrides take priority over zone settings.
 
-Overrides use exact keys. An override for `app.events` does not override a lookup for `app.events.multiple_spaces`. Use the exact setting key. Use **Clear all overrides** in the panel to restore the configured values. Apps on the same origin share this local storage key.
+Overrides persist in two local storage keys:
+
+- `PLACEOS.setting_overrides.<app>` holds the overrides for one app. `<app>` is the app path without slashes, for example `workplace`. The panel saves new overrides to this key.
+- `PLACEOS.setting_overrides` holds overrides for all apps on the origin. The app key takes priority over it. Tests and scripts can set this key to apply settings before an app loads.
+
+Overrides use exact keys. An override for `app.events` does not override a lookup for `app.events.multiple_spaces`. Use the exact setting key. When you remove an override in the panel, the panel also removes it from the key for all apps. Use **Clear all overrides** in the panel to remove the overrides in both keys and restore the configured values.
 
 ## Source references
 

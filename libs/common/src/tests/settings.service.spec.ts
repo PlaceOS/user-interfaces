@@ -183,3 +183,46 @@ describe('SettingsService theme', () => {
         expect(service.theme_signal()).toBe('light');
     });
 });
+
+describe('SettingsService debug overrides', () => {
+    const createService = createServiceFactory(SettingsService);
+    const SHARED = 'PLACEOS.setting_overrides';
+    const APP = 'PLACEOS.setting_overrides.PlaceOS';
+
+    afterEach(() => {
+        localStorage.removeItem(SHARED);
+        localStorage.removeItem(APP);
+    });
+
+    it('should layer app overrides over shared ones and write the app key', () => {
+        localStorage.setItem(
+            SHARED,
+            JSON.stringify({ 'app.title': 'Shared', 'app.mode': 'all' }),
+        );
+        localStorage.setItem(APP, JSON.stringify({ 'app.title': 'This app' }));
+        const service = createService({
+            providers: [MockProvider(Title, { setTitle: vi.fn() })],
+        }).service;
+        expect(service.debug_overrides()).toEqual({
+            'app.title': 'This app',
+            'app.mode': 'all',
+        });
+
+        service.setDebugOverride('app.size', 2);
+        expect(JSON.parse(localStorage.getItem(APP))).toEqual({
+            'app.title': 'This app',
+            'app.size': 2,
+        });
+        expect(JSON.parse(localStorage.getItem(SHARED))).toEqual({
+            'app.title': 'Shared',
+            'app.mode': 'all',
+        });
+
+        // Removing a key also removes it from the shared overrides
+        service.setDebugOverride('app.mode', undefined);
+        expect(service.debug_overrides()['app.mode']).toBeUndefined();
+        expect(JSON.parse(localStorage.getItem(SHARED))).toEqual({
+            'app.title': 'Shared',
+        });
+    });
+});
