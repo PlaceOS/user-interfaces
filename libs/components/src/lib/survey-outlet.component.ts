@@ -25,7 +25,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { AsyncHandler, notifySuccess, themedLogo } from '@placeos/common';
+import {
+    AsyncHandler,
+    notifyError,
+    notifySuccess,
+    themedLogo,
+} from '@placeos/common';
 import {
     addAnswer,
     showQuestion,
@@ -398,8 +403,7 @@ export class SurveyOutletComponent
 
     public async submitSurvey() {
         this.form().markAllAsTouched();
-        this.loading.set('Submitting survey answers...');
-        if (!this.form().valid) return;
+        if (!this.form().valid) return this._showFirstInvalidPage();
         this.loading.set('Saving survey answers...');
         const answers: Partial<SurveyAnswer>[] = [];
         for (const q_id in this.questions) {
@@ -413,10 +417,24 @@ export class SurveyOutletComponent
                 });
             }
         }
-        await addAnswer(answers);
+        try {
+            await addAnswer(answers);
+        } catch {
+            notifyError('Failed to submit survey answers.');
+            this.loading.set('');
+            return;
+        }
         notifySuccess('Successfully submitted survey answers.');
         this.success.set(true);
         this.loading.set('');
+    }
+
+    /** Show the first page with an invalid answer, so the user can fix it */
+    private _showFirstInvalidPage() {
+        const index = this.survey().pages.findIndex((page) =>
+            page.question_order.some((id) => this.form().get(`${id}`)?.invalid),
+        );
+        if (index >= 0) this.active_page.set(index);
     }
 
     private async _updateSurvey() {
@@ -433,6 +451,10 @@ export class SurveyOutletComponent
     }
 
     private async _loadQuestions() {
+        // Drop questions and progress from a previous survey
+        for (const id in this.questions) delete this.questions[id];
+        this.active_page.set(0);
+        this.success.set(false);
         if (!this.survey()?.pages.length) return;
         this.loading.set('Loading survey questions...');
         const requests: Promise<SurveyQuestion>[] = [];

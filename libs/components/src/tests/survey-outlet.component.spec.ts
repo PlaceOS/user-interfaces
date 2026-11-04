@@ -20,7 +20,13 @@ const SURVEY = {
 } as any;
 
 const QUESTIONS = {
-    1: { id: 1, type: 'rating', title: 'Rate us', required: true, max_rating: 5 },
+    1: {
+        id: 1,
+        type: 'rating',
+        title: 'Rate us',
+        required: true,
+        max_rating: 5,
+    },
     2: { id: 2, type: 'text', title: 'Any comments?' },
     3: {
         id: 3,
@@ -58,8 +64,8 @@ describe('SurveyOutletComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.mocked(ts_client.showSurvey).mockResolvedValue(SURVEY);
-        vi.mocked(ts_client.showQuestion).mockImplementation(
-            (id) => Promise.resolve({ ...QUESTIONS[+id] }),
+        vi.mocked(ts_client.showQuestion).mockImplementation((id) =>
+            Promise.resolve({ ...QUESTIONS[+id] }),
         );
         vi.mocked(ts_client.addAnswer).mockResolvedValue([]);
     });
@@ -160,15 +166,43 @@ describe('SurveyOutletComponent', () => {
         spectator = createComponent();
         spectator.setInput({ survey: SURVEY });
         await settle();
+        spectator.component.nextPage();
         await spectator.component.submitSurvey();
         expect(ts_client.addAnswer).not.toHaveBeenCalled();
         expect(spectator.component.success()).toBe(false);
+        expect(spectator.component.loading()).toBe('');
+        expect(spectator.component.active_page()).toBe(0);
+    });
+
+    it('should show the form again when saving answers fails', async () => {
+        vi.mocked(ts_client.addAnswer).mockRejectedValue(new Error('500'));
+        spectator = createComponent();
+        spectator.setInput({ survey: SURVEY });
+        await settle();
+        spectator.component.setRating('1', 5);
+        await spectator.component.submitSurvey();
+        expect(spectator.component.success()).toBe(false);
+        expect(spectator.component.loading()).toBe('');
+    });
+
+    it('should drop questions from a previous survey', async () => {
+        spectator = createComponent();
+        spectator.setInput({ survey: SURVEY });
+        await settle();
+        spectator.setInput({
+            survey: {
+                ...SURVEY,
+                id: 13,
+                pages: [{ title: 'Only Page', question_order: [2] }],
+            },
+        });
+        await settle();
+        expect(Object.keys(spectator.component.questions)).toEqual(['2']);
+        expect(spectator.component.form().valid).toBe(true);
     });
 
     it('should emit not_found when the survey fails to load', async () => {
-        vi.mocked(ts_client.showSurvey).mockRejectedValue(
-            new Error('404'),
-        );
+        vi.mocked(ts_client.showSurvey).mockRejectedValue(new Error('404'));
         spectator = createComponent();
         const emitted = vi.fn();
         spectator.component.not_found.subscribe(emitted);
