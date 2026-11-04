@@ -30,9 +30,10 @@ import { DateFieldComponent } from './date-field.component';
 
 /**
  * Translated label for a week of the month, as used in monthly recurrence.
- * @param week 1 to 4, or -1 for the last week
+ * @param week 1 to 4, or -1 for the last week. 0 (not set yet) gives ''.
  */
 export function weekOfMonthLabel(week: number) {
+    if (!week) return '';
     return i18n(
         week === -1
             ? 'FORM.RECURRENCE_INSTANCE_LAST'
@@ -123,7 +124,7 @@ export function weekOfMonthLabel(week: number) {
                             'FORM.RECURRENCE_MONTH_INSTANCE'
                                 | translate
                                     : {
-                                          index: month_instance,
+                                          index: month_instance(),
                                           day: date | date: 'EEEE',
                                       }
                         }}</mat-option>
@@ -223,7 +224,10 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     public readonly end_date = endOfDay(
         addDays(Date.now(), this.available_days),
     ).valueOf();
-    public readonly month_instance = weekOfMonthLabel(this.week);
+    /** Week of the month label. Computed, so it updates when translations load */
+    public readonly month_instance = computed(() =>
+        weekOfMonthLabel(this.week),
+    );
     public readonly weekdays: [number, DayIndex][] = new Array(7)
         .fill(0)
         .map((_, idx) => {

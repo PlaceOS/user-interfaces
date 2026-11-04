@@ -154,7 +154,10 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
     public readonly prev_type = signal('none');
     public readonly recurr_type = signal('none');
     public readonly iom = signal(0);
-    public readonly instance_of_month = signal('');
+    /** Week of the month label. Computed, so it updates when translations load */
+    public readonly instance_of_month = computed(() =>
+        weekOfMonthLabel(this.iom()),
+    );
     public readonly value = signal<Recurrence>(NO_RECURR);
     /** Whether form control is disabled */
     public readonly disabled = signal(false);
@@ -324,7 +327,6 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
         const day = new Date(date_value).getDate();
         let week = Math.floor(day / 7) + (day % 7 ? 1 : 0);
         if ((week === 4 && day >= 25) || week === 5) week = -1;
-        this.instance_of_month.set(weekOfMonthLabel(week));
         this.iom.set(week);
         if (this._prev_date && this._prev_date !== date_value) {
             this._recalculateValue(date_value, week);
