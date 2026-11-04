@@ -145,9 +145,9 @@ export interface ParkingSpaceModalData {
                             class="flex-1"
                         ></a-user-search-field>
                         <button
-                            icon
+                            icon default error
                             matRipple
-                            class="bg-secondary text-secondary-content h-12 w-12 min-w-12 rounded-sm"
+                            class="text-xl"
                             [matTooltip]="
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "

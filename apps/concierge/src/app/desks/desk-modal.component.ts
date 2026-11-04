@@ -172,9 +172,9 @@ export interface DeskModalData {
                                     </mat-error>
                                 </mat-form-field>
                                 <button
-                                    icon
+                                    icon default
                                     matRipple
-                                    class="border-secondary text-secondary h-12 w-12 min-w-12 rounded-sm border"
+                                    class="text-xl"
                                     [matTooltip]="
                                         'APP.CONCIERGE.POI_MAP_SELECT'
                                             | translate
@@ -201,9 +201,9 @@ export interface DeskModalData {
                             class="flex-1"
                         ></a-user-search-field>
                         <button
-                            icon
+                            icon default error
                             matRipple
-                            class="bg-secondary text-secondary-content h-12 w-12 min-w-12 rounded-sm"
+                            class="text-xl"
                             [matTooltip]="
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
@@ -238,11 +238,10 @@ export interface DeskModalData {
                     <div class="flex space-x-4 pb-4">
                         <settings-toggle
                             [formField]="form.bookable"
-                            class="flex-1"
+                            class="w-full"
                             [label]="'COMMON.BOOKABLE' | translate"
                         >
                         </settings-toggle>
-                        <div class="flex-1"></div>
                     </div>
                     <label for="desk-modal-notes" id="desk-modal-notes-label">{{
                         'COMMON.GROUPS' | translate
