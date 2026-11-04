@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1793761381582,
+  "timestamp": 1793765623725,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -51,7 +51,7 @@
         "./squire-H3PFFLV6.js",
         "./src-BFpEGhVT.js",
         "./styles.css",
-        "./tabbed-view.component-bd8A72qR.js",
+        "./tabbed-view.component-BicO17EQ.js",
         "./video-call-view.component-CO1eC90E.js",
         "./worker-VRXFSIDO.js",
         "./zh-7PPY3HOC.js"
@@ -308,7 +308,7 @@
     "./it-DP3AYVRR.js": "a51a72d5c10576215eea03259a8373b67cbd0ae5",
     "./ja-KPFTZVOP.js": "a61dec0f4798a81adf9c57d791d36b35893528c1",
     "./main-view.component-CPDtcP0b.js": "0ac51a13edf70cb02ccd149ec9b2824889a9c2f2",
-    "./main.js": "d02082e9419f2319efbd2b50e67cd9c1910db4e1",
+    "./main.js": "f58aa8dc164986f42e55aed6355a478297c7fe78",
     "./manifest.webmanifest": "93cf2cd96aab65435a80fb200e9dd247402f1d6e",
     "./native-domain-overlay.component-Gc3FJQlh.js": "b4af65c377931b2092491c53b4abd8dd5a38459b",
     "./sentry-sdk-Ym0TIRof.js": "decfd7d716db7ca291022805709101ccd1b5b93b",
@@ -318,7 +318,7 @@
     "./squire-H3PFFLV6.js": "94dcc573b5c689026a62ed7beb550019d2e7f901",
     "./src-BFpEGhVT.js": "6a6ac5128dd5ef76bf4699d131b7b520f4a06e43",
     "./styles.css": "0000053e46e97c8f3783f3ab3b4f929589f2531b",
-    "./tabbed-view.component-bd8A72qR.js": "765a48212fa4d70d87f9f116e229dac927aec3c4",
+    "./tabbed-view.component-BicO17EQ.js": "53931160150467b9c65bb51c3d0ecbe6d62522c3",
     "./video-call-view.component-CO1eC90E.js": "1fa8b28c4d0023bb739a02f30224f54caaf8e71a",
     "./worker-VRXFSIDO.js": "3e9866db3b5a9a2507474c09e1eb0932444f2304",
     "./zh-7PPY3HOC.js": "bb4cc6675145946968ab2663bce8567f0710a7f4"
