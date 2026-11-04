@@ -62,7 +62,7 @@ describe('AppComponent', () => {
     });
 
     it('should register mock handlers and initialise PlaceOS on init', () => {
-        // `setMocks(mocksInit)` runs for real here (workspace-module exports
+        // `setMocks(...)` runs for real here (workspace-module exports
         // cannot be intercepted under the native unit-test builder); the only
         // externally observable effect is the PlaceOS_Service init call.
         spectator.component.ngOnInit();
