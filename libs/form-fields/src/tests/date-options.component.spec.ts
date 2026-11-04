@@ -58,6 +58,25 @@ describe('DateOptionsComponent', () => {
         expect(spectator.query('.display')).toHaveText('Apr 20 - 26, 2026');
     });
 
+    it('should not emit again when the URL shows the day already set', () => {
+        query_params = { date: '2026-04-22' };
+        spectator = createComponent();
+        const emitted = vi.fn();
+        spectator.output('dateChange').subscribe(emitted);
+        vi.runOnlyPendingTimers();
+        expect(emitted).not.toHaveBeenCalled();
+    });
+
+    it('should take a different day from the URL', () => {
+        query_params = { date: '2026-04-25' };
+        spectator = createComponent();
+        const emitted = vi.fn();
+        spectator.output('dateChange').subscribe(emitted);
+        vi.runOnlyPendingTimers();
+        expect(emitted).toHaveBeenCalledTimes(1);
+        expect(new Date(emitted.mock.calls[0][0]).getDate()).toBe(25);
+    });
+
     it('should ignore invalid date query params', () => {
         query_params = { date: 'invalid' };
         spectator = createComponent();

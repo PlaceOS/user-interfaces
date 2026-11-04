@@ -72,6 +72,40 @@ function isCsvFile(file: File) {
     );
 }
 
+/** Second-level labels used under country domains, as in `acme.com.au` */
+const COUNTRY_SECOND_LEVEL = ['ac', 'co', 'com', 'edu', 'gov', 'net', 'org'];
+
+/**
+ * Email domains that count as internal when the setting is not set: the
+ * user's email domain and its root domain. For `staff.place.tech` this
+ * returns `staff.place.tech` and `place.tech`. Country domains keep three
+ * labels, so `staff.acme.com.au` gives `acme.com.au`, not `com.au`.
+ */
+export function defaultInternalDomains(email = ''): string[] {
+    const domain = email.split('@')[1]?.toLowerCase();
+    if (!domain) return [];
+    const labels = domain.split('.');
+    const country_domain =
+        labels.length > 2 &&
+        labels[labels.length - 1].length === 2 &&
+        COUNTRY_SECOND_LEVEL.includes(labels[labels.length - 2]);
+    const root = labels.slice(country_domain ? -3 : -2).join('.');
+    return unique([domain, root]);
+}
+
+/** Whether the email is on one of the domains or one of their subdomains */
+export function isInternalEmail(email = '', domains: string[]) {
+    const domain = email.split('@')[1]?.toLowerCase() || '';
+    return domains.some((item) => {
+        // The setting can hold `@place.tech` or `place.tech`
+        const internal = `${item}`.toLowerCase().replace(/^[@.]/, '');
+        return (
+            !!internal &&
+            (domain === internal || domain.endsWith(`.${internal}`))
+        );
+    });
+}
+
 @Component({
     selector: 'a-user-list-field',
     template: `
@@ -665,12 +699,12 @@ export class UserListFieldComponent
             if (!el.email) {
                 el.email = `${display}+${id}@guest.${USER_DOMAIN}`;
             }
-            const internal_emails = this._settings.get(
-                'app.bookings.internal_emails',
-            ) || ['place.tech'];
+            const internal_domains: string[] =
+                this._settings.get('app.bookings.internal_emails') ||
+                defaultInternalDomains(currentUser()?.email);
             el.visit_expected =
                 el.visit_expected ??
-                !internal_emails.find((_) => el.email.endsWith(_));
+                !isInternalEmail(el.email, internal_domains);
 
             /** Convert phone to string. PWCME-544 */
             el.phone = el.phone == null ? '' : `${el.phone}`;

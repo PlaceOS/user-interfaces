@@ -14,8 +14,34 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
-import { UserListFieldComponent } from '../lib/user-list-field.component';
+import {
+    defaultInternalDomains,
+    isInternalEmail,
+    UserListFieldComponent,
+} from '../lib/user-list-field.component';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
+
+describe('internal email domains', () => {
+    it('should default to the user domain and its root domain', () => {
+        expect(defaultInternalDomains('jo@staff.place.tech')).toEqual([
+            'staff.place.tech',
+            'place.tech',
+        ]);
+        expect(defaultInternalDomains('jo@place.tech')).toEqual(['place.tech']);
+        expect(defaultInternalDomains('jo@staff.acme.com.au')).toEqual([
+            'staff.acme.com.au',
+            'acme.com.au',
+        ]);
+        expect(defaultInternalDomains('')).toEqual([]);
+    });
+
+    it('should match the domain and subdomains only', () => {
+        const domains = ['@place.tech'];
+        expect(isInternalEmail('a@place.tech', domains)).toBe(true);
+        expect(isInternalEmail('a@staff.place.tech', domains)).toBe(true);
+        expect(isInternalEmail('a@evilplace.tech', domains)).toBe(false);
+    });
+});
 
 describe('UserListFieldComponent', () => {
     let spectator: Spectator<UserListFieldComponent>;

@@ -3,6 +3,8 @@ import {
     Component,
     computed,
     forwardRef,
+    inject,
+    Injector,
     input,
     model,
     OnChanges,
@@ -14,6 +16,7 @@ import {
     AbstractControl,
     ControlValueAccessor,
     NG_VALIDATORS,
+    NgControl,
     ValidationErrors,
     Validator,
 } from '@angular/forms';
@@ -242,6 +245,7 @@ export class DurationFieldComponent
     private _onTouch: (_: number) => void;
     /** Form control validator change handler */
     private _onValidatorChange: () => void;
+    private _injector = inject(Injector);
 
     public readonly time_format = computed(() =>
         this.use_24hr() ? 'HH : mm' : 'h : mm a',
@@ -358,7 +362,7 @@ export class DurationFieldComponent
         this.duration.set(value);
         this._setDurationOptions();
         this._updateNoOptions();
-        this._updateOption();
+        this._updateOption(true);
     }
 
     private _setDurationOptions() {
@@ -478,11 +482,25 @@ export class DurationFieldComponent
         this._onValidatorChange?.();
     }
 
-    private _updateOption() {
+    /**
+     * Select the first option when the duration is not an option.
+     * @param from_write Whether the form wrote the value. The form still gets
+     * the new value, but stays pristine, as the user did not change it.
+     */
+    private _updateOption(from_write = false) {
         const duration_options = this.duration_options();
         if (!duration_options?.length) return;
         const idx = duration_options.findIndex((_) => _.id === this.duration());
-        if (idx < 0) this.setValue(duration_options[0]?.id ?? this.min());
+        if (idx >= 0) return;
+        const control = from_write
+            ? this._injector.get(NgControl, null, {
+                  self: true,
+                  optional: true,
+              })?.control
+            : null;
+        const pristine = control?.pristine;
+        this.setValue(duration_options[0]?.id ?? this.min());
+        if (pristine) control.markAsPristine();
     }
 
     private _effectiveMax(max: number, time_value?: number): number {

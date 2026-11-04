@@ -25,6 +25,14 @@ describe('TimeFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
+    it('should show a written off-step time without rounding it', () => {
+        spectator.setInput({ no_past_times: false });
+        const date = startOfDay(Date.now()).valueOf() + (9 * 60 + 3) * 60_000;
+        spectator.component.writeValue(date);
+        expect(spectator.component.time()).toBe('09:03');
+        expect(spectator.component.active_time()).toBe(date);
+    });
+
     it('should not submit a parent form when opened', () => {
         expect('button[time-field]').toHaveAttribute('type', 'button');
     });

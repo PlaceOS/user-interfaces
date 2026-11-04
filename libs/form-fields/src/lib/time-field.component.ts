@@ -379,8 +379,8 @@ export class TimeFieldComponent
     public writeValue(value: number) {
         this.date.set(value || this.date());
         const tz = this.timezone() || undefined;
-        let date = startOfMinute(this.date());
-        date = roundToNearestMinutes(date, { nearestTo: 5 });
+        // Show the written time as it is. An off-step time gets its own option
+        const date = startOfMinute(this.date());
         this.time.set(formatTimeInTimezone(date, tz));
         this._time_options.set(
             this.generateAvailableTimes(

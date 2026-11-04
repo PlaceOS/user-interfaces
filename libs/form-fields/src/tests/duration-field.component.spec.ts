@@ -1,6 +1,11 @@
-import { FormControl } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import {
+    createComponentFactory,
+    createHostFactory,
+    Spectator,
+    SpectatorHost,
+} from '@ngneat/spectator/vitest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 import { addHours } from 'date-fns';
@@ -349,5 +354,28 @@ describe('DurationFieldComponent', () => {
         await spectator.fixture.whenStable();
         expect(input.disabled).toBe(true);
         expect('button[end-time-options]').toHaveAttribute('disabled');
+    });
+});
+
+describe('DurationFieldComponent in a form', () => {
+    let spectator: SpectatorHost<
+        DurationFieldComponent,
+        { control: FormControl }
+    >;
+    const createHost = createHostFactory({
+        component: DurationFieldComponent,
+        imports: [MatMenuModule, MatFormFieldModule, ReactiveFormsModule],
+        declarations: [MockComponent(IconComponent)],
+    });
+
+    it('should keep the form pristine when it defaults a written value', () => {
+        const control = new FormControl<number>(60);
+        spectator = createHost(
+            `<a-duration-field [formControl]="control"></a-duration-field>`,
+            { hostProps: { control } },
+        );
+        control.setValue(null);
+        expect(control.value).toBe(30);
+        expect(control.pristine).toBe(true);
     });
 });

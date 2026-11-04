@@ -241,7 +241,10 @@ export class DateOptionsComponent
                             'yyyy-MM-dd',
                             new Date(),
                         ).valueOf();
-                        this.date.set(this._validDate(date, this.date()));
+                        // Our own navigation comes back as the day already shown. Skip it,
+                        // or the date would reset to midnight and emit a second time
+                        if (!isValid(date) || isSameDay(date, this.date())) return;
+                        this.date.set(date);
                         this.dateChange.emit(this.date());
                     });
                 }
@@ -264,11 +267,6 @@ export class DateOptionsComponent
             queryParamsHandling: 'merge',
         });
         if (emit) this.dateChange.emit(this.date());
-        this.timeout(
-            'clear-set-date',
-            () => this.clearTimeout('set-date'),
-            100,
-        );
     }
 
     private get _week_start() {
