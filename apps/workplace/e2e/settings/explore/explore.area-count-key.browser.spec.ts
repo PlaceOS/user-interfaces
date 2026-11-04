@@ -84,7 +84,7 @@ for (const scenario of [
             }, {
                 message: 'target polygon uses the count selected by the setting',
             }).toBe(true);
-            await expect(page.locator('explore-map-view [map-canvas] canvas')).toBeVisible();
+            await expect(page.locator('explore-map-view [map-canvas] svg')).toBeVisible();
         });
 }
 

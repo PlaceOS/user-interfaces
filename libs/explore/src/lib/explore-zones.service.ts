@@ -162,8 +162,6 @@ export class ExploreZonesService extends AsyncHandler {
                 full_size: true,
                 data: {
                     polygons: this._polygons.asReadonly(),
-                    draw_points: false,
-                    draw_labels: false,
                 },
             },
         ]);

@@ -14,7 +14,7 @@
  * - explore-desks.service.ts also binds <level> and <level>:desk_bookings.
  * - OrganisationService.module resolves bindings.area_management.id/mod.
  * - ExploreStateService._disabledGroups merges explore.disable_labels.
- * - MapCanvasComponent draws polygons on [map-canvas] canvas; DynamicMapComponent
+ * - MapCanvasComponent draws polygons as [map-canvas] svg; DynamicMapComponent
  *   renders label.map-label. No application methods or renderer calls are patched.
  * - ts-client auth uses MD5(redirect_uri) token/expiry storage keys and
  *   GET /auth/authority; realtime becomes connected on its first server message.
