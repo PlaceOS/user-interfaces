@@ -54,7 +54,7 @@ describe('ImageFieldComponent', () => {
         spectator.component.writeValue('https://example.com/image.png');
         spectator.detectChanges();
 
-        spectator.click('button[matTooltip="Clear Image"]');
+        spectator.click('button[clear-image]');
 
         expect(spectator.component.url()).toBe('');
         expect(on_change).toHaveBeenCalledWith('');

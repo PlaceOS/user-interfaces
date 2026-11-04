@@ -92,7 +92,7 @@ export enum TimezoneDiffRange {
                     matRipple
                     class="border-error text-error flex h-12 w-12 items-center justify-center rounded-sm border"
                     (click)="clearValue($event)"
-                    [attr.aria-label]="'Clear date'"
+                    [attr.aria-label]="'FORM.DATE_CLEAR' | translate"
                     [disabled]="
                         date() === null || date() === undefined || disabled()
                     "

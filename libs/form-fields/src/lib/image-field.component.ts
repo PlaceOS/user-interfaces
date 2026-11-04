@@ -13,6 +13,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
+    i18n,
     notifyError,
     notifyInfo,
     provideValueAccessor,
@@ -64,15 +65,16 @@ import { watchUpload } from './watch-upload';
                 <img
                     auth
                     [source]="this.url()"
-                    alt="Image"
+                    [alt]="'COMMON.IMAGE' | translate"
                     class="h-full w-full object-contain"
                 />
                 <button
                     icon
                     type="button"
                     matRipple
-                    matTooltip="Clear Image"
-                    aria-label="Clear Image"
+                    clear-image
+                    [matTooltip]="'FORM.IMAGE_CLEAR' | translate"
+                    [attr.aria-label]="'FORM.IMAGE_CLEAR' | translate"
                     matTooltipPosition="left"
                     class="border-base-300 bg-base-100 absolute top-2 right-2 z-20 rounded-full border"
                     [disabled]="disabled()"
@@ -86,8 +88,8 @@ import { watchUpload } from './watch-upload';
                     <button
                         icon
                         matRipple
-                        matTooltip="Copy Image URL"
-                        aria-label="Copy Image URL"
+                        [matTooltip]="'COMMON.COPY_LINK' | translate"
+                        [attr.aria-label]="'COMMON.COPY_LINK' | translate"
                         matTooltipPosition="right"
                         (click)="copyLink()"
                     >
@@ -158,7 +160,7 @@ export class ImageFieldComponent implements ControlValueAccessor {
 
     public readonly copyLink = () => {
         this._clipboard.copy(this.url());
-        notifyInfo('Link copied to clipboard');
+        notifyInfo(i18n('COMMON.LINK_COPIED'));
     };
 
     public clearImage(event?: Event) {
@@ -203,7 +205,12 @@ export class ImageFieldComponent implements ControlValueAccessor {
             if (details.error) {
                 this.progress.set(0);
                 this.uploading.set(false);
-                notifyError(`Failed to upload ${file.name}: ${details.error}`);
+                notifyError(
+                    i18n('FORM.UPLOAD_FAILED', {
+                        name: file.name,
+                        error: details.error,
+                    }),
+                );
                 return;
             }
             this.progress.set(details.progress);

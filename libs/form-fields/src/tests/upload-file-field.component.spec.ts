@@ -53,7 +53,7 @@ describe('UploadFileFieldComponent', () => {
 
     it('should render a placeholder when no file is present', () => {
         expect(spectator.query('[item]')).toBeNull();
-        expect(spectator.element).toContainText('Drop file or click to upload');
+        expect(spectator.query('[prompt]')).toExist();
     });
 
     it('should ignore file events without any files', () => {

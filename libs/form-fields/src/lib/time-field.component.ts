@@ -66,7 +66,7 @@ function toHourOfDay(value: unknown): number | null {
                     #time_input
                     type="time"
                     class="h-full min-w-0 flex-1 border-0 bg-transparent px-4"
-                    [attr.aria-label]="'FORM.TIME_ENTRY' | translate"
+                    [attr.aria-label]="'FORM.TIME' | translate"
                     [value]="time()"
                     [disabled]="disabled() || no_options()"
                     [attr.aria-invalid]="!!time_entry_error()"
@@ -151,7 +151,9 @@ function toHourOfDay(value: unknown): number | null {
                         </div>
                     </button>
                 } @empty {
-                    <div mat-menu-item disabled>No time options to select</div>
+                    <div mat-menu-item disabled>
+                        {{ 'FORM.TIME_EMPTY' | translate }}
+                    </div>
                 }
             </ng-template>
         </mat-menu>

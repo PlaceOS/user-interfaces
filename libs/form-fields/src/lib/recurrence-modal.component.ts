@@ -15,6 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     DayIndex,
+    i18n,
     MonthlyType,
     onFieldChange,
     Recurrence,
@@ -26,6 +27,18 @@ import { addDays, endOfDay, startOfWeek } from 'date-fns';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CounterComponent } from './counter.component';
 import { DateFieldComponent } from './date-field.component';
+
+/**
+ * Translated label for a week of the month, as used in monthly recurrence.
+ * @param week 1 to 4, or -1 for the last week
+ */
+export function weekOfMonthLabel(week: number) {
+    return i18n(
+        week === -1
+            ? 'FORM.RECURRENCE_INSTANCE_LAST'
+            : `FORM.RECURRENCE_INSTANCE_${week}`,
+    );
+}
 
 @Component({
     selector: 'recurrence-modal',
@@ -106,10 +119,14 @@ import { DateFieldComponent } from './date-field.component';
             @if (model().type === 'monthly') {
                 <mat-form-field appearance="outline">
                     <mat-select [formField]="form.monthly_type">
-                        <mat-option value="day_of_week"
-                            >Monthly on {{ month_instance }}
-                            {{ date | date: 'EEEE' }}</mat-option
-                        >
+                        <mat-option value="day_of_week">{{
+                            'FORM.RECURRENCE_MONTH_INSTANCE'
+                                | translate
+                                    : {
+                                          index: month_instance,
+                                          day: date | date: 'EEEE',
+                                      }
+                        }}</mat-option>
                     </mat-select>
                 </mat-form-field>
             }
@@ -198,23 +215,15 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         available_days: number;
     }>(MAT_DIALOG_DATA);
 
-    public readonly instance_fn = (v) => `${v ?? 13} instances`;
+    public readonly instance_fn = (v) =>
+        i18n('FORM.RECURRENCE_INSTANCES', { count: v ?? 13 });
     public readonly date = this._data.date || Date.now();
     public readonly week = this._data.iom ?? 1;
     public readonly available_days = this._data.available_days;
     public readonly end_date = endOfDay(
         addDays(Date.now(), this.available_days),
     ).valueOf();
-    public readonly month_instance =
-        this.week === -1
-            ? 'Last'
-            : this.week === 1
-              ? '1st'
-              : this.week === 2
-                ? '2nd'
-                : this.week === 3
-                  ? '3rd'
-                  : `${this.week}th`;
+    public readonly month_instance = weekOfMonthLabel(this.week);
     public readonly weekdays: [number, DayIndex][] = new Array(7)
         .fill(0)
         .map((_, idx) => {

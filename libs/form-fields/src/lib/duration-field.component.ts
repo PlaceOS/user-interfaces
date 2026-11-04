@@ -26,10 +26,12 @@ import {
     formatDuration,
     getTimeInTimezone,
     getTimezoneOffsetString,
+    i18n,
     provideValueAccessor,
 } from '@placeos/common';
 import { addMinutes, differenceInMinutes, format, set } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 export interface DurationOption {
     id: number;
@@ -48,7 +50,7 @@ export interface DurationOption {
                 <input
                     #end_input
                     type="time"
-                    aria-label="End time"
+                    [attr.aria-label]="'FORM.TIME_END' | translate"
                     class="h-full min-w-0 flex-1 border-0 bg-transparent px-4"
                     [value]="end_time_value()"
                     [disabled]="disabled() || no_options()"
@@ -59,7 +61,7 @@ export interface DurationOption {
                 <button
                     type="button"
                     end-time-options
-                    aria-label="Choose duration"
+                    [attr.aria-label]="'FORM.DURATION_CHOOSE' | translate"
                     class="flex h-full w-12 shrink-0 items-center justify-center"
                     [disabled]="disabled() || no_options()"
                     [matMenuTriggerFor]="menu"
@@ -103,7 +105,7 @@ export interface DurationOption {
                                                 : time_format())) + ' ('
                                 : duration_options()?.length
                                   ? ''
-                                  : 'No duration options available'
+                                  : ('FORM.DURATION_EMPTY' | translate)
                         }}{{ selected()?.name
                         }}{{ selected()?.date ? ')' : '' }}
                     </div>
@@ -167,7 +169,7 @@ export interface DurationOption {
                     </button>
                 } @empty {
                     <div mat-menu-item disabled>
-                        No duration options to select
+                        {{ 'FORM.DURATION_EMPTY' | translate }}
                     </div>
                 }
             </ng-template>
@@ -199,7 +201,13 @@ export interface DurationOption {
             multi: true,
         },
     ],
-    imports: [MatMenuModule, MatFormFieldModule, CommonModule, IconComponent],
+    imports: [
+        MatMenuModule,
+        MatFormFieldModule,
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class DurationFieldComponent
     implements OnInit, OnChanges, ControlValueAccessor, Validator
@@ -333,9 +341,7 @@ export class DurationFieldComponent
             duration < this.min() ||
             duration > this._effectiveMax(this.max(), start)
         ) {
-            this.end_time_error.set(
-                'Enter an end time after the start time and within the allowed duration.',
-            );
+            this.end_time_error.set(i18n('FORM.DURATION_END_ERROR'));
             this._onValidatorChange?.();
             this.touch();
             return;

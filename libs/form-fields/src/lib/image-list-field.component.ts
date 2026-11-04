@@ -19,6 +19,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
+    i18n,
     notifyError,
     notifyInfo,
     provideValueAccessor,
@@ -184,7 +185,7 @@ export interface PendingImageUpload {
         <mat-form-field appearance="outline" class="w-full">
             <mat-chip-grid
                 #chipList
-                aria-label="Image List"
+                [attr.aria-label]="'COMMON.IMAGES' | translate"
                 [disabled]="disabled()"
             >
                 @for (item of list(); track item) {
@@ -192,7 +193,9 @@ export interface PendingImageUpload {
                         <div class="max-w-md truncate">{{ item }}</div>
                         <button
                             matChipRemove
-                            [attr.aria-label]="'Remove ' + item"
+                            [attr.aria-label]="
+                                'COMMON.REMOVE_ITEM' | translate: { item }
+                            "
                         >
                             <icon>cancel</icon>
                         </button>
@@ -306,7 +309,7 @@ export class ImageListFieldComponent
 
     public copyLink(url: string) {
         this._clipboard.copy(url);
-        notifyInfo('Copied image URL to clipboard');
+        notifyInfo(i18n('COMMON.LINK_COPIED'));
     }
 
     public viewImage(url: string) {
@@ -384,7 +387,12 @@ export class ImageListFieldComponent
         this.uploads.update((list) => [...list, { key, file, progress: 0 }]);
         watchUpload(this._uploads, file, this._injector, (details) => {
             if (details.error) {
-                notifyError(`Failed to upload ${file.name}: ${details.error}`);
+                notifyError(
+                    i18n('FORM.UPLOAD_FAILED', {
+                        name: file.name,
+                        error: details.error,
+                    }),
+                );
             } else if (details.progress >= 100) {
                 this._removeUpload(key);
                 this.addImageUrl(details.link);

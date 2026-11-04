@@ -75,7 +75,9 @@ import { uploadAttachment } from './upload-attachment';
                 <div
                     class="z-0 flex h-full w-full flex-col items-center justify-center"
                 >
-                    <p class="opacity-30">Drop file or click to upload file</p>
+                    <p prompt class="opacity-30">
+                        {{ 'FORM.UPLOAD_FILE_PROMPT' | translate }}
+                    </p>
                 </div>
             }
         </div>

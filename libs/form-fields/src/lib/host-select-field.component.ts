@@ -11,6 +11,7 @@ import {
     unique,
     User,
 } from '@placeos/common';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { queryCalendars } from 'libs/events/src/lib/calendar.fn';
 
 @Component({
@@ -24,7 +25,7 @@ import { queryCalendars } from 'libs/events/src/lib/calendar.fn';
                 [placeholder]="
                     item()?.email
                         ? item()?.name || item()?.email
-                        : 'Select host'
+                        : ('FORM.HOST_SELECT' | translate)
                 "
             >
                 @for (user of users(); track user) {
@@ -39,12 +40,18 @@ import { queryCalendars } from 'libs/events/src/lib/calendar.fn';
                     </mat-option>
                 }
             </mat-select>
-            <mat-error>Host is required</mat-error>
+            <mat-error>{{ 'FORM.HOST_REQUIRED' | translate }}</mat-error>
         </mat-form-field>
     `,
     styles: [``],
     providers: [provideValueAccessor(() => HostSelectFieldComponent)],
-    imports: [MatFormFieldModule, MatSelectModule, CommonModule, FormsModule],
+    imports: [
+        MatFormFieldModule,
+        MatSelectModule,
+        CommonModule,
+        FormsModule,
+        TranslatePipe,
+    ],
 })
 export class HostSelectFieldComponent implements ControlValueAccessor {
     public readonly item = signal<User | null>(null);

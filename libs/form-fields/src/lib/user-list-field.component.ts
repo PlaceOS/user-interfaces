@@ -126,7 +126,7 @@ export function isInternalEmail(email = '', domains: string[]) {
                 >
                     <mat-chip-grid
                         #chipList
-                        aria-label="User selection"
+                        [attr.aria-label]="'FORM.USER_SELECTION' | translate"
                         [disabled]="disabled()"
                     >
                         @for (item of active_list(); track $index) {
@@ -668,7 +668,7 @@ export class UserListFieldComponent
             /* istanbul ignore else */
             if (file) {
                 if (!isCsvFile(file)) {
-                    notifyError('Only CSV files are supported');
+                    notifyError(i18n('FORM.USER_CSV_ONLY'));
                     return;
                 }
                 const reader = new FileReader();
@@ -681,7 +681,7 @@ export class UserListFieldComponent
                     event.target.value = '';
                 });
                 reader.addEventListener('error', (_) =>
-                    notifyError('Error reading file.'),
+                    notifyError(i18n('FORM.FILE_READ_ERROR')),
                 );
             }
         }

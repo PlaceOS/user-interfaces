@@ -15,6 +15,7 @@ import { ControlValueAccessor } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
     AsyncHandler,
+    i18n,
     notifyError,
     provideValueAccessor,
     UploadsService,
@@ -70,7 +71,9 @@ function toLinkUrl(value: string) {
                         class="border-base-300 bg-base-100 rounded border p-2 text-sm"
                         (change)="setFontFace($event)"
                     >
-                        <option value="default">Font</option>
+                        <option value="default">
+                            {{ 'FORM.FONT' | translate }}
+                        </option>
                         <option value="Arial">Arial</option>
                         <option value="Helvetica">Helvetica</option>
                         <option value="Georgia">Georgia</option>
@@ -80,7 +83,9 @@ function toLinkUrl(value: string) {
                         class="border-base-300 bg-base-100 min-w-24 rounded border p-2 text-sm"
                         (change)="setFontSize($event)"
                     >
-                        <option value="">Size</option>
+                        <option value="">
+                            {{ 'FORM.FONT_SIZE' | translate }}
+                        </option>
                         <option value="12px">12</option>
                         <option value="14px">14</option>
                         <option value="16px">16</option>
@@ -362,11 +367,11 @@ export class RichTextInputComponent
             this._refreshToolbarState();
             return;
         }
-        const input_url = prompt('Enter URL');
+        const input_url = prompt(i18n('FORM.LINK_URL_PROMPT'));
         if (!input_url) return;
         const link_url = toLinkUrl(input_url);
         if (!link_url) {
-            notifyError('Links must use http, https or mailto');
+            notifyError(i18n('FORM.LINK_PROTOCOL_ERROR'));
             return;
         }
         this._editor.makeLink(link_url);
@@ -460,7 +465,10 @@ export class RichTextInputComponent
                 })
                 .catch((error) => {
                     notifyError(
-                        `Failed to upload ${file.name}: ${error?.message || 'Unknown error'}`,
+                        i18n('FORM.UPLOAD_FAILED', {
+                            name: file.name,
+                            error: error?.message || i18n('FORM.ERROR_UNKNOWN'),
+                        }),
                     );
                 });
         };

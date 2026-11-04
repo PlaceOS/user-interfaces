@@ -19,9 +19,15 @@ import { uploadAttachment } from './upload-attachment';
                 [class.bg-neutral]="dragging()"
             >
                 <icon class="mb-2 text-3xl">upload_file</icon>
-                <p class="text-center">Drop files</p>
-                <p class="my-1 text-center text-xs">or</p>
-                <button btn matRipple type="button" class="w-28">Browse</button>
+                <p class="text-center">
+                    {{ 'FORM.UPLOAD_DROP_FILES' | translate }}
+                </p>
+                <p class="my-1 text-center text-xs">
+                    {{ 'FORM.UPLOAD_OR' | translate }}
+                </p>
+                <button btn matRipple type="button" class="w-28">
+                    {{ 'FORM.UPLOAD_BROWSE' | translate }}
+                </button>
                 <input
                     multiple="true"
                     type="file"
@@ -98,7 +104,9 @@ import { uploadAttachment } from './upload-attachment';
                     <div
                         class="flex h-full w-full flex-col items-center justify-center"
                     >
-                        <p class="opacity-30">No uploaded files</p>
+                        <p empty class="opacity-30">
+                            {{ 'FORM.UPLOAD_EMPTY' | translate }}
+                        </p>
                     </div>
                 }
             </div>
