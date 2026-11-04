@@ -192,6 +192,8 @@ export function randomString(
  * @param csv CSV data to parse
  */
 export function csvToJson(csv: string, delimiter = ','): HashMap[] {
+    // The pattern matches an empty string at `^` forever, so stop here
+    if (!csv) return [];
     const escaped_delimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const objPattern = new RegExp(
         `(${escaped_delimiter}|\\r?\\n|\\r|^)(?:"([^"]*(?:""[^"]*)*)"|([^${escaped_delimiter}\\r\\n]*))`,

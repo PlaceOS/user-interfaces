@@ -694,7 +694,10 @@ export class UserListFieldComponent
      * @param file_name Name of the file, for the preview
      */
     private async processCsvData(data: string, file_name = '') {
-        const rows = csvToJson(data) || [];
+        // Skip blank rows, such as the one a trailing newline makes
+        const rows = (csvToJson(data || '') || []).filter((row) =>
+            Object.values(row).some((value) => value !== '' && value != null),
+        );
         if (!rows.length) {
             notifyError(i18n('FORM.USER_CSV_EMPTY', { name: file_name }));
             return;

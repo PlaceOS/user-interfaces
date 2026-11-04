@@ -175,6 +175,18 @@ describe('UserListFieldComponent', () => {
         expect(spectator.component.active_list()).toHaveLength(0);
     });
 
+    it('should skip blank CSV rows and report an empty file', async () => {
+        const confirm = vi
+            .spyOn(spectator.component, 'confirmCsvImport')
+            .mockResolvedValue(false);
+        await importCsv(`${csv_rows(2)}\n`);
+        expect(confirm.mock.calls[0][0]).toHaveLength(2);
+        confirm.mockClear();
+        await importCsv('');
+        await importCsv('Organisation Name,First Name,Email\n');
+        expect(confirm).not.toHaveBeenCalled();
+    });
+
     it('should only read the first 500 CSV rows', async () => {
         const confirm = vi
             .spyOn(spectator.component, 'confirmCsvImport')
