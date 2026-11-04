@@ -25,7 +25,10 @@ import { NEVER, of } from 'rxjs';
 import * as ts_client_mod from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 import { DeskModalComponent } from '../../app/desks/desk-modal.component';
-import { DesksStateService } from '../../app/desks/desks-state.service';
+import {
+    DesksStateService,
+    matchesDeskSearch,
+} from '../../app/desks/desks-state.service';
 import { BookingHistoryModalComponent } from '../../app/ui/booking-history-modal.component';
 import { captureDownloads } from '../reports/download-capture.helper';
 
@@ -1254,5 +1257,15 @@ describe('DesksStateService', () => {
             expect.anything(),
         );
         expect(refresh_spy).not.toHaveBeenCalled();
+    });
+});
+
+describe('matchesDeskSearch', () => {
+    it('should match field values like the bookings table, not JSON text', () => {
+        const booking = { user_name: 'Alice Ng', status: 'approved' } as any;
+        expect(matchesDeskSearch(booking, 'alice')).toBe(true);
+        // Missing fields and quotes are not part of the searched text
+        expect(matchesDeskSearch(booking, 'undefined')).toBe(false);
+        expect(matchesDeskSearch(booking, '"alice')).toBe(false);
     });
 });

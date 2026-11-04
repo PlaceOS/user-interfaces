@@ -59,6 +59,20 @@ function searchText(value: unknown, depth = 0): string {
         .join(' ');
 }
 
+/**
+ * Lower case text that the table filter searches for a row. Uses the values
+ * of `keys`, or of all fields. Use it to match rows the same way as the table.
+ */
+export function rowSearchText(
+    row: object,
+    keys: readonly string[] = Object.keys(row),
+): string {
+    return keys
+        .map((key) => searchText(row[key]))
+        .join('\n')
+        .toLowerCase();
+}
+
 @Component({
     selector: 'simple-table',
     template: `
@@ -546,10 +560,7 @@ export class SimpleTableComponent<T extends object = any> {
     private readonly _search_text = computed(() => {
         const filter_on = this.filter_on();
         return this._data_signal().map((row) =>
-            (filter_on.length ? filter_on : Object.keys(row))
-                .map((key) => searchText(row[key]))
-                .join('\n')
-                .toLowerCase(),
+            rowSearchText(row, filter_on.length ? filter_on : undefined),
         );
     });
 
