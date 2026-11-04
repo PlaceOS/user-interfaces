@@ -12,13 +12,15 @@ import { TranslatePipe } from './translate.pipe';
             class="bg-base-100 relative -top-12 -right-1 flex w-74 flex-col rounded-sm shadow-sm"
             (click)="close()"
         >
-            <div
+            <button
+                back
+                type="button"
                 matRipple
-                class="border-base-300 flex items-center space-x-2 border-b px-2 py-4"
+                class="border-base-300 flex w-full items-center space-x-2 border-b px-2 py-4 text-left"
             >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="">{{ 'COMMON.CONTROLS_HELP' | translate }}</div>
-            </div>
+            </button>
             @for (tile of tiles; track tile) {
                 <a
                     matRipple

@@ -80,7 +80,7 @@ describe('AccessibilityTooltipComponent', () => {
     });
 
     it('should close the tooltip when the header is clicked', () => {
-        spectator.click('div[matRipple]');
+        spectator.click('button[back]');
         expect(tooltip_mock.close).toHaveBeenCalled();
     });
 });

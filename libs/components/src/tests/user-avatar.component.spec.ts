@@ -66,4 +66,16 @@ describe('UserAvatarComponent', () => {
         spectator.detectChanges();
         expect('[initials]').toContainText('JS');
     });
+
+    it('should show initials when the photo fails to load', () => {
+        spectator.setInput(
+            'user',
+            new User({ name: 'John Smith', photo: 'missing.png' }),
+        );
+        spectator.detectChanges();
+        spectator.dispatchFakeEvent('img', 'error');
+        spectator.detectChanges();
+        expect('img').not.toExist();
+        expect('[initials]').toContainText('JS');
+    });
 });

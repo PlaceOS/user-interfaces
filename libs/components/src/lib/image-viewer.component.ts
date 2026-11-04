@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'image-viewer',
@@ -9,6 +10,7 @@ import { IconComponent } from './icon.component';
         <div class="bg-base-200 h-screen w-screen">
             <img
                 auth
+                alt=""
                 class="h-full w-full object-contain object-center"
                 [source]="url"
             />
@@ -17,13 +19,19 @@ import { IconComponent } from './icon.component';
                 icon
                 matRipple
                 mat-dialog-close
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
             >
                 <icon>close</icon>
             </button>
         </div>
     `,
     styles: [``],
-    imports: [IconComponent, AuthenticatedImageDirective, MatDialogModule],
+    imports: [
+        IconComponent,
+        AuthenticatedImageDirective,
+        MatDialogModule,
+        TranslatePipe,
+    ],
 })
 export class ImageViewerComponent {
     public readonly url = inject(MAT_DIALOG_DATA);

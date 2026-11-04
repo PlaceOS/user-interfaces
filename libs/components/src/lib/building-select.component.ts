@@ -14,9 +14,11 @@ import { TranslatePipe } from './translate.pipe';
             class="bg-base-100 relative -top-12 -right-1 flex max-h-[65vh] w-74 flex-col overflow-auto rounded-sm pb-3 shadow-sm"
             (click)="close()"
         >
-            <div
+            <button
+                back
+                type="button"
                 matRipple
-                class="border-base-300 flex items-center space-x-2 border-b px-2 py-3"
+                class="border-base-300 flex w-full items-center space-x-2 border-b px-2 py-3 text-left"
             >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="leading-tight">
@@ -27,7 +29,7 @@ import { TranslatePipe } from './translate.pipe';
                         {{ 'RESOURCE.BUILDING' | translate }}
                     </div>
                 </div>
-            </div>
+            </button>
             <div class="px-4 py-2 text-xs opacity-60">
                 {{ 'COMMON.BUILDING_SELECT' | translate }}
             </div>

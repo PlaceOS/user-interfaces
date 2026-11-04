@@ -90,7 +90,7 @@ export class CustomTooltipComponent<T = any>
     public readonly backdrop = input(true);
     /** Whether tooltip has a backdrop */
     public readonly hover = input(false);
-    /** Delay time in milliseconds to close after hover */
+    /** Time in milliseconds after a hover tooltip opens that it closes */
     public readonly delay = input(0);
     /** Horizontal offset of the rendered overlay */
     public readonly x_offset = input(0, { alias: 'xOffset' });
@@ -153,6 +153,25 @@ export class CustomTooltipComponent<T = any>
             'pointerleave',
             hover_close,
         );
+        // Keyboard users get hover tooltips when the host has focus. A tap
+        // also focuses buttons, so only open for keyboard focus.
+        const focus_open = (event: FocusEvent) =>
+            this.hover() && (event.target as Element).matches(':focus-visible')
+                ? this.open()
+                : '';
+        const focus_close = () => (this.hover() ? this.close() : '');
+        this._element.nativeElement.addEventListener('focusin', focus_open);
+        this._element.nativeElement.addEventListener('focusout', focus_close);
+        this.subscription('focus', () => {
+            this._element.nativeElement.removeEventListener(
+                'focusin',
+                focus_open,
+            );
+            this._element.nativeElement.removeEventListener(
+                'focusout',
+                focus_close,
+            );
+        });
         this.subscription('click', () =>
             this._element.nativeElement.removeEventListener('click', open),
         );

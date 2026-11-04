@@ -38,14 +38,14 @@ describe('LanguageSelectComponent', () => {
     it('should show a button for each available locale', () => {
         // NOTE: TranslatePipe is globally mocked so translated names render
         // empty and only the local name badges are visible.
-        const buttons = spectator.queryAll('button');
+        const buttons = spectator.queryAll('button:not([back])');
         expect(buttons.length).toBe(2);
         expect(buttons[0]).toContainText('English');
         expect(buttons[1]).toContainText('Français');
     });
 
     it('should highlight the active locale', () => {
-        const buttons = spectator.queryAll('button > div');
+        const buttons = spectator.queryAll('button:not([back]) > div');
         expect(buttons[0]).toHaveClass('border-info');
         expect(buttons[1]).not.toHaveClass('border-info');
     });
@@ -54,7 +54,7 @@ describe('LanguageSelectComponent', () => {
         const timeout_spy = vi
             .spyOn(window, 'setTimeout')
             .mockReturnValue(0 as any);
-        spectator.click(spectator.queryAll('button')[1]);
+        spectator.click(spectator.queryAll('button:not([back])')[1]);
         expect(locale_mock.setLocale).toHaveBeenCalledWith('fr');
         expect(localStorage.getItem('PLACEOS.locale')).toBe('fr');
         timeout_spy.mockRestore();
