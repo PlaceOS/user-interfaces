@@ -23,7 +23,6 @@ import {
 import { CustomTooltipComponent } from './custom-tooltip.component';
 import { IconComponent } from './icon.component';
 import { JsonDisplayComponent } from './json-display.component';
-import { SanitizePipe } from './sanitise.pipe';
 import { TranslatePipe } from './translate.pipe';
 
 const COLOR_MAP = {
@@ -107,9 +106,9 @@ const URL_STARTS = [
                                         @case ('link') {
                                             <a
                                                 class="font-mono"
-                                                [href]="obj | sanitize"
+                                                [href]="obj"
                                                 target="_blank"
-                                                rel="noopener noreferer"
+                                                rel="noopener noreferrer"
                                                 >{{ obj }}</a
                                             >
                                         }
@@ -192,7 +191,6 @@ const URL_STARTS = [
         FormsModule,
         DatePipe,
         TranslatePipe,
-        SanitizePipe,
         IconComponent,
         CustomTooltipComponent,
     ],

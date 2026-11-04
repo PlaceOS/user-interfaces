@@ -34,6 +34,22 @@ describe('ChangelogModalComponent', () => {
         expect(markdown_el.innerHTML).toContain('<em>details</em>');
     });
 
+    it('should strip script from raw HTML in the changelog', () => {
+        spectator = createComponent({
+            providers: [
+                {
+                    provide: MAT_DIALOG_DATA,
+                    useValue: {
+                        changelog: '- fix <img src="x" onerror="alert(1)">',
+                    },
+                },
+            ],
+        });
+        const img = spectator.query('.markdown img');
+        expect(img).toBeTruthy();
+        expect(img.hasAttribute('onerror')).toBe(false);
+    });
+
     it('should show an empty state when there is no changelog', () => {
         spectator = createComponent();
         expect('.markdown').not.toExist();

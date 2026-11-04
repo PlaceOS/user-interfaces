@@ -24,7 +24,7 @@ import { TranslatePipe } from './translate.pipe';
                     matRipple
                     class="w-full p-2 text-left"
                     target="_blank"
-                    ref="noreferer noopener"
+                    rel="noopener noreferrer"
                     [href]="tile.link"
                 >
                     <div

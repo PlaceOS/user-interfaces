@@ -4,7 +4,6 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { marked } from 'marked';
 import { FullscreenModalShellComponent } from './fullscreen-modal-shell.component';
 import { IconComponent } from './icon.component';
-import { SafePipe } from './safe.pipe';
 
 export interface ChangelogModalData {
     changelog: string;
@@ -15,10 +14,7 @@ export interface ChangelogModalData {
     template: `
         <fullscreen-modal-shell [heading]="'Changelog'" [hide_confirm]="true">
             @if (changelog()) {
-                <div
-                    class="markdown"
-                    [innerHTML]="changelog() | safe: 'html'"
-                ></div>
+                <div class="markdown" [innerHTML]="changelog()"></div>
             } @else {
                 <div
                     class="flex flex-col items-center justify-center space-y-2"
@@ -30,7 +26,7 @@ export interface ChangelogModalData {
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    imports: [FullscreenModalShellComponent, SafePipe, IconComponent],
+    imports: [FullscreenModalShellComponent, IconComponent],
 })
 export class ChangelogModalComponent {
     private _data = inject<ChangelogModalData>(MAT_DIALOG_DATA);
@@ -38,7 +34,7 @@ export class ChangelogModalComponent {
     /** Whether the changelog is loading */
     public loading = signal(false);
 
-    /** HTML string for rendering the change log */
+    /** HTML string for the change log. Angular sanitises it on render. */
     public readonly changelog = computed<string>(
         () => marked(this._data.changelog || '', { async: false }) as any,
     );

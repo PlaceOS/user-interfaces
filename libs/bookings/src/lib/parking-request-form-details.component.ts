@@ -30,6 +30,7 @@ import {
     i18n,
     notifyError,
     OrganisationService,
+    parseWebUrl,
     settingSignal,
     SettingsService,
     startOfDayInTimezone,
@@ -2267,9 +2268,15 @@ export class ParkingRequestFormDetailsComponent
 
     public previewSupportingDoc(index: number) {
         const urls = [...(this.model?.().attachments || [])];
-        const url = urls[index];
-        if (!url) return;
-        this._dialog.open(FullscreenEmbedComponent, { data: url });
+        // Only preview files uploaded to this PlaceOS instance. Stored
+        // attachments could hold any URL and the preview frame is not sandboxed.
+        const url = parseWebUrl(urls[index] || '', location.origin);
+        if (
+            url?.origin !== location.origin ||
+            !/^\/api\/engine\/v2\/uploads\/[^/]+\/url$/.test(url.pathname)
+        )
+            return;
+        this._dialog.open(FullscreenEmbedComponent, { data: url.href });
     }
 
     private _fileNameFromUrl(url: string): string {
