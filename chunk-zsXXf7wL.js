@@ -1,0 +1,4 @@
+import{n as m,t as l}from"./chunk-BwCtja5l.js";import{At as df,Pn as yh,o as At}from"./chunk-Bo8udfPJ.js";var T={date:`FORM.DATE`,duration:`FORM.DURATION`,title:`FORM.TITLE`,user:`FORM.HOST`,notes:`FORM.NOTES`,plate_number:`BOOKINGS.PARKING_PLATE_NUMBER`,space_restrictions:`BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE`};function S(t,E,n){t().markAsTouched();let e={},s=m(l({},T),{asset_id:n,resources:n});for(let o in s)e[o]=At(s[o]);let R=df(t,E,e);yh(At(`FORM.INVALID_FIELDS`,{field_list:[...new Set(R)].join(`, `)}))}export{S as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="dd7ea7a8-ec7d-5a0a-94ed-dcf7bd660c07")}catch(e){}}();
+//# debugId=dd7ea7a8-ec7d-5a0a-94ed-dcf7bd660c07
+//# sourceMappingURL=chunk-zsXXf7wL.js.map
