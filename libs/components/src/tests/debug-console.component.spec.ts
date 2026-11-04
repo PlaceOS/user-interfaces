@@ -104,6 +104,17 @@ describe('DebugConsoleComponent', () => {
         expect(spectator.component.filtered_logs()[0].type).toBe('network');
         spectator.component.filter.set('no-match');
         expect(spectator.component.filtered_logs()).toHaveLength(0);
+        // Object contents are searched, not "[object Object]"
+        history.set([log({ data: [{ booking: 'Board Room' }] })]);
+        spectator.detectChanges();
+        spectator.component.filter.set('board room');
+        expect(spectator.component.filtered_logs()).toHaveLength(1);
+        spectator.component.filter.set('object');
+        expect(spectator.component.filtered_logs()).toHaveLength(0);
+        history.set([log({ data: [new Error('User loading timed out')] })]);
+        spectator.detectChanges();
+        spectator.component.filter.set('timed out');
+        expect(spectator.component.filtered_logs()).toHaveLength(1);
     });
 
     it('should toggle console visibility with the hotkey', () => {
