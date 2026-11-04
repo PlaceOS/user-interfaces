@@ -58,6 +58,8 @@
         "UNKNOWN": "Sconosciuto",
         "NEXT": "Successivo",
         "PREVIOUS": "Precedente",
+        "FIRST_PAGE": "Prima pagina",
+        "LAST_PAGE": "Ultima pagina",
         "RESULTS_COUNT": "{{ count }} risultati trovati",
         "RESULTS_COUNT_1": "{{ count }} risultato trovato",
         "AVAILABLE_COUNT": "{{ count }} di {{ total }} disponibili",
