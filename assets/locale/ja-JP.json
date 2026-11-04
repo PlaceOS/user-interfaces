@@ -58,6 +58,8 @@
         "UNKNOWN": "不明",
         "NEXT": "次へ",
         "PREVIOUS": "前へ",
+        "FIRST_PAGE": "最初のページ",
+        "LAST_PAGE": "最後のページ",
         "RESULTS_COUNT": "{{ count }} 件の結果が見つかりました",
         "RESULTS_COUNT_1": "{{ count }} 件の結果が見つかりました",
         "AVAILABLE_COUNT": "{{ total }} 中 {{ count }} が利用可能",
