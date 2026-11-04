@@ -115,6 +115,16 @@ export function scrubEnvelope<T extends Envelope>(envelope: T): T {
     return envelope;
 }
 
+/**
+ * Requests that get Sentry trace headers: the PlaceOS API on the same
+ * origin, except media. Uploads and signage media answer with a redirect to
+ * file storage such as S3. The browser keeps the `sentry-trace` and
+ * `baggage` headers on the redirected request, so it sends a CORS preflight
+ * that the storage bucket rejects, and the media fails to load.
+ */
+export const TRACE_PROPAGATION_TARGET =
+    /^\/api\/(?!engine\/v2\/(?:uploads(?:\/|$)|signage\/media\/[^/]+\/))/;
+
 /** Sample rates from the app settings, from 0 to 1 */
 export interface SentrySampleRates {
     /** Share of transactions to trace */
@@ -188,9 +198,8 @@ export async function initSentry(
                     };
                 },
             }),
-            // Trace headers go only to the PlaceOS API on the same origin.
             // Sentry checks the path of same-origin requests against these.
-            tracePropagationTargets: [/^\/api\//],
+            tracePropagationTargets: [TRACE_PROPAGATION_TARGET],
             // Sentry 11 collects more by default. These are the Sentry 10
             // defaults, which send no bodies, cookies or user details.
             dataCollection: {

@@ -10,6 +10,7 @@ import {
     LazySentryErrorHandler,
     scrubEnvelope,
     scrubSecrets,
+    TRACE_PROPAGATION_TARGET,
 } from '../lib/sentry';
 import { DEFAULT_SENTRY_RATES } from '../lib/sentry-rates';
 import { settingSignal } from '../lib/settings.service';
@@ -101,6 +102,36 @@ describe('scrubEnvelope', () => {
     });
 });
 
+describe('TRACE_PROPAGATION_TARGET', () => {
+    it('should trace PlaceOS API requests', () => {
+        for (const path of [
+            '/api/engine/v2/systems',
+            '/api/engine/v2/signage/media',
+            '/api/engine/v2/signage/media/media-1',
+            '/api/engine/v2/signage/playlists/playlist-1/media',
+            '/api/engine/v2/uploads-report',
+            '/api/staff/v1/events',
+        ]) {
+            expect(TRACE_PROPAGATION_TARGET.test(path)).toBe(true);
+        }
+    });
+
+    it('should not trace media that redirects to file storage', () => {
+        for (const path of [
+            '/api/engine/v2/uploads',
+            '/api/engine/v2/uploads/upload-1/url',
+            '/api/engine/v2/signage/media/media-1/thumbnail',
+            '/api/engine/v2/signage/media/media-1/download',
+        ]) {
+            expect(TRACE_PROPAGATION_TARGET.test(path)).toBe(false);
+        }
+    });
+
+    it('should not trace other paths', () => {
+        expect(TRACE_PROPAGATION_TARGET.test('/assets/logo.svg')).toBe(false);
+    });
+});
+
 describe('LazySentryErrorHandler', () => {
     afterEach(() => vi.restoreAllMocks());
 
@@ -140,6 +171,7 @@ describe('initSentryFromSettings', () => {
                 tracesSampleRate: DEFAULT_SENTRY_RATES.traces,
                 replaysSessionSampleRate: DEFAULT_SENTRY_RATES.replays_session,
                 replaysOnErrorSampleRate: 0.5,
+                tracePropagationTargets: [TRACE_PROPAGATION_TARGET],
             }),
         );
         expect(Sentry.replayIntegration).toHaveBeenCalledWith({
