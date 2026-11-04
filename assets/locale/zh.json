@@ -58,6 +58,8 @@
         "UNKNOWN": "未知",
         "NEXT": "下一个",
         "PREVIOUS": "上一个",
+        "FIRST_PAGE": "第一页",
+        "LAST_PAGE": "最后一页",
         "RESULTS_COUNT": "找到 {{ count }} 个结果",
         "RESULTS_COUNT_1": "找到 {{ count }} 个结果",
         "AVAILABLE_COUNT": "{{ total }} 个可用，共 {{ count }} 个",
