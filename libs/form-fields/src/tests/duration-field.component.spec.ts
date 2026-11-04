@@ -379,7 +379,11 @@ describe('DurationFieldComponent in a form', () => {
     });
 });
 
-/** Host that binds the field to a signal form, as most callers do */
+/**
+ * Host that binds the field to a signal form, as most callers do. The
+ * imports are for the template that each test sets, so Angular reports
+ * them as unused for the empty template here.
+ */
 @Component({
     selector: 'signal-form-host',
     template: '',

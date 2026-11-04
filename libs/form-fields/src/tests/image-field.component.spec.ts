@@ -1,4 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
+import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -20,8 +22,7 @@ describe('ImageFieldComponent', () => {
         ],
         providers: [
             MockProvider(UploadsService, {
-                uploadFile: vi.fn(() => Promise.resolve('upload-1')),
-                upload_list: (() => []) as any,
+                uploadFileWithProgress: vi.fn(() => signal(null)),
             }),
             MockProvider(Clipboard, { copy: vi.fn(() => true) }),
         ],
@@ -90,38 +91,44 @@ describe('ImageFieldComponent', () => {
 
         afterEach(() => setNotifyOutlet(null, true));
 
-        it('should report a failed upload rather than rejecting', async () => {
+        it('should report an upload that fails before it starts', () => {
             const uploads = spectator.inject(UploadsService);
-            vi.mocked(uploads.uploadFile).mockRejectedValueOnce(
-                new Error('Commit failed with status 401'),
+            vi.mocked(uploads.uploadFileWithProgress).mockReturnValueOnce(
+                signal(new Error('Commit failed with status 401')) as any,
             );
-            await expect(
-                spectator.component.uploadImage(
-                    fileEvent(new File([], 'a.png')),
-                ),
-            ).resolves.toBeUndefined();
+            spectator.component.uploadImage(fileEvent(new File([], 'a.png')));
+            TestBed.tick();
             expect(notify_open).toHaveBeenCalled();
             expect(spectator.component.progress()).toBe(0);
+            expect(spectator.component.uploading()).toBe(false);
         });
 
-        it('should stop polling and report an upload that fails after it starts', async () => {
-            vi.useFakeTimers();
+        it('should report an upload that fails after it starts', () => {
             const uploads = spectator.inject(UploadsService);
-            (uploads as any).upload_list = () => [
-                {
+            vi.mocked(uploads.uploadFileWithProgress).mockReturnValueOnce(
+                signal({
                     id: 'upload-1',
-                    name: 'a.png',
                     progress: 20,
                     error: 'Denied',
-                },
-            ];
-            await spectator.component.uploadImage(
-                fileEvent(new File([], 'a.png')),
+                }) as any,
             );
-            vi.advanceTimersByTime(1000);
+            spectator.component.uploadImage(fileEvent(new File([], 'a.png')));
+            TestBed.tick();
             expect(notify_open).toHaveBeenCalledTimes(1);
             expect(spectator.component.uploading()).toBe(false);
-            vi.useRealTimers();
+        });
+
+        it('should set the upload url when the upload completes', () => {
+            const uploads = spectator.inject(UploadsService);
+            vi.mocked(uploads.uploadFileWithProgress).mockReturnValueOnce(
+                signal({ id: 'x', upload_id: 'up 1', progress: 100 }) as any,
+            );
+            spectator.component.uploadImage(fileEvent(new File([], 'a.png')));
+            TestBed.tick();
+            expect(spectator.component.url()).toBe(
+                '/api/engine/v2/uploads/up%201/url',
+            );
+            expect(spectator.component.uploading()).toBe(false);
         });
     });
 });

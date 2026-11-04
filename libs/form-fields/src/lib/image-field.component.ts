@@ -3,6 +3,7 @@ import {
     Component,
     ElementRef,
     inject,
+    Injector,
     signal,
     viewChild,
 } from '@angular/core';
@@ -11,7 +12,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    AsyncHandler,
     notifyError,
     notifyInfo,
     provideValueAccessor,
@@ -20,6 +20,7 @@ import {
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { watchUpload } from './watch-upload';
 
 @Component({
     selector: 'image-field',
@@ -124,12 +125,10 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         TranslatePipe,
     ],
 })
-export class ImageFieldComponent
-    extends AsyncHandler
-    implements ControlValueAccessor
-{
+export class ImageFieldComponent implements ControlValueAccessor {
     private _uploads = inject(UploadsService);
     private _clipboard = inject(Clipboard);
+    private _injector = inject(Injector);
 
     public readonly url = signal('');
     public readonly progress = signal(0);
@@ -177,45 +176,27 @@ export class ImageFieldComponent
     private _onChange: (_: string) => void;
     private _onTouch: (_: string) => void;
 
-    public async uploadImage(event: Event) {
-        const element: HTMLInputElement = event.target as any;
-        if (!element?.files) return;
-        const files: FileList = element.files;
-        if (!files.length) return;
+    public uploadImage(event: Event) {
+        const element = event.target as HTMLInputElement;
+        const file = element?.files?.[0];
+        if (!file) return;
         this.progress.set(0);
         this.uploading.set(true);
-        try {
-            const id = await this._uploads.uploadFile(files[0]);
-            this.interval('update_status', () => this._updateUploadHistory(id));
-        } catch (error) {
-            this.clearInterval('update_status');
-            this.progress.set(0);
-            this.uploading.set(false);
-            notifyError(
-                `Failed to upload ${files[0].name}: ${error?.message || 'Unknown error'}`,
+        watchUpload(this._uploads, file, this._injector, (details) => {
+            if (details.error) {
+                this.progress.set(0);
+                this.uploading.set(false);
+                notifyError(`Failed to upload ${file.name}: ${details.error}`);
+                return;
+            }
+            this.progress.set(details.progress);
+            if (details.progress < 100) return;
+            this.setValue(
+                `/api/engine/v2/uploads/${encodeURIComponent(details.upload_id || details.id)}/url`,
             );
-        } finally {
-            this._file_input().nativeElement.value = '';
-        }
-    }
-
-    private async _updateUploadHistory(id: string) {
-        const global_list = this._uploads.upload_list();
-        const file = global_list.find((_) => _.id === id);
-        if (!file) return;
-        if (file.error) {
-            this.clearInterval('update_status');
-            this.progress.set(0);
             this.uploading.set(false);
-            notifyError(`Failed to upload ${file.name}: ${file.error}`);
-            return;
-        }
-        this.progress.set(file.progress);
-        if (file.progress < 100) return;
-        this.setValue(
-            `/api/engine/v2/uploads/${encodeURIComponent(file.upload_id || file.id)}/url`,
-        );
-        this.clearInterval('update_status');
-        this.uploading.set(false);
+        });
+        const input = this._file_input()?.nativeElement;
+        if (input) input.value = '';
     }
 }

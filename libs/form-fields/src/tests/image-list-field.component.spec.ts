@@ -1,20 +1,33 @@
 import { Clipboard } from '@angular/cdk/clipboard';
+import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
+import type { Mock } from 'vitest';
 
-import { UploadsService } from '@placeos/common';
+import { UploadDetails, UploadsService } from '@placeos/common';
 import { mockDirective } from '@placeos/common/tests';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import {
-    ImageListFieldComponent,
-    UploadDetails,
-} from '../lib/image-list-field.component';
+import { ImageListFieldComponent } from '../lib/image-list-field.component';
+
+/** Upload state as `UploadsService.uploadFileWithProgress` reports it */
+const uploadState = (details: Partial<UploadDetails>) =>
+    signal({
+        id: 'upload-1',
+        name: 'a.png',
+        progress: 0,
+        link: '',
+        formatted_size: '',
+        size: 0,
+        upload: null,
+        ...details,
+    } as UploadDetails);
 
 const chipEvent = (value: string): MatChipInputEvent =>
     ({
@@ -24,6 +37,10 @@ const chipEvent = (value: string): MatChipInputEvent =>
 
 describe('ImageListFieldComponent', () => {
     let spectator: Spectator<ImageListFieldComponent>;
+    /** The mocked upload method, typed as a plain mock */
+    const uploadMock = () =>
+        spectator.inject(UploadsService)
+            .uploadFileWithProgress as unknown as Mock;
     const createComponent = createComponentFactory({
         component: ImageListFieldComponent,
         declarations: [
@@ -32,8 +49,7 @@ describe('ImageListFieldComponent', () => {
         ],
         providers: [
             MockProvider(UploadsService, {
-                uploadFile: vi.fn(() => Promise.resolve('upload-1')),
-                upload_list: (() => []) as any,
+                uploadFileWithProgress: vi.fn(() => signal(null)),
             }),
             MockProvider(Clipboard, { copy: vi.fn(() => true) }),
             MockProvider(MatDialog, {
@@ -43,7 +59,10 @@ describe('ImageListFieldComponent', () => {
         imports: [MatChipsModule, MatFormFieldModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        spectator = createComponent();
+        uploadMock().mockClear();
+    });
 
     it('should write external values into the list', () => {
         spectator.component.writeValue(['a.png', 'b.png']);
@@ -80,16 +99,25 @@ describe('ImageListFieldComponent', () => {
         expect(on_change).toHaveBeenCalledWith(['b.png']);
     });
 
-    it('should only count active uploads in the carousel length', () => {
+    it('should count pending uploads in the carousel length', () => {
         spectator.component.writeValue(['existing.png']);
-        spectator.component.upload_ids.set(['active']);
-        spectator.component.upload_list.set([
-            { id: 'active' },
-            { id: 'completed' },
-        ] as unknown as UploadDetails[]);
-
+        spectator.component.uploadImages({
+            target: { files: [new File([], 'a.png')] },
+        });
         expect(spectator.component.uploads()).toHaveLength(1);
         expect(spectator.component.length()).toBe(3);
+    });
+
+    it('should add a completed upload to the list', () => {
+        uploadMock().mockReturnValueOnce(
+            uploadState({ progress: 100, link: 'https://x/a.png' }),
+        );
+        spectator.component.uploadImages({
+            target: { files: [new File([], 'a.png')] },
+        });
+        TestBed.tick();
+        expect(spectator.component.list()).toEqual(['https://x/a.png']);
+        expect(spectator.component.uploads()).toHaveLength(0);
     });
 
     it('should copy an image url to the clipboard', () => {
@@ -113,7 +141,7 @@ describe('ImageListFieldComponent', () => {
             onAction: () => of(),
             dismiss: vi.fn(),
         }));
-        const fileEvent = (...files: File[]) => ({ target: { files } });
+        const fileEvent = (...files: File[]) => ({ target: { files } }) as any;
 
         beforeEach(() => {
             notify_open.mockClear();
@@ -122,19 +150,33 @@ describe('ImageListFieldComponent', () => {
 
         afterEach(() => setNotifyOutlet(null, true));
 
-        it('should upload the remaining files after one fails', async () => {
-            const uploads = spectator.inject(UploadsService);
-            vi.mocked(uploads.uploadFile)
-                .mockRejectedValueOnce(
-                    new Error('Upload failed with status 500'),
-                )
-                .mockResolvedValueOnce('upload-2');
-            await spectator.component.uploadImages(
+        it('should upload the remaining files after one fails', () => {
+            uploadMock()
+                .mockReturnValueOnce(uploadState({ error: 'Status 500' }))
+                .mockReturnValueOnce(
+                    uploadState({ progress: 100, link: 'https://x/b.png' }),
+                );
+            spectator.component.uploadImages(
                 fileEvent(new File([], 'a.png'), new File([], 'b.png')),
             );
-            expect(uploads.uploadFile).toHaveBeenCalledTimes(2);
-            expect(spectator.component.upload_ids()).toEqual(['upload-2']);
+            TestBed.tick();
+            expect(uploadMock()).toHaveBeenCalledTimes(2);
+            expect(spectator.component.list()).toEqual(['https://x/b.png']);
+            expect(spectator.component.uploads()[0].error).toBe('Status 500');
             expect(notify_open).toHaveBeenCalledTimes(1);
+        });
+
+        it('should upload a failed file again on retry', () => {
+            uploadMock().mockReturnValueOnce(
+                uploadState({ error: 'Status 500' }),
+            );
+            const file = new File([], 'a.png');
+            spectator.component.uploadImages(fileEvent(file));
+            TestBed.tick();
+            spectator.component.retryUpload(spectator.component.uploads()[0]);
+            expect(uploadMock()).toHaveBeenLastCalledWith(file);
+            expect(spectator.component.uploads()).toHaveLength(1);
+            expect(spectator.component.uploads()[0].error).toBeUndefined();
         });
     });
 });
