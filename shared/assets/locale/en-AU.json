@@ -1353,7 +1353,12 @@
         "ASSETS_QUANTITY_ERROR": "Not enough assets available to meet request [{{ name }}].\nAnother request for this asset has been made in this meeting.",
         "ID_REQUIRED": "A valid ID is required",
         "BOOK_FOR": "Book for",
-        "TIME": "Time"
+        "TIME": "Time",
+        "DATE_RANGE_SELECT_START": "Select a start date",
+        "DATE_RANGE_SELECT_END": "Select an end date",
+        "TIME_ENTRY": "Time",
+        "TIME_CHOOSE": "Choose a time",
+        "TIME_ENTRY_ERROR": "Enter a time within the allowed hours."
     },
     "EXPLORE": {
         "AREAS": "Show Areas",

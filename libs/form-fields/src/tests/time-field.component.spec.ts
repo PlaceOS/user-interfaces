@@ -33,6 +33,34 @@ describe('TimeFieldComponent', () => {
         expect(spectator.component.active_time()).toBe(date);
     });
 
+    it('should accept a typed time within the allowed hours', () => {
+        const on_change = vi.fn();
+        spectator.setInput({
+            allow_time_entry: true,
+            no_past_times: false,
+            range: { start: 9, end: 17 },
+        });
+        spectator.component.registerOnChange(on_change);
+        spectator.component.setTypedTime('10:07');
+        expect(on_change).toHaveBeenCalledTimes(1);
+        expect(format(on_change.mock.calls[0][0], 'HH:mm')).toBe('10:07');
+        expect(spectator.component.time_entry_error()).toBe(false);
+    });
+
+    it('should reject a typed time outside the allowed hours', () => {
+        const on_change = vi.fn();
+        spectator.setInput({
+            allow_time_entry: true,
+            no_past_times: false,
+            range: { start: 9, end: 17 },
+        });
+        spectator.component.registerOnChange(on_change);
+        spectator.component.setTypedTime('18:30');
+        spectator.detectChanges();
+        expect(on_change).not.toHaveBeenCalled();
+        expect(spectator.query('[role="alert"]')).toExist();
+    });
+
     it('should not submit a parent form when opened', () => {
         expect('button[time-field]').toHaveAttribute('type', 'button');
     });
