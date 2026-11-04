@@ -14,8 +14,34 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
-import { UserListFieldComponent } from '../lib/user-list-field.component';
+import {
+    defaultInternalDomains,
+    isInternalEmail,
+    UserListFieldComponent,
+} from '../lib/user-list-field.component';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
+
+describe('internal email domains', () => {
+    it('should default to the user domain and its root domain', () => {
+        expect(defaultInternalDomains('jo@staff.place.tech')).toEqual([
+            'staff.place.tech',
+            'place.tech',
+        ]);
+        expect(defaultInternalDomains('jo@place.tech')).toEqual(['place.tech']);
+        expect(defaultInternalDomains('jo@staff.acme.com.au')).toEqual([
+            'staff.acme.com.au',
+            'acme.com.au',
+        ]);
+        expect(defaultInternalDomains('')).toEqual([]);
+    });
+
+    it('should match the domain and subdomains only', () => {
+        const domains = ['@place.tech'];
+        expect(isInternalEmail('a@place.tech', domains)).toBe(true);
+        expect(isInternalEmail('a@staff.place.tech', domains)).toBe(true);
+        expect(isInternalEmail('a@evilplace.tech', domains)).toBe(false);
+    });
+});
 
 describe('UserListFieldComponent', () => {
     let spectator: Spectator<UserListFieldComponent>;
@@ -103,45 +129,71 @@ describe('UserListFieldComponent', () => {
         expect(spectator.inject(MatDialog).open).toHaveBeenCalled();
     });
 
-    it('should allow adding users from a CSV file', () => {
-        // The real csvToJson parses the CSV string produced by the mocked
-        // FileReader below into two user rows.
-        vi.spyOn(spectator.component, 'addUsers');
-        const eventListener = (type, callback) => {
-            if (type === 'load') {
-                callback({
-                    srcElement: {
-                        result: `Organisation Name,First Name,Last Name,Email,Phone\nFake Org,John,Smith,john.smith@example.com,01234567898\nFake Org,Johnny,Smith,johnny.smith@example.com,01234567898`,
-                        target: {},
-                    },
-                });
-            } else {
-                callback();
-            }
-        };
-        const mock_file_reader = {
-            addEventListener: eventListener,
-            readAsText: () => null,
-        };
+    /** Send CSV text through the file input, with a mocked FileReader */
+    const importCsv = async (text: string, type = 'text/csv') => {
         vi.spyOn(window, 'FileReader').mockImplementation(function () {
-            return mock_file_reader;
+            return {
+                readAsText: () => null,
+                addEventListener: (event_type, callback) =>
+                    event_type === 'load'
+                        ? callback({ srcElement: { result: text } })
+                        : undefined,
+            };
         });
-        // Windows with Excel installed reports CSV files with this type
         spectator.component.addUsersFromFile({
-            target: {
-                files: [
-                    {
-                        id: 0,
-                        type: 'application/vnd.ms-excel',
-                        size: 1,
-                        name: 'File.csv',
-                    },
-                ],
-            },
+            target: { files: [{ type, size: 1, name: 'File.csv' }] },
         });
+        await new Promise((resolve) => setTimeout(resolve));
+    };
+    const csv_rows = (count: number) =>
+        [
+            'Organisation Name,First Name,Last Name,Email,Phone',
+            ...Array.from(
+                { length: count },
+                (_, i) =>
+                    `Fake Org,John,Smith${i},john${i}@example.com,0123456789${i}`,
+            ),
+        ].join('\n');
+
+    it('should allow adding users from a CSV file', async () => {
+        vi.spyOn(spectator.component, 'addUsers');
+        vi.spyOn(spectator.component, 'confirmCsvImport').mockResolvedValue(
+            true,
+        );
+        // Windows with Excel installed reports CSV files with this type
+        await importCsv(csv_rows(2), 'application/vnd.ms-excel');
         expect(spectator.component.addUsers).toHaveBeenCalledTimes(1);
         expect(spectator.component.active_list()).toHaveLength(2);
-        expect(spectator.component.active_list()[0].phone).toBe('01234567898');
+        expect(spectator.component.active_list()[0].phone).toBe('01234567890');
+    });
+
+    it('should not add CSV users when the preview is cancelled', async () => {
+        vi.spyOn(spectator.component, 'confirmCsvImport').mockResolvedValue(
+            false,
+        );
+        await importCsv(csv_rows(2));
+        expect(spectator.component.active_list()).toHaveLength(0);
+    });
+
+    it('should skip blank CSV rows and report an empty file', async () => {
+        const confirm = vi
+            .spyOn(spectator.component, 'confirmCsvImport')
+            .mockResolvedValue(false);
+        await importCsv(`${csv_rows(2)}\n`);
+        expect(confirm.mock.calls[0][0]).toHaveLength(2);
+        confirm.mockClear();
+        await importCsv('');
+        await importCsv('Organisation Name,First Name,Email\n');
+        expect(confirm).not.toHaveBeenCalled();
+    });
+
+    it('should only read the first 500 CSV rows', async () => {
+        const confirm = vi
+            .spyOn(spectator.component, 'confirmCsvImport')
+            .mockResolvedValue(false);
+        await importCsv(csv_rows(510));
+        expect(confirm.mock.calls[0][0]).toHaveLength(500);
+        expect(confirm.mock.calls[0][2]).toBe(true);
     });
 
     it('should add the typed email when its option is picked', () => {

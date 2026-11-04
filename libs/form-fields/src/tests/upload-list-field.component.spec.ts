@@ -72,7 +72,7 @@ describe('UploadListFieldComponent', () => {
 
     it('should show an empty state with no files', () => {
         spectator.detectChanges();
-        expect(spectator.element).toContainText('No uploaded files');
+        expect(spectator.query('[empty]')).toExist();
     });
 
     it('should ignore progress updates for a removed upload', () => {

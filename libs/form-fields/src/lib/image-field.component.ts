@@ -3,6 +3,8 @@ import {
     Component,
     ElementRef,
     inject,
+    Injector,
+    input,
     signal,
     viewChild,
 } from '@angular/core';
@@ -11,7 +13,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    AsyncHandler,
+    i18n,
     notifyError,
     notifyInfo,
     provideValueAccessor,
@@ -20,6 +22,8 @@ import {
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { checkFile } from './file-checks';
+import { watchUpload } from './watch-upload';
 
 @Component({
     selector: 'image-field',
@@ -31,11 +35,16 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         <div
             matRipple
             class="bg-base-200 relative h-48 w-full rounded-xl has-[>input:focus-visible]:ring-2"
+            [class.ring-2]="dragging()"
+            [class.ring-primary]="dragging()"
         >
             <input
                 #file_input
                 type="file"
                 accept="image/*"
+                (dragenter)="dragging.set(true)"
+                (dragleave)="dragging.set(false)"
+                (drop)="dragging.set(false)"
                 class="absolute inset-0 z-10 cursor-pointer opacity-0"
                 [attr.aria-label]="'COMMON.UPLOAD_IMAGE' | translate"
                 [disabled]="disabled() || uploading()"
@@ -56,15 +65,16 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 <img
                     auth
                     [source]="this.url()"
-                    alt="Image"
+                    [alt]="'COMMON.IMAGE' | translate"
                     class="h-full w-full object-contain"
                 />
                 <button
                     icon
                     type="button"
                     matRipple
-                    matTooltip="Clear Image"
-                    aria-label="Clear Image"
+                    clear-image
+                    [matTooltip]="'FORM.IMAGE_CLEAR' | translate"
+                    [attr.aria-label]="'FORM.IMAGE_CLEAR' | translate"
                     matTooltipPosition="left"
                     class="border-base-300 bg-base-100 absolute top-2 right-2 z-20 rounded-full border"
                     [disabled]="disabled()"
@@ -78,8 +88,8 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     <button
                         icon
                         matRipple
-                        matTooltip="Copy Image URL"
-                        aria-label="Copy Image URL"
+                        [matTooltip]="'COMMON.COPY_LINK' | translate"
+                        [attr.aria-label]="'COMMON.COPY_LINK' | translate"
                         matTooltipPosition="right"
                         (click)="copyLink()"
                     >
@@ -124,18 +134,20 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         TranslatePipe,
     ],
 })
-export class ImageFieldComponent
-    extends AsyncHandler
-    implements ControlValueAccessor
-{
+export class ImageFieldComponent implements ControlValueAccessor {
     private _uploads = inject(UploadsService);
     private _clipboard = inject(Clipboard);
+    private _injector = inject(Injector);
 
     public readonly url = signal('');
     public readonly progress = signal(0);
     /** Whether an upload is running */
     public readonly uploading = signal(false);
     public readonly disabled = signal(false);
+    /** Largest file size in bytes. 0 means no limit */
+    public readonly max_size = input(0);
+    /** Whether a file is being dragged over the field */
+    public readonly dragging = signal(false);
 
     public readonly registerOnChange = (fn: (_: string) => void) =>
         (this._onChange = fn);
@@ -148,7 +160,7 @@ export class ImageFieldComponent
 
     public readonly copyLink = () => {
         this._clipboard.copy(this.url());
-        notifyInfo('Link copied to clipboard');
+        notifyInfo(i18n('COMMON.LINK_COPIED'));
     };
 
     public clearImage(event?: Event) {
@@ -177,45 +189,38 @@ export class ImageFieldComponent
     private _onChange: (_: string) => void;
     private _onTouch: (_: string) => void;
 
-    public async uploadImage(event: Event) {
-        const element: HTMLInputElement = event.target as any;
-        if (!element?.files) return;
-        const files: FileList = element.files;
-        if (!files.length) return;
-        this.progress.set(0);
-        this.uploading.set(true);
-        try {
-            const id = await this._uploads.uploadFile(files[0]);
-            this.interval('update_status', () => this._updateUploadHistory(id));
-        } catch (error) {
-            this.clearInterval('update_status');
-            this.progress.set(0);
-            this.uploading.set(false);
-            notifyError(
-                `Failed to upload ${files[0].name}: ${error?.message || 'Unknown error'}`,
-            );
-        } finally {
-            this._file_input().nativeElement.value = '';
-        }
-    }
-
-    private async _updateUploadHistory(id: string) {
-        const global_list = this._uploads.upload_list();
-        const file = global_list.find((_) => _.id === id);
+    public uploadImage(event: Event) {
+        const element = event.target as HTMLInputElement;
+        const file = element?.files?.[0];
         if (!file) return;
-        if (file.error) {
-            this.clearInterval('update_status');
-            this.progress.set(0);
-            this.uploading.set(false);
-            notifyError(`Failed to upload ${file.name}: ${file.error}`);
+        if (
+            !checkFile(file, { accept: 'image/*', max_size: this.max_size() })
+        ) {
+            element.value = '';
             return;
         }
-        this.progress.set(file.progress);
-        if (file.progress < 100) return;
-        this.setValue(
-            `/api/engine/v2/uploads/${encodeURIComponent(file.upload_id || file.id)}/url`,
-        );
-        this.clearInterval('update_status');
-        this.uploading.set(false);
+        this.progress.set(0);
+        this.uploading.set(true);
+        watchUpload(this._uploads, file, this._injector, (details) => {
+            if (details.error) {
+                this.progress.set(0);
+                this.uploading.set(false);
+                notifyError(
+                    i18n('FORM.UPLOAD_FAILED', {
+                        name: file.name,
+                        error: details.error,
+                    }),
+                );
+                return;
+            }
+            this.progress.set(details.progress);
+            if (details.progress < 100) return;
+            this.setValue(
+                `/api/engine/v2/uploads/${encodeURIComponent(details.upload_id || details.id)}/url`,
+            );
+            this.uploading.set(false);
+        });
+        const input = this._file_input()?.nativeElement;
+        if (input) input.value = '';
     }
 }

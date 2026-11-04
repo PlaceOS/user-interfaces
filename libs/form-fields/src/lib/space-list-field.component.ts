@@ -100,7 +100,7 @@ const EMPTY_FAVS: string[] = [];
                             {{
                                 space.display_name ||
                                     space.name ||
-                                    'Meeting Space'
+                                    ('COMMON.MEETING_SPACE' | translate)
                             }}
                         </div>
                         <div class="flex items-center space-x-2 text-sm">

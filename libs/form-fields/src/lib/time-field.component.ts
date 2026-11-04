@@ -3,6 +3,7 @@ import {
     AfterViewInit,
     Component,
     computed,
+    ElementRef,
     input,
     model,
     OnChanges,
@@ -37,6 +38,7 @@ import {
 } from 'date-fns';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 export interface TimeFieldRange {
     /** Earliest allowed hour of the day (0–24). For example, `8` means 8:00 AM. */
@@ -55,31 +57,65 @@ function toHourOfDay(value: unknown): number | null {
 @Component({
     selector: 'a-time-field,time-field',
     template: `
-        <button
-            type="button"
-            time-field
-            matRipple
-            class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
-            [disabled]="disabled() || no_options()"
-            [class.opacity-30]="disabled() || no_options()"
-            [matMenuTriggerFor]="menu"
-        >
+        @if (allow_time_entry()) {
             <div
-                class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
+                class="border-neutral flex h-12 w-full items-center rounded-sm border"
+                [class.opacity-30]="disabled() || no_options()"
             >
-                <div class="truncate">
-                    {{ active_time() | date: time_format() }}
-                </div>
-                @if (timezone() && tz()) {
-                    <div class="truncate text-xs opacity-30">
-                        {{
-                            active_time() | date: time_format() + ' (z)' : tz()
-                        }}
-                    </div>
-                }
+                <input
+                    #time_input
+                    type="time"
+                    class="h-full min-w-0 flex-1 border-0 bg-transparent px-4"
+                    [attr.aria-label]="'FORM.TIME' | translate"
+                    [value]="time()"
+                    [disabled]="disabled() || no_options()"
+                    [attr.aria-invalid]="!!time_entry_error()"
+                    (change)="setTypedTime(time_input.value)"
+                />
+                <button
+                    type="button"
+                    time-options
+                    class="flex h-full w-12 shrink-0 items-center justify-center"
+                    [attr.aria-label]="'FORM.TIME_CHOOSE' | translate"
+                    [disabled]="disabled() || no_options()"
+                    [matMenuTriggerFor]="menu"
+                >
+                    <icon class="text-2xl">arrow_drop_down</icon>
+                </button>
             </div>
-            <icon class="text-2xl">arrow_drop_down</icon>
-        </button>
+            @if (time_entry_error()) {
+                <div role="alert" class="text-error text-sm">
+                    {{ 'FORM.TIME_ENTRY_ERROR' | translate }}
+                </div>
+            }
+        } @else {
+            <button
+                type="button"
+                time-field
+                matRipple
+                class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
+                [disabled]="disabled() || no_options()"
+                [class.opacity-30]="disabled() || no_options()"
+                [matMenuTriggerFor]="menu"
+            >
+                <div
+                    class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
+                >
+                    <div class="truncate">
+                        {{ active_time() | date: time_format() }}
+                    </div>
+                    @if (timezone() && tz()) {
+                        <div class="truncate text-xs opacity-30">
+                            {{
+                                active_time()
+                                    | date: time_format() + ' (z)' : tz()
+                            }}
+                        </div>
+                    }
+                </div>
+                <icon class="text-2xl">arrow_drop_down</icon>
+            </button>
+        }
         <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
             <!-- Lazy content: the options only render while the menu is open -->
             <ng-template matMenuContent>
@@ -115,7 +151,9 @@ function toHourOfDay(value: unknown): number | null {
                         </div>
                     </button>
                 } @empty {
-                    <div mat-menu-item disabled>No time options to select</div>
+                    <div mat-menu-item disabled>
+                        {{ 'FORM.TIME_EMPTY' | translate }}
+                    </div>
                 }
             </ng-template>
         </mat-menu>
@@ -131,7 +169,13 @@ function toHourOfDay(value: unknown): number | null {
         `,
     ],
     providers: [provideValueAccessor(() => TimeFieldComponent)],
-    imports: [CommonModule, MatMenuModule, MatFormFieldModule, IconComponent],
+    imports: [
+        CommonModule,
+        MatMenuModule,
+        MatFormFieldModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class TimeFieldComponent
     extends AsyncHandler
@@ -172,6 +216,10 @@ export class TimeFieldComponent
      *  length booking are offered. */
     public readonly min_duration = input(0);
     public readonly timezone = input<string>('');
+    /** Allow typing a time, as well as picking one from the list */
+    public readonly allow_time_entry = input(false);
+    /** Whether the typed time is outside the allowed times */
+    public readonly time_entry_error = signal(false);
     /** String representing the currently set time */
     public readonly date = signal(new Date().valueOf());
     /** String representing the currently set time */
@@ -191,6 +239,9 @@ export class TimeFieldComponent
 
     /** Menu trigger for the time selection dropdown */
     private readonly _menu_trigger = viewChild(MatMenuTrigger);
+    /** Typed time input, shown with `allow_time_entry` */
+    private readonly _time_input =
+        viewChild<ElementRef<HTMLInputElement>>('time_input');
 
     public readonly time_format = computed(() =>
         this.use_24hr() ? 'HH : mm' : 'h : mm a',
@@ -341,11 +392,35 @@ export class TimeFieldComponent
     });
 
     /**
+     * Set the value from a typed `HH:mm` time in the field's timezone. A time
+     * outside the allowed times shows an error and does not change the value.
+     */
+    public setTypedTime(value: string) {
+        const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(value);
+        const tz = this.timezone() || undefined;
+        const date = match
+            ? setTimeInTimezone(this.date(), +match[1], +match[2], tz)
+            : NaN;
+        const too_early =
+            this.no_past_times() && date < startOfMinute(Date.now()).valueOf();
+        if (!match || too_early || !this._isWithinRange(date)) {
+            this.time_entry_error.set(true);
+            return;
+        }
+        this.setValue(value);
+    }
+
+    /**
      * Update the form field value
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: string): void {
+        this.time_entry_error.set(false);
         this.time.set(new_value);
+        // The binding does not update when the time is the same, which leaves
+        // a rejected typed time in the input
+        const input = this._time_input()?.nativeElement;
+        if (input) input.value = new_value;
         const tz = this.timezone() || undefined;
         if (this._onChange) {
             const time = (this.time() || '00:00').split(':');
@@ -379,8 +454,8 @@ export class TimeFieldComponent
     public writeValue(value: number) {
         this.date.set(value || this.date());
         const tz = this.timezone() || undefined;
-        let date = startOfMinute(this.date());
-        date = roundToNearestMinutes(date, { nearestTo: 5 });
+        // Show the written time as it is. An off-step time gets its own option
+        const date = startOfMinute(this.date());
         this.time.set(formatTimeInTimezone(date, tz));
         this._time_options.set(
             this.generateAvailableTimes(

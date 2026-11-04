@@ -178,6 +178,10 @@ describe('General Methods', () => {
     });
 
     describe('csvToJson', () => {
+        it('should return no rows for empty text', () => {
+            expect(csvToJson('')).toEqual([]);
+        });
+
         it('should parse tab-separated content and strip BOM from header', () => {
             const list = csvToJson('\uFEFFname\tcount\r\nJane\t2', '\t');
             expect(list).toEqual([{ name: 'Jane', count: 2 }]);

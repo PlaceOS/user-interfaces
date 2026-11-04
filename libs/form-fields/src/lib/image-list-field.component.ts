@@ -4,15 +4,14 @@ import {
     AfterViewInit,
     Component,
     computed,
-    effect,
     ElementRef,
     inject,
     Injector,
+    input,
     signal,
     viewChild,
 } from '@angular/core';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
-import { Upload } from '@placeos/cloud-uploads';
 
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,9 +19,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
+    i18n,
     notifyError,
     notifyInfo,
     provideValueAccessor,
+    randomString,
     unique,
     UploadsService,
 } from '@placeos/common';
@@ -30,24 +31,19 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageViewerComponent } from 'libs/components/src/lib/image-viewer.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { checkFile } from './file-checks';
+import { watchUpload } from './watch-upload';
 
-export interface UploadDetails {
-    /** Unique ID for the upload */
-    id: string;
-    /** Name of the file uploaded */
-    name: string;
-    /** Progress of the file upload */
+/** An image upload that has not completed */
+export interface PendingImageUpload {
+    /** Local key for the upload */
+    key: string;
+    /** File being uploaded, kept so a failed upload can be retried */
+    file: File;
+    /** Progress of the upload, 0 to 100 */
     progress: number;
-    /** Link to the uploaded file */
-    link: string;
-    /** Formatted file size */
-    formatted_size: string;
-    /** Size of the file being uploaded */
-    size: number;
-    /** Error with upload request */
+    /** Why the upload failed */
     error?: string;
-    /** Upload object associated with the file */
-    upload: Upload;
 }
 
 @Component({
@@ -62,6 +58,8 @@ export interface UploadDetails {
             <div
                 image
                 class="border-base-200 hover:border-base-300 hover:bg-base-200 relative flex h-32 w-36 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed"
+                [class.border-primary]="dragging()"
+                [class.bg-base-200]="dragging()"
                 [style.transform]="'translate(-' + offset() + '00%)'"
             >
                 <icon class="text-4xl opacity-60">add</icon>
@@ -72,6 +70,9 @@ export interface UploadDetails {
                     #file_input
                     type="file"
                     accept="image/*"
+                    (dragenter)="dragging.set(true)"
+                    (dragleave)="dragging.set(false)"
+                    (drop)="dragging.set(false)"
                     multiple
                     class="absolute inset-0 h-32 w-32 cursor-pointer opacity-0"
                     [disabled]="disabled()"
@@ -128,7 +129,7 @@ export interface UploadDetails {
                     </div>
                 </div>
             }
-            @for (item of uploads(); track item; let i = $index) {
+            @for (item of uploads(); track item.key) {
                 <div
                     upload
                     class="border-base-content/10 bg-base-200 flex h-32 w-36 shrink-0 items-center justify-center rounded-sm border bg-cover bg-center"
@@ -184,7 +185,7 @@ export interface UploadDetails {
         <mat-form-field appearance="outline" class="w-full">
             <mat-chip-grid
                 #chipList
-                aria-label="Image List"
+                [attr.aria-label]="'COMMON.IMAGES' | translate"
                 [disabled]="disabled()"
             >
                 @for (item of list(); track item) {
@@ -192,7 +193,9 @@ export interface UploadDetails {
                         <div class="max-w-md truncate">{{ item }}</div>
                         <button
                             matChipRemove
-                            [attr.aria-label]="'Remove ' + item"
+                            [attr.aria-label]="
+                                'COMMON.REMOVE_ITEM' | translate: { item }
+                            "
                         >
                             <icon>cancel</icon>
                         </button>
@@ -258,39 +261,20 @@ export class ImageListFieldComponent
     private _uploads = inject(UploadsService);
     private _dialog = inject(MatDialog);
     private _injector = inject(Injector);
-    private readonly _upload_completion_effect = effect(
-        () => {
-            const list = this.upload_list();
-            const id_list = this.upload_ids();
-            for (const id of id_list) {
-                const item = list.find((_) => _?.id === id);
-                if (item && item.progress >= 100) {
-                    this.addImageUrl(item.link);
-                    this.upload_ids.set(
-                        this.upload_ids().filter((_) => _ !== id),
-                    );
-                }
-            }
-        },
-        { injector: this._injector },
-    );
 
     /** List of images */
     public readonly list = signal<string[]>([]);
-    /** List of images */
-    public upload_map: Record<string, string> = {};
-    public readonly upload_ids = signal<string[]>([]);
-    public readonly upload_list = signal<UploadDetails[]>([]);
+    /** Uploads that are in progress or failed */
+    public readonly uploads = signal<PendingImageUpload[]>([]);
     public readonly offset = signal(0);
     public readonly disabled = signal(false);
+    /** Largest file size in bytes. 0 means no limit */
+    public readonly max_size = input(0);
+    /** Whether a file is being dragged over the field */
+    public readonly dragging = signal(false);
 
     public readonly view_space = signal(0);
     public readonly separators = [COMMA, ENTER];
-
-    public readonly uploads = computed(() => {
-        const ids = this.upload_ids();
-        return this.upload_list().filter((item) => ids.includes(item?.id));
-    });
 
     public readonly length = computed(
         () => this.list().length + this.uploads().length + 1,
@@ -325,7 +309,7 @@ export class ImageListFieldComponent
 
     public copyLink(url: string) {
         this._clipboard.copy(url);
-        notifyInfo('Copied image URL to clipboard');
+        notifyInfo(i18n('COMMON.LINK_COPIED'));
     }
 
     public viewImage(url: string) {
@@ -350,11 +334,10 @@ export class ImageListFieldComponent
      * Upload a failed file again. The upload service stops tracking an upload
      * after it fails, so this starts a new upload in place of a resume.
      */
-    public async retryUpload(item: UploadDetails) {
-        const file = item.upload?.file;
-        if (this.disabled() || !item.error || !(file instanceof File)) return;
-        this.upload_ids.set(this.upload_ids().filter((_) => _ !== item.id));
-        await this._uploadFile(file);
+    public retryUpload(item: PendingImageUpload) {
+        if (this.disabled() || !item.error) return;
+        this._removeUpload(item.key);
+        this._uploadFile(item.file);
     }
 
     public previousOffset() {
@@ -365,20 +348,17 @@ export class ImageListFieldComponent
         this.offset.update((value) => value + 1);
     }
 
-    public async uploadImages(event) {
+    public uploadImages(event) {
         const element: HTMLInputElement = event.target;
-        /* istanbul ignore else */
-        if (element?.files) {
-            const files: FileList = element.files;
-            /* istanbul ignore else */
-            if (files.length) {
-                // Keep going after a failure so one bad file doesn't drop the rest
-                for (let i = 0; i < files.length; i++) {
-                    await this._uploadFile(files[i]);
-                }
-                this._file_input().nativeElement.value = '';
-            }
+        if (!element?.files?.length) return;
+        // Each file uploads on its own, so one failure does not stop the rest
+        const limits = { accept: 'image/*', max_size: this.max_size() };
+        for (let i = 0; i < element.files.length; i++) {
+            if (checkFile(element.files[i], limits))
+                this._uploadFile(element.files[i]);
         }
+        const input = this._file_input()?.nativeElement;
+        if (input) input.value = '';
     }
 
     public setValue(value: string[]) {
@@ -401,39 +381,38 @@ export class ImageListFieldComponent
         (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
-    /** Start an upload and track it until it completes or fails */
-    private async _uploadFile(file: File) {
-        try {
-            const id = await this._uploads.uploadFile(file);
-            this.upload_ids.set([...this.upload_ids(), id]);
-            this.interval('update_status', () => this._updateUploadHistory());
-        } catch (error) {
-            notifyError(
-                `Failed to upload ${file.name}: ${error?.message || 'Unknown error'}`,
+    /** Start an upload and show its progress until it completes or fails */
+    private _uploadFile(file: File) {
+        const key = randomString(8);
+        this.uploads.update((list) => [...list, { key, file, progress: 0 }]);
+        watchUpload(this._uploads, file, this._injector, (details) => {
+            if (details.error) {
+                notifyError(
+                    i18n('FORM.UPLOAD_FAILED', {
+                        name: file.name,
+                        error: details.error,
+                    }),
+                );
+            } else if (details.progress >= 100) {
+                this._removeUpload(key);
+                this.addImageUrl(details.link);
+                return;
+            }
+            this.uploads.update((list) =>
+                list.map((item) =>
+                    item.key === key
+                        ? {
+                              ...item,
+                              progress: details.progress,
+                              error: details.error,
+                          }
+                        : item,
+                ),
             );
-        }
+        });
     }
 
-    /**
-     * Copy the state of this field's uploads from the upload service. Stops
-     * polling when every upload has completed or failed.
-     */
-    private async _updateUploadHistory() {
-        const list = this.upload_ids();
-        if (list.length === 0) return this.clearInterval('update_status');
-        const global_list = this._uploads.upload_list();
-        const new_list = global_list.filter((_) =>
-            list.find((i) => i === _?.id),
-        );
-        const done_list = new_list.filter((file) => file.progress >= 100);
-        const failed_list = new_list.filter(
-            (file) => file.progress < 100 && file.error,
-        );
-        this.upload_list.set(new_list);
-        done_list.forEach((i) => {
-            this.upload_map[i?.id] = i.upload?.id || i?.id;
-        });
-        if (done_list.length + failed_list.length >= list.length)
-            this.clearInterval('update_status');
+    private _removeUpload(key: string) {
+        this.uploads.update((list) => list.filter((_) => _.key !== key));
     }
 }

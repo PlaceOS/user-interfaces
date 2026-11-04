@@ -37,7 +37,7 @@ export interface SupportRequestType {
     selector: 'support-ticket-modal',
     template: `
         <fullscreen-modal-shell
-            [heading]="'Raise a support ticket'"
+            [heading]="'COMMON.CONTROLS_SUPPORT' | translate"
             [loading]="loading() ? 'true' : ''"
             [confirm_text]="'COMMON.SUBMIT' | translate"
             (confirm)="submit()"
@@ -279,7 +279,9 @@ export class SupportTicketModalComponent implements OnInit {
             notifySuccess(i18n('COMMON.SUPPORT_SUCCESS'));
         } catch (error) {
             notifyError(
-                `Failed to send support ticket: ${error?.message || 'Unknown error'}`,
+                i18n('COMMON.SUPPORT_FAILED', {
+                    error: error?.message || i18n('FORM.ERROR_UNKNOWN'),
+                }),
             );
         } finally {
             this.loading.set(false);

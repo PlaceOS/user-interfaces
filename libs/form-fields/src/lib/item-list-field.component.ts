@@ -17,6 +17,7 @@ import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideValueAccessor } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 interface ChipListControl<T> {
     value: T[];
@@ -83,7 +84,9 @@ export function uniqueChipItems<T = string>(items: T[]): T[] {
         <mat-form-field appearance="outline" class="w-full">
             <mat-chip-grid
                 #chipList
-                aria-label="Zone Tags"
+                [attr.aria-label]="
+                    placeholder() || ('FORM.ITEM_LIST_PLACEHOLDER' | translate)
+                "
                 [disabled]="disabled()"
             >
                 @for (item of value(); track $index; let i = $index) {
@@ -91,7 +94,9 @@ export function uniqueChipItems<T = string>(items: T[]): T[] {
                         <span class="max-w-md truncate">{{ item }}</span>
                         <button
                             matChipRemove
-                            [attr.aria-label]="'Remove ' + item"
+                            [attr.aria-label]="
+                                'COMMON.REMOVE_ITEM' | translate: { item }
+                            "
                         >
                             <icon>cancel</icon>
                         </button>
@@ -100,7 +105,9 @@ export function uniqueChipItems<T = string>(items: T[]): T[] {
             </mat-chip-grid>
             <input
                 #search_field
-                [placeholder]="placeholder() || 'User groups...'"
+                [placeholder]="
+                    placeholder() || ('FORM.ITEM_LIST_PLACEHOLDER' | translate)
+                "
                 [matAutocomplete]="auto"
                 [matChipInputFor]="chipList"
                 [matChipInputSeparatorKeyCodes]="separators()"
@@ -128,6 +135,7 @@ export function uniqueChipItems<T = string>(items: T[]): T[] {
         MatChipsModule,
         MatAutocompleteModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class ItemListFieldComponent<

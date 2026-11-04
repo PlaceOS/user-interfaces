@@ -24,6 +24,26 @@ describe('DateRangeCalendarComponent', () => {
         spectator.detectChanges();
     });
 
+    it('should say which end of the range the next pick sets', () => {
+        expect(spectator.query('[hint]')).toExist();
+        expect(spectator.component.selecting_end()).toBe(false);
+        spectator.component.selectDate(new Date(2026, 5, 22).valueOf());
+        expect(spectator.component.selecting_end()).toBe(true);
+    });
+
+    it('should stop month navigation at the allowed dates', () => {
+        spectator.setInput({
+            from: new Date(2026, 3, 10).valueOf(),
+            to: new Date(2026, 4, 20).valueOf(),
+        });
+        spectator.component.month.set(new Date(2026, 3, 15).valueOf());
+        expect(spectator.component.at_first_month()).toBe(true);
+        expect(spectator.component.at_last_month()).toBe(false);
+        spectator.component.nextMonth();
+        expect(spectator.component.at_first_month()).toBe(false);
+        expect(spectator.component.at_last_month()).toBe(true);
+    });
+
     it('should render a full six week grid of days', () => {
         expect(spectator.component.month_days()).toHaveLength(42);
         expect(spectator.component.weekdays()).toHaveLength(7);

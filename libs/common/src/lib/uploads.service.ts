@@ -149,8 +149,10 @@ export class UploadsService extends AsyncHandler {
         permissions: UploadPermissions = 'none',
     ): WritableSignal<UploadDetails> {
         const progress = signal<UploadDetails>(null);
+        // The upload changes one details object, so set a copy each time,
+        // or the signal sees the same object and does not notify
         this._uploadFile(file, pub, permissions, {
-            next: (details) => progress.set(details),
+            next: (details) => progress.set({ ...details }),
             error: (details) => progress.set(details),
             complete: () => this._updateUploadHistory(),
         });

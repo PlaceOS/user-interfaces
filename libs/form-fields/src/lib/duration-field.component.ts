@@ -3,6 +3,8 @@ import {
     Component,
     computed,
     forwardRef,
+    inject,
+    Injector,
     input,
     model,
     OnChanges,
@@ -14,6 +16,7 @@ import {
     AbstractControl,
     ControlValueAccessor,
     NG_VALIDATORS,
+    NgControl,
     ValidationErrors,
     Validator,
 } from '@angular/forms';
@@ -23,10 +26,12 @@ import {
     formatDuration,
     getTimeInTimezone,
     getTimezoneOffsetString,
+    i18n,
     provideValueAccessor,
 } from '@placeos/common';
 import { addMinutes, differenceInMinutes, format, set } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 export interface DurationOption {
     id: number;
@@ -45,7 +50,7 @@ export interface DurationOption {
                 <input
                     #end_input
                     type="time"
-                    aria-label="End time"
+                    [attr.aria-label]="'FORM.TIME_END' | translate"
                     class="h-full min-w-0 flex-1 border-0 bg-transparent px-4"
                     [value]="end_time_value()"
                     [disabled]="disabled() || no_options()"
@@ -56,7 +61,7 @@ export interface DurationOption {
                 <button
                     type="button"
                     end-time-options
-                    aria-label="Choose duration"
+                    [attr.aria-label]="'FORM.DURATION_CHOOSE' | translate"
                     class="flex h-full w-12 shrink-0 items-center justify-center"
                     [disabled]="disabled() || no_options()"
                     [matMenuTriggerFor]="menu"
@@ -100,7 +105,7 @@ export interface DurationOption {
                                                 : time_format())) + ' ('
                                 : duration_options()?.length
                                   ? ''
-                                  : 'No duration options available'
+                                  : ('FORM.DURATION_EMPTY' | translate)
                         }}{{ selected()?.name
                         }}{{ selected()?.date ? ')' : '' }}
                     </div>
@@ -164,7 +169,7 @@ export interface DurationOption {
                     </button>
                 } @empty {
                     <div mat-menu-item disabled>
-                        No duration options to select
+                        {{ 'FORM.DURATION_EMPTY' | translate }}
                     </div>
                 }
             </ng-template>
@@ -196,7 +201,13 @@ export interface DurationOption {
             multi: true,
         },
     ],
-    imports: [MatMenuModule, MatFormFieldModule, CommonModule, IconComponent],
+    imports: [
+        MatMenuModule,
+        MatFormFieldModule,
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class DurationFieldComponent
     implements OnInit, OnChanges, ControlValueAccessor, Validator
@@ -242,6 +253,7 @@ export class DurationFieldComponent
     private _onTouch: (_: number) => void;
     /** Form control validator change handler */
     private _onValidatorChange: () => void;
+    private _injector = inject(Injector);
 
     public readonly time_format = computed(() =>
         this.use_24hr() ? 'HH : mm' : 'h : mm a',
@@ -329,9 +341,7 @@ export class DurationFieldComponent
             duration < this.min() ||
             duration > this._effectiveMax(this.max(), start)
         ) {
-            this.end_time_error.set(
-                'Enter an end time after the start time and within the allowed duration.',
-            );
+            this.end_time_error.set(i18n('FORM.DURATION_END_ERROR'));
             this._onValidatorChange?.();
             this.touch();
             return;
@@ -358,7 +368,7 @@ export class DurationFieldComponent
         this.duration.set(value);
         this._setDurationOptions();
         this._updateNoOptions();
-        this._updateOption();
+        this._updateOption(true);
     }
 
     private _setDurationOptions() {
@@ -478,11 +488,28 @@ export class DurationFieldComponent
         this._onValidatorChange?.();
     }
 
-    private _updateOption() {
+    /**
+     * Select the first option when the duration is not an option.
+     * @param from_write Whether the form wrote the value. The form still gets
+     * the new value. A reactive or template form stays pristine, as the user
+     * did not change it.
+     */
+    private _updateOption(from_write = false) {
         const duration_options = this.duration_options();
         if (!duration_options?.length) return;
         const idx = duration_options.findIndex((_) => _.id === this.duration());
-        if (idx < 0) this.setValue(duration_options[0]?.id ?? this.min());
+        if (idx >= 0) return;
+        const control = from_write
+            ? this._injector.get(NgControl, null, {
+                  self: true,
+                  optional: true,
+              })?.control
+            : null;
+        // Only reactive and template forms can reset dirty. The signal forms
+        // adapter has no public way to do it, so its state is left as is
+        const pristine = control instanceof AbstractControl && control.pristine;
+        this.setValue(duration_options[0]?.id ?? this.min());
+        if (pristine) control.markAsPristine();
     }
 
     private _effectiveMax(max: number, time_value?: number): number {

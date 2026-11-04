@@ -31,7 +31,10 @@ import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { RecurrenceModalComponent } from './recurrence-modal.component';
+import {
+    RecurrenceModalComponent,
+    weekOfMonthLabel,
+} from './recurrence-modal.component';
 
 @Component({
     selector: 'recurrence-field',
@@ -151,7 +154,10 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
     public readonly prev_type = signal('none');
     public readonly recurr_type = signal('none');
     public readonly iom = signal(0);
-    public readonly instance_of_month = signal('');
+    /** Week of the month label. Computed, so it updates when translations load */
+    public readonly instance_of_month = computed(() =>
+        weekOfMonthLabel(this.iom()),
+    );
     public readonly value = signal<Recurrence>(NO_RECURR);
     /** Whether form control is disabled */
     public readonly disabled = signal(false);
@@ -320,13 +326,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
     private _onDateChange(date_value: number): void {
         const day = new Date(date_value).getDate();
         let week = Math.floor(day / 7) + (day % 7 ? 1 : 0);
-        let label = `${week}${week === 2 ? 'nd' : week === 3 ? 'rd' : 'th'}`;
-        if ((week === 4 && day >= 25) || week === 5) {
-            label = 'Last';
-            week = -1;
-        }
-        if (week === 1) label = 'First';
-        this.instance_of_month.set(label);
+        if ((week === 4 && day >= 25) || week === 5) week = -1;
         this.iom.set(week);
         if (this._prev_date && this._prev_date !== date_value) {
             this._recalculateValue(date_value, week);

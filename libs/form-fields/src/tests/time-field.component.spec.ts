@@ -25,6 +25,57 @@ describe('TimeFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
+    it('should show a written off-step time without rounding it', () => {
+        spectator.setInput({ no_past_times: false });
+        const date = startOfDay(Date.now()).valueOf() + (9 * 60 + 3) * 60_000;
+        spectator.component.writeValue(date);
+        expect(spectator.component.time()).toBe('09:03');
+        expect(spectator.component.active_time()).toBe(date);
+    });
+
+    it('should accept a typed time within the allowed hours', () => {
+        const on_change = vi.fn();
+        spectator.setInput({
+            allow_time_entry: true,
+            no_past_times: false,
+            range: { start: 9, end: 17 },
+        });
+        spectator.component.registerOnChange(on_change);
+        spectator.component.setTypedTime('10:07');
+        expect(on_change).toHaveBeenCalledTimes(1);
+        expect(format(on_change.mock.calls[0][0], 'HH:mm')).toBe('10:07');
+        expect(spectator.component.time_entry_error()).toBe(false);
+    });
+
+    it('should show the picked time after a rejected typed time', () => {
+        spectator.setInput({
+            allow_time_entry: true,
+            no_past_times: false,
+            range: { start: 9, end: 17 },
+        });
+        spectator.component.setValue('10:00');
+        spectator.detectChanges();
+        const input = spectator.query('input[type="time"]') as HTMLInputElement;
+        input.value = '18:30';
+        spectator.component.setTypedTime('18:30');
+        spectator.component.setValue('10:00');
+        expect(input.value).toBe('10:00');
+    });
+
+    it('should reject a typed time outside the allowed hours', () => {
+        const on_change = vi.fn();
+        spectator.setInput({
+            allow_time_entry: true,
+            no_past_times: false,
+            range: { start: 9, end: 17 },
+        });
+        spectator.component.registerOnChange(on_change);
+        spectator.component.setTypedTime('18:30');
+        spectator.detectChanges();
+        expect(on_change).not.toHaveBeenCalled();
+        expect(spectator.query('[role="alert"]')).toExist();
+    });
+
     it('should not submit a parent form when opened', () => {
         expect('button[time-field]').toHaveAttribute('type', 'button');
     });

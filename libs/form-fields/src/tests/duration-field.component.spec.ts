@@ -1,6 +1,13 @@
-import { FormControl } from '@angular/forms';
+import { Component, signal } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import {
+    createComponentFactory,
+    createHostFactory,
+    Spectator,
+    SpectatorHost,
+} from '@ngneat/spectator/vitest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 import { addHours } from 'date-fns';
@@ -349,5 +356,59 @@ describe('DurationFieldComponent', () => {
         await spectator.fixture.whenStable();
         expect(input.disabled).toBe(true);
         expect('button[end-time-options]').toHaveAttribute('disabled');
+    });
+});
+
+describe('DurationFieldComponent in a form', () => {
+    let spectator: SpectatorHost<DurationFieldComponent, object>;
+    const createHost = createHostFactory({
+        component: DurationFieldComponent,
+        imports: [MatMenuModule, MatFormFieldModule, ReactiveFormsModule],
+        declarations: [MockComponent(IconComponent)],
+    });
+
+    it('should keep the form pristine when it defaults a written value', () => {
+        const control = new FormControl<number>(60);
+        spectator = createHost(
+            `<a-duration-field [formControl]="control"></a-duration-field>`,
+            { hostProps: { control } },
+        );
+        control.setValue(null);
+        expect(control.value).toBe(30);
+        expect(control.pristine).toBe(true);
+    });
+});
+
+/**
+ * Host that binds the field to a signal form, as most callers do. The
+ * imports are for the template that each test sets, so Angular reports
+ * them as unused for the empty template here.
+ */
+@Component({
+    selector: 'signal-form-host',
+    template: '',
+    imports: [DurationFieldComponent, FormField],
+})
+class SignalFormHostComponent {
+    public readonly model = signal({ duration: 60 });
+    public readonly field_tree = form(this.model);
+}
+
+describe('DurationFieldComponent in a signal form', () => {
+    const createHost = createHostFactory({
+        component: DurationFieldComponent,
+        host: SignalFormHostComponent,
+        imports: [MatMenuModule, MatFormFieldModule],
+        declarations: [MockComponent(IconComponent)],
+    });
+
+    it('should default a written value without an error', () => {
+        const spectator = createHost(
+            `<a-duration-field [formField]="field_tree.duration"></a-duration-field>`,
+        );
+        const host = spectator.hostComponent as SignalFormHostComponent;
+        host.model.set({ duration: 0 });
+        spectator.detectChanges();
+        expect(host.model().duration).toBe(30);
     });
 });

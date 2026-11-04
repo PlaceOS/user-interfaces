@@ -167,7 +167,8 @@ export class UserSearchFieldComponent
 {
     /** Native browser autocomplete mode for the search input. */
     public readonly autocomplete = input<string>();
-    private use_basic_search = settingSignal('basic_user_search', true);
+    /** Same default as the apps' settings and the user list field */
+    private use_basic_search = settingSignal('basic_user_search', false);
 
     public readonly search_term = signal<string>('');
     public readonly loading = computed(() => this._search.isLoading());

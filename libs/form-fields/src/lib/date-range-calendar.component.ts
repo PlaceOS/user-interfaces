@@ -15,6 +15,7 @@ import {
     addDays,
     addMonths,
     endOfDay,
+    endOfMonth,
     isAfter,
     isBefore,
     isSameDay,
@@ -49,6 +50,7 @@ interface RangeDay {
                     icon
                     matRipple
                     type="button"
+                    [disabled]="at_first_month()"
                     (click)="previousMonth()"
                     [attr.aria-label]="'COMMON.PREVIOUS_MONTH' | translate"
                 >
@@ -58,6 +60,7 @@ interface RangeDay {
                     icon
                     matRipple
                     type="button"
+                    [disabled]="at_last_month()"
                     (click)="nextMonth()"
                     [attr.aria-label]="'COMMON.NEXT_MONTH' | translate"
                 >
@@ -65,6 +68,14 @@ interface RangeDay {
                 </button>
             </div>
         </div>
+        <p hint class="px-2 pb-1 text-xs opacity-60" aria-live="polite">
+            {{
+                (selecting_end()
+                    ? 'FORM.DATE_RANGE_SELECT_END'
+                    : 'FORM.DATE_RANGE_SELECT_START'
+                ) | translate
+            }}
+        </p>
         <div
             class="grid h-[17.25rem] w-[17.25rem] grid-cols-7 grid-rows-7 gap-1"
             (mouseleave)="clearHoveredDate()"
@@ -159,6 +170,18 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
 
     /** Whether user is actively selecting end date (after clicking start) */
     private readonly _selecting_end = signal(false);
+    /** Whether the next pick sets the end of the range */
+    public readonly selecting_end = this._selecting_end.asReadonly();
+    /** Whether the shown month holds the earliest allowed date */
+    public readonly at_first_month = computed(() => {
+        const from = this.from_date();
+        return !!from && startOfMonth(this.month()).valueOf() <= from;
+    });
+    /** Whether the shown month holds the latest allowed date */
+    public readonly at_last_month = computed(() => {
+        const to = this.to_date();
+        return !!to && endOfMonth(this.month()).valueOf() >= to;
+    });
     /** Hovered date for preview during end selection */
     public readonly hovered_date = signal<number | null>(null);
 

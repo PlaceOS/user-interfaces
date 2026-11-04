@@ -76,7 +76,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                             matInput
                             name="name"
                             formControlName="name"
-                            placeholder="Ruleset Name"
+                            [placeholder]="'FORM.RULESET_NAME' | translate"
                         />
                         <mat-error>{{
                             'FORM.NAME_REQUIRED' | translate
