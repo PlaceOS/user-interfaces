@@ -68,7 +68,11 @@ import {
     subDays,
 } from 'date-fns';
 
-import { openConfirmModal, runBulkAction } from '@placeos/components';
+import {
+    openConfirmModal,
+    rowSearchText,
+    runBulkAction,
+} from '@placeos/components';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import {
@@ -117,10 +121,7 @@ export const DESK_BOOKING_SEARCH_KEYS = [
 export function matchesDeskSearch(booking: Booking, search?: string) {
     const text = search?.toLowerCase();
     if (!text) return true;
-    const fields = booking as unknown as Record<string, unknown>;
-    return DESK_BOOKING_SEARCH_KEYS.some((key) =>
-        `${JSON.stringify(fields[key])}`.toLowerCase().includes(text),
-    );
+    return rowSearchText(booking, DESK_BOOKING_SEARCH_KEYS).includes(text);
 }
 
 @Injectable({

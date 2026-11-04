@@ -31,6 +31,10 @@ declare global {
 let _service: SettingsService;
 const _setting_signals: Record<string, WritableSignal<any>> = {};
 
+/**
+ * Debug overrides for all apps on this origin. Each app also has its own key,
+ * `<key>.<app>`, which takes priority. The debug panel writes the app key.
+ */
 const DEBUG_OVERRIDES_KEY = 'PLACEOS.setting_overrides';
 
 /** Renamed user setting keys, as old key to new key */
@@ -57,11 +61,19 @@ function withLegacyUserSettings(details: HashMap): HashMap {
     return result;
 }
 
-function loadDebugOverrides(): HashMap {
+/**
+ * Local storage key for this app's debug overrides. Uses the same path based
+ * name as the app name, as settings are not loaded yet when overrides load.
+ */
+function appDebugOverridesKey() {
+    const app = location.pathname.replace(/[\\/]/g, '').trim() || 'PlaceOS';
+    return `${DEBUG_OVERRIDES_KEY}.${app}`;
+}
+
+/** Read a stored override map, keeping only `app.*` keys */
+function readDebugOverrides(storage_key: string): HashMap {
     try {
-        const overrides = JSON.parse(
-            localStorage.getItem(DEBUG_OVERRIDES_KEY) || '{}',
-        );
+        const overrides = JSON.parse(localStorage.getItem(storage_key) || '{}');
         for (const key in overrides) {
             if (!key.startsWith('app.')) delete overrides[key];
         }
@@ -69,6 +81,13 @@ function loadDebugOverrides(): HashMap {
     } catch {
         return {};
     }
+}
+
+/** Write an override map, or remove the key when the map is empty */
+function writeDebugOverrides(storage_key: string, overrides: HashMap) {
+    if (Object.keys(overrides).length) {
+        localStorage.setItem(storage_key, JSON.stringify(overrides));
+    } else localStorage.removeItem(storage_key);
 }
 
 export function setting<T = any>(key: string): T | undefined {
@@ -137,8 +156,13 @@ export class SettingsService extends AsyncHandler {
     public readonly overrides = this._overrides.asReadonly();
     /** User's personal settings */
     private _user_settings = signal<HashMap>({});
+    /** Debug overrides for this app only */
+    private _app_debug_overrides = readDebugOverrides(appDebugOverridesKey());
     /** Local debug overrides, highest priority. Flat dot-notation keys. */
-    private _debug_overrides = signal<HashMap>(loadDebugOverrides());
+    private _debug_overrides = signal<HashMap>({
+        ...readDebugOverrides(DEBUG_OVERRIDES_KEY),
+        ...this._app_debug_overrides,
+    });
     public readonly debug_overrides = this._debug_overrides.asReadonly();
     /** Mapping of setting signals */
     private _subjects: HashMap<WritableSignal<any>> = {};
@@ -154,24 +178,31 @@ export class SettingsService extends AsyncHandler {
     }
 
     /** Set a local debug override for an `app.*` setting. `undefined` clears the key. */
+    /**
+     * Set a local debug override for an `app.*` setting in this app only.
+     * `undefined` clears the key, also from the overrides for all apps.
+     */
     public setDebugOverride(key: string, value: unknown) {
         if (!key.startsWith('app.')) return;
-        const overrides = { ...this._debug_overrides() };
-        if (value === undefined) delete overrides[key];
-        else overrides[key] = value;
-        this._debug_overrides.set(overrides);
-        if (Object.keys(overrides).length) {
-            localStorage.setItem(
-                DEBUG_OVERRIDES_KEY,
-                JSON.stringify(overrides),
-            );
-        } else localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+        const app_overrides = { ...this._app_debug_overrides };
+        const shared = readDebugOverrides(DEBUG_OVERRIDES_KEY);
+        if (value === undefined) {
+            delete app_overrides[key];
+            delete shared[key];
+            writeDebugOverrides(DEBUG_OVERRIDES_KEY, shared);
+        } else app_overrides[key] = value;
+        this._app_debug_overrides = app_overrides;
+        writeDebugOverrides(appDebugOverridesKey(), app_overrides);
+        this._debug_overrides.set({ ...shared, ...app_overrides });
         this._refreshSettings();
     }
 
+    /** Remove the debug overrides for this app and for all apps */
     public clearDebugOverrides() {
+        this._app_debug_overrides = {};
         this._debug_overrides.set({});
         localStorage.removeItem(DEBUG_OVERRIDES_KEY);
+        localStorage.removeItem(appDebugOverridesKey());
         this._refreshSettings();
     }
 

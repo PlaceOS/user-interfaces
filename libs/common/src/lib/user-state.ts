@@ -47,6 +47,8 @@ const _change = new BehaviorSubject(0);
 export const current_user = _current_user.asObservable();
 export const user_groups = signal<PlaceCurrentGroup[]>([]);
 export const user_groups_loaded = signal(false);
+/** Whether the last request for the user's groups failed */
+export const user_groups_failed = signal(false);
 const user_signal = signal(EMPTY_USER);
 _current_user.subscribe((u) => user_signal.set(u));
 
@@ -214,6 +216,7 @@ function setPublicUser() {
 
 async function loadUserGroups() {
     user_groups_loaded.set(false);
+    user_groups_failed.set(false);
     if (isPublicMode()) {
         user_groups.set([]);
         user_groups_loaded.set(true);
@@ -226,6 +229,7 @@ async function loadUserGroups() {
     } catch (error) {
         console.warn('Failed to load user groups.', error);
         user_groups.set([]);
+        user_groups_failed.set(true);
     } finally {
         user_groups_loaded.set(true);
     }

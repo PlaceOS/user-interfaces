@@ -96,6 +96,16 @@ interface ElementBoundsResult {
  * untouched so pseudo-selectors keep working, and preserves the leading
  * `#`/`.` of each selector part.
  */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+/** Escape text for use as XML element content */
+function escapeXml(text: string): string {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
 function cleanCssSelector(selector: string): string {
     const escaped = selector.replace(
         /[!"#$%&'()*+,.\/;<=>?@[\\\]^`{|}~]/g,
@@ -386,6 +396,14 @@ export class MapViewer {
     private _map_path = '';
     /** Generation counter for map image renders, used to discard stale renders */
     private _image_generation = 0;
+    /** Map SVG text sized to the texture, without styles */
+    private _prepared_svg: {
+        data: string;
+        width: number;
+        height: number;
+        head: string;
+        tail: string;
+    } | null = null;
     /** Dimensions of the most recently rendered map texture, in pixels */
     private _texture_width = 0;
     private _texture_height = 0;
@@ -780,6 +798,7 @@ export class MapViewer {
         }
         this._overlay_instances = [];
         this.map_image = null;
+        this._prepared_svg = null;
         this.container.innerHTML = '';
     }
 
@@ -1018,59 +1037,20 @@ export class MapViewer {
         // complete after a newer one and overwrite it.
         const generation = ++this._image_generation;
 
-        // Parse the SVG and inject styles
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(this.map.raw_data, 'image/svg+xml');
-        const svg_element = doc.querySelector('svg');
-        if (!svg_element) return;
-
         // Size the texture to a total pixel budget while matching the SVG's
         // aspect ratio, so the megapixel target is hit regardless of shape
         const { width, height } = this._textureDimensions();
         this._texture_width = width;
         this._texture_height = height;
 
-        // Without a viewBox, changing width/height crops the drawing
-        // instead of scaling it, so derive one from the declared size first
-        if (!svg_element.getAttribute('viewBox')) {
-            const attr_width = parseFloat(
-                svg_element.getAttribute('width') || '',
-            );
-            const attr_height = parseFloat(
-                svg_element.getAttribute('height') || '',
-            );
-            if (attr_width > 0 && attr_height > 0) {
-                svg_element.setAttribute(
-                    'viewBox',
-                    `0 0 ${attr_width} ${attr_height}`,
-                );
-            }
-        }
-
-        // Force the SVG's intrinsic size to the texture size. Width/height
-        // attributes that disagree with the viewBox aspect ratio otherwise
-        // letterbox the drawing (preserveAspectRatio), offsetting it from
-        // the element bounds which are computed in viewBox space
-        if (svg_element.getAttribute('viewBox')) {
-            svg_element.setAttribute('width', `${width}`);
-            svg_element.setAttribute('height', `${height}`);
-        }
-
-        // Inject the styles at the end of the SVG so they are applied after
+        const prepared = this._preparedSvg(width, height);
+        if (!prepared) return;
+        const { head, tail } = prepared;
+        // Add the styles at the end of the SVG so they are applied after
         // (and win over equal-specificity rules in) the SVG's own stylesheets
-        if (this.styles_string) {
-            // Create style element in SVG namespace so it works when serialized
-            const style_element = doc.createElementNS(
-                'http://www.w3.org/2000/svg',
-                'style',
-            );
-            style_element.textContent = this.styles_string;
-            svg_element.appendChild(style_element);
-        }
-
-        // Serialize the SVG back to a string
-        const serializer = new XMLSerializer();
-        const svg_string = serializer.serializeToString(svg_element);
+        const svg_string = this.styles_string
+            ? `${head}<style xmlns="${SVG_NS}">${escapeXml(this.styles_string)}</style>${tail}`
+            : `${head}${tail}`;
 
         // Create a data URL from the SVG
         const svg_blob = new Blob([svg_string], { type: 'image/svg+xml' });
@@ -1101,6 +1081,70 @@ export class MapViewer {
             console.error('Failed to load map image');
         };
         svg_image.src = url;
+    }
+
+    /**
+     * The map SVG sized to the texture, as text split at the root's closing
+     * tag. Parsing a large SVG is slow, so this is cached for each map and
+     * texture size and style changes only add a style element. `null` when the
+     * map has no SVG.
+     */
+    private _preparedSvg(
+        width: number,
+        height: number,
+    ): { head: string; tail: string } | null {
+        const data = this.map.raw_data;
+        const cached = this._prepared_svg;
+        if (
+            cached?.data === data &&
+            cached.width === width &&
+            cached.height === height
+        ) {
+            return cached;
+        }
+        const doc = new DOMParser().parseFromString(data, 'image/svg+xml');
+        const svg_element = doc.querySelector('svg');
+        if (!svg_element) return null;
+
+        // Without a viewBox, changing width/height crops the drawing
+        // instead of scaling it, so derive one from the declared size first
+        if (!svg_element.getAttribute('viewBox')) {
+            const attr_width = parseFloat(
+                svg_element.getAttribute('width') || '',
+            );
+            const attr_height = parseFloat(
+                svg_element.getAttribute('height') || '',
+            );
+            if (attr_width > 0 && attr_height > 0) {
+                svg_element.setAttribute(
+                    'viewBox',
+                    `0 0 ${attr_width} ${attr_height}`,
+                );
+            }
+        }
+
+        // Force the SVG's intrinsic size to the texture size. Width/height
+        // attributes that disagree with the viewBox aspect ratio otherwise
+        // letterbox the drawing (preserveAspectRatio), offsetting it from
+        // the element bounds which are computed in viewBox space
+        if (svg_element.getAttribute('viewBox')) {
+            svg_element.setAttribute('width', `${width}`);
+            svg_element.setAttribute('height', `${height}`);
+        }
+
+        // Always serialise with a closing tag, so styles can go before it
+        svg_element.appendChild(doc.createComment(''));
+        const svg_string = new XMLSerializer().serializeToString(svg_element);
+        // The closing tag can have a prefix, such as `</s:svg>`
+        const split = svg_string.lastIndexOf('</');
+        this._prepared_svg = {
+            data,
+            width,
+            height,
+            head: svg_string.slice(0, split),
+            tail: svg_string.slice(split),
+        };
+        return this._prepared_svg;
     }
 
     private _renderMap() {

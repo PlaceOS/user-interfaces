@@ -28,12 +28,15 @@ import {
     notifyWarn,
     randomString,
 } from '@placeos/common';
+import { runBulk } from './bulk-actions';
 import { IconComponent } from './icon.component';
 
 declare let mapsindoors: any;
 declare let google: any;
 
 const DEFAULT_ZOOM = 18.5;
+/** Location searches that styling runs at the same time */
+const STYLE_SEARCH_CONCURRENCY = 6;
 
 interface MapsIndoorServices {
     mapsindoors: any;
@@ -99,6 +102,8 @@ export class MapsIndoorsComponent
     private _floor_list: any[] = [];
     private _last_building: string;
     private _styled_resources = new Map<string, string>();
+    /** Increases for each styling run, so only the latest one applies */
+    private _styling_run = 0;
     /** Whether the parent has the map's zoom level */
     private _zoom_reported = false;
     /** Changes that arrive before the map is ready */
@@ -167,6 +172,7 @@ export class MapsIndoorsComponent
 
     public ngOnDestroy() {
         super.ngOnDestroy();
+        this._styling_run++;
         // Remove the MapsIndoors listeners and free the map view. For
         // Mapbox this also removes the map and its WebGL context.
         this._services?.mapsindoors.deallocate();
@@ -436,29 +442,39 @@ export class MapsIndoorsComponent
         });
     }
 
+    /**
+     * Apply metadata fill colours to MapsIndoors locations. Locations that are
+     * not cached are looked up a few at a time, not one after another.
+     */
     private async _updateMapStyling() {
         if (!this._services) return;
+        const run = ++this._styling_run;
         const styles = this.metadata()?.styles || {};
         for (const [style_id, resource_id] of this._styled_resources) {
             if (styles[style_id]?.fill) continue;
             this._services.mapsindoors.setDisplayRule(resource_id, null);
             this._styled_resources.delete(style_id);
         }
-        for (const id in styles) {
-            if (!styles[id].fill) continue;
-            let resource = RESOURCE_MAP[id];
-            if (!resource) {
+        const ids = Object.keys(styles).filter((id) => styles[id].fill);
+        await runBulk(
+            ids.filter((id) => !RESOURCE_MAP[id]),
+            async (id) => {
                 const id_simple = id.replace(/#/, '');
-                const list = await this._search(id_simple);
-                if (!list.length) continue;
-                resource = list.find(
+                const list = (await this._search(id_simple)) || [];
+                const resource = list.find(
                     (_) =>
                         _.properties?.externalId === id_simple ||
                         _.properties?.roomId === id_simple ||
                         _.id === id_simple,
                 );
                 if (resource) this._setResource(id, resource);
-            }
+            },
+            STYLE_SEARCH_CONCURRENCY,
+        );
+        // A newer metadata change or destroy replaced this run
+        if (run !== this._styling_run || !this._services) return;
+        for (const id of ids) {
+            const resource = RESOURCE_MAP[id];
             if (!resource) continue;
             const value = {
                 extrusionHeight: 0,

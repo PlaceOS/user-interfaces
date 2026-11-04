@@ -6,7 +6,9 @@ import { MapsIndoorsComponent } from '../lib/maps-indoors.component';
 
 describe('MapsIndoorsComponent', () => {
     const map = { setZoom: vi.fn(), setCenter: vi.fn() };
+    const getLocations = vi.fn();
     const sdk = {
+        setDisplayRule: vi.fn(),
         addListener: vi.fn(),
         setZoom: vi.fn(),
         setFloor: vi.fn(),
@@ -26,12 +28,16 @@ describe('MapsIndoorsComponent', () => {
                 MapboxProvider: class {},
                 DirectionsRenderer: class {},
             },
-            services: { DirectionsService: class {} },
+            services: {
+                DirectionsService: class {},
+                LocationsService: { getLocations },
+            },
             MapsIndoors: class {
                 addListener = sdk.addListener;
                 setZoom = sdk.setZoom;
                 setFloor = sdk.setFloor;
                 deallocate = sdk.deallocate;
+                setDisplayRule = sdk.setDisplayRule;
             },
         };
         TestBed.configureTestingModule({
@@ -91,5 +97,37 @@ describe('MapsIndoorsComponent', () => {
         });
         fixture.detectChanges();
         expect(sdk.setFloor).toHaveBeenCalledWith('2');
+    });
+
+    it('looks up styled locations at the same time and applies only the latest run', async () => {
+        sessionStorage.removeItem('PLACEOS.mapsindoors.resources');
+        const pending: (() => void)[] = [];
+        getLocations.mockImplementation(
+            ({ q }) =>
+                new Promise((resolve) =>
+                    pending.push(() =>
+                        resolve([
+                            { id: `loc-${q}`, properties: { externalId: q } },
+                        ]),
+                    ),
+                ),
+        );
+        const fixture = TestBed.createComponent(MapsIndoorsComponent);
+        fixture.detectChanges();
+        const styles = (fill: string) => ({
+            styles: { '#a': { fill }, '#b': { fill }, '#c': { fill } },
+        });
+        fixture.componentRef.setInput('metadata', styles('red'));
+        fixture.detectChanges();
+        expect(getLocations).toHaveBeenCalledTimes(3);
+        // A newer change starts before the first lookups finish
+        fixture.componentRef.setInput('metadata', styles('blue'));
+        fixture.detectChanges();
+        pending.forEach((resolve) => resolve());
+        await vi.runAllTimersAsync();
+        const fills = sdk.setDisplayRule.mock.calls.map(
+            ([, rule]) => rule?.polygonFillColor,
+        );
+        expect(fills).toEqual(['blue', 'blue', 'blue']);
     });
 });

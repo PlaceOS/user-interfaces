@@ -15,6 +15,7 @@ import {
     hasPermission,
     log,
     OrganisationService,
+    user_groups_failed,
     user_groups_loaded,
 } from '@placeos/common';
 import {
@@ -119,10 +120,37 @@ export class AuthorisedUserGuard {
             );
             log('ACCESS', 'Checking access groups', can_activate);
         }
+        // Permissions that failed to load are not a confirmed decision
+        if (!(use_group_subsystem_access && user_groups_failed())) {
+            this.storeDecision(!!can_activate);
+        }
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
         }
         return !!can_activate;
+    }
+
+    /** Local storage key for this app's last online access decision */
+    private get _decision_key() {
+        return `PLACEOS.access_allowed.${this._settings.app_name || ''}`;
+    }
+
+    /** Store the access decision, for use when the backend cannot be reached */
+    private storeDecision(allowed: boolean) {
+        try {
+            localStorage.setItem(this._decision_key, allowed ? '1' : '0');
+        } catch {
+            // Storage can be unavailable in private browsing
+        }
+    }
+
+    /** Whether the last online check on this device denied access */
+    private wasDenied() {
+        try {
+            return localStorage.getItem(this._decision_key) === '0';
+        } catch {
+            return false;
+        }
     }
 
     /** The active user, or null if the backend could not be reached in time */
@@ -146,10 +174,11 @@ export class AuthorisedUserGuard {
      * Access decision for when the backend cannot be reached. Waiting forever
      * leaves a fixed device sitting on a loading screen with no way back, so a
      * device that has authenticated before is allowed through on its cached
-     * session. Every API call it then makes is still checked by the server.
+     * session, unless the last online check on this device denied access.
+     * Every API call it then makes is still checked by the server.
      */
     private offlineAccess() {
-        if (hasCachedCredentials()) {
+        if (hasCachedCredentials() && !this.wasDenied()) {
             log(
                 'ACCESS',
                 'Backend unreachable. Continuing with cached credentials.',
