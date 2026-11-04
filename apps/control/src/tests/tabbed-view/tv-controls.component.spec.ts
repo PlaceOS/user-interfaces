@@ -49,6 +49,24 @@ describe('TVControlsComponent', () => {
         expect(spectator.query('button')).toContainText('BBC');
     });
 
+    it('should fall back to the module channel list', () => {
+        spectator.component.system_channel_list = null;
+        spectator.component.channel_list = [{ name: 'BBC', channel: 'bbc' }];
+        spectator.detectChanges();
+        expect(spectator.queryAll('button')).toHaveLength(1);
+        expect(spectator.query('button')).toContainText('BBC');
+    });
+
+    it('should prefer the System channel list over the module', () => {
+        spectator.component.channel_list = [{ name: 'BBC', channel: 'bbc' }];
+        spectator.component.system_channel_list = [
+            { name: 'SBS', channel: 'sbs' },
+        ];
+        spectator.detectChanges();
+        expect(spectator.queryAll('button')).toHaveLength(1);
+        expect(spectator.query('button')).toContainText('SBS');
+    });
+
     it('should highlight the current channel', () => {
         spectator.component.channel_list = [
             { name: 'BBC', channel: 'bbc' },

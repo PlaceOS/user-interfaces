@@ -18,6 +18,15 @@ import { ControlStateService } from '../control-state.service';
                 [mod]="mod()"
                 bind="channel_details"
             ></i>
+            <!-- System (meet.cr channel_details setting) is the source of
+                 truth, falling back to the IPTV module's own list. -->
+            <i
+                binding
+                [(model)]="system_channel_list"
+                [sys]="system_id"
+                mod="System"
+                bind="channel_details"
+            ></i>
             <i
                 binding
                 [(model)]="channel_url"
@@ -26,9 +35,9 @@ import { ControlStateService } from '../control-state.service';
                 bind="current_channel"
             ></i>
         </div>
-        @if (channel_list?.length) {
+        @if (channels.length) {
             <div class="flex flex-wrap items-center justify-center p-2 sm:p-8">
-                @for (item of channel_list; track item) {
+                @for (item of channels; track item) {
                     <button
                         matRipple
                         class="border-base-200 m-2 flex h-28 w-32 flex-col items-center justify-center space-y-2 rounded-sm border"
@@ -58,7 +67,15 @@ export class TVControlsComponent {
     public readonly mod = input('');
 
     public channel_list = [];
+    public system_channel_list = [];
     public channel_url = '';
+
+    /** Channels from System, or from the IPTV module when System has none. */
+    public get channels() {
+        return this.system_channel_list?.length
+            ? this.system_channel_list
+            : this.channel_list || [];
+    }
 
     public get system_id() {
         return this._state.id;
