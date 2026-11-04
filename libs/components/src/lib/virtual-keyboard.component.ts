@@ -16,7 +16,7 @@ const DEFAULT_KEYS = [
     'qwertyuiop_'.split(''),
     'asdfghjkl+'.split(''),
     'zxcvbnm@.-'.split(''),
-    ['{caps}', '{space}', '{backspace}'],
+    ['{caps}', '{space}', '{backspace}', '{enter}'],
 ];
 const FADE_DURATION = 160;
 
@@ -63,6 +63,8 @@ export class VirtualKeyboardComponent
     private _native_keyboard_prevented = false;
     private _original_readonly = false;
     private _original_inputmode: string | null = null;
+    /** Letter case of the keys on the keyboard */
+    private _rendered_state: 'normal' | 'caps' | 'shift' = 'normal';
 
     public onFocus() {
         this.syncNativeKeyboardState();
@@ -150,7 +152,25 @@ export class VirtualKeyboardComponent
     public handleKeyPress(key: string) {
         const input_el = this._element.nativeElement;
         const str = input_el.value || '';
-        let cursor_pos = input_el.selectionStart ?? str.length;
+        const start = input_el.selectionStart ?? str.length;
+        const end = input_el.selectionEnd ?? start;
+        // Selection to restore after the key. Edits collapse it to a cursor.
+        let cursor_pos = start;
+        let select_end = end;
+        /** Replace the selected text, or insert at the cursor */
+        const insert = (text: string) => {
+            const max = input_el.maxLength;
+            // Deleting is always allowed, even above the limit
+            if (
+                text &&
+                max >= 0 &&
+                str.length - (end - start) + text.length > max
+            ) {
+                return;
+            }
+            input_el.value = `${str.slice(0, start)}${text}${str.slice(end)}`;
+            cursor_pos = select_end = start + text.length;
+        };
         switch (key.toLowerCase()) {
             case '{caps}':
                 this.state.set(this.state() === 'caps' ? 'normal' : 'caps');
@@ -159,26 +179,23 @@ export class VirtualKeyboardComponent
                 this.state.set(this.state() === 'shift' ? 'normal' : 'shift');
                 break;
             case '{backspace}':
-                input_el.value = `${str.substr(
-                    0,
-                    cursor_pos - 1,
-                )}${str.substr(cursor_pos, str.length)}`;
-                cursor_pos = Math.max(0, cursor_pos - 1);
+                if (start !== end) {
+                    insert('');
+                } else if (start > 0) {
+                    input_el.value = `${str.slice(0, start - 1)}${str.slice(start)}`;
+                    cursor_pos = select_end = start - 1;
+                }
                 break;
             case '{space}':
-                input_el.value = `${str.substr(
-                    0,
-                    cursor_pos,
-                )}${' '}${str.substr(cursor_pos, str.length)}`;
-                cursor_pos += 1;
+                insert(' ');
+                break;
+            case '{enter}':
+                if (input_el instanceof HTMLTextAreaElement) insert('\n');
+                else return this.pressEnter(input_el);
                 break;
             default:
                 if (this.state() === 'shift') this.state.set('normal');
-                input_el.value = `${str.substr(
-                    0,
-                    cursor_pos,
-                )}${key}${str.substr(cursor_pos, str.length)}`;
-                cursor_pos += 1;
+                insert(key);
         }
         input_el.dispatchEvent(new InputEvent('input'));
         this.updateKeyState();
@@ -187,7 +204,7 @@ export class VirtualKeyboardComponent
             () => {
                 this.focusInput();
                 try {
-                    input_el.setSelectionRange(cursor_pos, cursor_pos);
+                    input_el.setSelectionRange(cursor_pos, select_end);
                 } catch {
                     // Some input types do not expose cursor selection APIs.
                 }
@@ -196,7 +213,29 @@ export class VirtualKeyboardComponent
         );
     }
 
+    /**
+     * Send the Enter key events, so Enter handlers such as `(keyup.enter)`
+     * run, then close the keyboard. Forms are not submitted, as a native
+     * submit of a form without a submit handler reloads the page.
+     */
+    private pressEnter(input_el: HTMLInputElement) {
+        // A pending refocus from the last key would reopen the keyboard
+        this.clearTimeout('focus');
+        const init = {
+            key: 'Enter',
+            code: 'Enter',
+            bubbles: true,
+            cancelable: true,
+        };
+        input_el.dispatchEvent(new KeyboardEvent('keydown', init));
+        input_el.dispatchEvent(new KeyboardEvent('keyup', init));
+        input_el.blur();
+    }
+
     public updateKeyState() {
+        // Only the letter case changes, so skip work when it is the same
+        if (this.state() === this._rendered_state) return;
+        this._rendered_state = this.state();
         this.keyset.set(
             this.keyset().map((_) =>
                 _.map((k) =>
@@ -316,7 +355,9 @@ export class VirtualKeyboardComponent
               ? 'Caps Lock'
               : key === '{backspace}'
                 ? 'Backspace'
-                : key;
+                : key === '{enter}'
+                  ? 'Enter'
+                  : key;
     }
 
     private preventNativeKeyboard() {

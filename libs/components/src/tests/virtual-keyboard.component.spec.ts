@@ -70,7 +70,7 @@ describe('VirtualKeyboardComponent', () => {
 
     it('should allow customising the displayed keys', () => {
         VirtualKeyboardComponent.enabled = true;
-        expect(spectator.directive.keyset().flat()).toHaveLength(44);
+        expect(spectator.directive.keyset().flat()).toHaveLength(45);
         expect(spectator.directive.keyset()).toHaveLength(5);
         spectator.setHostInput({
             keyset: [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['0']],
@@ -177,6 +177,58 @@ describe('VirtualKeyboardComponent', () => {
         await vi.advanceTimersByTimeAsync(100);
         expect(input).toHaveValue('Testin ');
         expect(spectator.directive.keyset().flat()).not.toContain('A');
+        vi.useRealTimers();
+    });
+
+    it('should respect maxlength and replace selected text', async () => {
+        vi.useFakeTimers();
+        const input: HTMLInputElement = spectator.query('input');
+        input.maxLength = 4;
+        input.value = 'abcd';
+        input.setSelectionRange(4, 4);
+        spectator.directive.handleKeyPress('e');
+        expect(input).toHaveValue('abcd');
+        input.setSelectionRange(1, 3);
+        spectator.directive.handleKeyPress('x');
+        expect(input).toHaveValue('axd');
+        input.setSelectionRange(0, 2);
+        spectator.directive.handleKeyPress('{backspace}');
+        expect(input).toHaveValue('d');
+        // Deleting is allowed above the limit
+        input.value = 'abcdef';
+        input.setSelectionRange(1, 2);
+        spectator.directive.handleKeyPress('{backspace}');
+        expect(input).toHaveValue('acdef');
+        // Caps keeps the selection, so the next key replaces it
+        input.setSelectionRange(1, 3);
+        spectator.directive.handleKeyPress('{caps}');
+        await vi.advanceTimersByTimeAsync(100);
+        spectator.directive.handleKeyPress('X');
+        expect(input).toHaveValue('aXef');
+        await vi.advanceTimersByTimeAsync(100);
+        vi.useRealTimers();
+    });
+
+    it('should send Enter key events and close the keyboard on Enter', () => {
+        const input: HTMLInputElement = spectator.query('input');
+        input.focus();
+        const keyup = vi.fn();
+        input.addEventListener('keyup', keyup);
+        spectator.directive.handleKeyPress('{enter}');
+        expect(keyup).toHaveBeenCalledWith(
+            expect.objectContaining({ key: 'Enter' }),
+        );
+        expect(input).not.toBeFocused();
+    });
+
+    it('should not refocus the input after Enter', async () => {
+        vi.useFakeTimers();
+        const input: HTMLInputElement = spectator.query('input');
+        input.focus();
+        spectator.directive.handleKeyPress('a');
+        spectator.directive.handleKeyPress('{enter}');
+        await vi.advanceTimersByTimeAsync(100);
+        expect(input).not.toBeFocused();
         vi.useRealTimers();
     });
 });
