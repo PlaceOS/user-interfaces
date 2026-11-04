@@ -963,6 +963,8 @@
         "UNKNOWN": "Unknown",
         "NEXT": "Next",
         "PREVIOUS": "Previous",
+        "FIRST_PAGE": "First page",
+        "LAST_PAGE": "Last page",
         "RESULTS_COUNT": "{{ count }} results found",
         "RESULTS_COUNT_1": "{{ count }} result found",
         "AVAILABLE_COUNT": "{{ count }} of {{ total }} available",
