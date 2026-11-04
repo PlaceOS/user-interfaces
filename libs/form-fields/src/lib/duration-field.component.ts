@@ -485,7 +485,8 @@ export class DurationFieldComponent
     /**
      * Select the first option when the duration is not an option.
      * @param from_write Whether the form wrote the value. The form still gets
-     * the new value, but stays pristine, as the user did not change it.
+     * the new value. A reactive or template form stays pristine, as the user
+     * did not change it.
      */
     private _updateOption(from_write = false) {
         const duration_options = this.duration_options();
@@ -498,7 +499,9 @@ export class DurationFieldComponent
                   optional: true,
               })?.control
             : null;
-        const pristine = control?.pristine;
+        // Only reactive and template forms can reset dirty. The signal forms
+        // adapter has no public way to do it, so its state is left as is
+        const pristine = control instanceof AbstractControl && control.pristine;
         this.setValue(duration_options[0]?.id ?? this.min());
         if (pristine) control.markAsPristine();
     }
