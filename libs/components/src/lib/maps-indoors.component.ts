@@ -2,6 +2,7 @@ import {
     Component,
     ElementRef,
     OnChanges,
+    OnDestroy,
     OnInit,
     SimpleChanges,
     inject,
@@ -70,7 +71,7 @@ const RESOURCE_MAP: Record<string, any> = {};
 })
 export class MapsIndoorsComponent
     extends AsyncHandler
-    implements OnInit, OnChanges
+    implements OnInit, OnChanges, OnDestroy
 {
     private _maps_people = inject(MapsPeopleService);
     private _org = inject(OrganisationService);
@@ -98,6 +99,10 @@ export class MapsIndoorsComponent
     private _floor_list: any[] = [];
     private _last_building: string;
     private _styled_resources = new Map<string, string>();
+    /** Whether the parent has the map's zoom level */
+    private _zoom_reported = false;
+    /** Changes that arrive before the map is ready */
+    private _pending_changes: SimpleChanges = {};
 
     private readonly _container =
         viewChild<ElementRef<HTMLDivElement>>('map_container');
@@ -121,11 +126,17 @@ export class MapsIndoorsComponent
     }
 
     public ngOnChanges(changes: SimpleChanges) {
+        changes = { ...this._pending_changes, ...changes };
         if (!this.is_initialised) {
-            return this.timeout('on_changes', () => this.ngOnChanges(changes));
+            this._pending_changes = changes;
+            return this.timeout('on_changes', () => this.ngOnChanges({}));
         }
-        if (changes.zone && this.zone()) {
+        this._pending_changes = {};
+        // Aliased inputs are keyed by their property name
+        if (changes.zoneInput && this.zone()) {
             this._centerOnZone();
+            // Centering skips levels in the current building
+            this._setFloorFromZone();
         }
         if (changes.focus && this.focus()) {
             this._focusOnLocation();
@@ -134,8 +145,16 @@ export class MapsIndoorsComponent
             this._updateMapStyling();
         }
         const zoom = this.zoom();
-        if (changes.zoom && zoom && !this.ignore_zoom()) {
-            this._services?.map?.setZoom(zoom);
+        // Until the map reports its zoom, the parent holds its own default,
+        // not a map zoom level. Set zoom through MapsIndoors to use the units
+        // of `zoom_changed`.
+        if (
+            changes.zoomInput &&
+            this._zoom_reported &&
+            zoom &&
+            !this.ignore_zoom()
+        ) {
+            this._services?.mapsindoors.setZoom(zoom);
         }
         if (changes.reset) {
             this._services?.map?.setZoom(DEFAULT_ZOOM);
@@ -144,6 +163,13 @@ export class MapsIndoorsComponent
         if (changes.options) {
             this._addFloorSelector();
         }
+    }
+
+    public ngOnDestroy() {
+        super.ngOnDestroy();
+        // Remove the MapsIndoors listeners and free the map view. For
+        // Mapbox this also removes the map and its WebGL context.
+        this._services?.mapsindoors.deallocate();
     }
 
     private _setResource(id: string, resource: unknown) {
@@ -232,7 +258,6 @@ export class MapsIndoorsComponent
             () => window.dispatchEvent(new Event('resize')),
             100,
         );
-        (window as any).maps_indoors = this._services;
         this.timeout('focus', () => this._focusOnLocation());
         this.timeout('init_zoom', () => this._handleZoomChange(DEFAULT_ZOOM));
     }
@@ -336,6 +361,7 @@ export class MapsIndoorsComponent
                 this.ignore_zoom.set(true);
                 this.zoom.set(level);
                 this.zoomChange.emit(level);
+                this._zoom_reported = true;
                 this.timeout(
                     'reset_ignore_zoom',
                     () => this.ignore_zoom.set(false),
