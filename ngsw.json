@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1793761414214,
+  "timestamp": 1793770586886,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,7 +13,7 @@
       "urls": [
         "./ar-LMOMQ4BE.js",
         "./binding-debug-panel.component-DjTOUf1d.js",
-        "./catering.component-Lc4Zq-sV.js",
+        "./catering.component-DRcFK1eZ.js",
         "./chat.component-CLs35mVU.js",
         "./chunk-BwCtja5l.js",
         "./chunk-BwIpWmsw.js",
@@ -255,7 +255,7 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./binding-debug-panel.component-DjTOUf1d.js": "0c7cfa4152f958836dd399070694d172d4acebf5",
-    "./catering.component-Lc4Zq-sV.js": "42879331c3597877ee52dae8d4d77126eb2f9929",
+    "./catering.component-DRcFK1eZ.js": "b4505a537260d0604b1e7723e78822f237d16224",
     "./chat.component-CLs35mVU.js": "67a8c11f6ef2c43415e97a332a0b6af6c0bc1f92",
     "./chunk-BwCtja5l.js": "8c090271a89f9034c70b45ce2ac8ca58d0ba25c4",
     "./chunk-BwIpWmsw.js": "a5a41ac47ea30d4f2f0999a79acf1f642e4fb250",
@@ -280,7 +280,7 @@
     "./index.html": "6f40b7c690824d3964f6c6ec21940ae8948cb484",
     "./it-DP3AYVRR.js": "a51a72d5c10576215eea03259a8373b67cbd0ae5",
     "./ja-KPFTZVOP.js": "a61dec0f4798a81adf9c57d791d36b35893528c1",
-    "./main.js": "4d0f3a9a142bb1fd32a34f9328e4594a7f819177",
+    "./main.js": "9d4b1abfdeaf8714acd834a34ffd61f14b9d43fa",
     "./manifest.webmanifest": "0347924b7c42f669c92e5376b7a343e0b26e63a9",
     "./native-domain-overlay.component-C0cQgvBa.js": "922d6d8860c451e87e33c36a40ebfdea37e2bb25",
     "./sentry-sdk-D4nA4QbX.js": "d99a9208cf025eaa2640325b6885b64ee6b1ab64",
@@ -290,7 +290,7 @@
     "./snack-bar-DO89kzfJ.js": "08d8c7b81bd7d15d3342eb4a74ab52549382a9cc",
     "./squire-7BCJDNZA.js": "000e13c4201b6781e5c0d0d74006fe681b28faad",
     "./src-C5gI3HOT.js": "e60cbb6c99ba128409c3677216dffa61c011fbc5",
-    "./styles.css": "ebcf187956f19e6daaa174e5d7cd38d9789b031f",
+    "./styles.css": "71a867e641c18efe26b77d1bc79dc57ef3c7e4e0",
     "./zh-7PPY3HOC.js": "bb4cc6675145946968ab2663bce8567f0710a7f4"
   },
   "navigationUrls": [
