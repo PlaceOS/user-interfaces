@@ -58,6 +58,8 @@
         "UNKNOWN": "غير معروف",
         "NEXT": "التالي",
         "PREVIOUS": "السابق",
+        "FIRST_PAGE": "الصفحة الأولى",
+        "LAST_PAGE": "الصفحة الأخيرة",
         "RESULTS_COUNT": "تم العثور على {{ count }} نتائج",
         "RESULTS_COUNT_1": "تم العثور على {{ count }} نتيجة",
         "AVAILABLE_COUNT": "{{ count }} متاح من أصل {{ total }}",
