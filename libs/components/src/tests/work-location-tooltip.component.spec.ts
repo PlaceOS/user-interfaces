@@ -17,7 +17,11 @@ import { WorkLocationTooltipComponent } from '../lib/work-location-tooltip.compo
 
 describe('WorkLocationTooltipComponent', () => {
     let spectator: Spectator<WorkLocationTooltipComponent>;
-    const today = new Date().getDay();
+    // The template shows the current minute. Freeze the clock in the middle
+    // of a minute, so a change check never sees the minute roll over.
+    const frozen_time = new Date();
+    frozen_time.setSeconds(30, 0);
+    const today = frozen_time.getDay();
     const test_user = new StaffUser({
         id: 'user-1',
         name: 'Alice Tester',
@@ -42,6 +46,9 @@ describe('WorkLocationTooltipComponent', () => {
     });
 
     beforeEach(() => {
+        // Only Date is faked, so the real timers in the tests still run
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(frozen_time);
         vi.clearAllMocks();
         vi.mocked(updateUser).mockResolvedValue({} as any);
         // Resolve reloads with the same user so the real user pipeline stays
@@ -50,6 +57,8 @@ describe('WorkLocationTooltipComponent', () => {
         setCurrentUser(test_user);
         spectator = createComponent();
     });
+
+    afterEach(() => vi.useRealTimers());
 
     it("should render blocks for today's work preference", () => {
         expect(spectator.component.active_preference.blocks).toHaveLength(2);
