@@ -200,4 +200,12 @@ describe('UserControlsComponent', () => {
         expect(saved.work_overrides[today].blocks[0].location).toBe('wfh');
         expect(settings.saveUserSetting).not.toHaveBeenCalled();
     });
+
+    it('should mark the help button as a popup trigger', () => {
+        settingSignal('features', []).set(['help']);
+        spectator.detectChanges();
+        const trigger = findButtonWithIcon('help');
+        expect(trigger.getAttribute('aria-haspopup')).toBe('dialog');
+        expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    });
 });

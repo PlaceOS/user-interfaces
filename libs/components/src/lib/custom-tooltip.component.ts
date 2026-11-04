@@ -1,7 +1,9 @@
+import { FocusTrap, FocusTrapFactory } from '@angular/cdk/a11y';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import {
+    AfterContentInit,
     Component,
     ElementRef,
     Injectable,
@@ -65,12 +67,17 @@ export class CustomTooltipData<T = any> {
 })
 export class CustomTooltipComponent<T = any>
     extends AsyncHandler
-    implements OnChanges, OnDestroy, OnInit
+    implements AfterContentInit, OnChanges, OnDestroy, OnInit
 {
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
     private _overlay = inject(Overlay);
     private _injector = inject(Injector);
     private _view_container_ref = inject(ViewContainerRef);
+    private _focus_trap_factory = inject(FocusTrapFactory);
+    /** Keeps keyboard focus in a click tooltip while it is open */
+    private _focus_trap: FocusTrap | null = null;
+    /** Element that had focus before a click tooltip opened */
+    private _return_focus: HTMLElement | null = null;
 
     /** Horizontal position of the rendered overlay */
     public readonly x_pos = input<'start' | 'center' | 'end'>('end', {
@@ -192,6 +199,13 @@ export class CustomTooltipComponent<T = any>
         );
     }
 
+    /** Click tooltips are popups that screen readers can announce */
+    public ngAfterContentInit(): void {
+        if (this.hover()) return;
+        this._trigger().setAttribute('aria-haspopup', 'dialog');
+        this._trigger().setAttribute('aria-expanded', 'false');
+    }
+
     public ngOnChanges(changes: SimpleChanges): void {
         if (
             this._overlay_ref &&
@@ -250,6 +264,7 @@ export class CustomTooltipComponent<T = any>
                         ]),
                 });
                 this._overlay_ref.attach(portal);
+                if (!hover) this._trapFocus();
                 this.subscription(
                     'escape',
                     this._overlay_ref
@@ -276,6 +291,44 @@ export class CustomTooltipComponent<T = any>
             this._overlay_ref.dispose();
             this._overlay_ref = null;
         }
+        if (this._focus_trap) {
+            this._focus_trap.destroy();
+            this._focus_trap = null;
+            this._trigger().setAttribute('aria-expanded', 'false');
+            this._return_focus?.focus();
+            this._return_focus = null;
+        }
+    }
+
+    /**
+     * Element that gets the popup state. Many hosts wrap the button that has
+     * focus, so use the first focusable element when the host is not one.
+     */
+    private _trigger(): HTMLElement {
+        const host = this._element.nativeElement;
+        const focusable =
+            'button, a[href], input, select, textarea, [tabindex]';
+        if (host.matches(focusable)) return host;
+        return host.querySelector<HTMLElement>(focusable) || host;
+    }
+
+    /** Move keyboard focus into a click tooltip and keep it there */
+    private _trapFocus() {
+        this._return_focus =
+            (document.activeElement as HTMLElement) ||
+            this._element.nativeElement;
+        this._focus_trap = this._focus_trap_factory.create(
+            this._overlay_ref.overlayElement,
+        );
+        const pane = this._overlay_ref.overlayElement;
+        pane.setAttribute('role', 'dialog');
+        void this._focus_trap.focusInitialElementWhenReady().then((focused) => {
+            // Content with nothing to focus, such as text, gets focus itself
+            if (focused || this._overlay_ref?.overlayElement !== pane) return;
+            pane.setAttribute('tabindex', '-1');
+            pane.focus();
+        });
+        this._trigger().setAttribute('aria-expanded', 'true');
     }
 
     private _canOpenHoverTooltip(event: MouseEvent | PointerEvent) {

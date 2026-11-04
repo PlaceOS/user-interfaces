@@ -1,3 +1,4 @@
+import { InteractivityChecker } from '@angular/cdk/a11y';
 import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 import { Component, inject } from '@angular/core';
@@ -124,6 +125,55 @@ describe('CustomTooltipComponent', () => {
         expect(overlay_container.getContainerElement().textContent).toContain(
             'Rendered Template',
         );
+    });
+
+    it('should move focus into a click tooltip and back on close', async () => {
+        // jsdom has no layout, so the focus trap sees nothing visible
+        const visible = vi
+            .spyOn(InteractivityChecker.prototype, 'isVisible')
+            .mockReturnValue(true);
+        spectator = createDirective(`
+            <button customTooltip [content]="content">Open</button>
+            <ng-template #content><button inside>Inside</button></ng-template>
+        `);
+        overlay_container = spectator.inject(OverlayContainer);
+        const host = spectator.query<HTMLButtonElement>('button');
+        expect(host.getAttribute('aria-haspopup')).toBe('dialog');
+        host.focus();
+        spectator.click(host);
+        await settle();
+        // The trap focuses after the next render
+        spectator.detectChanges();
+        await settle();
+
+        const inside = overlay_container
+            .getContainerElement()
+            .querySelector<HTMLElement>('[inside]');
+        expect(document.activeElement).toBe(inside);
+        expect(host.getAttribute('aria-expanded')).toBe('true');
+
+        spectator.directive.close();
+        expect(document.activeElement).toBe(host);
+        expect(host.getAttribute('aria-expanded')).toBe('false');
+        visible.mockRestore();
+    });
+
+    it('should focus a click tooltip that has only text', async () => {
+        spectator = createDirective(`
+            <button customTooltip [content]="content">Open</button>
+            <ng-template #content>Only text</ng-template>
+        `);
+        overlay_container = spectator.inject(OverlayContainer);
+        spectator.click('button');
+        await settle();
+        spectator.detectChanges();
+        await settle();
+        const pane = overlay_container
+            .getContainerElement()
+            .querySelector<HTMLElement>('.cdk-overlay-pane');
+        expect(document.activeElement).toBe(pane);
+        expect(pane.getAttribute('role')).toBe('dialog');
+        spectator.directive.close();
     });
 
     it('should close when Escape is pressed', async () => {
