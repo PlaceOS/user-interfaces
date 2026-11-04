@@ -80,6 +80,43 @@ describe('MapViewer overlays', () => {
         viewer.destroy();
     });
 
+    it('triggers map actions after a slow tap with a little movement', () => {
+        const container = document.createElement('div');
+        Object.defineProperties(container, {
+            clientWidth: { value: 100 },
+            clientHeight: { value: 100 },
+        });
+        const viewer = new MapViewer(container);
+        const callback = vi.fn();
+        viewer.map = {
+            raw_data: '',
+            element_bounds: new Map([['level-1', { x: 0, y: 0, w: 1, h: 1 }]]),
+            aspect_ratio: 1,
+        };
+        viewer.map_image = document.createElement('canvas');
+        viewer.setActions([{ ref: 'level-1', events: ['click'], callback }]);
+        const pointer = (type: string, x: number, target: EventTarget) =>
+            target.dispatchEvent(
+                Object.assign(
+                    new MouseEvent(type, {
+                        bubbles: true,
+                        button: 0,
+                        clientX: x,
+                        clientY: 0,
+                    }),
+                    { pointerId: 1 },
+                ),
+            );
+        const now = vi.spyOn(Date, 'now').mockReturnValue(1000);
+        pointer('pointerdown', 0, container);
+        now.mockReturnValue(1300);
+        pointer('pointermove', 2, window);
+        pointer('pointerup', 2, window);
+        pointer('click', 2, container);
+        expect(callback).toHaveBeenCalledOnce();
+        viewer.destroy();
+    });
+
     it('keeps overlay wrappers whose contents stay when the overlays change', () => {
         const viewer = new MapViewer(document.createElement('div'));
         viewer.map = {

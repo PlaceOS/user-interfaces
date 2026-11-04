@@ -10,7 +10,6 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
     BuildingLevel,
@@ -56,12 +55,11 @@ export interface Locatable {
                             [src]="level().map_id"
                             [focus]="item().map_id"
                             [features]="features()"
+                            [styles]="style_map()"
                             [options]="{
                                 disable_pan: true,
                                 disable_zoom: true,
                             }"
-                        >
-                            <mat-spinner diameter="64"></mat-spinner
                         ></interactive-map>
                         <div
                             class="border-base-300 bg-base-200 absolute top-2 right-2 rounded-xl border px-4 py-2 font-medium"
@@ -88,7 +86,6 @@ export interface Locatable {
     imports: [
         MatRippleModule,
         MatDialogModule,
-        MatProgressSpinnerModule,
         IconComponent,
         InteractiveMapComponent,
     ],
@@ -115,7 +112,6 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
-        console.log('Date:', this._data);
         if (!this.item().level?.id) {
             this.item.update((item) => {
                 delete item.level;
@@ -153,7 +149,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
             track_id: `focus_item`,
             content: MapPinComponent,
             data: {
-                name: item.name,
+                message: item.name,
             },
             z_index: 99,
             zoom: 100,
