@@ -1,0 +1,4 @@
+import{nr as Q}from"./main.js";function r(e){return`${e.id}:${e.instance||``}`}function E(e,t){let o=new Set(t);return e.filter(i=>o.has(r(i)))}function s(e,t){return{dialog:t,confirm:{title:Q(`APP.CONCIERGE.BULK_REJECT_TITLE`),content:Q(`APP.CONCIERGE.BULK_REJECT_MSG`,{count:e}),icon:`event_busy`}}}export{r as n,s as r,E as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="d47329a5-ab32-5c2c-a91b-1b50c380957c")}catch(e){}}();
+//# debugId=d47329a5-ab32-5c2c-a91b-1b50c380957c
+//# sourceMappingURL=chunk-CfzltN7W.js.map
