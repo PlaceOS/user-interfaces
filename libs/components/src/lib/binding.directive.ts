@@ -18,7 +18,7 @@ import {
     waitForSignal,
 } from '@placeos/ts-client';
 
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, log } from '@placeos/common';
 
 @Directive({
     selector: 'i[bind], [binding], co-bind',
@@ -53,15 +53,18 @@ export class BindingDirective<T = any>
     /** Emitter for changes to the value of the binding */
     public readonly modelChange = output<T | null>();
 
-    private _binding = false;
     private _old_model: T | null = null;
-
-    constructor() {
-        super();
-    }
+    private _destroyed = false;
 
     public ngOnInit(): void {
-        waitForSignal(onlineState(), (_) => _).then(() => this.bindVariable());
+        waitForSignal(onlineState(), (_) => _).then(() => {
+            if (!this._destroyed) this.bindVariable();
+        });
+    }
+
+    public ngOnDestroy(): void {
+        this._destroyed = true;
+        super.ngOnDestroy();
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -72,7 +75,7 @@ export class BindingDirective<T = any>
         if (
             (changes.model || changes.modelInput) &&
             this._old_model !== model &&
-            this.model != null
+            model != null
         ) {
             this._old_model = model;
             this.execute();
@@ -90,44 +93,41 @@ export class BindingDirective<T = any>
         }
     }
 
-    /** Bind to set status variable */
+    /**
+     * Bind to the set status variable. Replaces any previous binding, and
+     * removes it when the system, module or variable is cleared.
+     */
     private bindVariable() {
-        if (
-            authority() &&
-            this.bind() &&
-            this.sys() &&
-            this.mod() &&
-            !this._binding
-        ) {
-            this.timeout(
-                'bind',
-                () => {
-                    const module = getModule(
-                        this.sys(),
-                        this.mod(),
-                        this.index(),
-                    );
-                    const binding = module.variable(this.bind());
-                    this._binding = true;
-                    this.subscription(
-                        'on_changes',
-                        binding.bindThenSubscribe((value) => {
-                            // if (value == null) return;
-                            setTimeout(() => {
-                                this._binding = false;
-                                this.clearTimeout('bound');
-                                if (this.ignore()) return;
-                                this._old_model = this.model();
-                                this.model.set(value);
-                                this.modelChange.emit(this.model());
-                            }, 10);
-                        }),
-                    );
-                    this.timeout('bound', () => (this._binding = false), 200);
-                },
-                20,
-            );
+        if (!authority() || !this.bind() || !this.sys() || !this.mod()) {
+            this.clearTimeout('bind');
+            this.clearTimeout('on_value');
+            this.unsub('on_changes');
+            return;
         }
+        this.timeout(
+            'bind',
+            () => {
+                const module = getModule(this.sys(), this.mod(), this.index());
+                const binding = module.variable(this.bind());
+                this.subscription(
+                    'on_changes',
+                    binding.bindThenSubscribe((value) => {
+                        this.timeout(
+                            'on_value',
+                            () => {
+                                if (this.ignore()) return;
+                                // Not a local change, so do not execute it
+                                this._old_model = value;
+                                this.model.set(value);
+                                this.modelChange.emit(value);
+                            },
+                            10,
+                        );
+                    }),
+                );
+            },
+            20,
+        );
     }
 
     /** Excute the set method on the module */
@@ -149,14 +149,24 @@ export class BindingDirective<T = any>
                     );
                     let params = this.params();
                     if (this.bind()) params = this.params() || [this.model()];
-                    module.execute(this.exec(), params || []).then((result) => {
-                        // Emit exec result if not bound to status variable
-                        if (!this.bind()) {
-                            this.model.set(result);
-                            this._old_model = this.model();
-                            this.modelChange.emit(this.model());
-                        }
-                    });
+                    module
+                        .execute(this.exec(), params || [])
+                        .then((result) => {
+                            // Emit exec result if not bound to status variable
+                            if (!this.bind()) {
+                                this.model.set(result);
+                                this._old_model = this.model();
+                                this.modelChange.emit(this.model());
+                            }
+                        })
+                        .catch((e) =>
+                            log(
+                                'Binding',
+                                `Failed to execute ${this.exec()}`,
+                                e,
+                                'warn',
+                            ),
+                        );
                 },
                 this.delay(),
             );
