@@ -1224,6 +1224,9 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public storeForm() {
+        // The form effect can run where there is no storage, such as after a
+        // test environment closes. Nothing to store there.
+        if (typeof sessionStorage === 'undefined') return;
         sessionStorage.setItem(
             STORAGE_KEYS.booking_form,
             JSON.stringify({

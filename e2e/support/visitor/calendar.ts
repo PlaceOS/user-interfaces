@@ -88,8 +88,6 @@ export async function pickCalendarDay(
     ).toBeVisible({ timeout: 30_000 });
 
     // Navigate to the target month before resolving the day cell.
-    // Note: the app's month button names are reversed:
-    // schedule-next-month goes backwards and schedule-previous-month goes forwards.
     const target = new Date(timestamp_ms);
     target.setHours(0, 0, 0, 0);
 
@@ -116,10 +114,10 @@ export async function pickCalendarDay(
         const button =
             displayed < target
                 ? calendar.locator(
-                      'button[name="schedule-previous-month"]',
+                      'button[name="schedule-next-month"]',
                   )
                 : calendar.locator(
-                      'button[name="schedule-next-month"]',
+                      'button[name="schedule-previous-month"]',
                   );
 
         await expect(
@@ -152,8 +150,7 @@ export async function pickCalendarDay(
             `${new Date(timestamp_ms).toDateString()} is outside the ${count} days the ` +
                 `calendar is showing. Only the displayed month and a few days either ` +
                 `side can be reached; anything further needs the ` +
-                `\`schedule-next-month\`/\`schedule-previous-month\` chevrons first ` +
-                `(whose names are the wrong way round — the "next" one goes back).`,
+                `\`schedule-previous-month\`/\`schedule-next-month\` chevrons first.`,
         );
     }
 

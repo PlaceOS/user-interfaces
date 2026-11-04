@@ -58,10 +58,19 @@ function validateEmail(email) {
 }
 
 const ACCEPTED_FILE_TYPES = ['text/csv', 'text/plain'];
-const DENIED_FILE_TYPES = [
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-];
+/** Most external visitors kept in the user's `visitor-invitees` setting */
+const MAX_SAVED_VISITORS = 50;
+
+/**
+ * Whether the file is a CSV file. Check the extension too, as Windows with
+ * Excel installed reports `.csv` files as `application/vnd.ms-excel`.
+ */
+function isCsvFile(file: File) {
+    return (
+        /\.csv$/i.test(file.name || '') ||
+        ACCEPTED_FILE_TYPES.includes(file.type)
+    );
+}
 
 @Component({
     selector: 'a-user-list-field',
@@ -74,7 +83,11 @@ const DENIED_FILE_TYPES = [
                     matAutocompleteOrigin
                     #origin="matAutocompleteOrigin"
                 >
-                    <mat-chip-grid #chipList aria-label="User selection">
+                    <mat-chip-grid
+                        #chipList
+                        aria-label="User selection"
+                        [disabled]="disabled()"
+                    >
                         @for (item of active_list(); track $index) {
                             <mat-chip-row
                                 user
@@ -124,6 +137,7 @@ const DENIED_FILE_TYPES = [
                         name="user_email"
                         [ngModel]="search()"
                         (ngModelChange)="updateSearch($event)"
+                        [disabled]="disabled()"
                         [matAutocomplete]="auto"
                         [matChipInputFor]="chipList"
                         [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
@@ -133,9 +147,17 @@ const DENIED_FILE_TYPES = [
                         <mat-spinner diameter="24" matSuffix></mat-spinner>
                     }
                 </mat-form-field>
-                <mat-autocomplete #auto="matAutocomplete">
+                <mat-autocomplete
+                    #auto="matAutocomplete"
+                    (optionSelected)="onOptionSelected($event.option.value)"
+                >
                     @if (search_valid_email()) {
-                        <mat-option (click)="addUserFromEmail()">
+                        <!--
+                            The email is the option value. Picking an option writes its
+                            value to the input, so the search text is gone by the time
+                            a click handler would run
+                        -->
+                        <mat-option [value]="search()">
                             {{
                                 'FORM.USER_LIST_ADD_EXTERNAL'
                                     | translate: { email: search() }
@@ -177,6 +199,7 @@ const DENIED_FILE_TYPES = [
                         type="button"
                         name="new-contact"
                         class="inverse flex-1 sm:flex-none"
+                        [disabled]="disabled()"
                         (click)="openNewUserModal()"
                     >
                         <div class="flex items-center justify-center">
@@ -201,6 +224,7 @@ const DENIED_FILE_TYPES = [
                         type="button"
                         name="upload-csv"
                         class="inverse relative flex-1 sm:flex-none"
+                        [disabled]="disabled()"
                         (click)="
                             $event.target !== file_input && file_input.click()
                         "
@@ -219,6 +243,8 @@ const DENIED_FILE_TYPES = [
                             aria-hidden="true"
                             class="absolute inset-0 opacity-0"
                             type="file"
+                            accept=".csv,text/csv"
+                            [disabled]="disabled()"
                             (change)="addUsersFromFile($event)"
                         />
                     </button>
@@ -228,6 +254,7 @@ const DENIED_FILE_TYPES = [
                         type="button"
                         name="download-template"
                         class="inverse flex-1 sm:flex-none"
+                        [disabled]="disabled()"
                         (click)="downloadCSVTemplate(); download.emit()"
                     >
                         <div class="flex items-center justify-center">
@@ -262,6 +289,7 @@ const DENIED_FILE_TYPES = [
                                 [ngModelOptions]="{
                                     standalone: true,
                                 }"
+                                [disabled]="disabled()"
                             >
                                 {{ item.name || item.email }}
                             </mat-checkbox>
@@ -289,6 +317,7 @@ const DENIED_FILE_TYPES = [
                                     [ngModelOptions]="{
                                         standalone: true,
                                     }"
+                                    [disabled]="disabled()"
                                 >
                                     <mat-radio-button value="internal">
                                         {{ 'COMMON.TYPE_INTERNAL' | translate }}
@@ -319,7 +348,6 @@ const DENIED_FILE_TYPES = [
         IconComponent,
         MatTooltipModule,
         UserAvatarComponent,
-        MatTooltipModule,
     ],
 })
 export class UserListFieldComponent
@@ -347,8 +375,6 @@ export class UserListFieldComponent
     public readonly flags = input(false);
     /** Whether as custom template will be provided outside the component */
     public readonly custom_template = input(false);
-    /** Function for filtering the results of the user list */
-    public readonly filter = input<(_: any) => boolean>(undefined);
     /** Emitter for action to make a new user */
     public readonly new_user = output<void>();
     /** Whether user should download the CSV template */
@@ -399,7 +425,7 @@ export class UserListFieldComponent
     private readonly _user_search = resource({
         params: () => ({ q: this._debounced_search.value() }),
         loader: async ({ params: { q }, abortSignal }): Promise<User[]> => {
-            if (!q) return [];
+            if (!q || q.length < this.limit()) return [];
             try {
                 if (!this.guests())
                     return await this.searchStaff(q, abortSignal);
@@ -410,10 +436,13 @@ export class UserListFieldComponent
                 const staff = this.guests_only() ? [] : staff_results;
                 const visitors_list = [];
                 const visitors = this._settings.get('visitor-invitees') || [];
+                const search = q.toLowerCase();
                 for (const item of visitors) {
                     if (typeof item !== 'string') continue;
                     const [email, name, company, international] =
                         item.split('|');
+                    const text = `${email} ${name}`.toLowerCase();
+                    if (!text.includes(search)) continue;
                     visitors_list.push({
                         email,
                         name,
@@ -433,7 +462,7 @@ export class UserListFieldComponent
     /** User list to display */
     public readonly user_list = computed(() =>
         [...(this._user_search.value() ?? [])].sort((a, b) =>
-            a.name.localeCompare(b.name),
+            (a.name || '').localeCompare(b.name || ''),
         ),
     );
     /** Whether user list is loading */
@@ -454,8 +483,9 @@ export class UserListFieldComponent
         super();
     }
 
+    /** Update the search text. The search request is debounced */
     public updateSearch(new_value = '') {
-        this.timeout('search', () => this.search.set(new_value));
+        this.search.set(new_value);
     }
 
     public addUserFromEmail(email = '') {
@@ -465,11 +495,19 @@ export class UserListFieldComponent
         this.addUser(user);
         const { name, organisation } = user;
         const visitor_details = `${email}|${name}|${organisation}|0`;
-        const old_visitors = this._settings.get('visitor-invitees') || [];
-        this._settings.saveUserSetting('visitor-invitees', [
-            ...old_visitors.filter((_) => !_.includes(email)),
-            visitor_details,
-        ]);
+        const old_visitors: string[] =
+            this._settings.get('visitor-invitees') || [];
+        this._settings.saveUserSetting(
+            'visitor-invitees',
+            [
+                ...old_visitors.filter(
+                    (_) =>
+                        typeof _ === 'string' &&
+                        _.split('|')[0].toLowerCase() !== email.toLowerCase(),
+                ),
+                visitor_details,
+            ].slice(-MAX_SAVED_VISITORS),
+        );
         this.timeout(
             'clear_search',
             () => {
@@ -485,21 +523,30 @@ export class UserListFieldComponent
      * @param user
      */
     public addUser(user: User) {
-        const user_id = user.id || user.email;
-        const list = this.active_list().filter(
-            (_) => (_.id || _.email) !== user_id,
-        );
-        this.setValue([
-            ...list,
-            new User({
-                ...user,
-                id: user.id || user.email,
-                visit_expected:
-                    (!user.id && user.is_external !== true
-                        ? user.visit_expected
-                        : null) ?? true,
-            }),
-        ]);
+        this.addUsers([user]);
+    }
+
+    /**
+     * Add users to the user list. A user that is already in the list is
+     * replaced. The form value changes once for the whole list.
+     */
+    public addUsers(users: User[]) {
+        let list = this.active_list();
+        for (const user of users) {
+            const user_id = user.id || user.email;
+            list = [
+                ...list.filter((_) => (_.id || _.email) !== user_id),
+                new User({
+                    ...user,
+                    id: user.id || user.email,
+                    visit_expected:
+                        (!user.id && user.is_external !== true
+                            ? user.visit_expected
+                            : null) ?? true,
+                }),
+            ];
+        }
+        this.setValue(list);
         this.timeout(
             'clear_search',
             () => {
@@ -579,10 +626,7 @@ export class UserListFieldComponent
             const file: File = event.target.files[0];
             /* istanbul ignore else */
             if (file) {
-                if (
-                    !ACCEPTED_FILE_TYPES.includes(file.type) ||
-                    DENIED_FILE_TYPES.includes(file.type)
-                ) {
+                if (!isCsvFile(file)) {
                     notifyError('Only CSV files are supported');
                     return;
                 }
@@ -606,8 +650,11 @@ export class UserListFieldComponent
     private processCsvData(data: string) {
         const list = csvToJson(data) || [];
         const id = currentUser()?.staff_id || 'unknown';
+        const users: User[] = [];
         for (const el of list) {
-            el.name = el.name || `${el.first_name} ${el.last_name}`;
+            el.name =
+                el.name ||
+                [el.first_name, el.last_name].filter((_) => !!_).join(' ');
             const display = (
                 el.name || `${Math.floor(Math.random() * 9999_9999)}`
             )
@@ -626,10 +673,11 @@ export class UserListFieldComponent
                 !internal_emails.find((_) => el.email.endsWith(_));
 
             /** Convert phone to string. PWCME-544 */
-            el.phone = '' + el.phone;
+            el.phone = el.phone == null ? '' : `${el.phone}`;
 
-            this.addUser(new User(el));
+            users.push(new User(el));
         }
+        this.addUsers(users);
     }
 
     /* istanbul ignore next */
@@ -680,6 +728,11 @@ export class UserListFieldComponent
      */
     public registerOnTouched(fn: (_: User[]) => void): void {
         this._onTouch = fn;
+    }
+
+    /** Add the typed email when its option is picked. User options have no value */
+    public onOptionSelected(value: unknown) {
+        if (typeof value === 'string' && value) this.addUserFromEmail(value);
     }
 
     public displayFn(item): string {

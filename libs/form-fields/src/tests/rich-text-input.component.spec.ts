@@ -25,6 +25,7 @@ const mockEditor = vi.hoisted(() => ({
     setFontFace: vi.fn(),
     setFontSize: vi.fn(),
     insertHTML: vi.fn(),
+    modifyDocument: vi.fn((fn: () => void) => fn()),
 }));
 
 vi.mock('squire-rte', () => ({
@@ -107,6 +108,55 @@ describe('RichTextInputComponent', () => {
         spectator.component.toggleItalic();
         expect(mockEditor.removeItalic).toHaveBeenCalled();
         expect(spectator.component.toolbar_state().italic).toBe(true);
+    });
+
+    it('should send an empty value when the editor only has an empty block', async () => {
+        const on_change = vi.fn();
+        await initialiseEditor();
+        spectator.component.registerOnChange(on_change);
+        mockEditor.getHTML.mockReturnValue('<div><br></div>');
+        spectator.component.makeOrderedList();
+        expect(on_change).toHaveBeenCalledWith('');
+    });
+
+    it('should not insert links with a blocked protocol', async () => {
+        await initialiseEditor();
+        vi.spyOn(window, 'prompt').mockReturnValue('javascript://%0aalert(1)');
+        spectator.component.insertLink();
+        expect(mockEditor.makeLink).not.toHaveBeenCalled();
+    });
+
+    it('should add https to links with no protocol', async () => {
+        await initialiseEditor();
+        vi.spyOn(window, 'prompt').mockReturnValue('example.com/page');
+        spectator.component.insertLink();
+        expect(mockEditor.makeLink).toHaveBeenCalledWith(
+            'https://example.com/page',
+        );
+    });
+
+    it('should change editor attributes through modifyDocument when disabled', async () => {
+        await initialiseEditor();
+        mockEditor.modifyDocument.mockClear();
+        spectator.component.setDisabledState(true);
+        const editor_el = spectator.query('.squire-editor');
+        expect(mockEditor.modifyDocument).toHaveBeenCalled();
+        expect(editor_el.getAttribute('contenteditable')).toBe('false');
+    });
+
+    it('should stop image clicks from reaching the editor while disabled', async () => {
+        await initialiseEditor();
+        const editor_el = spectator.query('.squire-editor');
+        const image = document.createElement('img');
+        editor_el.appendChild(image);
+        const squire_click = vi.fn();
+        editor_el.addEventListener('click', squire_click);
+        spectator.component.setDisabledState(true);
+        image.click();
+        expect(squire_click).not.toHaveBeenCalled();
+        spectator.component.setDisabledState(false);
+        image.click();
+        expect(squire_click).toHaveBeenCalledTimes(1);
     });
 
     it('should hide the toolbar in readonly mode', () => {

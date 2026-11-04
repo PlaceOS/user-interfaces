@@ -4,7 +4,8 @@ import { takeWhile } from 'rxjs/operators';
 
 /**
  * Upload a file for an attachment field. `on_change` receives the attachment
- * details at the start and on each progress update. A failed upload has a
+ * details at the start and on each progress update. Each call gets a new
+ * object, so signals that hold it see the change. A failed upload has a
  * progress of -1.
  */
 export function uploadAttachment(
@@ -26,7 +27,7 @@ export function uploadAttachment(
             if (upload.access_url) upload_details.url = upload.access_url;
             upload_details.progress = state.progress;
             if (state.status === 'error') upload_details.progress = -1;
-            on_change(upload_details);
+            on_change({ ...upload_details });
         });
-    on_change(upload_details);
+    on_change({ ...upload_details });
 }

@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
@@ -34,10 +35,23 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             <input
                 #file_input
                 type="file"
+                accept="image/*"
                 class="absolute inset-0 z-10 cursor-pointer opacity-0"
                 [attr.aria-label]="'COMMON.UPLOAD_IMAGE' | translate"
+                [disabled]="disabled() || uploading()"
                 (change)="uploadImage($event)"
             />
+            @if (uploading()) {
+                <div
+                    class="bg-base-100/60 absolute inset-0 z-30 flex items-center justify-center rounded-xl"
+                >
+                    <mat-progress-spinner
+                        mode="determinate"
+                        [diameter]="48"
+                        [value]="progress()"
+                    ></mat-progress-spinner>
+                </div>
+            }
             @if (this.url()) {
                 <img
                     auth
@@ -53,6 +67,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     aria-label="Clear Image"
                     matTooltipPosition="left"
                     class="border-base-300 bg-base-100 absolute top-2 right-2 z-20 rounded-full border"
+                    [disabled]="disabled()"
                     (click)="clearImage($event)"
                 >
                     <icon>close</icon>
@@ -70,24 +85,6 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     >
                         <icon>link</icon>
                     </button>
-                    <!-- <button
-                        icon
-                        matRipple
-                        matTooltip="Copy Image URL"
-                        matTooltipPosition="right"
-                        (click)="copyLink()"
-                    >
-                        <icon>link</icon>
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        matTooltip="Copy Image URL"
-                        matTooltipPosition="right"
-                        (click)="copyLink()"
-                    >
-                        <icon>link</icon>
-                    </button> -->
                 </div>
             } @else {
                 <div
@@ -120,6 +117,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
     providers: [provideValueAccessor(() => ImageFieldComponent)],
     imports: [
         MatRippleModule,
+        MatProgressSpinnerModule,
         MatTooltipModule,
         AuthenticatedImageDirective,
         IconComponent,
@@ -135,6 +133,8 @@ export class ImageFieldComponent
 
     public readonly url = signal('');
     public readonly progress = signal(0);
+    /** Whether an upload is running */
+    public readonly uploading = signal(false);
     public readonly disabled = signal(false);
 
     public readonly registerOnChange = (fn: (_: string) => void) =>
@@ -182,12 +182,15 @@ export class ImageFieldComponent
         if (!element?.files) return;
         const files: FileList = element.files;
         if (!files.length) return;
+        this.progress.set(0);
+        this.uploading.set(true);
         try {
             const id = await this._uploads.uploadFile(files[0]);
             this.interval('update_status', () => this._updateUploadHistory(id));
         } catch (error) {
             this.clearInterval('update_status');
             this.progress.set(0);
+            this.uploading.set(false);
             notifyError(
                 `Failed to upload ${files[0].name}: ${error?.message || 'Unknown error'}`,
             );
@@ -200,11 +203,19 @@ export class ImageFieldComponent
         const global_list = this._uploads.upload_list();
         const file = global_list.find((_) => _.id === id);
         if (!file) return;
+        if (file.error) {
+            this.clearInterval('update_status');
+            this.progress.set(0);
+            this.uploading.set(false);
+            notifyError(`Failed to upload ${file.name}: ${file.error}`);
+            return;
+        }
         this.progress.set(file.progress);
         if (file.progress < 100) return;
         this.setValue(
             `/api/engine/v2/uploads/${encodeURIComponent(file.upload_id || file.id)}/url`,
         );
         this.clearInterval('update_status');
+        this.uploading.set(false);
     }
 }

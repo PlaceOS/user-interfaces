@@ -5,6 +5,7 @@ import {
     inject,
     Injector,
     input,
+    LOCALE_ID,
     model,
     OnInit,
     signal,
@@ -176,7 +177,7 @@ export class DateFieldComponent
         this.use_24hr() ? 'HH : mm' : 'h : mm a',
     );
 
-    private _date_pipe = new DatePipe('en');
+    private _date_pipe = new DatePipe(inject(LOCALE_ID));
 
     public readonly start_of_day = computed(() => {
         const start = startOfDay(this.date() || Date.now()).valueOf();

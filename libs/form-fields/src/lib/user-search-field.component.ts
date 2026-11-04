@@ -76,7 +76,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
                 <mat-autocomplete
                     #auto="matAutocomplete"
                     [displayWith]="displayFn"
-                    (optionSelected)="setValue($event.option.value)"
+                    (optionSelected)="selectOption($event.option.value)"
                 >
                     @let user_list = search_results();
                     @let term = search_term();
@@ -94,20 +94,19 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
                         </mat-option>
                     }
                     @if (term && allow_externals() && isValidEmail(term)) {
-                        <mat-option class="pointer-events-none relative">
-                            <div
-                                class="pointer-events-auto absolute inset-0 flex items-center px-4"
-                                (mousedown)="stopEvent($event)"
-                                (touchstart)="stopEvent($event)"
-                                (click)="
-                                    setValueFromEmail(term); stopEvent($event)
-                                "
-                            >
-                                {{
-                                    'FORM.USER_SET_EXTERNAL'
-                                        | translate: { name: term }
-                                }}
-                            </div>
+                        <!--
+                            A string value marks the typed email option. Keep focus in the
+                            input on mousedown: blur resets the term, which removes this option
+                            before its click
+                        -->
+                        <mat-option
+                            [value]="term"
+                            (mousedown)="$event.preventDefault()"
+                        >
+                            {{
+                                'FORM.USER_SET_EXTERNAL'
+                                    | translate: { name: term }
+                            }}
                         </mat-option>
                     }
                     @if (
@@ -200,8 +199,6 @@ export class UserSearchFieldComponent
     public readonly error = input('');
     /** Whether to allow selecting an external user from a typed email address */
     public readonly allow_externals = input<boolean>(false);
-    /** Function for filtering the results of the user list */
-    public readonly filter = input<(_: any, s?: string) => boolean>(undefined);
     /** Function for querying the user list */
     public readonly query_fn = input<
         (_: string, signal?: AbortSignal) => Promise<User[]>
@@ -237,8 +234,8 @@ export class UserSearchFieldComponent
                 return this.options().filter(
                     (_) =>
                         _.email !== EMPTY_USER.email &&
-                        (_.name.toLowerCase().includes(s) ||
-                            _.email.toLowerCase().includes(s)),
+                        (_.name?.toLowerCase().includes(s) ||
+                            _.email?.toLowerCase().includes(s)),
                 );
             }
             if (s.length <= 2) return [];
@@ -262,6 +259,9 @@ export class UserSearchFieldComponent
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
     public readonly setDisabledState = (s) => this.disabled.set(s);
 
+    /** Number of the latest selection, so older user detail requests are ignored */
+    private _selection_count = 0;
+
     private readonly _input_el = viewChild('input', { read: ElementRef });
     private readonly _autocomplete_trigger = viewChild(MatAutocompleteTrigger);
 
@@ -270,6 +270,7 @@ export class UserSearchFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: User | string, email?: string): void {
+        const selection = ++this._selection_count;
         const value =
             typeof new_value === 'string'
                 ? new User({ name: new_value, email })
@@ -285,7 +286,7 @@ export class UserSearchFieldComponent
         ) {
             showUser(value.email || value.id)
                 .then((details) => {
-                    if (!details) return;
+                    if (!details || selection !== this._selection_count) return;
                     const updated = new User({
                         ...value,
                         ...new User(details),
@@ -303,6 +304,7 @@ export class UserSearchFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: User) {
+        this._selection_count++;
         this.user.set(value);
         this.resetTerm();
     }
@@ -311,11 +313,6 @@ export class UserSearchFieldComponent
         return user && user.email !== EMPTY_USER.email && user.name
             ? user.name
             : '';
-    }
-
-    public stopEvent(event: Event) {
-        event.stopPropagation();
-        event.preventDefault();
     }
 
     /** Check if a string is a valid email address */
@@ -335,7 +332,14 @@ export class UserSearchFieldComponent
         this.dismissAutocomplete();
     }
 
+    /** Set the value from a picked option. A string is a typed email address */
+    public selectOption(value: User | string) {
+        if (typeof value === 'string') this.setValueFromEmail(value);
+        else this.setValue(value);
+    }
+
     public clearUser() {
+        this._selection_count++;
         this.user.set(null);
         this._onChange ? this._onChange(null) : null;
         this._onTouch ? this._onTouch(null) : null;

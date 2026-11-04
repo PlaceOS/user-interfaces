@@ -49,6 +49,17 @@ describe('RecurrenceModalComponent', () => {
         spectator = createComponent();
     });
 
+    it('should block saving a weekly recurrence with no days selected', () => {
+        spectator.component.model.update((m) => ({
+            ...m,
+            type: 'weekly',
+            weekdays: new Set(),
+        }));
+        expect(spectator.component.no_weekdays()).toBe(true);
+        spectator.component.toggleDate(1);
+        expect(spectator.component.no_weekdays()).toBe(false);
+    });
+
     it('should default end_date when none is passed in', () => {
         expect(spectator.component.model().end_date).toBe(default_end_date);
     });

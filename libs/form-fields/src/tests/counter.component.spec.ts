@@ -53,20 +53,62 @@ describe('CounterComponent', () => {
     it('should allow qualifiers to multiple added/removed value', () => {
         spectator.setInput({ max: 1000 });
         spectator.component.value.set(5);
-        spectator.component.shift_key.set(true);
-        spectator.component.add();
+        spectator.component.add({ shiftKey: true });
         expect(spectator.component.value()).toBe(15);
-        spectator.component.ctrl_key.set(true);
-        spectator.component.add();
+        spectator.component.add({ ctrlKey: true });
         expect(spectator.component.value()).toBe(115);
-        spectator.component.remove();
+        spectator.component.remove({ metaKey: true });
         expect(spectator.component.value()).toBe(15);
-        spectator.component.ctrl_key.set(false);
-        spectator.component.remove();
+        spectator.component.remove({ shiftKey: true });
         expect(spectator.component.value()).toBe(5);
-        spectator.component.shift_key.set(false);
         spectator.component.remove();
         expect(spectator.component.value()).toBe(4);
+    });
+
+    it('should step from zero when the minimum is negative', () => {
+        spectator.setInput({ min: -5 });
+        spectator.component.writeValue(0);
+        spectator.detectChanges();
+        expect(spectator.query('button[decrease]')).not.toBeDisabled();
+        spectator.component.remove();
+        expect(spectator.component.value()).toBe(-1);
+        spectator.component.writeValue(0);
+        spectator.component.add();
+        expect(spectator.component.value()).toBe(1);
+    });
+
+    it('should not send NaN for text that is not a number', () => {
+        const on_change = vi.fn();
+        spectator.component.registerOnChange(on_change);
+        spectator.component.setValue(Number('abc'));
+        expect(on_change).toHaveBeenCalledWith(0);
+    });
+
+    it('should step a typed value with the arrow keys and modifiers', () => {
+        spectator.setInput({ max: 1000 });
+        spectator.component.value.set('5' as unknown as number);
+        spectator.detectChanges();
+        const input = spectator.query('input');
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+        expect(spectator.component.value()).toBe(6);
+        input.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'ArrowUp', shiftKey: true }),
+        );
+        expect(spectator.component.value()).toBe(16);
+        input.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'ArrowDown', ctrlKey: true }),
+        );
+        expect(spectator.component.value()).toBe(0);
+    });
+
+    it('should disable the buttons and input when disabled', async () => {
+        spectator.component.writeValue(3);
+        spectator.component.setDisabledState(true);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        expect(spectator.query('button[increase]')).toBeDisabled();
+        expect(spectator.query('button[decrease]')).toBeDisabled();
+        expect(spectator.query('input')).toBeDisabled();
     });
 
     it('should allow writing to count', () => {

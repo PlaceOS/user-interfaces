@@ -71,7 +71,10 @@ export interface UploadDetails {
                 <input
                     #file_input
                     type="file"
+                    accept="image/*"
+                    multiple
                     class="absolute inset-0 h-32 w-32 cursor-pointer opacity-0"
+                    [disabled]="disabled()"
                     (change)="uploadImages($event)"
                 />
             </div>
@@ -83,6 +86,7 @@ export interface UploadDetails {
                 >
                     <img
                         auth
+                        alt=""
                         [source]="url"
                         class="pointer-events-none absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 object-contain"
                     />
@@ -113,6 +117,8 @@ export interface UploadDetails {
                             </button>
                             <button
                                 icon
+                                type="button"
+                                [disabled]="disabled()"
                                 (click)="removeImage(url)"
                                 [attr.aria-label]="'COMMON.REMOVE' | translate"
                             >
@@ -125,7 +131,7 @@ export interface UploadDetails {
             @for (item of uploads(); track item; let i = $index) {
                 <div
                     upload
-                    class="border-base-content/10 /5 bg-base-200 flex h-32 w-36 shrink-0 items-center justify-center rounded-sm border bg-cover bg-center"
+                    class="border-base-content/10 bg-base-200 flex h-32 w-36 shrink-0 items-center justify-center rounded-sm border bg-cover bg-center"
                     [style.transform]="'translate(-' + offset() + '00%)'"
                     [matTooltip]="item.error"
                     (click)="retryUpload(item)"
@@ -143,7 +149,7 @@ export interface UploadDetails {
                     @if (item.error) {
                         <div
                             overlay
-                            class="text-base-100 hover:bg-base-content hover:bg-opacity-50 absolute inset-0 flex items-center justify-center"
+                            class="text-base-100 hover:bg-base-content/50 absolute inset-0 flex items-center justify-center"
                         >
                             <icon class="text-3xl opacity-0">refresh</icon>
                         </div>
@@ -176,7 +182,11 @@ export interface UploadDetails {
             }
         </div>
         <mat-form-field appearance="outline" class="w-full">
-            <mat-chip-grid #chipList aria-label="Image List">
+            <mat-chip-grid
+                #chipList
+                aria-label="Image List"
+                [disabled]="disabled()"
+            >
                 @for (item of list(); track item) {
                     <mat-chip-row (removed)="removeImage(item)">
                         <div class="max-w-md truncate">{{ item }}</div>
@@ -209,11 +219,13 @@ export interface UploadDetails {
             }
 
             [image]:hover [actions],
+            [image]:focus-within [actions],
             [image]:hover > icon {
                 opacity: 1 !important;
             }
 
-            [image]:hover [bg] {
+            [image]:hover [bg],
+            [image]:focus-within [bg] {
                 opacity: 0.4 !important;
             }
 
@@ -270,6 +282,7 @@ export class ImageListFieldComponent
     public readonly upload_ids = signal<string[]>([]);
     public readonly upload_list = signal<UploadDetails[]>([]);
     public readonly offset = signal(0);
+    public readonly disabled = signal(false);
 
     public readonly view_space = signal(0);
     public readonly separators = [COMMA, ENTER];
@@ -333,11 +346,15 @@ export class ImageListFieldComponent
         this.setValue(unique([...this.list(), url]));
     }
 
-    public retryUpload(item: UploadDetails) {
-        if (item.error) {
-            item.error = null;
-            item.upload.resume();
-        }
+    /**
+     * Upload a failed file again. The upload service stops tracking an upload
+     * after it fails, so this starts a new upload in place of a resume.
+     */
+    public async retryUpload(item: UploadDetails) {
+        const file = item.upload?.file;
+        if (this.disabled() || !item.error || !(file instanceof File)) return;
+        this.upload_ids.set(this.upload_ids().filter((_) => _ !== item.id));
+        await this._uploadFile(file);
     }
 
     public previousOffset() {
@@ -355,19 +372,9 @@ export class ImageListFieldComponent
             const files: FileList = element.files;
             /* istanbul ignore else */
             if (files.length) {
-                this.interval('update_status', () =>
-                    this._updateUploadHistory(),
-                );
                 // Keep going after a failure so one bad file doesn't drop the rest
                 for (let i = 0; i < files.length; i++) {
-                    try {
-                        const id = await this._uploads.uploadFile(files[i]);
-                        this.upload_ids.set([...this.upload_ids(), id]);
-                    } catch (error) {
-                        notifyError(
-                            `Failed to upload ${files[i].name}: ${error?.message || 'Unknown error'}`,
-                        );
-                    }
+                    await this._uploadFile(files[i]);
                 }
                 this._file_input().nativeElement.value = '';
             }
@@ -392,21 +399,41 @@ export class ImageListFieldComponent
         (this._onChange = fn);
     public readonly registerOnTouched = (fn: (_: string[]) => void) =>
         (this._onTouch = fn);
+    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
+    /** Start an upload and track it until it completes or fails */
+    private async _uploadFile(file: File) {
+        try {
+            const id = await this._uploads.uploadFile(file);
+            this.upload_ids.set([...this.upload_ids(), id]);
+            this.interval('update_status', () => this._updateUploadHistory());
+        } catch (error) {
+            notifyError(
+                `Failed to upload ${file.name}: ${error?.message || 'Unknown error'}`,
+            );
+        }
+    }
+
+    /**
+     * Copy the state of this field's uploads from the upload service. Stops
+     * polling when every upload has completed or failed.
+     */
     private async _updateUploadHistory() {
         const list = this.upload_ids();
-        if (list.length === 0) return;
+        if (list.length === 0) return this.clearInterval('update_status');
         const global_list = this._uploads.upload_list();
         const new_list = global_list.filter((_) =>
             list.find((i) => i === _?.id),
         );
         const done_list = new_list.filter((file) => file.progress >= 100);
+        const failed_list = new_list.filter(
+            (file) => file.progress < 100 && file.error,
+        );
         this.upload_list.set(new_list);
         done_list.forEach((i) => {
             this.upload_map[i?.id] = i.upload?.id || i?.id;
-            delete i.upload;
         });
-        if (done_list.length >= list.length)
+        if (done_list.length + failed_list.length >= list.length)
             this.clearInterval('update_status');
     }
 }

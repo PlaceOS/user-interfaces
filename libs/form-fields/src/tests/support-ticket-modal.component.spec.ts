@@ -77,4 +77,35 @@ describe('SupportTicketModalComponent', () => {
         expect(send_mail_args[0]).toBe('support@place.tech');
         expect(close_spy).toHaveBeenCalled();
     });
+
+    it('should escape user text in the html body', async () => {
+        spectator.component.model.set({
+            name: '<b>Jane</b>',
+            email: 'jane@place.tech',
+            location: 'Head Office',
+            description: '<p>Broken</p>',
+            issue_type: '',
+            images: [],
+        });
+        await spectator.component.submit();
+        const html = execute_spy.mock.calls[0][1][3];
+        expect(html).toContain('&lt;b&gt;Jane&lt;/b&gt;');
+        expect(html).not.toContain('<b>Jane</b>');
+    });
+
+    it('should stop loading when sending fails', async () => {
+        execute_spy.mockRejectedValueOnce(new Error('offline'));
+        close_spy.mockClear();
+        spectator.component.model.set({
+            name: 'Jane',
+            email: 'jane@place.tech',
+            location: 'Head Office',
+            description: '<p>Broken</p>',
+            issue_type: '',
+            images: [],
+        });
+        await spectator.component.submit();
+        expect(spectator.component.loading()).toBe(false);
+        expect(close_spy).not.toHaveBeenCalled();
+    });
 });

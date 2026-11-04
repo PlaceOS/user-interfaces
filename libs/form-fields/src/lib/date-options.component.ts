@@ -46,7 +46,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                 customTooltip
                 [content]="calendar_picker"
                 yPosition="top"
-                [class.pointer-events-none]="disabled()"
+                [disabled]="disabled()"
                 [class.opacity-30]="disabled()"
                 [attr.aria-label]="'COMMON.SELECT_DATE' | translate"
             >
@@ -58,6 +58,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
             matRipple
             class="hover:bg-base-200 rounded-sm"
             data-shortcut="previous"
+            [disabled]="disabled()"
             [attr.aria-label]="'COMMON.PREVIOUS' | translate"
             (click)="previousDay()"
         >
@@ -69,6 +70,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                 matRipple
                 class="hover:bg-base-200 rounded-sm"
                 data-shortcut="next"
+                [disabled]="disabled()"
                 [attr.aria-label]="'COMMON.NEXT' | translate"
                 (click)="nextDay()"
             >
@@ -78,6 +80,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
         <button
             matRipple
             data-shortcut="today"
+            [disabled]="disabled()"
             (click)="setDate()"
             class="display hover:bg-base-200 relative mx-2 flex h-12 items-center justify-center rounded-sm leading-none"
             [class.w-36]="display_mode() === 'day'"
@@ -114,6 +117,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                 matRipple
                 class="hover:bg-base-200 rounded-sm"
                 data-shortcut="next"
+                [disabled]="disabled()"
                 [attr.aria-label]="'COMMON.NEXT' | translate"
                 (click)="nextDay()"
             >
@@ -129,7 +133,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                     customTooltip
                     [content]="calendar_picker"
                     yPosition="top"
-                    [class.pointer-events-none]="disabled()"
+                    [disabled]="disabled()"
                     [class.opacity-30]="disabled()"
                     [attr.aria-label]="'COMMON.SELECT_DATE' | translate"
                 >

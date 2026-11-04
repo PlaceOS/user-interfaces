@@ -18,11 +18,12 @@ import { uploadAttachment } from './upload-attachment';
                 <icon class="mb-2 text-3xl">upload_file</icon>
                 <p class="text-center">Drop files</p>
                 <p class="my-1 text-center text-xs">or</p>
-                <button btn matRipple class="w-28">Browse</button>
+                <button btn matRipple type="button" class="w-28">Browse</button>
                 <input
                     multiple="true"
                     type="file"
                     class="absolute inset-0 max-w-full opacity-0"
+                    [disabled]="disabled()"
                     (change)="onFileEvent($event)"
                 />
             </div>
@@ -33,8 +34,9 @@ import { uploadAttachment } from './upload-attachment';
                             <div
                                 item
                                 class="border-base-200 bg-base-100 hover:bg-base-200 flex w-full items-center rounded-sm border"
-                                [class.bg-error!]="item.progress < 1"
-                                [class.!bg-opacity-20]="item.progress < 1"
+                                [class]="
+                                    item.progress < 0 ? 'bg-error/20!' : ''
+                                "
                             >
                                 <div
                                     class="w-px flex-1 truncate px-2 font-mono text-sm"
@@ -73,6 +75,8 @@ import { uploadAttachment } from './upload-attachment';
                                 }
                                 <button
                                     icon
+                                    type="button"
+                                    [disabled]="disabled()"
                                     (click)="removeFile(item)"
                                     [attr.aria-label]="
                                         'COMMON.REMOVE' | translate
@@ -103,7 +107,11 @@ import { uploadAttachment } from './upload-attachment';
     ],
 })
 export class UploadListFieldComponent implements ControlValueAccessor {
+    /** Files shown in the field, including uploads in progress and failed uploads */
     public readonly list = signal<Attachment[]>([]);
+    public readonly disabled = signal(false);
+    /** IDs of files the user removed. Later progress updates for them are ignored */
+    private _removed_ids = new Set<string>();
     /** Form control on change handler */
     private _onChange: (_: Attachment[]) => void;
     /** Form control on touch handler */
@@ -111,17 +119,19 @@ export class UploadListFieldComponent implements ControlValueAccessor {
 
     public readonly registerOnChange = (fn) => (this._onChange = fn);
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
+    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     /**
-     * Update the form field value
-     * @param new_value New value to set on the form field
+     * Update the files shown in the field. The form value only gets the
+     * files that completed and have a URL.
+     * @param new_value New list of files for the field
      */
     public setValue(new_value: Attachment[]): void {
-        const list = (new_value || []).filter(
-            (_) => _.url && _.progress >= 100,
-        );
+        const list = new_value || [];
         this.list.set(list);
-        if (this._onChange) this._onChange(list);
+        if (this._onChange) {
+            this._onChange(list.filter((_) => _.url && _.progress >= 100));
+        }
     }
 
     /**
@@ -138,6 +148,7 @@ export class UploadListFieldComponent implements ControlValueAccessor {
     }
 
     public removeFile(item: Attachment) {
+        this._removed_ids.add(item.id);
         this.setValue(this.list().filter((_) => _.id !== item.id));
     }
 
@@ -146,16 +157,18 @@ export class UploadListFieldComponent implements ControlValueAccessor {
         /* istanbul ignore else */
         if (!element?.files?.length) return;
         const files: FileList = element.files;
-        const on_change = (item) => {
-            const list = [
-                ...this.list().filter((_) => _.id !== item.id),
-                item,
-            ].sort((a, b) => a.created_at - b.created_at);
-            this.list.set(list);
-            this.setValue(list);
-        };
         for (let i = 0; i < files.length; i++) {
-            uploadAttachment(files[i], on_change);
+            uploadAttachment(files[i], (item) => this.updateUpload(item));
         }
+    }
+
+    /** Add or update a file from an upload progress report */
+    public updateUpload(item: Attachment) {
+        if (this._removed_ids.has(item.id)) return;
+        const list = [
+            ...this.list().filter((_) => _.id !== item.id),
+            item,
+        ].sort((a, b) => a.created_at - b.created_at);
+        this.setValue(list);
     }
 }

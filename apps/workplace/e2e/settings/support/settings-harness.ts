@@ -1128,7 +1128,7 @@ export async function openCalendar(page: Page, root: Locator) {
  * so today may be off-grid when the form date has moved to tomorrow. Each cell's
  * date is displayed_dates()[i].id: local midnight, one cell per day. If the day
  * is past the grid, move one month on: the right chevron (named
- * schedule-previous-month) is disabled once the grid passes `to`, so a later
+ * schedule-next-month) is disabled once the grid passes `to`, so a later
  * day cannot be selectable and null is returned. Any other miss fails.
  *
  * The component moves to a new grid before the page renders it, so a cell is
@@ -1184,7 +1184,7 @@ export async function dayCell(
     };
     let index = await rendered('the calendar grid is rendered');
     if (index < 0) {
-        const next = picker.locator('button[name="schedule-previous-month"]');
+        const next = picker.locator('button[name="schedule-next-month"]');
         if (await next.isDisabled()) return null;
         await next.click();
         index = await rendered(

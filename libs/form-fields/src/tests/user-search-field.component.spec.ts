@@ -205,6 +205,28 @@ describe('UserSearchFieldComponent', () => {
         expect(spectator.component.selected_user().photo).toBe('photo.png');
     });
 
+    it('should ignore user details for an older selection', async () => {
+        let resolve_first: (_: any) => void;
+        vi.mocked(showUser).mockReturnValueOnce(
+            new Promise((r) => (resolve_first = r)) as any,
+        );
+        (spectator.component as any).use_basic_search.set(false);
+        const first = new User({ id: 'a', name: 'A', email: 'a@example.com' });
+        const second = new User({ id: 'b', name: 'B', email: 'b@example.com' });
+        spectator.component.setValue(first);
+        spectator.component.setValue(second);
+        resolve_first({ id: 'a', name: 'A', email: 'a@example.com' });
+        await new Promise((r) => setTimeout(r, 10));
+        expect(spectator.component.user().email).toBe('b@example.com');
+    });
+
+    it('should set an external user when the typed email option is picked', () => {
+        const on_change = vi.fn();
+        spectator.component.registerOnChange(on_change);
+        spectator.component.selectOption('jane@external.com');
+        expect(on_change.mock.calls[0][0].email).toBe('jane@external.com');
+    });
+
     it('should validate email addresses correctly', () => {
         expect(spectator.component.isValidEmail('user@example.com')).toBe(true);
         expect(spectator.component.isValidEmail('test.name@domain.co')).toBe(
