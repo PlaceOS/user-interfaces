@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { OrganisationService, settingSignal } from '@placeos/common';
 import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
 
 export interface BannerDetails {
     id: string;
@@ -46,7 +47,12 @@ export interface BannerDetails {
                 <div class="flex-1">
                     {{ banner()?.content || banner()?.message }}
                 </div>
-                <button icon matRipple (click)="close()">
+                <button
+                    icon
+                    matRipple
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                    (click)="close()"
+                >
                     <icon>close</icon>
                 </button>
             </div>
@@ -69,7 +75,7 @@ export interface BannerDetails {
             }
         `,
     ],
-    imports: [IconComponent],
+    imports: [IconComponent, TranslatePipe],
 })
 export class GlobalBannerComponent implements OnInit {
     private _org = inject(OrganisationService);
@@ -84,12 +90,17 @@ export class GlobalBannerComponent implements OnInit {
             !!this.environment_bar(),
         );
     });
+    /** Identifies the banner, so a closed banner stays closed */
+    private readonly _banner_key = computed(() => {
+        const banner = this.banner();
+        return banner?.id || banner?.content || banner?.message || '';
+    });
     public readonly has_been_closed = computed(() => {
         if (!this.is_setup()) return true;
         this._change();
         return (
             (!this.banner()?.content && !this.banner()?.message) ||
-            localStorage.getItem('PLACE.last_banner') === this.banner().id
+            localStorage.getItem('PLACE.last_banner') === this._banner_key()
         );
     });
 
@@ -99,7 +110,7 @@ export class GlobalBannerComponent implements OnInit {
     }
 
     public async close() {
-        localStorage.setItem('PLACE.last_banner', this.banner()?.id || '');
+        localStorage.setItem('PLACE.last_banner', this._banner_key());
         this._change.set(Date.now());
     }
 }

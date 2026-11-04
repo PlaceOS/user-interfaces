@@ -188,6 +188,7 @@ describe('CateringStateService', () => {
         const loading = signal(true);
         // The change handler awaits the save before it clears the loading flag
         const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+        const disabled_rooms = signal<string[]>([]);
         const notify_open = vi.fn(() => ({
             onAction: () => of(),
             dismiss: vi.fn(),
@@ -197,7 +198,7 @@ describe('CateringStateService', () => {
             loading.set(true);
             setNotifyOutlet({ open: notify_open } as any, true);
             (spectator.inject(MatDialog).open as any).mockReturnValue({
-                componentInstance: { change, loading },
+                componentInstance: { change, loading, disabled_rooms },
             });
         });
 
@@ -236,9 +237,11 @@ describe('CateringStateService', () => {
             );
             spectator.service.setRoomAvailability();
 
+            disabled_rooms.set(['room-2']);
             change.next(['room-2']);
             await settle();
 
+            expect(disabled_rooms()).toEqual([]);
             expect(notify_open).toHaveBeenCalledWith(
                 'Failed to save room availability. save failed',
                 'OK',

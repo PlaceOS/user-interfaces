@@ -92,4 +92,17 @@ describe('AvailableRoomsStateModalComponent', () => {
             'space-1',
         ]);
     });
+
+    it('should select a room from its checkbox, such as with the keyboard', async () => {
+        await vi.waitFor(() => {
+            expect(spectator.component.rooms()).toHaveLength(2);
+        });
+        spectator.detectChanges();
+        const input = spectator.query<HTMLInputElement>(
+            'tbody tr input[type="checkbox"]',
+        );
+        input.click();
+        spectator.detectChanges();
+        expect(spectator.component.selected()).toEqual(['space-1']);
+    });
 });

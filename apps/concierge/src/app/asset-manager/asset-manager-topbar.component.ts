@@ -231,6 +231,10 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
                     await this._state.saveSettings({ disabled_rooms: list });
                     notifySuccess('Room availability settings saved');
                 } catch (e) {
+                    // Show the saved state again
+                    ref.componentInstance.disabled_rooms.set(
+                        this._state.availability(),
+                    );
                     notifyError(
                         `Failed to save room availability. ${errorText(e)}`,
                     );
