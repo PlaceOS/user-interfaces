@@ -1,4 +1,0 @@
-import{n as m,t as l}from"./chunk-BwCtja5l.js";import{At as df,Pn as yh,o as At}from"./chunk-COrSsuFU.js";var T={date:`FORM.DATE`,duration:`FORM.DURATION`,title:`FORM.TITLE`,user:`FORM.HOST`,notes:`FORM.NOTES`,plate_number:`BOOKINGS.PARKING_PLATE_NUMBER`,space_restrictions:`BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE`};function S(t,E,n){t().markAsTouched();let e={},s=m(l({},T),{asset_id:n,resources:n});for(let o in s)e[o]=At(s[o]);let R=df(t,E,e);yh(At(`FORM.INVALID_FIELDS`,{field_list:[...new Set(R)].join(`, `)}))}export{S as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="72adbe85-0bb0-5d29-bf00-7cf8cf92576e")}catch(e){}}();
-//# debugId=72adbe85-0bb0-5d29-bf00-7cf8cf92576e
-//# sourceMappingURL=chunk-ByDEOEfN.js.map
