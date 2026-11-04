@@ -286,6 +286,47 @@ describe('ExploreDesksService', () => {
         ).resolves.toBeUndefined();
     });
 
+    it('should show a failed booking without rejecting', async () => {
+        const notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        const booking_service = spectator.inject(BookingFormService) as any;
+        const { model, form } = generateBookingForm(
+            undefined,
+            spectator.inject(Injector),
+        );
+        booking_service.model = model;
+        booking_service.form = form;
+        booking_service.newForm = vi.fn();
+        booking_service.setOptions = vi.fn();
+        booking_service.confirmPost = vi
+            .fn()
+            .mockRejectedValue({ status: 409, message: 'Conflicting booking' });
+        (spectator.service as any)._statuses['desk-1'] = signal('free');
+
+        try {
+            // The map calls this from a pointer event and does not catch it
+            await expect(
+                (spectator.service as any)._bookDesk(
+                    new Desk({
+                        id: 'desk-1',
+                        name: 'Desk 1',
+                        bookable: true,
+                        zone: { id: 'lvl-1', parent_id: 'bld-1' } as any,
+                    }),
+                    {},
+                ),
+            ).resolves.toBeUndefined();
+
+            expect(notify_open).toHaveBeenCalledTimes(1);
+            expect((spectator.service as any)._users['desk-1']).toBeUndefined();
+        } finally {
+            setNotifyOutlet(null, true);
+        }
+    });
+
     it('should not report a booking error when confirmation is cancelled', async () => {
         const notify_open = vi.fn(() => ({
             onAction: () => ({ subscribe: () => undefined }),

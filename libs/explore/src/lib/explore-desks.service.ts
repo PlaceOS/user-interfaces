@@ -616,16 +616,20 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             );
         }
 
-        await this._bookings.confirmPost().catch((e) => {
+        try {
+            await this._bookings.confirmPost();
+        } catch (e) {
             if (e === 'User cancelled') throw e;
+            // The map calls this from a pointer event and does not catch it,
+            // so show the error and stop here
             notifyError(
                 i18n('EXPLORE.DESK_BOOKING_ERROR', {
                     name: desk.name || 'Desk',
                     error: e.message || e.error || e,
                 }),
             );
-            throw e;
-        });
+            return;
+        }
         if (!this._users[d_id]) {
             this._users[d_id] = signal('');
         }
