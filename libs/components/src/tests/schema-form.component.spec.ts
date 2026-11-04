@@ -97,9 +97,15 @@ describe('SchemaFormComponent', () => {
         expect('input[name="count"]').toHaveAttribute('type', 'number');
         expect('settings-toggle').toContainText('Enabled');
         expect('mat-select').toExist();
+        // Labels point at their inputs
+        expect('#schema-field-title').toHaveAttribute('name', 'title');
         // Required field is marked with an asterisk
-        expect(spectator.query('label[for="title"]')).toContainText('*');
-        expect(spectator.query('label[for="count"]')).not.toContainText('*');
+        expect(
+            spectator.query('label[for="schema-field-title"]'),
+        ).toContainText('*');
+        expect(
+            spectator.query('label[for="schema-field-count"]'),
+        ).not.toContainText('*');
     });
 
     it('should propagate form value changes to the registered handler', () => {

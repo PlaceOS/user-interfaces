@@ -6,7 +6,7 @@ import { TranslatePipe } from './translate.pipe';
     template: `
         <div
             content
-            class="border-base-200 bg-base-100 m-4 rounded-sm border p-4 text-center text-black shadow-sm"
+            class="border-base-200 bg-base-100 text-base-content m-4 rounded-sm border p-4 text-center shadow-sm"
         >
             <h3 class="text-2xl">
                 {{ 'COMMON.MISCONFIGURED_TITLE' | translate }}

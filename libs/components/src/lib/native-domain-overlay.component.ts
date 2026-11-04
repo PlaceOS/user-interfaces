@@ -52,6 +52,7 @@ const AUTO_ACCEPT_SECONDS = 15;
                     </p>
                     @if (error()) {
                         <p
+                            role="alert"
                             class="bg-error/10 text-error rounded-sm px-3 py-2 text-xs"
                         >
                             {{ error() }}
@@ -72,6 +73,7 @@ const AUTO_ACCEPT_SECONDS = 15;
                                 <icon matPrefix>dns</icon>
                                 <input
                                     matInput
+                                    id="server-address"
                                     name="server-address"
                                     [(ngModel)]="server_address"
                                     placeholder="placeos.company.com"
@@ -90,6 +92,7 @@ const AUTO_ACCEPT_SECONDS = 15;
                                 <icon matPrefix>key</icon>
                                 <input
                                     matInput
+                                    id="api-key"
                                     name="api-key"
                                     [(ngModel)]="api_key"
                                     placeholder="Leave empty to sign in"
@@ -112,6 +115,7 @@ const AUTO_ACCEPT_SECONDS = 15;
                                 <icon matPrefix>mail</icon>
                                 <input
                                     matInput
+                                    id="email"
                                     name="email"
                                     [(ngModel)]="email"
                                     placeholder="name@company.com"

@@ -16,10 +16,10 @@ export class DurationPipe {
             minutes: length % 60,
         });
         if (shorten) {
+            // Only English units are shortened. Translated text stays whole.
             duration = duration
-                .replace(' hour', 'h')
-                .replace(' minute', 'm')
-                .replace(/s/gi, '');
+                .replace(/ hours?\b/, 'h')
+                .replace(/ minutes?\b/, 'm');
         }
         return duration;
     }

@@ -21,12 +21,13 @@ import { TranslatePipe } from './translate.pipe';
                 {{ 'COMMON.CONTROLS_PARKING' | translate }}
             </h3>
             <div class="flex flex-col">
-                <label for="plate-number">{{
+                <label for="user-parking-plate-number">{{
                     'BOOKINGS.PARKING_PLATE_NUMBER' | translate
                 }}</label>
                 <mat-form-field appearance="outline" class="no-subscript">
                     <input
                         matInput
+                        id="user-parking-plate-number"
                         [(ngModel)]="plate_number"
                         [placeholder]="
                             'BOOKINGS.PARKING_PLATE_NUMBER' | translate
@@ -54,9 +55,8 @@ export class UserParkingTooltipComponent implements OnInit {
     }
 
     public save() {
-        if (this.plate_number()) {
-            this._settings.saveUserSetting('plate_number', this.plate_number());
-        }
+        // An empty value clears the saved plate number
+        this._settings.saveUserSetting('plate_number', this.plate_number());
         notifySuccess(i18n('COMMON.PARKING_SETTINGS_SAVE'));
         this._tooltip?.close();
     }

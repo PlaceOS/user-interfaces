@@ -107,7 +107,7 @@ export function buildFormFromFields(
                         }
                         @case ('select') {
                             <div class="field">
-                                <label [for]="field.key">
+                                <label [for]="'schema-field-' + field.key">
                                     {{ field.label }}
                                     @if (field.required) {
                                         <span>*</span>
@@ -122,7 +122,11 @@ export function buildFormFromFields(
                                     appearance="outline"
                                     class="no-subscript w-full"
                                 >
-                                    <mat-select [formControlName]="field.key">
+                                    <mat-select
+                                        [id]="'schema-field-' + field.key"
+                                        [formControlName]="field.key"
+                                        [aria-label]="field.label"
+                                    >
                                         @for (
                                             opt of field.options;
                                             track opt.value
@@ -137,7 +141,7 @@ export function buildFormFromFields(
                         }
                         @case ('number') {
                             <div class="field">
-                                <label [for]="field.key">
+                                <label [for]="'schema-field-' + field.key">
                                     {{ field.label }}
                                     @if (field.required) {
                                         <span>*</span>
@@ -155,6 +159,7 @@ export function buildFormFromFields(
                                     <input
                                         matInput
                                         type="number"
+                                        [id]="'schema-field-' + field.key"
                                         [formControlName]="field.key"
                                         [name]="field.key"
                                         [placeholder]="field.label"
@@ -164,7 +169,7 @@ export function buildFormFromFields(
                         }
                         @default {
                             <div class="field">
-                                <label [for]="field.key">
+                                <label [for]="'schema-field-' + field.key">
                                     {{ field.label }}
                                     @if (field.required) {
                                         <span>*</span>
@@ -181,6 +186,7 @@ export function buildFormFromFields(
                                 >
                                     <input
                                         matInput
+                                        [id]="'schema-field-' + field.key"
                                         [formControlName]="field.key"
                                         [name]="field.key"
                                         [placeholder]="field.label"

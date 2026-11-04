@@ -13,7 +13,9 @@ export type StatusValue =
     selector: 'status-pill',
     template: `
         <div
-            class="border-base-200 bg-opacity-30 flex items-center space-x-2 rounded-full border px-2 py-1 text-base font-medium text-black"
+            class="border-base-200 flex items-center space-x-2 rounded-full border px-2 py-1 text-base font-medium"
+            [class.text-black]="status() !== 'neutral'"
+            [class.text-base-content]="status() === 'neutral'"
             [class.bg-success-light]="status() === 'success'"
             [class.bg-warning-light]="status() === 'warning'"
             [class.bg-approval-light]="status() === 'approval'"

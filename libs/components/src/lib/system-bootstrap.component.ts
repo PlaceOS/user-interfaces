@@ -125,8 +125,24 @@ import { TranslatePipe } from './translate.pipe';
                                 </div>
                             </mat-option>
                         }
+                        @if (search_state(); as state) {
+                            <mat-option
+                                disabled
+                                class="pointer-events-none opacity-60"
+                            >
+                                {{
+                                    (state === 'error'
+                                        ? 'COMMON.LOAD_ERROR'
+                                        : 'COMMON.SEARCH_EMPTY'
+                                    ) | translate
+                                }}
+                            </mat-option>
+                        }
                         @if (system_id().length < 2 && !space_list().length) {
-                            <mat-option class="pointer-events-none opacity-60">
+                            <mat-option
+                                disabled
+                                class="pointer-events-none opacity-60"
+                            >
                                 {{
                                     'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER'
                                         | translate
@@ -248,6 +264,15 @@ export class SystemBootstrapComponent implements OnInit {
     public readonly space_list = computed(() =>
         this._space_list.hasValue() ? this._space_list.value() : [],
     );
+
+    /** Why a search of two or more characters shows no systems */
+    public readonly search_state = computed(() => {
+        if (!this._org.initialised()) return '';
+        if (this._debounced_search.value().length < 2) return '';
+        if (this._space_list.error()) return 'error';
+        if (this._space_list.isLoading() || this.space_list().length) return '';
+        return 'empty';
+    });
 
     constructor() {
         effect(() => {

@@ -58,12 +58,15 @@ describe('UserParkingTooltipComponent', () => {
         expect(tooltip.close).toHaveBeenCalled();
     });
 
-    it('should not save an empty plate number but still close', async () => {
-        settings.get.mockReturnValue('');
+    it('should clear the saved plate number when the field is empty', async () => {
+        settings.get.mockReturnValue('ABC123');
         await spectator.fixture.whenStable();
         spectator.component.plate_number.set('');
         spectator.click('button[btn]');
-        expect(settings.saveUserSetting).not.toHaveBeenCalled();
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            'plate_number',
+            '',
+        );
         expect(notify_open).toHaveBeenCalled();
         expect(tooltip.close).toHaveBeenCalled();
     });

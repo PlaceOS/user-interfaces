@@ -9,7 +9,6 @@ import { IconComponent } from './icon.component';
         @if (update(); as update_state) {
             <aside
                 role="status"
-                aria-live="assertive"
                 class="border-base-300 bg-base-100 text-base-content pointer-events-auto fixed right-4 bottom-4 z-9999 flex w-[20rem] max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border p-4 shadow-xl"
             >
                 <div class="min-w-0 flex-1">
