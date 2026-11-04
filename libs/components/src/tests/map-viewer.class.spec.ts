@@ -117,6 +117,43 @@ describe('MapViewer overlays', () => {
         viewer.destroy();
     });
 
+    it('parses the map SVG once when only the styles change', () => {
+        vi.stubGlobal('requestAnimationFrame', (fn: FrameRequestCallback) => {
+            fn(0);
+            return 1;
+        });
+        // jsdom blobs cannot be read back, so keep the parts
+        const blobs: string[][] = [];
+        vi.stubGlobal(
+            'Blob',
+            class {
+                constructor(parts: string[]) {
+                    blobs.push(parts);
+                }
+            },
+        );
+        const create = URL.createObjectURL;
+        URL.createObjectURL = () => 'blob:map';
+        const parse = vi.spyOn(DOMParser.prototype, 'parseFromString');
+        const viewer = new MapViewer(document.createElement('div'));
+        viewer.map = {
+            raw_data:
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect id="desk"/></svg>',
+            element_bounds: new Map(),
+            aspect_ratio: 1,
+        };
+        viewer.setStyles({ '#desk': 'fill: red' });
+        viewer.setStyles({ '#desk': 'fill: blue' });
+        expect(parse).toHaveBeenCalledTimes(1);
+        const svg = blobs.at(-1).join('');
+        expect(svg).toContain('<rect id="desk"');
+        expect(svg).toMatch(
+            /<style xmlns="http:\/\/www.w3.org\/2000\/svg">svg #desk \{ fill: blue \}\n<\/style><\/svg>$/,
+        );
+        URL.createObjectURL = create;
+        viewer.destroy();
+    });
+
     it('keeps overlay wrappers whose contents stay when the overlays change', () => {
         const viewer = new MapViewer(document.createElement('div'));
         viewer.map = {
