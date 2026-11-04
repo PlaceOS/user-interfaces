@@ -18,7 +18,6 @@ import {
 } from '@placeos/components';
 import { ChatComponent } from '@placeos/components/chat';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
-import { mocksInit } from '@placeos/mocks';
 
 @Component({
     selector: 'app-root',
@@ -90,7 +89,10 @@ export class AppComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        setMocks(mocksInit);
+        // Lazy load: mock data generation blocks startup when bundled eagerly
+        setMocks(() =>
+            import('@placeos/mocks').then(({ mocksInit }) => mocksInit()),
+        );
 
         await this._placeos.init();
         if (this._placeos.has_uploads) this._uploads.init();
