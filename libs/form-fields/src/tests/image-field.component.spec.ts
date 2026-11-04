@@ -96,7 +96,9 @@ describe('ImageFieldComponent', () => {
             vi.mocked(uploads.uploadFileWithProgress).mockReturnValueOnce(
                 signal(new Error('Commit failed with status 401')) as any,
             );
-            spectator.component.uploadImage(fileEvent(new File([], 'a.png')));
+            spectator.component.uploadImage(
+                fileEvent(new File([], 'a.png', { type: 'image/png' })),
+            );
             TestBed.tick();
             expect(notify_open).toHaveBeenCalled();
             expect(spectator.component.progress()).toBe(0);
@@ -112,7 +114,9 @@ describe('ImageFieldComponent', () => {
                     error: 'Denied',
                 }) as any,
             );
-            spectator.component.uploadImage(fileEvent(new File([], 'a.png')));
+            spectator.component.uploadImage(
+                fileEvent(new File([], 'a.png', { type: 'image/png' })),
+            );
             TestBed.tick();
             expect(notify_open).toHaveBeenCalledTimes(1);
             expect(spectator.component.uploading()).toBe(false);
@@ -123,7 +127,9 @@ describe('ImageFieldComponent', () => {
             vi.mocked(uploads.uploadFileWithProgress).mockReturnValueOnce(
                 signal({ id: 'x', upload_id: 'up 1', progress: 100 }) as any,
             );
-            spectator.component.uploadImage(fileEvent(new File([], 'a.png')));
+            spectator.component.uploadImage(
+                fileEvent(new File([], 'a.png', { type: 'image/png' })),
+            );
             TestBed.tick();
             expect(spectator.component.url()).toBe(
                 '/api/engine/v2/uploads/up%201/url',

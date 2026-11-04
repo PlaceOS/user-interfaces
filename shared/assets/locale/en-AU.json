@@ -1358,7 +1358,14 @@
         "DATE_RANGE_SELECT_END": "Select an end date",
         "TIME_ENTRY": "Time",
         "TIME_CHOOSE": "Choose a time",
-        "TIME_ENTRY_ERROR": "Enter a time within the allowed hours."
+        "TIME_ENTRY_ERROR": "Enter a time within the allowed hours.",
+        "FILE_TYPE_NOT_ALLOWED": "{{ name }} is not an allowed file type",
+        "FILE_TOO_LARGE": "{{ name }} is larger than {{ size }}",
+        "USER_CSV_PREVIEW_TITLE": "Add attendees from file",
+        "USER_CSV_PREVIEW": "Add {{ count }} attendees from {{ name }}?",
+        "USER_CSV_PREVIEW_MORE": "and {{ count }} more",
+        "USER_CSV_ROW_LIMIT": "Only the first {{ count }} rows are added.",
+        "USER_CSV_EMPTY": "No attendees found in {{ name }}"
     },
     "EXPLORE": {
         "AREAS": "Show Areas",

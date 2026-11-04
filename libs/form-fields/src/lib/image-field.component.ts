@@ -4,6 +4,7 @@ import {
     ElementRef,
     inject,
     Injector,
+    input,
     signal,
     viewChild,
 } from '@angular/core';
@@ -20,6 +21,7 @@ import {
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { checkFile } from './file-checks';
 import { watchUpload } from './watch-upload';
 
 @Component({
@@ -32,11 +34,16 @@ import { watchUpload } from './watch-upload';
         <div
             matRipple
             class="bg-base-200 relative h-48 w-full rounded-xl has-[>input:focus-visible]:ring-2"
+            [class.ring-2]="dragging()"
+            [class.ring-primary]="dragging()"
         >
             <input
                 #file_input
                 type="file"
                 accept="image/*"
+                (dragenter)="dragging.set(true)"
+                (dragleave)="dragging.set(false)"
+                (drop)="dragging.set(false)"
                 class="absolute inset-0 z-10 cursor-pointer opacity-0"
                 [attr.aria-label]="'COMMON.UPLOAD_IMAGE' | translate"
                 [disabled]="disabled() || uploading()"
@@ -135,6 +142,10 @@ export class ImageFieldComponent implements ControlValueAccessor {
     /** Whether an upload is running */
     public readonly uploading = signal(false);
     public readonly disabled = signal(false);
+    /** Largest file size in bytes. 0 means no limit */
+    public readonly max_size = input(0);
+    /** Whether a file is being dragged over the field */
+    public readonly dragging = signal(false);
 
     public readonly registerOnChange = (fn: (_: string) => void) =>
         (this._onChange = fn);
@@ -180,6 +191,12 @@ export class ImageFieldComponent implements ControlValueAccessor {
         const element = event.target as HTMLInputElement;
         const file = element?.files?.[0];
         if (!file) return;
+        if (
+            !checkFile(file, { accept: 'image/*', max_size: this.max_size() })
+        ) {
+            element.value = '';
+            return;
+        }
         this.progress.set(0);
         this.uploading.set(true);
         watchUpload(this._uploads, file, this._injector, (details) => {

@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { Attachment, provideValueAccessor } from '@placeos/common';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { checkFile } from './file-checks';
 import { uploadAttachment } from './upload-attachment';
 
 @Component({
@@ -12,12 +13,18 @@ import { uploadAttachment } from './upload-attachment';
     template: `
         <div
             class="border-base-200 bg-base-200 hover:bg-base-200 relative w-full cursor-pointer rounded-sm border p-2"
+            [class.ring-2]="dragging()"
+            [class.ring-primary]="dragging()"
         >
             <input
                 type="file"
                 class="absolute inset-0 z-10 max-w-full opacity-0"
+                [attr.accept]="accept() || null"
                 [disabled]="disabled()"
                 (change)="onFileEvent($event)"
+                (dragenter)="dragging.set(true)"
+                (dragleave)="dragging.set(false)"
+                (drop)="dragging.set(false)"
             />
             @if (item()) {
                 <div
@@ -80,6 +87,12 @@ import { uploadAttachment } from './upload-attachment';
 export class UploadFileFieldComponent implements ControlValueAccessor {
     public readonly item = signal<Attachment | null>(null);
     public readonly disabled = signal(false);
+    /** Allowed file types, in the format of the input `accept` attribute */
+    public readonly accept = input('');
+    /** Largest file size in bytes. 0 means no limit */
+    public readonly max_size = input(0);
+    /** Whether a file is being dragged over the field */
+    public readonly dragging = signal(false);
     /** Form control on change handler */
     private _onChange: (_: Attachment) => void;
     /** Form control on touch handler */
@@ -110,7 +123,16 @@ export class UploadFileFieldComponent implements ControlValueAccessor {
         const element: HTMLInputElement = event.target;
         /* istanbul ignore else */
         if (!element?.files?.length) return;
-        const files: FileList = element.files;
-        uploadAttachment(files[0], (item) => this.setValue(item));
+        const file = element.files[0];
+        // Clear the input so picking the same file again still sends a change
+        element.value = '';
+        if (
+            !checkFile(file, {
+                accept: this.accept(),
+                max_size: this.max_size(),
+            })
+        )
+            return;
+        uploadAttachment(file, (item) => this.setValue(item));
     }
 }

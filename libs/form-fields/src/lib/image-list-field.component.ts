@@ -7,6 +7,7 @@ import {
     ElementRef,
     inject,
     Injector,
+    input,
     signal,
     viewChild,
 } from '@angular/core';
@@ -29,6 +30,7 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageViewerComponent } from 'libs/components/src/lib/image-viewer.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { checkFile } from './file-checks';
 import { watchUpload } from './watch-upload';
 
 /** An image upload that has not completed */
@@ -55,6 +57,8 @@ export interface PendingImageUpload {
             <div
                 image
                 class="border-base-200 hover:border-base-300 hover:bg-base-200 relative flex h-32 w-36 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed"
+                [class.border-primary]="dragging()"
+                [class.bg-base-200]="dragging()"
                 [style.transform]="'translate(-' + offset() + '00%)'"
             >
                 <icon class="text-4xl opacity-60">add</icon>
@@ -65,6 +69,9 @@ export interface PendingImageUpload {
                     #file_input
                     type="file"
                     accept="image/*"
+                    (dragenter)="dragging.set(true)"
+                    (dragleave)="dragging.set(false)"
+                    (drop)="dragging.set(false)"
                     multiple
                     class="absolute inset-0 h-32 w-32 cursor-pointer opacity-0"
                     [disabled]="disabled()"
@@ -258,6 +265,10 @@ export class ImageListFieldComponent
     public readonly uploads = signal<PendingImageUpload[]>([]);
     public readonly offset = signal(0);
     public readonly disabled = signal(false);
+    /** Largest file size in bytes. 0 means no limit */
+    public readonly max_size = input(0);
+    /** Whether a file is being dragged over the field */
+    public readonly dragging = signal(false);
 
     public readonly view_space = signal(0);
     public readonly separators = [COMMA, ENTER];
@@ -338,8 +349,10 @@ export class ImageListFieldComponent
         const element: HTMLInputElement = event.target;
         if (!element?.files?.length) return;
         // Each file uploads on its own, so one failure does not stop the rest
+        const limits = { accept: 'image/*', max_size: this.max_size() };
         for (let i = 0; i < element.files.length; i++) {
-            this._uploadFile(element.files[i]);
+            if (checkFile(element.files[i], limits))
+                this._uploadFile(element.files[i]);
         }
         const input = this._file_input()?.nativeElement;
         if (input) input.value = '';

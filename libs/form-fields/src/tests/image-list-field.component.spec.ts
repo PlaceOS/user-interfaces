@@ -102,7 +102,7 @@ describe('ImageListFieldComponent', () => {
     it('should count pending uploads in the carousel length', () => {
         spectator.component.writeValue(['existing.png']);
         spectator.component.uploadImages({
-            target: { files: [new File([], 'a.png')] },
+            target: { files: [new File([], 'a.png', { type: 'image/png' })] },
         });
         expect(spectator.component.uploads()).toHaveLength(1);
         expect(spectator.component.length()).toBe(3);
@@ -113,7 +113,7 @@ describe('ImageListFieldComponent', () => {
             uploadState({ progress: 100, link: 'https://x/a.png' }),
         );
         spectator.component.uploadImages({
-            target: { files: [new File([], 'a.png')] },
+            target: { files: [new File([], 'a.png', { type: 'image/png' })] },
         });
         TestBed.tick();
         expect(spectator.component.list()).toEqual(['https://x/a.png']);
@@ -157,7 +157,10 @@ describe('ImageListFieldComponent', () => {
                     uploadState({ progress: 100, link: 'https://x/b.png' }),
                 );
             spectator.component.uploadImages(
-                fileEvent(new File([], 'a.png'), new File([], 'b.png')),
+                fileEvent(
+                    new File([], 'a.png', { type: 'image/png' }),
+                    new File([], 'b.png', { type: 'image/png' }),
+                ),
             );
             TestBed.tick();
             expect(uploadMock()).toHaveBeenCalledTimes(2);
@@ -170,7 +173,7 @@ describe('ImageListFieldComponent', () => {
             uploadMock().mockReturnValueOnce(
                 uploadState({ error: 'Status 500' }),
             );
-            const file = new File([], 'a.png');
+            const file = new File([], 'a.png', { type: 'image/png' });
             spectator.component.uploadImages(fileEvent(file));
             TestBed.tick();
             spectator.component.retryUpload(spectator.component.uploads()[0]);

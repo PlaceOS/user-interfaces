@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -6,6 +6,7 @@ import { Attachment, provideValueAccessor, randomInt } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { checkFile } from './file-checks';
 import { uploadAttachment } from './upload-attachment';
 
 @Component({
@@ -14,6 +15,8 @@ import { uploadAttachment } from './upload-attachment';
         <div class="flex items-center space-x-2">
             <div
                 class="border-base-200 hover:bg-neutral relative flex h-48 w-52 cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed"
+                [class.border-primary]="dragging()"
+                [class.bg-neutral]="dragging()"
             >
                 <icon class="mb-2 text-3xl">upload_file</icon>
                 <p class="text-center">Drop files</p>
@@ -23,8 +26,12 @@ import { uploadAttachment } from './upload-attachment';
                     multiple="true"
                     type="file"
                     class="absolute inset-0 max-w-full opacity-0"
+                    [attr.accept]="accept() || null"
                     [disabled]="disabled()"
                     (change)="onFileEvent($event)"
+                    (dragenter)="dragging.set(true)"
+                    (dragleave)="dragging.set(false)"
+                    (drop)="dragging.set(false)"
                 />
             </div>
             <div class="flex h-48 w-1/2 flex-1 flex-col items-center">
@@ -110,6 +117,12 @@ export class UploadListFieldComponent implements ControlValueAccessor {
     /** Files shown in the field, including uploads in progress and failed uploads */
     public readonly list = signal<Attachment[]>([]);
     public readonly disabled = signal(false);
+    /** Allowed file types, in the format of the input `accept` attribute */
+    public readonly accept = input('');
+    /** Largest file size in bytes. 0 means no limit */
+    public readonly max_size = input(0);
+    /** Whether files are being dragged over the drop area */
+    public readonly dragging = signal(false);
     /** IDs of files the user removed. Later progress updates for them are ignored */
     private _removed_ids = new Set<string>();
     /** Form control on change handler */
@@ -156,9 +169,13 @@ export class UploadListFieldComponent implements ControlValueAccessor {
         const element: HTMLInputElement = event.target;
         /* istanbul ignore else */
         if (!element?.files?.length) return;
-        const files: FileList = element.files;
-        for (let i = 0; i < files.length; i++) {
-            uploadAttachment(files[i], (item) => this.updateUpload(item));
+        const files = Array.from(element.files);
+        // Clear the input so picking the same files again still sends a change
+        element.value = '';
+        const limits = { accept: this.accept(), max_size: this.max_size() };
+        for (const file of files) {
+            if (!checkFile(file, limits)) continue;
+            uploadAttachment(file, (item) => this.updateUpload(item));
         }
     }
 

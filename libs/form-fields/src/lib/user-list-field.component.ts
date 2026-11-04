@@ -20,6 +20,7 @@ import {
     csvToJson,
     currentUser,
     downloadFile,
+    i18n,
     notifyError,
     provideValueAccessor,
     SettingsService,
@@ -43,6 +44,7 @@ import {
 } from '@placeos/common';
 import { authority, queryUsers } from '@placeos/ts-client';
 
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
@@ -50,6 +52,7 @@ import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
+import { escapeHtml } from './escape-html';
 
 function validateEmail(email) {
     const re =
@@ -60,6 +63,10 @@ function validateEmail(email) {
 const ACCEPTED_FILE_TYPES = ['text/csv', 'text/plain'];
 /** Most external visitors kept in the user's `visitor-invitees` setting */
 const MAX_SAVED_VISITORS = 50;
+/** Most rows read from an attendee CSV file */
+const MAX_CSV_ROWS = 500;
+/** Number of attendees listed in the CSV import preview */
+const CSV_PREVIEW_COUNT = 5;
 
 /**
  * Whether the file is a CSV file. Check the extension too, as Windows with
@@ -667,7 +674,10 @@ export class UserListFieldComponent
                 const reader = new FileReader();
                 reader.readAsText(file, 'UTF-8');
                 reader.addEventListener('load', (evt) => {
-                    this.processCsvData((evt.srcElement as any).result);
+                    this.processCsvData(
+                        (evt.srcElement as any).result,
+                        file.name,
+                    );
                     event.target.value = '';
                 });
                 reader.addEventListener('error', (_) =>
@@ -678,11 +688,18 @@ export class UserListFieldComponent
     }
 
     /**
-     * Process raw CSV data and save user data to attendee list
+     * Read users from CSV data, then add them after the user confirms a
+     * preview. Only the first `MAX_CSV_ROWS` rows are read.
      * @param data CSV data
+     * @param file_name Name of the file, for the preview
      */
-    private processCsvData(data: string) {
-        const list = csvToJson(data) || [];
+    private async processCsvData(data: string, file_name = '') {
+        const rows = csvToJson(data) || [];
+        if (!rows.length) {
+            notifyError(i18n('FORM.USER_CSV_EMPTY', { name: file_name }));
+            return;
+        }
+        const list = rows.slice(0, MAX_CSV_ROWS);
         const id = currentUser()?.staff_id || 'unknown';
         const users: User[] = [];
         for (const el of list) {
@@ -711,7 +728,59 @@ export class UserListFieldComponent
 
             users.push(new User(el));
         }
-        this.addUsers(users);
+        const confirmed = await this.confirmCsvImport(
+            users,
+            file_name,
+            rows.length > list.length,
+        );
+        if (confirmed) this.addUsers(users);
+    }
+
+    /**
+     * Show the users read from a CSV file, and return whether the user wants
+     * to add them
+     * @param users Users read from the file
+     * @param file_name Name of the file
+     * @param limited Whether rows after `MAX_CSV_ROWS` were left out
+     */
+    public async confirmCsvImport(
+        users: User[],
+        file_name: string,
+        limited: boolean,
+    ) {
+        const shown = users
+            .slice(0, CSV_PREVIEW_COUNT)
+            .map(
+                (user) =>
+                    `<li>${escapeHtml(user.name)} (${escapeHtml(user.email)})</li>`,
+            )
+            .join('');
+        const more = users.length - CSV_PREVIEW_COUNT;
+        const content = [
+            `<p>${escapeHtml(
+                i18n('FORM.USER_CSV_PREVIEW', {
+                    count: users.length,
+                    name: file_name,
+                }),
+            )}</p>`,
+            `<ul class="my-2 text-left">${shown}</ul>`,
+            more > 0
+                ? `<p>${escapeHtml(i18n('FORM.USER_CSV_PREVIEW_MORE', { count: more }))}</p>`
+                : '',
+            limited
+                ? `<p>${escapeHtml(i18n('FORM.USER_CSV_ROW_LIMIT', { count: MAX_CSV_ROWS }))}</p>`
+                : '',
+        ].join('');
+        const result = await openConfirmModal(
+            {
+                title: i18n('FORM.USER_CSV_PREVIEW_TITLE'),
+                content,
+                icon: { content: 'upload_file' },
+            },
+            this._dialog,
+        );
+        result.close?.();
+        return result.reason === 'done';
     }
 
     /* istanbul ignore next */
