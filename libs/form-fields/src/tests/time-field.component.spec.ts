@@ -47,6 +47,21 @@ describe('TimeFieldComponent', () => {
         expect(spectator.component.time_entry_error()).toBe(false);
     });
 
+    it('should show the picked time after a rejected typed time', () => {
+        spectator.setInput({
+            allow_time_entry: true,
+            no_past_times: false,
+            range: { start: 9, end: 17 },
+        });
+        spectator.component.setValue('10:00');
+        spectator.detectChanges();
+        const input = spectator.query('input[type="time"]') as HTMLInputElement;
+        input.value = '18:30';
+        spectator.component.setTypedTime('18:30');
+        spectator.component.setValue('10:00');
+        expect(input.value).toBe('10:00');
+    });
+
     it('should reject a typed time outside the allowed hours', () => {
         const on_change = vi.fn();
         spectator.setInput({

@@ -3,6 +3,7 @@ import {
     AfterViewInit,
     Component,
     computed,
+    ElementRef,
     input,
     model,
     OnChanges,
@@ -236,6 +237,9 @@ export class TimeFieldComponent
 
     /** Menu trigger for the time selection dropdown */
     private readonly _menu_trigger = viewChild(MatMenuTrigger);
+    /** Typed time input, shown with `allow_time_entry` */
+    private readonly _time_input =
+        viewChild<ElementRef<HTMLInputElement>>('time_input');
 
     public readonly time_format = computed(() =>
         this.use_24hr() ? 'HH : mm' : 'h : mm a',
@@ -411,6 +415,10 @@ export class TimeFieldComponent
     public setValue(new_value: string): void {
         this.time_entry_error.set(false);
         this.time.set(new_value);
+        // The binding does not update when the time is the same, which leaves
+        // a rejected typed time in the input
+        const input = this._time_input()?.nativeElement;
+        if (input) input.value = new_value;
         const tz = this.timezone() || undefined;
         if (this._onChange) {
             const time = (this.time() || '00:00').split(':');
