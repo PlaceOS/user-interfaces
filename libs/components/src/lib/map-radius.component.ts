@@ -1,5 +1,6 @@
 import {
     Component,
+    DestroyRef,
     ElementRef,
     afterNextRender,
     computed,
@@ -79,6 +80,7 @@ export interface MapRadiusData {
 export class MapRadiusComponent {
     private _details = inject<MapRadiusData>(MAP_FEATURE_DATA);
     private _el = inject<ElementRef<HTMLElement>>(ElementRef);
+    private _radius_timer?: ReturnType<typeof setTimeout>;
 
     public zoom = signal(1);
 
@@ -101,6 +103,7 @@ export class MapRadiusComponent {
     public show_message = signal(false);
 
     constructor() {
+        inject(DestroyRef).onDestroy(() => clearTimeout(this._radius_timer));
         afterNextRender(() => {
             this.updateRadius();
             setTimeout(() => this.show.set(true), 300);
@@ -108,9 +111,19 @@ export class MapRadiusComponent {
         });
     }
 
-    public updateRadius() {
+    /** Size the radius from the element. Retries while it has no width. */
+    public updateRadius(attempts = 10) {
+        clearTimeout(this._radius_timer);
         const box = this._el.nativeElement.getBoundingClientRect();
-        if (!box.width) return setTimeout(() => this.updateRadius(), 300);
+        if (!box.width) {
+            if (attempts > 1) {
+                this._radius_timer = setTimeout(
+                    () => this.updateRadius(attempts - 1),
+                    300,
+                );
+            }
+            return;
+        }
         this.radius.set(
             Math.max(64, (this._details.radius || 10) * (box.width || 10)),
         );

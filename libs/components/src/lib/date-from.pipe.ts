@@ -36,6 +36,6 @@ export class DateFromPipe implements PipeTransform {
                 ? format(date, 'dd MMM yyyy')
                 : format(date, 'LLL d H:mm');
         }
-        return 'Just now';
+        return format(date, 'dd MMM yyyy');
     }
 }

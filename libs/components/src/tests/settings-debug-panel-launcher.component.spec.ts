@@ -1,5 +1,10 @@
 import { DeferBlockBehavior, TestBed } from '@angular/core/testing';
-import { HotkeysService } from '@placeos/common';
+import {
+    EMPTY_USER,
+    HotkeysService,
+    setCurrentUser,
+    StaffUser,
+} from '@placeos/common';
 import { SettingsDebugPanelLauncherComponent } from '../lib/settings-debug-panel-launcher.component';
 
 describe('SettingsDebugPanelLauncherComponent', () => {
@@ -7,6 +12,9 @@ describe('SettingsDebugPanelLauncherComponent', () => {
 
     beforeEach(() => {
         callbacks.clear();
+        setCurrentUser(
+            new StaffUser({ id: 'support', groups: ['placeos_support'] }),
+        );
         TestBed.configureTestingModule({
             imports: [SettingsDebugPanelLauncherComponent],
             deferBlockBehavior: DeferBlockBehavior.Manual,
@@ -23,6 +31,8 @@ describe('SettingsDebugPanelLauncherComponent', () => {
             ],
         });
     });
+
+    afterEach(() => setCurrentUser(EMPTY_USER));
 
     it('opens the corner menu on right-click and selects the driver panel', async () => {
         const fixture = TestBed.createComponent(
@@ -120,5 +130,30 @@ describe('SettingsDebugPanelLauncherComponent', () => {
         await fixture.whenStable();
         expect(fixture.componentInstance.panel()).toBe('settings');
         expect(fixture.componentInstance.schema()).toBeNull();
+    });
+
+    it('ignores the corner menu and shortcuts for users without admin or support', () => {
+        setCurrentUser(new StaffUser({ id: 'staff', groups: ['staff'] }));
+        const fixture = TestBed.createComponent(
+            SettingsDebugPanelLauncherComponent,
+        );
+        fixture.detectChanges();
+        vi.spyOn(
+            document.documentElement,
+            'clientHeight',
+            'get',
+        ).mockReturnValue(800);
+        const event = new MouseEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            clientX: 10,
+            clientY: 790,
+        });
+        document.dispatchEvent(event);
+        expect(event.defaultPrevented).toBe(false);
+        expect(fixture.nativeElement.querySelector('[aria-label]')).toBeNull();
+        callbacks.get('Control+Alt+Shift+KeyS')!();
+        fixture.componentInstance.openPanel('console');
+        expect(fixture.componentInstance.panel()).toBeNull();
     });
 });

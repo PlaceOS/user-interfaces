@@ -1054,4 +1054,21 @@ describe('ParkingRequestFormDetailsComponent', () => {
         );
         expect(spectator.component.model().duration).toBe(838);
     });
+
+    it('should only preview attachments uploaded to this instance', () => {
+        const upload = `${location.origin}/api/engine/v2/uploads/abc/url`;
+        attachForm({
+            attachments: [
+                upload,
+                `${location.origin}/api/engine/v2/uploads/../../../evil`,
+                'https://evil.example/api/engine/v2/uploads/abc/url',
+            ],
+        });
+        const open = vi
+            .spyOn(spectator.component['_dialog'], 'open')
+            .mockReturnValue(null);
+        [0, 1, 2].forEach((i) => spectator.component.previewSupportingDoc(i));
+        expect(open).toHaveBeenCalledTimes(1);
+        expect(open.mock.calls[0][1]).toEqual({ data: upload });
+    });
 });

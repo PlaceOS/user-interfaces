@@ -119,7 +119,16 @@ describe('SystemBootstrapComponent', () => {
         await vi.advanceTimersByTimeAsync(400);
         expect(client.querySystems).toHaveBeenCalled();
         expect(spectator.component.space_list()).toEqual([]);
+        expect(spectator.component.search_state()).toBe('error');
         expect(() => spectator.detectChanges()).not.toThrow();
+    });
+
+    it('should say when a search finds no systems', async () => {
+        vi.mocked(client.querySystems).mockResolvedValue({ data: [] } as never);
+        spectator.component.system_id.set('Room');
+        spectator.detectChanges();
+        await vi.advanceTimersByTimeAsync(400);
+        expect(spectator.component.search_state()).toBe('empty');
     });
 
     it('should wait for the organisation before searching', async () => {

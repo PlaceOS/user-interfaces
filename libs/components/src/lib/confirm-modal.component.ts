@@ -10,6 +10,7 @@ import { first } from 'rxjs/operators';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { i18n } from 'libs/common/src/lib/locale.service';
 import { ApplicationIcon, DialogEvent } from 'libs/common/src/lib/types';
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
@@ -57,7 +58,11 @@ export async function openConfirmModal(
                 .toPromise(),
             ref.afterClosed().toPromise(),
         ])),
-        loading: (s) => ref.componentInstance.loading?.set(s),
+        loading: (s) => {
+            ref.componentInstance.loading?.set(s);
+            // Work is running, so the user must not close the modal
+            ref.disableClose = !!s;
+        },
         close: () => ref.close(),
     };
 }
@@ -130,7 +135,7 @@ export class ConfirmModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */
     public readonly event = new EventEmitter<DialogEvent>();
     /** Title of the confirm modal */
-    public readonly title = signal(this._data.title || 'COMMON.CONFIRM');
+    public readonly title = signal(this._data.title || i18n('COMMON.CONFIRM'));
     /** Body of the confirm modal */
     public readonly content = signal(this._data.content || 'Are you sure?');
     /** Display text on the confirm button */

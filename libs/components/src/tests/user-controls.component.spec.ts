@@ -10,7 +10,8 @@ import {
     setCurrentUser,
     settingSignal,
 } from '@placeos/common';
-import { logout } from '@placeos/ts-client';
+import { logout, updateUser } from '@placeos/ts-client';
+import { format } from 'date-fns';
 
 // The real user store drives `currentUser()`; only ts-client `logout` is
 // stubbed. `hasNewVersion` has no exported test hook, so the component's own
@@ -174,5 +175,29 @@ describe('UserControlsComponent', () => {
             "Today's Work Location",
         );
         expect(spectator.element.textContent).toContain('business');
+    });
+
+    it("should save today's work location as a work override", async () => {
+        const day = new Date().getDay();
+        setCurrentUser(
+            new StaffUser({
+                ...test_user,
+                work_preferences: [
+                    {
+                        day_of_week: day,
+                        blocks: [
+                            { start_time: 0, end_time: 24, location: 'wfo' },
+                        ],
+                    },
+                ],
+            } as any),
+        );
+        vi.mocked(updateUser).mockResolvedValue({} as any);
+        spectator = createComponent();
+        await spectator.component.setLocation('wfh');
+        const today = format(Date.now(), 'yyyy-MM-dd');
+        const saved = vi.mocked(updateUser).mock.calls[0][1] as StaffUser;
+        expect(saved.work_overrides[today].blocks[0].location).toBe('wfh');
+        expect(settings.saveUserSetting).not.toHaveBeenCalled();
     });
 });

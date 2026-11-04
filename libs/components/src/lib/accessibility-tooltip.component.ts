@@ -19,16 +19,18 @@ import { TranslatePipe } from './translate.pipe';
         <div
             class="bg-base-100 relative -top-12 -right-1 flex max-h-[65vh] w-[20rem] flex-col overflow-auto rounded-sm pb-3 shadow-sm"
         >
-            <div
+            <button
+                back
+                type="button"
                 matRipple
-                class="border-base-300 flex items-center space-x-2 border-b px-2 py-3"
+                class="border-base-300 flex w-full items-center space-x-2 border-b px-2 py-3 text-left"
                 (click)="close()"
             >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="">
                     {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
                 </div>
-            </div>
+            </button>
             <div class="space-y-2 p-2">
                 @if (can_change_dark_mode()) {
                     <settings-toggle
@@ -80,13 +82,14 @@ import { TranslatePipe } from './translate.pipe';
                         <input
                             matSliderThumb
                             class="text-[16px]"
+                            [attr.aria-label]="'COMMON.TEXT_SIZE' | translate"
                             [ngModel]="font_size()"
                             (ngModelChange)="applySetting('font_size', $event)"
                         />
                     </mat-slider>
                     <span class="text-2xl">A</span>
                     <span
-                        class="bg-base-300 my-2 rounded-sm px-2 py-1 text-base text-white"
+                        class="bg-base-300 text-base-content my-2 rounded-sm px-2 py-1 text-base"
                     >
                         {{ font_size() }}px
                     </span>

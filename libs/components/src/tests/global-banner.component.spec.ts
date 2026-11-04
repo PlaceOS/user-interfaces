@@ -91,4 +91,13 @@ describe('GlobalBannerComponent', () => {
         expect('.environment-bar').not.toExist();
         expect(document.body.classList).not.toContain('has-environment-bar');
     });
+
+    it('should keep a banner without an id closed', () => {
+        spectator.component.is_setup.set(true);
+        spectator.component.banner.set({ content: 'No id' } as any);
+        spectator.detectChanges();
+        spectator.click('button[icon]');
+        spectator.detectChanges();
+        expect('button[icon]').not.toExist();
+    });
 });

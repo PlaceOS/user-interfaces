@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input, linkedSignal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 import { IconComponent } from './icon.component';
@@ -17,6 +17,7 @@ import { TranslatePipe } from './translate.pipe';
                     @if (image) {
                         <img
                             auth
+                            alt=""
                             class="h-full object-contain"
                             [source]="$any(image)?.url || image"
                         />
@@ -33,7 +34,8 @@ import { TranslatePipe } from './translate.pipe';
             }
             @if (images()?.length) {
                 <button
-                    class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100"
+                    class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100 focus-visible:opacity-100"
+                    [attr.aria-label]="'COMMON.PREVIOUS' | translate"
                     [disabled]="offset() === 0"
                     (click)="offset.update((value) => value - 1)"
                 >
@@ -47,7 +49,8 @@ import { TranslatePipe } from './translate.pipe';
             }
             @if (images()?.length) {
                 <button
-                    class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100"
+                    class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100 focus-visible:opacity-100"
+                    [attr.aria-label]="'COMMON.NEXT' | translate"
                     [disabled]="offset() >= images()?.length - 1"
                     (click)="offset.update((value) => value + 1)"
                 >
@@ -66,6 +69,8 @@ import { TranslatePipe } from './translate.pipe';
                     @for (img of images(); track img; let i = $index) {
                         <button
                             matRipple
+                            [attr.aria-label]="i + 1 + ' / ' + images().length"
+                            [attr.aria-current]="offset() === i"
                             (click)="offset.set(i)"
                             class="flex h-4 w-4 items-center justify-center"
                         >
@@ -111,7 +116,11 @@ import { TranslatePipe } from './translate.pipe';
 export class ImageCarouselComponent {
     public readonly images = input<readonly string[]>([]);
 
-    public readonly offset = signal(0);
+    /** Index of the image in view. Goes back to the first for new images. */
+    public readonly offset = linkedSignal({
+        source: this.images,
+        computation: () => 0,
+    });
     public readonly offset_transform = computed(
         () => `translateX(-${this.offset() * 100}%)`,
     );

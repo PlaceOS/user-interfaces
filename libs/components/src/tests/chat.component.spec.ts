@@ -69,6 +69,30 @@ describe('ChatComponent', () => {
         vi.advanceTimersByTime(200);
     });
 
+    it('should send on Enter but not on Shift+Enter or while composing', () => {
+        chat_enabled.set(true);
+        spectator.component.show.set(true);
+        spectator.detectChanges();
+        spectator.component.message.set('Hello');
+        const enter = (init: KeyboardEventInit) => {
+            const event = new KeyboardEvent('keydown', {
+                key: 'Enter',
+                cancelable: true,
+                ...init,
+            });
+            spectator.component.onEnter(event);
+            return event;
+        };
+        expect(enter({ shiftKey: true }).defaultPrevented).toBe(false);
+        expect(enter({ isComposing: true }).defaultPrevented).toBe(false);
+        expect(
+            enter({ keyCode: 229 } as KeyboardEventInit).defaultPrevented,
+        ).toBe(false);
+        expect(chat_mock.sendMessage).not.toHaveBeenCalled();
+        expect(enter({}).defaultPrevented).toBe(true);
+        expect(chat_mock.sendMessage).toHaveBeenCalledWith('Hello');
+    });
+
     it('should keep the message when the chat cannot connect', () => {
         chat_enabled.set(true);
         spectator.component.show.set(true);

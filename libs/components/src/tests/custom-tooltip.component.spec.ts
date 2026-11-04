@@ -183,6 +183,34 @@ describe('CustomTooltipComponent', () => {
         expect(spectator.directive.open).toHaveBeenCalled();
     });
 
+    it('should open hover tooltips when the host gets keyboard focus', async () => {
+        spectator = createDirective(
+            '<button customTooltip [content]="content" [hover]="true"></button>',
+            { hostProps: { content: 'Test HTML' } },
+        );
+        vi.spyOn(spectator.directive, 'open');
+        vi.spyOn(spectator.directive, 'close');
+        spectator.query<HTMLButtonElement>('button').focus();
+        await settle();
+        expect(spectator.directive.open).toHaveBeenCalled();
+        spectator.query<HTMLButtonElement>('button').blur();
+        expect(spectator.directive.close).toHaveBeenCalled();
+    });
+
+    it('should not open hover tooltips when a tap focuses the host', async () => {
+        spectator = createDirective(
+            '<button customTooltip [content]="content" [hover]="true"></button>',
+            { hostProps: { content: 'Test HTML' } },
+        );
+        vi.spyOn(spectator.directive, 'open');
+        const button = spectator.query<HTMLButtonElement>('button');
+        // Pointer focus does not match :focus-visible on a button
+        vi.spyOn(button, 'matches').mockReturnValue(false);
+        button.focus();
+        await settle();
+        expect(spectator.directive.open).not.toHaveBeenCalled();
+    });
+
     it('should not open hover tooltips from touch pointers', async () => {
         spectator = createDirective(
             '<div customTooltip [content]="content" [hover]="true"></div>',

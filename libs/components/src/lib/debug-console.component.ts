@@ -23,7 +23,6 @@ import {
 import { CustomTooltipComponent } from './custom-tooltip.component';
 import { IconComponent } from './icon.component';
 import { JsonDisplayComponent } from './json-display.component';
-import { SanitizePipe } from './sanitise.pipe';
 import { TranslatePipe } from './translate.pipe';
 
 const COLOR_MAP = {
@@ -47,6 +46,30 @@ const URL_STARTS = [
     'ws:',
     'wss:',
 ];
+
+/** Lower case search text of each log entry, built once per entry */
+const SEARCH_TEXT = new WeakMap<ClientEvent, string>();
+
+/** Text of a log entry for the filter. Includes the contents of objects. */
+function logSearchText(event: ClientEvent): string {
+    let text = SEARCH_TEXT.get(event);
+    if (text === undefined) {
+        let data: string;
+        try {
+            // Errors have no enumerable fields, so use their message
+            data =
+                JSON.stringify(event.data, (_, value) =>
+                    value instanceof Error ? `${value}` : value,
+                ) ?? '';
+        } catch {
+            // Circular values cannot be JSON
+            data = `${event.data}`;
+        }
+        text = `${event.type} ${event.subtype} ${data}`.toLowerCase();
+        SEARCH_TEXT.set(event, text);
+    }
+    return text;
+}
 
 @Component({
     selector: `debug-console`,
@@ -107,9 +130,9 @@ const URL_STARTS = [
                                         @case ('link') {
                                             <a
                                                 class="font-mono"
-                                                [href]="obj | sanitize"
+                                                [href]="obj"
                                                 target="_blank"
-                                                rel="noopener noreferer"
+                                                rel="noopener noreferrer"
                                                 >{{ obj }}</a
                                             >
                                         }
@@ -192,7 +215,6 @@ const URL_STARTS = [
         FormsModule,
         DatePipe,
         TranslatePipe,
-        SanitizePipe,
         IconComponent,
         CustomTooltipComponent,
     ],
@@ -210,14 +232,10 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     public readonly filter = signal<string>('');
     public readonly logs = signal<ClientEvent[]>([]);
     public readonly filtered_logs = computed(() => {
-        const s = this.filter();
+        const filter = this.filter().toLowerCase();
         const all_logs = this.logs();
-        return all_logs.filter(
-            (_) =>
-                _.type.toLowerCase().includes(s.toLowerCase()) ||
-                _.subtype.toLowerCase().includes(s.toLowerCase()) ||
-                `${_.data}`.toLowerCase().includes(s.toLowerCase()),
-        );
+        if (!filter) return all_logs;
+        return all_logs.filter((_) => logSearchText(_).includes(filter));
     });
 
     public readonly onStart = () =>

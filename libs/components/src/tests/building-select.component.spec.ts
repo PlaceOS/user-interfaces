@@ -34,10 +34,10 @@ describe('BuildingSelectComponent', () => {
     });
 
     it('should show the active building in the header', () => {
-        expect('div[matRipple]').toContainText('Alpha');
+        expect('button[back]').toContainText('Alpha');
         org_mock.active_building.set(buildings[1]);
         spectator.detectChanges();
-        expect('div[matRipple]').toContainText('Beta Tower');
+        expect('button[back]').toContainText('Beta Tower');
     });
 
     it('should list an option for each building', () => {
@@ -55,7 +55,7 @@ describe('BuildingSelectComponent', () => {
     });
 
     it('should close the tooltip when clicked', () => {
-        spectator.click('div[matRipple]');
+        spectator.click('button[back]');
         expect(tooltip_mock.close).toHaveBeenCalled();
         expect(org_mock.setBuilding).not.toHaveBeenCalled();
     });

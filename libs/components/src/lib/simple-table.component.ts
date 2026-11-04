@@ -34,6 +34,31 @@ export interface TableColumn {
     empty?: string;
 }
 
+const collator = new Intl.Collator();
+
+/**
+ * Default column sort. Numbers sort by value and other values by text.
+ * Empty values sort last.
+ */
+function compareValues(a: unknown, b: unknown): number {
+    if (a == null || b == null) return a == null ? (b == null ? 0 : 1) : -1;
+    if (typeof a === 'number' && typeof b === 'number') return a - b;
+    const text = (v: unknown) =>
+        typeof v === 'string' ? v : JSON.stringify(v);
+    return collator.compare(text(a), text(b));
+}
+
+/** Text of a value for the filter. Uses nested values, not object keys. */
+function searchText(value: unknown, depth = 0): string {
+    if (value == null) return '';
+    if (value instanceof Date) return value.toISOString();
+    if (typeof value !== 'object') return `${value}`;
+    if (depth >= 4) return '';
+    return Object.values(value)
+        .map((item) => searchText(item, depth + 1))
+        .join(' ');
+}
+
 @Component({
     selector: 'simple-table',
     template: `
@@ -341,22 +366,7 @@ export interface TableColumn {
                 <button
                     icon
                     matRipple
-                    [disabled]="page() === 0"
-                    (click)="setPage(page() - 1)"
-                >
-                    <icon>chevron_left</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    [disabled]="page() >= total_pages() - 1"
-                    (click)="setPage(page() + 1)"
-                >
-                    <icon>chevron_right</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
+                    [attr.aria-label]="'COMMON.FIRST_PAGE' | translate"
                     [disabled]="page() === 0"
                     (click)="setPage(0)"
                 >
@@ -365,6 +375,25 @@ export interface TableColumn {
                 <button
                     icon
                     matRipple
+                    [attr.aria-label]="'COMMON.PREVIOUS' | translate"
+                    [disabled]="page() === 0"
+                    (click)="setPage(page() - 1)"
+                >
+                    <icon>chevron_left</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    [attr.aria-label]="'COMMON.NEXT' | translate"
+                    [disabled]="page() >= total_pages() - 1"
+                    (click)="setPage(page() + 1)"
+                >
+                    <icon>chevron_right</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    [attr.aria-label]="'COMMON.LAST_PAGE' | translate"
                     [disabled]="page() >= total_pages() - 1"
                     (click)="setPage(total_pages() - 1)"
                 >
@@ -510,6 +539,20 @@ export class SimpleTableComponent<T extends object = any> {
     private _last_filter = '';
     private _last_sort: { key: string; reverse: boolean } | null = null;
 
+    /**
+     * Lower case text of each row for the filter, in data order. Rebuilt when
+     * the data changes, not for each filter keystroke.
+     */
+    private readonly _search_text = computed(() => {
+        const filter_on = this.filter_on();
+        return this._data_signal().map((row) =>
+            (filter_on.length ? filter_on : Object.keys(row))
+                .map((key) => searchText(row[key]))
+                .join('\n')
+                .toLowerCase(),
+        );
+    });
+
     // Computed data view with filtering and sorting
     public readonly data_view = computed(() => {
         let data = [...this._data_signal()];
@@ -518,36 +561,22 @@ export class SimpleTableComponent<T extends object = any> {
 
         // Apply filter
         if (filter_str) {
-            data = data.filter((v) => {
-                const filter_on = this.filter_on();
-                const keys = filter_on.length ? filter_on : Object.keys(v);
-                return keys.some((key) => {
-                    const value = v[key];
-                    const cmp_str = `${JSON.stringify(value)}`.toLowerCase();
-                    return cmp_str.includes(filter_str);
-                });
-            });
+            const text = this._search_text();
+            data = data.filter((_, index) => text[index].includes(filter_str));
         }
 
         // Apply sort
         if (current_sort && data.length) {
-            const type = typeof data[0][current_sort.key];
-            const default_fn =
-                type === 'number'
-                    ? (a, b) => a - b
-                    : (a, b) => {
-                          const a_value = JSON.stringify(a);
-                          const b_value = JSON.stringify(b);
-                          return a_value?.localeCompare(b_value);
-                      };
+            const { key, reverse } = current_sort;
+            const sort_fn = this.column(key)?.sort_fn;
             data = data.sort((a, b) => {
-                const sort_fn =
-                    this.column(current_sort.key)?.sort_fn || default_fn;
-                const result = sort_fn(
-                    a[current_sort.key],
-                    b[current_sort.key],
-                );
-                return current_sort.reverse ? -result : result;
+                const [a_value, b_value] = [a[key], b[key]];
+                // Empty values stay last in both directions
+                if (!sort_fn && (a_value == null || b_value == null)) {
+                    return compareValues(a_value, b_value);
+                }
+                const result = (sort_fn || compareValues)(a_value, b_value);
+                return reverse ? -result : result;
             });
         }
 
@@ -616,8 +645,8 @@ export class SimpleTableComponent<T extends object = any> {
 
     public readonly all_selected = computed(() => {
         const keys = this.selectable_keys();
-        const selected = this.selected();
-        return keys.length > 0 && keys.every((_) => selected.includes(_));
+        const selected = new Set(this.selected());
+        return keys.length > 0 && keys.every((_) => selected.has(_));
     });
 
     // Computed column template
@@ -874,9 +903,8 @@ export class SimpleTableComponent<T extends object = any> {
     public selectAll(state: boolean) {
         if (!state) return this.selected.set([]);
         const current = this.selected();
-        const added = this.selectable_keys().filter(
-            (_) => !current.includes(_),
-        );
+        const current_set = new Set(current);
+        const added = this.selectable_keys().filter((_) => !current_set.has(_));
         this.selected.set([...current, ...added]);
     }
 

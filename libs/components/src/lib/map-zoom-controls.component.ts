@@ -15,6 +15,7 @@ import { TranslatePipe } from './translate.pipe';
                 icon
                 matRipple
                 [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
+                [attr.aria-label]="'EXPLORE.ZOOM_IN' | translate"
                 matTooltipPosition="left"
                 class="hover:bg-base-200"
                 (click)="zoom.set(zoom() * 1.1); $event.stopPropagation()"
@@ -25,6 +26,7 @@ import { TranslatePipe } from './translate.pipe';
                 icon
                 matRipple
                 [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
+                [attr.aria-label]="'EXPLORE.ZOOM_OUT' | translate"
                 matTooltipPosition="left"
                 class="hover:bg-base-200"
                 (click)="zoom.set(zoom() * (10 / 11)); $event.stopPropagation()"
@@ -35,6 +37,7 @@ import { TranslatePipe } from './translate.pipe';
                 icon
                 matRipple
                 [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
+                [attr.aria-label]="'EXPLORE.ZOOM_RESET' | translate"
                 matTooltipPosition="left"
                 class="hover:bg-base-200"
                 (click)="reset.set(reset() + 1); $event.stopPropagation()"

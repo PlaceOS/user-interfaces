@@ -1747,22 +1747,22 @@ export async function optionLabels(page: Page, select: Locator) {
     return labels;
 }
 
+/**
+ * RGBA fill of the top zone polygon at a point in map coordinates (0-1), or
+ * `[0, 0, 0, 0]` where no polygon is drawn.
+ */
 export function pixel(page: Page, x: number, y: number) {
-    return page.locator('explore-map-view [map-canvas] canvas').evaluate(
+    return page.locator('explore-map-view [map-canvas] svg').evaluate(
         (node, point) => {
-            const canvas = node as HTMLCanvasElement;
-            if (!canvas.width || !canvas.height)
-                throw new Error('Unready polygon canvas');
-            const ctx = canvas.getContext('2d');
-            if (!ctx) throw new Error('Canvas context unavailable');
-            return Array.from(
-                ctx.getImageData(
-                    Math.floor(point.x * canvas.width),
-                    Math.floor(point.y * canvas.height),
-                    1,
-                    1,
-                ).data,
+            const polygons = [...node.querySelectorAll('polygon')].reverse();
+            const hit = polygons.find((polygon) =>
+                polygon.isPointInFill(new DOMPoint(point.x, point.y)),
             );
+            const fill = hit?.getAttribute('fill') || '';
+            const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(fill);
+            return match
+                ? match.slice(1).map((hex) => parseInt(hex, 16))
+                : [0, 0, 0, 0];
         },
         { x, y },
     );
@@ -4814,14 +4814,14 @@ export async function openSyntheticExplore(
     await expect(areas.locator('input[type="checkbox"]')).not.toBeChecked();
     await areas.locator('button').click();
     await expect(areas.locator('input[type="checkbox"]')).toBeChecked();
-    const canvas = page.locator('explore-map-view [map-canvas] canvas');
+    const canvas = page.locator('explore-map-view [map-canvas] svg');
     await expect(canvas).toHaveCount(1);
     await expect(canvas).toBeVisible();
     await expect(page.locator('explore-map-view dynamic-map mat-spinner')).toHaveCount(0);
     await expect.poll(() => audit.fixtures[explore.MAP_PATH] ?? 0).toBeGreaterThan(0);
     await options.ready?.();
     // The always-drawn control (COLOUR at alpha 128) proves metadata, bindings,
-    // status parsing, enabled Areas and canvas painting have all completed.
+    // status parsing, enabled Areas and polygon rendering have all completed.
     await expect.poll(() => pixel(page, 0.75, 0.75)).toEqual([18, 52, 86, 128]);
     return canvas;
 }

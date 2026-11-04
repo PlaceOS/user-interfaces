@@ -25,6 +25,42 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
 
+/**
+ * Set the location of one time block in today's work preference. Saves the
+ * change as a work override on the current user and returns the overrides.
+ */
+export async function saveTodayWorkLocation(
+    preference: WorktimePreference,
+    index: number,
+    location: string,
+): Promise<Record<string, WorktimePreference>> {
+    const user = currentUser();
+    const date = format(Date.now(), 'yyyy-MM-dd');
+    const new_overrides = {
+        ...user.work_overrides,
+        [date]: {
+            ...preference,
+            blocks: [
+                ...preference.blocks.slice(0, index),
+                { ...preference.blocks[index], location },
+                ...preference.blocks.slice(index + 1),
+            ],
+        },
+    };
+    for (const key in new_overrides) {
+        const key_date = parse(key, 'yyyy-MM-dd', new Date());
+        if (
+            !new_overrides[key].blocks.length ||
+            isBefore(key_date, addDays(startOfDay(Date.now()), -1))
+        ) {
+            delete new_overrides[key];
+        }
+    }
+    await updateUser(user.id, { ...user, work_overrides: new_overrides });
+    reloadUserData();
+    return new_overrides;
+}
+
 @Component({
     selector: 'work-location-tooltip',
     template: `
@@ -214,37 +250,12 @@ export class WorkLocationTooltipComponent implements OnInit {
     }
 
     public async setLocation(index: number, location: string) {
-        const user = currentUser();
-        const current_active_preference = this.active_preference;
-        const date = format(Date.now(), 'yyyy-MM-dd');
-        const new_overrides = {
-            ...user.work_overrides,
-            [date]: {
-                ...current_active_preference,
-                blocks: [
-                    ...current_active_preference.blocks.slice(0, index),
-                    {
-                        ...current_active_preference.blocks[index],
-                        location,
-                    },
-                    ...current_active_preference.blocks.slice(index + 1),
-                ],
-            },
-        };
-        for (const key in new_overrides) {
-            const key_date = parse(key, 'yyyy-MM-dd', new Date());
-            if (
-                !new_overrides[key].blocks.length ||
-                isBefore(key_date, addDays(startOfDay(Date.now()), -1))
-            ) {
-                delete new_overrides[key];
-            }
-        }
-        this.overrides.set(new_overrides);
-        await updateUser(user.id, {
-            ...user,
-            work_overrides: new_overrides,
-        });
-        reloadUserData();
+        this.overrides.set(
+            await saveTodayWorkLocation(
+                this.active_preference,
+                index,
+                location,
+            ),
+        );
     }
 }

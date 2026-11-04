@@ -301,6 +301,8 @@ export class AttachedResourceConfigModalComponent extends AsyncHandler {
     /** Whether to show rules for a ruleset */
     public show_rules = signal<string>('');
     public require_notes = signal(this._data.require_notes);
+    /** Notes setting that waits to be saved */
+    private _pending_notes: boolean | null = null;
     public readonly resource_name = this._data.resource_name || 'Catering';
 
     public readonly rulesets: AttachedResourceRuleset[];
@@ -327,11 +329,20 @@ export class AttachedResourceConfigModalComponent extends AsyncHandler {
     }
 
     public saveNotesSetting(value: boolean) {
-        this.timeout(
-            'save-notes',
-            () => (this._data.saveNotes ? this._data.saveNotes(value) : ''),
-            1000,
-        );
+        this._pending_notes = value;
+        this.timeout('save-notes', () => this._saveNotes(), 1000);
+    }
+
+    public ngOnDestroy() {
+        // Save a toggle that is still waiting when the modal closes
+        this._saveNotes();
+        super.ngOnDestroy();
+    }
+
+    private _saveNotes() {
+        if (this._pending_notes === null) return;
+        this._data.saveNotes?.(this._pending_notes);
+        this._pending_notes = null;
     }
 
     public saveChanges() {

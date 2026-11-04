@@ -1071,9 +1071,12 @@ export class BindingDebugPanelComponent extends AsyncHandler implements OnInit {
         if (selected_tab === 'bindings') {
             for (const record of binding_records()) {
                 const current_value = record.value();
-                const haystack =
-                    `${record.system_id} ${system_names[record.system_id] || ''} ${record.module_id} ${record.name} ${this.formatValue(current_value)}`.toLowerCase();
-                if (filter && !haystack.includes(filter)) continue;
+                // Only stringify values while the user filters
+                if (filter) {
+                    const haystack =
+                        `${record.system_id} ${system_names[record.system_id] || ''} ${record.module_id} ${record.name} ${this.formatValue(current_value)}`.toLowerCase();
+                    if (!haystack.includes(filter)) continue;
+                }
                 const { system, module } = get_module(
                     record.system_id,
                     record.module_id,

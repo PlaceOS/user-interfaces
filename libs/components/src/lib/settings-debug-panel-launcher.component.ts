@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import {
     Component,
+    computed,
     inject,
     input,
     OnInit,
@@ -11,6 +12,7 @@ import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import { type HashMap } from 'libs/common/src/lib/types';
+import { user_group_names } from 'libs/common/src/lib/user-state';
 
 import { BindingDebugPanelComponent } from './binding-debug-panel.component';
 import { DebugConsoleComponent } from './debug-console.component';
@@ -30,65 +32,66 @@ type DebugPanel = 'settings' | 'bindings' | 'console';
         IconComponent,
     ],
     template: `
-        <button
-            type="button"
-            class="absolute bottom-0 left-0 z-999 h-px w-px"
-            aria-label="Open debugging tools"
-            [matMenuTriggerFor]="debug_menu"
-            #menu_trigger="matMenuTrigger"
-            (contextmenu)="openMenu($event, menu_trigger)"
-        >
-        </button>
-        <mat-menu #debug_menu="matMenu" yPosition="above">
-            <div
-                class="flex w-64 items-center justify-center pb-2 text-sm opacity-60"
-            >
-                Debugging Panels
-            </div>
-            <button mat-menu-item (click)="openPanel('settings')">
-                <div class="flex items-center gap-2">
-                    <icon>discover_tune</icon>
-                    <div>Settings</div>
+        @if (allowed()) {
+            <button
+                type="button"
+                class="absolute bottom-0 left-0 z-999 h-px w-px"
+                aria-label="Open debugging tools"
+                [matMenuTriggerFor]="debug_menu"
+                #menu_trigger="matMenuTrigger"
+                (contextmenu)="openMenu($event, menu_trigger)"
+            ></button>
+            <mat-menu #debug_menu="matMenu" yPosition="above">
+                <div
+                    class="flex w-64 items-center justify-center pb-2 text-sm opacity-60"
+                >
+                    Debugging Panels
                 </div>
-            </button>
-            <button mat-menu-item (click)="openPanel('bindings')">
-                <div class="flex items-center gap-2">
-                    <icon>linked_services</icon>
-                    <div>Driver bindings</div>
-                </div>
-            </button>
-            <button mat-menu-item (click)="openPanel('console')">
-                <div class="flex items-center gap-2">
-                    <icon>terminal_2</icon>
-                    <div>Console</div>
-                </div>
-            </button>
-        </mat-menu>
-        @defer (when panel() === 'settings') {
-            @if (panel() === 'settings') {
-                <settings-debug-panel
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [schema]="schema()"
-                />
+                <button mat-menu-item (click)="openPanel('settings')">
+                    <div class="flex items-center gap-2">
+                        <icon>discover_tune</icon>
+                        <div>Settings</div>
+                    </div>
+                </button>
+                <button mat-menu-item (click)="openPanel('bindings')">
+                    <div class="flex items-center gap-2">
+                        <icon>linked_services</icon>
+                        <div>Driver bindings</div>
+                    </div>
+                </button>
+                <button mat-menu-item (click)="openPanel('console')">
+                    <div class="flex items-center gap-2">
+                        <icon>terminal_2</icon>
+                        <div>Console</div>
+                    </div>
+                </button>
+            </mat-menu>
+            @defer (when panel() === 'settings') {
+                @if (panel() === 'settings') {
+                    <settings-debug-panel
+                        [show]="true"
+                        (showChange)="panel.set(null)"
+                        [schema]="schema()"
+                    />
+                }
             }
-        }
-        @defer (when panel() === 'bindings') {
-            @if (panel() === 'bindings') {
-                <binding-debug-panel
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [hotkeysEnabled]="false"
-                />
+            @defer (when panel() === 'bindings') {
+                @if (panel() === 'bindings') {
+                    <binding-debug-panel
+                        [show]="true"
+                        (showChange)="panel.set(null)"
+                        [hotkeysEnabled]="false"
+                    />
+                }
             }
-        }
-        @defer (when panel() === 'console') {
-            @if (panel() === 'console') {
-                <debug-console
-                    [show]="true"
-                    (showChange)="panel.set(null)"
-                    [hotkeysEnabled]="false"
-                />
+            @defer (when panel() === 'console') {
+                @if (panel() === 'console') {
+                    <debug-console
+                        [show]="true"
+                        (showChange)="panel.set(null)"
+                        [hotkeysEnabled]="false"
+                    />
+                }
             }
         }
     `,
@@ -100,12 +103,20 @@ export class SettingsDebugPanelLauncherComponent
 {
     private readonly _hotkey = inject(HotkeysService);
     private readonly _document = inject(DOCUMENT);
-    private readonly _menu_trigger = viewChild.required(MatMenuTrigger);
+    private readonly _menu_trigger = viewChild(MatMenuTrigger);
     private _schema_request?: Promise<void>;
 
     public readonly loadSchema = input<() => Promise<HashMap>>();
     public readonly schema = signal<HashMap | null>(null);
     public readonly panel = signal<DebugPanel | null>(null);
+    /** Debug tools are only for PlaceOS admin and support users. */
+    public readonly allowed = computed(() => {
+        const groups = user_group_names();
+        return (
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support')
+        );
+    });
 
     public ngOnInit(): void {
         const shortcuts: [DebugPanel, string[]][] = [
@@ -117,6 +128,7 @@ export class SettingsDebugPanelLauncherComponent
             this.subscription(
                 panel,
                 this._hotkey.listen(keys, () => {
+                    if (!this.allowed()) return;
                     if (this.panel() === panel) this.panel.set(null);
                     else this.openPanel(panel);
                 }),
@@ -126,6 +138,7 @@ export class SettingsDebugPanelLauncherComponent
 
     /** Observe the corner without placing a pointer target over app controls. */
     public onContextMenu(event: MouseEvent): void {
+        if (!this.allowed()) return;
         const height = this._document.documentElement.clientHeight;
         if (
             event.clientX < 0 ||
@@ -134,7 +147,8 @@ export class SettingsDebugPanelLauncherComponent
             event.clientY > height
         )
             return;
-        this.openMenu(event, this._menu_trigger());
+        const trigger = this._menu_trigger();
+        if (trigger) this.openMenu(event, trigger);
     }
 
     public openMenu(event: MouseEvent, trigger: MatMenuTrigger): void {
@@ -143,6 +157,7 @@ export class SettingsDebugPanelLauncherComponent
     }
 
     public openPanel(panel: DebugPanel): void {
+        if (!this.allowed()) return;
         this.panel.set(panel);
         if (panel === 'settings') {
             this._schema_request ??= this.loadSettingsSchema();

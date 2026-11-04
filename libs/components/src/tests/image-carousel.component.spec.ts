@@ -76,4 +76,11 @@ describe('ImageCarouselComponent', () => {
             transform: 'translateX(-200%)',
         });
     });
+
+    it('should go back to the first image when the images change', () => {
+        spectator.setInput('images', TEST_IMAGES);
+        spectator.component.offset.set(2);
+        spectator.setInput('images', TEST_IMAGES.slice(0, 2));
+        expect(spectator.component.offset()).toBe(0);
+    });
 });

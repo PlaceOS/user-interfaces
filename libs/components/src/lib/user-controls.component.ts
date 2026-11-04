@@ -39,7 +39,10 @@ import { RegionSelectComponent } from './region-select.component';
 import { TranslatePipe } from './translate.pipe';
 import { UserAvatarComponent } from './user-avatar.component';
 import { UserParkingTooltipComponent } from './user-parking-tooltip.component';
-import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
+import {
+    saveTodayWorkLocation,
+    WorkLocationTooltipComponent,
+} from './work-location-tooltip.component';
 
 export interface AppLocale {
     id: string;
@@ -102,12 +105,7 @@ export interface AppLocale {
                                     @for (loc of pref_locations(); track loc) {
                                         <button
                                             mat-menu-item
-                                            (click)="
-                                                saveSetting(
-                                                    'work_location',
-                                                    loc.id
-                                                )
-                                            "
+                                            (click)="setLocation(loc.id)"
                                         >
                                             <div
                                                 class="flex items-center space-x-2"
@@ -445,31 +443,27 @@ export class UserControlsComponent implements OnInit {
     public readonly work_prefs = signal<WorktimePreference[]>([]);
     public readonly overrides = signal<Record<string, WorktimePreference>>({});
 
-    public readonly active_block = computed(() => {
+    /** Today's work preference, with any override for today applied */
+    private readonly _active_preference = computed(() => {
         const date = format(new Date(), 'yyyy-MM-dd');
         const day = new Date().getDay();
-        const pref = this.overrides()[date]
-            ? this.overrides()[date]
-            : this.work_prefs().find((pref) => pref.day_of_week === day);
-        return pref?.blocks?.find(
-            (_) =>
-                this.now >= this.timeFrom(_.start_time) &&
-                this.now < this.timeFrom(_.end_time),
+        return (
+            this.overrides()[date] ||
+            this.work_prefs().find((pref) => pref.day_of_week === day)
         );
     });
 
-    public readonly active_index = computed(() => {
-        const date = format(new Date(), 'yyyy-MM-dd');
-        const day = new Date().getDay();
-        const pref = this.overrides()[date]
-            ? this.overrides()[date]
-            : this.work_prefs().find((pref) => pref.day_of_week === day);
-        return pref?.blocks?.findIndex(
+    public readonly active_index = computed(() =>
+        this._active_preference()?.blocks?.findIndex(
             (_) =>
                 this.now >= this.timeFrom(_.start_time) &&
                 this.now < this.timeFrom(_.end_time),
-        );
-    });
+        ),
+    );
+
+    public readonly active_block = computed(
+        () => this._active_preference()?.blocks?.[this.active_index()],
+    );
 
     public location_icon(time: number) {
         const user = currentUser();
@@ -562,8 +556,15 @@ export class UserControlsComponent implements OnInit {
         this._dialog.open(WFHSettingsModalComponent);
     }
 
-    public saveSetting(name: string, value: unknown) {
-        this._settings.saveUserSetting(name, value);
+    /** Set the location of the current time block for today */
+    public async setLocation(location: string) {
+        this.overrides.set(
+            await saveTodayWorkLocation(
+                this._active_preference(),
+                this.active_index(),
+                location,
+            ),
+        );
     }
 
     public formatLabel(value: number) {

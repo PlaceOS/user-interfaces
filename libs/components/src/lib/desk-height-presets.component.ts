@@ -33,7 +33,9 @@ import { TranslatePipe } from './translate.pipe';
                 {{ 'COMMON.DESK_HEIGHT_INFO' | translate }}
             </div>
             <div class="mt-2 flex flex-col">
-                <label>{{ 'COMMON.DESK_HEIGHT_SITTING' | translate }}</label>
+                <label for="desk-sitting-height">{{
+                    'COMMON.DESK_HEIGHT_SITTING' | translate
+                }}</label>
                 <div class="flex items-center space-x-2">
                     <mat-slider
                         min="60"
@@ -45,6 +47,7 @@ import { TranslatePipe } from './translate.pipe';
                     >
                         <input
                             matSliderThumb
+                            id="desk-sitting-height"
                             [ngModel]="desk_sitting_height()"
                             (ngModelChange)="
                                 desk_sitting_height.set($event);
@@ -56,7 +59,9 @@ import { TranslatePipe } from './translate.pipe';
                         {{ desk_sitting_height().toFixed(1) }}cm
                     </div>
                 </div>
-                <label>{{ 'COMMON.DESK_HEIGHT_STANDING' | translate }}</label>
+                <label for="desk-standing-height">{{
+                    'COMMON.DESK_HEIGHT_STANDING' | translate
+                }}</label>
                 <div class="mr-2 flex items-center space-x-2">
                     <mat-slider
                         min="90"
@@ -68,6 +73,7 @@ import { TranslatePipe } from './translate.pipe';
                     >
                         <input
                             matSliderThumb
+                            id="desk-standing-height"
                             [ngModel]="desk_standing_height()"
                             (ngModelChange)="
                                 desk_standing_height.set($event);

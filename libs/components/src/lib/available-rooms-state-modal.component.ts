@@ -35,7 +35,11 @@ import { TranslatePipe } from './translate.pipe';
                             <tr>
                                 <td class="w-12 py-1" (click)="toggleRoom('*')">
                                     <mat-checkbox
-                                        class="pointer-events-none"
+                                        [aria-label]="
+                                            'COMMON.SELECT_ALL' | translate
+                                        "
+                                        (click)="$event.stopPropagation()"
+                                        (change)="toggleRoom('*')"
                                         [checked]="
                                             rooms()?.length ===
                                             selected().length
@@ -69,7 +73,11 @@ import { TranslatePipe } from './translate.pipe';
                                 >
                                     <td>
                                         <mat-checkbox
-                                            class="pointer-events-none"
+                                            [aria-label]="
+                                                space.display_name || space.name
+                                            "
+                                            (click)="$event.stopPropagation()"
+                                            (change)="toggleRoom(space.id)"
                                             [checked]="
                                                 selected().includes(space.id)
                                             "

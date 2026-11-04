@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, linkedSignal } from '@angular/core';
 import { User } from '@placeos/common';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 
@@ -10,7 +10,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                 class="border-base-100 bg-base-200 flex h-[2.5em] w-[2.5em] items-center justify-center overflow-hidden rounded-full border-2"
                 [attr.user-id]="user().id"
             >
-                @if (!user().photo) {
+                @if (!user().photo || photo_failed()) {
                     <div
                         initials
                         class="text-base-content uppercase opacity-60"
@@ -23,6 +23,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                         class="flex h-full w-full items-center justify-center object-cover object-center"
                         [alt]="initials"
                         [source]="user().photo"
+                        (error)="photo_failed.set(true)"
                     />
                 }
             </div>
@@ -34,6 +35,12 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
 export class UserAvatarComponent {
     /** User to display avatar for */
     public readonly user = input<User>(undefined);
+
+    /** Whether the photo failed to load, so initials show instead */
+    public readonly photo_failed = linkedSignal({
+        source: () => this.user()?.photo,
+        computation: () => false,
+    });
 
     /** Whether a real user has been provided to display */
     public readonly is_valid = computed(() => {

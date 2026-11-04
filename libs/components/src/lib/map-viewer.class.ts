@@ -401,7 +401,8 @@ export class MapViewer {
     private _pointers = new Map<number, Point>();
     private _is_panning = false;
     private _pinch_distance: number | null = null;
-    private _pan_start_time: number | null = null;
+    /** Where the current pan started. Movement past 5px makes it a drag. */
+    private _pan_start: Point | null = null;
     private _pan_exceeded_threshold = false;
     private _overlay_instances: OverlayInstance[] = [];
     private _actions: MapAction[] = [];
@@ -876,7 +877,7 @@ export class MapViewer {
 
         if (this.disable_pan) return;
         this._is_panning = true;
-        this._pan_start_time = Date.now();
+        this._pan_start = { x: e.clientX, y: e.clientY };
         this._pan_exceeded_threshold = false;
         this.container.style.cursor = 'grabbing';
     }
@@ -903,11 +904,14 @@ export class MapViewer {
 
         if (!this._is_panning) return;
 
-        // Check if pan duration exceeds threshold (200ms)
+        // A slow tap with a little finger movement is still a tap
         if (
-            this._pan_start_time &&
+            this._pan_start &&
             !this._pan_exceeded_threshold &&
-            Date.now() - this._pan_start_time > 200
+            Math.hypot(
+                e.clientX - this._pan_start.x,
+                e.clientY - this._pan_start.y,
+            ) > 5
         ) {
             this._pan_exceeded_threshold = true;
         }
@@ -1328,7 +1332,7 @@ export class MapViewer {
     private _handleActionEvent(event_name: string, e: PointerEvent) {
         if (!this.map_image || !this.map?.element_bounds) return;
 
-        // Ignore actions if user was panning for more than 200ms
+        // Ignore actions if the user dragged the map
         if (this._pan_exceeded_threshold) return;
 
         // For click events, ignore if user was dragging (moved more than 5 pixels)

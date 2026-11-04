@@ -54,7 +54,9 @@ describe('BindingDirective', () => {
         const value = new BehaviorSubject('');
         vi.mocked(ts_client.getModule).mockReturnValue({
             variable: vi.fn(() => ({
-                bindThenSubscribe: vi.fn((callback) => value.subscribe(callback)),
+                bindThenSubscribe: vi.fn((callback) =>
+                    value.subscribe(callback),
+                ),
             })),
         } as any);
         spectator.setHostInput({
@@ -133,6 +135,77 @@ describe('BindingDirective', () => {
             .dispatchEvent(new Event('random_event', { bubbles: true }));
         await vi.advanceTimersByTimeAsync(1000);
         expect(execute).toHaveBeenCalledWith('power', ['Jim']);
+        vi.useRealTimers();
+    });
+
+    it('should move or drop the binding when its target changes', async () => {
+        vi.useFakeTimers();
+        const unbind = vi.fn();
+        vi.mocked(ts_client.getModule).mockReturnValue({
+            variable: vi.fn(() => ({
+                bindThenSubscribe: vi.fn(() => unbind),
+            })),
+        } as any);
+        spectator.setHostInput({ sys: 'sys-1', mod: 'System', bind: 'power' });
+        await vi.advanceTimersByTimeAsync(50);
+        // Change the system before the old "binding" window ends
+        spectator.setHostInput({ sys: 'sys-2' });
+        await vi.advanceTimersByTimeAsync(50);
+        expect(ts_client.getModule).toHaveBeenLastCalledWith(
+            'sys-2',
+            'System',
+            1,
+        );
+        expect(unbind).toHaveBeenCalledTimes(1);
+        spectator.setHostInput({ bind: '' });
+        expect(unbind).toHaveBeenCalledTimes(2);
+        vi.useRealTimers();
+    });
+
+    it('should not execute values that come from the binding', async () => {
+        vi.useFakeTimers();
+        const value = new BehaviorSubject<unknown>(false);
+        const execute = vi.fn(async () => null);
+        vi.mocked(ts_client.getModule).mockReturnValue({
+            execute,
+            variable: () => ({
+                bindThenSubscribe: (callback) => value.subscribe(callback),
+            }),
+        } as any);
+        spectator.setHostInput({
+            sys: 'sys-1',
+            mod: 'System',
+            bind: 'power',
+            exec: 'power',
+        });
+        await vi.advanceTimersByTimeAsync(1000);
+        value.next(true);
+        await vi.advanceTimersByTimeAsync(100);
+        spectator.detectChanges();
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(spectator.hostComponent['model']).toBe(true);
+        expect(execute).not.toHaveBeenCalled();
+        spectator.setHostInput({ model: null });
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(execute).not.toHaveBeenCalled();
+        vi.useRealTimers();
+    });
+
+    it('should not bind after it is destroyed', async () => {
+        vi.useFakeTimers();
+        let online: (v: boolean) => void;
+        vi.mocked(ts_client.waitForSignal).mockReturnValue(
+            new Promise((resolve) => (online = resolve)) as any,
+        );
+        // Offline: setting the inputs does not bind yet
+        vi.mocked(ts_client.authority).mockReturnValue(null);
+        spectator.setHostInput({ sys: 'sys-1', mod: 'System', bind: 'power' });
+        spectator.directive.ngOnInit();
+        spectator.fixture.destroy();
+        vi.mocked(ts_client.authority).mockReturnValue(true as any);
+        online(true);
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(ts_client.getModule).not.toHaveBeenCalled();
         vi.useRealTimers();
     });
 });

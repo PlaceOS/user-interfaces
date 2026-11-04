@@ -61,6 +61,41 @@ describe('SimpleTableComponent', () => {
         expect(spectator.component.data_view()).toHaveLength(1);
     });
 
+    it('should match values but not object keys when filtering', () => {
+        const data = [
+            { id: '1', name: 'Alice', zone: { id: 'z1', name: 'North' } },
+            { id: '2', name: 'Bob', zone: { id: 'z2', name: 'South' } },
+        ];
+        spectator.setInput({ columns: COLUMNS, data, filter: 'name' });
+        expect(spectator.component.data_view()).toHaveLength(0);
+        spectator.setInput({ filter: 'south' });
+        expect(spectator.component.data_view()).toEqual([data[1]]);
+    });
+
+    it('should sort numbers by value when the first value is empty', () => {
+        const data = [
+            { id: '1', age: null },
+            { id: '2', age: 5 },
+            { id: '3', age: 10 },
+            { id: '4', age: 9 },
+        ];
+        spectator.setInput({ columns: COLUMNS, data });
+        spectator.component.setSort('age');
+        expect(spectator.component.data_view().map((_) => _.id)).toEqual([
+            '2',
+            '4',
+            '3',
+            '1',
+        ]);
+        spectator.component.setSort('age');
+        expect(spectator.component.data_view().map((_) => _.id)).toEqual([
+            '3',
+            '4',
+            '2',
+            '1',
+        ]);
+    });
+
     it('should cycle sorting between ascending, descending and none', () => {
         spectator.setInput({ columns: COLUMNS, data: DATA, sortable: true });
         spectator.click('#column-age');

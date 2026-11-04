@@ -434,6 +434,10 @@ export class CateringStateService extends AsyncHandler {
                     await this.saveSettings({ disabled_rooms: list });
                     notifySuccess('Room availability settings saved');
                 } catch (e) {
+                    // Show the saved state again
+                    ref.componentInstance.disabled_rooms.set(
+                        this.availability(),
+                    );
                     const detail =
                         (await responseErrorMessage(e)) || 'Unknown error';
                     notifyError(`Failed to save room availability. ${detail}`);

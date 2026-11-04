@@ -58,9 +58,12 @@ interface DebugDetailEntry {
         <div
             #mapContainer
             tabindex="0"
-            role="map"
+            role="application"
+            aria-roledescription="map"
+            [attr.aria-label]="'COMMON.MAP' | translate"
             class="absolute inset-0"
-            [class.hidden]="!src()"
+            [class.hidden]="!src() || error()"
+            (keydown)="onKeydown($event)"
         ></div>
         @if (src()) {
             @if (loading()) {
@@ -475,16 +478,27 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             }
         });
 
-        // Effect to sync zoom to MapViewer
+        // Effect to sync zoom to MapViewer. The viewer limits the zoom, so
+        // write a limited value back to the model.
         effect(() => {
             const zoom_val = this.zoom() ?? 1;
-            this._map_viewer?.setZoom(zoom_val);
+            const viewer = this._map_viewer;
+            if (!viewer) return;
+            viewer.setZoom(zoom_val);
+            if (viewer.zoom !== zoom_val) this.zoom.set(viewer.zoom);
         });
 
-        // Effect to sync center to MapViewer
+        // Effect to sync center to MapViewer, with the limited value written
+        // back to the model
         effect(() => {
             const center_val = this.center() ?? { x: 0.5, y: 0.5 };
-            this._map_viewer?.setCenter({ ...center_val });
+            const viewer = this._map_viewer;
+            if (!viewer) return;
+            viewer.setCenter({ ...center_val });
+            const { x, y } = viewer.center;
+            if (x !== center_val.x || y !== center_val.y) {
+                this.center.set({ x, y });
+            }
         });
 
         // Effect to sync fixed-map resolution override to MapViewer
@@ -589,9 +603,40 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
               : 'component';
     }
 
+    /** Zoom with + and -, and pan with the arrow keys */
+    public onKeydown(event: KeyboardEvent) {
+        // Leave shortcuts such as browser zoom alone
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+        const { disable_zoom, disable_pan } = this.options() || {};
+        const zoom = this.zoom() ?? 1;
+        const { x, y } = this.center() ?? { x: 0.5, y: 0.5 };
+        // Pan a tenth of the view at each step
+        const step = 0.1 / zoom;
+        const changes: Record<string, () => void> = {
+            '+': () => !disable_zoom && this.zoom.set(zoom * 1.1),
+            '=': () => !disable_zoom && this.zoom.set(zoom * 1.1),
+            '-': () => !disable_zoom && this.zoom.set(zoom / 1.1),
+            ArrowUp: () => !disable_pan && this.center.set({ x, y: y - step }),
+            ArrowDown: () =>
+                !disable_pan && this.center.set({ x, y: y + step }),
+            ArrowLeft: () =>
+                !disable_pan && this.center.set({ x: x - step, y }),
+            ArrowRight: () =>
+                !disable_pan && this.center.set({ x: x + step, y }),
+        };
+        if (!changes[event.key]) return;
+        event.preventDefault();
+        changes[event.key]();
+    }
+
     private _loadMap(src: string) {
         const simp_url = src.toLowerCase();
-        if (!simp_url.includes('svg') && !simp_url.includes('upload')) return;
+        if (!simp_url.includes('svg') && !simp_url.includes('upload')) {
+            // Do not leave the previous map on screen
+            this.loading.set(false);
+            this.error.set(true);
+            return;
+        }
         this.loading.set(true);
         this.error.set(false);
         this._map_viewer
