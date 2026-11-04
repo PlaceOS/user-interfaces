@@ -436,7 +436,11 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             let can_book = true;
             const book_fn = async () => {
                 if (!can_book) return;
-                await this._bookDesk(desk, options);
+                // The map does not await this callback. A closed booking dialog
+                // is not an error, so catch it here. Other errors still propagate.
+                await this._bookDesk(desk, options).catch((e) => {
+                    if (e !== 'User cancelled') throw e;
+                });
             };
             ['mousedown', 'touchstart'].forEach((event) =>
                 actions.push({

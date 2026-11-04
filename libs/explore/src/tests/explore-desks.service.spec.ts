@@ -269,6 +269,23 @@ describe('ExploreDesksService', () => {
         expect(booking_service.model().all_day).toBe(true);
     });
 
+    it('should not reject the map action when the user cancels a desk booking', async () => {
+        const state = spectator.inject(ExploreStateService);
+        vi.spyOn(spectator.service as any, '_bookDesk').mockRejectedValue(
+            'User cancelled',
+        );
+        (spectator.service as any)._options.set({ enable_booking: true });
+        (spectator.service as any).processDesks([
+            new Desk({ id: 'desk-1', name: 'Desk 1', bookable: true }),
+        ]);
+        const [, actions] = vi.mocked(state.setActions).mock.calls.at(-1);
+        const mouseup = actions.find((_) => _.action === 'mouseup');
+
+        await expect(
+            mouseup.callback(new Event('mouseup')),
+        ).resolves.toBeUndefined();
+    });
+
     it('should not report a booking error when confirmation is cancelled', async () => {
         const notify_open = vi.fn(() => ({
             onAction: () => ({ subscribe: () => undefined }),
