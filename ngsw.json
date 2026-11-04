@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1793770979409,
+  "timestamp": 1793775441736,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -48,7 +48,7 @@
         "./squire-7BCJDNZA.js",
         "./src-C5gI3HOT.js",
         "./styles.css",
-        "./template.component-C71JjTG9.js",
+        "./template.component-BWXW_C1s.js",
         "./zh-CenHhTig.js"
       ],
       "patterns": []
@@ -265,7 +265,7 @@
     "./index.html": "e8f45fb0f0fc92bc6648326dcc6ed1c5f5ff40fb",
     "./it-CKncUqxZ.js": "e86641b9ae7ebed2832b7c038f84f9aaee75e434",
     "./ja-DngrQVLH.js": "fb52890e58546e9fddbfe0cca453a27df3377541",
-    "./main.js": "488af6fdef6330d3a978886cac50dda6b65f0a06",
+    "./main.js": "66743103cede6b5382252c4fa229d5fdb65d37a2",
     "./manifest.webmanifest": "39df451c6d81fb831c7cf7df6ea3fade21510647",
     "./native-domain-overlay.component-DTa7WSSm.js": "b50d2232c135aeadf886639539d9e3297c2b4bdf",
     "./sentry-sdk-CCco1Hnj.js": "3c010cb394cc726ca98cf18796f5129932851b15",
@@ -276,7 +276,7 @@
     "./squire-7BCJDNZA.js": "000e13c4201b6781e5c0d0d74006fe681b28faad",
     "./src-C5gI3HOT.js": "e60cbb6c99ba128409c3677216dffa61c011fbc5",
     "./styles.css": "cf1495b373745295dabe4403022aa7622cd53e60",
-    "./template.component-C71JjTG9.js": "8992d913b3c8c0cff64506cf3bc1e6d9d9b1d599",
+    "./template.component-BWXW_C1s.js": "8c4918c30a972969fd9d0ed07ae3f00c0c2e6d32",
     "./zh-CenHhTig.js": "55aa38d3d73c00096c34a8d8f83a648e696e944a"
   },
   "navigationUrls": [
