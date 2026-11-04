@@ -11,7 +11,6 @@ import {
     GlobalLoadingComponent,
 } from '@placeos/components';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
-import { mocksInit } from '@placeos/mocks';
 
 import { hasStoredApiKey } from './api-key';
 import { hasBootstrappedDisplay } from './bootstrap-state';
@@ -80,7 +79,11 @@ export class AppComponent implements OnInit {
         // the failure lasts, so it goes through the same limits as every other
         // automatic recovery.
         setInitReloadHandler(() => requestRecovery('init-error'));
-        setMocks(mocksInit);
+        // Loaded on demand: the mock data is built when its module loads,
+        // which blocked every player's startup when it was in the main bundle
+        setMocks(() =>
+            import('@placeos/mocks').then(({ mocksInit }) => mocksInit()),
+        );
         this._placeos.init();
     }
 }
