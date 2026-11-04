@@ -30,6 +30,12 @@ describe('ItemListFieldComponent', () => {
         expect('mat-chip-row').toContainText('MyElement');
     });
 
+    it('should disable the input when the control is disabled', () => {
+        spectator.component.setDisabledState(true);
+        spectator.detectChanges();
+        expect(spectator.query('input')).toBeDisabled();
+    });
+
     it('should not allow adding duplicate items', () => {
         const input: HTMLInputElement = spectator.query('input');
         spectator.component.writeValue(['Element1']);

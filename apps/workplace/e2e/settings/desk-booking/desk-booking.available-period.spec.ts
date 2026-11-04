@@ -40,10 +40,9 @@ for (const days of [7, 14]) {
                     };
                 }, target.valueOf());
             let grid = await indices();
-            // Button names are reversed in date-calendar.component.ts: schedule-previous-month calls changeMonth(1) (forward).
             if (grid.last < 0 || grid.next < 0) {
                 await calendar
-                    .locator('button[name="schedule-previous-month"]')
+                    .locator('button[name="schedule-next-month"]')
                     .click();
                 await expect
                     .poll(async () => {

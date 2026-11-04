@@ -16,14 +16,14 @@ import { uploadAttachment } from './upload-attachment';
             <input
                 type="file"
                 class="absolute inset-0 z-10 max-w-full opacity-0"
+                [disabled]="disabled()"
                 (change)="onFileEvent($event)"
             />
             @if (item()) {
                 <div
                     item
                     class="border-base-200 bg-base-100 hover:bg-base-200 relative z-50 flex w-full items-center rounded-sm border"
-                    [class.bg-error!]="item().progress < 1"
-                    [class.!bg-opacity-20]="item().progress < 1"
+                    [class]="item().progress < 0 ? 'bg-error/20!' : ''"
                 >
                     <div class="w-px flex-1 truncate px-2 font-mono text-sm">
                         {{ item().name }}
@@ -56,6 +56,8 @@ import { uploadAttachment } from './upload-attachment';
                     }
                     <button
                         icon
+                        type="button"
+                        [disabled]="disabled()"
                         (click)="setValue(null)"
                         [attr.aria-label]="'COMMON.REMOVE' | translate"
                     >
@@ -77,6 +79,7 @@ import { uploadAttachment } from './upload-attachment';
 })
 export class UploadFileFieldComponent implements ControlValueAccessor {
     public readonly item = signal<Attachment | null>(null);
+    public readonly disabled = signal(false);
     /** Form control on change handler */
     private _onChange: (_: Attachment) => void;
     /** Form control on touch handler */
@@ -84,6 +87,7 @@ export class UploadFileFieldComponent implements ControlValueAccessor {
 
     public readonly registerOnChange = (fn) => (this._onChange = fn);
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
+    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     /**
      * Update the form field value

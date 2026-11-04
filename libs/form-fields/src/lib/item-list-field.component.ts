@@ -81,7 +81,11 @@ export function uniqueChipItems<T = string>(items: T[]): T[] {
     selector: 'item-list-field',
     template: `
         <mat-form-field appearance="outline" class="w-full">
-            <mat-chip-grid #chipList aria-label="Zone Tags">
+            <mat-chip-grid
+                #chipList
+                aria-label="Zone Tags"
+                [disabled]="disabled()"
+            >
                 @for (item of value(); track $index; let i = $index) {
                     <mat-chip-row (removed)="remove(item, i)">
                         <span class="max-w-md truncate">{{ item }}</span>
@@ -101,6 +105,7 @@ export function uniqueChipItems<T = string>(items: T[]): T[] {
                 [matChipInputFor]="chipList"
                 [matChipInputSeparatorKeyCodes]="separators()"
                 [matChipInputAddOnBlur]="!panel_open()"
+                [disabled]="disabled()"
                 (input)="search.set(search_field.value)"
                 (matChipInputTokenEnd)="add($event)"
             />
@@ -135,6 +140,8 @@ export class ItemListFieldComponent<
     public readonly options = input<T[]>([]);
     /** List of items stored */
     public readonly value = signal<T[]>([]);
+    /** Whether form control is disabled */
+    public readonly disabled = signal(false);
     /** Current contents of the search input */
     public readonly search = signal('');
     /** Whether the suggestion list is currently shown */
@@ -181,7 +188,7 @@ export class ItemListFieldComponent<
         this._clearSearch();
     }
 
-    /** Remove the `step` from the current value */
+    /** Remove an item from the list */
     public readonly remove = (item: T, index?: number) =>
         removeChipItem(
             { value: this.value(), setValue: (i) => this.setValue(i) },
@@ -226,6 +233,10 @@ export class ItemListFieldComponent<
      */
     public registerOnTouched(fn: (_: T[]) => void): void {
         this._onTouch = fn;
+    }
+
+    public setDisabledState(disabled: boolean) {
+        this.disabled.set(disabled);
     }
 
     /** Empty the search input so the next search starts fresh */

@@ -77,11 +77,14 @@ describe('UserListFieldComponent', () => {
         spectator = createComponent();
     });
 
-    it('should be able to be disabled', () => {
+    it('should be able to be disabled', async () => {
         expect('[form-field]').not.toHaveAttribute('disabled');
         spectator.component.setDisabledState(true);
         spectator.detectChanges();
+        await spectator.fixture.whenStable();
         expect('[form-field]').toHaveAttribute('disabled');
+        expect('input[name="user_email"]').toBeDisabled();
+        expect('[name="upload-csv"]').toBeDisabled();
     });
 
     it('should show selected users', () => {
@@ -103,7 +106,7 @@ describe('UserListFieldComponent', () => {
     it('should allow adding users from a CSV file', () => {
         // The real csvToJson parses the CSV string produced by the mocked
         // FileReader below into two user rows.
-        vi.spyOn(spectator.component, 'addUser');
+        vi.spyOn(spectator.component, 'addUsers');
         const eventListener = (type, callback) => {
             if (type === 'load') {
                 callback({
@@ -123,13 +126,44 @@ describe('UserListFieldComponent', () => {
         vi.spyOn(window, 'FileReader').mockImplementation(function () {
             return mock_file_reader;
         });
+        // Windows with Excel installed reports CSV files with this type
         spectator.component.addUsersFromFile({
             target: {
-                files: [{ id: 0, type: 'text/csv', size: 1, name: 'File.csv' }],
+                files: [
+                    {
+                        id: 0,
+                        type: 'application/vnd.ms-excel',
+                        size: 1,
+                        name: 'File.csv',
+                    },
+                ],
             },
         });
-        expect(spectator.component.addUser).toHaveBeenCalledTimes(2);
-        expect(spectator.component.active_list().length).toBeGreaterThan(0);
+        expect(spectator.component.addUsers).toHaveBeenCalledTimes(1);
+        expect(spectator.component.active_list()).toHaveLength(2);
+        expect(spectator.component.active_list()[0].phone).toBe('01234567898');
+    });
+
+    it('should add the typed email when its option is picked', () => {
+        spectator.component.updateSearch('new@b.com');
+        spectator.component.onOptionSelected('new@b.com');
+        spectator.component.updateSearch(undefined);
+        expect(spectator.component.active_list()[0].email).toBe('new@b.com');
+    });
+
+    it('should only replace the saved visitor with the same email', () => {
+        const settings = spectator.inject(SettingsService);
+        vi.mocked(settings.get).mockReturnValue([
+            'aa@b.com|aa|Org|0',
+            'a@b.com|old|Org|0',
+        ]);
+        const save = vi.fn();
+        (settings as any).saveUserSetting = save;
+        spectator.component.addUserFromEmail('a@b.com');
+        const saved: string[] = save.mock.calls[0][1];
+        expect(saved).toHaveLength(2);
+        expect(saved[0]).toBe('aa@b.com|aa|Org|0');
+        expect(saved[1].startsWith('a@b.com|a|')).toBe(true);
     });
 
     it('should allow user to remove selected users', () => {

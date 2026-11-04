@@ -1,10 +1,10 @@
 import {
     AfterViewInit,
     Component,
+    computed,
     ElementRef,
     inject,
     input,
-    NgZone,
     OnChanges,
     SecurityContext,
     signal,
@@ -22,14 +22,47 @@ import {
 import { apiKey, token } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { escapeHtml } from './escape-html';
 
 import type Squire from 'squire-rte';
+
+/** Link protocols that the editor accepts */
+const LINK_PROTOCOLS = ['http:', 'https:', 'mailto:'];
+
+/** Whether editor HTML has no text and no images. Squire keeps an empty block when cleared */
+function isEmptyHtml(html: string) {
+    const template = document.createElement('template');
+    template.innerHTML = html || '';
+    return (
+        !template.content.textContent?.trim() &&
+        !template.content.querySelector('img')
+    );
+}
+
+/**
+ * Return the URL as a link target with an allowed protocol, or `null`.
+ * Text with no `://` (and no `mailto:`) gets `https://`, so `example.com` works.
+ */
+function toLinkUrl(value: string) {
+    const text = value.trim();
+    if (!text) return null;
+    const with_protocol =
+        text.includes('://') || /^mailto:/i.test(text)
+            ? text
+            : `https://${text}`;
+    try {
+        const url = new URL(with_protocol);
+        return LINK_PROTOCOLS.includes(url.protocol) ? url.href : null;
+    } catch {
+        return null;
+    }
+}
 
 @Component({
     selector: 'rich-text-input',
     template: `
-        <div #container class="w-full">
-            @if (!readonly()) {
+        <div #container class="w-full" [class.is-empty]="is_empty()">
+            @if (!is_readonly()) {
                 <div
                     class="border-base-300 bg-base-100 flex flex-wrap items-center gap-1 rounded-t border p-2"
                 >
@@ -163,6 +196,7 @@ import type Squire from 'squire-rte';
             }
 
             :host ::ng-deep .squire-editor {
+                position: relative;
                 border-radius: 0.25rem;
                 border: 1px solid var(--base-300);
                 padding: 0.5rem;
@@ -171,8 +205,12 @@ import type Squire from 'squire-rte';
                 outline: none;
             }
 
-            :host ::ng-deep .squire-editor:empty::before {
+            :host ::ng-deep .is-empty > .squire-editor::before {
                 content: attr(data-placeholder);
+                position: absolute;
+                top: 0.5rem;
+                left: 0.5rem;
+                pointer-events: none;
                 color: var(--base-content);
                 opacity: 0.5;
             }
@@ -203,10 +241,20 @@ export class RichTextInputComponent
 {
     private _uploads = inject(UploadsService);
     private _dom_sanitizer = inject(DomSanitizer);
-    private _ng_zone = inject(NgZone);
     public readonly placeholder = input('');
     public readonly readonly = input(false);
     public readonly images_allowed = input(false);
+    /** Whether the form control is disabled */
+    public readonly disabled = signal(false);
+    /**
+     * Whether the editor has no content. Kept outside the editor element,
+     * as Squire treats changes to its attributes as user input.
+     */
+    public readonly is_empty = signal(true);
+    /** Whether the user cannot edit the content */
+    public readonly is_readonly = computed(
+        () => this.readonly() || this.disabled(),
+    );
 
     private readonly _editor_el =
         viewChild<ElementRef<HTMLDivElement>>('editor');
@@ -228,10 +276,13 @@ export class RichTextInputComponent
     public readonly registerOnTouched = (fn: () => void) =>
         (this._onTouch = fn);
 
+    public setDisabledState(disabled: boolean) {
+        this.disabled.set(disabled);
+        this._setReadonlyState();
+    }
+
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.placeholder) {
-            this.timeout('init', () => this._initialiseEditor());
-        }
+        if (changes.placeholder) this._setPlaceholder();
         if (changes.readonly && this._editor) {
             this._setReadonlyState();
         }
@@ -258,6 +309,7 @@ export class RichTextInputComponent
             if (this._editor) {
                 this._editor.setHTML(value || '');
                 this._setPlaceholder();
+                this._updateEmptyState();
             } else this.timeout('write', () => this.writeValue(value));
         });
     }
@@ -310,8 +362,13 @@ export class RichTextInputComponent
             this._refreshToolbarState();
             return;
         }
-        const link_url = prompt('Enter URL');
-        if (!link_url) return;
+        const input_url = prompt('Enter URL');
+        if (!input_url) return;
+        const link_url = toLinkUrl(input_url);
+        if (!link_url) {
+            notifyError('Links must use http, https or mailto');
+            return;
+        }
         this._editor.makeLink(link_url);
         this._syncValue();
         this._refreshToolbarState();
@@ -355,6 +412,9 @@ export class RichTextInputComponent
             this._editor.destroy();
         }
         _editor_el.innerHTML = '';
+        // Capture phase, so this runs before Squire's click listener on the same element
+        _editor_el.removeEventListener('click', this._blockImageClick, true);
+        _editor_el.addEventListener('click', this._blockImageClick, true);
         this._editor = new Squire(_editor_el, {
             blockTag: 'div',
             sanitizeToDOMFragment: (html: string) => {
@@ -375,6 +435,7 @@ export class RichTextInputComponent
         this._editor.addEventListener('pathChange', this._refreshToolbarState);
         this._setReadonlyState();
         this._setPlaceholder();
+        this._updateEmptyState();
         this._refreshToolbarState();
     }
 
@@ -405,9 +466,12 @@ export class RichTextInputComponent
         };
     }
 
+    /** Send the editor content to the form. An empty editor sends `''`, so `required` works */
     private readonly _syncValue = () => {
         if (!this._editor) return;
-        this.setValue(this._editor.getHTML());
+        const html = this._editor.getHTML();
+        this._updateEmptyState(html);
+        this.setValue(isEmptyHtml(html) ? '' : html);
     };
 
     private readonly _handleTouched = () => {
@@ -417,29 +481,48 @@ export class RichTextInputComponent
 
     private readonly _refreshToolbarState = () => {
         if (!this._editor) return;
-        this._ng_zone.run(() => {
-            this.toolbar_state.set({
-                bold: this._editor.hasFormat('B'),
-                italic: this._editor.hasFormat('I'),
-                underline: this._editor.hasFormat('U'),
-                unordered_list: this._editor.hasFormat('UL'),
-                ordered_list: this._editor.hasFormat('OL'),
-                link: this._editor.hasFormat('A'),
-            });
+        this.toolbar_state.set({
+            bold: this._editor.hasFormat('B'),
+            italic: this._editor.hasFormat('I'),
+            underline: this._editor.hasFormat('U'),
+            unordered_list: this._editor.hasFormat('UL'),
+            ordered_list: this._editor.hasFormat('OL'),
+            link: this._editor.hasFormat('A'),
         });
     };
 
     private _setReadonlyState() {
-        const _editor_el = this._editor_el()?.nativeElement;
-        if (!_editor_el) return;
-        _editor_el.setAttribute('contenteditable', `${!this.readonly()}`);
+        this._setRootAttribute('contenteditable', `${!this.is_readonly()}`);
+    }
+
+    /** Show the placeholder only while the editor has no content */
+    private _updateEmptyState(html = this._editor?.getHTML() || '') {
+        this.is_empty.set(isEmptyHtml(html));
     }
 
     private _setPlaceholder() {
+        this._setRootAttribute('data-placeholder', this.placeholder() || '');
+    }
+
+    /**
+     * Set an attribute on the editor element. Squire watches the attributes
+     * of this element, so change them through `modifyDocument`, or Squire
+     * sends an `input` event and the form gets a change the user did not make.
+     */
+    private _setRootAttribute(name: string, value: string) {
         const _editor_el = this._editor_el()?.nativeElement;
         if (!_editor_el) return;
-        _editor_el.setAttribute('data-placeholder', this.placeholder() || '');
+        const update = () => _editor_el.setAttribute(name, value);
+        if (this._editor) this._editor.modifyDocument(update);
+        else update();
     }
+
+    /** Stop Squire from selecting images, which lets them be resized or deleted, while read only */
+    private readonly _blockImageClick = (event: Event) => {
+        if (this.is_readonly() && (event.target as Node)?.nodeName === 'IMG') {
+            event.stopPropagation();
+        }
+    };
 
     private _toggleFormat(
         format: string,
@@ -459,12 +542,14 @@ export class RichTextInputComponent
         images_only: boolean,
     ) {
         const is_image = file.type.startsWith('image/');
+        const name = escapeHtml(file.name);
+        const src = escapeHtml(link);
         if (images_only || is_image) {
-            this._editor.insertHTML(`<img src="${link}" alt="${file.name}" />`);
+            this._editor.insertHTML(`<img src="${src}" alt="${name}" />`);
             return;
         }
         this._editor.insertHTML(
-            `<a href="${link}" target="_blank">${file.name}</a>`,
+            `<a href="${src}" target="_blank" rel="noopener noreferrer">${name}</a>`,
         );
     }
 

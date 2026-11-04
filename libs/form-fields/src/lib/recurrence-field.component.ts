@@ -40,6 +40,7 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
             <mat-select
                 [ngModel]="recurr_type()"
                 (ngModelChange)="setSimple($event)"
+                [disabled]="disabled()"
                 [placeholder]="'FORM.RECURRENCE_NONE' | translate"
             >
                 <mat-select-trigger>
@@ -100,11 +101,6 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                         }}
                     </mat-option>
                 }
-                @if (false) {
-                    <mat-option value="yearly">
-                        Anually on {{ date() | date: 'LLLL dd' }}
-                    </mat-option>
-                }
                 @if (value()?._custom) {
                     <mat-option value="custom_display">
                         <div class="flex w-full">
@@ -157,6 +153,8 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
     public readonly iom = signal(0);
     public readonly instance_of_month = signal('');
     public readonly value = signal<Recurrence>(NO_RECURR);
+    /** Whether form control is disabled */
+    public readonly disabled = signal(false);
 
     private readonly _custom_cache = signal<Recurrence | undefined>(undefined);
     private _prev_date: number | undefined;
@@ -243,6 +241,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
 
     public readonly registerOnChange = (fn) => (this._onChange = fn);
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
+    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     public openCustomRecurrenceModal() {
         const ref = this._dialog.open(RecurrenceModalComponent, {

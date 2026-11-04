@@ -121,46 +121,53 @@ export interface DurationOption {
             xPosition="before"
             class="max-h-60 min-w-[18rem]"
         >
-            @for (option of duration_options(); track option.id) {
-                <button
-                    type="button"
-                    mat-menu-item
-                    class="text-left"
-                    [attr.data-duration]="option.id"
-                    (click)="setValue(option.id); touch()"
-                >
-                    <div class="flex items-center justify-between">
-                        <div class="flex flex-col leading-tight">
-                            <div class="truncate">
-                                {{
-                                    option.date
-                                        ? (option.date
-                                              | date
-                                                  : (option.id >= 24 * 60
-                                                        ? 'mediumDate'
-                                                        : time_format())) + ' ('
-                                        : ''
-                                }}{{ option.name }}{{ option.date ? ')' : '' }}
-                            </div>
-                            @if (timezone() && tz()) {
-                                <div class="truncate text-xs opacity-30">
+            <!-- Lazy content: the options only render while the menu is open -->
+            <ng-template matMenuContent>
+                @for (option of duration_options(); track option.id) {
+                    <button
+                        type="button"
+                        mat-menu-item
+                        class="text-left"
+                        [attr.data-duration]="option.id"
+                        (click)="setValue(option.id); touch()"
+                    >
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col leading-tight">
+                                <div class="truncate">
                                     {{
                                         option.date
-                                            | date
-                                                : time_format() + ' (z)'
-                                                : tz()
-                                    }}
+                                            ? (option.date
+                                                  | date
+                                                      : (option.id >= 24 * 60
+                                                            ? 'mediumDate'
+                                                            : time_format())) +
+                                              ' ('
+                                            : ''
+                                    }}{{ option.name
+                                    }}{{ option.date ? ')' : '' }}
                                 </div>
+                                @if (timezone() && tz()) {
+                                    <div class="truncate text-xs opacity-30">
+                                        {{
+                                            option.date
+                                                | date
+                                                    : time_format() + ' (z)'
+                                                    : tz()
+                                        }}
+                                    </div>
+                                }
+                            </div>
+                            @if (selected()?.id === option.id) {
+                                <icon class="ml-2 text-2xl"> done </icon>
                             }
                         </div>
-                        @if (selected()?.id === option.id) {
-                            <icon class="ml-2 text-2xl"> done </icon>
-                        }
+                    </button>
+                } @empty {
+                    <div mat-menu-item disabled>
+                        No duration options to select
                     </div>
-                </button>
-            } @empty {
-                <div mat-menu-item disabled>No duration options to select</div>
-            }
+                }
+            </ng-template>
         </mat-menu>
         <mat-error><ng-content /></mat-error>
     `,

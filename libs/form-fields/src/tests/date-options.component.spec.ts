@@ -30,6 +30,14 @@ describe('DateOptionsComponent', () => {
 
     afterEach(() => vi.useRealTimers());
 
+    it('should disable the date step buttons when disabled', () => {
+        spectator.setInput({ disabled: true });
+        spectator.detectChanges();
+        expect(spectator.query('[data-shortcut="previous"]')).toBeDisabled();
+        expect(spectator.query('[data-shortcut="next"]')).toBeDisabled();
+        expect(spectator.query('[data-shortcut="today"]')).toBeDisabled();
+    });
+
     it('should show the selected day by default', () => {
         spectator.setInput({
             date: new Date(2026, 3, 22, 12).valueOf(),

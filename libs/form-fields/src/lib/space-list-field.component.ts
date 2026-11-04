@@ -1,4 +1,11 @@
-import { Component, OnDestroy, inject, input, signal } from '@angular/core';
+import {
+    Component,
+    OnDestroy,
+    inject,
+    input,
+    linkedSignal,
+    signal,
+} from '@angular/core';
 import { ControlValueAccessor, FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -34,6 +41,7 @@ const EMPTY_FAVS: string[] = [];
                     </label>
                     <div class="flex items-center">
                         <mat-radio-group
+                            [disabled]="disabled()"
                             [attr.aria-label]="
                                 'CALENDAR_EVENT.SPACE_SELECT_SIZE' | translate
                             "
@@ -124,6 +132,7 @@ const EMPTY_FAVS: string[] = [];
                                 matRipple
                                 name="edit-space"
                                 class="clear"
+                                [disabled]="disabled()"
                                 (click)="changeSpaces()"
                             >
                                 <div class="flex items-center space-x-2">
@@ -136,6 +145,7 @@ const EMPTY_FAVS: string[] = [];
                                 matRipple
                                 name="remove-space"
                                 class="clear"
+                                [disabled]="disabled()"
                                 (click)="removeSpace(space)"
                             >
                                 <div class="flex items-center space-x-2">
@@ -150,19 +160,20 @@ const EMPTY_FAVS: string[] = [];
                         matRipple
                         name="toggle-space-favourite"
                         class="absolute top-1 right-1"
-                        [class.text-info]="favorites.includes(space?.id)"
+                        [disabled]="disabled()"
+                        [class.text-info]="favorites().includes(space?.id)"
                         (click)="toggleFavourite(space)"
                         [attr.aria-label]="
-                            (favorites.includes(space?.id)
+                            (favorites().includes(space?.id)
                                 ? 'COMMON.FAVOURITES_REMOVE'
                                 : 'COMMON.FAVOURITES_ADD'
                             ) | translate
                         "
-                        [attr.aria-pressed]="favorites.includes(space?.id)"
+                        [attr.aria-pressed]="favorites().includes(space?.id)"
                     >
                         <icon
                             [className]="
-                                favorites.includes(space?.id)
+                                favorites().includes(space?.id)
                                     ? 'material-symbols-rounded'
                                     : 'material-symbols-outlined'
                             "
@@ -177,6 +188,7 @@ const EMPTY_FAVS: string[] = [];
             matRipple
             name="add-space"
             class="inverse mt-2 w-full"
+            [disabled]="disabled()"
             (click)="changeSpaces()"
         >
             <div class="flex items-center justify-center space-x-2">
@@ -213,19 +225,18 @@ export class SpaceListFieldComponent
 
     private _onChange: (_: Space[]) => void;
     private _onTouch: (_: Space[]) => void;
-    private _favorites_cache: string[] | null = null;
-
-    public get favorites() {
-        // Return cache if available for instant updates
-        if (this._favorites_cache !== null) return this._favorites_cache;
-        return (
+    /**
+     * IDs of the user's favourite spaces. A toggle sets it at once, then it
+     * follows the setting again when the saved value comes back.
+     */
+    public readonly favorites = linkedSignal<string[]>(
+        () =>
             this._settings.signal<string[]>(
                 SETTING_KEYS.FAVORITE_ROOMS,
                 EMPTY_FAVS,
                 true,
-            )() || EMPTY_FAVS
-        );
-    }
+            )() || EMPTY_FAVS,
+    );
 
     public ngOnDestroy() {
         if (this._dialog_ref) this._dialog_ref.close();
@@ -285,10 +296,10 @@ export class SpaceListFieldComponent
 
     public toggleFavourite(space: Space) {
         if (!space?.id) return;
-        const updated = toggleListItem(this.favorites, space.id);
+        const updated = toggleListItem(this.favorites(), space.id);
 
-        // Optimistically update cache for instant UI update
-        this._favorites_cache = updated;
+        // Show the change before the setting is saved
+        this.favorites.set(updated);
 
         // Save to settings in background
         this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_ROOMS, updated);

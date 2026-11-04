@@ -19,9 +19,8 @@ for (const days of [7, 8]) {
         }, days);
         let grid = await indices();
         // Near month end the 42-day grid lacks a boundary day: move forward one month.
-        // Button names are reversed in date-calendar.component.ts: schedule-previous-month calls changeMonth(1) (forward).
         if (grid.last < 0 || grid.beyond < 0) {
-            await calendar.locator('button[name="schedule-previous-month"]').click();
+            await calendar.locator('button[name="schedule-next-month"]').click();
             await expect.poll(async () => { const g = await indices(); return g.last >= 0 && g.beyond >= 0; }).toBe(true);
             grid = await indices();
         }

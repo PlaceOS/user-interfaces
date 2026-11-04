@@ -26,6 +26,17 @@ import {
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
+/** A day shown in the range calendar */
+interface RangeDay {
+    id: number;
+    disabled: boolean;
+    is_today: boolean;
+    is_start: boolean;
+    is_end: boolean;
+    is_month: boolean;
+    is_selected: boolean;
+}
+
 @Component({
     selector: `date-range-calendar`,
     template: `
@@ -37,6 +48,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 <button
                     icon
                     matRipple
+                    type="button"
                     (click)="previousMonth()"
                     [attr.aria-label]="'COMMON.PREVIOUS_MONTH' | translate"
                 >
@@ -45,6 +57,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 <button
                     icon
                     matRipple
+                    type="button"
                     (click)="nextMonth()"
                     [attr.aria-label]="'COMMON.NEXT_MONTH' | translate"
                 >
@@ -70,7 +83,11 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             </div>
             @for (day of month_days(); track trackByFn($index, day)) {
                 <button
+                    type="button"
                     class="hover:bg-base-200 relative h-9 w-9 rounded-full"
+                    [attr.aria-label]="day.id | date: 'fullDate'"
+                    [attr.aria-pressed]="!!(day.is_start || day.is_end)"
+                    [attr.aria-current]="day.is_today ? 'date' : null"
                     [class.text-secondary-content]="day.is_start || day.is_end"
                     [disabled]="day.disabled"
                     (click)="selectDate(day.id)"
@@ -141,16 +158,16 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     public readonly endChange = output<number>();
 
     /** Whether user is actively selecting end date (after clicking start) */
-    private _selecting_end = false;
+    private readonly _selecting_end = signal(false);
     /** Hovered date for preview during end selection */
     public readonly hovered_date = signal<number | null>(null);
 
     public readonly weekdays = signal<Date[]>([]);
-    public readonly month_days = signal<any[]>([]);
+    public readonly month_days = signal<RangeDay[]>([]);
 
     public readonly end_after_start = computed(() => {
         const start = this.start();
-        const end = this._selecting_end ? this.hovered_date() : this.end();
+        const end = this._selecting_end() ? this.hovered_date() : this.end();
         return !!start && !!end && end > start && !isSameDay(end, start);
     });
 
@@ -172,7 +189,7 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
             this._setMonthDays();
         }
         if (changes.end) {
-            if (!this._selecting_end) {
+            if (!this._selecting_end()) {
                 this._setMonthDays();
             }
         }
@@ -182,7 +199,7 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
         const start = this.start();
         const max_days = this.max_range_days();
 
-        if (this._selecting_end) {
+        if (this._selecting_end()) {
             if (date >= start) {
                 let end_date = date;
                 if (max_days > 0) {
@@ -196,19 +213,19 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
                 this.startChange.emit(date);
                 this.end.set(null);
             }
-            this._selecting_end = false;
+            this._selecting_end.set(false);
             this.hovered_date.set(null);
         } else {
             this.start.set(date);
             this.startChange.emit(date);
             this.end.set(null);
-            this._selecting_end = true;
+            this._selecting_end.set(true);
         }
         this._setMonthDays();
     }
 
     public setHoveredDate(date: number) {
-        if (!this._selecting_end) return;
+        if (!this._selecting_end()) return;
         const start = this.start();
         const max_days = this.max_range_days();
 
@@ -222,12 +239,12 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     }
 
     public clearHoveredDate() {
-        if (!this._selecting_end) return;
+        if (!this._selecting_end()) return;
         this.hovered_date.set(null);
         this._setMonthDays();
     }
 
-    public trackByFn(index: number, day: { id: string }) {
+    public trackByFn(index: number, day: RangeDay) {
         return day.id;
     }
 
@@ -246,7 +263,7 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
             weekStartsOn: this.offset_weekday() as any,
         });
         const range_start = this.start();
-        const range_end = this._selecting_end
+        const range_end = this._selecting_end()
             ? this.hovered_date()
             : this.end();
         const from_date = this.from_date();
@@ -254,7 +271,7 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
         const max_days = this.max_range_days();
 
         const max_end_date =
-            this._selecting_end && range_start && max_days > 0
+            this._selecting_end() && range_start && max_days > 0
                 ? addDays(range_start, max_days - 1).valueOf()
                 : null;
 
@@ -264,7 +281,7 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
                 const is_start = range_start && isSameDay(date, range_start);
 
                 const exceeds_max_range =
-                    this._selecting_end &&
+                    this._selecting_end() &&
                     range_start &&
                     max_end_date &&
                     date > max_end_date;
@@ -283,15 +300,16 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
 
                 return {
                     id: date,
-                    disabled:
+                    disabled: !!(
                         (from_date && isBefore(date, from_date)) ||
                         (to_date && isAfter(date, to_date)) ||
-                        exceeds_max_range,
+                        exceeds_max_range
+                    ),
                     is_today: isSameDay(date, Date.now()),
-                    is_start,
-                    is_end,
+                    is_start: !!is_start,
+                    is_end: !!is_end,
                     is_month: isSameMonth(date, this.month()),
-                    is_selected,
+                    is_selected: !!is_selected,
                 };
             }),
         );

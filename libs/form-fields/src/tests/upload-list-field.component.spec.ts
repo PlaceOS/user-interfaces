@@ -34,7 +34,7 @@ describe('UploadListFieldComponent', () => {
         expect(list[0].name).toBe('a.txt');
     });
 
-    it('should only keep completed files with a url when setting value', () => {
+    it('should show all files but only emit completed files with a url', () => {
         const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.component.setValue([
@@ -42,7 +42,11 @@ describe('UploadListFieldComponent', () => {
             attachment({ id: 'in-progress', progress: 40, url: 'y' }),
             attachment({ id: 'no-url', progress: 100, url: '' }),
         ]);
-        expect(spectator.component.list().map((_) => _.id)).toEqual(['done']);
+        expect(spectator.component.list().map((_) => _.id)).toEqual([
+            'done',
+            'in-progress',
+            'no-url',
+        ]);
         expect(on_change).toHaveBeenCalledWith([
             expect.objectContaining({ id: 'done' }),
         ]);
@@ -69,6 +73,19 @@ describe('UploadListFieldComponent', () => {
     it('should show an empty state with no files', () => {
         spectator.detectChanges();
         expect(spectator.element).toContainText('No uploaded files');
+    });
+
+    it('should ignore progress updates for a removed upload', () => {
+        const on_change = vi.fn();
+        spectator.component.registerOnChange(on_change);
+        const { component } = spectator;
+        component.updateUpload(
+            attachment({ id: 'up-1', progress: 40, url: '' }),
+        );
+        component.removeFile(attachment({ id: 'up-1' }));
+        component.updateUpload(attachment({ id: 'up-1', url: 'x' }));
+        expect(spectator.component.list()).toEqual([]);
+        expect(on_change).toHaveBeenLastCalledWith([]);
     });
 
     it('should ignore file events without any files', () => {

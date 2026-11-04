@@ -43,7 +43,9 @@ interface DateItem {
         <div class="p-2">
             <div class="flex items-center justify-between">
                 <button
+                    type="button"
                     class="pr-2 pl-1.5 font-medium"
+                    [disabled]="disabled()"
                     (dblclick)="setMonthToCurrent()"
                 >
                     {{ display_date() | date: 'LLLL yyyy' }}
@@ -52,8 +54,11 @@ interface DateItem {
                     <button
                         icon
                         matRipple
-                        name="schedule-next-month"
-                        [disabled]="displayed_dates()[0]?.id < from()"
+                        type="button"
+                        name="schedule-previous-month"
+                        [disabled]="
+                            disabled() || displayed_dates()[0]?.id < from()
+                        "
                         (click)="changeMonth(-1)"
                         [attr.aria-label]="'COMMON.PREVIOUS_MONTH' | translate"
                     >
@@ -62,8 +67,11 @@ interface DateItem {
                     <button
                         icon
                         matRipple
-                        name="schedule-previous-month"
-                        [disabled]="displayed_dates()[34]?.id > to()"
+                        type="button"
+                        name="schedule-next-month"
+                        [disabled]="
+                            disabled() || displayed_dates()[34]?.id > to()
+                        "
                         (click)="changeMonth(1)"
                         [attr.aria-label]="'COMMON.NEXT_MONTH' | translate"
                     >
@@ -84,7 +92,11 @@ interface DateItem {
                 @for (day of displayed_dates(); track day.id) {
                     <button
                         icon
+                        type="button"
                         name="schedule-set-date"
+                        [attr.aria-label]="day.id | date: 'fullDate'"
+                        [attr.aria-pressed]="day.id === active_date()"
+                        [attr.aria-current]="today === day.id ? 'date' : null"
                         class="relative my-0.5 h-9 w-9 min-w-[14%] overflow-visible"
                         [class.hover:bg-base-200]="day.id !== active_date()"
                         [class.text-base-300!]="!day.is_month"
@@ -95,7 +107,9 @@ interface DateItem {
                         [class.bg-secondary]="day.id === active_date()"
                         [class.font-normal]="day.id !== active_date()"
                         (click)="setValue(day.id)"
-                        [disabled]="day.id < from() || day.id > to()"
+                        [disabled]="
+                            disabled() || day.id < from() || day.id > to()
+                        "
                     >
                         {{ day.id | date: 'd' }}
                         @if (today === day.id) {
@@ -130,6 +144,7 @@ export class DateCalendarComponent
     public readonly date = signal(Date.now());
     public readonly active_date = signal(startOfDay(Date.now()).valueOf());
     public readonly offset = signal(0);
+    public readonly disabled = signal(false);
     public readonly date_list = signal<DateItem[]>([]);
     public readonly displayed_dates = this.date_list.asReadonly();
     public readonly display_date = computed(
@@ -157,7 +172,8 @@ export class DateCalendarComponent
 
     public setValue(new_value: number) {
         if (!isValid(new_value)) return;
-        if (new_value < this.from() || new_value >= this.to()) return;
+        // Match the disabled days in the template
+        if (new_value < this.from() || new_value > this.to()) return;
         const date = new Date(new_value);
         this.date.set(
             set(this.date(), {
@@ -191,6 +207,7 @@ export class DateCalendarComponent
 
     public readonly registerOnChange = (fn) => (this._onChange = fn);
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
+    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     public generateDates() {
         const offset = this._settings.signal(

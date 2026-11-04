@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Injector, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    Injector,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { disabled, form, FormField } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -82,7 +89,10 @@ import { DateFieldComponent } from './date-field.component';
                         <button
                             icon
                             matRipple
+                            type="button"
                             class="border-secondary h-12 w-12 rounded-sm border"
+                            [attr.aria-label]="day[0] | date: 'EEEE'"
+                            [attr.aria-pressed]="has_date"
                             [class.bg-secondary]="has_date"
                             [class.text-secondary]="!has_date"
                             [class.text-base-200]="has_date"
@@ -149,7 +159,8 @@ import { DateFieldComponent } from './date-field.component';
                 btn
                 matRipple
                 class="w-32"
-                [mat-dialog-close]="confirmValue()"
+                [disabled]="no_weekdays()"
+                [mat-dialog-close]="confirm_value()"
             >
                 {{ 'COMMON.SAVE' | translate }}
             </button>
@@ -292,6 +303,13 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         });
     }
 
+    /** Value the save button returns. Computed, so it is not rebuilt on every check */
+    public readonly confirm_value = computed(() => this.confirmValue());
+    /** Whether a weekly recurrence has no days selected, which cannot be saved */
+    public readonly no_weekdays = computed(
+        () => this.model().type === 'weekly' && !this.model().weekdays.size,
+    );
+
     public confirmValue(): Recurrence {
         const value = { ...this.model() } as Recurrence;
         value.end_date = value.end_date || this._defaultEndDate();
@@ -317,7 +335,8 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         return value;
     }
 
-    public maxInstances(): number {
+    /** Most instances that end inside the allowed booking window */
+    public readonly maxInstances = computed((): number => {
         const value = this.model() as Recurrence;
         let max_instances = 1;
         for (let count = 1; count <= 53; count++) {
@@ -329,7 +348,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
             max_instances = count;
         }
         return max_instances;
-    }
+    });
 
     private _onTypeChange(type: RecurrType) {
         if (type === 'monthly') this._setMonthlyWeekday();

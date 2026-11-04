@@ -1,12 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { form, FormField, required } from '@angular/forms/signals';
+import {
+    Component,
+    inject,
+    OnInit,
+    SecurityContext,
+    signal,
+} from '@angular/core';
+import { email, form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { DomSanitizer } from '@angular/platform-browser';
 import {
     currentUser,
     i18n,
@@ -15,8 +22,9 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { FullscreenModalShellComponent } from 'libs/components/src/lib/fullscreen-modal-shell.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { escapeHtml } from './escape-html';
 import { ImageListFieldComponent } from './image-list-field.component';
 import { RichTextInputComponent } from './rich-text-input.component';
 
@@ -58,6 +66,7 @@ export interface SupportRequestType {
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
+                                type="email"
                                 [placeholder]="'FORM.EMAIL' | translate"
                                 [formField]="form.email"
                             />
@@ -165,6 +174,7 @@ export class SupportTicketModalComponent implements OnInit {
         inject<MatDialogRef<SupportTicketModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _sanitizer = inject(DomSanitizer);
     private readonly _support_email = this._settings.signal(
         'support_email',
         'support@place.tech',
@@ -190,6 +200,7 @@ export class SupportTicketModalComponent implements OnInit {
     public readonly form = form(this.model, (p) => {
         required(p.name);
         required(p.email);
+        email(p.email);
         required(p.description);
     });
 
@@ -220,16 +231,24 @@ export class SupportTicketModalComponent implements OnInit {
     }
 
     public async submit() {
-        this.loading.set(true);
         this.form().markAsTouched();
         this._updateDescError();
-        if (this.form().valid()) {
-            const mod = this._org.module('smtp', 'Mailer');
-            if (!mod) {
-                return notifyError(i18n('COMMON.SUPPORT_NO_MAILER'));
-            }
+        if (!this.form().valid()) return;
+        const mod = this._org.module('smtp', 'Mailer');
+        if (!mod) return notifyError(i18n('COMMON.SUPPORT_NO_MAILER'));
+        this.loading.set(true);
+        try {
             const { name, email, location, description, images, issue_type } =
                 this.model();
+            // Image values are often relative API paths. Email needs full URLs
+            const image_urls = images.map(
+                (url) => new URL(url, globalThis.location.origin).href,
+            );
+            // The description comes from the rich text editor. Sanitise it again,
+            // as the model can be set without the editor
+            const safe_description =
+                this._sanitizer.sanitize(SecurityContext.HTML, description) ||
+                '';
             const support_email =
                 this.support_request_types().find(
                     (type) => type.name === issue_type,
@@ -243,10 +262,12 @@ export class SupportTicketModalComponent implements OnInit {
                 `${name}\n${email}\n\n${location}\n\n${description.replace(
                     /<[^>]+>/g,
                     '',
-                )}\n\n${images.join('\n')}`,
-                `<p>${name}</p><p>${email}</p><p>${location}</p><p>${description}</p>${images.join(
-                    '<br>',
-                )}`,
+                )}\n\n${image_urls.join('\n')}`,
+                `<p>${escapeHtml(name)}</p><p>${escapeHtml(email)}</p><p>${escapeHtml(
+                    location,
+                )}</p><p>${safe_description}</p>${image_urls
+                    .map(escapeHtml)
+                    .join('<br>')}`,
                 [],
                 [],
                 [],
@@ -255,8 +276,13 @@ export class SupportTicketModalComponent implements OnInit {
                 `${email}`,
             ]);
             this._dialog_ref.close();
-            this.loading.set(false);
             notifySuccess(i18n('COMMON.SUPPORT_SUCCESS'));
+        } catch (error) {
+            notifyError(
+                `Failed to send support ticket: ${error?.message || 'Unknown error'}`,
+            );
+        } finally {
+            this.loading.set(false);
         }
     }
 

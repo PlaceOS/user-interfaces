@@ -81,40 +81,43 @@ function toHourOfDay(value: unknown): number | null {
             <icon class="text-2xl">arrow_drop_down</icon>
         </button>
         <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
-            @for (option of time_options(); track option.id) {
-                <button
-                    type="button"
-                    mat-menu-item
-                    [attr.data-time]="option.id"
-                    [value]="option.id"
-                    class="text-left"
-                    (click)="setValue(option.id)"
-                >
-                    <div class="flex items-center justify-between">
-                        <div class="flex flex-col leading-tight">
-                            <div class="">
-                                {{ option.date | date: time_format() }}
-                                {{ extra_info_fn()(option.date) }}
-                            </div>
-                            @if (timezone() && tz()) {
-                                <div class="text-xs opacity-30">
-                                    {{
-                                        option.date
-                                            | date
-                                                : time_format() + ' (z)'
-                                                : tz()
-                                    }}
+            <!-- Lazy content: the options only render while the menu is open -->
+            <ng-template matMenuContent>
+                @for (option of time_options(); track option.id) {
+                    <button
+                        type="button"
+                        mat-menu-item
+                        [attr.data-time]="option.id"
+                        [value]="option.id"
+                        class="text-left"
+                        (click)="setValue(option.id)"
+                    >
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col leading-tight">
+                                <div class="">
+                                    {{ option.date | date: time_format() }}
+                                    {{ extra_info_fn()(option.date) }}
                                 </div>
+                                @if (timezone() && tz()) {
+                                    <div class="text-xs opacity-30">
+                                        {{
+                                            option.date
+                                                | date
+                                                    : time_format() + ' (z)'
+                                                    : tz()
+                                        }}
+                                    </div>
+                                }
+                            </div>
+                            @if (active_time() === option.date) {
+                                <icon class="ml-2 text-2xl"> done </icon>
                             }
                         </div>
-                        @if (active_time() === option.date) {
-                            <icon class="ml-2 text-2xl"> done </icon>
-                        }
-                    </div>
-                </button>
-            } @empty {
-                <div mat-menu-item disabled>No time options to select</div>
-            }
+                    </button>
+                } @empty {
+                    <div mat-menu-item disabled>No time options to select</div>
+                }
+            </ng-template>
         </mat-menu>
         @if (!no_error()) {
             <mat-error><ng-content /></mat-error>
@@ -310,8 +313,8 @@ export class TimeFieldComponent
         return hours * 60 + minutes;
     }
 
-    /** Available time blocks for the selected date */
-    public time_options() {
+    /** Available time blocks for the selected date, with the current time when it is off step */
+    public readonly time_options = computed(() => {
         const tz = this.timezone() || undefined;
         const time = (this.time() || '00:00').split(':');
         const date_value = setTimeInTimezone(
@@ -335,7 +338,7 @@ export class TimeFieldComponent
             time_options.sort((a, b) => `${a.id}`.localeCompare(`${b.id}`));
         }
         return time_options;
-    }
+    });
 
     /**
      * Update the form field value

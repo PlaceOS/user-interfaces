@@ -34,4 +34,23 @@ describe('DateCalendarComponent', () => {
         expect(ids.every((id) => Number.isFinite(id))).toBe(true);
         expect(new Set(ids).size).toBe(ids.length);
     });
+
+    it('should allow picking the day equal to the latest allowed date', () => {
+        const last_day = new Date(2026, 3, 30).valueOf();
+        spectator.setInput({ to: last_day });
+        const on_change = vi.fn();
+        spectator.component.registerOnChange(on_change);
+        spectator.component.setValue(last_day);
+        expect(on_change).toHaveBeenCalledWith(last_day);
+    });
+
+    it('should disable every day when the control is disabled', () => {
+        spectator.component.setDisabledState(true);
+        spectator.detectChanges();
+        const days = spectator.queryAll('button[name="schedule-set-date"]');
+        expect(days).toHaveLength(42);
+        expect(days.every((day) => (day as HTMLButtonElement).disabled)).toBe(
+            true,
+        );
+    });
 });

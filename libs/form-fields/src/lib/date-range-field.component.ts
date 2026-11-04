@@ -24,7 +24,6 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
             matRipple
             class="border-neutral outline-base-content hover:border-base-content flex min-w-max items-center space-x-2 rounded-sm border px-4 py-2 focus:outline-2"
             type="button"
-            role="date-picker"
             customTooltip
             [content]="calendar_picker"
             yPosition="top"
@@ -79,7 +78,6 @@ export class DateRangeFieldComponent extends AsyncHandler {
     public readonly week_start = input(0);
     /** Whether form control is disabled */
     public readonly disabled = input(false);
-    public readonly short = input(false);
 
     public readonly now = Date.now();
 

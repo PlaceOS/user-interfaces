@@ -103,5 +103,25 @@ describe('ImageFieldComponent', () => {
             expect(notify_open).toHaveBeenCalled();
             expect(spectator.component.progress()).toBe(0);
         });
+
+        it('should stop polling and report an upload that fails after it starts', async () => {
+            vi.useFakeTimers();
+            const uploads = spectator.inject(UploadsService);
+            (uploads as any).upload_list = () => [
+                {
+                    id: 'upload-1',
+                    name: 'a.png',
+                    progress: 20,
+                    error: 'Denied',
+                },
+            ];
+            await spectator.component.uploadImage(
+                fileEvent(new File([], 'a.png')),
+            );
+            vi.advanceTimersByTime(1000);
+            expect(notify_open).toHaveBeenCalledTimes(1);
+            expect(spectator.component.uploading()).toBe(false);
+            vi.useRealTimers();
+        });
     });
 });

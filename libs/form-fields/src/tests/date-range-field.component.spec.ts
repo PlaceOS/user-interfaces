@@ -39,12 +39,10 @@ describe('DateRangeFieldComponent', () => {
     });
 
     it('should disable the trigger button when disabled', () => {
-        expect(
-            spectator.query('button[role="date-picker"]'),
-        ).not.toBeDisabled();
+        expect(spectator.query('button[customTooltip]')).not.toBeDisabled();
         spectator.setHostInput({ disabled: true });
         spectator.detectChanges();
-        expect(spectator.query('button[role="date-picker"]')).toBeDisabled();
+        expect(spectator.query('button[customTooltip]')).toBeDisabled();
     });
 
     it('should show dates set on the bound model', async () => {
@@ -56,7 +54,7 @@ describe('DateRangeFieldComponent', () => {
         await spectator.fixture.whenStable();
         spectator.detectChanges();
 
-        const button = spectator.query('button[role="date-picker"]');
+        const button = spectator.query('button[customTooltip]');
         expect(button).toContainText('Sep 1, 2026');
         expect(button).toContainText('Sep 5, 2026');
     });
@@ -73,7 +71,7 @@ describe('DateRangeFieldComponent', () => {
         spectator.component.setStartDate(new Date(2026, 5, 1).valueOf());
         spectator.component.setEndDate(new Date(2026, 5, 5).valueOf());
         spectator.detectChanges();
-        const button = spectator.query('button[role="date-picker"]');
+        const button = spectator.query('button[customTooltip]');
         expect(button).toContainText('Jun 1, 2026');
         expect(button).toContainText('Jun 5, 2026');
     });
