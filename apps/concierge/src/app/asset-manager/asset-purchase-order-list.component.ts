@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { AssetPurchaseOrder } from '@placeos/common';
 import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
@@ -57,7 +58,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     "
                     [filter]="filters().search"
                     [sortable]="true"
-                    (row_clicked)="editOrder($event)"
+                    (rowClicked)="editOrder($event)"
                 ></simple-table>
             </div>
         </div>
@@ -103,7 +104,7 @@ export class AssetPurchaseOrderListComponent {
     });
     public readonly filters = this._state.options;
 
-    public editOrder(order) {
+    public editOrder(order: AssetPurchaseOrder) {
         this._router.navigate(
             [this._state.base_route, 'manage', 'purchase-order'],
             {

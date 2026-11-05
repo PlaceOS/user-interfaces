@@ -104,7 +104,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                             ) | translate
                         "
                         [sortable]="true"
-                        (row_clicked)="request.set($event)"
+                        (rowClicked)="request.set($event)"
                     ></simple-table>
                     <div class="h-20 w-full"></div>
                 </div>

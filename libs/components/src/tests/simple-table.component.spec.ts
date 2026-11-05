@@ -98,7 +98,7 @@ describe('SimpleTableComponent', () => {
 
     it('should cycle sorting between ascending, descending and none', () => {
         spectator.setInput({ columns: COLUMNS, data: DATA, sortable: true });
-        spectator.click('#column-age');
+        spectator.click('#column-age button');
         expect(spectator.component.sort()).toEqual({
             key: 'age',
             reverse: false,
@@ -108,7 +108,7 @@ describe('SimpleTableComponent', () => {
             'Alice',
             'Carol',
         ]);
-        spectator.click('#column-age');
+        spectator.click('#column-age button');
         expect(spectator.component.sort()).toEqual({
             key: 'age',
             reverse: true,
@@ -118,7 +118,7 @@ describe('SimpleTableComponent', () => {
             'Alice',
             'Bob',
         ]);
-        spectator.click('#column-age');
+        spectator.click('#column-age button');
         expect(spectator.component.sort()).toBeNull();
     });
 
@@ -128,10 +128,11 @@ describe('SimpleTableComponent', () => {
             data: DATA,
             sortable: true,
         });
+        expect('#column-name').toHaveAttribute('role', 'columnheader');
         expect('#column-name').toHaveAttribute('aria-sort', 'none');
         expect('#column-age').not.toHaveAttribute('aria-sort');
-        expect('#column-age').toHaveAttribute('tabindex', '-1');
-        spectator.click('#column-name');
+        expect('#column-age button').not.toExist();
+        spectator.click('#column-name button');
         expect('#column-name').toHaveAttribute('aria-sort', 'ascending');
     });
 
@@ -204,6 +205,14 @@ describe('SimpleTableComponent', () => {
         expect(spectator.component.selected()).toEqual([]);
     });
 
+    it('should name each row checkbox after its row', () => {
+        spectator.setInput({ columns: COLUMNS, data: DATA, selectable: true });
+        const input = spectator.query(
+            '[data-row-index="1"] mat-checkbox input',
+        );
+        expect(input.getAttribute('aria-label')).toContain('2, Bob');
+    });
+
     it('should skip rows that cannot be selected when selecting all', () => {
         spectator.setInput({
             columns: COLUMNS,
@@ -249,12 +258,35 @@ describe('SimpleTableComponent', () => {
         expect(spectator.query('[role="table"]')).toContainText('Bob');
     });
 
-    it('should emit the hovered row index on click', () => {
-        const spy = vi.spyOn(spectator.component.rowClicked, 'emit');
+    it('should emit the clicked row, but not for headers or controls in a cell', () => {
+        const clicked = vi.fn();
+        spectator.component.rowClicked.subscribe(clicked);
+        spectator.setInput({ columns: COLUMNS, data: DATA, sortable: true });
+        spectator.click('[data-row-index="1"] [role="cell"]');
+        expect(clicked).toHaveBeenCalledWith(DATA[1]);
+        spectator.click('#column-name button');
+        const button = document.createElement('button');
+        spectator.query('[data-row-index="2"] [role="cell"]').append(button);
+        spectator.click(button);
+        expect(clicked).toHaveBeenCalledTimes(1);
+    });
+
+    it('should let keyboard users activate rows when a parent listens', () => {
         spectator.setInput({ columns: COLUMNS, data: DATA });
-        spectator.component.active_row.set(1);
-        spectator.click('[role="table"]');
-        expect(spy).toHaveBeenCalledWith(1);
+        expect('[table-row][tabindex]').not.toExist();
+        const clicked = vi.fn();
+        spectator.component.rowClicked.subscribe(clicked);
+        spectator.detectChanges();
+        const row = spectator.query('[data-row-index="2"]');
+        expect(row).toHaveAttribute('tabindex', '0');
+        const space = new KeyboardEvent('keydown', {
+            key: ' ',
+            bubbles: true,
+            cancelable: true,
+        });
+        row.dispatchEvent(space);
+        expect(clicked).toHaveBeenCalledWith(DATA[2]);
+        expect(space.defaultPrevented).toBe(true);
     });
 
     describe('virtual scrolling', () => {
@@ -296,8 +328,9 @@ describe('SimpleTableComponent', () => {
             expect('[data-row-index="1999"]').toContainText('Row 1999');
         });
 
-        it('should select across the full data and keep global row click indices', () => {
-            const clicked = vi.spyOn(spectator.component.rowClicked, 'emit');
+        it('should select across the full data and emit rows outside the first window', () => {
+            const clicked = vi.fn();
+            spectator.component.rowClicked.subscribe(clicked);
             spectator.setInput({ selectable: true });
             spectator.component.selectAll(true);
             expect(spectator.component.selected()).toHaveLength(2000);
@@ -305,9 +338,8 @@ describe('SimpleTableComponent', () => {
             const cell = spectator.query(
                 '[data-row-index="1000"] [role="cell"]:not([row-selector])',
             );
-            cell.dispatchEvent(new MouseEvent('mouseenter'));
             spectator.click(cell);
-            expect(clicked).toHaveBeenCalledWith(1000);
+            expect(clicked).toHaveBeenCalledWith(rows[1000]);
         });
 
         it('should keep the scroll on refresh and reset it for search and sorting', () => {

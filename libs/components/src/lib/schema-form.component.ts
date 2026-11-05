@@ -72,6 +72,15 @@ export function parseSchemaFields(schema: JsonSchema): SchemaField[] {
 }
 
 /**
+ * Value of a field: the given value (an explicit null included), else the
+ * schema default, else null
+ */
+function fieldValue(field: SchemaField, values: Record<string, unknown>) {
+    const value = values[field.key];
+    return value !== undefined ? value : (field.default_value ?? null);
+}
+
+/**
  * Builds a reactive FormGroup from parsed schema fields and optional
  * existing default values.
  */
@@ -81,7 +90,7 @@ export function buildFormFromFields(
 ): FormGroup {
     const controls: Record<string, FormControl> = {};
     for (const field of fields) {
-        const value = defaults[field.key] ?? field.default_value ?? null;
+        const value = fieldValue(field, defaults);
         const validators = field.required ? [Validators.required] : [];
         controls[field.key] = new FormControl(value, validators);
     }
@@ -223,6 +232,7 @@ export class SchemaFormComponent implements ControlValueAccessor, OnDestroy {
     private _on_touch: () => void;
     private _form_sub: Subscription;
     private _value: Record<string, unknown> = {};
+    private _disabled = false;
 
     constructor() {
         effect(() => {
@@ -234,6 +244,7 @@ export class SchemaFormComponent implements ControlValueAccessor, OnDestroy {
             }
             this._teardown();
             const form = buildFormFromFields(schema_fields, this._value);
+            if (this._disabled) form.disable({ emitEvent: false });
             this.defaults_form.set(form);
             this._form_sub = form.valueChanges.subscribe((val) => {
                 this._value = val;
@@ -242,12 +253,31 @@ export class SchemaFormComponent implements ControlValueAccessor, OnDestroy {
         });
     }
 
+    /**
+     * Show the written value. Fields missing from it reset to their schema
+     * default, so values from an earlier write do not stay.
+     */
     public writeValue(value: Record<string, unknown>): void {
         this._value = value || {};
         const form = this.defaults_form();
         if (form) {
-            form.patchValue(this._value, { emitEvent: false });
+            const values = Object.fromEntries(
+                this.fields().map((field) => [
+                    field.key,
+                    fieldValue(field, this._value),
+                ]),
+            );
+            // Patch, as the schema can change before the form is rebuilt
+            form.patchValue(values, { emitEvent: false });
         }
+    }
+
+    /** Disable or enable every field with the parent form control */
+    public setDisabledState(disabled: boolean): void {
+        this._disabled = disabled;
+        const form = this.defaults_form();
+        if (disabled) form?.disable({ emitEvent: false });
+        else form?.enable({ emitEvent: false });
     }
 
     public registerOnChange(
@@ -264,12 +294,13 @@ export class SchemaFormComponent implements ControlValueAccessor, OnDestroy {
         this._teardown();
     }
 
-    /** Returns true if the generated defaults form is valid. */
+    /** Returns true if the generated defaults form is valid or disabled. */
     public isValid(): boolean {
         const form = this.defaults_form();
         if (!form) return true;
         form.markAllAsTouched();
-        return form.valid;
+        // Disabled fields are not validated, as in Angular forms
+        return form.valid || form.disabled;
     }
 
     private _teardown(): void {

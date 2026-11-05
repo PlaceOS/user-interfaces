@@ -11,7 +11,8 @@ import { IconComponent } from './icon.component';
         <button
             type="button"
             matRipple
-            class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2"
+            class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2 disabled:opacity-50"
+            [disabled]="disabled()"
             [class.border-base-300]="!value()"
             [class.border-info]="value()"
             [attr.role]="toggle() ? 'switch' : 'checkbox'"
@@ -96,6 +97,8 @@ export class SettingsToggleComponent implements ControlValueAccessor {
     public readonly inline = input(true);
 
     public value = signal<boolean>(undefined);
+    /** Whether the parent form control is disabled */
+    public readonly disabled = signal(false);
 
     /** Form control on change handler */
     private _onChange: (_: boolean) => void;
@@ -122,5 +125,10 @@ export class SettingsToggleComponent implements ControlValueAccessor {
      */
     public writeValue(value: boolean) {
         this.value.set(value);
+    }
+
+    /** Disable the toggle with the parent form control */
+    public setDisabledState(disabled: boolean) {
+        this.disabled.set(disabled);
     }
 }

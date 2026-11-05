@@ -60,9 +60,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                         ]"
                         [sortable]="true"
                         empty_message="No requested assets for this product"
-                        (row_clicked)="
-                            selected.set($any($event)); updateFeatures()
-                        "
+                        (rowClicked)="selected.set($event); updateFeatures()"
                     ></simple-table>
                 </div>
                 <div
