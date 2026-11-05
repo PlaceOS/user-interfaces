@@ -52,6 +52,21 @@ describe('AnnounceDirective', () => {
         expect(announce).toHaveBeenCalledWith('Reconnecting…', 'polite');
     });
 
+    it('should announce the text again when it changes', async () => {
+        loaded = Promise.resolve();
+        spectator = createComponent();
+        spectator.component.text.set('Reconnecting…');
+        await spectator.fixture.whenStable();
+
+        spectator.component.text.set('Connected');
+        await spectator.fixture.whenStable();
+        spectator.component.text.set('Connected');
+        await spectator.fixture.whenStable();
+
+        expect(announce).toHaveBeenCalledTimes(2);
+        expect(announce).toHaveBeenLastCalledWith('Connected', 'polite');
+    });
+
     it('should not announce when the element is removed before the translations load', async () => {
         let finishLoading: () => void;
         loaded = new Promise<void>((resolve) => (finishLoading = resolve));

@@ -23,4 +23,25 @@ describe('AttachedResourceConfigModalComponent', () => {
         expect(saveNotes).toHaveBeenCalledTimes(1);
         expect(saveNotes).toHaveBeenCalledWith(true);
     });
+
+    it('should emit one save while a save runs, and again after it fails', () => {
+        TestBed.configureTestingModule({
+            imports: [AttachedResourceConfigModalComponent],
+            providers: [{ provide: MAT_DIALOG_DATA, useValue: { config: [] } }],
+        });
+        const modal = TestBed.createComponent(
+            AttachedResourceConfigModalComponent,
+        ).componentInstance;
+        const events = vi.fn();
+        modal.event.subscribe(events);
+
+        modal.saveChanges();
+        modal.saveChanges();
+        expect(events).toHaveBeenCalledTimes(1);
+
+        // The opener clears loading when the save fails
+        modal.loading.set(false);
+        modal.saveChanges();
+        expect(events).toHaveBeenCalledTimes(2);
+    });
 });

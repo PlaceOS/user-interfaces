@@ -46,22 +46,51 @@ describe('ImageCarouselComponent', () => {
         spectator.setInput({ images: TEST_IMAGES });
         spectator.detectChanges();
         const [previous, next] = spectator.queryAll('button');
-        expect(previous).toBeDisabled();
-        expect(next).not.toBeDisabled();
+        expect(previous).toHaveAttribute('aria-disabled', 'true');
+        expect(next).toHaveAttribute('aria-disabled', 'false');
         spectator.click(next);
         spectator.detectChanges();
         expect(spectator.component.offset()).toBe(1);
         expect(spectator.query('[image]')).toHaveStyle({
             transform: 'translateX(-100%)',
         });
-        expect(previous).not.toBeDisabled();
+        expect(previous).toHaveAttribute('aria-disabled', 'false');
         spectator.click(next);
         spectator.detectChanges();
         expect(spectator.component.offset()).toBe(2);
-        expect(next).toBeDisabled();
+        expect(next).toHaveAttribute('aria-disabled', 'true');
+        // The button stays focusable, so a press at the end must do nothing
+        spectator.click(next);
+        expect(spectator.component.offset()).toBe(2);
         spectator.click(previous);
         spectator.detectChanges();
         expect(spectator.component.offset()).toBe(1);
+    });
+
+    it('should change images with a touch swipe', () => {
+        spectator.setInput({ images: TEST_IMAGES });
+        spectator.detectChanges();
+        // jsdom has no PointerEvent, so add the pointer type to a MouseEvent
+        const swipe = (from: number, to: number) => {
+            for (const [type, x] of [
+                ['pointerdown', from],
+                ['pointerup', to],
+            ] as const) {
+                const event = new MouseEvent(type, {
+                    bubbles: true,
+                    clientX: x,
+                });
+                Object.defineProperty(event, 'pointerType', { value: 'touch' });
+                spectator.query('[image]').dispatchEvent(event);
+            }
+        };
+        swipe(300, 100);
+        expect(spectator.component.offset()).toBe(1);
+        swipe(100, 300);
+        expect(spectator.component.offset()).toBe(0);
+        // A short move is a tap, not a swipe
+        swipe(300, 280);
+        expect(spectator.component.offset()).toBe(0);
     });
 
     it('should jump to an image using the indicator dots', () => {

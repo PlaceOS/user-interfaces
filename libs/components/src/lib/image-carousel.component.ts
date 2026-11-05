@@ -4,10 +4,19 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
 
+/** Distance in pixels a touch must move to count as a swipe */
+const SWIPE_DISTANCE = 50;
+
 @Component({
     selector: 'image-carousel',
     template: `
-        <div class="relative flex h-full w-full overflow-hidden">
+        <div
+            carousel
+            class="relative flex h-full w-full overflow-hidden"
+            (pointerdown)="onPointerDown($event)"
+            (pointerup)="onPointerUp($event)"
+            (pointercancel)="onPointerCancel()"
+        >
             @for (image of images(); track image) {
                 <div
                     image
@@ -36,8 +45,8 @@ import { TranslatePipe } from './translate.pipe';
                 <button
                     class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100 focus-visible:opacity-100"
                     [attr.aria-label]="'COMMON.PREVIOUS' | translate"
-                    [disabled]="offset() === 0"
-                    (click)="offset.update((value) => value - 1)"
+                    [attr.aria-disabled]="offset() === 0"
+                    (click)="previous()"
                 >
                     <div
                         matRipple
@@ -51,8 +60,8 @@ import { TranslatePipe } from './translate.pipe';
                 <button
                     class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100 focus-visible:opacity-100"
                     [attr.aria-label]="'COMMON.NEXT' | translate"
-                    [disabled]="offset() >= images()?.length - 1"
-                    (click)="offset.update((value) => value + 1)"
+                    [attr.aria-disabled]="offset() >= images()?.length - 1"
+                    (click)="next()"
                 >
                     <div
                         matRipple
@@ -97,11 +106,23 @@ import { TranslatePipe } from './translate.pipe';
                 width: 100%;
             }
 
+            [carousel] {
+                /* Horizontal swipes go to the carousel, vertical ones scroll */
+                touch-action: pan-y;
+            }
+
             [image] {
                 transition: transform 300ms;
             }
 
-            button[disabled] {
+            @media (prefers-reduced-motion: reduce) {
+                [image] {
+                    transition: none;
+                }
+            }
+
+            /* aria-disabled keeps focus on the button at the first or last image */
+            button[aria-disabled='true'] {
                 pointer-events: none;
             }
         `,
@@ -124,4 +145,37 @@ export class ImageCarouselComponent {
     public readonly offset_transform = computed(
         () => `translateX(-${this.offset() * 100}%)`,
     );
+    /** X position where a touch or pen drag started */
+    private _swipe_start: number | null = null;
+
+    /** Show the image before this one. Stays on the first image. */
+    public previous() {
+        this.offset.update((value) => Math.max(0, value - 1));
+    }
+
+    /** Show the image after this one. Stays on the last image. */
+    public next() {
+        const last = (this.images()?.length || 1) - 1;
+        this.offset.update((value) => Math.min(last, value + 1));
+    }
+
+    public onPointerDown(event: PointerEvent) {
+        // A mouse uses the buttons. A mouse drag also drags the image.
+        if (event.pointerType === 'mouse') return;
+        this._swipe_start = event.clientX;
+    }
+
+    /** Change the image when a touch or pen moves far enough sideways */
+    public onPointerUp(event: PointerEvent) {
+        if (this._swipe_start === null) return;
+        const distance = event.clientX - this._swipe_start;
+        this._swipe_start = null;
+        if (Math.abs(distance) < SWIPE_DISTANCE) return;
+        if (distance < 0) this.next();
+        else this.previous();
+    }
+
+    public onPointerCancel() {
+        this._swipe_start = null;
+    }
 }

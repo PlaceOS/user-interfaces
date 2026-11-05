@@ -376,17 +376,15 @@ export class CateringStateService extends AsyncHandler {
                 saveNotes: (b) => this.saveSettings({ require_notes: b }),
             },
         });
-        const details = await Promise.race([
-            this._doneEvent(ref.componentInstance.event),
-            this._closedEvent(ref.afterClosed()),
-        ]);
-        if (details?.reason !== 'done') return;
-        this.updateConfig(this._org.building.id, details.metadata).then(
-            () => {
-                ref.close();
-            },
-            () => ref.componentInstance.loading.set(false),
-        );
+        // Save on each Save click. After a failed save the user can try again.
+        const sub = ref.componentInstance.event.subscribe((details) => {
+            if (details?.reason !== 'done') return;
+            this.updateConfig(this._org.building.id, details.metadata).then(
+                () => ref.close(),
+                () => ref.componentInstance.loading.set(false),
+            );
+        });
+        ref.afterClosed().subscribe(() => sub.unsubscribe());
     }
 
     public async importMenu() {

@@ -1,12 +1,24 @@
-import { Component, inject, output, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    afterRenderEffect,
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    output,
+    signal,
+    viewChild,
+} from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService, unique } from '@placeos/common';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
+import { AnnounceDirective } from './announce.directive';
+import { DIALOG_TITLE_STYLES } from './confirm-modal.component';
 import { IconComponent } from './icon.component';
+import { LoadErrorComponent } from './load-error.component';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({
@@ -16,19 +28,40 @@ import { TranslatePipe } from './translate.pipe';
             <header
                 class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
-                <h2 class="px-2 text-xl font-medium">
+                <h2
+                    #heading
+                    mat-dialog-title
+                    tabindex="-1"
+                    class="px-2 text-xl font-medium focus:outline-none"
+                >
                     {{
                         'APP.CONCIERGE.AVAILABLE_ROOMS_HEADER'
                             | translate: { type: type }
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button
+                        icon
+                        matRipple
+                        mat-dialog-close
+                        [attr.aria-label]="'COMMON.CLOSE' | translate"
+                    >
                         <icon>close</icon>
                     </button>
                 }
             </header>
-            @if (!loading()) {
+            @if (rooms_error()) {
+                <main class="w-lg max-w-full">
+                    <load-error (retry)="reloadRooms()" />
+                </main>
+            } @else if (!rooms()) {
+                <main
+                    class="flex h-48 w-lg max-w-full flex-col items-center justify-center space-y-2 text-center"
+                >
+                    <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
+                    <p announce>{{ 'COMMON.LOADING' | translate }}</p>
+                </main>
+            } @else if (!loading()) {
                 <main class="max-h-[65vh] w-lg overflow-auto">
                     <table class="min-w-lg">
                         <thead class="border-base-200 border-b">
@@ -118,13 +151,19 @@ import { TranslatePipe } from './translate.pipe';
                 <footer
                     class="border-base-200 flex items-center justify-end space-x-2 border-t p-2"
                 >
-                    <button btn matRipple (click)="enableSelected()">
+                    <button
+                        btn
+                        matRipple
+                        [disabled]="!selected().length"
+                        (click)="enableSelected()"
+                    >
                         {{ 'APP.CONCIERGE.AVAILABLE_ROOMS_ENABLE' | translate }}
                     </button>
                     <button
                         btn
                         matRipple
                         class="inverse"
+                        [disabled]="!selected().length"
                         (click)="disableSelected()"
                     >
                         {{
@@ -136,8 +175,8 @@ import { TranslatePipe } from './translate.pipe';
                 <main
                     class="flex h-48 w-full min-w-64 flex-col items-center justify-center space-y-2 p-16 text-center"
                 >
-                    <mat-spinner diameter="32"></mat-spinner>
-                    <p>
+                    <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
+                    <p announce>
                         {{
                             'APP.CONCIERGE.AVAILABLE_ROOMS_SAVING'
                                 | translate: { type: type }
@@ -148,6 +187,7 @@ import { TranslatePipe } from './translate.pipe';
         </div>
     `,
     styles: [
+        DIALOG_TITLE_STYLES,
         `
             td {
                 padding: 0.5rem;
@@ -161,6 +201,8 @@ import { TranslatePipe } from './translate.pipe';
         MatDialogModule,
         TranslatePipe,
         IconComponent,
+        AnnounceDirective,
+        LoadErrorComponent,
     ],
 })
 export class AvailableRoomsStateModalComponent {
@@ -170,11 +212,33 @@ export class AvailableRoomsStateModalComponent {
     public readonly change = output<string[]>();
     public readonly loading = signal(false);
     public selected = signal<string[]>([]);
-    public readonly rooms = toSignal(
-        requestSpacesForZone(this._org.building.id),
+    private readonly _rooms = rxResource({
+        stream: () => requestSpacesForZone(this._org.building.id),
+    });
+    /** Rooms in the building. `undefined` until the list loads. */
+    public readonly rooms = computed(() =>
+        this._rooms.hasValue() ? this._rooms.value() : undefined,
     );
+    /** Whether the room list failed to load */
+    public readonly rooms_error = computed(() => !!this._rooms.error());
     public readonly type: string = this._data.type;
     public disabled_rooms = signal<string[]>(this._data.disabled_rooms);
+
+    private readonly _heading =
+        viewChild.required<ElementRef<HTMLElement>>('heading');
+    /** Saving removes the focused button. Move focus to the title. */
+    private readonly _focus_on_save = afterRenderEffect(() => {
+        if (this.loading()) this._heading().nativeElement.focus();
+    });
+
+    /**
+     * Request the room list again after it fails to load. The loading view
+     * removes the focused Retry button, so move focus to the title first.
+     */
+    public reloadRooms() {
+        this._heading().nativeElement.focus();
+        this._rooms.reload();
+    }
 
     public async toggleRoom(id: string) {
         if (id === '*') {

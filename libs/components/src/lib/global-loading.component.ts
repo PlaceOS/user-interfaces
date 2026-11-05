@@ -17,7 +17,7 @@ import {
     PlaceOS_Service,
     retryInitialisation,
 } from '@placeos/common';
-import { authority, isOnline } from '@placeos/ts-client';
+import { authority, onlineState } from '@placeos/ts-client';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NativeDomainOverlayComponent } from './native-domain-overlay.component';
@@ -88,6 +88,7 @@ export class NativeDomainOverlayLoaderComponent {
         <native-domain-overlay-loader />
         @if (connection_checked() && !online()) {
             <div
+                role="alert"
                 class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
             >
                 {{ 'COMMON.SERVER_DOWN' | translate }}
@@ -103,7 +104,7 @@ export class NativeDomainOverlayLoaderComponent {
                     <div
                         class="border-base-300 bg-base-100 w-[24rem] max-w-[calc(100vw-2rem)] rounded-lg border p-4 text-center text-xs shadow-sm"
                     >
-                        <p initialisation-error>
+                        <p initialisation-error role="alert">
                             {{ initialisation_error() }}
                         </p>
                         <button
@@ -118,7 +119,9 @@ export class NativeDomainOverlayLoaderComponent {
                     <div
                         class="border-base-300 bg-base-100 w-[24rem] max-w-[calc(100vw-2rem)] rounded-lg border p-2 text-center text-xs shadow-sm"
                     >
-                        <p class="text-center font-mono">{{ message() }}</p>
+                        <p role="status" class="text-center font-mono">
+                            {{ message() }}
+                        </p>
                     </div>
                     <div
                         class="border-base-300 w-[24rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-full border shadow-sm"
@@ -126,6 +129,7 @@ export class NativeDomainOverlayLoaderComponent {
                         <mat-progress-bar
                             mode="indeterminate"
                             class="scale-150 rounded-sm"
+                            [attr.aria-label]="'COMMON.LOADING' | translate"
                         ></mat-progress-bar>
                     </div>
                 }
@@ -198,18 +202,12 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
-        const update_online = () => {
-            this.online.set(isOnline());
-            if (this.online()) {
-                this.connection_checked.set(true);
-                this.clearTimeout('initial-connection');
-            }
-        };
+        const online_state = onlineState();
         // The client reports offline while the first authority request is pending.
         this.timeout(
             'initial-connection',
             () => {
-                update_online();
+                this.online.set(online_state());
                 this.connection_checked.set(true);
             },
             5000,
@@ -224,15 +222,18 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
             this.gradient.set(gradient);
             localStorage.setItem(GRADIENT_CACHE_KEY, gradient);
         };
-        update_online();
-        update_gradient();
-        this.interval(
+        // The client loads the domain before it reports online, so one
+        // listener updates both. It runs now and on each online change.
+        this.subscription(
             'online',
-            () => {
-                update_online();
+            online_state.subscribe((is_online) => {
+                this.online.set(is_online);
+                if (is_online) {
+                    this.connection_checked.set(true);
+                    this.clearTimeout('initial-connection');
+                }
                 update_gradient();
-            },
-            1000,
+            }),
         );
     }
 }

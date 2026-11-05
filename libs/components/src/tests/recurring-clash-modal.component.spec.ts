@@ -1,6 +1,7 @@
+import { signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
-import { DialogEvent } from '@placeos/common';
+import { DialogEvent, SettingsService } from '@placeos/common';
 
 import { RecurringClashModalComponent } from '../lib/recurring-clash-modal.component';
 
@@ -20,16 +21,21 @@ describe('RecurringClashModalComponent', () => {
         },
     ] as unknown[];
     const dialog_ref = { close: vi.fn() };
+    const time_format_signal = signal('h:mm a');
 
     const createComponent = createComponentFactory({
         component: RecurringClashModalComponent,
         providers: [
             { provide: MAT_DIALOG_DATA, useValue: { clashes: CLASHES } },
             { provide: MatDialogRef, useValue: dialog_ref },
+            { provide: SettingsService, useValue: { time_format_signal } },
         ],
     });
 
-    beforeEach(() => vi.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        time_format_signal.set('h:mm a');
+    });
 
     it('should create component', () => {
         spectator = createComponent();
@@ -44,6 +50,15 @@ describe('RecurringClashModalComponent', () => {
         expect(rows[0]).toContainText('9:30 AM');
         expect(rows[0]).toContainText('10:00 AM');
         expect(rows[1]).toContainText('Wed, Mar 11, 2026');
+    });
+
+    it('should show times in the 24 hour format when the user sets it', () => {
+        time_format_signal.set('HH:mm');
+        spectator = createComponent();
+        const row = spectator.query('tbody tr');
+        expect(row).toContainText('09:30');
+        expect(row).toContainText('10:00');
+        expect(row).not.toContainText('AM');
     });
 
     it('should handle no clashes being passed', () => {

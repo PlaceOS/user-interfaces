@@ -29,13 +29,6 @@ import { TranslatePipe } from './translate.pipe';
                 width: 28em;
                 max-width: calc(100vw - 1rem);
             }
-
-            @media (prefers-color-scheme: dark) {
-                [content] {
-                    background-color: #262626;
-                    color: #fff;
-                }
-            }
         `,
     ],
     imports: [TranslatePipe],
