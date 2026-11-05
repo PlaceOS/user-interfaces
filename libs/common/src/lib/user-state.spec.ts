@@ -6,6 +6,7 @@ import { StaffUser } from './types/user.class';
 import {
     checkUserGroupChanges,
     currentUser,
+    initialiseUser,
     setCurrentUser,
     user_group_names,
 } from './user-state';
@@ -42,5 +43,33 @@ describe('checkUserGroupChanges', () => {
         expect(await checkUserGroupChanges()).toBe(false);
         expect(currentUser()).toBe(user);
         expect(ts_client.currentGroups).not.toHaveBeenCalled();
+    });
+});
+
+describe('initialiseUser', () => {
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.restoreAllMocks();
+    });
+
+    it('sends a new request for each retry and handles the last failure', async () => {
+        vi.useFakeTimers();
+        vi.clearAllMocks();
+        const error = new Error('Timed out waiting for authentication.');
+        vi.mocked(ts_client.showUser).mockRejectedValue(error);
+        vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+        const log_error = vi
+            .spyOn(console, 'error')
+            .mockImplementation(() => undefined);
+
+        initialiseUser();
+        // The retry delays add up to 210 seconds.
+        await vi.advanceTimersByTimeAsync(5 * 60_000);
+
+        expect(ts_client.showUser).toHaveBeenCalledTimes(11);
+        expect(log_error).toHaveBeenCalledWith(
+            'User loading failed after 10 retries.',
+            error,
+        );
     });
 });
