@@ -5,6 +5,7 @@ import {
     input,
     OnInit,
     output,
+    signal,
     viewChild,
 } from '@angular/core';
 import {
@@ -14,10 +15,15 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { TranslatePipe } from './translate.pipe';
 
-declare class SpacesDigitalMap {}
+declare class SpacesDigitalMap {
+    constructor(options: Record<string, unknown>);
+}
 
 const DEFAULT_ZOOM = 18.5;
+/** Checks for the Cisco Spaces script, 1 second apart, before the map shows an error */
+const MAX_INIT_ATTEMPTS = 30;
 
 @Component({
     selector: 'cisco-map',
@@ -27,8 +33,16 @@ const DEFAULT_ZOOM = 18.5;
             id="cisco-map-container"
             class="absolute inset-0 z-0"
         ></div>
+        @if (error()) {
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="opacity-30">
+                    {{ 'EXPLORE.MAP_FAILED_TO_LOAD' | translate }}
+                </div>
+            </div>
+        }
     `,
     styles: [``],
+    imports: [TranslatePipe],
 })
 export class CiscoMapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
@@ -42,6 +56,8 @@ export class CiscoMapComponent extends AsyncHandler implements OnInit {
     public readonly reset = input<number>(undefined);
     public readonly zoomChange = output<number>();
     public readonly zoneChange = output<BuildingLevel>();
+    /** Whether the map could not start */
+    public readonly error = signal(false);
 
     private readonly _mapContainer =
         viewChild.required<ElementRef<HTMLDivElement>>('map_container');
@@ -61,46 +77,56 @@ export class CiscoMapComponent extends AsyncHandler implements OnInit {
         document.body.appendChild(script);
     }
 
-    private async _initialiseMap() {
+    /**
+     * Start the map. Waits up to 30 seconds for the Cisco Spaces script, and
+     * shows an error if a step fails.
+     */
+    private async _initialiseMap(attempt = 1) {
+        if (typeof SpacesDigitalMap !== 'function') {
+            if (attempt >= MAX_INIT_ATTEMPTS) {
+                console.error('Cisco Spaces namespace is not defined');
+                this.error.set(true);
+                return;
+            }
+            this.timeout('init', () => this._initialiseMap(attempt + 1), 1000);
+            return;
+        }
         try {
-            SpacesDigitalMap;
-        } catch {
-            console.error('Cisco Spaces namespace is not defined');
-            this.timeout('init', () => this._initialiseMap(), 1000);
-            return;
+            const config = this._settings.get('app.explore.cisco_maps');
+            const api_endpoint = config.api_endpoint;
+            const headers = { 'x-api-key': config.access_token };
+            const b_resp = await fetch(`${api_endpoint}/buildings`, {
+                method: 'POST',
+                headers,
+            });
+            if (!b_resp.ok) throw new Error('Failed to load buildings');
+            const { result } = await b_resp.json();
+            const bld = result?.buildings?.[0];
+            if (!bld) throw new Error('No building found');
+            // GET requests cannot have a body, so send the building ID in the URL
+            const query = new URLSearchParams({ building_id: bld.id });
+            const resp = await fetch(`${api_endpoint}/sessionKey?${query}`, {
+                method: 'GET',
+                headers,
+            });
+            if (!resp.ok) throw new Error('Failed to load session key');
+            const { session_key } = await resp.json();
+            this._map = new SpacesDigitalMap({
+                mapContainer: 'cisco-map-container',
+                sessionKey: session_key,
+                tenantId: result.hashed_tenant_id,
+                locationId: bld.hashed_id,
+                defaultFloor: bld.floors?.[0]?.levelIndex,
+                initialPos: bld.coordinates,
+                initialZoom: 20,
+                initialPitch: 65,
+                initialBearing: 118,
+                poiLegendHolder: 'poi-switch',
+            });
+            console.log('Map initialized', this._map);
+        } catch (e) {
+            console.error('[CISCO] Failed to initialise map.', e);
+            this.error.set(true);
         }
-        if (!SpacesDigitalMap) {
-            console.error('Cisco Spaces namespace is not defined');
-            this.timeout('init', () => this._initialiseMap(), 1000);
-            return;
-        }
-        const config = this._settings.get('app.explore.cisco_maps');
-        const api_endpoint = config.api_endpoint;
-        const b_resp = await fetch(`${api_endpoint}/buildings`, {
-            method: 'POST',
-            headers: { 'x-api-key': config.access_token },
-        });
-        const { result } = await b_resp.json();
-        const { hashed_tenant_id, buildings } = result;
-        const bld = buildings[0] || {};
-        const resp = await fetch(`${api_endpoint}/sessionKey`, {
-            method: 'GET',
-            headers: { 'x-api-key': config.access_token },
-            body: JSON.stringify({ building_id: bld.id }),
-        });
-        const { session_key } = await resp.json();
-        this._map = new (SpacesDigitalMap as any)({
-            mapContainer: 'cisco-map-container',
-            sessionKey: session_key,
-            tenantId: hashed_tenant_id,
-            locationId: bld?.hashed_id,
-            defaultFloor: bld?.floors[0]?.levelIndex,
-            initialPos: bld?.coordinates,
-            initialZoom: 20,
-            initialPitch: 65,
-            initialBearing: 118,
-            poiLegendHolder: 'poi-switch',
-        });
-        console.log('Map initialized', this._map);
     }
 }

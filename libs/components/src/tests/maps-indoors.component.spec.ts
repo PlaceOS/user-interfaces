@@ -130,4 +130,52 @@ describe('MapsIndoorsComponent', () => {
         );
         expect(fills).toEqual(['blue', 'blue', 'blue']);
     });
+
+    it('reads anchors as [lng, lat] and building locations as "lat,lng"', () => {
+        TestBed.overrideProvider(OrganisationService, {
+            useValue: {
+                building: null,
+                buildings: [{ id: 'bld-1', location: '-37.81,144.96' }],
+            },
+        });
+        const fixture = TestBed.createComponent(MapsIndoorsComponent);
+        fixture.componentRef.setInput('zone', {
+            id: 'lvl-1',
+            parent_id: 'bld-1',
+        });
+        const component = fixture.componentInstance;
+        const melbourne = { lat: -37.81, lng: 144.96 };
+        expect(component['_coordinates']({})).toEqual(melbourne);
+        expect(
+            component['_coordinates']({
+                properties: { anchor: { coordinates: [144.96, -37.81] } },
+            }),
+        ).toEqual(melbourne);
+    });
+
+    it('stops the directions spinner when the current location is not available', async () => {
+        getLocations.mockResolvedValue([{ id: 'loc-1', properties: {} }]);
+        Object.defineProperty(navigator, 'geolocation', {
+            configurable: true,
+            value: {
+                getCurrentPosition: (_: unknown, fail: () => void) => fail(),
+            },
+        });
+        const fixture = TestBed.createComponent(MapsIndoorsComponent);
+        fixture.componentRef.setInput('focus', 'desk-1');
+        fixture.detectChanges();
+        await fixture.componentInstance.toggleDirections();
+        expect(fixture.componentInstance.loading_directions()).toBe(false);
+        Reflect.deleteProperty(navigator, 'geolocation');
+    });
+
+    it('shows an error when the MapsIndoors SDK does not load', () => {
+        TestBed.overrideProvider(MapsPeopleService, {
+            useValue: { is_ready: false },
+        });
+        const fixture = TestBed.createComponent(MapsIndoorsComponent);
+        fixture.detectChanges();
+        vi.advanceTimersByTime(60_000);
+        expect(fixture.componentInstance.error()).toBe(true);
+    });
 });

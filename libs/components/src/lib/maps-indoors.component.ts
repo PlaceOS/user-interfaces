@@ -30,13 +30,18 @@ import {
 } from '@placeos/common';
 import { runBulk } from './bulk-actions';
 import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
 
 declare let mapsindoors: any;
 declare let google: any;
 
 const DEFAULT_ZOOM = 18.5;
+/** Map center as "lat,lng" when the building has no location */
+const DEFAULT_LOCATION = '-33.8567844,151.2152967';
 /** Location searches that styling runs at the same time */
 const STYLE_SEARCH_CONCURRENCY = 6;
+/** Checks for the MapsIndoors SDK, 1 second apart, before the map shows an error */
+const MAX_INIT_ATTEMPTS = 60;
 
 interface MapsIndoorServices {
     mapsindoors: any;
@@ -52,6 +57,13 @@ const RESOURCE_MAP: Record<string, any> = {};
     selector: 'maps-indoors',
     template: `
         <div #map_container class="absolute inset-0 z-0"></div>
+        @if (error()) {
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="opacity-30">
+                    {{ 'EXPLORE.MAP_FAILED_TO_LOAD' | translate }}
+                </div>
+            </div>
+        }
         @if (focus() && !show_directions() && options()?.controls) {
             <button
                 btn
@@ -70,7 +82,12 @@ const RESOURCE_MAP: Record<string, any> = {};
         }
     `,
     styles: [``],
-    imports: [MatRippleModule, MatProgressSpinnerModule, IconComponent],
+    imports: [
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class MapsIndoorsComponent
     extends AsyncHandler
@@ -97,6 +114,8 @@ export class MapsIndoorsComponent
     public viewing_directions = signal(false);
     public loading_directions = signal(false);
     public ignore_zoom = signal(false);
+    /** Whether the map view could not start */
+    public error = signal(false);
 
     private _services: MapsIndoorServices;
     private _floor_list: any[] = [];
@@ -133,6 +152,8 @@ export class MapsIndoorsComponent
     public ngOnChanges(changes: SimpleChanges) {
         changes = { ...this._pending_changes, ...changes };
         if (!this.is_initialised) {
+            // A map that failed to start never applies the changes
+            if (this.error()) return;
             this._pending_changes = changes;
             return this.timeout('on_changes', () => this.ngOnChanges({}));
         }
@@ -188,13 +209,25 @@ export class MapsIndoorsComponent
         });
     }
 
-    private _initialiseServices() {
+    /**
+     * Start the map view. Waits up to a minute for the MapsIndoors SDK, then
+     * shows an error.
+     */
+    private _initialiseServices(attempt = 1) {
         if (!this._maps_people.is_ready || !(window as any).mapsindoors) {
-            this.timeout('init', () => this._initialiseServices(), 1000);
+            if (attempt >= MAX_INIT_ATTEMPTS) {
+                this.error.set(true);
+                return;
+            }
+            this.timeout(
+                'init',
+                () => this._initialiseServices(attempt + 1),
+                1000,
+            );
             return;
         }
         const [lat, long] = (
-            this._org.building?.location || `-33.8567844,151.2152967`
+            this._org.building?.location || DEFAULT_LOCATION
         ).split(',');
         const view_options: Record<string, unknown> = {
             element: this._container().nativeElement,
@@ -220,6 +253,7 @@ export class MapsIndoorsComponent
         }
         if (!view_instance) {
             notifyWarn(i18n('EXPLORE.MAPSINDOORS_INIT_FAILED'));
+            this.error.set(true);
             return;
         }
         const provider =
@@ -289,12 +323,7 @@ export class MapsIndoorsComponent
             return;
         }
         this.loading_directions.set(true);
-        const item = items[0];
-        const bld = this._org.buildings.find(
-            (bld) => bld.id === this.zone().parent_id,
-        );
-        const [d_lng, d_lat] = item.properties?.anchor?.coordinates ||
-            bld?.location.split(',') || [37.8136, 144.9631];
+        const destination = this._coordinates(items[0]);
         const options = { timeout: 10000, enableHighAccuracy: true };
         navigator.geolocation.getCurrentPosition(
             async (position: GeolocationPosition) => {
@@ -304,7 +333,7 @@ export class MapsIndoorsComponent
                         lat: position.coords.latitude,
                         lng: position.coords.longitude,
                     },
-                    { lat: d_lat, lng: d_lng },
+                    destination,
                 );
             },
             () => {
@@ -314,12 +343,33 @@ export class MapsIndoorsComponent
                             lat: this._last_position.coords.latitude,
                             lng: this._last_position.coords.longitude,
                         },
-                        { lat: d_lat, lng: d_lng },
+                        destination,
                     );
-                } else notifyError(i18n('EXPLORE.LOCATE_CURRENT_FAILED'));
+                    return;
+                }
+                this.loading_directions.set(false);
+                notifyError(i18n('EXPLORE.LOCATE_CURRENT_FAILED'));
             },
             options,
         );
+    }
+
+    /**
+     * Coordinates of a MapsIndoors location. Uses its GeoJSON anchor, which
+     * is [lng, lat], or else the zone's building location, which is "lat,lng".
+     */
+    private _coordinates(item: {
+        properties?: { anchor?: { coordinates?: number[] } };
+    }): { lat: number; lng: number } {
+        const anchor = item.properties?.anchor?.coordinates;
+        if (anchor) return { lat: anchor[1], lng: anchor[0] };
+        const bld = this._org.buildings.find(
+            (bld) => bld.id === this.zone()?.parent_id,
+        );
+        const [lat, lng] = (bld?.location || DEFAULT_LOCATION)
+            .split(',')
+            .map(parseFloat);
+        return { lat, lng };
     }
 
     public async setDirectionsFromLocation(
@@ -346,7 +396,6 @@ export class MapsIndoorsComponent
                 );
                 const origin_error =
                     e instanceof TypeError && e.message?.includes('origin');
-                this.loading_directions.set(false);
                 if (!origin_error) return;
                 notifyError(
                     i18n('EXPLORE.LOCATE_ROUTE_FAILED', {
@@ -354,10 +403,10 @@ export class MapsIndoorsComponent
                     }),
                 );
             });
+        this.loading_directions.set(false);
         if (!result) return;
         this._services.directions_renderer.setRoute(result);
         this.viewing_directions.set(true);
-        this.loading_directions.set(false);
     }
 
     private _handleZoomChange(level: number) {
@@ -499,13 +548,8 @@ export class MapsIndoorsComponent
         const item =
             items.find((_) => _.properties?.externalId === this.focus()) ||
             items[0];
-        const bld = this._org.buildings.find(
-            (bld) => bld.id === this.zone().parent_id,
-        );
-        const [lng, lat] = item.properties?.anchor?.coordinates ||
-            bld?.location.split(',') || [37.8136, 144.9631];
         this._services.map.setZoom(DEFAULT_ZOOM);
-        this._services.map.setCenter({ lat, lng });
+        this._services.map.setCenter(this._coordinates(item));
         this._services.mapsindoors.setFloor(item.properties?.floor);
         this._services.mapsindoors.highlight([item.id]);
     }

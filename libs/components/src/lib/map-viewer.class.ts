@@ -300,22 +300,43 @@ function generateElementBounds(data: string): ElementBoundsResult {
     return { bounds: bounds_map, aspect_ratio };
 }
 
+/**
+ * Most maps to keep in memory. Each SVG can be 5-20 MB, so this keeps the
+ * floors of one building (50-200 MB at most) and not every map seen.
+ */
+const MAX_CACHED_MAPS = 10;
+/** Checks for the PlaceOS client before a map request, 300 ms apart (30 s) */
+const MAX_AUTHORITY_CHECKS = 100;
+
+/** Cache of loaded maps. Drops the least recently used map when full. */
 class MapStore {
     store: Map<string, Promise<MapDetails>> = new Map();
 
     public get(path: string): Promise<MapDetails> {
-        if (!this.store.has(path)) {
-            const details = this._load(path);
+        let details = this.store.get(path);
+        if (details) {
+            // Re-add below, so the least recently used map is first
+            this.store.delete(path);
+        } else {
+            details = this._load(path);
             // Allow failed loads to be retried
-            details.catch(() => this.store.delete(path));
-            this.store.set(path, details);
+            details.catch(() => {
+                if (this.store.get(path) === details) this.store.delete(path);
+            });
         }
-        return this.store.get(path);
+        this.store.set(path, details);
+        if (this.store.size > MAX_CACHED_MAPS) {
+            const [oldest] = this.store.keys();
+            this.store.delete(oldest);
+        }
+        return details;
     }
 
     private async _load(path: string) {
-        // Wait until the PlaceOS client is initialised so auth tokens are available
-        while (!authority()) {
+        // Wait until the PlaceOS client is initialised so auth tokens are
+        // available. Then try the request anyway, so a client that never
+        // starts fails the request instead of waiting forever.
+        for (let i = 0; !authority() && i < MAX_AUTHORITY_CHECKS; i++) {
             await new Promise((resolve) => setTimeout(resolve, 300));
         }
         const options: RequestInit = {};

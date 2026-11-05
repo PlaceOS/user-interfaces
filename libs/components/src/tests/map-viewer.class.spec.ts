@@ -249,4 +249,25 @@ describe('getMapDetails', () => {
         expect(details.aspect_ratio).toBe(2);
         expect(details.raw_data).toBe(svg);
     });
+
+    it('drops the least recently used map when the cache is full', async () => {
+        vi.spyOn(client, 'authority').mockReturnValue(
+            {} as ReturnType<typeof client.authority>,
+        );
+        vi.spyOn(client, 'token').mockReturnValue('');
+        const fetch_map = vi.fn(() =>
+            Promise.resolve(
+                new Response('<svg xmlns="http://www.w3.org/2000/svg"/>'),
+            ),
+        );
+        vi.stubGlobal('fetch', fetch_map);
+
+        for (let i = 0; i <= 10; i++) {
+            await getMapDetails(`/maps/cache-${i}.svg`);
+        }
+        await getMapDetails('/maps/cache-10.svg');
+        expect(fetch_map).toHaveBeenCalledTimes(11);
+        await getMapDetails('/maps/cache-0.svg');
+        expect(fetch_map).toHaveBeenCalledTimes(12);
+    });
 });

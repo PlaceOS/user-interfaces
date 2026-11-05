@@ -1,9 +1,11 @@
-import { signal } from '@angular/core';
+import { ElementRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Subscription } from 'rxjs';
 
+import { MAP_FEATURE_DATA, ViewerFeature } from '@placeos/common';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import { DynamicMapComponent } from '../lib/dynamic-map.component';
+import { MapViewer } from '../lib/map-viewer.class';
 
 describe('DynamicMapComponent', () => {
     beforeEach(() => {
@@ -40,6 +42,58 @@ describe('DynamicMapComponent', () => {
 
         expect(component.injectors()).toBe(injectors);
 
+        component.ngOnDestroy();
+    });
+
+    it('should give a feature a new injector only when its data changes', () => {
+        const desks = (date: number) => [
+            {
+                location: 'desk-1',
+                track_id: 'desk-1',
+                content: '',
+                data: { date },
+            },
+            { location: 'desk-2', content: '', data: { date: 1 } },
+        ];
+        const features = signal<ViewerFeature[]>(desks(1));
+        const component = TestBed.runInInjectionContext(() =>
+            Object.assign(new DynamicMapComponent(), { features }),
+        );
+        TestBed.flushEffects();
+        const [, untracked_desk] = component.injectors();
+
+        features.set(desks(2));
+        TestBed.flushEffects();
+
+        const [tracked_desk, same_desk] = component.injectors();
+        expect(tracked_desk.get(MAP_FEATURE_DATA).date).toBe(2);
+        expect(same_desk).toBe(untracked_desk);
+        component.ngOnDestroy();
+    });
+
+    it('should show HTML features with the sanitised element', () => {
+        const component = TestBed.runInInjectionContext(
+            () => new DynamicMapComponent(),
+        );
+        const setOverlays = vi.fn();
+        component['_map_viewer'] = {
+            setOverlays,
+        } as Partial<MapViewer> as MapViewer;
+        const rendered = document.createElement('div');
+
+        component['_applyOverlays'](
+            [
+                {
+                    location: 'desk-1',
+                    content: '<img src="x" onerror="alert(1)">',
+                },
+            ],
+            [],
+            [new ElementRef(rendered)],
+        );
+
+        expect(setOverlays.mock.calls[0][0][0].contents).toBe(rendered);
+        component['_map_viewer'] = null;
         component.ngOnDestroy();
     });
 

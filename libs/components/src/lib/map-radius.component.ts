@@ -36,7 +36,7 @@ export interface MapRadiusData {
                     <div
                         message
                         [style.top]="'-' + (radius() / 2) * zoom() + 'px'"
-                        class="whitespace-no-wrap bg-base-100 absolute top-0 m-2 flex w-64 flex-col rounded-sm p-2 text-gray-700 shadow-sm"
+                        class="bg-base-100 text-base-content absolute top-0 m-2 flex w-64 flex-col rounded-sm p-2 whitespace-nowrap shadow-sm"
                     >
                         {{ message }}
                         @if (last_seen()) {
