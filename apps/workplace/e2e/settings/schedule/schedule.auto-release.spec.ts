@@ -78,6 +78,7 @@ import {
     staffEmail,
 } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
+import { ignoreClosed } from '../../../../../e2e/support/teardown';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
     type DebugWindow,
@@ -319,7 +320,9 @@ async function awayIdentity(page: Page) {
         (url) =>
             ORIGINS.has(url.origin) &&
             url.pathname === '/api/engine/v2/users/current',
-        async (route: Route) => {
+        // A request still in flight when the test's context closes fails with
+        // a closed-target error; the teardown causes it.
+        ignoreClosed(async (route: Route) => {
             if (route.request().method() !== 'GET') return route.fallback();
             const response = await route.fetch({ maxRedirects: 0 });
             if (!response.ok()) return route.fulfill({ response });
@@ -344,7 +347,7 @@ async function awayIdentity(page: Page) {
                     },
                 },
             });
-        },
+        }),
     );
 }
 

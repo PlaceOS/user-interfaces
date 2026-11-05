@@ -300,6 +300,9 @@ readOnlyTest(
             .getByRole('option', { name: 'Daily', exact: true })
             .click();
         await expect(flow.recurrence).toContainText('Daily');
+        // Reopen only after the Daily panel has closed, so the click below
+        // cannot land on an option of the panel that is still animating out.
+        await expect(staffPage.getByRole('option')).toHaveCount(0);
         await flow.recurrence.click();
         await staffPage
             .getByRole('option', { name: "Doesn't repeat", exact: true })
