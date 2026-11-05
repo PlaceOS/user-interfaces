@@ -294,7 +294,12 @@
         "NUMBERED_LIST": "Numbered list",
         "INSERT_LINK": "Insert link",
         "INSERT_IMAGE": "Insert image",
-        "ATTACH_FILE": "Attach file"
+        "ATTACH_FILE": "Attach file",
+        "MENU": "Menu",
+        "WORK_BLOCK_ADD": "Add time block",
+        "WORK_BLOCK_REMOVE": "Remove time block",
+        "WAITLISTED": "Waitlisted",
+        "SELECTED": "Selected"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -466,7 +471,11 @@
         "MAP_ID": "Map ID",
         "MAP_ID_EMPTY": "No map ID",
         "MAP_ID_REQUIRED": "A valid map ID is required",
-        "MAP_ID_PLACEHOLDER": "Element selector within map SVG. e.g. area-01.123-status"
+        "MAP_ID_PLACEHOLDER": "Element selector within map SVG. e.g. area-01.123-status",
+        "SEARCH_OPEN": "Open search",
+        "SEARCH_CLOSE": "Close search",
+        "SENSORS_SHOW": "Show sensor data",
+        "SENSORS_TEMP_HIGH": "High temperature"
     },
     "BOOKINGS": {
         "ASSOCIATE": "Associate",
