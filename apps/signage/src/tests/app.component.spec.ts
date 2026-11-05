@@ -1,3 +1,4 @@
+import { DeferBlockBehavior } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     notifyError,
@@ -24,6 +25,8 @@ describe('AppComponent', () => {
         component: AppComponent,
         shallow: true,
         detectChanges: false,
+        // The idle-loaded debug launcher can finish loading after teardown
+        deferBlockBehavior: DeferBlockBehavior.Manual,
         providers: [
             { provide: PlaceOS_Service, useValue: placeos_service },
             MockProvider(OrganisationService),

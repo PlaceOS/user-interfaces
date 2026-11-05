@@ -55,6 +55,9 @@ The menu opens one panel at a time. These shortcuts also toggle the panels:
 - Driver bindings: `Ctrl + Alt + Shift + B`
 - Console: `Ctrl + Backquote`
 
-Debug panels load when first opened. The Public app loads its menu launcher
-when the browser is idle after startup. Closing the driver panel does not
-clear local value overrides.
+Debug panels load when first opened. Each app loads the menu launcher when
+the browser is idle after startup. For admin and support users, the launcher
+then starts to record console logs, bindings, and driver commands, so the
+panels also show what happened before they opened. Closing the driver panel
+does not clear local value overrides. The launcher shows the number of active
+setting overrides.

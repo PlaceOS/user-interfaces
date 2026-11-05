@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, untracked } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 
 import { AsyncHandler } from './async-handler.class';
@@ -81,7 +81,11 @@ export class RemoteLoggingService extends AsyncHandler {
             'error',
         ];
         for (const key of types) {
-            hookMethod(console, key, (...args) => this._handleEvent(key, args));
+            // Logs can come from inside a computed or a template, where
+            // signal writes throw. Record them outside the reactive context.
+            hookMethod(console, key, (...args) =>
+                untracked(() => this._handleEvent(key, args)),
+            );
         }
     }
 
