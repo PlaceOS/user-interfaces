@@ -1,0 +1,14 @@
+import{n as m,t as l}from"./chunk-BwCtja5l.js";import{A as Fe,C as De,G as JD,Li as y$1,Mi as x,Pi as xS,Rr as oe,Si as ve,Tt as RS,W as It,ct as Ma,hr as ks,ir as hh,sr as io,wr as m$1}from"./chunk-BsVkwbXV.js";function q(n){n||(n=y$1(De));let e=new x(t=>{if(n.destroyed){t.next();return}return n.onDestroy(t.next.bind(t))});return t=>t.pipe(JD(e))}var y=class{source;destroyed=!1;destroyRef=y$1(De);constructor(e){this.source=e,this.destroyRef.onDestroy(()=>{this.destroyed=!0})}subscribe(e){if(this.destroyed)throw new m$1(953,!1);let t=this.source.pipe(q(this.destroyRef)).subscribe({next:r=>e(r)});return{unsubscribe:()=>t.unsubscribe()}}};function P(n,e){return new y(n)}function V(n){let e=xS(n);return new x(t=>{let r=e?.onDestroy(()=>t.complete()),s=n.subscribe(o=>t.next(o));return()=>{s.unsubscribe(),r?.()}})}function W(n,e){let t=e?.injector??y$1(ve),r=new io(1),s=ks(()=>{let o;try{o=n()}catch(u){oe(()=>r.error(u));return}oe(()=>r.next(o))},{injector:t,manualCleanup:!0});return t.get(De).onDestroy(()=>{s.destroy(),r.complete()}),r.asObservable()}function z(n,e){let r=!e?.manualCleanup?e?.injector?.get(De)??y$1(De):null,s=E(e?.equal),o;e?.requireSync?o=It({kind:0},{equal:s}):o=It({kind:1,value:e?.initialValue},{equal:s});let u,c=n.subscribe({next:i=>o.set({kind:1,value:i}),error:i=>{o.set({kind:2,error:i}),u?.()},complete:()=>{u?.()}});if(e?.requireSync&&o().kind===0)throw new m$1(601,!1);return u=r?.onDestroy(c.unsubscribe.bind(c)),Fe(()=>{let i=o();switch(i.kind){case 1:return i.value;case 2:throw i.error;case 0:throw new m$1(601,!1)}},{equal:e?.equal})}function E(n=Object.is){return(e,t)=>e.kind===1&&t.kind===1&&n(e.value,t.value)}function B(n){return RS(m(l({},n),{loader:void 0,stream:e=>{let t,r=!1,s=It({value:void 0}),{resolve:o,promise:u}=hh(),c=!1;function i(){c||(c=!0,o(s))}let v=()=>{r=!0,t?.unsubscribe(),e.abortSignal.removeEventListener(`abort`,v),i()};e.abortSignal.addEventListener(`abort`,v);function g(l){s.set(l),i()}let D=n.stream;if(D===void 0)throw new m$1(990,!1);return t=D(e).subscribe({next:l=>g({value:l}),error:l=>{g({error:Ma(l)}),e.abortSignal.removeEventListener(`abort`,v)},complete:()=>{c||g({error:new m$1(-991,!1)}),e.abortSignal.removeEventListener(`abort`,v)}}),r&&t.unsubscribe(),c?s:u}}))}
+/*! Bundled license information:
+
+@angular/core/fesm2022/rxjs-interop.mjs:
+(**
+* @license Angular v22.1.5
+* (c) 2010-2026 Google LLC. https://angular.dev/
+* License: MIT
+*)
+*/
+export{z as a,W as i,P as n,V as r,B as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="e4588c12-b28f-5772-9039-4c50ab62343a")}catch(e){}}();
+//# debugId=e4588c12-b28f-5772-9039-4c50ab62343a
+//# sourceMappingURL=chunk-D2BnRQhf.js.map
