@@ -2207,6 +2207,81 @@ export async function untouchedParking(page: Page) {
     await expect(page.locator('parking-flow-success')).toHaveCount(0);
 }
 
+/** The synthetic parking booking scheduleCard serves on the Your Bookings list. */
+export const SCHEDULE_CARD = {
+    title: 'E2E Synthetic Reservation',
+    space: 'E2E Synthetic Bay 7',
+};
+
+/**
+ * One synthetic parking booking on the Your Bookings list
+ * (/#/your-bookings?view=list), served only by the schedule's parking list
+ * GET (schedule-state.service.ts). Booked for the staff user the app reads,
+ * starting 2 minutes from now and ending on the same UTC day. `row` overrides
+ * any field, for example `{ approved: true }`. Returns the card; nothing is
+ * clicked or submitted.
+ */
+export async function scheduleCard(
+    page: Page,
+    audit: Audit,
+    overrides: Settings,
+    row: Record<string, unknown>,
+) {
+    const start = Math.floor(Date.now() / 1000) + 120;
+    const midnight = Math.floor(new Date().setUTCHours(24, 0, 0, 0) / 1000);
+    const end = Math.min(start + 1800, midnight - 60);
+    expect(
+        end - start,
+        'run outside the last minutes of the UTC day so the row stays on today',
+    ).toBeGreaterThan(300);
+    const fixture = await prepareSettings(page, { ...BOOKING, ...overrides }, {
+        audit,
+        base: {},
+        landingRooms: false,
+        bookings: {
+            types: ['parking', 'locker'],
+            rows: async (type) => {
+                if (type !== 'parking') return [];
+                await expect
+                    .poll(() => fixture.user().then(() => true, () => false), {
+                        message: 'the app must read the staff identity',
+                    })
+                    .toBe(true);
+                const me = await fixture.user();
+                return [
+                    {
+                        id: 'e2e-settings-parking-1',
+                        booking_type: 'parking',
+                        title: SCHEDULE_CARD.title,
+                        asset_id: 'e2e-settings-bay',
+                        asset_name: SCHEDULE_CARD.space,
+                        description: '',
+                        booking_start: start,
+                        booking_end: end,
+                        user_id: me.id,
+                        user_email: me.email,
+                        user_name: me.name,
+                        rejected: false,
+                        deleted: false,
+                        zones: [],
+                        extension_data: {},
+                        ...row,
+                    },
+                ];
+            },
+        },
+        bootstrap: true,
+    });
+    await page.goto('/#/your-bookings?view=list');
+    await fixture.ready();
+    const card = page
+        .locator('a[name="view-booking-details"]')
+        .filter({ hasText: SCHEDULE_CARD.title });
+    await expect(card).toHaveCount(1);
+    expect(audit.fixtures['parking/locker bookings'] ?? 0).toBeGreaterThan(0);
+    return card;
+}
+
 export async function untouchedRoom(page: Page) {
     await expect(
         page.locator(
