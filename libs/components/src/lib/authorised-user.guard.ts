@@ -107,6 +107,8 @@ export class AuthorisedUserGuard {
         if (use_group_subsystem_access) {
             const user = await this.waitForUser();
             if (!user) return this.offlineAccess();
+            // Permissions that failed to load are not a confirmed decision
+            if (user_groups_failed()) return this.offlineAccess();
             can_activate = this.checkSubsystemAccess(user);
             log('ACCESS', 'Checking subsystem access', can_activate);
         } else if (!groups.length) {
@@ -120,10 +122,7 @@ export class AuthorisedUserGuard {
             );
             log('ACCESS', 'Checking access groups', can_activate);
         }
-        // Permissions that failed to load are not a confirmed decision
-        if (!(use_group_subsystem_access && user_groups_failed())) {
-            this.storeDecision(!!can_activate);
-        }
+        this.storeDecision(!!can_activate);
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
         }
@@ -171,9 +170,10 @@ export class AuthorisedUserGuard {
     }
 
     /**
-     * Access decision for when the backend cannot be reached. Waiting forever
-     * leaves a fixed device sitting on a loading screen with no way back, so a
-     * device that has authenticated before is allowed through on its cached
+     * Access decision for when the backend cannot be reached, or the user's
+     * permissions failed to load. Waiting forever, or a refusal, leaves a
+     * fixed device on a loading or 403 screen with no way back, so a device
+     * that has authenticated before is allowed through on its cached
      * session, unless the last online check on this device denied access.
      * Every API call it then makes is still checked by the server.
      */

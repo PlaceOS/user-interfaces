@@ -14,6 +14,14 @@ class VideoHostComponent {
     public readonly source = signal('/api/engine/v2/uploads/video-1/url');
 }
 
+@Component({
+    template: `<img auth alt="" [source]="source()" />`,
+    imports: [AuthenticatedImageDirective],
+})
+class ImageHostComponent {
+    public readonly source = signal('https://cdn.example/photo-1.png');
+}
+
 describe('AuthenticatedImageDirective', () => {
     afterEach(() => {
         vi.useRealTimers();
@@ -77,5 +85,17 @@ describe('AuthenticatedImageDirective', () => {
         expect(play).toHaveBeenCalledTimes(1);
         expect(set_cookie).toHaveBeenCalledTimes(2);
         fixture.destroy();
+    });
+
+    it('clears the previous image when the source becomes empty', () => {
+        const fixture = TestBed.createComponent(ImageHostComponent);
+        fixture.detectChanges();
+        const image: HTMLImageElement =
+            fixture.nativeElement.querySelector('img');
+        expect(image.src).toBe('https://cdn.example/photo-1.png');
+
+        fixture.componentInstance.source.set('');
+        fixture.detectChanges();
+        expect(image.hasAttribute('src')).toBe(false);
     });
 });

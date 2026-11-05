@@ -178,6 +178,11 @@ export class NativeDomainOverlayComponent implements OnDestroy {
     public readonly email = signal(getNativeEmail() ?? '');
     public readonly server_address = signal(getNativeDomain() ?? '');
     public readonly api_key = signal(getNativeApiKey() ?? '');
+    /** Stored settings that the stored API key belongs to */
+    private readonly _stored = {
+        domain: normaliseNativeDomain(getNativeDomain() ?? ''),
+        api_key: getNativeApiKey() ?? '',
+    };
     // Start in manual mode when a server is already known (e.g. pushed via
     // MDM managed config) so the user only has to confirm the settings.
     public readonly manual_entry = signal(!!getNativeDomain());
@@ -201,6 +206,15 @@ export class NativeDomainOverlayComponent implements OnDestroy {
             if (this.autoAccept() && untracked(this.server_address)) {
                 untracked(() => this.startAutoAccept());
             }
+        });
+        // The stored key is only for the stored server. Clear it once the
+        // address moves to another server, so it is never sent there, even
+        // after an edit to the key field.
+        effect(() => {
+            const domain = normaliseNativeDomain(this.server_address());
+            if (!this._stored.api_key || domain === this._stored.domain) return;
+            this._stored.api_key = '';
+            untracked(() => this.api_key.set(''));
         });
     }
 
@@ -234,6 +248,7 @@ export class NativeDomainOverlayComponent implements OnDestroy {
 
     public toggleManualEntry() {
         if (this.loading()) return;
+        this.stopAutoAccept();
         this.manual_entry.update((manual) => !manual);
         this.error.set('');
     }
@@ -250,7 +265,10 @@ export class NativeDomainOverlayComponent implements OnDestroy {
         this.loading.set(true);
         this.error.set('');
         try {
-            const domain = await lookupNativeDomainByEmail(raw);
+            const domain = normaliseNativeDomain(
+                await lookupNativeDomainByEmail(raw),
+            );
+            if (!domain) throw new Error('Invalid domain from lookup');
             setNativeEmail(raw);
             setNativeDomain(domain);
             setNativeApiKey('');
@@ -269,8 +287,13 @@ export class NativeDomainOverlayComponent implements OnDestroy {
             return;
         }
         this.error.set('');
+        // Never send the stored key to a different server. The effect above
+        // clears it, but it may not have run yet.
+        const other_server = domain !== this._stored.domain;
         setNativeDomain(domain);
-        setNativeApiKey(this.api_key());
+        setNativeApiKey(
+            other_server && this._stored.api_key ? '' : this.api_key(),
+        );
         this.domainSet.emit(domain);
     }
 }

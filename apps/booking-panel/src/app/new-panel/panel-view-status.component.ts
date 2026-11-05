@@ -38,7 +38,7 @@ import {
                                 : s === 'pending'
                                   ? pending_svg
                                   : free_svg
-                            ) | safe
+                            ) | safe: 'html'
                         "
                     ></div>
                 }
@@ -213,7 +213,9 @@ import {
             >
                 <div
                     aria-hidden="true"
-                    [innerHTML]="(!es?.next ? free_svg : in_use_svg) | safe"
+                    [innerHTML]="
+                        (!es?.next ? free_svg : in_use_svg) | safe: 'html'
+                    "
                 ></div>
                 <h2 class="text-4xl font-medium uppercase">
                     {{ 'COMMON.NEXT' | translate }}

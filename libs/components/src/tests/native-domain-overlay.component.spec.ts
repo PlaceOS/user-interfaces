@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import { NativeDomainOverlayComponent } from '../lib/native-domain-overlay.component';
@@ -108,6 +109,29 @@ describe('NativeDomainOverlayComponent', () => {
             'placeos.company.com:8443',
         );
         expect(localStorage.getItem(API_KEY_KEY)).toBe('secret-key');
+    });
+
+    it('should not keep the stored API key for a different server', async () => {
+        localStorage.setItem(DOMAIN_KEY, 'placeos.company.com');
+        localStorage.setItem(API_KEY_KEY, 'mdm-key');
+        create();
+        spectator.component.server_address.set('attacker.example');
+        await spectator.component.submit();
+        expect(emitted_domains).toEqual(['attacker.example']);
+        expect(localStorage.getItem(API_KEY_KEY)).toBeNull();
+    });
+
+    it('should not send an edited stored API key to a different server', async () => {
+        localStorage.setItem(DOMAIN_KEY, 'placeos.company.com');
+        localStorage.setItem(API_KEY_KEY, 'mdm-key');
+        create();
+        spectator.component.api_key.set('mdm-ke');
+        spectator.component.server_address.set('attacker.example');
+        TestBed.tick();
+        expect(spectator.component.api_key()).toBe('');
+        spectator.component.api_key.set('own-key');
+        await spectator.component.submit();
+        expect(localStorage.getItem(API_KEY_KEY)).toBe('own-key');
     });
 
     it('should error on invalid manual server addresses', async () => {

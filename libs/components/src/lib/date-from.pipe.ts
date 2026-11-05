@@ -1,8 +1,13 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { differenceInMinutes, format } from 'date-fns';
 
+/**
+ * Time relative to now, such as `5 min` or `In 2 hours`. The pipe is impure,
+ * so the text follows the clock each time change detection runs.
+ */
 @Pipe({
     name: 'dateFrom',
+    pure: false,
 })
 export class DateFromPipe implements PipeTransform {
     public transform(date: number): string {
