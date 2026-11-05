@@ -287,7 +287,12 @@
         "NUMBERED_LIST": "Liste numérotée",
         "INSERT_LINK": "Insérer un lien",
         "INSERT_IMAGE": "Insérer une image",
-        "ATTACH_FILE": "Joindre un fichier"
+        "ATTACH_FILE": "Joindre un fichier",
+        "MENU": "Menu",
+        "WORK_BLOCK_ADD": "Ajouter une plage horaire",
+        "WORK_BLOCK_REMOVE": "Supprimer la plage horaire",
+        "WAITLISTED": "En liste d'attente",
+        "SELECTED": "Sélectionné"
     },
     "LANGUAGE": {
         "ENGLISH": "Anglais",
@@ -457,7 +462,11 @@
         "MAP_ID": "ID de la carte",
         "MAP_ID_EMPTY": "Aucun ID de carte",
         "MAP_ID_REQUIRED": "Un ID de carte valide est requis",
-        "MAP_ID_PLACEHOLDER": "Sélecteur d'élément dans le SVG de la carte. ex. area-01.123-status"
+        "MAP_ID_PLACEHOLDER": "Sélecteur d'élément dans le SVG de la carte. ex. area-01.123-status",
+        "SEARCH_OPEN": "Ouvrir la recherche",
+        "SEARCH_CLOSE": "Fermer la recherche",
+        "SENSORS_SHOW": "Afficher les données du capteur",
+        "SENSORS_TEMP_HIGH": "Température élevée"
     },
     "BOOKINGS": {
         "ASSOCIATE": "Associer",
@@ -710,7 +719,8 @@
         "SETUP_DURATION": "Durée de la préparation",
         "BREAKDOWN_DURATION": "Durée du rangement",
         "FIRST_INSTANCE_CLASH": "Le premier événement de la série est en conflit avec une réservation existante",
-        "RECURRING_CLASHES_NOT_ALLOWED": "Les événements récurrents avec {{ count }} conflit(s) ne sont pas autorisés"
+        "RECURRING_CLASHES_NOT_ALLOWED": "Les événements récurrents avec {{ count }} conflit(s) ne sont pas autorisés",
+        "FILTER_REMOVE": "Supprimer le filtre {{ name }}"
     },
     "CATERING": {
         "MENU": "Menu traiteur",
