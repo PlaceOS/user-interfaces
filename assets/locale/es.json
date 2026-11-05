@@ -287,7 +287,12 @@
         "NUMBERED_LIST": "Lista numerada",
         "INSERT_LINK": "Insertar enlace",
         "INSERT_IMAGE": "Insertar imagen",
-        "ATTACH_FILE": "Adjuntar archivo"
+        "ATTACH_FILE": "Adjuntar archivo",
+        "MENU": "Menú",
+        "WORK_BLOCK_ADD": "Añadir bloque de tiempo",
+        "WORK_BLOCK_REMOVE": "Quitar bloque de tiempo",
+        "WAITLISTED": "En lista de espera",
+        "SELECTED": "Seleccionado"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglés",
@@ -457,7 +462,11 @@
         "MAP_ID": "ID del Mapa",
         "MAP_ID_EMPTY": "Sin ID de mapa",
         "MAP_ID_REQUIRED": "Se requiere un ID de mapa válido",
-        "MAP_ID_PLACEHOLDER": "Selector de elementos dentro del SVG del mapa. ej. area-01.123-status"
+        "MAP_ID_PLACEHOLDER": "Selector de elementos dentro del SVG del mapa. ej. area-01.123-status",
+        "SEARCH_OPEN": "Abrir búsqueda",
+        "SEARCH_CLOSE": "Cerrar búsqueda",
+        "SENSORS_SHOW": "Mostrar datos del sensor",
+        "SENSORS_TEMP_HIGH": "Temperatura alta"
     },
     "BOOKINGS": {
         "ASSOCIATE": "Asociar",
@@ -710,7 +719,8 @@
         "SETUP_DURATION": "Duración de la Preparación",
         "BREAKDOWN_DURATION": "Duración del Desmontaje",
         "FIRST_INSTANCE_CLASH": "El primer evento de la serie entra en conflicto con una reserva existente",
-        "RECURRING_CLASHES_NOT_ALLOWED": "No se permiten eventos recurrentes con {{ count }} instancia(s) en conflicto"
+        "RECURRING_CLASHES_NOT_ALLOWED": "No se permiten eventos recurrentes con {{ count }} instancia(s) en conflicto",
+        "FILTER_REMOVE": "Quitar filtro {{ name }}"
     },
     "CATERING": {
         "MENU": "Menú de Catering",

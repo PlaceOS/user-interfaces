@@ -287,7 +287,12 @@
         "NUMBERED_LIST": "编号列表",
         "INSERT_LINK": "插入链接",
         "INSERT_IMAGE": "插入图片",
-        "ATTACH_FILE": "附加文件"
+        "ATTACH_FILE": "附加文件",
+        "MENU": "菜单",
+        "WORK_BLOCK_ADD": "添加时间段",
+        "WORK_BLOCK_REMOVE": "删除时间段",
+        "WAITLISTED": "候补中",
+        "SELECTED": "已选择"
     },
     "LANGUAGE": {
         "ENGLISH": "英语",
@@ -457,7 +462,11 @@
         "MAP_ID": "地图 ID",
         "MAP_ID_EMPTY": "无地图 ID",
         "MAP_ID_REQUIRED": "需要一个有效的地图 ID",
-        "MAP_ID_PLACEHOLDER": "地图 SVG 中的元素选择器。例如 area-01.123-status"
+        "MAP_ID_PLACEHOLDER": "地图 SVG 中的元素选择器。例如 area-01.123-status",
+        "SEARCH_OPEN": "打开搜索",
+        "SEARCH_CLOSE": "关闭搜索",
+        "SENSORS_SHOW": "显示传感器数据",
+        "SENSORS_TEMP_HIGH": "温度过高"
     },
     "BOOKINGS": {
         "ASSOCIATE": "关联",
@@ -710,7 +719,8 @@
         "SETUP_DURATION": "准备时长",
         "BREAKDOWN_DURATION": "清理时长",
         "FIRST_INSTANCE_CLASH": "系列中的第一个活动与现有预订冲突",
-        "RECURRING_CLASHES_NOT_ALLOWED": "不允许有 {{ count }} 个冲突实例的重复活动"
+        "RECURRING_CLASHES_NOT_ALLOWED": "不允许有 {{ count }} 个冲突实例的重复活动",
+        "FILTER_REMOVE": "移除筛选条件 {{ name }}"
     },
     "CATERING": {
         "MENU": "餐饮菜单",

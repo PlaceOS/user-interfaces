@@ -287,7 +287,12 @@
         "NUMBERED_LIST": "قائمة مرقمة",
         "INSERT_LINK": "إدراج رابط",
         "INSERT_IMAGE": "إدراج صورة",
-        "ATTACH_FILE": "إرفاق ملف"
+        "ATTACH_FILE": "إرفاق ملف",
+        "MENU": "القائمة",
+        "WORK_BLOCK_ADD": "إضافة فترة زمنية",
+        "WORK_BLOCK_REMOVE": "إزالة الفترة الزمنية",
+        "WAITLISTED": "في قائمة الانتظار",
+        "SELECTED": "محدد"
     },
     "LANGUAGE": {
         "ENGLISH": "الإنجليزية",
@@ -457,7 +462,11 @@
         "MAP_ID": "معرف الخريطة",
         "MAP_ID_EMPTY": "لا يوجد معرف خريطة",
         "MAP_ID_REQUIRED": "معرف خريطة صالح مطلوب",
-        "MAP_ID_PLACEHOLDER": "محدد العنصر داخل SVG الخريطة. مثال: area-01.123-status"
+        "MAP_ID_PLACEHOLDER": "محدد العنصر داخل SVG الخريطة. مثال: area-01.123-status",
+        "SEARCH_OPEN": "فتح البحث",
+        "SEARCH_CLOSE": "إغلاق البحث",
+        "SENSORS_SHOW": "عرض بيانات المستشعر",
+        "SENSORS_TEMP_HIGH": "درجة حرارة مرتفعة"
     },
     "BOOKINGS": {
         "ASSOCIATE": "ربط",
@@ -710,7 +719,8 @@
         "SETUP_DURATION": "مدة الإعداد",
         "BREAKDOWN_DURATION": "مدة التفكيك",
         "FIRST_INSTANCE_CLASH": "يتعارض الحدث الأول في السلسلة مع حجز موجود",
-        "RECURRING_CLASHES_NOT_ALLOWED": "لا يُسمح بالأحداث المتكررة التي تحتوي على {{ count }} تعارض(ات)"
+        "RECURRING_CLASHES_NOT_ALLOWED": "لا يُسمح بالأحداث المتكررة التي تحتوي على {{ count }} تعارض(ات)",
+        "FILTER_REMOVE": "إزالة عامل التصفية {{ name }}"
     },
     "CATERING": {
         "MENU": "قائمة خدمات الطعام",
