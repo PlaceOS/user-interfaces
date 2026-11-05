@@ -34,7 +34,12 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
             <h2 class="px-2 text-xl font-medium">
                 {{ 'EXPLORE.BOOKING_HEADER' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                icon
+                matRipple
+                mat-dialog-close
+            >
                 <icon>close</icon>
             </button>
         </header>

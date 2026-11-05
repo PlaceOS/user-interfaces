@@ -23,7 +23,6 @@ import {
 import {
     IconComponent,
     openConfirmModal,
-    SanitizePipe,
     TranslatePipe,
 } from '@placeos/components';
 import { roundToNearestMinutes, startOfDay } from 'date-fns';
@@ -85,7 +84,7 @@ import { notifyInvalidBookingFields } from '../booking-invalid-fields';
                         @if (submission_notes_html()) {
                             <div
                                 class="prose prose-sm max-w-none"
-                                [innerHTML]="submission_notes_html() | sanitize"
+                                [innerHTML]="submission_notes_html()"
                             ></div>
                         }
                         <div class="flex items-center gap-2">
@@ -184,7 +183,6 @@ import { notifyInvalidBookingFields } from '../booking-invalid-fields';
         CdkScrollable,
         MatRippleModule,
         TranslatePipe,
-        SanitizePipe,
         IconComponent,
         ParkingRequestFormDetailsComponent,
     ],

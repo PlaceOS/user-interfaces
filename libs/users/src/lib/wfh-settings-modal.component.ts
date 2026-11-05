@@ -37,7 +37,13 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                 {{ 'COMMON.WORK_LOCATION_SETTINGS' | translate }}
             </h2>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close class="bg-base-200">
+                <button
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                    icon
+                    matRipple
+                    mat-dialog-close
+                    class="bg-base-200"
+                >
                     <icon>close</icon>
                 </button>
             }
@@ -161,6 +167,10 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                                 </mat-form-field>
                                                 @if (i === 0) {
                                                     <button
+                                                        [attr.aria-label]="
+                                                            'COMMON.WORK_BLOCK_ADD'
+                                                                | translate
+                                                        "
                                                         icon
                                                         matRipple
                                                         (click)="
@@ -178,6 +188,10 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                                 }
                                                 @if (i !== 0) {
                                                     <button
+                                                        [attr.aria-label]="
+                                                            'COMMON.WORK_BLOCK_REMOVE'
+                                                                | translate
+                                                        "
                                                         icon
                                                         matRipple
                                                         class="border-error text-error h-12 w-12 rounded-sm border"

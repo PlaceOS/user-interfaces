@@ -34,7 +34,7 @@ export interface POI {
         >
             <header>
                 <h2>{{ item().name }}</h2>
-                <button icon matRipple mat-dialog-close>
+                <button aria-label="Close" icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             </header>
@@ -87,6 +87,11 @@ export interface POI {
                                 ></div>
                             }
                             <button
+                                [attr.aria-label]="
+                                    playing()
+                                        ? 'Stop reading aloud'
+                                        : 'Read aloud'
+                                "
                                 icon
                                 matRipple
                                 class="bg-base-200 relative h-12 w-12"

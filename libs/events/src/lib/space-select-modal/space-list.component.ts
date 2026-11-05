@@ -152,7 +152,7 @@ import { EventFormService } from 'libs/events/src/lib/event-form.service';
                                 "
                                 (click)="$event.stopPropagation()"
                             >
-                                <icon>{{
+                                <icon [label]="room_alerts()[space.id][1]">{{
                                     room_alerts()[space.id][0] === 'warn'
                                         ? 'warning'
                                         : room_alerts()[space.id][0] === 'info'
@@ -194,6 +194,12 @@ import { EventFormService } from 'libs/events/src/lib/event-form.service';
                     </div>
                 </button>
                 <button
+                    [attr.aria-label]="
+                        (isFavourite(space.id)
+                            ? 'COMMON.FAVOURITES_REMOVE'
+                            : 'COMMON.FAVOURITES_ADD'
+                        ) | translate
+                    "
                     icon
                     matRipple
                     name="toggle-space-favourite"

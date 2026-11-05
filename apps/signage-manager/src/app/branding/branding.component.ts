@@ -155,6 +155,10 @@ interface BrandColour {
                                             | translate
                                     "
                                     (click)="removeColour($index)"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.BRAND_REMOVE_COLOUR'
+                                            | translate
+                                    "
                                 >
                                     <icon>delete</icon>
                                 </button>

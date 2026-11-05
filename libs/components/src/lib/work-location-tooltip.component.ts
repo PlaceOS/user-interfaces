@@ -4,7 +4,9 @@ import {
     WorktimePreference,
     currentUser,
     i18n,
+    notifyError,
     reloadUserData,
+    userSignal,
 } from '@placeos/common';
 import { updateUser } from '@placeos/ts-client';
 import {
@@ -28,6 +30,7 @@ import { TranslatePipe } from './translate.pipe';
 /**
  * Set the location of one time block in today's work preference. Saves the
  * change as a work override on the current user and returns the overrides.
+ * If the save fails, shows an error and returns the overrides unchanged.
  */
 export async function saveTodayWorkLocation(
     preference: WorktimePreference,
@@ -56,7 +59,12 @@ export async function saveTodayWorkLocation(
             delete new_overrides[key];
         }
     }
-    await updateUser(user.id, { ...user, work_overrides: new_overrides });
+    try {
+        await updateUser(user.id, { ...user, work_overrides: new_overrides });
+    } catch {
+        notifyError('Unable to save your work location.');
+        return user.work_overrides;
+    }
     reloadUserData();
     return new_overrides;
 }
@@ -72,6 +80,7 @@ export async function saveTodayWorkLocation(
                     {{ 'COMMON.WORK_LOCATION' | translate }}
                 </h3>
                 <button
+                    [attr.aria-label]="'COMMON.WORK_LOCATION_EDIT' | translate"
                     icon
                     matRipple
                     [matTooltip]="'COMMON.WORK_LOCATION_EDIT' | translate"
@@ -195,6 +204,8 @@ export async function saveTodayWorkLocation(
 })
 export class WorkLocationTooltipComponent implements OnInit {
     private _dialog = inject(MatDialog);
+    /** Labels read the user signal, so they update when the user reloads */
+    private _user = userSignal();
 
     public readonly locations = signal([]);
     public readonly settings = signal<WorktimePreference[]>(undefined);
@@ -225,13 +236,11 @@ export class WorkLocationTooltipComponent implements OnInit {
     }
 
     public location_icon(time: number) {
-        const user = currentUser();
-        return user.location_icon(time + 1 * 60 * 1000);
+        return this._user().location_icon(time + 1 * 60 * 1000);
     }
 
     public location(time: number) {
-        const user = currentUser();
-        return user.location_name_time(time + 1 * 60 * 1000);
+        return this._user().location_name_time(time + 1 * 60 * 1000);
     }
 
     public timeFrom(hours: number) {

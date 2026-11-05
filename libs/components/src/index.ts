@@ -53,7 +53,6 @@ export * from './lib/duration.pipe';
 export * from './lib/level.pipe';
 export * from './lib/media-duration.pipe';
 export * from './lib/safe.pipe';
-export * from './lib/sanitise.pipe';
 
 export * from './lib/authorised-user.guard';
 

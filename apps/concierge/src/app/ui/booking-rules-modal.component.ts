@@ -223,11 +223,21 @@ import { restoreFocusAfterRender } from './restore-focus';
                                                     "
                                                     class="flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
                                                 >
-                                                    <icon>{{
-                                                        row.rules?.auto_approve
-                                                            ? 'done'
-                                                            : 'close'
-                                                    }}</icon>
+                                                    <icon
+                                                        [label]="
+                                                            (row.rules
+                                                                ?.auto_approve
+                                                                ? 'COMMON.YES'
+                                                                : 'COMMON.NO'
+                                                            ) | translate
+                                                        "
+                                                        >{{
+                                                            row.rules
+                                                                ?.auto_approve
+                                                                ? 'done'
+                                                                : 'close'
+                                                        }}</icon
+                                                    >
                                                 </div>
                                             </div>
                                             <div
@@ -242,11 +252,19 @@ import { restoreFocusAfterRender } from './restore-focus';
                                                     "
                                                     class="flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
                                                 >
-                                                    <icon>{{
-                                                        row.rules?.hidden
-                                                            ? 'done'
-                                                            : 'close'
-                                                    }}</icon>
+                                                    <icon
+                                                        [label]="
+                                                            (row.rules?.hidden
+                                                                ? 'COMMON.YES'
+                                                                : 'COMMON.NO'
+                                                            ) | translate
+                                                        "
+                                                        >{{
+                                                            row.rules?.hidden
+                                                                ? 'done'
+                                                                : 'close'
+                                                        }}</icon
+                                                    >
                                                 </div>
                                             </div>
                                             <button

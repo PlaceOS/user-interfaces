@@ -5,6 +5,7 @@ import { CateringItem } from '@placeos/common';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 @Component({
     selector: 'catering-item-list-item',
@@ -104,6 +105,12 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 </div>
             </button>
             <button
+                [attr.aria-label]="
+                    (favourite()
+                        ? 'COMMON.FAVOURITES_REMOVE'
+                        : 'COMMON.FAVOURITES_ADD'
+                    ) | translate
+                "
                 icon
                 matRipple
                 name="toggle-catering-item-favourite"
@@ -128,6 +135,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         IconComponent,
         MatRippleModule,
         AuthenticatedImageDirective,
+        TranslatePipe,
     ],
 })
 export class CateringItemListItemComponent {

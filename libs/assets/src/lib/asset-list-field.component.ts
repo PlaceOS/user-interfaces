@@ -76,12 +76,17 @@ const EMPTY_FAVS: string[] = [];
                                             class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
                                             [matTooltip]="err_tooltip(request)"
                                         >
-                                            <icon>priority_high</icon>
+                                            <icon [label]="err_tooltip(request)"
+                                                >priority_high</icon
+                                            >
                                         </div>
                                     }
                                 </div>
                             </div>
                             <button
+                                [attr.aria-label]="
+                                    'FORM.ASSETS_DUPLICATE' | translate
+                                "
                                 icon
                                 matRipple
                                 [disabled]="disabled()"
@@ -93,6 +98,9 @@ const EMPTY_FAVS: string[] = [];
                                 <icon>content_copy</icon>
                             </button>
                             <button
+                                [attr.aria-label]="
+                                    'FORM.ASSETS_EDIT' | translate
+                                "
                                 icon
                                 matRipple
                                 [disabled]="disabled()"
@@ -102,6 +110,9 @@ const EMPTY_FAVS: string[] = [];
                                 <icon>edit</icon>
                             </button>
                             <button
+                                [attr.aria-label]="
+                                    'FORM.ASSETS_REMOVE' | translate
+                                "
                                 icon
                                 matRipple
                                 name="remove-asset-request"
@@ -113,6 +124,12 @@ const EMPTY_FAVS: string[] = [];
                                 <icon>delete</icon>
                             </button>
                             <button
+                                [attr.aria-label]="
+                                    (show_request()[request.id]
+                                        ? 'FORM.ASSETS_HIDE'
+                                        : 'FORM.ASSETS_SHOW'
+                                    ) | translate
+                                "
                                 icon
                                 matRipple
                                 [matTooltip]="
@@ -151,6 +168,10 @@ const EMPTY_FAVS: string[] = [];
                                         x{{ item.quantity }}
                                     </div>
                                     <button
+                                        [attr.aria-label]="
+                                            'FORM.ASSETS_REMOVE_ITEM'
+                                                | translate
+                                        "
                                         icon
                                         matRipple
                                         name="remove-asset-request-item"
@@ -167,6 +188,12 @@ const EMPTY_FAVS: string[] = [];
                                         <icon>delete</icon>
                                     </button>
                                     <button
+                                        [attr.aria-label]="
+                                            (favorites().includes(item.id)
+                                                ? 'COMMON.FAVOURITES_REMOVE'
+                                                : 'COMMON.FAVOURITES_ADD'
+                                            ) | translate
+                                        "
                                         icon
                                         matRipple
                                         name="toggle-catering-item-favourite"

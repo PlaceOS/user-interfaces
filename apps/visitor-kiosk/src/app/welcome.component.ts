@@ -23,7 +23,6 @@ import {
 import {
     AuthenticatedImageDirective,
     IconComponent,
-    SanitizePipe,
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
@@ -46,8 +45,7 @@ import { minuteClock } from './minute-clock';
                     class="mb-4 space-y-4 text-6xl text-white"
                     [innerHTML]="
                         welcome_message() ||
-                            ('APP.VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
-                            | sanitize: 'html'
+                        ('APP.VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
                     "
                 ></h1>
                 <div class="flex flex-wrap items-center gap-4 font-medium">
@@ -219,7 +217,6 @@ import { minuteClock } from './minute-clock';
         MatTooltipModule,
         RouterModule,
         AuthenticatedImageDirective,
-        SanitizePipe,
     ],
 })
 export class WelcomeComponent

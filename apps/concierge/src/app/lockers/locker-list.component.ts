@@ -271,7 +271,14 @@ import { LockerStateService } from './locker-state.service';
                                     | translate
                             "
                         >
-                            <icon class="text-2xl">accessible</icon>
+                            <icon
+                                class="text-2xl"
+                                [label]="
+                                    'APP.CONCIERGE.LOCKERS_ACCESSIBLE_INFO'
+                                        | translate
+                                "
+                                >accessible</icon
+                            >
                         </div>
                     }
                 </div>
@@ -282,7 +289,7 @@ import { LockerStateService } from './locker-state.service';
                         class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                         [matTooltip]="'COMMON.BOOKABLE' | translate"
                     >
-                        <icon>done</icon>
+                        <icon [label]="'COMMON.YES' | translate">done</icon>
                     </div>
                 }
             </ng-template>

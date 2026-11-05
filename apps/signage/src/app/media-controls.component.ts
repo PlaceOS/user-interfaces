@@ -155,6 +155,7 @@ export class MediaProgressBarComponent
                     class="hover:bg-base-200"
                     (click)="event.emit('PREVIOUS')"
                     [matTooltip]="'APP.SIGNAGE.PREVIOUS' | translate"
+                    [attr.aria-label]="'APP.SIGNAGE.PREVIOUS' | translate"
                 >
                     <icon>skip_previous</icon>
                 </button>
@@ -169,6 +170,12 @@ export class MediaProgressBarComponent
                         (state() === 'PLAYING'
                             ? 'APP.SIGNAGE.PAUSE'
                             : 'APP.SIGNAGE.PLAY'
+                        ) | translate
+                    "
+                    [attr.aria-label]="
+                        (state() === 'PLAYING'
+                            ? 'APP.WORKPLACE.FOCUS_TIMER_PAUSE'
+                            : 'SIGNAGE_MANAGER.MASK_PLAY'
                         ) | translate
                     "
                 >
@@ -188,6 +195,7 @@ export class MediaProgressBarComponent
                     class="hover:bg-base-200"
                     (click)="event.emit('NEXT')"
                     [matTooltip]="'APP.SIGNAGE.NEXT' | translate"
+                    [attr.aria-label]="'APP.SIGNAGE.NEXT' | translate"
                 >
                     <icon>skip_next</icon>
                 </button>
@@ -197,6 +205,15 @@ export class MediaProgressBarComponent
                     class="hover:bg-base-200"
                     (click)="event.emit('MUTE')"
                     [matTooltip]="
+                        'APP.SIGNAGE.VOLUME'
+                            | translate
+                                : {
+                                      state:
+                                          (muted() ? 'COMMON.OFF' : 'COMMON.ON')
+                                          | translate,
+                                  }
+                    "
+                    [attr.aria-label]="
                         'APP.SIGNAGE.VOLUME'
                             | translate
                                 : {
@@ -221,6 +238,14 @@ export class MediaProgressBarComponent
                               : 'APP.SIGNAGE.LOOP_OFF'
                         ) | translate
                     "
+                    [attr.aria-label]="
+                        (loop() === 'ALL'
+                            ? 'APP.SIGNAGE.LOOP_ALL'
+                            : loop() === 'ONE'
+                              ? 'APP.SIGNAGE.LOOP_ONE'
+                              : 'APP.SIGNAGE.LOOP_OFF'
+                        ) | translate
+                    "
                 >
                     <icon [class.opacity-30]="loop() === 'NONE'">
                         {{
@@ -238,6 +263,17 @@ export class MediaProgressBarComponent
                     class="hover:bg-base-200"
                     (click)="event.emit('SHUFFLE')"
                     [matTooltip]="
+                        'APP.SIGNAGE.SHUFFLE'
+                            | translate
+                                : {
+                                      state:
+                                          (shuffle()
+                                              ? 'COMMON.ON'
+                                              : 'COMMON.OFF'
+                                          ) | translate,
+                                  }
+                    "
+                    [attr.aria-label]="
                         'APP.SIGNAGE.SHUFFLE'
                             | translate
                                 : {

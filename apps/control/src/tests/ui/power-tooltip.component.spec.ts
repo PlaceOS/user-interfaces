@@ -2,15 +2,14 @@ import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { ControlStateService } from '../../app/control-state.service';
 
-import { CustomTooltipData, SanitizePipe } from '@placeos/components';
-import { MockPipe, MockProvider } from 'ng-mocks';
+import { CustomTooltipData } from '@placeos/components';
+import { MockProvider } from 'ng-mocks';
 import { PowerTooltipComponent } from '../../app/ui/power-tooltip.component';
 
 describe('PowerTooltipComponent', () => {
     let spectator: Spectator<PowerTooltipComponent>;
     const createComponent = createComponentFactory({
         component: PowerTooltipComponent,
-        declarations: [MockPipe(SanitizePipe)],
         providers: [
             MockProvider(ControlStateService, {
                 powerOff: vi.fn(),

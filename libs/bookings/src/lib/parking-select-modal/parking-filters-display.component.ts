@@ -3,6 +3,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingFormService } from '../booking-form.service';
 
 @Component({
@@ -28,6 +29,10 @@ import { BookingFormService } from '../booking-form.service';
                 <div filter-item>
                     <p>{{ feat }}</p>
                     <button
+                        [attr.aria-label]="
+                            'CALENDAR_EVENT.FILTER_REMOVE'
+                                | translate: { name: feat }
+                        "
                         icon
                         matRipple
                         class="-mr-4"
@@ -61,7 +66,7 @@ import { BookingFormService } from '../booking-form.service';
             }
         `,
     ],
-    imports: [CommonModule, IconComponent, MatRippleModule],
+    imports: [CommonModule, IconComponent, MatRippleModule, TranslatePipe],
 })
 export class ParkingFiltersDisplayComponent {
     private _event_form = inject(BookingFormService);

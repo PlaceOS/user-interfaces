@@ -84,6 +84,10 @@ export function newTextBlock(
                                     | translate
                             "
                             (click)="removeBlock(block.id)"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.IMAGE_GEN_REMOVE_TEXT'
+                                    | translate
+                            "
                         >
                             <icon>delete</icon>
                         </button>

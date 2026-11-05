@@ -34,7 +34,6 @@ import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
-import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { AttendeeListComponent } from './attendee-list.component';
@@ -74,6 +73,7 @@ import {
             }
             @if (!is_limited()) {
                 <button
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
                     icon
                     mat-dialog-close
                     class="absolute top-1 right-1 overflow-hidden"
@@ -134,6 +134,7 @@ import {
                         </div>
                     }
                     <button
+                        [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
                         btn
                         matRipple
                         class="clear bg-base-200 text-base-content w-11"
@@ -348,10 +349,7 @@ import {
                         {{ 'CALENDAR_EVENT.GROUP_ABOUT' | translate }}
                     </h3>
                     <div class="pb-4 text-sm">
-                        <span
-                            event-details
-                            [innerHTML]="body() | sanitize"
-                        ></span>
+                        <span event-details [innerHTML]="body()"></span>
                         @if (!raw_description()) {
                             <span class="opacity-30">
                                 {{
@@ -469,7 +467,6 @@ import {
         MatRippleModule,
         AttendeeListComponent,
         InteractiveMapComponent,
-        SanitizePipe,
         MatMenuModule,
         MatDialogModule,
         AuthenticatedImageDirective,

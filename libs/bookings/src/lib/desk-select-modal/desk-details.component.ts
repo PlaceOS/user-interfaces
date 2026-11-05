@@ -33,6 +33,7 @@ import { BookingAsset } from '../booking-form.types';
                 <section class="h-10 w-full lg:hidden"></section>
             }
             <button
+                [attr.aria-label]="'COMMON.BACK' | translate"
                 icon
                 matRipple
                 name="close-desk-details"
@@ -42,6 +43,12 @@ import { BookingAsset } from '../booking-form.types';
                 <icon>arrow_back</icon>
             </button>
             <button
+                [attr.aria-label]="
+                    (fav()
+                        ? 'COMMON.FAVOURITES_REMOVE'
+                        : 'COMMON.FAVOURITES_ADD'
+                    ) | translate
+                "
                 icon
                 matRipple
                 name="toggle-desk-favourite-details"

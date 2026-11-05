@@ -24,7 +24,6 @@ import {
 import {
     FullscreenModalShellComponent,
     IconComponent,
-    SanitizePipe,
     TranslatePipe,
 } from '@placeos/components';
 import { roundToNearestMinutes, startOfDay } from 'date-fns';
@@ -87,7 +86,7 @@ import { roundToNearestMinutes, startOfDay } from 'date-fns';
                     >
                         <div
                             class="prose prose-sm max-w-none"
-                            [innerHTML]="submission_notes_html() | sanitize"
+                            [innerHTML]="submission_notes_html()"
                         ></div>
                     </div>
                 }
@@ -109,7 +108,6 @@ import { roundToNearestMinutes, startOfDay } from 'date-fns';
     imports: [
         FullscreenModalShellComponent,
         TranslatePipe,
-        SanitizePipe,
         IconComponent,
         ParkingRequestFormDetailsComponent,
     ],

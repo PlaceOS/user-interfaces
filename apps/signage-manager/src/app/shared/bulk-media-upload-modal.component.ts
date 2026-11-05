@@ -146,7 +146,10 @@ function uploadErrorMessage(error: unknown) {
                             </div>
                         }
                         @case ('done') {
-                            <icon class="text-success shrink-0 text-2xl">
+                            <icon
+                                class="text-success shrink-0 text-2xl"
+                                label="Uploaded"
+                            >
                                 check_circle
                             </icon>
                         }

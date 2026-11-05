@@ -16,7 +16,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
     CalEvent,
@@ -81,7 +80,7 @@ import { BookingFormService } from './booking-form.service';
                             matRipple
                             name="desk-outlook-link"
                             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="outlook_link() | sanitize: 'url'"
+                            [href]="outlook_link()"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -95,7 +94,7 @@ import { BookingFormService } from './booking-form.service';
                             matRipple
                             name="desk-google-link"
                             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="google_link() | sanitize: 'url'"
+                            [href]="google_link()"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -109,7 +108,7 @@ import { BookingFormService } from './booking-form.service';
                             matRipple
                             name="desk-ical-link"
                             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="ical_link() | sanitize: 'url'"
+                            [href]="ical_link()"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -144,13 +143,7 @@ import { BookingFormService } from './booking-form.service';
         </div>
     `,
     styles: [``],
-    imports: [
-        MatRippleModule,
-        IconComponent,
-        TranslatePipe,
-        DatePipe,
-        SanitizePipe,
-    ],
+    imports: [MatRippleModule, IconComponent, TranslatePipe, DatePipe],
 })
 export class VisitorInviteSuccessComponent implements OnInit {
     private _form = inject(BookingFormService);

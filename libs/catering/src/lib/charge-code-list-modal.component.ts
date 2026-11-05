@@ -21,7 +21,12 @@ import { CateringStateService } from './catering-state.service';
                 {{ 'CATERING.CHARGE_CODES_EDIT' | translate }}
             </h2>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                    icon
+                    matRipple
+                    mat-dialog-close
+                >
                     <icon>close</icon>
                 </button>
             }
@@ -47,6 +52,9 @@ import { CateringStateService } from './catering-state.service';
                                 />
                             </mat-form-field>
                             <button
+                                [attr.aria-label]="
+                                    'CATERING.CHARGE_CODES_REMOVE' | translate
+                                "
                                 icon
                                 matRipple
                                 class="border-error text-error h-12 w-12 rounded-sm border"
@@ -90,6 +98,9 @@ import { CateringStateService } from './catering-state.service';
                     />
                 </button>
                 <button
+                    [attr.aria-label]="
+                        'CATERING.CHARGE_CODE_DOWNLOAD' | translate
+                    "
                     icon
                     matRipple
                     (click)="downloadTemplate()"

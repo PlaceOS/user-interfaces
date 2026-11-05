@@ -66,6 +66,10 @@ const BOARD_STATUSES: CateringOrder['status'][] = [
                 {{ now() | date: time_format() }}
             </div>
             <button
+                [attr.aria-label]="
+                    (alerts_on() ? 'CATERING.ALERTS_OFF' : 'CATERING.ALERTS_ON')
+                        | translate
+                "
                 icon
                 matRipple
                 class="h-12 w-12"
@@ -84,6 +88,7 @@ const BOARD_STATUSES: CateringOrder['status'][] = [
                 </icon>
             </button>
             <button
+                [attr.aria-label]="'CATERING.FULLSCREEN' | translate"
                 icon
                 matRipple
                 class="h-12 w-12"

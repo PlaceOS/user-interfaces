@@ -82,6 +82,12 @@ const EMPTY_FAVS: string[] = [];
                         </div>
                     </div>
                     <button
+                        [attr.aria-label]="
+                            (favorites().includes(item?.id)
+                                ? 'COMMON.FAVOURITES_REMOVE'
+                                : 'COMMON.FAVOURITES_ADD'
+                            ) | translate
+                        "
                         icon
                         matRipple
                         name="toggle-desk-favourite"

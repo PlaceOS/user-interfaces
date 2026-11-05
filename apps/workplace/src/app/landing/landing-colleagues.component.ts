@@ -80,6 +80,9 @@ import { LandingStateService } from './landing-state.service';
                             default
                             name="colleague-more"
                             [matMenuTriggerFor]="menu"
+                            [attr.aria-label]="
+                                'COMMON.MORE_OPTIONS' | translate
+                            "
                         >
                             <icon>more_horiz</icon>
                         </button>
@@ -154,6 +157,7 @@ import { LandingStateService } from './landing-state.service';
                 name="close-colleague-search"
                 class="absolute top-0 right-0"
                 (click)="show_search.set(false)"
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
             >
                 <icon>close</icon>
             </button>

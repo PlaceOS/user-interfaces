@@ -161,7 +161,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     "
                     matTooltipPosition="right"
                 >
-                    <icon>done</icon>
+                    <icon [label]="'COMMON.CHECKED_OUT' | translate">done</icon>
                 </div>
             }
             @if (!row?.checked_in && !row.checked_out_at) {
@@ -173,7 +173,13 @@ import { VisitorsStateService } from './visitors-state.service';
                     "
                     matTooltipPosition="right"
                 >
-                    <icon>question_mark</icon>
+                    <icon
+                        [label]="
+                            'APP.CONCIERGE.VISITOR_STATUS_NOT_CHECKED_IN'
+                                | translate
+                        "
+                        >question_mark</icon
+                    >
                 </div>
             }
             @if (row?.checked_in) {
@@ -190,7 +196,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     "
                     matTooltipPosition="right"
                 >
-                    <icon>done</icon>
+                    <icon [label]="'COMMON.CHECKED_IN' | translate">done</icon>
                 </div>
             }
         </ng-template>
@@ -314,7 +320,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 <div
                     class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                 >
-                    <icon>done</icon>
+                    <icon [label]="'COMMON.YES' | translate">done</icon>
                 </div>
             }
         </ng-template>
@@ -330,7 +336,16 @@ import { VisitorsStateService } from './visitors-state.service';
                 [class.bg-error]="data === 'declined'"
                 [class.text-error-content]="data === 'declined'"
             >
-                <icon>
+                <icon
+                    [label]="
+                        (data === 'accepted'
+                            ? 'COMMON.APPROVED'
+                            : data === 'declined'
+                              ? 'COMMON.DECLINED'
+                              : 'COMMON.PENDING'
+                        ) | translate
+                    "
+                >
                     {{
                         data === 'accepted'
                             ? 'done'
@@ -721,6 +736,10 @@ import { VisitorsStateService } from './visitors-state.service';
                         <icon
                             className="material-symbols-rounded"
                             class="text-sm"
+                            [label]="
+                                'APP.CONCIERGE.VISITORS_NOTES_AVAILABLE'
+                                    | translate
+                            "
                         >
                             info_i
                         </icon>

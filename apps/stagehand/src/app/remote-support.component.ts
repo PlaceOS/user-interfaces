@@ -288,6 +288,11 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                                 [class.text-warning]="
                                     issue.severity !== 'critical'
                                 "
+                                [label]="
+                                    issue.severity === 'critical'
+                                        ? 'Critical'
+                                        : 'Warning'
+                                "
                                 >{{
                                     issue.severity === 'critical'
                                         ? 'warning'

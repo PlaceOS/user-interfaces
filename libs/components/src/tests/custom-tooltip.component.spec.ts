@@ -11,7 +11,6 @@ import {
     CustomTooltipComponent,
     CustomTooltipData,
 } from '../lib/custom-tooltip.component';
-import { SanitizePipe } from '../lib/sanitise.pipe';
 
 // The tooltip opens on a 50ms timer; allow it to fire with a short real wait.
 const settle = () => new Promise((resolve) => setTimeout(resolve, 100));
@@ -36,7 +35,6 @@ describe('CustomTooltipComponent', () => {
     let overlay_container: OverlayContainer;
     const createDirective = createDirectiveFactory({
         directive: CustomTooltipComponent,
-        declarations: [SanitizePipe],
         imports: [PortalModule, OverlayModule],
     });
 

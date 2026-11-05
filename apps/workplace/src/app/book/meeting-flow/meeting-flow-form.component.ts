@@ -99,6 +99,10 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     (click)="
                                         hide_block.details = !hide_block.details
                                     "
+                                    [attr.aria-label]="
+                                        'COMMON.DETAILS' | translate
+                                    "
+                                    [attr.aria-expanded]="!hide_block.details"
                                 >
                                     <icon>{{
                                         hide_block.details
@@ -147,6 +151,13 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         (click)="
                                             hide_block.attendees =
                                                 !hide_block.attendees
+                                        "
+                                        [attr.aria-label]="
+                                            'CALENDAR_EVENT.ATTENDEES'
+                                                | translate
+                                        "
+                                        [attr.aria-expanded]="
+                                            !hide_block.attendees
                                         "
                                     >
                                         <icon>{{
@@ -207,6 +218,10 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         hide_block.resources =
                                             !hide_block.resources
                                     "
+                                    [attr.aria-label]="
+                                        'RESOURCE.ROOM' | translate
+                                    "
+                                    [attr.aria-expanded]="!hide_block.resources"
                                 >
                                     <icon>{{
                                         hide_block.resources
@@ -261,6 +276,12 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         (click)="
                                             hide_block.catering =
                                                 !hide_block.catering
+                                        "
+                                        [attr.aria-label]="
+                                            'RESOURCE.CATERING' | translate
+                                        "
+                                        [attr.aria-expanded]="
+                                            !hide_block.catering
                                         "
                                     >
                                         <icon>{{
@@ -392,6 +413,12 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         (click)="
                                             hide_block.assets =
                                                 !hide_block.assets
+                                        "
+                                        [attr.aria-label]="
+                                            'RESOURCE.ASSETS' | translate
+                                        "
+                                        [attr.aria-expanded]="
+                                            !hide_block.assets
                                         "
                                     >
                                         <icon>{{

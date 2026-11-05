@@ -47,6 +47,8 @@ function saveCheckedItem(key: string, checked: boolean) {
             </div>
             <div class="mr-4 w-12">
                 <button
+                    [attr.aria-label]="item()?.name"
+                    [attr.aria-pressed]="active()"
                     action
                     icon
                     matRipple

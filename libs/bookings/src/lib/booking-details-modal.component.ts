@@ -93,7 +93,14 @@ export function canEditBooking(booking: Booking) {
                 }
                 <div class="w-full items-center justify-between sm:flex">
                     <div class="m-2 flex items-center space-x-2">
-                        <status-pill [status]="booking_status()">
+                        <status-pill
+                            [status]="booking_status()"
+                            [label]="
+                                is_cancelled()
+                                    ? ('COMMON.TYPE_CANCELLED' | translate)
+                                    : ''
+                            "
+                        >
                             @if (is_cancelled()) {
                                 {{ 'COMMON.TYPE_CANCELLED' | translate }} ·
                             }
@@ -102,6 +109,7 @@ export function canEditBooking(booking: Booking) {
                         @if (booking().instance) {
                             <icon
                                 class="text-2xl"
+                                [label]="recurr_tooltip()"
                                 [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >
@@ -165,6 +173,9 @@ export function canEditBooking(booking: Booking) {
                             }
                             @if (has_menu_actions()) {
                                 <button
+                                    [attr.aria-label]="
+                                        'COMMON.MORE_OPTIONS' | translate
+                                    "
                                     icon
                                     matRipple
                                     [matMenuTriggerFor]="menu"
@@ -229,6 +240,9 @@ export function canEditBooking(booking: Booking) {
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
                             <icon
+                                [label]="
+                                    'BOOKINGS.BOOKED_FOR_LABEL' | translate
+                                "
                                 [matTooltip]="
                                     'BOOKINGS.BOOKED_FOR_LABEL' | translate
                                 "
@@ -244,7 +258,9 @@ export function canEditBooking(booking: Booking) {
                     }
                     @if (booking().booked_by_email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon [matTooltip]="'COMMON.BOOKED_BY' | translate"
+                            <icon
+                                [label]="'COMMON.BOOKED_BY' | translate"
+                                [matTooltip]="'COMMON.BOOKED_BY' | translate"
                                 >edit_calendar</icon
                             >
                             <div>
@@ -353,7 +369,11 @@ export function canEditBooking(booking: Booking) {
                                                 request.state || 'Tentative'
                                             "
                                         >
-                                            <icon>
+                                            <icon
+                                                [label]="
+                                                    request.state || 'Tentative'
+                                                "
+                                            >
                                                 {{
                                                     request.state === 'approved'
                                                         ? 'done'
@@ -430,6 +450,7 @@ export function canEditBooking(booking: Booking) {
                 }
             </div>
             <button
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
                 icon
                 default
                 matRipple

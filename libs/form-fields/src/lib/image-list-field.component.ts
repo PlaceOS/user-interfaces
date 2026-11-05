@@ -145,7 +145,9 @@ export interface PendingImageUpload {
                         ></mat-progress-spinner>
                     }
                     @if (item.error) {
-                        <icon class="text-error text-6xl">warning</icon>
+                        <icon class="text-error text-6xl" [label]="item.error"
+                            >warning</icon
+                        >
                     }
                     @if (item.error) {
                         <div

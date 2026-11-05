@@ -218,7 +218,9 @@ interface ParkingBookingColumnTemplates {
                             [matTooltip]="'COMMON.TYPE_CANCELLED' | translate"
                             matTooltipPosition="right"
                         >
-                            <icon>close</icon>
+                            <icon [label]="'COMMON.TYPE_CANCELLED' | translate"
+                                >close</icon
+                            >
                         </div>
                     } @else {
                         @if (!row?.checked_in && row.checked_out_at) {
@@ -237,7 +239,9 @@ interface ParkingBookingColumnTemplates {
                                 "
                                 matTooltipPosition="right"
                             >
-                                <icon>done</icon>
+                                <icon [label]="'COMMON.CHECKED_OUT' | translate"
+                                    >done</icon
+                                >
                             </div>
                         }
                         @if (!row?.checked_in && !row.checked_out_at) {
@@ -249,7 +253,13 @@ interface ParkingBookingColumnTemplates {
                                 "
                                 matTooltipPosition="right"
                             >
-                                <icon>question_mark</icon>
+                                <icon
+                                    [label]="
+                                        'APP.CONCIERGE.PARKING_NOT_CHECKED_IN'
+                                            | translate
+                                    "
+                                    >question_mark</icon
+                                >
                             </div>
                         }
                         @if (row?.checked_in) {
@@ -261,7 +271,13 @@ interface ParkingBookingColumnTemplates {
                                 "
                                 matTooltipPosition="right"
                             >
-                                <icon>done</icon>
+                                <icon
+                                    [label]="
+                                        'APP.CONCIERGE.PARKING_CHECKED_IN'
+                                            | translate
+                                    "
+                                    >done</icon
+                                >
                             </div>
                         }
                     }
@@ -330,9 +346,11 @@ interface ParkingBookingColumnTemplates {
                             [matTooltip]="vehicleTypeLabel(row) | translate"
                             matTooltipPosition="right"
                         >
-                            <icon class="text-2xl">{{
-                                vehicleTypeIcon(row)
-                            }}</icon>
+                            <icon
+                                class="text-2xl"
+                                [label]="vehicleTypeLabel(row) | translate"
+                                >{{ vehicleTypeIcon(row) }}</icon
+                            >
                         </div>
                     </div>
                 </ng-template>

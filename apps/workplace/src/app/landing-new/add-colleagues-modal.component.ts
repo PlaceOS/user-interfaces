@@ -132,7 +132,12 @@ import { LandingStateService } from '../landing/landing-state.service';
                                                 }}
                                             </div>
                                         } @else if (isUserSelected(user)) {
-                                            <icon class="text-success"
+                                            <icon
+                                                class="text-success"
+                                                [label]="
+                                                    'COMMON.SELECTED'
+                                                        | translate
+                                                "
                                                 >check_circle</icon
                                             >
                                         } @else {

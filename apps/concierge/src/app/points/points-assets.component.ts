@@ -84,7 +84,10 @@ export interface PointAsset {
                 [class.bg-success]="data"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
             >
-                <icon>{{ data ? 'done' : 'close' }}</icon>
+                <icon
+                    [label]="(data ? 'COMMON.YES' : 'COMMON.NO') | translate"
+                    >{{ data ? 'done' : 'close' }}</icon
+                >
             </div>
         </ng-template>
         <ng-template #discount_template let-data="data">

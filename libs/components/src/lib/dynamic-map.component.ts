@@ -41,7 +41,6 @@ import {
     MapViewer,
 } from './map-viewer.class';
 import { MapZoomControlsComponent } from './map-zoom-controls.component';
-import { SanitizePipe } from './sanitise.pipe';
 import { TranslatePipe } from './translate.pipe';
 
 type DebugSection = 'styles' | 'features' | 'labels' | 'actions';
@@ -57,8 +56,8 @@ interface DebugDetailEntry {
     template: `
         <div
             #mapContainer
-            tabindex="0"
-            role="application"
+            [attr.tabindex]="is_interactive() ? 0 : -1"
+            [attr.role]="is_interactive() ? 'application' : 'img'"
             aria-roledescription="map"
             [attr.aria-label]="'COMMON.MAP' | translate"
             class="absolute inset-0"
@@ -201,9 +200,7 @@ interface DebugDetailEntry {
                                     }
                                     @case ('html') {
                                         <div
-                                            [innerHTML]="
-                                                element.content | sanitize
-                                            "
+                                            [innerHTML]="element.content"
                                         ></div>
                                     }
                                     @default {
@@ -242,7 +239,6 @@ interface DebugDetailEntry {
         CommonModule,
         FormsModule,
         TranslatePipe,
-        SanitizePipe,
         MatProgressSpinnerModule,
         MapZoomControlsComponent,
     ],
@@ -283,6 +279,14 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     public injectors = signal<Injector[]>([]);
     public loading = signal(false);
     public error = signal(false);
+    /**
+     * Whether the keyboard can pan or zoom the map. A map with both disabled
+     * is an image, not a tab stop.
+     */
+    public readonly is_interactive = computed(() => {
+        const { disable_pan, disable_zoom } = this.options() || {};
+        return !(disable_pan && disable_zoom);
+    });
 
     /** Normalised SVG bounds of map elements, keyed by element ID */
     private _element_mappings = signal<Record<string, MapElementBounds> | null>(
@@ -705,22 +709,10 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             const feature = features[i];
             if (!feature.location) continue;
 
-            // Get the content element
-            let contents: HTMLElement | string;
-            const content_type = this.contentType(feature.content);
-
-            if (content_type === 'component' || content_type === 'template') {
-                // Use the rendered element from the hidden container
-                const rendered_el = feature_elements[i]?.nativeElement;
-                if (!rendered_el) continue;
-                contents = rendered_el;
-            } else if (feature.content instanceof HTMLElement) {
-                contents = feature.content;
-            } else if (typeof feature.content === 'string') {
-                contents = feature.content;
-            } else {
-                continue;
-            }
+            // Use the element rendered in the hidden container. HTML strings
+            // are sanitised there, so never pass the raw string to the viewer
+            const contents = feature_elements[i]?.nativeElement;
+            if (!contents) continue;
 
             // Features are only sized to their reference element when shown
             // on hover or explicitly marked as full size, otherwise they
@@ -942,30 +934,40 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         });
     }
 
+    /**
+     * Give each feature an injector with its data. A feature keeps its
+     * injector, and so its component, while its key (track ID, or list index
+     * without one) and data values stay the same. Changed data gets a new
+     * injector, which rebuilds the component with the new values.
+     */
     private _updateInjectors() {
         const old_injectors = new Map(
-            untracked(() => this.injectors()).map((injector) => [
-                injector.get(MAP_FEATURE_DATA)?.track_id,
+            untracked(() => this.injectors()).map((injector, index) => [
+                injector.get(MAP_FEATURE_DATA)?.track_id || index,
                 injector,
             ]),
         );
         this.injectors.set(
-            (this.features() || []).map(
-                (f) =>
-                    (f.track_id && old_injectors.get(f.track_id)) ||
-                    Injector.create({
-                        providers: [
-                            {
-                                provide: MAP_FEATURE_DATA,
-                                useValue: {
-                                    track_id: f.track_id,
-                                    ...f.data,
-                                },
-                            },
-                        ],
-                        parent: this._injector,
-                    }),
-            ),
+            (this.features() || []).map((f, index) => {
+                const data = { track_id: f.track_id, ...f.data };
+                const old = old_injectors.get(f.track_id || index);
+                if (old && sameValues(old.get(MAP_FEATURE_DATA), data)) {
+                    return old;
+                }
+                return Injector.create({
+                    providers: [{ provide: MAP_FEATURE_DATA, useValue: data }],
+                    parent: this._injector,
+                });
+            }),
         );
     }
+}
+
+/** Whether two objects have the same keys with identical values */
+function sameValues(a: Record<string, unknown>, b: Record<string, unknown>) {
+    const keys = Object.keys(a);
+    return (
+        keys.length === Object.keys(b).length &&
+        keys.every((key) => Object.is(a[key], b[key]))
+    );
 }

@@ -28,6 +28,7 @@ import { BookingAsset } from '../booking-form.types';
                     ></image-carousel>
                 }
                 <button
+                    [attr.aria-label]="'COMMON.BACK' | translate"
                     icon
                     matRipple
                     close
@@ -37,6 +38,12 @@ import { BookingAsset } from '../booking-form.types';
                     <icon>arrow_back</icon>
                 </button>
                 <button
+                    [attr.aria-label]="
+                        (fav()
+                            ? 'COMMON.FAVOURITES_REMOVE'
+                            : 'COMMON.FAVOURITES_ADD'
+                        ) | translate
+                    "
                     icon
                     matRipple
                     fav

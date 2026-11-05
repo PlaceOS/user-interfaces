@@ -8,7 +8,6 @@ import {
     MockComponent,
     MockDirective,
     MockModule,
-    MockPipe,
     MockProvider,
 } from 'ng-mocks';
 
@@ -16,7 +15,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import {
     AuthenticatedImageDirective,
     IconComponent,
-    SanitizePipe,
 } from '@placeos/components';
 import { WelcomeComponent } from '../app/welcome.component';
 
@@ -33,7 +31,6 @@ describe('WelcomeComponent', () => {
         imports: [MockModule(MatMenuModule)],
         declarations: [
             MockComponent(IconComponent),
-            MockPipe(SanitizePipe),
             MockDirective(AuthenticatedImageDirective),
         ],
     });

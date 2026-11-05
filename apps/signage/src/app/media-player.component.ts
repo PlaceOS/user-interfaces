@@ -249,6 +249,7 @@ function settleWithin(promise: Promise<unknown>, timeout_ms: number) {
                                 default
                                 matRipple
                                 (click)="closed.emit()"
+                                aria-label="Close"
                             >
                                 <icon>close</icon>
                             </button>

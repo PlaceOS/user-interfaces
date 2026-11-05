@@ -64,7 +64,12 @@ function sameEmail(a: string, b: string) {
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'CALENDAR_EVENT.FIND_AVAILABILITY' | translate }}
                 </h2>
-                <button icon matRipple mat-dialog-close>
+                <button
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                    icon
+                    matRipple
+                    mat-dialog-close
+                >
                     <icon>close</icon>
                 </button>
             </header>
@@ -140,6 +145,15 @@ function sameEmail(a: string, b: string) {
                                     {{ user.name || user.email }}
                                 </div>
                                 <button
+                                    [attr.aria-label]="
+                                        'COMMON.REMOVE_ITEM'
+                                            | translate
+                                                : {
+                                                      item:
+                                                          user.name ||
+                                                          user.email,
+                                                  }
+                                    "
                                     icon
                                     class="absolute -top-1 -left-1"
                                     (click)="removeUser(user)"

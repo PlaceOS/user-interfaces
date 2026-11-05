@@ -75,6 +75,7 @@ const TYPE_ICONS = new Map<string, { icon: string; tooltip: string }>([
                         [style.color]="typeColors[1]"
                     >
                         <icon
+                            [label]="typeLabel | translate"
                             [matTooltip]="typeLabel | translate"
                             matTooltipPosition="left"
                         >
@@ -83,7 +84,14 @@ const TYPE_ICONS = new Map<string, { icon: string; tooltip: string }>([
                     </div>
                     <h4 class="px-4 text-lg">{{ booking()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
-                        <status-pill [status]="status()">
+                        <status-pill
+                            [status]="status()"
+                            [label]="
+                                is_cancelled()
+                                    ? ('COMMON.TYPE_CANCELLED' | translate)
+                                    : ''
+                            "
+                        >
                             @if (is_cancelled()) {
                                 {{ 'COMMON.TYPE_CANCELLED' | translate }} ·
                             }
@@ -108,6 +116,7 @@ const TYPE_ICONS = new Map<string, { icon: string; tooltip: string }>([
                         @if (booking().instance) {
                             <icon
                                 class="text-2xl"
+                                [label]="recurr_tooltip()"
                                 [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >

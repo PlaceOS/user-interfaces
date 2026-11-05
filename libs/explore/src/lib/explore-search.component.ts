@@ -23,6 +23,10 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
     selector: 'explore-search',
     template: `
         <button
+            [attr.aria-label]="
+                (show() ? 'EXPLORE.SEARCH_CLOSE' : 'EXPLORE.SEARCH_OPEN')
+                    | translate
+            "
             #button
             icon
             matRipple

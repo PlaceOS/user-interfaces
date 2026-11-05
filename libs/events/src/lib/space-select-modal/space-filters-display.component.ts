@@ -51,6 +51,10 @@ import { EventFormService } from 'libs/events/src/lib/event-form.service';
                 <div filter-item>
                     <p class="truncate">{{ feat }}</p>
                     <button
+                        [attr.aria-label]="
+                            'CALENDAR_EVENT.FILTER_REMOVE'
+                                | translate: { name: feat }
+                        "
                         icon
                         matRipple
                         name="remove-space-filter"

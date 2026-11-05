@@ -19,7 +19,12 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
                 }}
             </h2>
             <div class="flex-1"></div>
-            <button icon matRipple mat-dialog-close>
+            <button
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                icon
+                matRipple
+                mat-dialog-close
+            >
                 <icon>close</icon>
             </button>
         </header>

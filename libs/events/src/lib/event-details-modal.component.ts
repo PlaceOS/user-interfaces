@@ -42,7 +42,6 @@ import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.c
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
-import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
@@ -107,6 +106,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         @if (event().recurring_event_id) {
                             <icon
                                 class="text-2xl"
+                                [label]="recurr_tooltip()"
                                 [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >
@@ -159,6 +159,9 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                             }
                             @if (allow_edit()) {
                                 <button
+                                    [attr.aria-label]="
+                                        'COMMON.MORE_OPTIONS' | translate
+                                    "
                                     icon
                                     matRipple
                                     [matMenuTriggerFor]="menu"
@@ -236,6 +239,9 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                             event().creator;
                         <div class="flex items-center space-x-2 px-2">
                             <icon
+                                [label]="
+                                    'CALENDAR_EVENT.CREATED_BY' | translate
+                                "
                                 [matTooltip]="
                                     'CALENDAR_EVENT.CREATED_BY' | translate
                                 "
@@ -548,7 +554,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                             <div
                                 notes
                                 class="mx-4 max-w-full overflow-hidden"
-                                [innerHTML]="(body() | sanitize) || empty_notes"
+                                [innerHTML]="body() || empty_notes"
                             ></div>
                         }
                     </div>
@@ -617,7 +623,11 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                                 request.state || 'Tentative'
                                             "
                                         >
-                                            <icon>
+                                            <icon
+                                                [label]="
+                                                    request.state || 'Tentative'
+                                                "
+                                            >
                                                 {{
                                                     request.state === 'approved'
                                                         ? 'done'
@@ -675,6 +685,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                     </div>
                 }
                 <button
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
                     icon
                     default
                     matRipple
@@ -764,7 +775,6 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
         MatMenuModule,
         MatDialogModule,
         AttendeeListComponent,
-        SanitizePipe,
         InteractiveMapComponent,
         UserAvatarComponent,
         StatusPillComponent,

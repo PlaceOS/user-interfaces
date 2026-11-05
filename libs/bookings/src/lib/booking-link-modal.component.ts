@@ -5,7 +5,6 @@ import { Booking } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SafePipe } from 'libs/components/src/lib/safe.pipe';
-import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
     generateCalendarFileLink,
@@ -24,7 +23,7 @@ import {
                 btn
                 matRipple
                 class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                [href]="outlook_link | sanitize: 'url'"
+                [href]="outlook_link"
                 target="_blank"
                 rel="noopener noreferer"
             >
@@ -35,7 +34,7 @@ import {
                 btn
                 matRipple
                 class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                [href]="google_link | sanitize: 'url'"
+                [href]="google_link"
                 target="_blank"
                 rel="noopener noreferer"
             >
@@ -54,7 +53,13 @@ import {
                 <span>{{ 'BOOKING.LINK_ICAL' | translate }}</span>
             </a>
         </div>
-        <button icon matRipple mat-dialog-close class="absolute top-2 right-0">
+        <button
+            [attr.aria-label]="'COMMON.CLOSE' | translate"
+            icon
+            matRipple
+            mat-dialog-close
+            class="absolute top-2 right-0"
+        >
             <icon>close</icon>
         </button>
     `,
@@ -71,7 +76,6 @@ import {
         MatRippleModule,
         MatDialogModule,
         SafePipe,
-        SanitizePipe,
     ],
 })
 export class BookingLinkModalComponent {

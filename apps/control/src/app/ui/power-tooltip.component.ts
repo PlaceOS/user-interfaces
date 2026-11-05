@@ -1,9 +1,5 @@
 import { Component, inject } from '@angular/core';
-import {
-    CustomTooltipData,
-    SanitizePipe,
-    TranslatePipe,
-} from '@placeos/components';
+import { CustomTooltipData, TranslatePipe } from '@placeos/components';
 
 import { MatRippleModule } from '@angular/material/core';
 import { ControlStateService } from '../control-state.service';
@@ -16,7 +12,7 @@ import { ControlStateService } from '../control-state.service';
         >
             <h3
                 class="mb-2 text-center font-medium"
-                [innerHTML]="'APP.CONTROL.POWER_MSG' | translate | sanitize"
+                [innerHTML]="'APP.CONTROL.POWER_MSG' | translate"
             ></h3>
             <button
                 btn
@@ -37,7 +33,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    imports: [TranslatePipe, SanitizePipe, MatRippleModule],
+    imports: [TranslatePipe, MatRippleModule],
 })
 export class PowerTooltipComponent {
     private _state = inject(ControlStateService);

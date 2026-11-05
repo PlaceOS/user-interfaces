@@ -59,7 +59,7 @@ interface ObjectMapping {
                             [class]="dotClass(i)"
                         >
                             @if (i < stepIndex()) {
-                                <icon>check</icon>
+                                <icon label="Done">check</icon>
                             } @else {
                                 {{ i + 1 }}
                             }
@@ -184,7 +184,14 @@ interface ObjectMapping {
                                     : 'bg-base-200 border-base-300 text-base-content/60'
                             "
                         >
-                            <icon class="text-base">
+                            <icon
+                                class="text-base"
+                                [label]="
+                                    issue.severity === 'warning'
+                                        ? 'Warning'
+                                        : 'Info'
+                                "
+                            >
                                 {{
                                     issue.severity === 'warning'
                                         ? 'warning'

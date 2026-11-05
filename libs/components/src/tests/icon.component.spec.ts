@@ -33,4 +33,24 @@ describe('IconComponent', () => {
             `${location.origin}/test-image.png`,
         );
     });
+
+    it('should hide decorative icons from assistive technology', () => {
+        expect(spectator.element).toHaveAttribute('aria-hidden', 'true');
+        expect(spectator.element).not.toHaveAttribute('role');
+        expect(spectator.element).not.toHaveAttribute('aria-label');
+    });
+
+    it('should announce icons that have a label', () => {
+        spectator.setInput('label', 'Recurring');
+        spectator.detectChanges();
+        expect(spectator.element).not.toHaveAttribute('aria-hidden');
+        expect(spectator.element).toHaveAttribute('role', 'img');
+        expect(spectator.element).toHaveAttribute('aria-label', 'Recurring');
+    });
+
+    it('should give image icons an empty alt', () => {
+        spectator.setInput('icon', { type: 'img', src: '/test-image.png' });
+        spectator.detectChanges();
+        expect('img').toHaveAttribute('alt', '');
+    });
 });

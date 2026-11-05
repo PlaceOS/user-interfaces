@@ -123,7 +123,7 @@ import {
                                     </div>
                                 </div>
                             </button>
-                            <!-- <button
+                            <!-- <button [attr.aria-label]="(isFavourite(locker_bank.id) ? 'COMMON.FAVOURITES_REMOVE' : 'COMMON.FAVOURITES_ADD') | translate"
                 icon
                 matRipple
                 name="toggle-locker_bank-favourite"

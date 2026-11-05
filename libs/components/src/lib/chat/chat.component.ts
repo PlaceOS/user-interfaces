@@ -19,7 +19,6 @@ import {
 } from '@placeos/common';
 import { DateFromPipe } from '../date-from.pipe';
 import { IconComponent } from '../icon.component';
-import { SanitizePipe } from '../sanitise.pipe';
 import { TranslatePipe } from '../translate.pipe';
 import { ChatService } from './chat.service';
 
@@ -60,6 +59,7 @@ import { ChatService } from './chat.service';
                             class="h-128 max-h-[60vh] overflow-auto"
                             role="log"
                             #container
+                            (scroll)="onScroll()"
                         >
                             <div
                                 class="flex w-full flex-col items-center justify-center space-y-2 p-8"
@@ -119,7 +119,7 @@ import { ChatService } from './chat.service';
                                     <div
                                         message
                                         class="markdown selectable border-base-300 bg-base-100 rounded-sm p-4 text-sm shadow-sm"
-                                        [innerHTML]="message.content | sanitize"
+                                        [innerHTML]="message.content"
                                     ></div>
                                 </div>
                             }
@@ -154,7 +154,6 @@ import { ChatService } from './chat.service';
                                                     class="text-mono p-2 text-left text-xs wrap-break-word"
                                                     [innerHTML]="
                                                         progress().content
-                                                            | sanitize
                                                     "
                                                 ></div>
                                             }
@@ -233,7 +232,6 @@ import { ChatService } from './chat.service';
         FormsModule,
         IconComponent,
         DateFromPipe,
-        SanitizePipe,
     ],
 })
 export class ChatComponent extends AsyncHandler implements OnInit {
@@ -268,9 +266,15 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         viewChild<ElementRef<HTMLTextAreaElement>>('input');
     private readonly _container_el =
         viewChild<ElementRef<HTMLDivElement>>('container');
+    /**
+     * Whether new content scrolls the log down. False while the user reads
+     * older messages.
+     */
+    private _stick_to_bottom = true;
 
     public toggleChat() {
         this.show.update((s) => !s);
+        this._stick_to_bottom = true;
         if (!this.show()) this._chat.close();
     }
 
@@ -301,6 +305,14 @@ export class ChatComponent extends AsyncHandler implements OnInit {
             if (progress) this.scrollToBottom();
             else this.show_info.set(false);
         });
+        // Put the text of a message that got no reply back in the input
+        effect(() => {
+            const text = this._chat.unsent();
+            if (!text) return;
+            this.message.update((current) =>
+                current ? `${text}\n${current}` : text,
+            );
+        });
     }
 
     public resizeInput() {
@@ -323,17 +335,27 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         if (!this.message().trim()) return;
         // Keep the text in the input if the chat cannot connect
         if (!this._chat.sendMessage(this.message())) return;
+        // Show the user's own message, even if they had scrolled up
+        this._stick_to_bottom = true;
         this.message.set('');
         this.height.set(56);
         setTimeout(() => this._input_el().nativeElement.focus(), 100);
     }
 
+    /** Stick to the bottom only while the user is near it */
+    public onScroll() {
+        const el = this._container_el().nativeElement;
+        this._stick_to_bottom =
+            el.scrollHeight - el.scrollTop - el.clientHeight < 64;
+    }
+
+    /** Scroll the log to the newest content, unless the user has scrolled up */
     public scrollToBottom(delay = 300) {
         this.timeout(
             'scroll',
             () => {
                 const _container_el = this._container_el();
-                if (_container_el?.nativeElement) {
+                if (this._stick_to_bottom && _container_el?.nativeElement) {
                     _container_el.nativeElement.scrollTop =
                         _container_el.nativeElement.scrollHeight;
                 }

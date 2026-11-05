@@ -48,6 +48,7 @@ import { addMinutes, endOfDay } from 'date-fns';
                         name="close-desk-confirm"
                         matRipple
                         (click)="dismiss()"
+                        [attr.aria-label]="'COMMON.CLOSE' | translate"
                     >
                         <icon class="text-2xl">close</icon>
                     </button>
@@ -158,7 +159,9 @@ import { addMinutes, endOfDay } from 'date-fns';
                                             class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
                                             [matTooltip]="err_tooltip(request)"
                                         >
-                                            <icon>priority_high</icon>
+                                            <icon [label]="err_tooltip(request)"
+                                                >priority_high</icon
+                                            >
                                         </div>
                                     }
                                     <div class="flex-1"></div>

@@ -20,7 +20,13 @@ import { saveEvent, updateEventMetadata } from './events.fn';
         <header class="min-h-16 space-x-4">
             <h2>{{ 'CALENDAR_EVENT.SETUP_BREAKDOWN_HEADER' | translate }}</h2>
             @if (!loading()) {
-                <button btn icon mat-dialog-close matRipple>
+                <button
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                    btn
+                    icon
+                    mat-dialog-close
+                    matRipple
+                >
                     <icon>close</icon>
                 </button>
             }

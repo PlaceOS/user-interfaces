@@ -63,6 +63,10 @@ import { BookingFormService } from '../booking-form.service';
                 <div filter-item features>
                     <p>{{ feat }}</p>
                     <button
+                        [attr.aria-label]="
+                            'CALENDAR_EVENT.FILTER_REMOVE'
+                                | translate: { name: feat }
+                        "
                         icon
                         matRipple
                         name="remove-desk-filter"
@@ -77,6 +81,15 @@ import { BookingFormService } from '../booking-form.service';
                 <div filter-item>
                     <span>{{ 'COMMON.FAVOURITES_ONLY' | translate }}</span>
                     <button
+                        [attr.aria-label]="
+                            'CALENDAR_EVENT.FILTER_REMOVE'
+                                | translate
+                                    : {
+                                          name:
+                                              ('COMMON.FAVOURITES_ONLY'
+                                              | translate),
+                                      }
+                        "
                         icon
                         matRipple
                         name="remove-desk-favs-filter"

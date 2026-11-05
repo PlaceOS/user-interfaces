@@ -24,6 +24,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                     class="h-12 w-12"
                     [matTooltip]="'COMMON.BACK' | translate"
                     [routerLink]="['/orders']"
+                    [attr.aria-label]="'COMMON.BACK' | translate"
                 >
                     <icon class="text-2xl">arrow_back</icon>
                 </a>
