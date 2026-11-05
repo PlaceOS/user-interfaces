@@ -1,16 +1,20 @@
 # Workplace Settings E2E coverage: final status
 
-Updated 30 Oct 2026. PR #595, branch `test/e2e-workplace-settings`, with develop `f9b7be2a60` merged in and the 30 Oct 2026 review fixes on top. Counts below match `--list` for the `settings` and `settings-browser` projects.
+Updated 5 Nov 2026. Covers develop after PR #595 (merged), plus the follow-up PR on branch `test/e2e-settings-followups` (based on develop `ae76ef9dd`). Counts below match `--list` for the `settings` and `settings-browser` projects.
 
 ## Summary
 
 | Group | Specs | Unique Settings | Scenarios | Status |
 |---|---|---|---|---|
-| **In PR #595** | **187** | **215** | **447** | **443 passed locally on 3 Nov with develop merged in; the 2 PPT-2871 override cases added in 2e9a3f467 passed 35/35 (5 repeats) on 3 Nov** |
-| Held locally, not in the PR | 2 (+1 product check) | 2 | 6 | See "Held locally" |
+| **In develop (PR #595) + follow-up PR** | **188** | **216** | **451** | **All 451 passed locally on 5 Nov on the follow-up branch (`settings` 415, `settings-browser` 36), 0 retries** |
+| Held locally, not in the PR | 1 (+1 product check) | 1 | 2 | See "Held locally" |
 | Excluded or ignored by developer decision | – | 4 | – | Not tested |
 
 **Evidence for the PR coverage**
+- Follow-up PR, 5 Nov 2026 (branch `test/e2e-settings-followups` on develop `ae76ef9dd`), 0 retries:
+  - `--project=settings`: 415 tests (plus 2 preflight), all passed in 12.3 min, 2 workers.
+  - `--project=settings-browser`: 36 tests, 36 passed in 1.3 min, 4 workers.
+  - The 8 changed specs, 5 repeats each: `show-waitlist`, `hide-selected-space`, `visitor-invite.building-timezone`, `schedule.auto-release`, `room-booking.allow-daily-allday-recurrence` (97 passed), `directory.show-avatars`, `directory.min-search-length`, `general.locales` (32 passed).
 - Full Settings run, 3 Nov 2026, after merging develop (#654, #655, #656) and updating the four specs they changed, 4 workers, 0 retries:
   - `--project=settings` and `--project=settings-browser`: 443 tests (plus 2 preflight), all passed in 5.9 min.
 - Full Settings run, 30 Oct 2026, after the review fixes, 2 workers, 0 retries:
@@ -46,9 +50,9 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings-b
 bunx playwright test -c apps/workplace/playwright.config.ts --project=settings --list                # counts without running
 ```
 
-| Project | `--list` (4 Nov 2026, PR #665) | Needs the stack |
+| Project | `--list` (5 Nov 2026, follow-up PR) | Needs the stack |
 |---|---|---|
-| `settings` | 411 tests in 171 spec files (plus the 2 `preflight` tests it depends on) | yes |
+| `settings` | 415 tests in 172 spec files (plus the 2 `preflight` tests it depends on) | yes |
 | `settings-browser` | 36 tests in 16 spec files | no |
 
 - `settings`: every settings spec except the browser-only ones. Depends on `preflight`, so it fails fast when the stack is down.
@@ -115,8 +119,8 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 ### directory (2 specs, 2 Settings, 4 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
 |---|---|---|---|---|
-| users.min_search_length | directory.min-search-length | 2 | PASS | |
-| users.show_avatars | directory.show-avatars | 2 | PASS | |
+| users.min_search_length | directory.min-search-length | 2 | PASS | `staff_search_exclude_guests` is held off as a control, so the lookup is the plain directory search |
+| users.show_avatars | directory.show-avatars | 2 | PASS | `staff_search_exclude_guests` is held off as a control, so the lookup is the plain directory search |
 
 ### explore (12 specs, 21 Settings, 43 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
@@ -161,7 +165,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | help | general.help-menu | 2 | PASS | |
 | hide_global_search_items | general.hide-global-search-items | 3 | PASS | |
 | idle_timeout | general.idle-timeout | 2 | PASS | Legacy meeting form |
-| locales | general.locales | 2 | PASS | |
+| locales | general.locales | 2 | PASS | Counts only the language choices; the menu's back header is also a button |
 | logo_dark | general.logo-dark | 2 | PASS | |
 | logo_light | general.logo-light | 1 | PASS | |
 | menu_embeds | general.menu-embeds | 2 | PASS | |
@@ -210,7 +214,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | bookings.use_building_timezone (locker form) | lockers.use-building-timezone | 2 | PASS | Same Setting as in bookings, so not counted again |
 | lockers.use_building_timezone | lockers.use-building-timezone | 2 | PASS | True with bookings.use_building_timezone false, and false overriding bookings.use_building_timezone true (PPT-2871). The form reads lockers ?? bookings |
 
-### parking-booking (15 specs, 16 Settings, 40 scenarios)
+### parking-booking (16 specs, 17 Settings, 44 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
 |---|---|---|---|---|
 | parking.allow_all_day | parking-booking.allow-all-day | 5 | PASS | "False alone" now hides the checkbox; adds the override of bookings.allow_all_day and the fallback to it (PPT-2859) |
@@ -219,6 +223,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | parking.bookable_hours | parking-booking.bookable-hours | 3 | PASS | |
 | parking.can_book_for_others | parking-booking.can-book-for-others | 4 | PASS | Adds the override of bookings.can_book_for_others both ways (PPT-2869) |
 | parking.custom_duration_options | parking-booking.custom-duration-options | 2 | PASS | |
+| parking.hide_selected_space | parking-booking.hide-selected-space | 4 | PASS | Your Bookings card and details pop-up, on and off (PPT-2858, PPT-2863). Added in the follow-up PR |
 | parking.hide_user (+ legacy parkings.hide_user) | parking-booking.hide-user | 3 | PASS | |
 | parking.max_duration | parking-booking.max-duration | 2 | PASS | |
 | parking.min_duration | parking-booking.min-duration | 2 | PASS | |
@@ -327,12 +332,11 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | visitors.show_calendar_links | visitor-invite.show-calendar-links | 2 | PASS | |
 | bookings.all_day_period | visitor-invite.all-day-period | 2 | PASS | |
 
-## Held locally (not in PR #595)
+## Held locally (not merged)
 
-| Spec | Setting | Scen. | Latest develop (`20bc8d023`) | PR branch app | Jira | Next step |
+| Spec | Setting | Scen. | Latest result | PR branch app | Jira | Next step |
 |---|---|---|---|---|---|---|
-| parking-booking.hide-selected-space | parking.hide_selected_space | 4 (card 2, details pop-up 2) | 4/4 PASS | Card true case fails (fix not on branch) | PPT-2863 / PPT-2858 verified | Add to the PR once the fix reaches the branch |
-| explore.hide-device-fields | explore.hide_device_fields | 2 | Tooltip rows pass; fails at the owner lookup | Fails (tooltip can't open) | PPT-2865 verified; PPT-2868 fix merged on develop | Re-run on this branch (develop with #651 is merged in), then add to the PR |
+| explore.hide-device-fields | explore.hide_device_fields | 2 | 10/10 PASS (5 Nov, unchanged spec) | – | PPT-2865 / PPT-2868 fixed on develop | Needs the shared `controlSocket` to allow the read-only `check_ownership_of` exec; then migrate onto the harness and add |
 | lockers.picker-loading | – (product check, not a setting) | 1 | Fails: TypeError reproduced | – | PPT-2870 fix merged on develop | Keep as a regression check |
 
 `e2e/local/wpa-settings-write-guard.ts` is also held locally. It's a helper, not a setting.
