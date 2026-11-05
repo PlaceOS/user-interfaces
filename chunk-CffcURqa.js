@@ -1,4 +1,0 @@
-import{U as It}from"./chunk-BF3rhqXc.js";import{a as Xr,o as Xt,r as Qr,t as Fe}from"./chunk-DZOer_AS.js";var l=/^\+?(\d[\d\s\-\(\)]{5,13}\d)$/;var c=`@place.tech`;function g(e,i){if(!e)throw Error(`No user passed`);return Xt(It({name:e.name||``,email:e.email||``,organisation:e.organisation||``,phone:e.phone||``,assistance_required:e.assistance_required||!1,visit_expected:e.visit_expected??!0}),t=>{Qr(t.name),Qr(t.email),Xr(t.email),Qr(t.organisation),Fe(t.phone,({value:n})=>n()&&!l.test(n())?{kind:`pattern`}:void 0)},i?{injector:i}:void 0)}export{g as n,c as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="72d0531d-b17c-5619-a4b0-393a0a5dc543")}catch(e){}}();
-//# debugId=72d0531d-b17c-5619-a4b0-393a0a5dc543
-//# sourceMappingURL=chunk-CffcURqa.js.map
