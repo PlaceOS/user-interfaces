@@ -17,7 +17,13 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
                 class="border-base-200 flex min-h-12 items-center border-b p-2"
             >
                 @if (!hide_close()) {
-                    <button close icon matRipple (click)="close.emit()">
+                    <button
+                        [attr.aria-label]="'COMMON.BACK' | translate"
+                        close
+                        icon
+                        matRipple
+                        (click)="close.emit()"
+                    >
                         <icon>arrow_back</icon>
                     </button>
                 }

@@ -12,6 +12,7 @@ import { ExploreStateService } from './explore-state.service';
             class="bg-base-100 divide-base-300 border-base-300 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
         >
             <button
+                [attr.aria-label]="'EXPLORE.ZOOM_IN' | translate"
                 z-in
                 icon
                 matRipple
@@ -22,6 +23,7 @@ import { ExploreStateService } from './explore-state.service';
                 <icon>add</icon>
             </button>
             <button
+                [attr.aria-label]="'EXPLORE.ZOOM_OUT' | translate"
                 z-out
                 icon
                 matRipple
@@ -32,6 +34,7 @@ import { ExploreStateService } from './explore-state.service';
                 <icon>remove</icon>
             </button>
             <button
+                [attr.aria-label]="'EXPLORE.ZOOM_RESET' | translate"
                 reset
                 icon
                 matRipple

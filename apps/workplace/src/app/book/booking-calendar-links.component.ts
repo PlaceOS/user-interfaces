@@ -1,11 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import {
-    IconComponent,
-    SafePipe,
-    SanitizePipe,
-    TranslatePipe,
-} from '@placeos/components';
+import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 import {
     CalEvent,
     generateCalendarFileLink,
@@ -27,7 +22,7 @@ import {
             matRipple
             [name]="prefix() + '-outlook-link'"
             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-            [href]="outlook_link() | sanitize: 'url'"
+            [href]="outlook_link()"
             target="_blank"
             rel="noopener noreferrer"
         >
@@ -39,7 +34,7 @@ import {
             matRipple
             [name]="prefix() + '-google-link'"
             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-            [href]="google_link() | sanitize: 'url'"
+            [href]="google_link()"
             target="_blank"
             rel="noopener noreferrer"
         >
@@ -59,13 +54,7 @@ import {
             <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
         </a>
     `,
-    imports: [
-        MatRippleModule,
-        IconComponent,
-        TranslatePipe,
-        SafePipe,
-        SanitizePipe,
-    ],
+    imports: [MatRippleModule, IconComponent, TranslatePipe, SafePipe],
 })
 export class BookingCalendarLinksComponent {
     /** Event to add. No event gives empty links. */

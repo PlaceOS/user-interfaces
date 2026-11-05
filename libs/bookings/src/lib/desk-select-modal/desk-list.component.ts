@@ -79,6 +79,12 @@ import { BookingAsset } from '../booking-form.types';
                                 </div>
                             </button>
                             <button
+                                [attr.aria-label]="
+                                    (isFavourite(desk.id)
+                                        ? 'COMMON.FAVOURITES_REMOVE'
+                                        : 'COMMON.FAVOURITES_ADD'
+                                    ) | translate
+                                "
                                 icon
                                 matRipple
                                 name="toggle-desk-favourite"

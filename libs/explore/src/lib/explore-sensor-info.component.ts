@@ -3,6 +3,7 @@ import { AsyncHandler } from '@placeos/common';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 export interface SensorInfoData {
     id: string;
@@ -17,6 +18,7 @@ let shown_id = '';
     selector: 'explore-sensor-info',
     template: `
         <button
+            [attr.aria-label]="'EXPLORE.SENSORS_SHOW' | translate"
             icon
             matRipple
             customTooltip
@@ -54,14 +56,18 @@ let shown_id = '';
                     <div
                         class="border-base-200 bg-base-100 absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 rounded-full border"
                     >
-                        <icon class="text-error text-xl">error</icon>
+                        <icon
+                            class="text-error text-xl"
+                            [label]="'EXPLORE.SENSORS_TEMP_HIGH' | translate"
+                            >error</icon
+                        >
                     </div>
                 }
             </div>
         </ng-template>
     `,
     styles: [``],
-    imports: [CustomTooltipComponent, IconComponent],
+    imports: [CustomTooltipComponent, IconComponent, TranslatePipe],
 })
 export class ExploreSensorInfoComponent extends AsyncHandler {
     private _details = inject<SensorInfoData>(MAP_FEATURE_DATA);

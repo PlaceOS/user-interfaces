@@ -26,7 +26,12 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             <h2 class="px-2 text-xl font-medium">
                 {{ 'COMMON.SELECT_USER_TITLE' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                icon
+                matRipple
+                mat-dialog-close
+            >
                 <icon>close</icon>
             </button>
         </header>

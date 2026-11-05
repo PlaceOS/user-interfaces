@@ -530,21 +530,15 @@ export class AssetManagerStateService extends AsyncHandler {
                 require_notes: false,
             },
         });
-        const details = await Promise.race([
-            new Promise<any>((resolve) => {
-                const sub = ref.componentInstance.event.subscribe((event) => {
-                    if (event?.reason !== 'done') return;
-                    sub.unsubscribe();
-                    resolve(event);
-                });
-            }),
-            nextValueFrom(ref.afterClosed()),
-        ]);
-        if (details?.reason !== 'done') return;
-        this.updateConfig(this._org.building.id, details.metadata).then(
-            () => ref.close(),
-            () => ref.componentInstance.loading.set(false),
-        );
+        // Save on each Save click. After a failed save the user can try again.
+        const sub = ref.componentInstance.event.subscribe((event) => {
+            if (event?.reason !== 'done') return;
+            this.updateConfig(this._org.building.id, event.metadata).then(
+                () => ref.close(),
+                () => ref.componentInstance.loading.set(false),
+            );
+        });
+        ref.afterClosed().subscribe(() => sub.unsubscribe());
     }
 
     public async getConfig(

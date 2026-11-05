@@ -119,6 +119,9 @@ const EMPTY = [];
                                 name="favourite-more"
                                 [matMenuTriggerFor]="menu"
                                 class="bg-base-200 absolute top-2 right-0 m-0! rounded-sm!"
+                                [attr.aria-label]="
+                                    'COMMON.MORE_OPTIONS' | translate
+                                "
                             >
                                 <icon>more_horiz</icon>
                             </button>
@@ -216,6 +219,9 @@ const EMPTY = [];
                             name="favourite-more"
                             [matMenuTriggerFor]="menu"
                             class="absolute top-2 right-0"
+                            [attr.aria-label]="
+                                'COMMON.MORE_OPTIONS' | translate
+                            "
                         >
                             <icon>more_horiz</icon>
                         </button>

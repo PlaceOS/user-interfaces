@@ -68,7 +68,13 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 <footer class="flex items-center justify-center p-2">
                     <button btn matRipple (click)="submit()">Submit</button>
                 </footer>
-                <button close icon matRipple mat-dialog-close>
+                <button
+                    aria-label="Close"
+                    close
+                    icon
+                    matRipple
+                    mat-dialog-close
+                >
                     <icon>close</icon>
                 </button>
             </div>
@@ -80,7 +86,13 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     Please feel free to submit a new request when circumstances
                     change in a way that changes your answer to the questions.
                 </p>
-                <button close icon matRipple mat-dialog-close>
+                <button
+                    aria-label="Close"
+                    close
+                    icon
+                    matRipple
+                    mat-dialog-close
+                >
                     <icon>close</icon>
                 </button>
             </main>

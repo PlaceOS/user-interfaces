@@ -99,6 +99,7 @@ import { CateringStateService } from './catering-state.service';
         <ng-template #actions_template let-row="row">
             <div class="mx-auto flex items-center space-x-2 p-2">
                 <button
+                    [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
                     icon
                     matRipple
                     [disabled]="!can_edit()"
@@ -152,6 +153,12 @@ import { CateringStateService } from './catering-state.service';
                     </button>
                 </mat-menu>
                 <button
+                    [attr.aria-label]="
+                        (isExpanded(row.id)
+                            ? 'CATERING.ITEM_OPTION_HIDE'
+                            : 'CATERING.ITEM_OPTION_SHOW'
+                        ) | translate
+                    "
                     icon
                     matRipple
                     [disabled]="!row.options?.length"
@@ -191,6 +198,9 @@ import { CateringStateService } from './catering-state.service';
                     </div>
                     @if (can_edit()) {
                         <button
+                            [attr.aria-label]="
+                                'CATERING.ITEM_OPTION_EDIT' | translate
+                            "
                             icon
                             matRipple
                             [matTooltip]="
@@ -203,6 +213,9 @@ import { CateringStateService } from './catering-state.service';
                     }
                     @if (can_edit()) {
                         <button
+                            [attr.aria-label]="
+                                'CATERING.ITEM_OPTION_REMOVE' | translate
+                            "
                             icon
                             matRipple
                             class="mr-1!"

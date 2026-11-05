@@ -86,13 +86,27 @@ import {
                                         <div
                                             class="bg-success text-success-content flex h-5 w-5 items-center justify-center rounded-full"
                                         >
-                                            <icon class="text-xs">done</icon>
+                                            <icon
+                                                class="text-xs"
+                                                [label]="
+                                                    'COMMON.CHECKED_IN'
+                                                        | translate
+                                                "
+                                                >done</icon
+                                            >
                                         </div>
                                     } @else if (booking.checked_out_at) {
                                         <div
                                             class="bg-base-300 text-base-100 flex h-5 w-5 items-center justify-center rounded-full"
                                         >
-                                            <icon class="text-xs">done</icon>
+                                            <icon
+                                                class="text-xs"
+                                                [label]="
+                                                    'COMMON.CHECKED_OUT'
+                                                        | translate
+                                                "
+                                                >done</icon
+                                            >
                                         </div>
                                     } @else {
                                         <div

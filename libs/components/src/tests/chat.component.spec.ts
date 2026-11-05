@@ -14,6 +14,7 @@ describe('ChatComponent', () => {
         chat_hint: signal(''),
         messages: signal<ChatMessage[]>([]),
         progress: signal<ChatMessage | null>(null),
+        unsent: signal(''),
         sendMessage: vi.fn(() => true),
         close: vi.fn(),
     };
@@ -32,6 +33,7 @@ describe('ChatComponent', () => {
         chat_mock.chat_hint.set('');
         chat_mock.messages.set([]);
         chat_mock.progress.set(null);
+        chat_mock.unsent.set('');
         spectator = createComponent();
     });
 
@@ -101,6 +103,43 @@ describe('ChatComponent', () => {
         spectator.component.message.set('Hello there');
         spectator.component.sendMessage();
         expect(spectator.component.message()).toBe('Hello there');
+    });
+
+    it('should put the text of a failed message back in the input', () => {
+        chat_mock.unsent.set('Book me a room');
+        spectator.detectChanges();
+        expect(spectator.component.message()).toBe('Book me a room');
+    });
+
+    it('should not scroll down while the user reads older messages', () => {
+        vi.useFakeTimers();
+        chat_enabled.set(true);
+        spectator.component.show.set(true);
+        spectator.detectChanges();
+        const log = spectator.query<HTMLElement>('[role="log"]');
+        Object.defineProperty(log, 'scrollHeight', { value: 1000 });
+        Object.defineProperty(log, 'clientHeight', { value: 200 });
+        log.scrollTop = 100;
+        spectator.dispatchFakeEvent(log, 'scroll');
+
+        chat_mock.messages.set([
+            {
+                id: 'msg-1',
+                user_id: 'assistant',
+                content: 'Hi',
+                timestamp: Date.now(),
+            } as ChatMessage,
+        ]);
+        spectator.detectChanges();
+        vi.advanceTimersByTime(500);
+        expect(log.scrollTop).toBe(100);
+
+        log.scrollTop = 790;
+        spectator.dispatchFakeEvent(log, 'scroll');
+        chat_mock.messages.set([]);
+        spectator.detectChanges();
+        vi.advanceTimersByTime(500);
+        expect(log.scrollTop).toBe(1000);
     });
 
     it('should toggle the progress detail when tapped', () => {

@@ -1,9 +1,9 @@
 import {
     Component,
-    computed,
     effect,
     inject,
     input,
+    linkedSignal,
     model,
     OnInit,
     signal,
@@ -82,7 +82,12 @@ function logSearchText(event: ClientEvent): string {
                     class="border-base-300 bg-base-100 flex items-center justify-between border-b"
                 >
                     <div class="p-2">{{ 'COMMON.CONSOLE' | translate }}</div>
-                    <button icon matRipple (click)="show.set(false)">
+                    <button
+                        [attr.aria-label]="'COMMON.CLOSE' | translate"
+                        icon
+                        matRipple
+                        (click)="show.set(false)"
+                    >
                         <icon>close</icon>
                     </button>
                 </div>
@@ -231,11 +236,32 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     public readonly json_tooltip = JsonDisplayComponent;
     public readonly filter = signal<string>('');
     public readonly logs = signal<ClientEvent[]>([]);
-    public readonly filtered_logs = computed(() => {
-        const filter = this.filter().toLowerCase();
-        const all_logs = this.logs();
-        if (!filter) return all_logs;
-        return all_logs.filter((_) => logSearchText(_).includes(filter));
+    /** Logs that match the filter. While the filter stays the same, only new logs are searched. */
+    public readonly filtered_logs = linkedSignal<
+        { filter: string; logs: ClientEvent[] },
+        ClientEvent[]
+    >({
+        source: () => ({
+            filter: this.filter().toLowerCase(),
+            logs: this.logs(),
+        }),
+        computation: ({ filter, logs }, previous) => {
+            if (!filter) return logs;
+            const search = (list: ClientEvent[]) =>
+                list.filter((_) => logSearchText(_).includes(filter));
+            if (previous?.source.filter !== filter) return search(logs);
+            // The history only adds logs at the end and drops them at the start
+            const old_logs = previous.source.logs;
+            const end = logs.lastIndexOf(old_logs[old_logs.length - 1]);
+            const dropped = old_logs.length - 1 - end;
+            if (end < 0 || logs[0] !== old_logs[dropped]) return search(logs);
+            const matches = previous.value;
+            let start = 0;
+            for (let i = 0; i < dropped && start < matches.length; i++) {
+                if (matches[start] === old_logs[i]) start++;
+            }
+            return [...matches.slice(start), ...search(logs.slice(end + 1))];
+        },
     });
 
     public readonly onStart = () =>
@@ -291,7 +317,8 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
         return 'string';
     }
 
+    /** Track logs by ID. Many logs can share the same timestamp. */
     public trackByFn(_: number, item: ClientEvent) {
-        return item?.timestamp;
+        return item?.id;
     }
 }

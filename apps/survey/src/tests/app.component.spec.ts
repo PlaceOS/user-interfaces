@@ -47,6 +47,8 @@ describe('AppComponent', () => {
     const locale = {
         setLocale: vi.fn(),
         init: vi.fn(),
+        // The loading shell translates its labels
+        get: vi.fn((key: string) => key),
         zone_id: '',
     };
     // The real `notifySuccess` runs (workspace code is not mocked) and needs a

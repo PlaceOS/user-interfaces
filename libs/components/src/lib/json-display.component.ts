@@ -37,9 +37,20 @@ export class JsonDisplayComponent {
 
     private readonly _json = signal<unknown>(undefined);
 
-    public readonly formatted_json = computed(() =>
-        JSON.stringify(this._json(), undefined, 4),
-    );
+    public readonly formatted_json = computed(() => {
+        const value = this._json();
+        try {
+            // Errors have no enumerable fields, so use their message
+            return JSON.stringify(
+                value,
+                (_, item) => (item instanceof Error ? `${item}` : item),
+                4,
+            );
+        } catch {
+            // Circular values cannot be JSON
+            return `${value}`;
+        }
+    });
 
     constructor() {
         const _data = inject(CustomTooltipData, { optional: true });

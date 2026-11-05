@@ -128,7 +128,16 @@ const EMPTY = [];
                                         (removed)="removeTag(tag)"
                                     >
                                         {{ tag }}
-                                        <icon matChipRemove>close</icon>
+                                        <button
+                                            type="button"
+                                            matChipRemove
+                                            [attr.aria-label]="
+                                                'COMMON.REMOVE_ITEM'
+                                                    | translate: { item: tag }
+                                            "
+                                        >
+                                            <icon>close</icon>
+                                        </button>
                                     </mat-chip-row>
                                 }
                                 <input

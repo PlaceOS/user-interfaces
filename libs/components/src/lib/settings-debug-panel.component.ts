@@ -144,6 +144,7 @@ function flattenSchemaKeys(
                     class="border-base-300 bg-base-100 flex items-center border-b p-2"
                 >
                     <button
+                        aria-label="Close"
                         icon
                         default
                         matRipple
@@ -243,7 +244,7 @@ function flattenSchemaKeys(
                                     class="border-base-300 grid min-h-8 grid-cols-[minmax(0,1fr)_auto_auto] items-center border-b py-1 pr-2 text-xs"
                                     [class.pl-8]="entry.grouped"
                                     [class.pl-2]="!entry.grouped"
-                                    [class.bg-warning-light]="row.overridden"
+                                    [class.bg-warning/20]="row.overridden"
                                 >
                                     <div
                                         class="min-w-0 pr-2"

@@ -49,6 +49,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                             </mat-select>
                         </mat-form-field>
                         <button
+                            aria-label="Edit presets"
                             icon
                             matRipple
                             (click)="edit_presets.set(true)"
@@ -82,6 +83,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     Apply Settings
                 </button>
                 <button
+                    aria-label="Close"
                     icon
                     matRipple
                     mat-dialog-close

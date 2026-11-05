@@ -37,7 +37,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     IconComponent,
-    SanitizePipe,
     TranslatePipe,
     openConfirmModal,
 } from '@placeos/components';
@@ -53,7 +52,12 @@ import { SpacePipe } from '@placeos/events';
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
             </h2>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button
+                    icon
+                    matRipple
+                    mat-dialog-close
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                >
                     <icon>close</icon>
                 </button>
             }
@@ -237,6 +241,10 @@ import { SpacePipe } from '@placeos/events';
                                                         "
                                                     >
                                                         <icon
+                                                            [label]="
+                                                                'CALENDAR_EVENT.CATERING_ORDER_TIME_ERROR'
+                                                                    | translate
+                                                            "
                                                             >priority_high</icon
                                                         >
                                                     </div>
@@ -393,6 +401,11 @@ import { SpacePipe } from '@placeos/events';
                                                         "
                                                     >
                                                         <icon
+                                                            [label]="
+                                                                err_tooltip(
+                                                                    request
+                                                                )
+                                                            "
                                                             >priority_high</icon
                                                         >
                                                     </div>
@@ -453,7 +466,7 @@ import { SpacePipe } from '@placeos/events';
                     <h3 class="mt-0! text-xl">
                         {{ 'FORM.NOTES' | translate }}
                     </h3>
-                    <div [innerHTML]="event.body | sanitize"></div>
+                    <div [innerHTML]="event.body"></div>
                 </div>
             }
             @if (requires_approval) {
@@ -487,7 +500,6 @@ import { SpacePipe } from '@placeos/events';
         TranslatePipe,
         IconComponent,
         MatRippleModule,
-        SanitizePipe,
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatChipsModule,

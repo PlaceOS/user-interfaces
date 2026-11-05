@@ -19,6 +19,10 @@ import {
 
 /** Time between auth cookie updates for streamed media, below its 30s life */
 const AUTH_COOKIE_REFRESH = 20 * 1000;
+/** Time between checks for the auth client during startup */
+const AUTHORITY_RETRY_DELAY = 300;
+/** Checks for the auth client before the load fails, about one minute */
+const AUTHORITY_RETRY_LIMIT = 200;
 
 type AuthenticatedMediaElement =
     | HTMLImageElement
@@ -49,7 +53,10 @@ export class AuthenticatedImageDirective
         this._observer = null;
 
         const source = this.source();
-        if (!source) return;
+        if (!source) {
+            this._clearMedia();
+            return;
+        }
         if (!this._isLocalUrl(source)) {
             this._element.nativeElement.src = source;
             return;
@@ -82,14 +89,22 @@ export class AuthenticatedImageDirective
         this._observer.observe(this._element.nativeElement);
     }
 
-    private async _loadImage(source: string, version: number): Promise<void> {
+    private async _loadImage(
+        source: string,
+        version: number,
+        attempt = 0,
+    ): Promise<void> {
         if (version !== this._source_version || source !== this.source())
             return;
         if (!authority()) {
+            if (attempt >= AUTHORITY_RETRY_LIMIT) {
+                this._dispatchError(new Error('Auth client is not ready'));
+                return;
+            }
             this.timeout(
                 'load',
-                () => void this._loadImage(source, version),
-                300,
+                () => void this._loadImage(source, version, attempt + 1),
+                AUTHORITY_RETRY_DELAY,
             );
             return;
         }
@@ -119,12 +134,24 @@ export class AuthenticatedImageDirective
                 this._element.nativeElement.src = url;
             }
         } catch (error) {
-            if (version === this._source_version) {
-                this._element.nativeElement.dispatchEvent(
-                    new ErrorEvent('error', { error }),
-                );
-            }
+            if (version === this._source_version) this._dispatchError(error);
         }
+    }
+
+    /** Tell listeners, such as an avatar fallback, that the load failed */
+    private _dispatchError(error: unknown): void {
+        this._element.nativeElement.dispatchEvent(
+            new ErrorEvent('error', { error }),
+        );
+    }
+
+    /** Remove the old media, so a reused element does not show it */
+    private _clearMedia(): void {
+        const element = this._element.nativeElement;
+        if (!element.hasAttribute('src')) return;
+        element.removeAttribute('src');
+        // Video and audio keep the old media until they load again
+        if (!(element instanceof HTMLImageElement)) element.load();
     }
 
     /**

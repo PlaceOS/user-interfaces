@@ -23,7 +23,6 @@ import {
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { filter } from 'rxjs/operators';
-import { SanitizePipe } from './sanitise.pipe';
 
 @Injectable()
 export class CustomTooltipData<T = any> {
@@ -45,7 +44,7 @@ export class CustomTooltipData<T = any> {
                         ></ng-container>
                     }
                     @case ('html') {
-                        <div [innerHTML]="html() | sanitize"></div>
+                        <div [innerHTML]="html()"></div>
                     }
                     @default {
                         <ng-container
@@ -63,7 +62,7 @@ export class CustomTooltipData<T = any> {
             }
         `,
     ],
-    imports: [CommonModule, SanitizePipe],
+    imports: [CommonModule],
 })
 export class CustomTooltipComponent<T = any>
     extends AsyncHandler
@@ -270,7 +269,11 @@ export class CustomTooltipComponent<T = any>
                     this._overlay_ref
                         .keydownEvents()
                         .pipe(filter((e) => e.key === 'Escape'))
-                        .subscribe(() => this.close()),
+                        .subscribe((e) => {
+                            // Mark the key as used, so layers below stay open
+                            e.preventDefault();
+                            this.close();
+                        }),
                 );
                 if (this.backdrop()) {
                     this.subscription(

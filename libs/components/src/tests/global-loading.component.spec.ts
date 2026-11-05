@@ -15,7 +15,12 @@ import {
     setLoadingMessage,
     SettingsService,
 } from '@placeos/common';
-import { authority, isOnline, token } from '@placeos/ts-client';
+import {
+    authority,
+    createSignal,
+    onlineState,
+    token,
+} from '@placeos/ts-client';
 
 import { LocaleService } from 'libs/common/src/lib/locale.service';
 import {
@@ -25,6 +30,7 @@ import {
 
 describe('GlobalLoadingComponent', () => {
     let spectator: Spectator<GlobalLoadingComponent>;
+    let online: ReturnType<typeof createSignal<boolean>>;
     const createComponent = createComponentFactory({
         component: GlobalLoadingComponent,
         detectChanges: false,
@@ -45,7 +51,8 @@ describe('GlobalLoadingComponent', () => {
         vi.useFakeTimers();
         vi.mocked(authority).mockReturnValue(undefined);
         vi.mocked(token).mockReturnValue(undefined);
-        vi.mocked(isOnline).mockReturnValue(true);
+        online = createSignal(true);
+        vi.mocked(onlineState).mockReturnValue(online);
         needsNativeDomain().set(false);
         clearCacheCheck();
         sessionStorage.clear();
@@ -122,7 +129,9 @@ describe('GlobalLoadingComponent', () => {
                 id: 'test',
                 config: { loading_gradient: ['#f15b55', '#f68c50'] },
             } as any);
-            vi.advanceTimersByTime(1000);
+            // The client loads the domain, then reports online
+            online.set(false);
+            online.set(true);
             spectator.detectChanges();
 
             expect(background()).toContain('linear-gradient');
@@ -157,7 +166,7 @@ describe('GlobalLoadingComponent', () => {
     it('should show a server down message while offline', () => {
         vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
         vi.mocked(token).mockReturnValue('test-token');
-        vi.mocked(isOnline).mockReturnValue(false);
+        online.set(false);
         spectator.detectChanges();
         vi.advanceTimersByTime(5000);
         spectator.detectChanges();
@@ -166,7 +175,7 @@ describe('GlobalLoadingComponent', () => {
     });
 
     it('should report an offline server while initialisation is pending', () => {
-        vi.mocked(isOnline).mockReturnValue(false);
+        online.set(false);
 
         spectator.detectChanges();
         vi.advanceTimersByTime(5000);
@@ -177,7 +186,7 @@ describe('GlobalLoadingComponent', () => {
     });
 
     it('should keep the server warning hidden while the first connection starts', () => {
-        vi.mocked(isOnline).mockReturnValue(false);
+        online.set(false);
         spectator.detectChanges();
         expect('div.bg-error').not.toExist();
 
@@ -185,7 +194,7 @@ describe('GlobalLoadingComponent', () => {
         spectator.detectChanges();
         expect('div.bg-error').not.toExist();
 
-        vi.mocked(isOnline).mockReturnValue(true);
+        online.set(true);
         vi.advanceTimersByTime(4000);
         spectator.detectChanges();
         expect('div.bg-error').not.toExist();
@@ -193,15 +202,18 @@ describe('GlobalLoadingComponent', () => {
 
     it('should report a lost connection without waiting for the startup grace period', () => {
         spectator.detectChanges();
-        vi.mocked(isOnline).mockReturnValue(false);
-        vi.advanceTimersByTime(1000);
+        online.set(false);
         spectator.detectChanges();
         expect('div.bg-error').toExist();
 
-        vi.mocked(isOnline).mockReturnValue(true);
-        vi.advanceTimersByTime(1000);
+        online.set(true);
         spectator.detectChanges();
         expect('div.bg-error').not.toExist();
+    });
+
+    it('should not keep a timer running to watch the connection', () => {
+        spectator.detectChanges();
+        expect(vi.getTimerCount()).toBe(0);
     });
 
     it('should show a retry action after initialisation recovery stops', () => {

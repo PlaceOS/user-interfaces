@@ -125,13 +125,15 @@ describe('AuthorisedUserGuard', () => {
         vi.useRealTimers();
     });
 
-    it('should not store a denial when the user permissions failed to load', async () => {
+    it('should use cached access, not a denial, when the user permissions failed to load', async () => {
         localStorage.setItem('PLACEOS.access_allowed.workplace', '1');
         vi.mocked(ts_client.authority).mockReturnValue({
             config: { use_group_subsystem_access: true },
         } as any);
+        vi.mocked(ts_client.token).mockReturnValue('cached-token');
         common_lib.user_groups_failed.set(true);
-        await expect(spectator.service.canActivate()).resolves.toBe(false);
+        await expect(spectator.service.canActivate()).resolves.toBe(true);
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
         expect(localStorage.getItem('PLACEOS.access_allowed.workplace')).toBe(
             '1',
         );

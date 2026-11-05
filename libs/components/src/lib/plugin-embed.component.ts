@@ -104,6 +104,11 @@ export type PluginInteractionPayload = {
     selector: 'plugin-embed',
     template: `
         @if (plugin_url(); as url) {
+            <!--
+                allow-same-origin does not isolate a plugin served from the
+                app origin. This is accepted: only admins manage same-origin
+                plugins.
+            -->
             <iframe
                 #plugin_el
                 sandbox="allow-scripts allow-same-origin"

@@ -45,7 +45,12 @@ export interface ExploreBookingModalData {
                 {{ 'EXPLORE.BOOKING_HEADER' | translate }}
             </h2>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                    icon
+                    matRipple
+                    mat-dialog-close
+                >
                     <icon>close</icon>
                 </button>
             }

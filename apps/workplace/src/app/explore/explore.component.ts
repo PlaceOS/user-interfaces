@@ -79,6 +79,7 @@ export function msUntilMinuteChange(now: number, targets: number[]) {
                             matTooltip="Pin my booking"
                             class="border-base-200 bg-secondary text-secondary-content border"
                             (click)="pinEvent()"
+                            aria-label="Pin my booking"
                         >
                             <icon>place</icon>
                         </button>

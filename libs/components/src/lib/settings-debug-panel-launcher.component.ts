@@ -2,18 +2,24 @@ import { DOCUMENT } from '@angular/common';
 import {
     Component,
     computed,
+    effect,
     inject,
+    Injector,
     input,
     OnInit,
     signal,
+    untracked,
     viewChild,
 } from '@angular/core';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
+import { RemoteLoggingService } from 'libs/common/src/lib/remote-logging.service';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { type HashMap } from 'libs/common/src/lib/types';
 import { user_group_names } from 'libs/common/src/lib/user-state';
 
+import { installBindingDebugHooks } from './binding-debug-hooks';
 import { BindingDebugPanelComponent } from './binding-debug-panel.component';
 import { DebugConsoleComponent } from './debug-console.component';
 import { IconComponent } from './icon.component';
@@ -66,6 +72,17 @@ type DebugPanel = 'settings' | 'bindings' | 'console';
                     </div>
                 </button>
             </mat-menu>
+            @if (override_count()) {
+                <button
+                    type="button"
+                    class="bg-warning fixed bottom-1 left-1 z-999 rounded-sm px-2 py-0.5 text-xs text-black shadow"
+                    (click)="openPanel('settings')"
+                >
+                    {{ override_count() }} setting
+                    {{ override_count() === 1 ? 'override' : 'overrides' }}
+                    active
+                </button>
+            }
             @defer (when panel() === 'settings') {
                 @if (panel() === 'settings') {
                     <settings-debug-panel
@@ -103,7 +120,9 @@ export class SettingsDebugPanelLauncherComponent
 {
     private readonly _hotkey = inject(HotkeysService);
     private readonly _document = inject(DOCUMENT);
+    private readonly _injector = inject(Injector);
     private readonly _menu_trigger = viewChild(MatMenuTrigger);
+    private readonly _settings = signal<SettingsService | null>(null);
     private _schema_request?: Promise<void>;
 
     public readonly loadSchema = input<() => Promise<HashMap>>();
@@ -117,6 +136,25 @@ export class SettingsDebugPanelLauncherComponent
             groups.includes('placeos_support')
         );
     });
+    /** Local setting overrides. They stay in this browser for later users. */
+    public readonly override_count = computed(
+        () => Object.keys(this._settings()?.debug_overrides() ?? {}).length,
+    );
+
+    constructor() {
+        super();
+        // Start capture when the user may open the panels, so the panels
+        // also show activity from before they first open. For other users
+        // the launcher starts no capture and keeps no data.
+        effect(() => {
+            if (!this.allowed()) return;
+            untracked(() => {
+                installBindingDebugHooks();
+                this._injector.get(RemoteLoggingService);
+                this._settings.set(this._injector.get(SettingsService));
+            });
+        });
+    }
 
     public ngOnInit(): void {
         const shortcuts: [DebugPanel, string[]][] = [

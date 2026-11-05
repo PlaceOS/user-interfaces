@@ -72,7 +72,7 @@ import { ParkingStateService } from './parking-state.service';
                     <div
                         class="bg-error text-error-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                     >
-                        <icon>close</icon>
+                        <icon [label]="'COMMON.YES' | translate">close</icon>
                     </div>
                 }
             </ng-template>

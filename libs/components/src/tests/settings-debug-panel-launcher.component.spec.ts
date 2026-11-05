@@ -1,17 +1,26 @@
+import { signal } from '@angular/core';
 import { DeferBlockBehavior, TestBed } from '@angular/core/testing';
 import {
     EMPTY_USER,
     HotkeysService,
+    RemoteLoggingService,
     setCurrentUser,
+    SettingsService,
     StaffUser,
 } from '@placeos/common';
+import { getModule } from '@placeos/ts-client';
+import { binding_records } from '../lib/binding-debug-hooks';
 import { SettingsDebugPanelLauncherComponent } from '../lib/settings-debug-panel-launcher.component';
 
 describe('SettingsDebugPanelLauncherComponent', () => {
     const callbacks = new Map<string, () => void>();
+    const debug_overrides = signal<Record<string, unknown>>({});
+    let logging_starts = 0;
 
     beforeEach(() => {
         callbacks.clear();
+        debug_overrides.set({});
+        logging_starts = 0;
         setCurrentUser(
             new StaffUser({ id: 'support', groups: ['placeos_support'] }),
         );
@@ -27,6 +36,14 @@ describe('SettingsDebugPanelLauncherComponent', () => {
                             return { unsubscribe: vi.fn() };
                         },
                     },
+                },
+                {
+                    provide: RemoteLoggingService,
+                    useFactory: () => ({ started: ++logging_starts }),
+                },
+                {
+                    provide: SettingsService,
+                    useValue: { debug_overrides },
                 },
             ],
         });
@@ -155,5 +172,43 @@ describe('SettingsDebugPanelLauncherComponent', () => {
         callbacks.get('Control+Alt+Shift+KeyS')!();
         fixture.componentInstance.openPanel('console');
         expect(fixture.componentInstance.panel()).toBeNull();
+    });
+
+    it('starts console and driver capture before a panel opens, only for admin and support users', () => {
+        setCurrentUser(new StaffUser({ id: 'staff', groups: ['staff'] }));
+        const fixture = TestBed.createComponent(
+            SettingsDebugPanelLauncherComponent,
+        );
+        fixture.detectChanges();
+        expect(logging_starts).toBe(0);
+        setCurrentUser(new StaffUser({ id: 'admin', groups: ['placeos_admin'] }));
+        fixture.detectChanges();
+        expect(logging_starts).toBe(1);
+        const system_id = `sys-${Date.now()}-launcher`;
+        getModule(system_id, 'Display').variable('power');
+        expect(
+            binding_records().some((record) => record.system_id === system_id),
+        ).toBe(true);
+        expect(fixture.componentInstance.panel()).toBeNull();
+    });
+
+    it('shows active setting overrides only to admin and support users', () => {
+        debug_overrides.set({ 'app.theme': 'dark', 'app.debug': true });
+        setCurrentUser(new StaffUser({ id: 'staff', groups: ['staff'] }));
+        const fixture = TestBed.createComponent(
+            SettingsDebugPanelLauncherComponent,
+        );
+        fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).not.toContain('overrides');
+        setCurrentUser(
+            new StaffUser({ id: 'support', groups: ['placeos_support'] }),
+        );
+        fixture.detectChanges();
+        const indicator = fixture.nativeElement.querySelector(
+            'button.bg-warning',
+        ) as HTMLButtonElement;
+        expect(indicator.textContent).toMatch(/2 setting\s+overrides\s+active/);
+        indicator.click();
+        expect(fixture.componentInstance.panel()).toBe('settings');
     });
 });

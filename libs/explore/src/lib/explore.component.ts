@@ -67,6 +67,7 @@ import { ExploreZonesService } from './explore-zones.service';
                     <explore-search></explore-search>
                 }
                 <button
+                    aria-label="Accessibility"
                     icon
                     matRipple
                     customTooltip

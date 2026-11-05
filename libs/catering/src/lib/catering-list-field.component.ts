@@ -95,7 +95,9 @@ const EMPTY_FAVS = [];
                                             class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
                                             [matTooltip]="err_tooltip()"
                                         >
-                                            <icon>priority_high</icon>
+                                            <icon [label]="err_tooltip()"
+                                                >priority_high</icon
+                                            >
                                         </div>
                                     }
                                 </div>
@@ -115,6 +117,10 @@ const EMPTY_FAVS = [];
                             </div>
                             @if (!disabled()) {
                                 <button
+                                    [attr.aria-label]="
+                                        'CALENDAR_EVENT.CATERING_ORDER_DUPLICATE'
+                                            | translate
+                                    "
                                     icon
                                     matRipple
                                     [matTooltip]="
@@ -128,6 +134,10 @@ const EMPTY_FAVS = [];
                             }
                             @if (!disabled()) {
                                 <button
+                                    [attr.aria-label]="
+                                        'CALENDAR_EVENT.CATERING_ORDER_EDIT'
+                                            | translate
+                                    "
                                     icon
                                     matRipple
                                     [matTooltip]="
@@ -141,6 +151,7 @@ const EMPTY_FAVS = [];
                             }
                             @if (!disabled()) {
                                 <button
+                                    aria-label="Remove Order"
                                     icon
                                     matRipple
                                     matTooltip="Remove Order"
@@ -151,6 +162,12 @@ const EMPTY_FAVS = [];
                                 </button>
                             }
                             <button
+                                [attr.aria-label]="
+                                    (show_order()[order.id]
+                                        ? 'CALENDAR_EVENT.CATERING_ORDER_HIDE'
+                                        : 'CALENDAR_EVENT.CATERING_ORDER_SHOW'
+                                    ) | translate
+                                "
                                 icon
                                 matRipple
                                 [matTooltip]="
@@ -215,6 +232,7 @@ const EMPTY_FAVS = [];
                                     </div>
                                     @if (!disabled()) {
                                         <button
+                                            aria-label="Remove Order Item"
                                             icon
                                             matRipple
                                             matTooltip="Remove Order Item"
@@ -227,6 +245,12 @@ const EMPTY_FAVS = [];
                                         </button>
                                     }
                                     <button
+                                        [attr.aria-label]="
+                                            (favorites().includes(item.id)
+                                                ? 'COMMON.FAVOURITES_REMOVE'
+                                                : 'COMMON.FAVOURITES_ADD'
+                                            ) | translate
+                                        "
                                         icon
                                         matRipple
                                         name="toggle-catering-item-favourite"

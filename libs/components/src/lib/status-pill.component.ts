@@ -1,5 +1,6 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
 
 export type StatusValue =
     | 'success'
@@ -8,6 +9,16 @@ export type StatusValue =
     | 'error'
     | 'info'
     | 'neutral';
+
+/** Locale keys that name each booking status for assistive technology */
+const STATUS_LABELS: Record<StatusValue, string> = {
+    success: 'COMMON.APPROVED',
+    warning: 'COMMON.STATUS_PENDING',
+    approval: 'COMMON.APPROVAL_REQUIRED',
+    error: 'COMMON.DECLINED',
+    info: 'COMMON.WAITLISTED',
+    neutral: 'COMMON.STATE_DONE',
+};
 
 @Component({
     selector: 'status-pill',
@@ -33,7 +44,10 @@ export type StatusValue =
                 [class.text-base-content]="status() === 'neutral'"
                 [class.opacity-40]="status() === 'neutral'"
             >
-                <icon class="text-2xl">
+                <icon
+                    class="text-2xl"
+                    [label]="label() || (status_label() | translate)"
+                >
                     @switch (status()) {
                         @case ('success') {
                             check_circle
@@ -62,8 +76,14 @@ export type StatusValue =
         </div>
     `,
     styles: [``],
-    imports: [IconComponent],
+    imports: [IconComponent, TranslatePipe],
 })
 export class StatusPillComponent {
     public readonly status = input<string>(undefined);
+    /** Name of the status icon. Defaults to the name of `status`. */
+    public readonly label = input('');
+    /** Locale key for the name of the current status */
+    public readonly status_label = computed(
+        () => STATUS_LABELS[this.status() as StatusValue] ?? '',
+    );
 }

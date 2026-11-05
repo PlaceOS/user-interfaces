@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { AssetPurchaseOrder } from '@placeos/common';
 import { SimpleTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -47,7 +48,7 @@ describe('AssetPurchaseOrderListComponent', () => {
     });
 
     it('should navigate to the purchase order form on edit', () => {
-        spectator.component.editOrder({ id: 'po-1' });
+        spectator.component.editOrder({ id: 'po-1' } as AssetPurchaseOrder);
 
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith(
             ['/book/assets', 'manage', 'purchase-order'],

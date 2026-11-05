@@ -1,15 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { serviceWorkerUpdate } from '@placeos/common';
 
 import { IconComponent } from './icon.component';
 
+/**
+ * Card that tells the user a new version is ready. It sits below CDK overlays
+ * (z-index 1000), so it does not cover the buttons of an open dialog.
+ */
 @Component({
     selector: 'placeos-service-worker-update-card',
     template: `
-        @if (update(); as update_state) {
+        @if (!dismissed() && update(); as update_state) {
             <aside
                 role="status"
-                class="border-base-300 bg-base-100 text-base-content pointer-events-auto fixed right-4 bottom-4 z-9999 flex w-[20rem] max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border p-4 shadow-xl"
+                class="border-base-300 bg-base-100 text-base-content pointer-events-auto fixed right-4 bottom-4 z-999 flex w-[20rem] max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border p-4 shadow-xl"
             >
                 <div class="min-w-0 flex-1">
                     <h2 class="m-0 text-sm leading-tight font-medium">
@@ -31,6 +35,15 @@ import { IconComponent } from './icon.component';
                 >
                     <icon>refresh</icon>
                 </button>
+                <button
+                    icon
+                    dismiss
+                    title="Dismiss"
+                    aria-label="Dismiss"
+                    (click)="dismissed.set(true)"
+                >
+                    <icon>close</icon>
+                </button>
             </aside>
         }
     `,
@@ -38,6 +51,8 @@ import { IconComponent } from './icon.component';
 })
 export class ServiceWorkerUpdateCardComponent {
     public readonly update = serviceWorkerUpdate();
+    /** Whether the user hid the card. It shows again after a reload. */
+    public readonly dismissed = signal(false);
 
     public reloadApp() {
         location.reload();

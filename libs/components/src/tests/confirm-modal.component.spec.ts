@@ -8,6 +8,7 @@ import { of } from 'rxjs';
 
 import {
     ConfirmModalComponent,
+    filterConfirmContent,
     openConfirmModal,
 } from '../lib/confirm-modal.component';
 import { IconComponent } from '../lib/icon.component';
@@ -35,6 +36,23 @@ describe('ConfirmModalComponent', () => {
         expect('mat-spinner').toExist();
         expect('[loading]').toExist();
         expect('[loading] p').toContainText('Testing loading...');
+    });
+
+    it('should keep focus in the modal when loading removes the buttons', () => {
+        spectator.query<HTMLButtonElement>('button[name="accept"]').focus();
+        spectator.component.loading.set('Saving...');
+        spectator.detectChanges();
+        expect('button[name="accept"]').not.toExist();
+        expect(document.activeElement).toBe(spectator.query('header h2'));
+    });
+
+    it('should only render filtered content', () => {
+        spectator.component.content.set(
+            'Remove <strong>Jo</strong>?<img src="x" onerror="alert(1)">',
+        );
+        spectator.detectChanges();
+        expect('[content] strong').toHaveText('Jo');
+        expect('[content] img').not.toExist();
     });
 
     it('should allow toggling user being able to close modal', () => {
@@ -66,5 +84,23 @@ describe('ConfirmModalComponent', () => {
         expect(ref.disableClose).toBe(true);
         result.loading('');
         expect(ref.disableClose).toBe(false);
+    });
+});
+
+describe('filterConfirmContent', () => {
+    it('should keep text and formatting tags', () => {
+        expect(
+            filterConfirmContent('One<br/><strong>Two</strong> <i>three</i>'),
+        ).toBe('One<br><strong>Two</strong> <i>three</i>');
+    });
+
+    it('should remove attributes and unwrap other elements', () => {
+        expect(
+            filterConfirmContent(
+                '<b class="fixed" onclick="x()">Jo</b>' +
+                    '<a href="https://example.test"><em>link</em></a>' +
+                    '<img src="x" onerror="alert(1)">',
+            ),
+        ).toBe('<b>Jo</b><em>link</em>');
     });
 });

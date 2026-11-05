@@ -4,8 +4,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
+import { DIALOG_TITLE_STYLES } from './confirm-modal.component';
 import { IconComponent } from './icon.component';
-import { SanitizePipe } from './sanitise.pipe';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({
@@ -25,8 +25,9 @@ import { TranslatePipe } from './translate.pipe';
                 [class.max-w-156]="!full_width()"
             >
                 <h2
+                    mat-dialog-title
                     class="flex items-center text-xl font-medium capitalize"
-                    [innerHTML]="heading() | sanitize"
+                    [innerHTML]="heading()"
                 ></h2>
                 @if (!hide_close()) {
                     @if (!close()?.length) {
@@ -95,6 +96,7 @@ import { TranslatePipe } from './translate.pipe';
         </div>
     `,
     styles: [
+        DIALOG_TITLE_STYLES,
         `
             main {
                 scroll-margin-top: 60px;
@@ -109,7 +111,6 @@ import { TranslatePipe } from './translate.pipe';
         MatDialogModule,
         MatRippleModule,
         RouterModule,
-        SanitizePipe,
     ],
 })
 export class FullscreenModalShellComponent {

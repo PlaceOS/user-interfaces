@@ -1,21 +1,18 @@
 import { SpectatorHost, createHostFactory } from '@ngneat/spectator/vitest';
-import { MockComponent } from 'ng-mocks';
 
-import { IconComponent } from '../lib/icon.component';
 import { StatusPillComponent } from '../lib/status-pill.component';
 
 describe('StatusPillComponent', () => {
     let spectator: SpectatorHost<StatusPillComponent>;
     const createHost = createHostFactory({
         component: StatusPillComponent,
-        declarations: [MockComponent(IconComponent)],
     });
 
     beforeEach(
         () =>
             (spectator = createHost(
-                `<status-pill [status]="status">Room Booked</status-pill>`,
-                { hostProps: { status: 'success' } },
+                `<status-pill [status]="status" [label]="label">Room Booked</status-pill>`,
+                { hostProps: { status: 'success', label: '' } },
             )),
     );
 
@@ -58,5 +55,13 @@ describe('StatusPillComponent', () => {
     it('should fallback to the warning icon for unknown status values', () => {
         spectator.setHostInput({ status: 'something-else' });
         expect('icon').toContainText('warning');
+    });
+
+    it('should name the status icon for assistive technology', () => {
+        expect(spectator.component.status_label()).toBe('COMMON.APPROVED');
+        spectator.setHostInput({ status: 'info' });
+        expect(spectator.component.status_label()).toBe('COMMON.WAITLISTED');
+        spectator.setHostInput({ label: 'Cancelled' });
+        expect('icon').toHaveAttribute('aria-label', 'Cancelled');
     });
 });

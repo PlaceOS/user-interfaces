@@ -437,25 +437,35 @@ export class SurveyOutletComponent
         if (index >= 0) this.active_page.set(index);
     }
 
+    /**
+     * Load the survey for `survey_id`. Emits `not_found` if the survey does
+     * not exist. Other failures show an error.
+     */
     private async _updateSurvey() {
-        // Use longer timeout (5 seconds) to allow for API response time
-        // Default 300ms was too short for mock endpoints and slow networks
-        this.timeout('not_found', () => this.not_found.emit(true), 5000);
         if (!this.survey_id()) return;
         this.loading.set('Loading survey details...');
-        const survey = await showSurvey(this.survey_id()).catch((_) => null);
+        let survey: Survey | null = null;
+        try {
+            survey = await showSurvey(this.survey_id());
+        } catch (e) {
+            if ((e as { status?: number })?.status !== 404) {
+                this.loading.set('');
+                return notifyError('Failed to load survey.');
+            }
+        }
         if (!survey) return this.not_found.emit(true);
         this.survey.set(survey);
         await this._loadQuestions();
-        this.clearTimeout('not_found');
     }
 
     private async _loadQuestions() {
-        // Drop questions and progress from a previous survey
+        // Drop questions, form and progress from a previous survey
         for (const id in this.questions) delete this.questions[id];
+        this.form.set(null);
         this.active_page.set(0);
         this.success.set(false);
-        if (!this.survey()?.pages.length) return;
+        // A survey with no pages has nothing to show
+        if (!this.survey()?.pages?.length) return this.loading.set('');
         this.loading.set('Loading survey questions...');
         const requests: Promise<SurveyQuestion>[] = [];
         for (const page of this.survey().pages) {
@@ -463,8 +473,13 @@ export class SurveyOutletComponent
                 requests.push(showQuestion(`${question_id}`));
             }
         }
-        if (!requests.length) return;
-        const questions = await Promise.all(requests);
+        let questions: SurveyQuestion[];
+        try {
+            questions = await Promise.all(requests);
+        } catch {
+            notifyError('Failed to load survey questions.');
+            return this.loading.set('');
+        }
         for (const q of questions) {
             // The API can return `{}` for questions created without choices.
             if (!Array.isArray(q.choices)) q.choices = [];

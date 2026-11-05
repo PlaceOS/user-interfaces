@@ -7,7 +7,8 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { BookingClash, DialogEvent } from '@placeos/common';
+import { BookingClash, DialogEvent, SettingsService } from '@placeos/common';
+import { DIALOG_TITLE_STYLES } from 'libs/components/src/lib/confirm-modal.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { first } from 'rxjs/operators';
@@ -41,7 +42,7 @@ export async function openRecurringClashModal(
             <header
                 class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded-sm border-none p-2"
             >
-                <h2 class="px-2 text-xl font-medium">
+                <h2 mat-dialog-title class="px-2 text-xl font-medium">
                     {{ 'BOOKINGS.RECURRING_CLASHES_TITLE' | translate }}
                 </h2>
             </header>
@@ -82,12 +83,12 @@ export async function openRecurringClashModal(
                                     <td class="p-2">
                                         {{
                                             clash.booking_start * 1000
-                                                | date: 'h:mm a'
+                                                | date: time_format()
                                         }}
                                         -
                                         {{
                                             clash.booking_end * 1000
-                                                | date: 'h:mm a'
+                                                | date: time_format()
                                         }}
                                     </td>
                                 </tr>
@@ -116,7 +117,7 @@ export async function openRecurringClashModal(
             </footer>
         </div>
     `,
-    styles: [``],
+    styles: [DIALOG_TITLE_STYLES],
     imports: [
         IconComponent,
         MatDialogModule,
@@ -131,6 +132,9 @@ export class RecurringClashModalComponent {
     private _data = inject<RecurringClashModalData>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<RecurringClashModalComponent>>(MatDialogRef);
+
+    /** Time format from the user's 12 or 24 hour setting */
+    public readonly time_format = inject(SettingsService).time_format_signal;
 
     public get clashes(): BookingClash[] {
         return this._data.clashes || [];

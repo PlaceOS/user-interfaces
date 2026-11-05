@@ -201,13 +201,74 @@ describe('SurveyOutletComponent', () => {
         expect(spectator.component.form().valid).toBe(true);
     });
 
-    it('should emit not_found when the survey fails to load', async () => {
-        vi.mocked(ts_client.showSurvey).mockRejectedValue(new Error('404'));
+    it('should stop loading when the survey has no pages', async () => {
+        vi.mocked(ts_client.showSurvey).mockResolvedValue({
+            ...SURVEY,
+            pages: [],
+        });
+        spectator = createComponent();
+        spectator.setInput({ survey_id: '12' });
+        await settle();
+        expect(spectator.component.loading()).toBe('');
+        expect('mat-spinner').not.toExist();
+    });
+
+    it('should show a survey page that has no questions', async () => {
+        spectator = createComponent();
+        spectator.setInput({
+            survey: {
+                ...SURVEY,
+                pages: [{ title: 'Empty Page', question_order: [] }],
+            },
+        });
+        await settle();
+        expect(spectator.component.loading()).toBe('');
+        expect('main[page] h3').toContainText('Empty Page');
+    });
+
+    it('should stop loading when a question fails to load', async () => {
+        vi.mocked(ts_client.showQuestion).mockRejectedValue(new Error('500'));
+        spectator = createComponent();
+        spectator.setInput({ survey: SURVEY });
+        await settle();
+        expect(spectator.component.loading()).toBe('');
+        expect(spectator.component.form()).toBeNull();
+    });
+
+    it('should not emit not_found while a slow survey loads', async () => {
+        vi.useFakeTimers();
+        vi.mocked(ts_client.showSurvey).mockReturnValue(
+            new Promise((resolve) => setTimeout(() => resolve(SURVEY), 8000)),
+        );
+        spectator = createComponent();
+        const emitted = vi.fn();
+        spectator.component.not_found.subscribe(emitted);
+        spectator.setInput({ survey_id: '12' });
+        await vi.advanceTimersByTimeAsync(10000);
+        vi.useRealTimers();
+        await settle();
+        expect(emitted).not.toHaveBeenCalled();
+        expect('header h2').toContainText('Workplace Feedback');
+    });
+
+    it('should emit not_found when the survey does not exist', async () => {
+        vi.mocked(ts_client.showSurvey).mockRejectedValue({ status: 404 });
         spectator = createComponent();
         const emitted = vi.fn();
         spectator.component.not_found.subscribe(emitted);
         spectator.setInput({ survey_id: 'missing' });
         await settle();
         expect(emitted).toHaveBeenCalledWith(true);
+    });
+
+    it('should not emit not_found when the survey fails to load', async () => {
+        vi.mocked(ts_client.showSurvey).mockRejectedValue({ status: 500 });
+        spectator = createComponent();
+        const emitted = vi.fn();
+        spectator.component.not_found.subscribe(emitted);
+        spectator.setInput({ survey_id: '12' });
+        await settle();
+        expect(emitted).not.toHaveBeenCalled();
+        expect(spectator.component.loading()).toBe('');
     });
 });

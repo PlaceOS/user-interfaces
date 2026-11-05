@@ -61,4 +61,16 @@ describe('ServiceWorkerUpdateCardComponent', () => {
         spectator.click('aside button');
         expect(spy).toHaveBeenCalled();
     });
+
+    it('should hide the card when the user dismisses it', () => {
+        update_state.set({
+            message: 'New version ready',
+            details: '',
+            action: '',
+        });
+        spectator.detectChanges();
+        spectator.click('aside button[dismiss]');
+        spectator.detectChanges();
+        expect('aside').not.toExist();
+    });
 });

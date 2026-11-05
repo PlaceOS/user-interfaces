@@ -15,9 +15,10 @@ import {
     viewChild,
     viewChildren,
 } from '@angular/core';
+import { outputFromObservable } from '@angular/core/rxjs-interop';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { IconComponent } from './icon.component';
 import { LoadErrorComponent } from './load-error.component';
 import { TranslatePipe } from './translate.pipe';
@@ -35,6 +36,10 @@ export interface TableColumn {
 }
 
 const collator = new Intl.Collator();
+
+/** Controls in a cell that handle their own clicks and keys */
+const CELL_CONTROLS =
+    'a, button, input, select, textarea, label, [contenteditable], [role="button"], [tabindex]';
 
 /**
  * Default column sort. Numbers sort by value and other values by text.
@@ -82,9 +87,6 @@ export function rowSearchText(
             [style.gridTemplateColumns]="column_template()"
             [style.minWidth]="min_width() || null"
             [attr.aria-rowcount]="data_view().length + (show_header() ? 1 : 0)"
-            (click)="active_row() >= 0 ? rowClicked.emit(active_row()) : null"
-            (touchend)="active_row.set(-1)"
-            (mouseleave)="active_row.set(-1)"
         >
             @if (show_header()) {
                 <div #table_header table-header role="row">
@@ -111,26 +113,17 @@ export function rowSearchText(
                         track column.key + i;
                         let i = $index
                     ) {
-                        <button
+                        <div
                             header
                             role="columnheader"
-                            matRipple
                             [id]="'column-' + column.key"
-                            class="border-base-200 bg-base-300 sticky top-0 z-20 flex min-h-full items-center justify-between border-b p-4"
+                            class="border-base-200 bg-base-300 sticky top-0 z-20 flex min-h-full border-b"
                             [style.gridColumn]="
                                 1 +
                                 i +
                                 (selectable() ? 1 : 0) +
                                 ' / ' +
                                 (2 + i + (selectable() ? 1 : 0))
-                            "
-                            [class.pointer-events-none]="
-                                !sortable() || column.sortable === false
-                            "
-                            [attr.tabindex]="
-                                !sortable() || column.sortable === false
-                                    ? -1
-                                    : null
                             "
                             [attr.aria-sort]="
                                 !sortable() || column.sortable === false
@@ -141,25 +134,42 @@ export function rowSearchText(
                                         ? 'descending'
                                         : 'ascending'
                             "
-                            (click)="setSort(column.key)"
                             [class.active]="sort()?.key === column.key"
                             [class.border-r]="i !== active_columns().length - 1"
                             [class.width]="column.size"
                         >
-                            <div class="font-medium">
-                                {{ column.name || column.key }}
-                            </div>
                             @if (sortable() && column.sortable !== false) {
-                                <icon class="text-[1.25em]" aria-hidden="true">
-                                    {{
-                                        sort()?.key === column.key &&
-                                        sort()?.reverse
-                                            ? 'arrow_downward'
-                                            : 'arrow_upward'
-                                    }}
-                                </icon>
+                                <button
+                                    type="button"
+                                    matRipple
+                                    class="flex flex-1 items-center justify-between p-4"
+                                    (click)="setSort(column.key)"
+                                >
+                                    <div class="font-medium">
+                                        {{ column.name || column.key }}
+                                    </div>
+                                    <icon
+                                        class="text-[1.25em]"
+                                        aria-hidden="true"
+                                    >
+                                        {{
+                                            sort()?.key === column.key &&
+                                            sort()?.reverse
+                                                ? 'arrow_downward'
+                                                : 'arrow_upward'
+                                        }}
+                                    </icon>
+                                </button>
+                            } @else {
+                                <div
+                                    class="flex flex-1 items-center p-4 text-center"
+                                >
+                                    <div class="font-medium">
+                                        {{ column.name || column.key }}
+                                    </div>
+                                </div>
                             }
-                        </button>
+                        </div>
                     }
                 </div>
             }
@@ -183,6 +193,10 @@ export function rowSearchText(
                     [attr.aria-rowindex]="
                         row_offset() + i + (show_header() ? 2 : 1)
                     "
+                    [attr.tabindex]="clickable_rows ? 0 : null"
+                    (click)="activateRow($event, row)"
+                    (keydown.enter)="activateRow($event, row)"
+                    (keydown.space)="activateRow($event, row)"
                 >
                     @if (selectable()) {
                         @let key = rowKey(row);
@@ -197,22 +211,16 @@ export function rowSearchText(
                                       data_view().length - 1
                                     : i !== rendered_data().length - 1
                             "
-                            (mouseenter)="
-                                active_row.set(
-                                    i + (virtual_scroll() ? row_offset() : 0)
-                                )
-                            "
-                            (touchstart)="
-                                active_row.set(
-                                    i + (virtual_scroll() ? row_offset() : 0)
-                                )
-                            "
                             (click)="$event.stopPropagation()"
                         >
                             <mat-checkbox
                                 [checked]="selected().includes(key)"
                                 [disabled]="!can_select()(row)"
-                                [aria-label]="'COMMON.SELECT_ROW' | translate"
+                                [aria-label]="
+                                    ('COMMON.SELECT_ROW' | translate) +
+                                    ' ' +
+                                    rowLabel(row, row_offset() + i)
+                                "
                                 (change)="select(key, $event.checked)"
                             ></mat-checkbox>
                         </div>
@@ -240,16 +248,6 @@ export function rowSearchText(
                             "
                             [class.border-r]="j !== active_columns().length - 1"
                             [class.width]="column.size"
-                            (mouseenter)="
-                                active_row.set(
-                                    i + (virtual_scroll() ? row_offset() : 0)
-                                )
-                            "
-                            (touchstart)="
-                                active_row.set(
-                                    i + (virtual_scroll() ? row_offset() : 0)
-                                )
-                            "
                         >
                             @switch (columnType(column)) {
                                 @default {
@@ -464,14 +462,19 @@ export function rowSearchText(
                 max-width: 100%;
             }
 
+            /* Rows that take focus need a box to show the focus ring */
+            [table-row][tabindex] {
+                display: grid;
+                grid-column: 1 / -1;
+                grid-template-columns: subgrid;
+                outline-offset: -2px;
+            }
+
             [header] icon {
                 opacity: 0;
             }
             [header]:hover icon {
                 opacity: 0.3;
-            }
-            [header]:hover.pointer-events-none icon {
-                opacity: 0;
             }
             [header].active icon {
                 opacity: 1;
@@ -520,14 +523,15 @@ export class SimpleTableComponent<T extends object = any> {
     public readonly loading = input(false);
 
     // Outputs
-    public readonly rowClicked = output<number>();
+    private readonly _row_clicked = new Subject<T>();
+    /** Emits the row that the user clicks, or focuses and presses Enter or Space on */
+    public readonly rowClicked = outputFromObservable(this._row_clicked);
     public readonly retry = output<void>();
 
     // Internal signals
     public readonly page = signal(0);
     public readonly total_count = signal(0);
     public readonly total_pages = signal(0);
-    public readonly active_row = signal(-1);
     public readonly active_columns = signal<TableColumn[]>([]);
     public readonly sort = signal<{ key: string; reverse: boolean } | null>(
         null,
@@ -777,7 +781,6 @@ export class SimpleTableComponent<T extends object = any> {
                 this._pending_scroll_top = top;
                 this._at_end = false;
                 this._scroll_top.set(top);
-                this.active_row.set(-1);
             }
 
             // Remove measurements for deleted or filtered rows.
@@ -816,7 +819,6 @@ export class SimpleTableComponent<T extends object = any> {
             Math.max(1, element.clientHeight - header_height),
         );
         this._scroll_top.set(element.scrollTop);
-        this.active_row.set(-1);
         // Save the key before the next data update, once the scroll has settled.
         if (this._pending_scroll_top === null) {
             const offsets = this.row_offsets();
@@ -904,6 +906,38 @@ export class SimpleTableComponent<T extends object = any> {
 
     public rowKey(row: T) {
         return this.row_key()(row);
+    }
+
+    /** Rows take keyboard focus only when a parent listens to `rowClicked` */
+    public get clickable_rows() {
+        return this._row_clicked.observed;
+    }
+
+    /**
+     * Emit `rowClicked` for a click, Enter or Space on a row. Events from
+     * controls in a cell, such as buttons, do not activate the row.
+     */
+    public activateRow(event: Event, row: T) {
+        const row_el = event.currentTarget as Element;
+        const control = (event.target as Element).closest(CELL_CONTROLS);
+        if (control && control !== row_el && row_el.contains(control)) return;
+        // Stop Space from scrolling the page
+        if (event instanceof KeyboardEvent) event.preventDefault();
+        this._row_clicked.next(row);
+    }
+
+    /**
+     * Name of a row for assistive technology: its position, which is unique
+     * in the view, and its first text cell if it has one
+     */
+    public rowLabel(row: T, index: number) {
+        for (const column of this.active_columns()) {
+            const value: unknown = row[column.key];
+            if (typeof value === 'string' && value.trim()) {
+                return `${index + 1}, ${value}`;
+            }
+        }
+        return `${index + 1}`;
     }
 
     public select(key: string, state: boolean) {

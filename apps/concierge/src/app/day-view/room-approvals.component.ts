@@ -110,7 +110,9 @@ import { EventsStateService } from './events-state.service';
                                 matTooltip="Recurring Series"
                                 matTooltipPosition="left"
                             >
-                                <icon>event_repeat</icon>
+                                <icon label="Recurring Series"
+                                    >event_repeat</icon
+                                >
                             </div>
                         }
                         @let space =

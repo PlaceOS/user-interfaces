@@ -30,6 +30,17 @@ describe('JsonDisplayComponent', () => {
         expect('pre').not.toContainText('from_tooltip');
     });
 
+    it('should display errors and circular values without failing', () => {
+        spectator.setInput({ json: { error: new Error('Lost connection') } });
+        spectator.detectChanges();
+        expect('pre').toContainText('"error": "Error: Lost connection"');
+        const circular: Record<string, unknown> = { name: 'Loop' };
+        circular['self'] = circular;
+        spectator.setInput({ json: circular });
+        expect(() => spectator.detectChanges()).not.toThrow();
+        expect('pre').toContainText('[object Object]');
+    });
+
     it('should format json with 4 space indentation', () => {
         const data = { nested: { value: 1 } };
         spectator.setInput({ json: data });

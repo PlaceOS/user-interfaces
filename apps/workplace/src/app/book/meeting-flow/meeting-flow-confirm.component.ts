@@ -43,7 +43,12 @@ import { SpacePipe } from '@placeos/events';
                 <mat-spinner diameter="32"></mat-spinner>
             }
             @if (show_close() && !loading()) {
-                <button icon matRipple (click)="dismiss()">
+                <button
+                    icon
+                    matRipple
+                    (click)="dismiss()"
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                >
                     <icon class="text-2xl">close</icon>
                 </button>
             }

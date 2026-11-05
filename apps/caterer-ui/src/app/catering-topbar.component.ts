@@ -42,6 +42,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                 class="h-12 w-12"
                 [matTooltip]="'COMMON.BACK_HOME' | translate"
                 [routerLink]="['/']"
+                [attr.aria-label]="'COMMON.BACK_HOME' | translate"
             >
                 <icon class="text-2xl">arrow_back</icon>
             </a>
@@ -121,6 +122,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                         [matTooltip]="'CATERING.MENU_ADD' | translate"
                         class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                         (click)="addItem()"
+                        [attr.aria-label]="'CATERING.MENU_ADD' | translate"
                     >
                         <icon class="text-2xl">add</icon>
                     </button>
@@ -131,6 +133,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                     [matTooltip]="'CATERING.BOOKING_RULES' | translate"
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="editConfig()"
+                    [attr.aria-label]="'CATERING.BOOKING_RULES' | translate"
                 >
                     <icon class="text-2xl">menu_book</icon>
                 </button>
@@ -140,6 +143,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                     [matTooltip]="'CATERING.MENU_IMPORT' | translate"
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="importMenu()"
+                    [attr.aria-label]="'CATERING.MENU_IMPORT' | translate"
                 >
                     <icon class="text-2xl">cloud_upload</icon>
                 </button>
@@ -149,6 +153,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                     [matTooltip]="'CATERING.ROOM_AVAILABILITY' | translate"
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="setRoomAvailability()"
+                    [attr.aria-label]="'CATERING.ROOM_AVAILABILITY' | translate"
                 >
                     <icon class="text-2xl">event_available</icon>
                 </button>
@@ -158,6 +163,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                     [matTooltip]="'CATERING.CHARGE_CODES' | translate"
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="setChargeCodes()"
+                    [attr.aria-label]="'CATERING.CHARGE_CODES' | translate"
                 >
                     <icon class="text-2xl">payments</icon>
                 </button>
@@ -174,6 +180,8 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                     [class.text-secondary-content]="show_summary()"
                     [matTooltip]="'CATERING.PREP_SUMMARY' | translate"
                     (click)="toggleSummary()"
+                    [attr.aria-label]="'CATERING.PREP_SUMMARY' | translate"
+                    [attr.aria-pressed]="show_summary()"
                 >
                     <icon class="text-2xl">summarize</icon>
                 </button>
@@ -184,6 +192,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                     [disabled]="!order_count()"
                     [matTooltip]="'CATERING.DOCKETS_PRINT' | translate"
                     (click)="printDockets()"
+                    [attr.aria-label]="'CATERING.DOCKETS_PRINT' | translate"
                 >
                     <icon class="text-2xl">print</icon>
                 </button>
@@ -194,6 +203,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                     [disabled]="!order_count()"
                     [matTooltip]="'CATERING.ORDERS_EXPORT' | translate"
                     (click)="exportCsv()"
+                    [attr.aria-label]="'CATERING.ORDERS_EXPORT' | translate"
                 >
                     <icon class="text-2xl">download</icon>
                 </button>
@@ -208,6 +218,12 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                         ) | translate
                     "
                     (click)="toggleAlerts()"
+                    [attr.aria-label]="
+                        (alerts_on()
+                            ? 'CATERING.ALERTS_OFF'
+                            : 'CATERING.ALERTS_ON'
+                        ) | translate
+                    "
                 >
                     <icon class="text-2xl">
                         {{
@@ -223,6 +239,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                     class="h-12 w-12"
                     [matTooltip]="'CATERING.KITCHEN' | translate"
                     [routerLink]="['/kitchen']"
+                    [attr.aria-label]="'CATERING.KITCHEN' | translate"
                 >
                     <icon class="text-2xl">view_kanban</icon>
                 </a>

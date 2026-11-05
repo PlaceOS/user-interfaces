@@ -9,7 +9,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { generateQRCode } from '@placeos/common/qr-code';
-import { SanitizePipe, TranslatePipe } from '@placeos/components';
+import { TranslatePipe } from '@placeos/components';
 import { UserLabelComponent } from '@placeos/users';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
 import { PageHeadingDirective } from '../components/page-heading.directive';
@@ -39,10 +39,7 @@ const DEFAULT_TEMPLATE = `
                         ) | translate
                     }}
                 </h1>
-                <div
-                    class=""
-                    [innerHTML]="result_template() | sanitize: 'html'"
-                ></div>
+                <div class="" [innerHTML]="result_template()"></div>
                 <div class="flex items-center space-x-2">
                     @if (allow_printing_label) {
                         <button btn matRipple class="w-32" (click)="print()">
@@ -104,7 +101,6 @@ const DEFAULT_TEMPLATE = `
         MatRippleModule,
         TranslatePipe,
         UserLabelComponent,
-        SanitizePipe,
     ],
 })
 export class CheckinResultsComponent extends AsyncHandler implements OnInit {

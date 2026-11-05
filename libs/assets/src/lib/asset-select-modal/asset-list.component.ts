@@ -96,6 +96,12 @@ import { AssetStateService } from '../asset-state.service';
                                 </div>
                             </button>
                             <button
+                                [attr.aria-label]="
+                                    (isFavourite(asset.id)
+                                        ? 'COMMON.FAVOURITES_REMOVE'
+                                        : 'COMMON.FAVOURITES_ADD'
+                                    ) | translate
+                                "
                                 icon
                                 matRipple
                                 fav

@@ -190,7 +190,16 @@ interface GroupBookingListItem {
                                             error
                                         </icon>
                                     } @else {
-                                        <icon class="text-success text-2xl">
+                                        <icon
+                                            class="text-success text-2xl"
+                                            [label]="
+                                                'BOOKINGS.ITEM_BOOKED'
+                                                    | translate
+                                                        : {
+                                                              name: item.asset_name,
+                                                          }
+                                            "
+                                        >
                                             check_circle
                                         </icon>
                                     }

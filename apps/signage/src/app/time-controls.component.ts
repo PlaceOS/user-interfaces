@@ -69,6 +69,7 @@ import { DateFieldComponent } from '@placeos/form-fields';
                             matRipple
                             (click)="clear()"
                             [matTooltip]="'COMMON.CLEAR' | translate"
+                            [attr.aria-label]="'COMMON.CLEAR' | translate"
                         >
                             <icon>delete_sweep</icon>
                         </button>
@@ -78,10 +79,16 @@ import { DateFieldComponent } from '@placeos/form-fields';
                             matRipple
                             (click)="save()"
                             [matTooltip]="'COMMON.SAVE' | translate"
+                            [attr.aria-label]="'COMMON.SAVE' | translate"
                         >
                             <icon>save</icon>
                         </button>
-                        <button icon matRipple (click)="close()">
+                        <button
+                            icon
+                            matRipple
+                            (click)="close()"
+                            [attr.aria-label]="'COMMON.CLOSE' | translate"
+                        >
                             <icon>close</icon>
                         </button>
                     </div>

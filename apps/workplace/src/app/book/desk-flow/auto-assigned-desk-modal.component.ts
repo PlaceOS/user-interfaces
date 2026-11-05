@@ -56,6 +56,7 @@ import { isBefore, startOfMinute } from 'date-fns';
                                 matRipple
                                 class="h-10 w-10"
                                 (click)="dismiss()"
+                                [attr.aria-label]="'COMMON.CLOSE' | translate"
                             >
                                 <icon>close</icon>
                             </button>

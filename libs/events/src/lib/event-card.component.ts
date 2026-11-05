@@ -64,6 +64,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                         [style.color]="typeColors[1]"
                     >
                         <icon
+                            [label]="typeLabel | translate"
                             [matTooltip]="typeLabel | translate"
                             matTooltipPosition="left"
                         >
@@ -88,6 +89,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                         @if (event().recurring_event_id) {
                             <icon
                                 class="text-2xl"
+                                [label]="recurr_tooltip()"
                                 [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >

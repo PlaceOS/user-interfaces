@@ -163,7 +163,12 @@ export interface DurationOption {
                                 }
                             </div>
                             @if (selected()?.id === option.id) {
-                                <icon class="ml-2 text-2xl"> done </icon>
+                                <icon
+                                    class="ml-2 text-2xl"
+                                    [label]="'COMMON.SELECTED' | translate"
+                                >
+                                    done
+                                </icon>
                             }
                         </div>
                     </button>

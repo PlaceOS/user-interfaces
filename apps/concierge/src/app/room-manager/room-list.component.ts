@@ -6,7 +6,6 @@ import { i18n, notifySuccess, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     LevelPipe,
-    SanitizePipe,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -117,7 +116,12 @@ import { RoomManagementService } from './room-management.service';
                     [class.bg-success]="data"
                     class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
                 >
-                    <icon>{{ data ? 'done' : 'close' }}</icon>
+                    <icon
+                        [label]="
+                            (data ? 'COMMON.YES' : 'COMMON.NO') | translate
+                        "
+                        >{{ data ? 'done' : 'close' }}</icon
+                    >
                 </div>
             }
         </ng-template>
@@ -133,7 +137,7 @@ import { RoomManagementService } from './room-management.service';
                     [matTooltip]="data.message"
                     class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
                 >
-                    <icon>{{
+                    <icon [label]="data.message">{{
                         data.status === 'warn'
                             ? 'warning'
                             : data.status === 'info'
@@ -183,10 +187,7 @@ import { RoomManagementService } from './room-management.service';
                 @if (row.support_url || control_path()) {
                     <a
                         mat-menu-item
-                        [href]="
-                            row.support_url || control_path() + row.id
-                                | sanitize: 'url'
-                        "
+                        [href]="row.support_url || control_path() + row.id"
                         target="_blank"
                         ref="noopener noreferrer"
                     >
@@ -211,7 +212,6 @@ import { RoomManagementService } from './room-management.service';
         IconComponent,
         MatMenuModule,
         MatTooltipModule,
-        SanitizePipe,
         TranslatePipe,
         LevelPipe,
     ],

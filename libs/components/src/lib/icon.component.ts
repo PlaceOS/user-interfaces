@@ -8,8 +8,19 @@ const CLASS_MAP = {
     sharp: 'material-symbols-sharp',
 };
 
+/**
+ * Shows a Material Symbols ligature or an image. The icon is hidden from
+ * assistive technology by default, because most icons are decoration next to
+ * text. Set `label` when the icon is the only carrier of its meaning. The icon
+ * is then announced as an image with that name.
+ */
 @Component({
     selector: 'icon,i[icon]',
+    host: {
+        '[attr.aria-hidden]': 'label() ? null : "true"',
+        '[attr.role]': 'label() ? "img" : null',
+        '[attr.aria-label]': 'label() || null',
+    },
     template: `
         <div
             class="flex h-[1.25em] max-h-[1.25em] w-[1.25em] max-w-[1.25em] items-center justify-center overflow-hidden"
@@ -23,6 +34,7 @@ const CLASS_MAP = {
             @if (icon() && icon().type === 'img') {
                 <img
                     class="h-[1em] w-[1em]"
+                    alt=""
                     [src]="icon().src | safe: 'resource'"
                 />
             }
@@ -40,6 +52,8 @@ const CLASS_MAP = {
 export class IconComponent {
     public readonly className = input('material-symbols-rounded');
     public readonly icon = input<ApplicationIcon>(undefined);
+    /** Accessible name. When empty, the icon is hidden from assistive technology. */
+    public readonly label = input('');
     public readonly class_ref = computed(
         () =>
             CLASS_MAP[this.icon()?.class] ||

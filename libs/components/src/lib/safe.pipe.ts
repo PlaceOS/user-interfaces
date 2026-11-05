@@ -3,7 +3,6 @@ import {
     DomSanitizer,
     SafeHtml,
     SafeResourceUrl,
-    SafeScript,
     SafeStyle,
 } from '@angular/platform-browser';
 
@@ -17,13 +16,16 @@ export class SafePipe implements PipeTransform {
      * Marks the string as trusted, so it can be injected into a template.
      * A `url` or `resource` that runs script, such as `javascript:`, is not
      * trusted. It becomes `null` for `url` and an empty URL for `resource`.
+     * The type has no default, so each `html` use is explicit. Never pass
+     * user content as `html`. Bind it to `[innerHTML]` without this pipe,
+     * so Angular sanitises it.
      * @param value String to trust
-     * @param type Type of value to trust. `resource`, `url`, `script`, `style` or `html`
+     * @param type Type of value to trust. `resource`, `url`, `style` or `html`
      */
     public transform(
         value: string,
-        type: 'resource' | 'url' | 'script' | 'style' | 'html' = 'html',
-    ): SafeHtml | SafeResourceUrl | SafeScript | SafeStyle | null {
+        type: 'resource' | 'url' | 'style' | 'html',
+    ): SafeHtml | SafeResourceUrl | SafeStyle | null {
         switch (type) {
             case 'resource':
                 // A resource URL context throws on `null`, so use an empty URL
@@ -34,11 +36,9 @@ export class SafePipe implements PipeTransform {
                 return this._isSafeUrl(value)
                     ? this.sanitizer.bypassSecurityTrustUrl(value)
                     : null;
-            case 'script':
-                return this.sanitizer.bypassSecurityTrustScript(value);
             case 'style':
                 return this.sanitizer.bypassSecurityTrustStyle(value);
-            default:
+            case 'html':
                 return this.sanitizer.bypassSecurityTrustHtml(value);
         }
     }

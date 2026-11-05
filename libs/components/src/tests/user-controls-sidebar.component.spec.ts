@@ -74,6 +74,40 @@ describe('UserControlsSidebarComponent', () => {
         expect(spectator.component.is_rendered()).toBe(false);
     });
 
+    it('should move focus into the panel and back to the trigger', () => {
+        const trigger = spectator.query<HTMLElement>(
+            'button[name="user-controls"]',
+        );
+        trigger.focus();
+        spectator.click(trigger);
+        spectator.detectChanges();
+        vi.advanceTimersByTime(32);
+        spectator.detectChanges();
+        expect(document.activeElement).toBe(spectator.query('[role="dialog"]'));
+        expect(trigger.getAttribute('aria-expanded')).toBe('true');
+
+        spectator.component.close();
+        expect(document.activeElement).toBe(trigger);
+    });
+
+    it('should leave the sidebar open when Escape closes a layer over it', () => {
+        spectator.component.open();
+        vi.advanceTimersByTime(32);
+        spectator.detectChanges();
+        // Menus and dialogs mark the key as used, as CDK overlays do
+        const handled = (event: Event) => event.preventDefault();
+        document.body.addEventListener('keydown', handled);
+        document.body.dispatchEvent(
+            new KeyboardEvent('keydown', {
+                key: 'Escape',
+                bubbles: true,
+                cancelable: true,
+            }),
+        );
+        document.body.removeEventListener('keydown', handled);
+        expect(spectator.component.is_open()).toBe(true);
+    });
+
     it('should cancel pending removal when re-opened during close', () => {
         spectator.component.open();
         vi.advanceTimersByTime(32);

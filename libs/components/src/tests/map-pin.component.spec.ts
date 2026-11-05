@@ -46,4 +46,17 @@ describe('MapPinComponent', () => {
         spectator.query('[name="pin"]').dispatchEvent(new Event('click'));
         expect(action).toHaveBeenCalled();
     });
+
+    it('should make a pin with an action a named keyboard control', () => {
+        const action = vi.fn();
+        Object.assign(spectator.component, { action });
+        spectator.component.show.set(true);
+        spectator.detectChanges();
+        const pin = spectator.query('[name="pin"]');
+        expect(pin).toHaveAttribute('role', 'button');
+        expect(pin).toHaveAttribute('tabindex', '0');
+        expect(pin).toHaveAttribute('aria-label', 'Test');
+        pin.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+        expect(action).toHaveBeenCalled();
+    });
 });

@@ -38,6 +38,10 @@ import {
     user_group_names,
 } from '@placeos/common';
 import { isMock } from '@placeos/ts-client';
+import {
+    loadUploadPreview,
+    UNKNOWN_UPLOAD_TYPE,
+} from 'libs/components/src/lib/authenticated-image';
 import { FullscreenEmbedComponent } from 'libs/components/src/lib/fullscreen-embed.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
@@ -928,7 +932,11 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             class="bg-info text-info-content flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
                                             matTooltip="Matched to desk booking"
                                         >
-                                            <icon class="text-base!">desk</icon>
+                                            <icon
+                                                class="text-base!"
+                                                label="Matched to desk booking"
+                                                >desk</icon
+                                            >
                                         </div>
                                     }
                                     <div
@@ -2266,17 +2274,40 @@ export class ParkingRequestFormDetailsComponent
         }));
     }
 
-    public previewSupportingDoc(index: number) {
+    /**
+     * Show an uploaded supporting document full screen. The frame shows a
+     * copy that is typed from the file content, as the frame is not
+     * sandboxed and an uploaded HTML or SVG file could run script. A file
+     * type that the frame cannot show, such as DOCX, is downloaded.
+     */
+    public async previewSupportingDoc(index: number) {
         const urls = [...(this.model?.().attachments || [])];
         // Only preview files uploaded to this PlaceOS instance. Stored
-        // attachments could hold any URL and the preview frame is not sandboxed.
+        // attachments could hold any URL.
         const url = parseWebUrl(urls[index] || '', location.origin);
         if (
             url?.origin !== location.origin ||
             !/^\/api\/engine\/v2\/uploads\/[^/]+\/url$/.test(url.pathname)
         )
             return;
-        this._dialog.open(FullscreenEmbedComponent, { data: url.href });
+        const file = await loadUploadPreview(url.href).catch(() => null);
+        if (!file) {
+            notifyError(i18n('COMMON.LOAD_ERROR'));
+            return;
+        }
+        const object_url = URL.createObjectURL(file);
+        if (file.type === UNKNOWN_UPLOAD_TYPE) {
+            const link = document.createElement('a');
+            link.href = object_url;
+            link.download = this.supporting_doc_names()[index] || 'document';
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(object_url));
+            return;
+        }
+        this._dialog
+            .open(FullscreenEmbedComponent, { data: object_url })
+            .afterClosed()
+            .subscribe(() => URL.revokeObjectURL(object_url));
     }
 
     private _fileNameFromUrl(url: string): string {

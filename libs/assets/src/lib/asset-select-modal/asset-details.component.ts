@@ -18,6 +18,7 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
+                    [attr.aria-label]="'COMMON.BACK' | translate"
                     icon
                     matRipple
                     close
@@ -27,6 +28,12 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
                     <icon>arrow_back</icon>
                 </button>
                 <button
+                    [attr.aria-label]="
+                        (fav()
+                            ? 'COMMON.FAVOURITES_REMOVE'
+                            : 'COMMON.FAVOURITES_ADD'
+                        ) | translate
+                    "
                     icon
                     matRipple
                     fav

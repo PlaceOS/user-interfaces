@@ -30,7 +30,12 @@ const EMPTY_FAVS: string[] = [];
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'BOOKINGS.ASSETS_ADD_HEADER' | translate }}
                 </h2>
-                <button icon matRipple mat-dialog-close>
+                <button
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                    icon
+                    matRipple
+                    mat-dialog-close
+                >
                     <icon>close</icon>
                 </button>
             </header>
@@ -83,6 +88,8 @@ const EMPTY_FAVS: string[] = [];
                         icon
                         matRipple
                         class="border-base-200 bg-base-100 absolute top-3 right-2 z-20 border sm:hidden"
+                        [attr.aria-label]="'COMMON.FILTERS' | translate"
+                        [attr.aria-expanded]="show_filters()"
                         (click)="show_filters.update((value) => !value)"
                     >
                         <icon>{{

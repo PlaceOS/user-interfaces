@@ -294,6 +294,10 @@ interface StatusFilterOption {
                     @let next = nextStatus(data);
                     @if (next) {
                         <button
+                            [attr.aria-label]="
+                                'CATERING.ORDERS_NEXT_STATUS'
+                                    | translate: { status: status(next)?.name }
+                            "
                             icon
                             matRipple
                             next-status
@@ -337,6 +341,8 @@ interface StatusFilterOption {
                 <div class="mx-auto flex items-center space-x-2 p-2">
                     <!-- Hover shows a preview. Click opens the row, which also works on touch screens. -->
                     <button
+                        [attr.aria-label]="'FORM.NOTES' | translate"
+                        [attr.aria-expanded]="isExpanded(row.id)"
                         icon
                         notes
                         matRipple
@@ -365,6 +371,9 @@ interface StatusFilterOption {
                     </ng-template>
                     @if (can_print()) {
                         <button
+                            [attr.aria-label]="
+                                'CATERING.DOCKET_PRINT' | translate
+                            "
                             icon
                             matRipple
                             print-docket
@@ -374,7 +383,13 @@ interface StatusFilterOption {
                             <icon>print</icon>
                         </button>
                     }
-                    <button icon matRipple (click)="toggleExpanded(row.id)">
+                    <button
+                        [attr.aria-label]="'COMMON.DETAILS' | translate"
+                        [attr.aria-expanded]="isExpanded(row.id)"
+                        icon
+                        matRipple
+                        (click)="toggleExpanded(row.id)"
+                    >
                         <icon>
                             {{
                                 isExpanded(row.id)

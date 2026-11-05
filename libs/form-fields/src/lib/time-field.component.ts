@@ -146,7 +146,12 @@ function toHourOfDay(value: unknown): number | null {
                                 }
                             </div>
                             @if (active_time() === option.date) {
-                                <icon class="ml-2 text-2xl"> done </icon>
+                                <icon
+                                    class="ml-2 text-2xl"
+                                    [label]="'COMMON.SELECTED' | translate"
+                                >
+                                    done
+                                </icon>
                             }
                         </div>
                     </button>

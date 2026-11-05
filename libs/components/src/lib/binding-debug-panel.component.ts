@@ -3,7 +3,6 @@ import { DOCUMENT } from '@angular/common';
 import {
     Component,
     OnInit,
-    WritableSignal,
     computed,
     effect,
     inject,
@@ -16,33 +15,31 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncHandler, HotkeysService } from '@placeos/common';
+import { showSystem } from '@placeos/ts-client';
 import {
-    PlaceModuleBinding,
-    PlaceVariableBinding,
-    showSystem,
-} from '@placeos/ts-client';
+    BindingRecord,
+    ExecuteMessage,
+    binding_records,
+    execute_messages,
+    installBindingDebugHooks,
+    records_by_key,
+} from './binding-debug-hooks';
 import { DebugPanelResize } from './debug-panel-resize';
 import { IconComponent } from './icon.component';
 
-interface ClientWritableSignal<T> {
-    readonly value: T;
-    set(value: T): void;
-    subscribe(listener: (value: T) => void): () => void;
-}
+const system_name_cache = new Map<string, string>();
+/** Formatted text of object values, so each value is formatted only once */
+const compact_text = new WeakMap<object, string>();
+const pretty_text = new WeakMap<object, string>();
 
-interface BindingRecord {
-    key: string;
-    system_id: string;
-    module_id: string;
-    module_name: string;
-    module_index: number;
-    name: string;
-    binding: PlaceVariableBinding;
-    value: WritableSignal<unknown>;
-    last_update: WritableSignal<number>;
-    overridden: WritableSignal<boolean>;
-    driver_value: unknown;
-    emit(value: unknown): void;
+function stringify(value: unknown, pretty: boolean) {
+    try {
+        return (
+            JSON.stringify(value, null, pretty ? 2 : undefined) ?? String(value)
+        );
+    } catch {
+        return String(value);
+    }
 }
 
 interface BindingRow extends BindingRecord {
@@ -51,19 +48,6 @@ interface BindingRow extends BindingRecord {
     current_value: unknown;
     updated_at: number;
     is_overridden: boolean;
-}
-
-interface ExecuteMessage {
-    id: number;
-    direction: 'send' | 'receive';
-    system_id: string;
-    module_id: string;
-    module_name: string;
-    module_index: number;
-    method: string;
-    value: unknown;
-    time: number;
-    error: boolean;
 }
 
 interface ExecuteExchange extends Omit<
@@ -117,123 +101,6 @@ interface SystemGroup {
     active_count: number;
     message_count: number;
 }
-
-const binding_records = signal<BindingRecord[]>([]);
-const execute_messages = signal<ExecuteMessage[]>([]);
-const records_by_key = new Map<string, BindingRecord>();
-const system_name_cache = new Map<string, string>();
-let execute_id = 0;
-
-function bindingKey(module: PlaceModuleBinding, binding: PlaceVariableBinding) {
-    return `${module.system.id}|${module.id}|${binding.name}`;
-}
-
-function trackBinding(
-    module: PlaceModuleBinding,
-    binding: PlaceVariableBinding,
-) {
-    const key = bindingKey(module, binding);
-    if (records_by_key.has(key)) return binding;
-    const source = binding.listen() as unknown as ClientWritableSignal<unknown>;
-    const emit = source.set.bind(source);
-    const record: BindingRecord = {
-        key,
-        system_id: module.system.id,
-        module_id: module.id,
-        module_name: module.name,
-        module_index: module.index,
-        name: binding.name,
-        binding,
-        value: signal(source.value),
-        last_update: signal(source.value === undefined ? 0 : Date.now()),
-        overridden: signal(false),
-        driver_value: source.value,
-        emit,
-    };
-    records_by_key.set(key, record);
-    binding_records.update((records) => [...records, record]);
-    source.subscribe((value) => record.value.set(value));
-    source.set = (value) => {
-        record.driver_value = value;
-        record.last_update.set(Date.now());
-        if (!record.overridden()) emit(value);
-    };
-    return binding;
-}
-
-function addExecuteMessage(message: ExecuteMessage) {
-    execute_messages.update((messages) => [...messages, message].slice(-250));
-}
-
-function installBindingDebugHooks() {
-    const prototype = PlaceModuleBinding.prototype as PlaceModuleBinding & {
-        __binding_debug_hooks__?: boolean;
-    };
-    if (prototype.__binding_debug_hooks__) return;
-    prototype.__binding_debug_hooks__ = true;
-
-    const variable = PlaceModuleBinding.prototype.variable;
-    PlaceModuleBinding.prototype.variable = function <T>(name: string) {
-        return trackBinding(
-            this,
-            variable.call(this, name),
-        ) as PlaceVariableBinding<T>;
-    };
-
-    const binding = PlaceModuleBinding.prototype.binding;
-    PlaceModuleBinding.prototype.binding = function <T>(name: string) {
-        return trackBinding(
-            this,
-            binding.call(this, name),
-        ) as PlaceVariableBinding<T>;
-    };
-
-    const execute = PlaceModuleBinding.prototype.execute;
-    PlaceModuleBinding.prototype.execute = function <T>(
-        method: string,
-        args: unknown[] = [],
-        timeout_delay?: number,
-    ) {
-        const id = ++execute_id;
-        const details = {
-            id,
-            system_id: this.system.id,
-            module_id: this.id,
-            module_name: this.name,
-            module_index: this.index,
-            method,
-        };
-        addExecuteMessage({
-            ...details,
-            direction: 'send',
-            value: args,
-            time: Date.now(),
-            error: false,
-        });
-        const request = execute.call(this, method, args, timeout_delay);
-        request.then(
-            (value) =>
-                addExecuteMessage({
-                    ...details,
-                    direction: 'receive',
-                    value,
-                    time: Date.now(),
-                    error: false,
-                }),
-            (error) =>
-                addExecuteMessage({
-                    ...details,
-                    direction: 'receive',
-                    value: error,
-                    time: Date.now(),
-                    error: true,
-                }),
-        );
-        return request as Promise<T>;
-    };
-}
-
-installBindingDebugHooks();
 
 @Component({
     selector: 'binding-debug-panel',
@@ -362,7 +229,9 @@ installBindingDebugHooks();
                     }
                 </div>
                 @if (has_overrides()) {
-                    <p class="bg-warning-light m-2 rounded-md p-3 text-xs">
+                    <p
+                        class="bg-warning-light text-warning-content m-2 rounded-md p-3 text-xs"
+                    >
                         Local overrides are active. Incoming driver values are
                         hidden until you restore them.
                     </p>
@@ -463,7 +332,7 @@ installBindingDebugHooks();
                                             ) {
                                                 <div
                                                     class="border-base-300 border-b py-2 pr-2 pl-10 text-xs"
-                                                    [class.bg-warning-light]="
+                                                    [class.bg-warning/20]="
                                                         row.is_overridden
                                                     "
                                                 >
@@ -480,7 +349,7 @@ installBindingDebugHooks();
                                                             [class.bg-success-light]="
                                                                 row.active
                                                             "
-                                                            [class.text-success]="
+                                                            [class.text-black]="
                                                                 row.active
                                                             "
                                                             [class.bg-base-300]="
@@ -581,7 +450,21 @@ installBindingDebugHooks();
                                                         </div>
                                                     } @else {
                                                         <details
+                                                            #binding_preview
                                                             class="border-base-300 bg-base-100 mt-2 rounded-md border p-2"
+                                                            [open]="
+                                                                open_values().has(
+                                                                    'binding|' +
+                                                                        row.key
+                                                                )
+                                                            "
+                                                            (toggle)="
+                                                                setValueOpen(
+                                                                    'binding|' +
+                                                                        row.key,
+                                                                    binding_preview.open
+                                                                )
+                                                            "
                                                         >
                                                             <summary
                                                                 class="cursor-pointer truncate font-mono"
@@ -597,15 +480,22 @@ installBindingDebugHooks();
                                                                     )
                                                                 }}
                                                             </summary>
-                                                            <pre
-                                                                class="mt-2 max-h-64 overflow-auto font-mono break-all whitespace-pre-wrap"
-                                                                >{{
-                                                                    formatValue(
-                                                                        row.current_value,
-                                                                        true
-                                                                    )
-                                                                }}</pre
-                                                            >
+                                                            @if (
+                                                                open_values().has(
+                                                                    'binding|' +
+                                                                        row.key
+                                                                )
+                                                            ) {
+                                                                <pre
+                                                                    class="mt-2 max-h-64 overflow-auto font-mono break-all whitespace-pre-wrap"
+                                                                    >{{
+                                                                        formatValue(
+                                                                            row.current_value,
+                                                                            true
+                                                                        )
+                                                                    }}</pre
+                                                                >
+                                                            }
                                                         </details>
                                                         <button
                                                             matRipple
@@ -849,7 +739,23 @@ installBindingDebugHooks();
                                                                     </button>
                                                                 </div>
                                                                 <details
+                                                                    #message_preview
                                                                     class="my-2 min-w-0 px-1 font-mono"
+                                                                    [open]="
+                                                                        open_values().has(
+                                                                            message.direction +
+                                                                                '|' +
+                                                                                message.id
+                                                                        )
+                                                                    "
+                                                                    (toggle)="
+                                                                        setValueOpen(
+                                                                            message.direction +
+                                                                                '|' +
+                                                                                message.id,
+                                                                            message_preview.open
+                                                                        )
+                                                                    "
                                                                 >
                                                                     <summary
                                                                         class="cursor-pointer truncate"
@@ -865,15 +771,23 @@ installBindingDebugHooks();
                                                                             )
                                                                         }}
                                                                     </summary>
-                                                                    <pre
-                                                                        class="mt-2 max-h-64 overflow-auto break-all whitespace-pre-wrap"
-                                                                        >{{
-                                                                            formatValue(
-                                                                                message.value,
-                                                                                true
-                                                                            )
-                                                                        }}</pre
-                                                                    >
+                                                                    @if (
+                                                                        open_values().has(
+                                                                            message.direction +
+                                                                                '|' +
+                                                                                message.id
+                                                                        )
+                                                                    ) {
+                                                                        <pre
+                                                                            class="mt-2 max-h-64 overflow-auto break-all whitespace-pre-wrap"
+                                                                            >{{
+                                                                                formatValue(
+                                                                                    message.value,
+                                                                                    true
+                                                                                )
+                                                                            }}</pre
+                                                                        >
+                                                                    }
                                                                 </details>
                                                             </div>
                                                         }
@@ -968,6 +882,8 @@ export class BindingDebugPanelComponent extends AsyncHandler implements OnInit {
         key: string;
         success: boolean;
     } | null>(null);
+    /** Keys of the value previews that are open */
+    public readonly open_values = signal<ReadonlySet<string>>(new Set());
     private readonly _refresh = signal(0);
 
     private readonly _system_names = resource({
@@ -1099,9 +1015,12 @@ export class BindingDebugPanelComponent extends AsyncHandler implements OnInit {
             }
         } else {
             for (const message of this._exchanges()) {
-                const haystack =
-                    `${message.system_id} ${system_names[message.system_id] || ''} ${message.module_id} ${message.method} ${message.send ? this.formatValue(message.send.value) : ''} ${message.receive ? this.formatValue(message.receive.value) : ''}`.toLowerCase();
-                if (filter && !haystack.includes(filter)) continue;
+                // Only stringify values while the user filters
+                if (filter) {
+                    const haystack =
+                        `${message.system_id} ${system_names[message.system_id] || ''} ${message.module_id} ${message.method} ${message.send ? this.formatValue(message.send.value) : ''} ${message.receive ? this.formatValue(message.receive.value) : ''}`.toLowerCase();
+                    if (!haystack.includes(filter)) continue;
+                }
                 const { system, module } = get_module(
                     message.system_id,
                     message.module_id,
@@ -1130,6 +1049,12 @@ export class BindingDebugPanelComponent extends AsyncHandler implements OnInit {
                     })),
             }));
     });
+
+    constructor() {
+        super();
+        // The launcher installs the hooks earlier for admin and support users
+        installBindingDebugHooks();
+    }
 
     public ngOnInit() {
         if (!this.hotkeysEnabled()) return;
@@ -1222,24 +1147,38 @@ export class BindingDebugPanelComponent extends AsyncHandler implements OnInit {
         );
     }
 
+    /** Keep the open state of a value preview. Closed previews skip the full value. */
+    public setValueOpen(key: string, open: boolean) {
+        if (open === this.open_values().has(key)) return;
+        this.open_values.update((keys) => {
+            const next = new Set(keys);
+            if (open) next.add(key);
+            else next.delete(key);
+            return next;
+        });
+    }
+
     public copyLabel(key: string): string {
         const result = this.copy_result();
         if (result?.key !== key) return 'Copy value';
         return result.success ? 'Copied' : 'Retry copy';
     }
 
+    /** Text of a value. Object text is cached, as values are not changed in place. */
     public formatValue(value: unknown, pretty = false) {
         if (value === undefined) return 'undefined';
         if (typeof value === 'string') return value || '""';
         if (value instanceof Error) return value.message;
-        try {
-            return (
-                JSON.stringify(value, null, pretty ? 2 : undefined) ??
-                String(value)
-            );
-        } catch {
-            return String(value);
+        if (typeof value !== 'object' || value === null) {
+            return stringify(value, pretty);
         }
+        const cache = pretty ? pretty_text : compact_text;
+        let text = cache.get(value);
+        if (text === undefined) {
+            text = stringify(value, pretty);
+            cache.set(value, text);
+        }
+        return text;
     }
 
     public formatTime(time: number) {

@@ -37,6 +37,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     ></image-carousel>
                 }
                 <button
+                    [attr.aria-label]="'COMMON.BACK' | translate"
                     icon
                     matRipple
                     name="close-space-details"
@@ -46,6 +47,12 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     <icon>arrow_back</icon>
                 </button>
                 <button
+                    [attr.aria-label]="
+                        (fav()
+                            ? 'COMMON.FAVOURITES_REMOVE'
+                            : 'COMMON.FAVOURITES_ADD'
+                        ) | translate
+                    "
                     icon
                     matRipple
                     name="toggle-space-favourite-details"

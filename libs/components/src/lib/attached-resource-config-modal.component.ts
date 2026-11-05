@@ -17,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { DialogEvent, Identity } from 'libs/common/src/lib/types';
+import { DIALOG_TITLE_STYLES } from './confirm-modal.component';
 import { IconComponent } from './icon.component';
 import { SettingsToggleComponent } from './settings-toggle.component';
 import { TranslatePipe } from './translate.pipe';
@@ -84,14 +85,19 @@ export interface AttachedResourceConfigModalData {
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">
+            <h2 mat-dialog-title class="px-2 text-xl font-medium">
                 {{
                     'RESOURCE.RULESET_HEADER'
                         | translate: { name: resource_name }
                 }}
             </h2>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button
+                    icon
+                    matRipple
+                    mat-dialog-close
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                >
                     <icon>close</icon>
                 </button>
             }
@@ -137,6 +143,9 @@ export interface AttachedResourceConfigModalData {
                             matRipple
                             class="h-12 w-12 rounded-sm"
                             [matMenuTriggerFor]="menu"
+                            [attr.aria-label]="
+                                'COMMON.MORE_OPTIONS' | translate
+                            "
                         >
                             <icon>more_vert</icon>
                         </button>
@@ -253,6 +262,10 @@ export interface AttachedResourceConfigModalData {
                                     icon
                                     matRipple
                                     class="border-error text-error h-12 w-12 rounded-sm border"
+                                    [attr.aria-label]="
+                                        'RESOURCE.RULESET_REMOVE_RULES'
+                                            | translate
+                                    "
                                     (click)="set.rules.splice(i, 1)"
                                 >
                                     <icon>delete</icon>
@@ -272,6 +285,7 @@ export interface AttachedResourceConfigModalData {
         </footer>
     `,
     styles: [
+        DIALOG_TITLE_STYLES,
         `
             [name='rules'] {
                 transition: height 200ms;
@@ -345,7 +359,13 @@ export class AttachedResourceConfigModalComponent extends AsyncHandler {
         this._pending_notes = null;
     }
 
+    /**
+     * Emit the rulesets for the opener to save. The opener sets `loading` back
+     * to false when the save fails, so the user can try again.
+     */
     public saveChanges() {
+        // A second click while a save runs must not save twice
+        if (this.loading()) return;
         this.loading.set(true);
         const rulesets = this.rulesets.map((set) => {
             return {

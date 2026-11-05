@@ -9,6 +9,7 @@ import {
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 import {
     BookingForm,
     BookingFormValue,
@@ -204,8 +205,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
     it('should filter and de-duplicate saved plate number suggestions', () => {
         vi.mocked(settings.get).mockImplementation((key: string) => {
             if (key === 'plate_number') return 'ABC123';
-            if (key === 'plate_numbers')
-                return ['abc123', 'XYZ789', 'CAR456'];
+            if (key === 'plate_numbers') return ['abc123', 'XYZ789', 'CAR456'];
             return getSetting(key);
         });
         spectator.component.setPlateNumber('7');
@@ -216,8 +216,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
     it('should remove a plate number from saved suggestions', () => {
         vi.mocked(settings.get).mockImplementation((key: string) => {
             if (key === 'plate_number') return 'ABC123';
-            if (key === 'plate_numbers')
-                return ['abc123', 'XYZ789', 'CAR456'];
+            if (key === 'plate_numbers') return ['abc123', 'XYZ789', 'CAR456'];
             return getSetting(key);
         });
         const event = {
@@ -227,10 +226,10 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
         spectator.component.removePlateNumber(event, 'ABC123');
 
-        expect(settings.saveUserSetting).toHaveBeenCalledWith(
-            'plate_numbers',
-            ['XYZ789', 'CAR456'],
-        );
+        expect(settings.saveUserSetting).toHaveBeenCalledWith('plate_numbers', [
+            'XYZ789',
+            'CAR456',
+        ]);
         expect(settings.saveUserSetting).toHaveBeenCalledWith(
             'plate_number',
             '',
@@ -1055,7 +1054,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.model().duration).toBe(838);
     });
 
-    it('should only preview attachments uploaded to this instance', () => {
+    it('should only preview attachments uploaded to this instance', async () => {
         const upload = `${location.origin}/api/engine/v2/uploads/abc/url`;
         attachForm({
             attachments: [
@@ -1064,11 +1063,21 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 'https://evil.example/api/engine/v2/uploads/abc/url',
             ],
         });
+        // PDF magic bytes, so the preview opens in the frame
+        const pdf = new TextEncoder().encode('%PDF-1.7');
+        const fetch_spy = vi
+            .spyOn(window, 'fetch')
+            .mockResolvedValue(new Response(pdf));
+        vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:preview');
         const open = vi
             .spyOn(spectator.component['_dialog'], 'open')
-            .mockReturnValue(null);
-        [0, 1, 2].forEach((i) => spectator.component.previewSupportingDoc(i));
+            .mockReturnValue({ afterClosed: () => of(undefined) } as never);
+        for (const i of [0, 1, 2]) {
+            await spectator.component.previewSupportingDoc(i);
+        }
+        expect(fetch_spy).toHaveBeenCalledTimes(1);
+        expect(fetch_spy.mock.calls[0][0]).toBe(upload);
         expect(open).toHaveBeenCalledTimes(1);
-        expect(open.mock.calls[0][1]).toEqual({ data: upload });
+        expect(open.mock.calls[0][1]).toEqual({ data: 'blob:preview' });
     });
 });

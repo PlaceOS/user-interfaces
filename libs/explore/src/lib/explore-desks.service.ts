@@ -428,7 +428,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     status: this._statuses[d_id],
                     department: this._departments[d_id] || '',
                     bookings: this._desk_bookings[d_id],
-                    date: options.date || Date.now(),
+                    date: options.date,
                 },
                 z_index: 20,
             });

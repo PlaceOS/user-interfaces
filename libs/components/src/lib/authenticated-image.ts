@@ -80,11 +80,16 @@ export function setAuthCookie(cookie_path: string): void {
     }`;
 }
 
-function authHeaders(): Record<string, string> {
+/**
+ * Request options that authenticate with a header. Browsers keep the
+ * X-API-Key header on a redirect to another origin, so API key requests do
+ * not follow redirects. Uploads use the cookie loader, which can follow them.
+ */
+function authRequest(): RequestInit {
     const tkn = token();
     return tkn === 'x-api-key'
-        ? { 'X-API-Key': apiKey() }
-        : { Authorization: `Bearer ${tkn}` };
+        ? { headers: { 'X-API-Key': apiKey() }, redirect: 'error' }
+        : { headers: { Authorization: `Bearer ${tkn}` } };
 }
 
 export function loadAuthenticatedImage(
@@ -100,7 +105,7 @@ export function loadAuthenticatedImage(
 export function loadAuthenticatedImageWithHeader(
     source: string,
 ): Promise<string> {
-    return loadImage(source, () => fetch(source, { headers: authHeaders() }));
+    return loadImage(source, () => fetch(source, authRequest()));
 }
 
 async function loadImage(
@@ -135,4 +140,38 @@ async function loadImage(
         .finally(() => IMAGE_LOADS.delete(source));
     IMAGE_LOADS.set(source, load);
     return load;
+}
+
+/** First bytes of the upload types that a preview can show in a frame */
+const PREVIEW_TYPES = [
+    { type: 'application/pdf', bytes: [0x25, 0x50, 0x44, 0x46, 0x2d] },
+    {
+        type: 'image/png',
+        bytes: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
+    },
+    { type: 'image/jpeg', bytes: [0xff, 0xd8, 0xff] },
+];
+/** Type of an upload that a preview cannot show. Browsers download it. */
+export const UNKNOWN_UPLOAD_TYPE = 'application/octet-stream';
+
+/**
+ * Load an upload from this PlaceOS instance to preview it, for example in
+ * `FullscreenEmbedComponent` through an object URL. The type comes from the
+ * first bytes of the file, not from the server, so an uploaded HTML or SVG
+ * file cannot run script on this origin. A PDF, PNG or JPEG gets its own
+ * type. Any other file gets `UNKNOWN_UPLOAD_TYPE`.
+ */
+export async function loadUploadPreview(source: string): Promise<Blob> {
+    // Storage redirects do not get the cookie, as it is for this origin only
+    setAuthCookie('/api/engine/v2/uploads');
+    const response = await fetch(source);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch upload: ${response.status}`);
+    }
+    const data = await response.arrayBuffer();
+    const head = new Uint8Array(data, 0, Math.min(data.byteLength, 8));
+    const match = PREVIEW_TYPES.find(({ bytes }) =>
+        bytes.every((byte, index) => head[index] === byte),
+    );
+    return new Blob([data], { type: match?.type ?? UNKNOWN_UPLOAD_TYPE });
 }

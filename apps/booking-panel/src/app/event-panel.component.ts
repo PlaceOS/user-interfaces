@@ -14,8 +14,6 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import {
     AuthenticatedImageDirective,
-    SafePipe,
-    SanitizePipe,
     TranslatePipe,
 } from '@placeos/components';
 import { dayTimeFormat } from './new-panel/helpers';
@@ -36,11 +34,9 @@ import { PanelStateService } from './panel-state.service';
             </header>
             <main
                 class="relative flex h-1/2 w-full flex-1 justify-between space-x-8 overflow-hidden bg-cover p-8 portrait:flex-col portrait:space-y-4 portrait:space-x-0"
-                [style.background-color]="background_color | safe"
-                [style.color]="text_color | safe"
-                [style.background-image]="
-                    'url(' + background_image + ')' | safe
-                "
+                [style.background-color]="background_color"
+                [style.color]="text_color"
+                [style.background-image]="'url(' + background_image + ')'"
             >
                 <div class="flex-1 overflow-hidden">
                     @let current_bkn = current();
@@ -71,9 +67,7 @@ import { PanelStateService } from './panel-state.service';
                             </p>
                             <p
                                 class="line-clamp-6 text-base portrait:line-clamp-8"
-                                [innerHTML]="
-                                    current_bkn?.body | sanitize: 'html'
-                                "
+                                [innerHTML]="current_bkn?.body"
                             ></p>
                         }
                     } @else {
@@ -174,8 +168,6 @@ import { PanelStateService } from './panel-state.service';
         MatRippleModule,
         AuthenticatedImageDirective,
         TranslatePipe,
-        SanitizePipe,
-        SafePipe,
     ],
 })
 export class EventPanelComponent extends AsyncHandler implements OnInit {

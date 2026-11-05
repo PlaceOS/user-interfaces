@@ -1,12 +1,15 @@
-import { signal } from '@angular/core';
+import { SecurityContext, signal } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
+    setCurrentUser,
     setNotifyOutlet,
     SettingsService,
+    StaffUser,
 } from '@placeos/common';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -78,12 +81,14 @@ describe('ChatService', () => {
                     }),
                 }) as unknown as ReturnType<typeof client.getModule>,
         );
+        setCurrentUser(new StaffUser({ id: 'user-1' }));
         spectator = createService();
         spectator.service.setBinding('sys-1');
     });
 
     afterEach(() => {
         window.WebSocket = original_socket;
+        vi.useRealTimers();
     });
 
     it('should keep a new chat when the previous socket closes late', () => {
@@ -122,16 +127,70 @@ describe('ChatService', () => {
         expect(snackbar.open).toHaveBeenCalled();
     });
 
-    it('should show an error if the chat closes before it opens', () => {
+    it('should show an error and give the text back if the chat closes before it opens', () => {
         spectator.service.startChat();
         const socket = FakeSocket.instances[0];
         socket.readyState = FakeSocket.CONNECTING;
 
         expect(spectator.service.sendMessage('Hello')).toBe(true);
-        socket.listeners['close']();
+        socket.onerror?.(new Event('error'));
+        socket.onclose?.();
 
         expect(socket.send).not.toHaveBeenCalled();
+        expect(snackbar.open).toHaveBeenCalledTimes(1);
+        expect(spectator.service.unsent()).toBe('Hello');
+        expect(spectator.service.messages()).toEqual([]);
+    });
+
+    it('should show an error if the chat closes before a reply arrives', () => {
+        spectator.service.sendMessage('Book a room');
+        FakeSocket.instances[0].onclose?.();
+
         expect(snackbar.open).toHaveBeenCalled();
+        expect(spectator.service.unsent()).toBe('Book a room');
+        expect(spectator.service.messages()).toEqual([]);
+        expect(spectator.service.connected).toBe(false);
+    });
+
+    it('should stop waiting for a reply after a time with no frames', () => {
+        vi.useFakeTimers();
+        spectator.service.sendMessage('Hello');
+        const socket = FakeSocket.instances[0];
+
+        vi.advanceTimersByTime(10 * 60 * 1000);
+
+        expect(socket.close).toHaveBeenCalled();
+        expect(snackbar.open).toHaveBeenCalledTimes(1);
+        expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it('should ignore frames that have no text', () => {
+        spectator.service.startChat();
+        const socket = FakeSocket.instances[0];
+        socket.onmessage({
+            data: JSON.stringify({ chat_id: 'c-1' }),
+        } as MessageEvent);
+        socket.onmessage({
+            data: JSON.stringify({
+                type: 'progress',
+                function: 'call_function',
+            }),
+        } as MessageEvent);
+        socket.onmessage({ data: 'not json' } as MessageEvent);
+
+        expect(spectator.service.messages()).toEqual([]);
+        expect(spectator.service.progress().function).toBe('call_function');
+    });
+
+    it('should clear progress when the chat closes', () => {
+        spectator.service.startChat();
+        FakeSocket.instances[0].onmessage({
+            data: JSON.stringify({ type: 'progress', message: 'Working' }),
+        } as MessageEvent);
+
+        spectator.service.close();
+
+        expect(spectator.service.progress()).toBeNull();
     });
 
     it('should send the message once the chat opens', () => {
@@ -162,6 +221,29 @@ describe('ChatService', () => {
         expect(message.content).not.toContain('<img');
         expect(message.content).not.toContain('<b>');
         expect(message.content).toContain('&lt;img src=');
+    });
+
+    it('should open assistant links in a new tab with no opener', () => {
+        spectator.service.startChat();
+        FakeSocket.instances[0].onmessage({
+            data: JSON.stringify({
+                type: 'response',
+                message:
+                    'See [the map](https://maps.example/) or https://x.example/',
+            }),
+        } as MessageEvent);
+        const [message] = spectator.service.messages();
+        const html = spectator
+            .inject(DomSanitizer)
+            .sanitize(SecurityContext.HTML, message.content);
+        const links = new DOMParser()
+            .parseFromString(html, 'text/html')
+            .querySelectorAll('a');
+        expect(links).toHaveLength(2);
+        for (const link of Array.from(links)) {
+            expect(link.target).toBe('_blank');
+            expect(link.rel).toBe('noopener noreferrer');
+        }
     });
 
     it('should not render HTML that follows an inline code tag', () => {

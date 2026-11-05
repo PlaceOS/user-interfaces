@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { LockerGridComponent } from 'libs/bookings/src/lib/locker-grid.component';
 import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 export interface LockerBankModalData {
     bank: LockerBank;
@@ -15,7 +16,13 @@ export interface LockerBankModalData {
     template: `
         <header>
             <h2 class="text-xl font-medium">{{ bank().name }}</h2>
-            <button btn icon matRipple mat-dialog-close>
+            <button
+                [attr.aria-label]="'COMMON.CLOSE' | translate"
+                btn
+                icon
+                matRipple
+                mat-dialog-close
+            >
                 <icon>close</icon>
             </button>
         </header>
@@ -27,7 +34,12 @@ export interface LockerBankModalData {
         </main>
     `,
     styles: [``],
-    imports: [MatRippleModule, LockerGridComponent, IconComponent],
+    imports: [
+        MatRippleModule,
+        LockerGridComponent,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class ExploreLockerBankModalComponent {
     private _data = inject<LockerBankModalData>(MAT_DIALOG_DATA);

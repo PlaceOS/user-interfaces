@@ -15,9 +15,11 @@ import {
     BuildingLevel,
     OrganisationService,
 } from '@placeos/common';
+import { DIALOG_TITLE_STYLES } from './confirm-modal.component';
 import { IconComponent } from './icon.component';
 import { InteractiveMapComponent } from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
+import { TranslatePipe } from './translate.pipe';
 
 export interface Locatable {
     id: string;
@@ -36,11 +38,16 @@ export interface Locatable {
                 class="bg-base-200 sticky top-0 z-10 m-2 flex h-14 w-[calc(100%-1rem)] min-w-[20rem] items-center space-x-2 rounded border-none p-2"
             >
                 <icon class="text-2xl">place</icon>
-                <h2 class="text-xl font-medium">
+                <h2 mat-dialog-title class="text-xl font-medium">
                     {{ item().display_name || item().name }}
                 </h2>
                 <div class="flex-1"></div>
-                <button icon matRipple mat-dialog-close>
+                <button
+                    icon
+                    matRipple
+                    mat-dialog-close
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                >
                     <icon>close</icon>
                 </button>
             </header>
@@ -72,6 +79,7 @@ export interface Locatable {
         </div>
     `,
     styles: [
+        DIALOG_TITLE_STYLES,
         `
             [body] {
                 min-width: 80vw !important;
@@ -88,6 +96,7 @@ export interface Locatable {
         MatDialogModule,
         IconComponent,
         InteractiveMapComponent,
+        TranslatePipe,
     ],
 })
 export class MapLocateModalComponent extends AsyncHandler implements OnInit {

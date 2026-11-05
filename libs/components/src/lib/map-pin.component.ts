@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
+import { TranslatePipe } from './translate.pipe';
 
 export interface MapPinData {
     message: string;
@@ -18,18 +19,29 @@ export interface MapPinData {
             @if (message && show_message()) {
                 <div
                     name="message"
-                    class="bg-base-100 m-2 rounded-sm p-2 text-gray-700 shadow-sm"
+                    class="bg-base-100 text-base-content m-2 rounded-sm p-2 shadow-sm"
                 >
                     {{ message }}
                 </div>
             }
             @if (show()) {
+                <!-- A pin with an action is a button, without one it is decoration -->
                 <svg
                     name="pin"
                     viewBox="0 0 380 560"
                     class="w-8"
                     [class.pointer-events-auto]="action"
-                    (click)="action()"
+                    [attr.role]="action ? 'button' : null"
+                    [attr.tabindex]="action ? 0 : null"
+                    [attr.aria-label]="
+                        action
+                            ? message || ('COMMON.LOCATION' | translate)
+                            : null
+                    "
+                    [attr.aria-hidden]="action ? null : 'true'"
+                    (click)="action?.()"
+                    (keydown.enter)="action?.()"
+                    (keydown.space)="$event.preventDefault(); action?.()"
                 >
                     <g>
                         <path
@@ -64,6 +76,7 @@ export interface MapPinData {
             }
         `,
     ],
+    imports: [TranslatePipe],
 })
 export class MapPinComponent implements OnInit {
     private _details = inject<MapPinData>(MAP_FEATURE_DATA);

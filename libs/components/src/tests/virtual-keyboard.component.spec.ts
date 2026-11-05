@@ -42,6 +42,21 @@ describe('VirtualKeyboardComponent', () => {
         vi.useRealTimers();
     });
 
+    it('should only take pointer events on the keyboard pane', () => {
+        VirtualKeyboardComponent.enabled = true;
+        spectator.focus(spectator.query('input'));
+        const pane =
+            document.querySelector<HTMLElement>(
+                '[keyboard-view]',
+            ).parentElement;
+        // The host covers the viewport, so taps outside the keyboard reach the page
+        expect(pane.parentElement.style.pointerEvents).toBe('');
+        spectator.directive.close();
+        expect(pane.style.pointerEvents).toBe('none');
+        spectator.directive.open();
+        expect(pane.style.pointerEvents).toBe('auto');
+    });
+
     it('should update input value on key presses', async () => {
         vi.useFakeTimers();
         VirtualKeyboardComponent.enabled = true;

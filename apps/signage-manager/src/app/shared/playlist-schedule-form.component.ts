@@ -501,6 +501,15 @@ export function playlistSchedulePayload(
                     class="border-base-300 hover:bg-base-200 rounded border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40"
                     [disabled]="!can_remove()"
                     (click)="removeSchedule($event)"
+                    [attr.aria-label]="
+                        'COMMON.REMOVE_ITEM'
+                            | translate
+                                : {
+                                      item:
+                                          'SIGNAGE_MANAGER.SCHEDULE_NUMBER'
+                                          | translate: { number: index() + 1 },
+                                  }
+                    "
                 >
                     <icon>delete</icon>
                 </button>
@@ -509,6 +518,10 @@ export function playlistSchedulePayload(
                     class="flex items-center"
                     [attr.aria-expanded]="open()"
                     (click)="toggle.emit()"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.SCHEDULE_NUMBER'
+                            | translate: { number: index() + 1 }
+                    "
                 >
                     <icon class="text-base-content/60 text-xl">
                         {{ open() ? 'expand_less' : 'expand_more' }}

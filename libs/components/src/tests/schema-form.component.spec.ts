@@ -130,6 +130,36 @@ describe('SchemaFormComponent', () => {
         expect(on_change).not.toHaveBeenCalled();
     });
 
+    it('should reset fields missing from a written value to their defaults', () => {
+        spectator.setInput({ schema: SCHEMA });
+        spectator.component.writeValue({ title: 'Existing', count: 2 });
+        spectator.component.writeValue(null);
+        expect(spectator.component.defaults_form().value).toEqual({
+            title: null,
+            count: 4,
+            enabled: null,
+            mode: null,
+        });
+    });
+
+    it('should keep an explicit null from a written value', () => {
+        spectator.setInput({ schema: SCHEMA });
+        spectator.component.writeValue({ count: null });
+        expect(spectator.component.defaults_form().value.count).toBeNull();
+    });
+
+    it('should disable the fields with the parent control', () => {
+        spectator.component.setDisabledState(true);
+        spectator.setInput({ schema: SCHEMA });
+        const input = spectator.query<HTMLInputElement>('input[name="title"]');
+        expect(input.disabled).toBe(true);
+        expect('settings-toggle button').toBeDisabled();
+        expect(spectator.component.isValid()).toBe(true);
+        spectator.component.setDisabledState(false);
+        spectator.detectChanges();
+        expect(input.disabled).toBe(false);
+    });
+
     it('should validate required fields via isValid', () => {
         spectator.setInput({ schema: SCHEMA });
         expect(spectator.component.isValid()).toBe(false);

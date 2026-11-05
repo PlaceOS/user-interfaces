@@ -19,7 +19,6 @@ import {
     ChatService,
     DateFromPipe,
     IconComponent,
-    SanitizePipe,
     TranslatePipe,
     UserAvatarComponent,
 } from '@placeos/components';
@@ -174,7 +173,7 @@ type AssistantWindow = Window & {
                                 <div
                                     message
                                     class="markdown selectable text-sm"
-                                    [innerHTML]="message.content | sanitize"
+                                    [innerHTML]="message.content"
                                 ></div>
                             </div>
                         </div>
@@ -205,9 +204,7 @@ type AssistantWindow = Window & {
                                     @if (show_info()) {
                                         <div
                                             class="text-mono p-2 text-left text-xs wrap-break-word"
-                                            [innerHTML]="
-                                                progress_msg.content | sanitize
-                                            "
+                                            [innerHTML]="progress_msg.content"
                                         ></div>
                                     }
                                 </div>
@@ -240,6 +237,7 @@ type AssistantWindow = Window & {
                 matRipple
                 class="bg-error text-error-content absolute top-2 left-2 h-12 w-12 shadow-sm"
                 (click)="endService()"
+                [attr.aria-label]="'APP.CONTROL.VC_END_CALL' | translate"
             >
                 <icon class="text-2xl">call_end</icon>
             </button>
@@ -266,7 +264,6 @@ type AssistantWindow = Window & {
     imports: [
         MatRippleModule,
         IconComponent,
-        SanitizePipe,
         DateFromPipe,
         TranslatePipe,
         UserAvatarComponent,

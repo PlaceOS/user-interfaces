@@ -103,7 +103,7 @@ export class VirtualKeyboardComponent
     public open() {
         this.clearTimeout('close-animation');
         if (this._overlay_ref) {
-            this._overlay_ref.hostElement.style.pointerEvents = 'auto';
+            this._overlay_ref.overlayElement.style.pointerEvents = 'auto';
             if (this._keyboard_el) this._keyboard_el.style.opacity = '1';
             return;
         }
@@ -121,8 +121,9 @@ export class VirtualKeyboardComponent
             width: '100vw',
             positionStrategy: position_strategy,
         });
+        // The overlay is not attached, so CDK does not show the host. The host
+        // covers the viewport, so only the keyboard pane takes pointer events.
         this._overlay_ref.hostElement.style.display = 'block';
-        this._overlay_ref.hostElement.style.pointerEvents = 'auto';
         this.applyOverlayPosition();
         this.renderKeyboard();
     }
@@ -136,7 +137,7 @@ export class VirtualKeyboardComponent
             this._keyboard_el = null;
             return;
         }
-        this._overlay_ref.hostElement.style.pointerEvents = 'none';
+        this._overlay_ref.overlayElement.style.pointerEvents = 'none';
         this._keyboard_el.style.opacity = '0';
         this.timeout(
             'close-animation',

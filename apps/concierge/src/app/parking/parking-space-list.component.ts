@@ -90,7 +90,12 @@ import { ParkingStateService } from './parking-state.service';
                     "
                     matTooltipPosition="left"
                 >
-                    <icon class="text-2xl">
+                    <icon
+                        class="text-2xl"
+                        [label]="
+                            statusTooltip(space_status()[row.id]) | translate
+                        "
+                    >
                         {{
                             space_status()[row.id]?.includes('assigned')
                                 ? 'person'
@@ -184,7 +189,13 @@ import { ParkingStateService } from './parking-state.service';
                     [class.bg-base-300]="!row.bookable"
                     [class.text-base-content]="!row.bookable"
                 >
-                    <icon class="text-2xl">
+                    <icon
+                        class="text-2xl"
+                        [label]="
+                            (row.bookable ? 'COMMON.YES' : 'COMMON.NO')
+                                | translate
+                        "
+                    >
                         {{ row.bookable ? 'done' : 'close' }}
                     </icon>
                 </div>

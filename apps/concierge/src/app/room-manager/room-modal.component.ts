@@ -315,7 +315,17 @@ import { TimezoneFieldComponent } from '../ui/timezone-field.component';
                                         (removed)="removeFeature(feature)"
                                     >
                                         {{ feature }}
-                                        <icon matChipRemove>close</icon>
+                                        <button
+                                            type="button"
+                                            matChipRemove
+                                            [attr.aria-label]="
+                                                'COMMON.REMOVE_ITEM'
+                                                    | translate
+                                                        : { item: feature }
+                                            "
+                                        >
+                                            <icon>close</icon>
+                                        </button>
                                     </mat-chip-row>
                                 }
                                 <input

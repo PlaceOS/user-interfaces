@@ -7,6 +7,7 @@ import {
     OrganisationService,
     SettingsService,
     StaffUser,
+    WorktimePreference,
     setCurrentUser,
     settingSignal,
 } from '@placeos/common';
@@ -199,6 +200,32 @@ describe('UserControlsComponent', () => {
         const saved = vi.mocked(updateUser).mock.calls[0][1] as StaffUser;
         expect(saved.work_overrides[today].blocks[0].location).toBe('wfh');
         expect(settings.saveUserSetting).not.toHaveBeenCalled();
+    });
+
+    it("should update today's work location when the user reloads", async () => {
+        const day = new Date().getDay() as WorktimePreference['day_of_week'];
+        const prefs = (location: string) =>
+            new StaffUser({
+                ...test_user,
+                work_preferences: [
+                    {
+                        day_of_week: day,
+                        blocks: [{ start_time: 0, end_time: 24, location }],
+                    },
+                ],
+            });
+        setCurrentUser(prefs('wfo'));
+        settingSignal('features', []).set(['wfh']);
+        spectator = createComponent();
+        expect(spectator.element.textContent).toContain(
+            'COMMON.WORK_HOURS_OFFICE',
+        );
+        setCurrentUser(prefs('wfh'));
+        // No manual change detection, as in a zoneless app
+        await spectator.fixture.whenStable();
+        expect(spectator.element.textContent).toContain(
+            'COMMON.WORK_HOURS_HOME',
+        );
     });
 
     it('should mark the help button as a popup trigger', () => {

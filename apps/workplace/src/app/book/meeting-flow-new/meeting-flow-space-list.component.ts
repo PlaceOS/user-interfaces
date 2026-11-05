@@ -125,16 +125,24 @@ import { EventFormService } from '@placeos/events';
                                                     $event.stopPropagation()
                                                 "
                                             >
-                                                <icon>{{
-                                                    room_alerts()[space.id][0] ===
-                                                    'warn'
-                                                        ? 'warning'
-                                                        : room_alerts()[
-                                                                space.id
-                                                            ][0] === 'info'
-                                                          ? 'info'
-                                                          : 'close'
-                                                }}</icon>
+                                                <icon
+                                                    [label]="
+                                                        room_alerts()[
+                                                            space.id
+                                                        ][1]
+                                                    "
+                                                    >{{
+                                                        room_alerts()[
+                                                            space.id
+                                                        ][0] === 'warn'
+                                                            ? 'warning'
+                                                            : room_alerts()[
+                                                                    space.id
+                                                                ][0] === 'info'
+                                                              ? 'info'
+                                                              : 'close'
+                                                    }}</icon
+                                                >
                                             </div>
                                         }
                                     </div>

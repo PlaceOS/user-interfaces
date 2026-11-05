@@ -55,6 +55,26 @@ describe('GlobalBannerComponent', () => {
         expect('div.bg-warning').not.toExist();
     });
 
+    it('should show the type with an icon and read errors as alerts', () => {
+        spectator.component.is_setup.set(true);
+        spectator.component.banner.set({
+            id: 'banner-6',
+            type: 'warn',
+            content: 'Warning message',
+        });
+        spectator.detectChanges();
+        expect('icon[aria-hidden]').toContainText('warning');
+        expect('[role="alert"]').not.toExist();
+        spectator.component.banner.set({
+            id: 'banner-7',
+            type: 'error',
+            content: 'Error message',
+        });
+        spectator.detectChanges();
+        expect('icon[aria-hidden]').toContainText('error');
+        expect('[role="alert"]').toContainText('Error message');
+    });
+
     it('should hide the banner and remember its id when closed', () => {
         spectator.component.is_setup.set(true);
         spectator.component.banner.set({

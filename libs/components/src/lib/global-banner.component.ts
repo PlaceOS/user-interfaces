@@ -7,6 +7,7 @@ import {
     signal,
 } from '@angular/core';
 import { OrganisationService, settingSignal } from '@placeos/common';
+import { AnnounceDirective } from './announce.directive';
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
 
@@ -16,6 +17,13 @@ export interface BannerDetails {
     content: string;
     message?: string;
 }
+
+/** Icon for each banner type, so the type does not rely on colour only */
+const BANNER_ICONS: Record<NonNullable<BannerDetails['type']>, string> = {
+    info: 'info',
+    warn: 'warning',
+    error: 'error',
+};
 
 @Component({
     selector: 'global-banner',
@@ -44,9 +52,18 @@ export interface BannerDetails {
                 [class.bg-error]="banner().type === 'error'"
                 [class.text-error-content]="banner().type === 'error'"
             >
-                <div class="flex-1">
-                    {{ banner()?.content || banner()?.message }}
-                </div>
+                <icon aria-hidden="true" class="text-2xl">{{
+                    type_icon()
+                }}</icon>
+                @if (banner().type === 'error') {
+                    <div role="alert" class="flex-1">
+                        {{ banner()?.content || banner()?.message }}
+                    </div>
+                } @else {
+                    <div announce class="flex-1">
+                        {{ banner()?.content || banner()?.message }}
+                    </div>
+                }
                 <button
                     icon
                     matRipple
@@ -75,7 +92,7 @@ export interface BannerDetails {
             }
         `,
     ],
-    imports: [IconComponent, TranslatePipe],
+    imports: [IconComponent, TranslatePipe, AnnounceDirective],
 })
 export class GlobalBannerComponent implements OnInit {
     private _org = inject(OrganisationService);
@@ -84,6 +101,10 @@ export class GlobalBannerComponent implements OnInit {
     public readonly is_setup = signal(false);
     public readonly banner = settingSignal<BannerDetails>('banner');
     public readonly environment_bar = settingSignal<string>('environment_bar');
+    /** Icon for the banner type */
+    public readonly type_icon = computed(
+        () => BANNER_ICONS[this.banner()?.type ?? 'info'] ?? BANNER_ICONS.info,
+    );
     private readonly _environment_bar_padding = effect(() => {
         document.body.classList.toggle(
             'has-environment-bar',

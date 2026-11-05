@@ -44,6 +44,7 @@ import { SpaceMapComponent } from './space-map.component';
                     class="divide-secondary border-secondary flex divide-x rounded-sm border"
                 >
                     <button
+                        [attr.aria-label]="'COMMON.LIST' | translate"
                         icon
                         matRipple
                         class="rounded-l rounded-r-none"
@@ -56,6 +57,7 @@ import { SpaceMapComponent } from './space-map.component';
                         <icon>list</icon>
                     </button>
                     <button
+                        [attr.aria-label]="'COMMON.MAP' | translate"
                         icon
                         matRipple
                         class="rounded-l-none rounded-r"
@@ -68,7 +70,12 @@ import { SpaceMapComponent } from './space-map.component';
                         <icon>map</icon>
                     </button>
                 </div>
-                <button icon matRipple mat-dialog-close>
+                <button
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
+                    icon
+                    matRipple
+                    mat-dialog-close
+                >
                     <icon>close</icon>
                 </button>
             </header>
@@ -133,6 +140,7 @@ import { SpaceMapComponent } from './space-map.component';
                 >
                     @if (displayed()) {
                         <button
+                            [attr.aria-label]="'COMMON.CLOSE' | translate"
                             icon
                             matRipple
                             class="border-base-300 bg-base-100 absolute top-2 left-2 z-20 hidden border md:flex"
@@ -154,6 +162,8 @@ import { SpaceMapComponent } from './space-map.component';
                 </div>
                 @if (!displayed()) {
                     <button
+                        [attr.aria-label]="'COMMON.FILTERS' | translate"
+                        [attr.aria-expanded]="show_filters()"
                         icon
                         matRipple
                         class="border-base-200 bg-base-100 absolute top-3 right-2 z-20 border sm:hidden"
