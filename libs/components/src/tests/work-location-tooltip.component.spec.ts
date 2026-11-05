@@ -1,7 +1,13 @@
 import { MatDialog } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
-import { LocaleService, StaffUser, setCurrentUser } from '@placeos/common';
+import {
+    LocaleService,
+    StaffUser,
+    WorktimePreference,
+    setCurrentUser,
+    setNotifyOutlet,
+} from '@placeos/common';
 import { format } from 'date-fns';
 
 // The real user store drives `currentUser()`. `reloadUserData()` is a real
@@ -116,6 +122,49 @@ describe('WorkLocationTooltipComponent', () => {
         // `reloadUserData()` reloads via `showUser('current')` after a delay.
         await new Promise((resolve) => setTimeout(resolve, 350));
         expect(ts_client.showUser).toHaveBeenCalledWith('current');
+    });
+
+    it('should update the location label when the user reloads', async () => {
+        expect(spectator.element.textContent).not.toContain(
+            'COMMON.WORK_HOURS_SICK',
+        );
+        const date = format(Date.now(), 'yyyy-MM-dd');
+        setCurrentUser(
+            new StaffUser({
+                ...test_user,
+                work_overrides: {
+                    [date]: {
+                        day_of_week: today as WorktimePreference['day_of_week'],
+                        blocks: [
+                            { start_time: 0, end_time: 12, location: 'sick' },
+                            { start_time: 12, end_time: 24, location: 'wfh' },
+                        ],
+                    },
+                },
+            }),
+        );
+        // No manual change detection, as in a zoneless app
+        await spectator.fixture.whenStable();
+        expect(spectator.element.textContent).toContain(
+            'COMMON.WORK_HOURS_SICK',
+        );
+    });
+
+    it('should show an error and keep the overrides when the save fails', async () => {
+        const snackbar = {
+            open: vi.fn(() => ({
+                onAction: () => ({ subscribe: () => undefined }),
+                dismiss: () => undefined,
+            })),
+        };
+        setNotifyOutlet(snackbar as never);
+        vi.mocked(updateUser).mockRejectedValue(new Error('500'));
+
+        await spectator.component.setLocation(1, 'sick');
+
+        expect(snackbar.open).toHaveBeenCalled();
+        expect(spectator.component.overrides()).toEqual({});
+        expect(ts_client.showUser).not.toHaveBeenCalled();
     });
 
     it('should prune stale overrides when saving a new one', async () => {

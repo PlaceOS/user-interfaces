@@ -11,7 +11,7 @@ import {
 } from '@placeos/common';
 import { apiKey, getModule, token } from '@placeos/ts-client';
 
-import { Marked } from 'marked';
+import { Marked, Renderer } from 'marked';
 
 export interface ChatMessage {
     id: string;
@@ -22,6 +22,21 @@ export interface ChatMessage {
     function?: string;
     timestamp: number;
 }
+
+/** Frame from the chat socket. The server can leave out any field. */
+interface ChatFrame {
+    type?: string;
+    chat_id?: string;
+    user_id?: string;
+    message?: string;
+    function?: string;
+    task_id?: string;
+}
+
+/** Time without frames before an idle chat closes */
+const IDLE_TIMEOUT = 55 * 1000;
+/** Time without frames before the chat stops waiting for a reply */
+const REPLY_TIMEOUT = 5 * 60 * 1000;
 
 const escapeHtml = (text: string) =>
     text.replace(
@@ -45,6 +60,15 @@ const chat_markdown = new Marked({
         html: ({ text }) => escapeHtml(text),
         // marked has already escaped the image text
         image: ({ text }) => text,
+        // Open links in a new tab, with no access to this page
+        link(token) {
+            return Renderer.prototype.link
+                .call(this, token)
+                .replace(
+                    /^<a /,
+                    '<a target="_blank" rel="noopener noreferrer" ',
+                );
+        },
     },
 });
 
@@ -58,6 +82,7 @@ export class ChatService extends AsyncHandler {
     private _binding = signal('');
     private _chat_messages = signal<ChatMessage[]>([]);
     private _progress_message = signal<ChatMessage | null>(null);
+    private _unsent = signal('');
     private _chat_system = computed(() => {
         const bld = this._org.active_building();
         const bind_id = this._binding();
@@ -73,6 +98,8 @@ export class ChatService extends AsyncHandler {
 
     public readonly messages = this._chat_messages.asReadonly();
     public readonly progress = this._progress_message.asReadonly();
+    /** Text of messages that got no reply, so the user can send it again */
+    public readonly unsent = this._unsent.asReadonly();
 
     public get connected() {
         return !!this._socket;
@@ -108,7 +135,7 @@ export class ChatService extends AsyncHandler {
         const socket = new WebSocket(url);
         this._socket = socket;
         socket.onmessage = (event) => {
-            let msg = event.data;
+            let msg: ChatFrame = {};
             try {
                 msg = JSON.parse(event.data);
             } catch {}
@@ -116,10 +143,9 @@ export class ChatService extends AsyncHandler {
         };
         socket.onerror = (e) => {
             log('CHAT', 'Connection error:', [e], 'error');
-            this._cleanup(socket);
+            this._onClose(socket);
         };
-        // Only clear this socket. A newer chat may already be open.
-        socket.onclose = () => this._cleanup(socket);
+        socket.onclose = () => this._onClose(socket);
         return () => this.endChat();
     }
 
@@ -133,14 +159,15 @@ export class ChatService extends AsyncHandler {
         this.endChat();
         this._chat_id = '';
         this._chat_messages.set([]);
+        this._progress_message.set(null);
     }
 
     /**
      * Sends a message to the chat. Opens a new connection first if the chat
      * has ended, for example after the idle timeout or `close()`.
      * Returns `false` and shows an error if no chat system is set, so the
-     * caller can keep the message. An error also shows if the connection
-     * closes before it opens.
+     * caller can keep the message. If the connection closes before a reply
+     * arrives, an error shows and the message text moves to `unsent`.
      */
     public sendMessage(message: string): boolean {
         if (!message) return false;
@@ -155,39 +182,31 @@ export class ChatService extends AsyncHandler {
             notifyError(i18n('APP.WORKPLACE.CHAT_SEND_FAILED'));
             return false;
         }
+        this._unsent.set('');
         this._onMessage({ chat_id: '', message, user_id: currentUser().id });
         // Sending before the socket opens throws, so wait for it to open.
-        // A socket that fails before it opens always fires `close`.
+        // A socket that fails before it opens fires `close`, which fails
+        // the reply.
         if (socket.readyState === WebSocket.CONNECTING) {
-            const failed = () =>
-                notifyError(i18n('APP.WORKPLACE.CHAT_SEND_FAILED'));
-            socket.addEventListener(
-                'open',
-                () => {
-                    socket.removeEventListener('close', failed);
-                    socket.send(message);
-                },
-                { once: true },
-            );
-            socket.addEventListener('close', failed, { once: true });
+            socket.addEventListener('open', () => socket.send(message), {
+                once: true,
+            });
         } else socket.send(message);
         return true;
     }
 
-    private _timeoutSocket(delay = 55 * 1000) {
+    /**
+     * Ends the chat when no frame arrives in time. While a reply is due it
+     * waits longer, then gives up and shows an error.
+     */
+    private _timeoutSocket() {
         this.timeout(
             'socket',
             () => {
-                const msg_list = this._chat_messages();
-                if (
-                    msg_list.length > 0 &&
-                    msg_list[msg_list.length - 1].user_id !== 'assistant'
-                ) {
-                    return this._timeoutSocket(delay);
-                }
                 this.endChat();
+                this._failReply();
             },
-            delay,
+            this._awaitingReply() ? REPLY_TIMEOUT : IDLE_TIMEOUT,
         );
     }
 
@@ -195,16 +214,59 @@ export class ChatService extends AsyncHandler {
     private _cleanup(socket?: WebSocket) {
         if (socket && socket !== this._socket) return;
         this._socket = null;
+        this.clearTimeout('socket');
     }
 
-    private _onMessage(msg) {
+    /** Handle a socket that closed or failed. A newer chat may already be open. */
+    private _onClose(socket: WebSocket) {
+        if (socket !== this._socket) return;
+        this._cleanup();
+        this._failReply();
+    }
+
+    /** Whether the last message is from the user, so a reply is due */
+    private _awaitingReply() {
+        const list = this._chat_messages();
+        return (
+            list.length > 0 &&
+            list[list.length - 1].user_id === currentUser().id
+        );
+    }
+
+    /**
+     * The reply to the user's last messages cannot arrive. Shows an error and
+     * moves those messages from the chat to `unsent`, so the user can send
+     * them again.
+     */
+    private _failReply() {
+        const list = this._chat_messages();
+        const user_id = currentUser().id;
+        let start = list.length;
+        // Bounded by the list length
+        while (start > 0 && list[start - 1].user_id === user_id) start--;
+        if (start === list.length) return;
+        this._unsent.set(
+            list
+                .slice(start)
+                .map((msg) => msg.message)
+                .join('\n'),
+        );
+        this._chat_messages.set(list.slice(0, start));
+        this._progress_message.set(null);
+        notifyError(i18n('APP.WORKPLACE.CHAT_SEND_FAILED'));
+    }
+
+    private _onMessage(msg: ChatFrame) {
+        if (!(msg instanceof Object)) return;
         if (msg.chat_id) this._chat_id = msg.chat_id;
+        // Progress frames can have only a function name and no text
+        const message = typeof msg.message === 'string' ? msg.message : '';
         if (msg.type === 'progress') {
             this._progress_message.set({
                 id: `msg-${randomString(6)}`,
                 chat_id: msg.chat_id,
-                message: msg.message,
-                content: chat_markdown.parse(msg.message, {
+                message,
+                content: chat_markdown.parse(message, {
                     async: false,
                 }) as string,
                 user_id: msg.user_id || 'assistant',
@@ -215,19 +277,21 @@ export class ChatService extends AsyncHandler {
                 this._settings.post('CHAT:task_complete', msg.task_id);
             }
         } else {
-            this._chat_messages.set([
-                ...this._chat_messages(),
-                {
-                    id: `msg-${randomString(6)}`,
-                    chat_id: msg.chat_id,
-                    message: msg.message,
-                    content: chat_markdown.parse(msg.message, {
-                        async: false,
-                    }) as string,
-                    user_id: msg.user_id || 'assistant',
-                    timestamp: Date.now(),
-                },
-            ]);
+            if (message) {
+                this._chat_messages.set([
+                    ...this._chat_messages(),
+                    {
+                        id: `msg-${randomString(6)}`,
+                        chat_id: msg.chat_id,
+                        message,
+                        content: chat_markdown.parse(message, {
+                            async: false,
+                        }) as string,
+                        user_id: msg.user_id || 'assistant',
+                        timestamp: Date.now(),
+                    },
+                ]);
+            }
             if (msg.type === 'response') {
                 this._progress_message.set(null);
             }

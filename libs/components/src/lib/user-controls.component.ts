@@ -14,6 +14,7 @@ import {
     LocaleService,
     settingSignal,
     SettingsService,
+    userSignal,
     VERSION,
     WorktimePreference,
 } from '@placeos/common';
@@ -35,7 +36,6 @@ import { DeskHeightPresetsComponent } from './desk-height-presets.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { IconComponent } from './icon.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
-import { RegionSelectComponent } from './region-select.component';
 import { TranslatePipe } from './translate.pipe';
 import { UserAvatarComponent } from './user-avatar.component';
 import { UserParkingTooltipComponent } from './user-parking-tooltip.component';
@@ -137,7 +137,12 @@ export interface AppLocale {
                 </div>
             }
             @if (regions()?.length) {
-                <div customTooltip [content]="region_select" class="relative">
+                <div
+                    customTooltip
+                    [content]="building_select"
+                    data="region"
+                    class="relative"
+                >
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
@@ -406,6 +411,8 @@ export class UserControlsComponent implements OnInit {
     private _dialog = inject(MatDialog);
     private _changelog = inject(ChangelogService);
     private _locale = inject(LocaleService);
+    /** Labels read the user signal, so they update when the user reloads */
+    private _user = userSignal();
 
     public readonly building = this._org.active_building;
     public readonly region = this._org.active_region;
@@ -419,7 +426,6 @@ export class UserControlsComponent implements OnInit {
     public readonly changelog_available = this._changelog.available;
     public readonly viewChangelog = () => this._changelog.view();
 
-    public readonly region_select = RegionSelectComponent;
     public readonly building_select = BuildingSelectComponent;
     public readonly help_tooltip = HelpTooltipComponent;
     public readonly accessibility_tooltip = AccessibilityTooltipComponent;
@@ -466,13 +472,11 @@ export class UserControlsComponent implements OnInit {
     );
 
     public location_icon(time: number) {
-        const user = currentUser();
-        return user.location_icon(time + 1 * 60 * 1000);
+        return this.user.location_icon(time + 1 * 60 * 1000);
     }
 
     public location(time: number) {
-        const user = currentUser();
-        return user.location_name_time(time + 1 * 60 * 1000);
+        return this.user.location_name_time(time + 1 * 60 * 1000);
     }
 
     public timeFrom(hours: number) {
@@ -487,7 +491,7 @@ export class UserControlsComponent implements OnInit {
     }
 
     public get user() {
-        return currentUser();
+        return this._user();
     }
 
     public get groups() {
