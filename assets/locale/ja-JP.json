@@ -287,7 +287,12 @@
         "NUMBERED_LIST": "番号付きリスト",
         "INSERT_LINK": "リンクを挿入",
         "INSERT_IMAGE": "画像を挿入",
-        "ATTACH_FILE": "ファイルを添付"
+        "ATTACH_FILE": "ファイルを添付",
+        "MENU": "メニュー",
+        "WORK_BLOCK_ADD": "時間帯を追加",
+        "WORK_BLOCK_REMOVE": "時間帯を削除",
+        "WAITLISTED": "キャンセル待ち",
+        "SELECTED": "選択済み"
     },
     "LANGUAGE": {
         "ENGLISH": "英語",
@@ -457,7 +462,11 @@
         "MAP_ID": "地図ID",
         "MAP_ID_EMPTY": "地図IDがありません",
         "MAP_ID_REQUIRED": "有効な地図IDが必要です",
-        "MAP_ID_PLACEHOLDER": "地図SVG内の要素セレクター。例: area-01.123-status"
+        "MAP_ID_PLACEHOLDER": "地図SVG内の要素セレクター。例: area-01.123-status",
+        "SEARCH_OPEN": "検索を開く",
+        "SEARCH_CLOSE": "検索を閉じる",
+        "SENSORS_SHOW": "センサーデータを表示",
+        "SENSORS_TEMP_HIGH": "高温"
     },
     "BOOKINGS": {
         "ASSOCIATE": "関連付け",
@@ -710,7 +719,8 @@
         "SETUP_DURATION": "準備時間",
         "BREAKDOWN_DURATION": "片付け時間",
         "FIRST_INSTANCE_CLASH": "シリーズの最初のイベントが既存の予約と競合しています",
-        "RECURRING_CLASHES_NOT_ALLOWED": "{{ count }} 件の競合がある定期イベントは許可されていません"
+        "RECURRING_CLASHES_NOT_ALLOWED": "{{ count }} 件の競合がある定期イベントは許可されていません",
+        "FILTER_REMOVE": "フィルター {{ name }} を削除"
     },
     "CATERING": {
         "MENU": "ケータリングメニュー",
