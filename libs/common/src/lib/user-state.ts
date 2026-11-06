@@ -5,7 +5,7 @@ import {
     showUser,
     token,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, defer, of, timer } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 import { isPublicMode } from './public-mode';
 import { setDefaultCreator } from './types/event.class';
@@ -235,15 +235,22 @@ async function loadUserGroups() {
     }
 }
 
-function initialiseUser() {
-    if (isTestRuntime()) return;
+/**
+ * Load the current user and keep it updated. This module calls it once when
+ * it loads; it is exported for tests. Failed loads retry with back-off. When
+ * all retries fail, the cached user details stay in place.
+ */
+export function initialiseUser() {
     const is_public_mode = isPublicMode();
     // Cached details are displayed immediately, then replaced by the request
     // below with the latest.
     if (!is_public_mode) applyCachedUserData();
-    const user_request = combineLatest([showUser('current'), _change]).pipe(
-        map(([i]) => new StaffUser(i)),
-    );
+    // Defer so that each retry sends a new request. A promise passed
+    // directly gives the same rejection to every retry.
+    const user_request = combineLatest([
+        defer(() => showUser('current')),
+        _change,
+    ]).pipe(map(([i]) => new StaffUser(i)));
     if (is_public_mode) {
         user_request
             .pipe(
@@ -272,7 +279,11 @@ function initialiseUser() {
                 },
             }),
         )
-        .subscribe((user) => applyUser(user));
+        .subscribe({
+            next: (user) => applyUser(user),
+            error: (error) =>
+                console.error('User loading failed after 10 retries.', error),
+        });
 }
 
 /** Set the loaded user as the current user and load their group permissions */
@@ -395,4 +406,6 @@ export function getPermissionMask(subsystem: string) {
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 
-setTimeout(() => initialiseUser(), 50);
+setTimeout(() => {
+    if (!isTestRuntime()) initialiseUser();
+}, 50);
