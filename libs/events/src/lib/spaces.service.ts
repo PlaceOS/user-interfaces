@@ -98,13 +98,20 @@ export class SpacesService {
         );
     }
 
+    /**
+     * Load all spaces in the organisation. Runs from an effect, so a failed
+     * request is logged here. The previous space list stays in use.
+     */
     private async loadSpaces(): Promise<void> {
-        const systems = (
-            await querySystems({
-                zone_id: this._org.organisation?.id,
-                limit: 5000,
-            })
-        ).data;
+        const response = await querySystems({
+            zone_id: this._org.organisation?.id,
+            limit: 5000,
+        }).catch((error: unknown) => {
+            console.warn('Failed to load spaces.', error);
+            return null;
+        });
+        if (!response) return;
+        const systems = response.data;
         const space_list = systems.map(
             (sys) =>
                 new Space({
