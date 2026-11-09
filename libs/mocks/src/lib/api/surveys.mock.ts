@@ -728,10 +728,8 @@ export function registerMockSurveys() {
             const surveyId = parseInt(request.route_params?.id as string);
             const survey = MOCK_SURVEYS.find((s) => s.id === surveyId);
 
-            if (!survey) {
-                throw new Error('Survey not found');
-            }
-
+            // The survey outlet shows its not-found page only for a 404
+            if (!survey) throw { status: 404 };
             return survey;
         },
     });
