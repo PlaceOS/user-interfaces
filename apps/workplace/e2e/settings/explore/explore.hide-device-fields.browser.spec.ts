@@ -117,5 +117,8 @@ for (const hidden of [false, true]) {
         await expect
             .poll(() => audit.connections.flatMap((c) => c.execs ?? []))
             .toEqual(['check_ownership_of']);
+        // loadUser() shows "Loading..." until the exec answers; the null answer
+        // must clear it, so no username row remains.
+        await expect(tooltip.locator('p[username]')).toHaveCount(0);
     });
 }
