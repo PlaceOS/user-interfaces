@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1794208737324,
+  "timestamp": 1794211174794,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -138,7 +138,7 @@
         "./day-view.routes-i9ElPNm-.js",
         "./deals.routes-B2npt6k2.js",
         "./debug-console.component-Dq6RswEe.js",
-        "./desks.routes-CCYYYLwL.js",
+        "./desks.routes-CNDN2hla.js",
         "./dialog-AZ5iwGXr.js",
         "./email-templates.routes-zfLPkN9x.js",
         "./es-C7gxBaA5.js",
@@ -521,7 +521,7 @@
     "./day-view.routes-i9ElPNm-.js": "66904fb7f73f22758a7497d2813834226d88d038",
     "./deals.routes-B2npt6k2.js": "29492d836691dcf7e6f54508b7d999dcbceb91e8",
     "./debug-console.component-Dq6RswEe.js": "3376695b426435c78f15d8662d6a88583606d648",
-    "./desks.routes-CCYYYLwL.js": "39d7d119f05010424d384b8a879c94105ccb8278",
+    "./desks.routes-CNDN2hla.js": "6c8a1847abc1842b801c1168f57ba5d94dbed9d3",
     "./dialog-AZ5iwGXr.js": "3b59d49277cece4e2576653fad7906ab27788bc7",
     "./email-templates.routes-zfLPkN9x.js": "19dbebc6eee27c1bbb0c8afef8d013253457f023",
     "./es-C7gxBaA5.js": "b3d87431572af56362c3898ee8c76fc2d19d2476",
@@ -537,7 +537,7 @@
     "./keyboard-shortcuts-modal.component-gdMP1xFt.js": "b6f7923f477bb4d59a189f5438bbcd31a815acd9",
     "./lockers-report.component-DYxnjlVL.js": "11de8f444989d066e9f71ffb58904e1f3bf5ba6d",
     "./lockers.routes-DiR1kyBN.js": "c137a6a494974248c0e942b4114c288489b13429",
-    "./main.js": "f74b2f8b48ad73f1e14acc402929d90393edc270",
+    "./main.js": "387176a068aceab864b1dfa0f62e83b9398a8c60",
     "./manifest.webmanifest": "8fb029e2b745a70817e4200920c410daf0425443",
     "./map-editor-page.component-BkM5lX_W.js": "45b862acc188d0c2789ceacface4712981344755",
     "./map-manager.routes-md3AWAAJ.js": "634a799ad5f0fa7fd277fe1ae166c4e51eef4d47",
