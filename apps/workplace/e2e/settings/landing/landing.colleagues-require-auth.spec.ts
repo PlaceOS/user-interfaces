@@ -94,7 +94,7 @@ for (const required of [true, false]) {
             await expect(staffPage.locator('landing-new > div')).toBeVisible();
             const colleagues = staffPage.locator('landing-colleagues-new');
             const open = colleagues.getByRole('button', {
-                name: 'person_add Add Colleagues',
+                name: 'Add Colleagues',
                 exact: true,
             });
             await expect(open).toBeVisible();
