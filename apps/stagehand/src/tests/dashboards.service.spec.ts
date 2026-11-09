@@ -451,7 +451,7 @@ describe('DashboardsService', () => {
                     manualConnect: true,
                     reconnectPeriod: 0,
                     reconnectOnConnackError: true,
-                    connectTimeout: 300_000,
+                    connectTimeout: 2 ** 31 - 1,
                 }),
             );
             const broker = (mock_mqtt_connect as any)();
@@ -560,47 +560,6 @@ describe('DashboardsService', () => {
             renew('fresh-token');
             await flush();
             expect(broker().reconnect).toHaveBeenCalledTimes(1);
-        });
-
-        describe('a slow socket', () => {
-            let socket: EventTarget & { readyState: number };
-
-            beforeEach(() => {
-                socket = Object.assign(new EventTarget(), { readyState: 0 });
-                broker().stream = { socket, destroy: vi.fn() };
-            });
-
-            afterEach(() => delete broker().stream);
-
-            it('is left to open, however long it takes', async () => {
-                handler('close')();
-                await vi.advanceTimersByTimeAsync(1000);
-                await vi.advanceTimersByTimeAsync(4 * 60_000);
-
-                expect(broker().stream.destroy).not.toHaveBeenCalled();
-                expect(broker().reconnect).toHaveBeenCalledTimes(1);
-            });
-
-            it('fails once open if the broker does not accept it', async () => {
-                handler('close')();
-                await vi.advanceTimersByTimeAsync(1000);
-                socket.dispatchEvent(new Event('open'));
-                await vi.advanceTimersByTimeAsync(29_000);
-                expect(broker().stream.destroy).not.toHaveBeenCalled();
-
-                await vi.advanceTimersByTimeAsync(1000);
-                expect(broker().stream.destroy).toHaveBeenCalled();
-            });
-
-            it('is kept once the broker accepts it', async () => {
-                handler('close')();
-                await vi.advanceTimersByTimeAsync(1000);
-                socket.dispatchEvent(new Event('open'));
-                handler('connect')();
-                await vi.advanceTimersByTimeAsync(60_000);
-
-                expect(broker().stream.destroy).not.toHaveBeenCalled();
-            });
         });
 
         it('does not open another connection while connected', async () => {

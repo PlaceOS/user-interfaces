@@ -47,13 +47,13 @@ import {
 } from './broker-alerts';
 
 /**
- * How long an attempt may take in all. Covers the WebSocket handshake, which
- * is left to open or fail by itself: closing a slow one early leaves the
- * request pending in the browser beside the next attempt
+ * The client has no way to turn its connect timeout off (0 fires at once), so
+ * it is set to the longest a timer can wait. An attempt is never abandoned:
+ * closing a slow socket early leaves its request pending in the browser beside
+ * the next attempt. The browser ends it with an error or close, and only then
+ * is it retried
  */
-const BROKER_ATTEMPT_LIMIT = 5 * 60_000;
-/** How long the broker has to accept a connection once its socket is open */
-const BROKER_CONNACK_TIMEOUT = 30_000;
+const NO_CONNECT_TIMEOUT = 2 ** 31 - 1;
 
 /** Raised when there is no dashboard, or its alerts are not loaded */
 const DISCONNECTED_ALERT = {
@@ -420,11 +420,10 @@ export class DashboardsService extends AsyncHandler {
                     // a refused connection is closed, so it fails and is
                     // retried rather than left waiting
                     reconnectOnConnackError: true,
-                    connectTimeout: BROKER_ATTEMPT_LIMIT,
+                    connectTimeout: NO_CONNECT_TIMEOUT,
                 },
             );
             this._mqtt_broker.on('connect', () => {
-                this.clearTimeout('broker_connack');
                 this._connecting = false;
                 this._reconnect_attempts = 0;
                 // each connection starts a clean session and is handed every
@@ -439,7 +438,6 @@ export class DashboardsService extends AsyncHandler {
                 }
             });
             this._mqtt_broker.on('close', () => {
-                this.clearTimeout('broker_connack');
                 this._connecting = false;
                 this._connected = false;
                 this._scheduleReconnect();
@@ -463,8 +461,7 @@ export class DashboardsService extends AsyncHandler {
         const client = this._mqtt_broker;
         // One attempt at a time. The client opens a new socket for each
         // attempt without closing one still being established, so a slow
-        // connection is left to connect or fail (the connect timeout bounds
-        // it) before another is opened
+        // connection is left to connect or fail before another is opened
         if (!client || this._connecting || this._connected) return;
         this._connecting = true;
         try {
@@ -473,35 +470,11 @@ export class DashboardsService extends AsyncHandler {
             client.options.username = jwt;
             client.options.password = jwt;
             client.reconnect();
-            this._awaitConnack(client);
         } catch (e) {
             this._connecting = false;
             log('ALERTS', 'Failed to authorise the broker connection:', e);
             this._scheduleReconnect();
         }
-    }
-
-    /**
-     * Fails the attempt if the broker has not accepted it a while after its
-     * socket opened. The socket itself is given until it opens or fails
-     */
-    private _awaitConnack(client: mqtt.MqttClient) {
-        const stream = client.stream as { socket?: WebSocket } & typeof client.stream;
-        const socket = stream?.socket;
-        if (!socket) return;
-        const start = () =>
-            this.timeout(
-                'broker_connack',
-                () => {
-                    if (client.stream !== stream || client.connected) return;
-                    log('ALERTS', 'Broker did not accept the connection');
-                    // closes it, so the attempt fails and is retried
-                    stream.destroy();
-                },
-                BROKER_CONNACK_TIMEOUT,
-            );
-        if (socket.readyState === WebSocket.OPEN) start();
-        else socket.addEventListener('open', start, { once: true });
     }
 
     private _scheduleReconnect() {
