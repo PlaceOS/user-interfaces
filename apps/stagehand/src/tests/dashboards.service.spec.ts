@@ -450,6 +450,7 @@ describe('DashboardsService', () => {
                 expect.objectContaining({
                     manualConnect: true,
                     reconnectPeriod: 0,
+                    reconnectOnConnackError: true,
                 }),
             );
             const broker = (mock_mqtt_connect as any)();
@@ -524,6 +525,46 @@ describe('DashboardsService', () => {
             await vi.advanceTimersByTimeAsync(2000);
             expect(broker().options.username).toBe('fresh-token');
             expect(broker().reconnect).toHaveBeenCalledTimes(1);
+        });
+
+        // the client opens a new socket for each attempt without closing one
+        // still being established, so an attempt must fail before the next
+        it('waits for a slow connection to fail before opening another', async () => {
+            handler('close')();
+            await vi.advanceTimersByTimeAsync(1000);
+            expect(broker().reconnect).toHaveBeenCalledTimes(1);
+
+            await (spectator.service as any)._connectBroker();
+            await vi.advanceTimersByTimeAsync(60_000);
+            expect(broker().reconnect).toHaveBeenCalledTimes(1);
+
+            handler('close')();
+            await vi.advanceTimersByTimeAsync(2000);
+            expect(broker().reconnect).toHaveBeenCalledTimes(2);
+        });
+
+        it('does not open another connection while authorising one', async () => {
+            let renew: (token: string) => void = () => undefined;
+            vi.mocked(ts_client.authorise).mockReturnValue(
+                new Promise<string>((resolve) => (renew = resolve)),
+            );
+
+            handler('close')();
+            await vi.advanceTimersByTimeAsync(1000);
+            const requests = vi.mocked(ts_client.authorise).mock.calls.length;
+            await (spectator.service as any)._connectBroker();
+            await vi.advanceTimersByTimeAsync(0);
+            expect(ts_client.authorise).toHaveBeenCalledTimes(requests);
+
+            renew('fresh-token');
+            await flush();
+            expect(broker().reconnect).toHaveBeenCalledTimes(1);
+        });
+
+        it('does not open another connection while connected', async () => {
+            await (spectator.service as any)._connectBroker();
+            await flush();
+            expect(broker().reconnect).not.toHaveBeenCalled();
         });
 
         it('stops reconnecting once destroyed', async () => {

@@ -57,6 +57,8 @@ export class DashboardsService extends AsyncHandler {
 
     private _mqtt_broker: mqtt.MqttClient;
     private _connected = false;
+    /** A connection is being authorised or established and has not yet failed */
+    private _connecting = false;
     private _reconnect_attempts = 0;
     private _destroyed = false;
     /** The latest value of each topic the broker holds, by topic */
@@ -368,6 +370,7 @@ export class DashboardsService extends AsyncHandler {
         const client = this._mqtt_broker;
         delete this._mqtt_broker;
         this._connected = false;
+        this._connecting = false;
         client?.end(true);
     }
 
@@ -390,9 +393,13 @@ export class DashboardsService extends AsyncHandler {
                     keepalive: 30,
                     manualConnect: true,
                     reconnectPeriod: 0,
+                    // a refused connection is closed, so it fails and is
+                    // retried rather than left waiting
+                    reconnectOnConnackError: true,
                 },
             );
             this._mqtt_broker.on('connect', () => {
+                this._connecting = false;
                 this._reconnect_attempts = 0;
                 // each connection starts a clean session and is handed every
                 // retained value as it subscribes; a topic removed while it
@@ -406,6 +413,7 @@ export class DashboardsService extends AsyncHandler {
                 }
             });
             this._mqtt_broker.on('close', () => {
+                this._connecting = false;
                 this._connected = false;
                 this._scheduleReconnect();
             });
@@ -426,7 +434,12 @@ export class DashboardsService extends AsyncHandler {
     /** Opens the broker connection with a current token, renewed if expired */
     private async _connectBroker() {
         const client = this._mqtt_broker;
-        if (!client) return;
+        // One attempt at a time. The client opens a new socket for each
+        // attempt without closing one still being established, so a slow
+        // connection is left to connect or fail (the connect timeout bounds
+        // it) before another is opened
+        if (!client || this._connecting || this._connected) return;
+        this._connecting = true;
         try {
             const jwt = await authorise();
             if (client !== this._mqtt_broker) return;
@@ -434,6 +447,7 @@ export class DashboardsService extends AsyncHandler {
             client.options.password = jwt;
             client.reconnect();
         } catch (e) {
+            this._connecting = false;
             log('ALERTS', 'Failed to authorise the broker connection:', e);
             this._scheduleReconnect();
         }
