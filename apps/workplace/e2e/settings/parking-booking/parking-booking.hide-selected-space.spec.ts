@@ -10,6 +10,7 @@
 // (settings-harness scheduleCard); the card is only opened to show the
 // pop-up, which is closed unchanged. Nothing is submitted and no backend
 // record is created or changed.
+import type { Locator } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { SCHEDULE_CARD, scheduleCard, test } from '../support/settings-harness';
 
@@ -17,6 +18,9 @@ test.use({ readOnlyTimezone: 'Etc/UTC' });
 
 /** RESOURCE.PARKING (shared/assets/locale). */
 const PARKING = 'Parking';
+/** The details pop-up's "Level and Resource" row (resource_details_label). */
+const resourceRow = (details: Locator) =>
+    details.locator('div:has(> icon[mattooltip="Level and Resource"]) > div');
 
 test.describe('parking.hide_selected_space', () => {
     for (const hidden of [true, false]) {
@@ -40,11 +44,11 @@ test.describe('parking.hide_selected_space', () => {
                 const title = details.locator('h3[title]');
                 await expect(title).toBeVisible();
                 await expect(title).toHaveText(SCHEDULE_CARD.title);
-                if (hidden) {
-                    // resource_details_label falls back to "Parking" (no level on the row).
-                    await expect(details).not.toContainText(SCHEDULE_CARD.space);
-                    await expect(details).toContainText(PARKING);
-                } else await expect(details).toContainText(SCHEDULE_CARD.space);
+                // resource_details_label: "Parking" when hidden (no level on the
+                // row), otherwise the space name.
+                await expect(resourceRow(details)).toHaveText(hidden ? PARKING : SCHEDULE_CARD.space);
+                if (hidden) await expect(details).not.toContainText(SCHEDULE_CARD.space);
+                else await expect(details).toContainText(SCHEDULE_CARD.space);
                 await staffPage.keyboard.press('Escape');
                 await expect(details).toHaveCount(0);
             });
