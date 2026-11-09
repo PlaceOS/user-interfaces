@@ -130,36 +130,43 @@ export function timelineNow(now: number, start: number) {
     return Math.max(0, Math.min(100, ((now - start) / duration) * 100));
 }
 
-/** Time range of `next` when it starts within a day. Otherwise empty. */
-export function nextPeriod(next: CalendarEvent, time_format = TIME_FORMAT) {
-    const next_diff = Math.ceil(
-        differenceInSeconds(next?.date, Date.now()) / 60,
-    );
+/**
+ * Time range of `next` when it starts within a day of `now`. Otherwise empty.
+ * Callers in a `computed` must pass the panel clock so the value updates.
+ */
+export function nextPeriod(
+    next: CalendarEvent,
+    time_format = TIME_FORMAT,
+    now = Date.now(),
+) {
+    const next_diff = Math.ceil(differenceInSeconds(next?.date, now) / 60);
     return next && next_diff < 24 * 60
-        ? `${format(next.date, dayTimeFormat(next.date, time_format))} - ${format(
+        ? `${format(next.date, dayTimeFormat(next.date, time_format, now))} - ${format(
               addMinutes(next.date, next.duration),
               time_format,
           )}`
         : '';
 }
 
+/**
+ * Hours and minutes until the room is free, or until `next` starts when the
+ * room is free now. Callers in a `computed` must pass the panel clock so the
+ * value updates.
+ */
 export function currentPeriod(
     bookings: CalendarEvent[],
     current: CalendarEvent,
     next: CalendarEvent,
+    now = Date.now(),
 ): [boolean, number, number] | [] {
-    const slot = getNextFreeTimeSlot(bookings);
-    const next_diff = Math.ceil(
-        differenceInSeconds(next?.date, Date.now()) / 60,
-    );
+    const slot = getNextFreeTimeSlot(bookings, now);
+    const next_diff = Math.ceil(differenceInSeconds(next?.date, now) / 60);
     if (!current)
         return next && next_diff < 24 * 60
             ? [false, Math.floor(next_diff / 60), next_diff % 60]
             : [];
     const checked_in = true;
-    const current_diff = Math.ceil(
-        differenceInSeconds(slot.start, Date.now()) / 60,
-    );
+    const current_diff = Math.ceil(differenceInSeconds(slot.start, now) / 60);
     return checked_in
         ? [true, Math.floor(current_diff / 60), current_diff % 60]
         : [];

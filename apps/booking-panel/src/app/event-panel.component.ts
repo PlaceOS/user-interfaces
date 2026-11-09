@@ -201,7 +201,7 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
     public readonly time_format = this._state.time_format;
     /** Format for the next booking start. Has the weekday when not today. */
     public readonly next_format = computed(() =>
-        dayTimeFormat(this.next()?.date, this.time_format()),
+        dayTimeFormat(this.next()?.date, this.time_format(), this.time()),
     );
 
     public readonly space_name = computed(

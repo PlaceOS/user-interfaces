@@ -9,6 +9,8 @@ describe('PanelViewStatusComponent', () => {
     let spectator: Spectator<PanelViewStatusComponent>;
     const status = signal('free');
     const current = signal<CalendarEvent | null>(null);
+    const clock = signal(Date.now());
+    const next = signal<CalendarEvent | null>(null);
     const panel_settings = signal<Record<string, unknown>>({});
     let features: string[] = [];
     const show_timeline = signal(false);
@@ -24,10 +26,11 @@ describe('PanelViewStatusComponent', () => {
             {
                 provide: PanelStateService,
                 useValue: {
+                    clock,
                     time_format: signal('h:mm a'),
                     status,
                     current,
-                    next: signal(null),
+                    next,
                     bookings: signal([]),
                     settings: panel_settings,
                     setting,
@@ -42,6 +45,8 @@ describe('PanelViewStatusComponent', () => {
         show_timeline.set(false);
         timeline_position.set('floating-left');
         current.set(null);
+        next.set(null);
+        clock.set(Date.now());
         panel_settings.set({});
         features = [];
         setting.mockClear();
@@ -110,6 +115,32 @@ describe('PanelViewStatusComponent', () => {
             spectator = createComponent();
             expect('[checkin-countdown]').not.toExist();
         });
+    });
+
+    it('should count down to the next booking as the clock ticks', () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date('2026-07-04T09:00:00.000Z'));
+        clock.set(Date.now());
+        next.set(
+            new CalendarEvent({
+                date: new Date('2026-07-04T09:30:00.000Z').valueOf(),
+                duration: 30,
+            }),
+        );
+        expect(spectator.component.event_state().current).toEqual([
+            false,
+            0,
+            30,
+        ]);
+
+        vi.setSystemTime(new Date('2026-07-04T09:10:00.000Z'));
+        clock.set(Date.now());
+        expect(spectator.component.event_state().current).toEqual([
+            false,
+            0,
+            20,
+        ]);
+        vi.useRealTimers();
     });
 
     it('should point to the calendar when the panel cannot book', () => {

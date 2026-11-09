@@ -334,14 +334,20 @@ export class PanelViewStatusComponent extends AsyncHandler {
         );
     }
 
-    public readonly event_state = computed(() => ({
-        current: currentPeriod(
-            this._state.bookings(),
-            this._state.current(),
-            this._state.next(),
-        ),
-        next: nextPeriod(this._state.next(), this._state.time_format()),
-    }));
+    /** Countdown and upcoming booking text. Updates with the panel clock. */
+    public readonly event_state = computed(() => {
+        const now = this._state.clock();
+        const next = this._state.next();
+        return {
+            current: currentPeriod(
+                this._state.bookings(),
+                this._state.current(),
+                next,
+                now,
+            ),
+            next: nextPeriod(next, this._state.time_format(), now),
+        };
+    });
 
     public readonly free_svg = `
     <svg width="129" height="117" viewBox="0 0 129 117" fill="none" xmlns="http://www.w3.org/2000/svg">

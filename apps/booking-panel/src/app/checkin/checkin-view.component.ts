@@ -225,14 +225,20 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
 
     public has_user = signal<boolean>(true);
 
-    public readonly event_state = computed(() => ({
-        current: currentPeriod(
-            this._state.bookings(),
-            this._state.current(),
-            this._state.next(),
-        ),
-        next: nextPeriod(this._state.next(), this._state.time_format()),
-    }));
+    /** Countdown and upcoming booking text. Updates with the panel clock. */
+    public readonly event_state = computed(() => {
+        const now = this._state.clock();
+        const next = this._state.next();
+        return {
+            current: currentPeriod(
+                this._state.bookings(),
+                this._state.current(),
+                next,
+                now,
+            ),
+            next: nextPeriod(next, this._state.time_format(), now),
+        };
+    });
 
     public get room_image() {
         return this._state.setting('room_image');
