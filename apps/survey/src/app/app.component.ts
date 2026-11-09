@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
@@ -75,6 +76,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _hotkey = inject(HotkeysService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+    private _location = inject(Location);
     private _locale = inject(LocaleService);
     private _cache = inject(SwUpdate);
     private _snackbar = lazySnackbar();
@@ -127,11 +129,12 @@ export class AppComponent extends AsyncHandler implements OnInit {
         /** Add query parameters if removed due to hash routing */
         if (START_QUERY) {
             const query = convertPairStringToMap(START_QUERY.substring(1));
-            await this._router.navigate([], {
-                relativeTo: this._route,
-                queryParams: query,
-                replaceUrl: true,
-            });
+            // The first navigation can still be in progress here, so the
+            // router state has no route yet. Read the route from the browser
+            // URL, or the app opens at the root route.
+            const url = this._router.parseUrl(this._location.path() || '/');
+            url.queryParams = { ...query, ...url.queryParams };
+            await this._router.navigateByUrl(url, { replaceUrl: true });
         }
         /** Wait for authentication details to load */
         try {

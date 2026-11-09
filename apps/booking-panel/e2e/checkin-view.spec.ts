@@ -41,6 +41,16 @@ test.describe('Checkin View - Core Layout', () => {
     });
 });
 
+test.describe('Checkin View - Page query', () => {
+    // Links such as `/?mock=true#/checkin/<id>` carry the query before the
+    // hash. Startup moves it into the route and must keep the route.
+    test('should stay on the check-in view', async ({ page }) => {
+        await page.goto(`/?mock=true#/checkin/${MOCK_SYSTEM_ID}`);
+        await page.locator('checkin-view').waitFor({ timeout: LOAD_TIMEOUT });
+        await expect(page).toHaveURL(/#\/checkin\/space-1\?mock=true$/);
+    });
+});
+
 test.describe('Checkin View - Status Cards', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto(`${CHECKIN_URL}?mock=true`);

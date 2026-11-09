@@ -1,4 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
+import { Location } from '@angular/common';
 import { ErrorHandler, inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
@@ -133,6 +134,7 @@ export class PlaceOS_Service extends AsyncHandler {
     private _clipboard = inject(Clipboard);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+    private _location = inject(Location);
     private _maps = inject(MapsPeopleService);
     /** Reports startup failures to the console and Sentry */
     private _error_handler = inject(ErrorHandler);
@@ -315,10 +317,12 @@ export class PlaceOS_Service extends AsyncHandler {
         /** Add query parameters if removed due to hash routing */
         if (START_QUERY) {
             const query = convertPairStringToMap(START_QUERY.substring(1));
-            this._router.navigate([], {
-                relativeTo: this._route,
-                queryParams: query,
-            });
+            // The first navigation can still wait on a route guard here, so
+            // the router state has no route yet. Read the route from the
+            // browser URL, or the app opens at the root route.
+            const url = this._router.parseUrl(this._location.path() || '/');
+            url.queryParams = { ...query, ...url.queryParams };
+            this._router.navigateByUrl(url, { replaceUrl: true });
         }
         /** Apply any server settings pushed to the device via MDM. */
         let confirm_managed = false;
