@@ -7,7 +7,7 @@ import { MediaAnimation } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
 import { MediaCacheService } from '../app/media-cache.service';
-import { setMockTime } from '../app/media-helpers';
+import { isMediaValid, setMockTime } from '../app/media-helpers';
 import { SignageService } from '../app/signage.service';
 
 /**
@@ -2639,6 +2639,165 @@ describe('SignageService', () => {
         expect(
             spectator.service.override_playlist().playlist.map((_) => _.id),
         ).toEqual(['media-3']);
+    });
+
+    describe('takeovers whose media validity changes during a run', () => {
+        const day = (time: string) => new Date(`2026-01-05T${time}`).getTime();
+        const seconds = (value: number) => Math.floor(value / 1000);
+        const override_ids = () =>
+            spectator.service.override_playlist().playlist.map((_) => _.id);
+        const background_ids = () =>
+            spectator.service.playlist().map((_) => _.id);
+        /** An hour long takeover from 09:00 with per-item media validity */
+        const display = (
+            validity: Record<string, Record<string, number>>,
+            media = ['media-3'],
+            schedule: Record<string, unknown> = {},
+        ) => {
+            const base = display_with_schedules(
+                [
+                    {
+                        play_cron: '0 9 * * *',
+                        play_period: 60,
+                        play_takeover: true,
+                        ...schedule,
+                    },
+                ],
+                media,
+            );
+            return {
+                ...base,
+                playlist_media: base.playlist_media.map((item) => ({
+                    ...item,
+                    ...(validity[item.id] || {}),
+                })),
+            };
+        };
+        const tick = async (ms: number) => {
+            vi.advanceTimersByTime(ms);
+            await flush();
+        };
+
+        it('should end a takeover once its only media item expires', async () => {
+            vi.setSystemTime(day('09:05:00'));
+            (ts_client.showSignage as any).mockResolvedValue(
+                display({
+                    'media-3': { valid_until: seconds(day('09:10:00')) },
+                }),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+            expect(override_ids()).toEqual(['media-3']);
+
+            await tick(6 * 60 * 1000);
+
+            expect(override_ids()).toEqual([]);
+            expect(background_ids()).toContain('media-1');
+        });
+
+        it('should end a takeover once all of its media items expire', async () => {
+            vi.setSystemTime(day('09:05:00'));
+            (ts_client.showSignage as any).mockResolvedValue(
+                display(
+                    {
+                        'media-3': { valid_until: seconds(day('09:08:00')) },
+                        'media-5': { valid_until: seconds(day('09:12:00')) },
+                    },
+                    ['media-3', 'media-5'],
+                ),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+            expect(override_ids()).toEqual(['media-3', 'media-5']);
+
+            await tick(4 * 60 * 1000);
+            expect(override_ids().length).toBeGreaterThan(0);
+            expect(
+                spectator.service
+                    .override_playlist()
+                    .playlist.filter((item) => isMediaValid(item))
+                    .map((_) => _.id),
+            ).toEqual(['media-5']);
+
+            await tick(4 * 60 * 1000);
+            expect(override_ids()).toEqual([]);
+        });
+
+        it('should end a takeover whose media expires while the display is unchanged', async () => {
+            vi.setSystemTime(day('09:05:00'));
+            (ts_client.showSignage as any).mockResolvedValue(
+                display({
+                    'media-3': { valid_until: seconds(day('09:06:00')) },
+                }),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+            expect(override_ids()).toEqual(['media-3']);
+
+            // Polls return the same payload, so only the clock changes
+            await tick(2 * 60 * 1000);
+            await (spectator.service as any)._reloadDisplay();
+            await flush();
+
+            expect(override_ids()).toEqual([]);
+        });
+
+        it('should resume a takeover when a later media item becomes valid', async () => {
+            vi.setSystemTime(day('09:05:00'));
+            (ts_client.showSignage as any).mockResolvedValue(
+                display(
+                    {
+                        'media-3': { valid_until: seconds(day('09:10:00')) },
+                        'media-5': { valid_from: seconds(day('09:20:00')) },
+                    },
+                    ['media-3', 'media-5'],
+                ),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+            expect(override_ids()).toEqual(['media-3', 'media-5']);
+
+            await tick(6 * 60 * 1000);
+            expect(override_ids()).toEqual([]);
+            expect(background_ids()).toContain('media-1');
+
+            await tick(10 * 60 * 1000);
+            expect(override_ids()).toEqual(['media-3', 'media-5']);
+            expect(
+                spectator.service
+                    .override_playlist()
+                    .playlist.filter((item) => isMediaValid(item))
+                    .map((_) => _.id),
+            ).toEqual(['media-5']);
+        });
+
+        it('should not take over with a playlist that has no media', async () => {
+            vi.setSystemTime(day('09:05:00'));
+            (ts_client.showSignage as any).mockResolvedValue(display({}, []));
+            spectator.service.setDisplay('display-1');
+            await flush();
+
+            expect(override_ids()).toEqual([]);
+            expect(background_ids()).toContain('media-1');
+        });
+
+        it('should end a held single pass once its media expires', async () => {
+            vi.setSystemTime(day('09:00:02'));
+            (ts_client.showSignage as any).mockResolvedValue(
+                display(
+                    { 'media-3': { valid_until: seconds(day('09:01:00')) } },
+                    ['media-3'],
+                    { play_period: 0 },
+                ),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+            expect(override_ids()).toEqual(['media-3']);
+
+            await tick(2 * 60 * 1000);
+
+            expect(override_ids()).toEqual([]);
+        });
     });
 
     it('should keep evaluating schedules after a failed tick', async () => {

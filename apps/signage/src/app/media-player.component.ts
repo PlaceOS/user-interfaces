@@ -1929,9 +1929,15 @@ export class MediaPlayerComponent
         );
     }
 
+    /**
+     * Whether a lone webpage or plugin stays on screen past its duration. Only
+     * while it is still valid: an expired item is never held, or it would keep
+     * showing after its `valid_until`, and in place of any other valid item.
+     */
     private _shouldHoldSingleInteractiveItem(item: MediaPlayerItem) {
         return (
             (item?.type === 'webpage' || item?.type === 'plugin') &&
+            this.isValidMedia(item) &&
             !this._hasMultipleActivePlaylistItems()
         );
     }

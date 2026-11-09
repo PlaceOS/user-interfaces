@@ -8,7 +8,7 @@ import {
 } from '@ngneat/spectator/vitest';
 import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
 
-import { setMockTime } from '../app/media-helpers';
+import { setMockTime, time } from '../app/media-helpers';
 import { MediaPlayerComponent } from '../app/media-player.component';
 import { MediaPlayerItem } from '../app/types';
 import { resetWatchdog, watchdogState } from '../app/watchdog';
@@ -752,6 +752,122 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.index()).toBe(0);
         expect(spectator.component.progress()).toBe(100);
         expect(spectator.component.duration()).toBe(10);
+    });
+
+    describe('held items whose validity ends', () => {
+        const now = new Date('2026-01-05T09:00:00').getTime();
+        const seconds = (value: number) => Math.floor(value / 1000);
+        const webpage = (
+            id: string,
+            overrides: Partial<MediaPlayerItem> = {},
+        ) =>
+            create_item(id, {
+                type: 'webpage',
+                duration: 10_000,
+                ...overrides,
+            });
+        /** Show the item at `index` as loaded and playing since `started` */
+        const show = (index: number, started = time()) => {
+            spectator.component.setPlaylistItem(index);
+            spectator.component.state.set('PLAYING');
+            spectator.component['_web_waiting_item_id'] = '';
+            spectator.component['_clearDeferredReveal']();
+            spectator.component['_item_start'] = started;
+        };
+
+        beforeEach(() => {
+            vi.useFakeTimers();
+            vi.setSystemTime(now);
+        });
+
+        it('should take a held lone webpage off screen once it expires', () => {
+            load_playlist([
+                webpage('webpage-1', { valid_until: seconds(now + 60_000) }),
+            ]);
+            show(0, now - 10_001);
+            spectator.component['_updateItem']();
+            expect(spectator.component.active_item?.id).toBe('webpage-1');
+
+            vi.setSystemTime(now + 61_000);
+            spectator.component['_updateItem']();
+
+            expect(spectator.component.index()).toBe(-1);
+            expect(spectator.component.active_item).toBeUndefined();
+        });
+
+        it('should take a held lone plugin off screen once it expires', () => {
+            load_playlist([
+                create_item('plugin-1', {
+                    type: 'plugin',
+                    duration: 10_000,
+                    valid_until: seconds(now + 60_000),
+                    plugin: {
+                        id: 'plugin-1',
+                        name: 'Weather',
+                        uri: 'https://plugins.example/weather',
+                    } as any,
+                }),
+            ]);
+            show(0, now - 10_001);
+            start_plugin();
+            spectator.component['_item_start'] = now - 10_001;
+            spectator.component['_updateItem']();
+            expect(spectator.component.active_item?.id).toBe('plugin-1');
+
+            vi.setSystemTime(now + 61_000);
+            spectator.component['_updateItem']();
+
+            expect(spectator.component.index()).toBe(-1);
+            expect(spectator.component.active_item).toBeUndefined();
+        });
+
+        it('should move on from an expired webpage to the only valid item', () => {
+            load_playlist([
+                webpage('webpage-1', {
+                    duration: 120_000,
+                    valid_until: seconds(now + 60_000),
+                }),
+                create_item('image-1'),
+            ]);
+            show(0, now);
+
+            vi.setSystemTime(now + 121_000);
+            spectator.component['_updateItem']();
+
+            expect(spectator.component.active_item?.id).toBe('image-1');
+        });
+
+        it('should not hold an expired webpage when asked for the next item', () => {
+            load_playlist([
+                webpage('webpage-1', { valid_until: seconds(now + 60_000) }),
+                create_item('image-1', { valid_from: seconds(now + 120_000) }),
+            ]);
+            show(0, now);
+
+            vi.setSystemTime(now + 61_000);
+            spectator.component.nextItem();
+
+            expect(spectator.component.active_item).toBeUndefined();
+        });
+
+        it('should show a later item once it becomes valid', () => {
+            load_playlist([
+                webpage('webpage-1', { valid_until: seconds(now + 60_000) }),
+                webpage('webpage-2', { valid_from: seconds(now + 120_000) }),
+            ]);
+            show(0, now - 10_001);
+            spectator.component['_updateItem']();
+            expect(spectator.component.active_item?.id).toBe('webpage-1');
+
+            vi.setSystemTime(now + 61_000);
+            spectator.component['_updateItem']();
+            expect(spectator.component.active_item).toBeUndefined();
+
+            // Retried every five seconds while nothing is valid
+            vi.advanceTimersByTime(65_000);
+
+            expect(spectator.component.active_item?.id).toBe('webpage-2');
+        });
     });
 
     it('should wait for webpages to load and then delay hold timing by three seconds', () => {
