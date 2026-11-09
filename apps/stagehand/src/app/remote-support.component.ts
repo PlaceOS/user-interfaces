@@ -25,7 +25,6 @@ import {
     unique,
 } from '@placeos/common';
 import {
-    AuthenticatedImageDirective,
     BindingDirective,
     IconComponent,
     SimpleTableComponent,
@@ -35,6 +34,7 @@ import { CameraSnapshotModalComponent } from './camera-snapshot-modal.component'
 import { Alert } from './dashboards/broker-alerts';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SupportService } from './support.service';
+import { CameraImageComponent } from './ui/camera-image.component';
 import { backofficeLink } from './ui/sidebar.component';
 import { StagehandPageComponent } from './ui/stagehand-page.component';
 
@@ -251,10 +251,13 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                             matTooltip="View Camera Feed"
                         >
                             <div viewport-only class="h-full w-full">
-                                <img
-                                    auth
-                                    [source]="snapshotUrl(feed_url)"
-                                    class="h-full w-full object-cover"
+                                <camera-image
+                                    class="h-full w-full"
+                                    fit="cover"
+                                    icon_class="text-3xl"
+                                    [spinner_diameter]="20"
+                                    [base_url]="feed_url"
+                                    [timestamp]="snapshot_timestamp()"
                                     [alt]="
                                         'Camera feed for ' +
                                         (space.display_name || space.name)
@@ -383,7 +386,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
         FormsModule,
         MatTooltipModule,
         ViewportVisibilityComponent,
-        AuthenticatedImageDirective,
+        CameraImageComponent,
     ],
 })
 export class RemoteSupportComponent extends AsyncHandler implements OnInit {
@@ -508,7 +511,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         });
     });
 
-    private readonly _snapshot_timestamp = signal(Date.now());
+    public readonly snapshot_timestamp = signal(Date.now());
     private readonly _snapshot_interval = settingSignal(
         'snapshot_interval',
         10 * 1000,
@@ -519,13 +522,6 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         const delay = this._snapshot_interval();
         this._refreshSnapshots(delay);
     });
-
-    public snapshotUrl(base_url: string): string {
-        if (!base_url) return '';
-        const timestamp = this._snapshot_timestamp();
-        const separator = base_url.includes('?') ? '&' : '?';
-        return `${base_url}${separator}t=${timestamp}`;
-    }
 
     public cameraSnapshotFeed(
         space: Partial<Space> & { camera_snapshot_urls?: string[] },
@@ -542,7 +538,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         this.timeout(
             'refresh_snapshots',
             () => {
-                this._snapshot_timestamp.set(Date.now());
+                this.snapshot_timestamp.set(Date.now());
                 this._refreshSnapshots(delay);
             },
             delay * multiplier + randomInt(1000),

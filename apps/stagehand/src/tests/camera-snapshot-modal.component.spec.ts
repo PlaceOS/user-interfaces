@@ -71,31 +71,6 @@ describe('CameraSnapshotModalComponent', () => {
         expect(spectator.component.is_stream_url()).toBe(false);
     });
 
-    it('should append a timestamp with `?` when the url has no query string', () => {
-        spectator = withData({
-            camera_snapshot_urls: ['http://host/snapshot.jpg'],
-        });
-        spectator.component.timestamp.set(1234);
-        expect(spectator.component.snapshot_url()).toBe(
-            'http://host/snapshot.jpg?t=1234',
-        );
-    });
-
-    it('should append a timestamp with `&` when the url already has a query string', () => {
-        spectator = withData({
-            camera_snapshot_urls: ['http://host/snapshot.jpg?size=large'],
-        });
-        spectator.component.timestamp.set(1234);
-        expect(spectator.component.snapshot_url()).toBe(
-            'http://host/snapshot.jpg?size=large&t=1234',
-        );
-    });
-
-    it('should give an empty snapshot url when there are no feeds', () => {
-        spectator = withData({ camera_snapshot_urls: [] });
-        expect(spectator.component.snapshot_url()).toBe('');
-    });
-
     it('should cycle through feeds with wrap-around navigation', () => {
         spectator = withData({
             camera_snapshot_urls: ['http://a', 'http://b', 'http://c'],

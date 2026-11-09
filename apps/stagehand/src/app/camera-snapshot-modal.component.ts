@@ -11,10 +11,8 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler, randomInt, settingSignal } from '@placeos/common';
-import {
-    AuthenticatedImageDirective,
-    IconComponent,
-} from '@placeos/components';
+import { IconComponent } from '@placeos/components';
+import { CameraImageComponent } from './ui/camera-image.component';
 
 export interface CameraSnapshotData {
     camera_snapshot_urls: string[];
@@ -102,11 +100,11 @@ interface MpegTsLibrary {
                                 'Camera feed for ' + data.room_name
                             "
                         ></video>
-                    } @else if (snapshot_url()) {
-                        <img
-                            auth
-                            [source]="snapshot_url()"
-                            class="h-full w-full object-contain"
+                    } @else if (stream_url()) {
+                        <camera-image
+                            class="h-full min-h-[45vmin] w-full"
+                            [base_url]="stream_url()"
+                            [timestamp]="timestamp()"
                             [alt]="'Camera feed for ' + data.room_name"
                         />
                         <div
@@ -172,7 +170,7 @@ interface MpegTsLibrary {
     imports: [
         DatePipe,
         MatDialogModule,
-        AuthenticatedImageDirective,
+        CameraImageComponent,
         IconComponent,
         MatRippleModule,
     ],
@@ -205,14 +203,6 @@ export class CameraSnapshotModalComponent extends AsyncHandler {
     public readonly is_stream_url = computed(() => {
         const url = this.stream_url().split(/[?#]/)[0].toLowerCase();
         return url.endsWith('/ts') || url.endsWith('.ts');
-    });
-
-    public readonly snapshot_url = computed(() => {
-        const base_url = this.stream_url();
-        if (!base_url) return '';
-
-        const separator = base_url.includes('?') ? '&' : '?';
-        return `${base_url}${separator}t=${this.timestamp()}`;
     });
 
     private _on_interval = effect(() => {

@@ -78,16 +78,6 @@ describe('RemoteSupportComponent', () => {
         });
     });
 
-    it('should append a cache-busting timestamp to snapshot urls', () => {
-        expect(spectator.component.snapshotUrl('')).toBe('');
-        const url = spectator.component.snapshotUrl('http://host/snap');
-        expect(url).toMatch(/^http:\/\/host\/snap\?t=\d+$/);
-        const with_query = spectator.component.snapshotUrl(
-            'http://host/snap?a=1',
-        );
-        expect(with_query).toMatch(/^http:\/\/host\/snap\?a=1&t=\d+$/);
-    });
-
     it('should read the first camera snapshot url for a space', () => {
         expect(
             spectator.component.cameraSnapshotFeed({
