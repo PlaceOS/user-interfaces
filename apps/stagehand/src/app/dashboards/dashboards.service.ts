@@ -46,6 +46,30 @@ import {
     raisedAlerts,
 } from './broker-alerts';
 
+/**
+ * How long an attempt may take in all. Covers the WebSocket handshake, which
+ * is left to open or fail by itself: closing a slow one early leaves the
+ * request pending in the browser beside the next attempt
+ */
+const BROKER_ATTEMPT_LIMIT = 5 * 60_000;
+/** How long the broker has to accept a connection once its socket is open */
+const BROKER_CONNACK_TIMEOUT = 30_000;
+
+/** Raised when there is no dashboard, or its alerts are not loaded */
+const DISCONNECTED_ALERT = {
+    name: 'Disconnected Device',
+    severity: 'medium',
+    conditions: {
+        comparisons: [
+            {
+                left: 'connected',
+                operator: TriggerConditionOperator.EQ,
+                right: false,
+            },
+        ],
+    },
+} as PlaceAlert;
+
 @Injectable({
     providedIn: 'root',
 })
@@ -396,9 +420,11 @@ export class DashboardsService extends AsyncHandler {
                     // a refused connection is closed, so it fails and is
                     // retried rather than left waiting
                     reconnectOnConnackError: true,
+                    connectTimeout: BROKER_ATTEMPT_LIMIT,
                 },
             );
             this._mqtt_broker.on('connect', () => {
+                this.clearTimeout('broker_connack');
                 this._connecting = false;
                 this._reconnect_attempts = 0;
                 // each connection starts a clean session and is handed every
@@ -413,6 +439,7 @@ export class DashboardsService extends AsyncHandler {
                 }
             });
             this._mqtt_broker.on('close', () => {
+                this.clearTimeout('broker_connack');
                 this._connecting = false;
                 this._connected = false;
                 this._scheduleReconnect();
@@ -446,11 +473,35 @@ export class DashboardsService extends AsyncHandler {
             client.options.username = jwt;
             client.options.password = jwt;
             client.reconnect();
+            this._awaitConnack(client);
         } catch (e) {
             this._connecting = false;
             log('ALERTS', 'Failed to authorise the broker connection:', e);
             this._scheduleReconnect();
         }
+    }
+
+    /**
+     * Fails the attempt if the broker has not accepted it a while after its
+     * socket opened. The socket itself is given until it opens or fails
+     */
+    private _awaitConnack(client: mqtt.MqttClient) {
+        const stream = client.stream as { socket?: WebSocket } & typeof client.stream;
+        const socket = stream?.socket;
+        if (!socket) return;
+        const start = () =>
+            this.timeout(
+                'broker_connack',
+                () => {
+                    if (client.stream !== stream || client.connected) return;
+                    log('ALERTS', 'Broker did not accept the connection');
+                    // closes it, so the attempt fails and is retried
+                    stream.destroy();
+                },
+                BROKER_CONNACK_TIMEOUT,
+            );
+        if (socket.readyState === WebSocket.OPEN) start();
+        else socket.addEventListener('open', start, { once: true });
     }
 
     private _scheduleReconnect() {
@@ -474,22 +525,7 @@ export class DashboardsService extends AsyncHandler {
         // from the old subscriptions rather than keep values nothing updates
         this._values.clear();
         const dashboard = this.dashboard();
-        const alert_list = this.alerts_list();
-        if (!alert_list.length) {
-            alert_list.push({
-                name: 'Disconnected Device',
-                severity: 'medium',
-                conditions: {
-                    comparisons: [
-                        {
-                            left: 'connected',
-                            operator: TriggerConditionOperator.EQ,
-                            right: false,
-                        },
-                    ],
-                },
-            } as any);
-        }
+        const alert_list = this._alertDefinitions();
         const zone_filters = this._zoneFilters();
         const topics = new Set<string>();
         for (const alert of alert_list) {
@@ -517,6 +553,16 @@ export class DashboardsService extends AsyncHandler {
         }
     }
 
+    /**
+     * The alerts raised from broker values: the dashboard's, or disconnected
+     * devices when it has none. The default is never stored in `alerts_list`,
+     * which is replaced whenever the dashboard is set again
+     */
+    private _alertDefinitions(): PlaceAlert[] {
+        const list = this.alerts_list();
+        return list.length ? list : [DISCONNECTED_ALERT];
+    }
+
     private _handleBrokerMessage(t: string, msg_buffer: Buffer) {
         let entry: BrokerValue | null;
         try {
@@ -542,7 +588,7 @@ export class DashboardsService extends AsyncHandler {
             'update_alerts',
             () => {
                 const alerts = raisedAlerts(
-                    this.alerts_list(),
+                    this._alertDefinitions(),
                     this._values.values(),
                 );
                 this._sendPushNotifications(alerts);
