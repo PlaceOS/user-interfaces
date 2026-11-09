@@ -281,17 +281,18 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 restrictions,
             )?.hidden;
             if (!this._statuses[d_id]) this._statuses[d_id] = signal('free');
-            this._statuses[d_id].set(
-                bookable && !is_restricted
-                    ? !is_used && !has_presence && !is_checked_in
-                        ? has_signs
-                            ? 'signs-of-life'
-                            : 'free'
-                        : !has_presence && !is_checked_in
-                          ? 'pending'
-                          : 'busy'
-                    : 'not-bookable',
-            );
+            // Show desks in use as occupied, even when the user cannot book them
+            const status =
+                has_presence || is_checked_in
+                    ? 'busy'
+                    : is_used
+                      ? 'pending'
+                      : !bookable || is_restricted
+                        ? 'not-bookable'
+                        : has_signs
+                          ? 'signs-of-life'
+                          : 'free';
+            this._statuses[d_id].set(status);
         }
         for (const d_id in this._statuses) {
             if (!active_keys.has(d_id)) delete this._statuses[d_id];

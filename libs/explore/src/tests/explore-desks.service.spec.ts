@@ -201,6 +201,28 @@ describe('ExploreDesksService', () => {
         expect(service._statuses['map-2']()).toBe('free');
     });
 
+    it('should show desks in use as occupied when they are not bookable', () => {
+        const service = spectator.service as any;
+        const desks = [
+            new Desk({ id: 'desk-1', bookable: false }),
+            new Desk({ id: 'desk-2', bookable: false }),
+            new Desk({ id: 'desk-3', bookable: false }),
+        ];
+
+        service._updateDeskStatuses(
+            desks,
+            ['desk-1'],
+            ['desk-2'],
+            [],
+            [],
+            [],
+        );
+
+        expect(service._statuses['desk-1']()).toBe('pending');
+        expect(service._statuses['desk-2']()).toBe('busy');
+        expect(service._statuses['desk-3']()).toBe('not-bookable');
+    });
+
     it('should match AreaManagement map ids to desk assets', () => {
         const service = spectator.service as any;
         const desks = [
