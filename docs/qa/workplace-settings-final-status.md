@@ -1,16 +1,20 @@
 # Workplace Settings E2E coverage: final status
 
-Updated 5 Nov 2026. Covers develop after PR #595 (merged), plus the follow-up PR on branch `test/e2e-settings-followups` (based on develop `ae76ef9dd`). Counts below match `--list` for the `settings` and `settings-browser` projects.
+Updated 9 Nov 2026. Covers develop after PR #595 (merged), plus the follow-up PR on branch `test/e2e-settings-followups` (based on develop `20d3ecf36`). Counts below match `--list` for the `settings` and `settings-browser` projects.
 
 ## Summary
 
 | Group | Specs | Unique Settings | Scenarios | Status |
 |---|---|---|---|---|
-| **In develop (PR #595) + follow-up PR** | **188** | **216** | **451** | **All 451 passed locally on 5 Nov on the follow-up branch (`settings` 415, `settings-browser` 36), 0 retries** |
-| Held locally, not in the PR | 1 (+1 product check) | 1 | 2 | See "Held locally" |
+| **In develop (PR #595) + follow-up PR** | **189** | **217** | **453** | **All 453 passed locally on the follow-up branch (`settings` 415, `settings-browser` 38), 0 retries; see the evidence below** |
+| Held locally, not in the PR | 0 (+1 product check) | 0 | 0 | See "Held locally" |
 | Excluded or ignored by developer decision | – | 4 | – | Not tested |
 
 **Evidence for the PR coverage**
+- Follow-up PR, 9 Nov 2026 (branch `test/e2e-settings-followups` on develop `20d3ecf36`), 0 retries:
+  - `--project=settings-browser`: 38 tests, 38 passed, 4 workers; `explore.hide-device-fields` 20/20 over 10 repeats.
+  - `--project=settings`: 415 tests. 410 passed on develop `20d3ecf36` before the button-name updates; the other 5 (`desk-booking.allow-groups`, `desk-booking.can-book-for-others`, `general.basic-user-search`, `landing.colleagues-require-auth` ×2) passed 5/5 after them (52 passed incl. preflight).
+  - PPT-2869 and PPT-2870 re-verified: desk and parking `can-book-for-others` 5/5; held `lockers.picker-loading` 5/5 with no console or page error.
 - Follow-up PR, 5 Nov 2026 (branch `test/e2e-settings-followups` on develop `ae76ef9dd`), 0 retries:
   - `--project=settings`: 415 tests (plus 2 preflight), all passed in 12.3 min, 2 workers.
   - `--project=settings-browser`: 36 tests, 36 passed in 1.3 min, 4 workers.
@@ -50,13 +54,13 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings-b
 bunx playwright test -c apps/workplace/playwright.config.ts --project=settings --list                # counts without running
 ```
 
-| Project | `--list` (5 Nov 2026, follow-up PR) | Needs the stack |
+| Project | `--list` (9 Nov 2026, follow-up PR) | Needs the stack |
 |---|---|---|
 | `settings` | 415 tests in 172 spec files (plus the 2 `preflight` tests it depends on) | yes |
-| `settings-browser` | 36 tests in 16 spec files | no |
+| `settings-browser` | 38 tests in 17 spec files | no |
 
 - `settings`: every settings spec except the browser-only ones. Depends on `preflight`, so it fails fast when the stack is down.
-- `settings-browser`: the 16 specs that answer every request in the browser (files that end in `.browser.spec.ts`).
+- `settings-browser`: the 17 specs that answer every request in the browser (files that end in `.browser.spec.ts`).
 - `--project=local` runs only the original local-backend suite (159 tests), not the settings specs.
 - To run one spec, pass its path after the project, for example `--project=settings apps/workplace/e2e/settings/lockers/lockers.hide-user.spec.ts`. A `*.browser.spec.ts` spec runs only under `--project=settings-browser`.
 - On a busy machine, a failure on the 15 s `global-loading` wait is usually load: re-run that file alone with `--workers=1` before treating it as a code failure.
@@ -122,7 +126,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | users.min_search_length | directory.min-search-length | 2 | PASS | `staff_search_exclude_guests` is held off as a control, so the lookup is the plain directory search |
 | users.show_avatars | directory.show-avatars | 2 | PASS | `staff_search_exclude_guests` is held off as a control, so the lookup is the plain directory search |
 
-### explore (12 specs, 21 Settings, 43 scenarios)
+### explore (13 specs, 22 Settings, 45 scenarios)
 | Setting | Spec | Scen. | Status | Notes |
 |---|---|---|---|---|
 | explore.colors | explore.colors | 3 | PASS | space-free, free, and space-free taking precedence over free |
@@ -130,6 +134,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 | explore.hide_zones | explore.map-overlays | 2 | PASS | |
 | explore.hide_devices | explore.map-overlays | 2 | PASS | |
 | explore.hide_sensors | explore.map-overlays | 2 | PASS | |
+| explore.hide_device_fields | explore.hide-device-fields | 2 | PASS | Device tooltip rows with none and ['mac','manufacturer'] hidden (PPT-2865, PPT-2868). Browser-only; the harness allows only the read-only `check_ownership_of` exec for this spec. Added in the follow-up PR |
 | explore.disable | explore.map-overlays | 2 | PASS | A disabled group has no switch (PPT-2866 / PPT-2854); the file no longer sets retries: 0 |
 | explore.show_legend | explore.legend | 2 | PASS | Merged into explore.legend (explore.show-legend is gone) |
 | explore.area_count_key | explore.area-count-key | 2 | PASS | |
@@ -336,8 +341,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 
 | Spec | Setting | Scen. | Latest result | PR branch app | Jira | Next step |
 |---|---|---|---|---|---|---|
-| explore.hide-device-fields | explore.hide_device_fields | 2 | 10/10 PASS (5 Nov, unchanged spec) | – | PPT-2865 / PPT-2868 fixed on develop | Needs the shared `controlSocket` to allow the read-only `check_ownership_of` exec; then migrate onto the harness and add |
-| lockers.picker-loading | – (product check, not a setting) | 1 | Fails: TypeError reproduced | – | PPT-2870 fix merged on develop | Keep as a regression check |
+| lockers.picker-loading | – (product check, not a setting) | 1 | 5/5 PASS on develop `20d3ecf36` (9 Nov) | – | PPT-2870 fixed on develop (#652) | Keep as a regression check |
 
 `e2e/local/wpa-settings-write-guard.ts` is also held locally. It's a helper, not a setting.
 
