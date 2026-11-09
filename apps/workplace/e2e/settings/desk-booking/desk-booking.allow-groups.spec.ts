@@ -26,7 +26,7 @@ for (const enabled of [false, true]) {
                     details.locator('a-user-list-field mat-chip-row'),
                 ).toHaveCount(0);
                 await details
-                    .getByRole('button', { name: 'person Single', exact: true })
+                    .getByRole('button', { name: 'Single', exact: true })
                     .click();
                 await expect(details.locator('a-user-list-field')).toHaveCount(
                     0,
