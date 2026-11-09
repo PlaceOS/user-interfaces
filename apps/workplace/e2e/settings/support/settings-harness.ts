@@ -3395,6 +3395,8 @@ export type BrowserConnection = {
     binds: string[];
     delivered: string[];
     unbinds: string[];
+    /** Allowed read-only execs answered on this connection (controlSocket `execs`). */
+    execs?: string[];
 };
 
 /** A browser-only audit for specs whose page opens a control socket. */
@@ -3734,6 +3736,17 @@ export type ControlRequest = {
     name: string;
 };
 
+/** One validated control-socket exec request. */
+export type ControlExecRequest = {
+    id: number;
+    cmd: 'exec';
+    sys: string;
+    mod: string;
+    index: number;
+    name: string;
+    args: unknown[];
+};
+
 /** Options for `controlSocket`. */
 export type ControlSocketOptions<A extends ControlAudit> = {
     /** The only `bearer_token` the control socket accepts. */
@@ -3752,14 +3765,25 @@ export type ControlSocketOptions<A extends ControlAudit> = {
         notify: (value: unknown) => void,
         audit: A,
     ) => void;
+    /**
+     * Read-only execs this spec allows, by function name. Each returns
+     * `{ value }` to answer an expected call (checking its sys, mod, index and
+     * args) or undefined to refuse it. Answered in the browser, never forwarded,
+     * and recorded in the connection's `execs`. Unset: every exec is refused.
+     */
+    execs?: Record<
+        string,
+        (request: ControlExecRequest, audit: A) => { value: unknown } | undefined
+    >;
 };
 
 /**
  * A browser-local control socket for the ts-client protocol
  * (@placeos/ts-client src/realtime/functions.ts). `ping` is answered `pong`;
  * a bind or unbind of a variable `values` returns is answered `success`, and
- * a bind also gets the variable's value as a `notify`. Any other socket, frame
- * or command (including `exec`) is refused and closes the socket. The Vite
+ * a bind also gets the variable's value as a `notify`. An `exec` is answered only
+ * when the spec allows it in `execs`. Any other socket, frame or command
+ * (including any other `exec`) is refused and closes the socket. The Vite
  * dev-server socket is held open.
  */
 export function controlSocket<A extends ControlAudit>(
@@ -3800,6 +3824,7 @@ export function controlSocket<A extends ControlAudit>(
         }
         // State is connection-local. A reconnect replays each newly bound value.
         const connection: BrowserConnection = { binds: [], delivered: [], unbinds: [] };
+        if (options.execs) connection.execs = [];
         const connection_number = audit.connections.push(connection);
         const bound = new Set<string>();
         const ids = new Set<number>();
@@ -3822,6 +3847,52 @@ export function controlSocket<A extends ControlAudit>(
                     throw new Error();
                 }
                 const r = request as Record<string, unknown>;
+                if (options.execs && r.cmd === 'exec') {
+                    const exec_keys = ['id', 'cmd', 'sys', 'mod', 'index', 'name', 'args'];
+                    if (
+                        Object.keys(r).length !== exec_keys.length ||
+                        !exec_keys.every((key) => Object.hasOwn(r, key)) ||
+                        typeof r.id !== 'number' ||
+                        !Number.isSafeInteger(r.id) ||
+                        typeof r.sys !== 'string' ||
+                        typeof r.mod !== 'string' ||
+                        typeof r.index !== 'number' ||
+                        typeof r.name !== 'string' ||
+                        !Array.isArray(r.args)
+                    ) {
+                        reason = 'invalid control exec structure';
+                        throw new Error();
+                    }
+                    if (ids.has(r.id)) {
+                        reason = 'duplicate control request ID';
+                        throw new Error();
+                    }
+                    const handler = Object.hasOwn(options.execs, r.name)
+                        ? options.execs[r.name]
+                        : undefined;
+                    if (!handler) {
+                        reason = 'disallowed control exec';
+                        throw new Error();
+                    }
+                    let answer: { value: unknown } | undefined;
+                    try {
+                        answer = handler(r as ControlExecRequest, audit);
+                    } catch {
+                        reason = 'control exec callback failed';
+                        throw new Error();
+                    }
+                    if (!answer) {
+                        reason = 'disallowed control exec target or arguments';
+                        throw new Error();
+                    }
+                    ids.add(r.id);
+                    connection.execs!.push(r.name);
+                    reason = 'control exec response construction or send failed';
+                    socket.send(
+                        JSON.stringify({ id: r.id, type: 'success', value: answer.value }),
+                    );
+                    return;
+                }
                 const keys = ['id', 'cmd', 'sys', 'mod', 'index', 'name'];
                 let values: Record<string, unknown> | undefined;
                 try {
