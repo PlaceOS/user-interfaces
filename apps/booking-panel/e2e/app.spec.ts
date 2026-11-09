@@ -31,8 +31,8 @@ test.describe('Booking Panel - Application Initialization', () => {
         await expect(page.locator('app-root')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
-        // Use specific selector for bootstrap component only
-        await expect(page.locator('[app-bootstrap]')).toBeVisible({
+        // The `[app-bootstrap]` host has no size, so check the setup card
+        await expect(page.locator('system-bootstrap [form]')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
     });
@@ -259,7 +259,7 @@ test.describe('Panel Configuration (US-018 to US-020)', () => {
 
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
         await page
-            .locator('[app-bootstrap]')
+            .locator('system-bootstrap [form]')
             .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should have search input
@@ -275,7 +275,7 @@ test.describe('Panel Configuration (US-018 to US-020)', () => {
 
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
         await page
-            .locator('[app-bootstrap]')
+            .locator('system-bootstrap [form]')
             .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Autocomplete component should exist

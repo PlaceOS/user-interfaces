@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, Page, test } from '@playwright/test';
 
 /**
  * E2E Tests for Bootstrap Component
@@ -9,6 +9,22 @@ const MOCK_SYSTEM_ID = 'space-1';
 const BOOTSTRAP_URL = `/#/bootstrap`;
 const PANEL_URL = `/#/panel/${MOCK_SYSTEM_ID}`;
 const LOAD_TIMEOUT = 30000;
+
+/**
+ * The setup card. The `[app-bootstrap]` host has no size, as the shared
+ * `system-bootstrap` screen draws in an absolute child, so tests use the card.
+ */
+const setupForm = (page: Page) => page.locator('system-bootstrap [form]');
+/** Size and position of the setup card. Fails when it is not rendered. */
+async function setupBox(page: Page) {
+    const box = await setupForm(page).boundingBox();
+    if (!box) throw new Error('The setup form is not rendered');
+    return box;
+}
+const systemInput = (page: Page) =>
+    page.getByRole('combobox', { name: 'System ID' });
+const finishButton = (page: Page) =>
+    page.getByRole('button', { name: 'Finish setup' });
 
 test.describe('Bootstrap - Initial Setup', () => {
     test.beforeEach(async ({ page }) => {
@@ -22,34 +38,26 @@ test.describe('Bootstrap - Initial Setup', () => {
     }) => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
 
-        const bootstrap = page.locator('[app-bootstrap]');
-        await expect(bootstrap).toBeVisible({ timeout: LOAD_TIMEOUT });
+        await expect(setupForm(page)).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 
-    test('should display error-styled header', async ({ page }) => {
+    test('should display the app heading', async ({ page }) => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
 
-        // Wait for bootstrap component first
-        await page
-            .locator('[app-bootstrap]')
-            .waitFor({ timeout: LOAD_TIMEOUT });
-        // Then check for the header with bg-error class
-        const header = page.locator('[app-bootstrap] h2.bg-error');
-        await expect(header).toBeVisible({ timeout: LOAD_TIMEOUT });
+        const heading = page.getByRole('heading', { name: 'Booking Panel' });
+        await expect(heading).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 
     test('should display search input field', async ({ page }) => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
 
-        const searchInput = page.locator('input[matInput]');
-        await expect(searchInput).toBeVisible({ timeout: LOAD_TIMEOUT });
+        await expect(systemInput(page)).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 
     test('should display submit button', async ({ page }) => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
 
-        const submitButton = page.locator('[app-bootstrap] button[btn]');
-        await expect(submitButton).toBeVisible({ timeout: LOAD_TIMEOUT });
+        await expect(finishButton(page)).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 });
 
@@ -58,38 +66,30 @@ test.describe('Bootstrap - Room Search', () => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true&clear=true`);
         await page.waitForTimeout(1000);
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-        await page
-            .locator('[app-bootstrap]')
-            .waitFor({ timeout: LOAD_TIMEOUT });
+        await setupForm(page).waitFor({ timeout: LOAD_TIMEOUT });
     });
 
-    test('should have autocomplete component', async ({ page }) => {
-        const autocomplete = page.locator('mat-autocomplete');
-        await expect(autocomplete).toBeAttached();
+    test('should prompt for a search before typing', async ({ page }) => {
+        await systemInput(page).click();
+        await expect(page.getByRole('option').first()).toBeVisible();
     });
 
-    test('should show search loading indicator when typing', async ({
-        page,
-    }) => {
-        const searchInput = page.locator('input[matInput]');
-        await searchInput.fill('Meeting');
+    test('should list systems that match the search', async ({ page }) => {
+        await systemInput(page).fill('Meeting');
 
-        // May show loading spinner while searching
-        await page.waitForTimeout(500);
+        const option = page.getByRole('option', { name: /space-1\b/ });
+        await expect(option).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 
-    test('should show autocomplete options when text entered', async ({
-        page,
-    }) => {
-        const searchInput = page.locator('input[matInput]');
-        await searchInput.fill('Meeting');
+    test('should open the panel for the chosen system', async ({ page }) => {
+        await systemInput(page).fill('Meeting');
+        await page.getByRole('option', { name: /space-1\b/ }).click();
+        await finishButton(page).click();
 
-        // Wait for search results
-        await page.waitForTimeout(1000);
-
-        // Check for autocomplete panel (may or may not have results)
-        const autocompletePanel = page.locator('mat-autocomplete');
-        await expect(autocompletePanel).toBeAttached();
+        await expect(page).toHaveURL(/#\/panel\/space-1/);
+        await expect(page.locator('panel-view')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
     });
 });
 
@@ -128,9 +128,7 @@ test.describe('Bootstrap - URL Parameters', () => {
         await page.waitForTimeout(1000);
 
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-        await expect(page.locator('[app-bootstrap]')).toBeVisible({
-            timeout: LOAD_TIMEOUT,
-        });
+        await expect(setupForm(page)).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 
     test('should use event view when event parameter provided', async ({
@@ -157,26 +155,20 @@ test.describe('Bootstrap - Form Validation', () => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true&clear=true`);
         await page.waitForTimeout(1000);
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-        await page
-            .locator('[app-bootstrap]')
-            .waitFor({ timeout: LOAD_TIMEOUT });
+        await setupForm(page).waitFor({ timeout: LOAD_TIMEOUT });
     });
 
     test('should disable submit button when no system selected', async ({
         page,
     }) => {
-        const submitButton = page.locator('[app-bootstrap] button[btn]');
-        await expect(submitButton).toBeDisabled();
+        await expect(finishButton(page)).toBeDisabled();
     });
 
     test('should enable submit button when system ID entered', async ({
         page,
     }) => {
-        const searchInput = page.locator('input[matInput]');
-        await searchInput.fill(MOCK_SYSTEM_ID);
-
-        const submitButton = page.locator('[app-bootstrap] button[btn]');
-        await expect(submitButton).toBeEnabled();
+        await systemInput(page).fill(MOCK_SYSTEM_ID);
+        await expect(finishButton(page)).toBeEnabled();
     });
 });
 
@@ -185,12 +177,9 @@ test.describe('Bootstrap - Navigation', () => {
         page,
     }) => {
         await page.goto('/#/unknown-route?mock=true&clear=true');
-        await page.waitForTimeout(2000);
 
-        // Should redirect to bootstrap
-        await expect(page.locator('[app-bootstrap], panel-view')).toBeVisible({
-            timeout: LOAD_TIMEOUT,
-        });
+        await expect(page).toHaveURL(/#\/bootstrap/, { timeout: LOAD_TIMEOUT });
+        await expect(setupForm(page)).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 
     test('should persist system selection in localStorage', async ({
@@ -201,12 +190,15 @@ test.describe('Bootstrap - Navigation', () => {
         );
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
-        // Reload the page
+        // Open the app root. It must go to the saved system.
         await page.goto('/?mock=true');
-        await page.waitForTimeout(2000);
 
-        // Should auto-load the previously selected system
-        // (redirects to panel or bootstrap based on stored value)
+        await expect(page).toHaveURL(/#\/panel\/space-1/, {
+            timeout: LOAD_TIMEOUT,
+        });
+        await expect(page.locator('panel-view')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
     });
 });
 
@@ -232,28 +224,19 @@ test.describe('Bootstrap - Loading States', () => {
 });
 
 test.describe('Bootstrap - Responsive Design', () => {
-    test('should be centered on screen', async ({ page }) => {
-        await page.goto(`${BOOTSTRAP_URL}?mock=true&clear=true`);
-        await page.waitForTimeout(1000);
-        await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-
-        const bootstrap = page.locator('[app-bootstrap]');
-        await expect(bootstrap).toBeVisible({ timeout: LOAD_TIMEOUT });
-
-        // Should be centered with mx-auto class
-        const container = page.locator('[app-bootstrap] > div.mx-auto');
-        await expect(container).toBeVisible();
-    });
-
-    test('should have max-width constraint', async ({ page }) => {
+    test('should center the setup form at a readable width', async ({
+        page,
+    }) => {
         await page.setViewportSize({ width: 1920, height: 1080 });
         await page.goto(`${BOOTSTRAP_URL}?mock=true&clear=true`);
         await page.waitForTimeout(1000);
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
 
-        await expect(page.locator('[app-bootstrap]')).toBeVisible({
-            timeout: LOAD_TIMEOUT,
-        });
+        await expect(setupForm(page)).toBeVisible({ timeout: LOAD_TIMEOUT });
+        const box = await setupBox(page);
+        // The form is `w-120` (30rem)
+        expect(box.width).toBeLessThanOrEqual(480);
+        expect(Math.abs(box.x + box.width / 2 - 960)).toBeLessThan(2);
     });
 
     test('should be usable on mobile viewport', async ({ page }) => {
@@ -262,11 +245,10 @@ test.describe('Bootstrap - Responsive Design', () => {
         await page.waitForTimeout(1000);
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
 
-        await expect(page.locator('[app-bootstrap]')).toBeVisible({
-            timeout: LOAD_TIMEOUT,
-        });
-
-        const searchInput = page.locator('input[matInput]');
-        await expect(searchInput).toBeVisible();
+        await expect(setupForm(page)).toBeVisible({ timeout: LOAD_TIMEOUT });
+        const box = await setupBox(page);
+        expect(box.x).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.width).toBeLessThanOrEqual(375);
+        await expect(systemInput(page)).toBeVisible();
     });
 });
