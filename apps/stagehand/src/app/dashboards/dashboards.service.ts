@@ -54,6 +54,13 @@ import {
  * is it retried
  */
 const NO_CONNECT_TIMEOUT = 2 ** 31 - 1;
+/**
+ * The longest wait between attempts. A browser can give up on a socket (and
+ * tell the page so) while its request stays pending until the server ends
+ * it, which can take minutes. Waiting about that long keeps the requests of
+ * failed attempts from piling up while the broker cannot be reached
+ */
+const MAX_RECONNECT_DELAY = 3 * 60_000;
 
 /** Raised when there is no dashboard, or its alerts are not loaded */
 const DISCONNECTED_ALERT = {
@@ -479,7 +486,10 @@ export class DashboardsService extends AsyncHandler {
 
     private _scheduleReconnect() {
         if (!this._mqtt_broker) return;
-        const delay = Math.min(30_000, 1000 * 2 ** this._reconnect_attempts);
+        const delay = Math.min(
+            MAX_RECONNECT_DELAY,
+            1000 * 2 ** this._reconnect_attempts,
+        );
         this._reconnect_attempts += 1;
         this.timeout('broker_reconnect', () => this._connectBroker(), delay);
     }

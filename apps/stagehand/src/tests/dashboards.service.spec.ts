@@ -568,6 +568,19 @@ describe('DashboardsService', () => {
             expect(broker().reconnect).not.toHaveBeenCalled();
         });
 
+        it('backs off to at most 3 minutes between attempts', async () => {
+            vi.mocked(ts_client.authorise).mockRejectedValue('offline');
+            handler('close')();
+            // 1s, 2s, 4s ... 128s, then capped at 180s
+            await vi.advanceTimersByTimeAsync(255_000);
+            const attempts = vi.mocked(ts_client.authorise).mock.calls.length;
+
+            await vi.advanceTimersByTimeAsync(179_000);
+            expect(ts_client.authorise).toHaveBeenCalledTimes(attempts);
+            await vi.advanceTimersByTimeAsync(1000);
+            expect(ts_client.authorise).toHaveBeenCalledTimes(attempts + 1);
+        });
+
         it('stops reconnecting once destroyed', async () => {
             (spectator.service as any).destroy();
             expect(broker().end).toHaveBeenCalledWith(true);
