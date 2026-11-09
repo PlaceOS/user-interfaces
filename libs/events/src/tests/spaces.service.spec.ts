@@ -46,6 +46,17 @@ describe('SpacesService', () => {
         expect(spectator.service).toBeInstanceOf(SpacesService);
     });
 
+    it('should log a failed space load instead of rejecting', async () => {
+        const error = new TypeError('Load failed');
+        vi.mocked(ts_client.querySystems).mockRejectedValueOnce(error);
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        await expect(
+            spectator.service['loadSpaces'](),
+        ).resolves.toBeUndefined();
+        expect(warn).toHaveBeenCalledWith('Failed to load spaces.', error);
+        warn.mockRestore();
+    });
+
     // it('should load space data', async () => {
     //     const list = await spectator.service.list
     //         .pipe(first((_) => !!_?.length))
