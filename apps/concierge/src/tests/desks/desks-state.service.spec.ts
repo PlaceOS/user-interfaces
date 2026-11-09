@@ -1121,6 +1121,22 @@ describe('DesksStateService', () => {
         expect(first_page).toHaveBeenCalled();
     });
 
+    it('should load more desk bookings when the first page has a next link but no total', async () => {
+        // staff-api sends no total for pages that expand recurring bookings
+        const next_page = vi.fn();
+        const first_page = vi.fn().mockResolvedValue({
+            data: [new Booking({ id: 'booking-1' })],
+            total: 0,
+            next: next_page,
+        });
+        (spectator.service as any)._first_page = first_page;
+
+        await (spectator.service as any)._loadPage(true);
+
+        expect(spectator.service.has_more_pages()).toBe(true);
+        expect((spectator.service as any)._next_page_fn).toBe(next_page);
+    });
+
     it('should stop desk booking pagination when a page is empty', async () => {
         const next_page = vi.fn();
         const empty_page = vi.fn().mockResolvedValue({

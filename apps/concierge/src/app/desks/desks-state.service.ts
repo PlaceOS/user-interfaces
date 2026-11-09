@@ -443,11 +443,13 @@ export class DesksStateService extends AsyncHandler {
         this._load_error.set(failed);
         const { data = [], total = 0, next = null } = resp || {};
         const list = data.map((booking) => this._normaliseBooking(booking));
+        // Use the next link, not the total, to find more pages. staff-api
+        // does not send a total for pages that expand recurring bookings.
         const has_next = list.length > 0 && !!next;
         this._next_page_fn = has_next ? next : null;
         this._bookings_state.update((acc) =>
             reset
-                ? { list, total, has_next: list.length < total && has_next }
+                ? { list, total, has_next }
                 : { list: [...acc.list, ...list], total, has_next },
         );
         if (reset) this._filters_changed.set(false);
