@@ -18,15 +18,18 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
-import { SignageMediaMetadata } from '../signage-media-upload.util';
+import {
+    bulkItemName,
+    type BulkMediaUploadItem,
+} from './bulk-media-upload.util';
 
-export interface BulkMediaUploadItem {
-    file: File;
-    media_type: 'image' | 'video';
-    metadata: SignageMediaMetadata;
-    /** Media name. The file name when not set. */
-    name?: string;
-    tags?: string[];
+export type { BulkMediaUploadItem } from './bulk-media-upload.util';
+
+/** File size, or the image size for a file not made yet */
+function itemDetails(item: BulkMediaUploadItem) {
+    if (item.file) return humanReadableByteCount(item.file.size);
+    const { width, height } = item.metadata;
+    return `${width} × ${height}`;
 }
 
 export interface BulkMediaUploadModalData {
@@ -43,6 +46,8 @@ type BulkUploadStatus = 'pending' | 'uploading' | 'done' | 'error';
 interface BulkUploadRow {
     id: number;
     item: BulkMediaUploadItem;
+    name: string;
+    /** File size, or image size when the file is made at upload time */
     formatted_size: string;
     status: BulkUploadStatus;
     progress: number;
@@ -131,7 +136,7 @@ function uploadErrorMessage(error: unknown) {
                     </icon>
                     <div class="min-w-0 flex-1">
                         <div class="truncate">
-                            {{ row.item.name || row.item.file.name }}
+                            {{ row.name }}
                         </div>
                         <div class="text-base-content/70 truncate text-xs">
                             @if (row.status === 'error') {
@@ -266,7 +271,8 @@ export class BulkMediaUploadModalComponent {
         this._data.items.map((item, index) => ({
             id: index,
             item,
-            formatted_size: humanReadableByteCount(item.file.size),
+            name: bulkItemName(item),
+            formatted_size: itemDetails(item),
             status: 'pending' as BulkUploadStatus,
             progress: 0,
             error: '',

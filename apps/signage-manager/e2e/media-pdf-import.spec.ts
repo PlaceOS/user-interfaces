@@ -181,7 +181,7 @@ test.describe('US-SGM-004: Import PDF Pages as Images', () => {
         // pdf.js renders each page: the square in the middle is painted and
         // the rest of the page is left transparent
         const first_preview = pages.nth(0).locator('img');
-        await expect(first_preview).toHaveAttribute('src', /^data:image\/png/);
+        await expect(first_preview).toHaveAttribute('src', /^blob:/);
         const [centre, corner] = await samplePixels(page, first_preview, [
             [0.5, 0.5],
             [0.02, 0.02],
@@ -277,6 +277,9 @@ test.describe('US-SGM-004: Import PDF Pages as Images', () => {
         await expect(upload).toContainText('Q3 Results - page 1');
         await expect(upload).toContainText('Q3 Results - page 3');
         await expect(upload).not.toContainText('Q3 Results - page 2');
+        // Pages render as they upload, so the list shows the image size
+        // they will have rather than a file size
+        await expect(upload).toContainText('1920 × 1080');
 
         await upload.getByRole('button', { name: 'Upload files (2)' }).click();
         await expect(upload).toBeHidden({ timeout: 30000 });

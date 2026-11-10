@@ -41,10 +41,12 @@ import {
 import type { ImageGenModalData } from '../image-gen/image-gen-modal.component';
 import { removeSignageUpload } from '../image-gen/image-gen.fn';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
-import type {
-    BulkMediaUploadItem,
-    BulkMediaUploadModalData,
-} from '../shared/bulk-media-upload-modal.component';
+import type { BulkMediaUploadModalData } from '../shared/bulk-media-upload-modal.component';
+import {
+    bulkItemName,
+    type BulkMediaUploadItem,
+    loadBulkItemFile,
+} from '../shared/bulk-media-upload.util';
 import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import type { MediaEditChanges } from '../shared/media-edit-modal.component';
@@ -449,9 +451,7 @@ export class SignageMediaService {
         );
         if (!large.length) return;
         const { error } = validateSignageMediaDimensions(large[0].metadata);
-        notifyWarn(
-            `${shortList(large.map(({ file }) => file.name))}: ${error}`,
-        );
+        notifyWarn(`${shortList(large.map(bulkItemName))}: ${error}`);
     }
 
     public previewMedia(item: SignageMedia) {
@@ -535,12 +535,20 @@ export class SignageMediaService {
             files.filter((file) => !isPdfFile(file)),
         );
         const { importPdfPages } = await import('./pdf-upload');
-        const pdf_items = await importPdfPages(
+        const pdf_import = await importPdfPages(
             this._dialog,
             files.filter((file) => isPdfFile(file)),
             this._openPdfDocument,
         );
-        await this._openBulkUpload([...pdf_items, ...(await other_items)]);
+        // Pages render as they upload, so the PDFs stay open until then
+        try {
+            await this._openBulkUpload([
+                ...pdf_import.items,
+                ...(await other_items),
+            ]);
+        } finally {
+            await pdf_import.close();
+        }
     }
 
     /** Open the bulk upload modal for prepared items */
@@ -551,9 +559,10 @@ export class SignageMediaService {
         const stored = new Map<BulkMediaUploadItem, StoredMediaUpload>();
         const data: BulkMediaUploadModalData = {
             items,
-            onUpload: (item, permissions, on_progress) =>
+            onUpload: async (item, permissions, on_progress) =>
                 this._addMedia(
-                    item.file,
+                    // A file made at upload time is let go once it is stored
+                    await loadBulkItemFile(item),
                     new SignageMedia({ name: item.name, tags: item.tags }),
                     item.metadata,
                     undefined,

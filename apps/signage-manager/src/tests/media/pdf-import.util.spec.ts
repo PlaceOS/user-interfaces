@@ -5,6 +5,7 @@ import {
     pdfBaseName,
     PdfDocumentHandle,
     pdfOutputSize,
+    pdfPageImageSize,
     pdfPageName,
     pdfPagePlacement,
     renderPdfPageImage,
@@ -78,6 +79,23 @@ describe('PDF import utilities', () => {
             width: 1080,
             height: 1920,
         });
+    });
+
+    it('sizes a page image from its turn and the options', () => {
+        expect(
+            pdfPageImageSize(A4, {
+                rotation: 90,
+                fit: 'page',
+                resolution: '4k',
+            }),
+        ).toEqual({ width: 3057, height: 2160 });
+        expect(
+            pdfPageImageSize(A4, {
+                rotation: 0,
+                fit: 'landscape',
+                resolution: 'hd',
+            }),
+        ).toEqual({ width: 1920, height: 1080 });
     });
 
     it('centres a page in the output', () => {

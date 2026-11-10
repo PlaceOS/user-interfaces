@@ -1332,7 +1332,8 @@ describe('SignageMediaService', () => {
             expect(
                 opened.bulk.items.map((item) => item.name || item.file.name),
             ).toEqual(['deck - page 1', 'deck - page 2', 'photo.png']);
-            expect(pdf.destroy).toHaveBeenCalled();
+            // Pages render as they upload, so the PDF stays open meanwhile
+            expect(pdf.destroy).not.toHaveBeenCalled();
         });
 
         it('opens a single PDF in the import modal, not the edit modal', async () => {
@@ -1374,6 +1375,78 @@ describe('SignageMediaService', () => {
             );
         });
 
+        it('renders a page when it uploads, not before', async () => {
+            uploads.uploadFileToCompletion.mockResolvedValue('upload-1');
+            const service = createPdfService(
+                vi.fn().mockResolvedValue(fakePdf()),
+            );
+            const rendered = new File(['page'], 'deck - page 1.webp', {
+                type: 'image/webp',
+            });
+            const { file: _file, ...page } = pageItem('deck', 1);
+            const loadFile = vi.fn().mockResolvedValue(rendered);
+            const opened = stubDialogs([[{ ...page, loadFile }]]);
+
+            void service.previewFiles([pdfFile()]);
+            await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+            expect(loadFile).not.toHaveBeenCalled();
+
+            await opened.bulk.onUpload(opened.bulk.items[0], 'none', () => {});
+
+            expect(loadFile).toHaveBeenCalledOnce();
+            expect(uploads.uploadFileToCompletion).toHaveBeenCalledWith(
+                rendered,
+                false,
+                'none',
+                expect.any(Function),
+            );
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.objectContaining({ name: 'deck - page 1' }),
+                {},
+            );
+        });
+
+        it('closes the PDFs once the upload closes', async () => {
+            const pdf = fakePdf();
+            let close_bulk: (value: unknown) => void = () => {};
+            const pdf_results = [[pageItem('deck', 1)]];
+            dialog.open.mockImplementation((component) => ({
+                afterClosed: () => ({
+                    subscribe: (handler: (value: unknown) => void) => {
+                        if (component === PdfImportModalComponent) {
+                            Promise.resolve().then(() =>
+                                handler(pdf_results.shift()),
+                            );
+                        } else {
+                            close_bulk = handler;
+                        }
+                        return { unsubscribe: vi.fn() };
+                    },
+                }),
+            }));
+            const service = createPdfService(vi.fn().mockResolvedValue(pdf));
+
+            const done = service.previewFiles([pdfFile()]);
+            await vi.waitFor(() =>
+                expect(dialog.open).toHaveBeenCalledTimes(2),
+            );
+            expect(pdf.destroy).not.toHaveBeenCalled();
+
+            close_bulk(1);
+            await done;
+            expect(pdf.destroy).toHaveBeenCalledOnce();
+        });
+
+        it('closes a PDF straight away when it is cancelled', async () => {
+            const pdf = fakePdf();
+            const service = createPdfService(vi.fn().mockResolvedValue(pdf));
+            stubDialogs([undefined]);
+
+            await service.previewFiles([pdfFile()]);
+
+            expect(pdf.destroy).toHaveBeenCalledOnce();
+        });
+
         it('imports several PDFs in turn and skips one that is cancelled', async () => {
             const service = createPdfService(
                 vi.fn().mockResolvedValue(fakePdf()),
@@ -1412,9 +1485,9 @@ describe('SignageMediaService', () => {
                     expect.anything(),
                     expect.objectContaining({ panelClass: ['error'] }),
                 );
-                expect(opened.bulk.items.map((item) => item.file.name)).toEqual(
-                    ['photo.png'],
-                );
+                expect(
+                    opened.bulk.items.map((item) => item.file?.name),
+                ).toEqual(['photo.png']);
             },
         );
 

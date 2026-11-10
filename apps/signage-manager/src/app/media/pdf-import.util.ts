@@ -89,6 +89,21 @@ export function pdfOutputSize(
     };
 }
 
+/**
+ * Size of the image a page renders to with the import options, from its size
+ * at its own rotation. Known before the page renders.
+ */
+export function pdfPageImageSize(
+    page_size: PdfSize,
+    options: Pick<PdfPageRenderOptions, 'rotation' | 'fit' | 'resolution'>,
+) {
+    return pdfOutputSize(
+        rotatedSize(page_size, options.rotation),
+        options.fit,
+        options.resolution,
+    );
+}
+
 /** Largest box with the page's shape that fits the output, centred in it */
 export function pdfPagePlacement(page: PdfSize, output: PdfSize): PdfPlacement {
     const scale = Math.min(

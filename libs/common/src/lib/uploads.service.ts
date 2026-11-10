@@ -180,6 +180,10 @@ export class UploadsService extends AsyncHandler {
             ...(api_key ? { api_key } : { token: token() }),
             endpoint: '/api/engine/v2/uploads',
             worker_url: 'assets/md5_worker.js',
+            // Drop each upload from the manager once it completes. It keeps
+            // the File otherwise, so every file uploaded stays in memory for
+            // the rest of the session. The upload list here keeps no File.
+            auto_remove: true,
         });
     }
 

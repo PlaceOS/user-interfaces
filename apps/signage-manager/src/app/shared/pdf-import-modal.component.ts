@@ -15,7 +15,6 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -28,13 +27,14 @@ import {
     PdfDocumentHandle,
     PdfImageFormat,
     PdfPageFit,
+    pdfPageImageSize,
     pdfPageName,
     PdfPageRenderOptions,
     PdfResolution,
     releaseCanvas,
     renderPdfPageImage,
 } from '../media/pdf-import.util';
-import type { BulkMediaUploadItem } from './bulk-media-upload-modal.component';
+import type { BulkMediaUploadItem } from './bulk-media-upload.util';
 
 export interface PdfImportModalData {
     file_name: string;
@@ -55,11 +55,18 @@ interface PdfImportPage {
     selected: boolean;
     /** Turn on top of the page's own rotation, in degrees */
     rotation: number;
-    /** PNG data URL of the page at `preview_rotation`, on transparency */
+    /** Object URL of a PNG of the page at `preview_rotation`, on
+     * transparency. A blob rather than a data URL string, which would sit
+     * in the script heap. */
     preview: string;
     /** Rotation the preview was last rendered at, or tried at */
     preview_rotation: number | null;
     preview_failed: boolean;
+}
+
+/** Free the memory behind a preview's object URL */
+function revokePreview(preview: string) {
+    if (preview) URL.revokeObjectURL(preview);
 }
 
 /** Bounds of a page preview, in pixels. Twice the display size for HiDPI. */
@@ -476,52 +483,24 @@ const BACKGROUND_COLOURS: Record<
                 class="text-base-content/70 min-w-0 flex-1 text-sm"
                 role="status"
             >
-                @if (importing()) {
-                    {{
-                        'SIGNAGE_MANAGER.PDF_IMPORT_RENDERING'
-                            | translate
-                                : {
-                                      current: progress().current,
-                                      total: progress().total,
-                                  }
-                    }}
-                    <mat-progress-bar
-                        mode="determinate"
-                        class="mt-1"
-                        [value]="progress_percent()"
-                    />
-                } @else {
-                    {{
-                        'SIGNAGE_MANAGER.PDF_IMPORT_SELECTED'
-                            | translate
-                                : {
-                                      count: selected_count(),
-                                      total: pages().length,
-                                  }
-                    }}
-                }
+                {{
+                    'SIGNAGE_MANAGER.PDF_IMPORT_SELECTED'
+                        | translate
+                            : {
+                                  count: selected_count(),
+                                  total: pages().length,
+                              }
+                }}
             </div>
-            @if (importing()) {
-                <button
-                    btn
-                    matRipple
-                    type="button"
-                    class="inverse w-32"
-                    (click)="stop()"
-                >
-                    {{ 'COMMON.CANCEL' | translate }}
-                </button>
-            } @else {
-                <button
-                    btn
-                    matRipple
-                    type="button"
-                    class="inverse w-32"
-                    mat-dialog-close
-                >
-                    {{ 'COMMON.CANCEL' | translate }}
-                </button>
-            }
+            <button
+                btn
+                matRipple
+                type="button"
+                class="inverse w-32"
+                mat-dialog-close
+            >
+                {{ 'COMMON.CANCEL' | translate }}
+            </button>
             <button
                 btn
                 matRipple
@@ -608,7 +587,6 @@ const BACKGROUND_COLOURS: Record<
         MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
-        MatProgressBarModule,
         MatProgressSpinnerModule,
         MatRippleModule,
         MatSelectModule,
@@ -648,8 +626,8 @@ export class PdfImportModalComponent implements OnInit {
             preview_failed: false,
         })),
     );
+    /** Set while the page sizes of the selected pages are read */
     public readonly importing = signal(false);
-    public readonly progress = signal({ current: 0, total: 0 });
 
     public readonly base_name = computed(() => this.name().trim());
     public readonly example_name = computed(() =>
@@ -667,10 +645,6 @@ export class PdfImportModalComponent implements OnInit {
     public readonly selected_count = computed(
         () => this.pages().filter((page) => page.selected).length,
     );
-    public readonly progress_percent = computed(() => {
-        const { current, total } = this.progress();
-        return total ? Math.round(((current - 1) / total) * 100) : 0;
-    });
 
     private _renderPage = renderPdfPageImage;
     /** Page clicked last, for shift-click range selection */
@@ -678,12 +652,11 @@ export class PdfImportModalComponent implements OnInit {
     /** Stops preview rendering when the modal closes */
     private readonly _previews_abort = new AbortController();
     private _previews_running = false;
-    private _import_abort: AbortController | null = null;
 
     constructor() {
         inject(DestroyRef).onDestroy(() => {
             this._previews_abort.abort();
-            this._import_abort?.abort();
+            for (const page of this.pages()) revokePreview(page.preview);
         });
     }
 
@@ -753,17 +726,15 @@ export class PdfImportModalComponent implements OnInit {
                 const rotation = page.rotation;
                 let preview = '';
                 try {
-                    const layer = await this._data.document.renderLayer(
-                        page.number,
-                        rotation,
-                        PREVIEW_BOUNDS,
-                        signal,
-                    );
-                    preview = layer.toDataURL('image/png');
-                    releaseCanvas(layer);
+                    preview = await this._renderPreview(page.number, rotation);
                 } catch {
                     if (signal.aborted) return;
                 }
+                if (signal.aborted) {
+                    revokePreview(preview);
+                    return;
+                }
+                revokePreview(page.preview);
                 this._updatePages((item) =>
                     item.number === page.number
                         ? {
@@ -781,78 +752,78 @@ export class PdfImportModalComponent implements OnInit {
         }
     }
 
-    /** Stop the import after the page that is rendering */
-    public stop() {
-        this._import_abort?.abort();
-    }
-
     /**
-     * Render each selected page at full size and close with them, ready to
-     * upload. A page that fails is left out and named in an error. Cancelling
-     * keeps the modal open with the options as they were.
+     * Close with the selected pages, ready for the bulk upload. Pages are not
+     * rendered here: each one renders at full size just before it uploads,
+     * so a long PDF never holds more than one page image in memory.
      */
     public async importPages() {
         const base_name = this.base_name();
         const selected = this.pages().filter((page) => page.selected);
         if (this.importing() || !selected.length || !base_name) return;
-        const abort = new AbortController();
-        this._import_abort = abort;
         this.importing.set(true);
-        this._dialog_ref.disableClose = true;
-        const items: BulkMediaUploadItem[] = [];
-        const failed: number[] = [];
         try {
-            for (const [index, page] of selected.entries()) {
-                if (abort.signal.aborted) break;
-                this.progress.set({
-                    current: index + 1,
-                    total: selected.length,
-                });
-                const name = pdfPageName(base_name, page.number);
-                try {
-                    const image = await this._renderPage(
-                        this._data.document,
-                        page.number,
-                        this._renderOptions(page),
-                        name,
-                        abort.signal,
+            const document_handle = this._data.document;
+            const render_page = this._renderPage;
+            const items = await Promise.all(
+                selected.map(async (page): Promise<BulkMediaUploadItem> => {
+                    const options = this._renderOptions(page);
+                    const name = pdfPageName(base_name, page.number);
+                    const { width, height } = pdfPageImageSize(
+                        await document_handle.pageSize(page.number),
+                        options,
                     );
-                    items.push({
-                        file: image.file,
+                    return {
                         media_type: 'image',
                         name,
                         tags: [base_name],
                         metadata: {
-                            width: image.width,
-                            height: image.height,
-                            is_landscape: image.width > image.height,
+                            width,
+                            height,
+                            is_landscape: width > height,
                             duration: 0,
                         },
-                    });
-                } catch {
-                    if (abort.signal.aborted) break;
-                    failed.push(page.number);
-                }
-            }
-        } finally {
-            this._import_abort = null;
-            this._dialog_ref.disableClose = false;
-            this.importing.set(false);
-        }
-        if (abort.signal.aborted) {
-            void this.renderPreviews();
-            return;
-        }
-        if (failed.length) {
+                        loadFile: async () =>
+                            (
+                                await render_page(
+                                    document_handle,
+                                    page.number,
+                                    options,
+                                    name,
+                                )
+                            ).file,
+                    };
+                }),
+            );
+            this._dialog_ref.close(items);
+        } catch {
             notifyError(
-                i18n('SIGNAGE_MANAGER.PDF_IMPORT_ERR_PAGES', {
-                    pages: failed.join(', '),
+                i18n('SIGNAGE_MANAGER.PDF_IMPORT_ERR_INVALID', {
                     name: this.file_name,
                 }),
             );
+        } finally {
+            this.importing.set(false);
         }
-        if (!items.length) return;
-        this._dialog_ref.close(items);
+    }
+
+    /** Object URL of a small PNG of a page, on transparency */
+    private async _renderPreview(page_number: number, rotation: number) {
+        const layer = await this._data.document.renderLayer(
+            page_number,
+            rotation,
+            PREVIEW_BOUNDS,
+            this._previews_abort.signal,
+        );
+        try {
+            const blob = await new Promise<Blob | null>((resolve) =>
+                layer.toBlob(resolve, 'image/png'),
+            );
+            if (!blob) throw new Error('Could not write the preview');
+            return URL.createObjectURL(blob);
+        } finally {
+            releaseCanvas(layer);
+        }
     }
 
     private _renderOptions(page: PdfImportPage): PdfPageRenderOptions {
