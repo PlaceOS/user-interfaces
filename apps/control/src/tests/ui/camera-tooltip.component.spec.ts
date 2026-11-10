@@ -135,6 +135,22 @@ describe('CameraTooltipComponent', () => {
         expect('button[preset]:not(.inverse)').toHaveText('Desk');
     });
 
+    it('should show no presets when the camera index has no presets', () => {
+        available_cameras.set([
+            { id: 'cam1', name: 'Camera 1', mod: 'VidConf_1', index: '2' },
+        ]);
+        selected_camera.set('cam1');
+        spectator.detectChanges();
+        const binding = spectator.query(BindingDirective);
+        binding?.modelChange.emit({ '1': ['Wide'] });
+        spectator.detectChanges();
+        expect(spectator.component.presets()).toEqual([]);
+        expect('button[preset]').not.toExist();
+        binding?.modelChange.emit({ '2': ['Desk'] });
+        spectator.detectChanges();
+        expect('button[preset]').toHaveText('Desk');
+    });
+
     it('should clear the recalled preset when another control changes camera', () => {
         mockExecute();
         available_cameras.set([

@@ -231,13 +231,7 @@ import {
             <div hidden>
                 <i
                     binding
-                    (modelChange)="
-                        presets.set(
-                            active_camera()?.index
-                                ? ($event || [])[active_camera()?.index]
-                                : $event || []
-                        )
-                    "
+                    (modelChange)="updatePresets($event)"
                     [sys]="id"
                     [mod]="active_camera()?.mod"
                     [bind]="
@@ -309,6 +303,22 @@ export class CameraTooltipComponent {
         this.active_camera.set(camera);
         this.preset.set('');
         selectCamera(this.id, camera.id);
+    }
+
+    /**
+     * Store presets from the camera binding. An indexed camera reads its list
+     * from the `camera_presets` map. The map can have no entry for the index.
+     */
+    public updatePresets(value: unknown) {
+        const index = this.active_camera()?.index;
+        const list = index
+            ? (value as Record<string, unknown> | null)?.[index]
+            : value;
+        this.presets.set(
+            Array.isArray(list)
+                ? list.filter((_): _ is string => typeof _ === 'string')
+                : [],
+        );
     }
 
     public recallPreset(preset: string) {
