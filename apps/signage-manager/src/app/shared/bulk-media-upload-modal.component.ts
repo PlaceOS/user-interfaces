@@ -24,6 +24,9 @@ export interface BulkMediaUploadItem {
     file: File;
     media_type: 'image' | 'video';
     metadata: SignageMediaMetadata;
+    /** Media name. The file name when not set. */
+    name?: string;
+    tags?: string[];
 }
 
 export interface BulkMediaUploadModalData {
@@ -127,7 +130,9 @@ function uploadErrorMessage(error: unknown) {
                         }}
                     </icon>
                     <div class="min-w-0 flex-1">
-                        <div class="truncate">{{ row.item.file.name }}</div>
+                        <div class="truncate">
+                            {{ row.item.name || row.item.file.name }}
+                        </div>
                         <div class="text-base-content/70 truncate text-xs">
                             @if (row.status === 'error') {
                                 <span class="text-error">{{ row.error }}</span>
