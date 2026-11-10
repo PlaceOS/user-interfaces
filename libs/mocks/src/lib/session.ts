@@ -224,8 +224,12 @@ export function persistById<T extends { id?: string | number }>(
     return list;
 }
 
-/** Mark the items with these IDs as changed in each `persistById` list */
-function markChanged(ids: unknown[]) {
+/**
+ * Mark the items with these IDs as changed in each `persistById` list, so the
+ * next save keeps them. Write endpoints do this for you. Call it when other
+ * mock code, such as a mock module, changes an item in place.
+ */
+export function markChanged(ids: unknown[]) {
     const keys = ids.filter((id) => id !== undefined && id !== null);
     if (!keys.length) return;
     for (const { list, dirty } of _lists.values()) {

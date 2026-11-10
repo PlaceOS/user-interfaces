@@ -10,9 +10,9 @@ describe('moduleState', () => {
         const mod = {
             _volume: binding(40),
             _inputs: binding(['PC1']),
-            // `_ended` in the mock class, so ts-client adds `__ended`
-            __ended: binding(new Set(['event-1'])),
-            _seen: binding(new Map()),
+            // `_seen` in the mock class, so ts-client adds `__seen`
+            __seen: binding(new Set(['event-1'])),
+            _other: binding(new Map()),
             $volume: () => undefined,
         };
 

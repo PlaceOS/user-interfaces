@@ -1,7 +1,7 @@
 import { timePeriodsIntersect } from '@placeos/common';
 import { mockSystem } from '@placeos/ts-client';
 import { mockId, persistById, registerMockEndpoint } from '../session';
-import { MOCK_EVENTS } from './events.data';
+import { eventSpaces, MOCK_EVENTS } from './events.data';
 import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 
@@ -12,20 +12,12 @@ function findEvent(id: string) {
     return event;
 }
 
-/** Tell the system's Bookings module to load its events again */
-function pollSystem(id?: string) {
-    mockSystem(id)?.Bookings?.[0]?.$poll_bookings();
+/** Tell the Bookings module of each space to load its events again */
+function pollSpaces(ids: (string | undefined)[]) {
+    for (const id of new Set(ids)) {
+        if (id) mockSystem(id)?.Bookings?.[0]?.$poll_bookings();
+    }
 }
-
-/** IDs of the spaces an event books */
-const eventSpaces = (event: any): string[] =>
-    [
-        event.system?.id,
-        ...(event.resources || []).map((space) => space.id),
-        ...(event.attendees || [])
-            .filter((user) => user.resource)
-            .map((space) => space.id),
-    ].filter(Boolean);
 
 /** IDs of the event's spaces that already have an event at the same time */
 function clashingSpaces(event: any, include_time: boolean) {
@@ -57,7 +49,7 @@ export function registerMockEvents() {
     // About 45MB as JSON, so only changed events are kept. Rooms show the
     // events from other tabs at once, without their 30 second poll.
     persistById('events', MOCK_EVENTS, {
-        onLoad: () => MOCK_SPACES.forEach((space) => pollSystem(space.id)),
+        onLoad: () => pollSpaces(MOCK_SPACES.map((space) => space.id)),
     });
 
     registerMockEndpoint({
@@ -118,7 +110,7 @@ export function registerMockEvents() {
                 ];
             }
             MOCK_EVENTS.push(new_event);
-            pollSystem(new_event.system?.id);
+            pollSpaces(eventSpaces(new_event));
             return new_event;
         },
     });
@@ -153,14 +145,16 @@ export function registerMockEvents() {
                 (event) => event.id === request.route_params.id,
             );
             if (index >= 0) {
-                if (MOCK_EVENTS[index].host === ACTIVE_USER.email) {
+                const event = MOCK_EVENTS[index];
+                if (event.host === ACTIVE_USER.email) {
                     MOCK_EVENTS.splice(index, 1);
                 } else {
-                    const user = MOCK_EVENTS[index].attendees.find(
+                    const user = event.attendees.find(
                         (_) => _.email === ACTIVE_USER.email,
                     );
                     user.response_status = 'declined';
                 }
+                pollSpaces(eventSpaces(event));
                 return;
             }
             throw { status: 404, message: 'Event not found' };
@@ -177,9 +171,16 @@ export function registerMockEvents() {
                 );
                 if (index < 0)
                     throw { status: 404, message: 'Event not found' };
-                const event = { ...MOCK_EVENTS[index], ...request.body };
+                const previous = MOCK_EVENTS[index];
+                const event = { ...previous, ...request.body };
                 MOCK_EVENTS.splice(index, 1, event);
-                pollSystem(request.query_params.system_id || event.system?.id);
+                // Spaces the event leaves must drop it, as well as the
+                // spaces it now books
+                pollSpaces([
+                    request.query_params.system_id,
+                    ...eventSpaces(previous),
+                    ...eventSpaces(event),
+                ]);
                 return event;
             },
         });
