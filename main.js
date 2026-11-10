@@ -1,21 +1,21 @@
 import {
   CommandPaletteService
-} from "./chunk-CEAXGHWH.js";
+} from "./chunk-6QTWIGSW.js";
 import {
   SignageTemplateService
-} from "./chunk-GBPSGFOP.js";
+} from "./chunk-QYANVINP.js";
 import "./chunk-WHMTBJEO.js";
 import "./chunk-VYHIXRTW.js";
-import "./chunk-I463ZZXL.js";
+import "./chunk-AYMTEOKZ.js";
 import {
   SignageContextService
-} from "./chunk-H44MNH6H.js";
+} from "./chunk-6II5JN2Y.js";
 import "./chunk-SUHBQTO6.js";
 import "./chunk-VXDPGMUS.js";
 import {
   AnnounceDirective,
   openConfirmModal
-} from "./chunk-3UZBDKWZ.js";
+} from "./chunk-4DVXAU3I.js";
 import "./chunk-H3YU5OJJ.js";
 import {
   MatDialog
@@ -41,7 +41,7 @@ import {
   retryInitialisation,
   serviceWorkerUpdate,
   setMocks
-} from "./chunk-UQXBKVLO.js";
+} from "./chunk-E5Y3LTVC.js";
 import "./chunk-BYJQITNS.js";
 import "./chunk-4XDY7DFN.js";
 import {
@@ -57,7 +57,7 @@ import {
   settingSignal,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-BT5HRAAQ.js";
+} from "./chunk-SNHIXH33.js";
 import {
   IconComponent
 } from "./chunk-KUBCKOBU.js";
@@ -827,7 +827,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-K5XFLTU3.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-DEFYWHOT.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -955,7 +955,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-K5XFLTU3.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-DEFYWHOT.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -10227,7 +10227,7 @@ function mocksInit() {
 // apps/signage-manager/src/app/app.component.ts
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-VHIB5ONJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-LJHE67UP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -10305,7 +10305,7 @@ var AppComponent = class _AppComponent {
     setMocks(mocksInit);
     await this._placeos.init();
     this._uploads.init();
-    const { ImageGenService } = await import("./image-gen.service-23FMISEC.js");
+    const { ImageGenService } = await import("./image-gen.service-ACB4GPJ7.js");
     const image_gen = this._injector.get(ImageGenService);
     await image_gen.load(Mt()?.config?.org_zone);
     if (image_gen.enabled())
@@ -10359,7 +10359,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-VHIB5ONJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-LJHE67UP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10496,51 +10496,51 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-UEUUSMDA.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-XL737BQD.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-FKCRTFPS.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-LTM3PKAT.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-FKCRTFPS.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-LTM3PKAT.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "templates/:id",
         canActivate: [templatesEnabledGuard],
         canDeactivate: [templateUnsavedGuard],
-        loadComponent: () => import("./templates.component-AEKS5LJ2.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-CWIHBTM4.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "templates",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-AEKS5LJ2.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-CWIHBTM4.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-LC4XYUWX.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-BHYVEL42.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-UZGJDVJD.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-RKVUBCCL.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-UZGJDVJD.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-RKVUBCCL.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "manage",
-        loadComponent: () => import("./manage.component-6CBUMLBN.js").then((m) => m.ManageSectionComponent),
+        loadComponent: () => import("./manage.component-UR7UV7TE.js").then((m) => m.ManageSectionComponent),
         children: [
           { path: "", pathMatch: "full", redirectTo: "report" },
           {
             path: "report",
-            loadComponent: () => import("./content-report.component-73E3YQZ6.js").then((m) => m.ContentReportComponent)
+            loadComponent: () => import("./content-report.component-VADCZ7P3.js").then((m) => m.ContentReportComponent)
           },
           {
             path: "branding",
-            loadComponent: () => import("./branding.component-WHV4N3MC.js").then((m) => m.BrandingComponent)
+            loadComponent: () => import("./branding.component-3FP3IXA7.js").then((m) => m.BrandingComponent)
           }
         ]
       },
@@ -10550,15 +10550,15 @@ var APP_ROUTES = [
       {
         path: "groups",
         canActivate: [manageGroupsGuard],
-        loadComponent: () => import("./groups.component-YLBNNS4S.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-2GIEXRF4.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-D6L7XCR6.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-WLBRN777.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-D6L7XCR6.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-WLBRN777.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
