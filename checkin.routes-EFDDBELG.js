@@ -2,8 +2,8 @@ import {
   CheckinComponent,
   CheckinErrorComponent,
   CheckinQRScanComponent
-} from "./chunk-6NSNCL5X.js";
-import "./chunk-NXDTA3OV.js";
+} from "./chunk-3ICGQZ3D.js";
+import "./chunk-3WOCFOEZ.js";
 import {
   PageHeadingDirective
 } from "./chunk-DXE5MFOJ.js";
@@ -19,7 +19,7 @@ import {
   MatRadioModule,
   UserAvatarComponent,
   ensureHiddenCategory
-} from "./chunk-E2ECWNGK.js";
+} from "./chunk-EGXD36R6.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule
@@ -27,14 +27,14 @@ import {
 import {
   MatSelect,
   MatSelectModule
-} from "./chunk-B3HOFHKY.js";
+} from "./chunk-H2MTYH3F.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-4Q7T2TMZ.js";
+} from "./chunk-OAYXMGIS.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-KHD432UC.js";
+} from "./chunk-WQP4GJZ4.js";
 import {
   MatError,
   MatFormField,
@@ -48,24 +48,24 @@ import {
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-7FZO67WO.js";
+} from "./chunk-IVQ2324O.js";
 import {
   AnnounceDirective,
   getGuestCateringItem,
   setGuestCateringItem
-} from "./chunk-VFCAC263.js";
+} from "./chunk-JO6NJBCK.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-4TKNE5VE.js";
+} from "./chunk-N2GDFQMA.js";
 import {
   FormField,
   email,
   form,
   required
-} from "./chunk-FWQY2OHO.js";
+} from "./chunk-GT7L3GUF.js";
 import {
   TranslatePipe
-} from "./chunk-EUAWUMXJ.js";
+} from "./chunk-GVFLKLIB.js";
 import {
   IconComponent
 } from "./chunk-PB5DIDCH.js";
@@ -74,7 +74,7 @@ import {
   NgControlStatus,
   NgModel,
   OrganisationService
-} from "./chunk-K4GX5DAR.js";
+} from "./chunk-7TFHZSZH.js";
 import {
   AsyncHandler,
   CateringItem,
@@ -94,7 +94,7 @@ import {
   themedLogo,
   up,
   withTimeout
-} from "./chunk-T6AQFL6Y.js";
+} from "./chunk-G6LOEZQG.js";
 import "./chunk-OVBOXSQM.js";
 import {
   MatRipple,
@@ -2763,4 +2763,4 @@ export {
   ROUTES
 };
 //# debugId=a80a00d2-3638-5f31-afda-f9b3416e3b82
-//# sourceMappingURL=checkin.routes-7RL66X2G.js.map
+//# sourceMappingURL=checkin.routes-EFDDBELG.js.map
