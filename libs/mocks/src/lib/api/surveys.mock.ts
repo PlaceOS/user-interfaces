@@ -1,9 +1,6 @@
-import {
-    registerMockEndpoint,
-    Survey,
-    SurveyAnswer,
-    SurveyQuestion,
-} from '@placeos/ts-client';
+import { Survey, SurveyAnswer, SurveyQuestion } from '@placeos/ts-client';
+
+import { persist, registerMockEndpoint } from '../session';
 
 export const MOCK_SURVEYS: Survey[] = [
     {
@@ -576,7 +573,26 @@ export const MOCK_ANSWERS: SurveyAnswer[] = [
     },
 ];
 
+/** Next free numeric ID in `list` */
+const nextId = (list: { id?: number }[]) =>
+    Math.max(0, ...list.map((item) => Number(item.id) || 0)) + 1;
+
+/** Find the item with the numeric route ID, or throw a 404 */
+function findById<T extends { id?: number }>(
+    list: T[],
+    id: string,
+    label: string,
+) {
+    const item = list.find((entry) => entry.id === parseInt(id));
+    if (!item) throw { status: 404, message: `${label} not found` };
+    return item;
+}
+
 export function registerMockSurveys() {
+    persist('surveys', MOCK_SURVEYS);
+    persist('survey-questions', MOCK_QUESTIONS);
+    persist('survey-answers', MOCK_ANSWERS);
+
     registerMockEndpoint({
         path: '/api/staff/v1/surveys',
         method: 'GET',
@@ -746,10 +762,8 @@ export function registerMockSurveys() {
             const created_answers: SurveyAnswer[] = [];
 
             for (const answer of answers) {
-                const new_id =
-                    Math.max(...MOCK_ANSWERS.map((a) => a.id as number), 0) + 1;
                 const new_answer: SurveyAnswer = {
-                    id: new_id,
+                    id: nextId(MOCK_ANSWERS),
                     survey_id: answer.survey_id,
                     question_id: answer.question_id,
                     type: answer.type,
@@ -762,6 +776,73 @@ export function registerMockSurveys() {
             return created_answers.length === 1
                 ? created_answers[0]
                 : created_answers;
+        },
+    });
+    registerMockEndpoint({
+        path: '/api/staff/v1/surveys',
+        method: 'POST',
+        callback: ({ body }) => {
+            const survey = { ...body, id: nextId(MOCK_SURVEYS) } as Survey;
+            MOCK_SURVEYS.push(survey);
+            return survey;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/surveys/:id',
+        method: 'PATCH',
+        callback: ({ route_params, body }) => {
+            const survey = findById(MOCK_SURVEYS, route_params.id, 'Survey');
+            return Object.assign(survey, body, { id: survey.id });
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/surveys/:id',
+        method: 'DELETE',
+        callback: ({ route_params }) => {
+            const survey = findById(MOCK_SURVEYS, route_params.id, 'Survey');
+            MOCK_SURVEYS.splice(MOCK_SURVEYS.indexOf(survey), 1);
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/surveys/questions',
+        method: 'POST',
+        callback: ({ body }) => {
+            const question = {
+                ...body,
+                id: nextId(MOCK_QUESTIONS),
+            } as SurveyQuestion;
+            MOCK_QUESTIONS.push(question);
+            return question;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/surveys/questions/:id',
+        method: 'PATCH',
+        callback: ({ route_params, body }) => {
+            const question = findById(
+                MOCK_QUESTIONS,
+                route_params.id,
+                'Question',
+            );
+            return Object.assign(question, body, { id: question.id });
+        },
+    });
+
+    // The real API keeps deleted questions so old answers still resolve
+    registerMockEndpoint({
+        path: '/api/staff/v1/surveys/questions/:id',
+        method: 'DELETE',
+        callback: ({ route_params }) => {
+            const question = findById(
+                MOCK_QUESTIONS,
+                route_params.id,
+                'Question',
+            );
+            question.deleted = true;
         },
     });
 }

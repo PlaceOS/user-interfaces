@@ -18,8 +18,8 @@ describe('mocksInit', () => {
         // `createSystem` polls the system it just registered
         vi.useFakeTimers();
         vi.mocked(mockSystem).mockReturnValue({
-            Bookings: [{ $poll_bookings: vi.fn() }],
-            AreaManagement: [{ $update: vi.fn() }],
+            Bookings: [{ $poll_bookings: vi.fn(), call: vi.fn() }],
+            AreaManagement: [{ $update: vi.fn(), call: vi.fn() }],
         } as any);
         vi.mocked(registerMockEndpoint).mockClear();
     });
@@ -77,6 +77,32 @@ describe('mocksInit', () => {
         // A second registration silently replaces the first, so the earlier
         // handler would never run in mock mode.
         expect(duplicates).toEqual([]);
+    });
+
+    it('should not shadow a fixed route with an earlier parameter route', () => {
+        mocksInit();
+        const parts = (path: string) => path.replace(/^\//, '').split('/');
+        const handlers = registrations();
+        const shadowed: string[] = [];
+
+        // ts-client uses the first registered handler whose shape fits, and a
+        // `:param` segment fits any value
+        handlers.forEach(({ method, path }, index) => {
+            const route = parts(path);
+            const earlier = handlers.slice(0, index).find((other) => {
+                const other_route = parts(other.path);
+                return (
+                    other.method === method &&
+                    other_route.length === route.length &&
+                    other_route.every(
+                        (part, i) => part[0] === ':' || part === route[i],
+                    )
+                );
+            });
+            if (earlier) shadowed.push(`${method} ${path} <- ${earlier.path}`);
+        });
+
+        expect(shadowed).toEqual([]);
     });
 
     it('should register nothing in the production build', () => {

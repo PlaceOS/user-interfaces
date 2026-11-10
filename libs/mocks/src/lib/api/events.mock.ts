@@ -1,8 +1,65 @@
-import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
-import { mockSystem, registerMockEndpoint } from '@placeos/ts-client';
+import { timePeriodsIntersect } from '@placeos/common';
+import { mockSystem } from '@placeos/ts-client';
+import { mockId, persistById, registerMockEndpoint } from '../session';
 import { MOCK_EVENTS } from './events.data';
+import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_STAFF } from './users.data';
+
+/** Find the event with the given ID, or throw a 404 */
+function findEvent(id: string) {
+    const event = MOCK_EVENTS.find((item) => item.id === id);
+    if (!event) throw { status: 404, message: 'Event not found' };
+    return event;
+}
+
+/** Tell the system's Bookings module to load its events again */
+function pollSystem(id?: string) {
+    mockSystem(id)?.Bookings?.[0]?.$poll_bookings();
+}
+
+/** IDs of the spaces an event books */
+const eventSpaces = (event: any): string[] =>
+    [
+        event.system?.id,
+        ...(event.resources || []).map((space) => space.id),
+        ...(event.attendees || [])
+            .filter((user) => user.resource)
+            .map((space) => space.id),
+    ].filter(Boolean);
+
+/** IDs of the event's spaces that already have an event at the same time */
+function clashingSpaces(event: any, include_time: boolean) {
+    const space_ids = eventSpaces(event);
+    const clashes = MOCK_EVENTS.filter(
+        (other) =>
+            other.id !== event.id &&
+            timePeriodsIntersect(
+                event.event_start,
+                event.event_end,
+                other.event_start,
+                other.event_end,
+            ),
+    ).flatMap((other) =>
+        eventSpaces(other)
+            .filter((id) => space_ids.includes(id))
+            .map((asset_id) => ({
+                asset_id,
+                booking_start: other.event_start,
+                booking_end: other.event_end,
+            })),
+    );
+    return include_time
+        ? clashes
+        : [...new Set(clashes.map((clash) => clash.asset_id))];
+}
+
 export function registerMockEvents() {
+    // About 45MB as JSON, so only changed events are kept. Rooms show the
+    // events from other tabs at once, without their 30 second poll.
+    persistById('events', MOCK_EVENTS, {
+        onLoad: () => MOCK_SPACES.forEach((space) => pollSystem(space.id)),
+    });
+
     registerMockEndpoint({
         path: '/api/staff/v1/events',
         method: 'GET',
@@ -44,7 +101,7 @@ export function registerMockEvents() {
         callback: (request) => {
             const new_event = {
                 ...request.body,
-                id: `-cal-event-${predictableRandomInt(999)}`,
+                id: mockId('-cal-event-'),
             };
             new_event.attendees = [
                 MOCK_STAFF.find((_) => _.email === new_event.host),
@@ -61,11 +118,17 @@ export function registerMockEvents() {
                 ];
             }
             MOCK_EVENTS.push(new_event);
-
-            const system = mockSystem(new_event.system?.id);
-            system?.Bookings[0]?.$poll_bookings();
+            pollSystem(new_event.system?.id);
             return new_event;
         },
+    });
+
+    // Before `/events/:id`, which would match `history` as an ID. The mock
+    // keeps no change history.
+    registerMockEndpoint({
+        path: '/api/staff/v1/events/history',
+        method: 'GET',
+        callback: () => [],
     });
 
     registerMockEndpoint({
@@ -89,7 +152,7 @@ export function registerMockEvents() {
             const index = MOCK_EVENTS.findIndex(
                 (event) => event.id === request.route_params.id,
             );
-            if (index > 0) {
+            if (index >= 0) {
                 if (MOCK_EVENTS[index].host === ACTIVE_USER.email) {
                     MOCK_EVENTS.splice(index, 1);
                 } else {
@@ -104,41 +167,111 @@ export function registerMockEvents() {
         },
     });
 
-    registerMockEndpoint({
-        path: '/api/staff/v1/events/:id',
-        method: 'PATCH',
-        callback: (request) => {
-            const index = MOCK_EVENTS.findIndex(
-                (event) => event.id === request.route_params.id,
-            );
-            if (index >= 0) {
+    for (const method of ['PATCH', 'PUT'] as const) {
+        registerMockEndpoint({
+            path: '/api/staff/v1/events/:id',
+            method,
+            callback: (request) => {
+                const index = MOCK_EVENTS.findIndex(
+                    (event) => event.id === request.route_params.id,
+                );
+                if (index < 0)
+                    throw { status: 404, message: 'Event not found' };
                 const event = { ...MOCK_EVENTS[index], ...request.body };
                 MOCK_EVENTS.splice(index, 1, event);
-                const system = mockSystem(
-                    request.query_params.system_id || event.system?.id,
-                );
-                system?.Bookings?.[0]?.$poll_bookings();
+                pollSystem(request.query_params.system_id || event.system?.id);
                 return event;
-            }
-            throw { status: 404, message: 'Event not found' };
-        },
-    });
+            },
+        });
+    }
 
     registerMockEndpoint({
         path: '/api/staff/v1/events/:id/guests/:email/checkin',
         method: 'POST',
         callback: (request) => {
-            const event = MOCK_EVENTS.find(
-                (event) => event.id === request.route_params.id,
+            const event = findEvent(request.route_params.id);
+            const email = decodeURIComponent(request.route_params.email);
+            const state = `${request.query_params.state ?? 'true'}` === 'true';
+            event.extension_data ||= {};
+            const checked_in: string[] = (
+                event.extension_data.checked_in || []
+            ).filter((item: string) => item !== email);
+            event.extension_data.checked_in = state
+                ? [...checked_in, email]
+                : checked_in;
+            const guest = event.attendees.find((user) => user.email === email);
+            return { ...(guest || { email }), checked_in: state };
+        },
+    });
+    registerMockEndpoint({
+        path: '/api/staff/v1/events/clashing-assets',
+        method: 'POST',
+        callback: (request) =>
+            clashingSpaces(
+                request.body || {},
+                `${request.query_params.include_clash_time}` === 'true',
+            ),
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/events/:id/decline',
+        method: 'POST',
+        callback: (request) => {
+            const event = findEvent(request.route_params.id);
+            const user = event.attendees.find(
+                (item) => item.email === ACTIVE_USER.email,
             );
-            if (event) {
-                const checked_in = event.extension_data.checked_in || [];
-                event.extension_data.checked_in = checked_in.concat([
-                    request.route_params.email,
-                ]);
-                return event;
-            }
-            throw { status: 404, message: 'Guest not found' };
+            if (user) user.response_status = 'declined';
+            return event;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/events/:id/attendee',
+        method: 'POST',
+        callback: (request) => {
+            const event = findEvent(request.route_params.id);
+            const guest = { ...request.body };
+            event.attendees = [
+                ...event.attendees.filter((user) => user.email !== guest.email),
+                guest,
+            ];
+            return guest;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/events/:id/attendee/:email',
+        method: 'DELETE',
+        callback: (request) => {
+            const event = findEvent(request.route_params.id);
+            const email = decodeURIComponent(request.route_params.email);
+            const guest = event.attendees.find((user) => user.email === email);
+            if (!guest) throw { status: 404, message: 'Guest not found' };
+            event.attendees = event.attendees.filter((user) => user !== guest);
+            return guest;
+        },
+    });
+
+    // The mock keeps one set of extension data for each event, whichever
+    // system asks for it
+    registerMockEndpoint({
+        path: '/api/staff/v1/events/:id/metadata/:system_id',
+        method: 'GET',
+        callback: (request) =>
+            findEvent(request.route_params.id).extension_data || {},
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/events/:id/metadata/:system_id',
+        method: 'PATCH',
+        callback: (request) => {
+            const event = findEvent(request.route_params.id);
+            event.extension_data = {
+                ...(event.extension_data || {}),
+                ...request.body,
+            };
+            return event.extension_data;
         },
     });
 }

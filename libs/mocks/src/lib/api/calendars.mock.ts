@@ -1,4 +1,4 @@
-import { registerMockEndpoint } from '@placeos/ts-client';
+import { registerMockEndpoint } from '../session';
 
 import { MOCK_EVENTS } from './events.data';
 import { MOCK_SPACES } from './spaces.data';
@@ -102,5 +102,20 @@ export function registerMockCalendars() {
             handleSpaceAvailability(request).map((_) => ({
                 resource: _,
             })),
+    });
+    // The active user owns their calendar and can edit other staff calendars
+    registerMockEndpoint({
+        path: '/api/staff/v1/calendars/:email/permission',
+        method: 'GET',
+        callback: (request) => {
+            const email = decodeURIComponent(request.route_params.email);
+            if (email === ACTIVE_USER.email) {
+                return { can_edit: true, has_access: true, role: 'owner' };
+            }
+            const staff = MOCK_STAFF.some((user) => user.email === email);
+            return staff
+                ? { can_edit: true, has_access: true, role: 'writer' }
+                : { can_edit: false, has_access: false, role: 'none' };
+        },
     });
 }

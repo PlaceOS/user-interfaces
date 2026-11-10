@@ -11,6 +11,7 @@ import {
     initSentryFromSettings,
     lazySnackbar,
     markInitialisationComplete,
+    mockModeRequested,
     retryInitialisation,
     setAppName,
     setNotifyOutlet,
@@ -97,31 +98,37 @@ export class AppComponent extends AsyncHandler implements OnInit {
         // Listen for service worker events before any async setup so update
         // notifications emitted during initialisation are not missed.
         setupCache(this._cache);
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 10_000);
-        let authority: PlaceAuthority;
-        try {
-            const response = await fetch('/auth/authority', {
-                signal: controller.signal,
-            }).finally(() => clearTimeout(timer));
-            if (!response.ok) {
-                throw new Error(`Authority request failed: ${response.status}`);
+        const mock = mockModeRequested();
+        // Mock mode has no server, so it has no enrolment overrides
+        let authority: Partial<PlaceAuthority> = {};
+        if (mock) {
+            await import('@placeos/mocks').then(({ mocksInit }) => mocksInit());
+        } else {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 10_000);
+            try {
+                const response = await fetch('/auth/authority', {
+                    signal: controller.signal,
+                }).finally(() => clearTimeout(timer));
+                if (!response.ok) {
+                    throw new Error(
+                        `Authority request failed: ${response.status}`,
+                    );
+                }
+                authority = await response.json();
+            } catch (error) {
+                this._error_handler.handleError(error);
+                failInitialisation(
+                    'Enrolment could not connect to the server. Check the connection, then try again.',
+                );
+                return;
             }
-            authority = await response.json();
-        } catch (error) {
-            this._error_handler.handleError(error);
-            failInitialisation(
-                'Enrolment could not connect to the server. Check the connection, then try again.',
-            );
-            return;
         }
         /** Wait for settings to initialise */
         await firstTruthyValueFrom(this._settings.initialised);
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
-        settings.mock =
-            !!this._settings.get('mock') ||
-            location.origin.includes('demo.place.tech');
+        settings.mock = mock || !!this._settings.get('mock');
         // Apply the domain config before sign in. It sets `internal_user_domain`.
         this._settings.setOverrides([authority.config?.enrolment || {}]);
         /** Wait for authentication details to load */

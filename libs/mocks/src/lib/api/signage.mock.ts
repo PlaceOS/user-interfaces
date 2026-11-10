@@ -1,7 +1,7 @@
-import { predictableRandomInt } from '@placeos/common';
-import { registerMockEndpoint } from '@placeos/ts-client';
+import { HashMap, predictableRandomInt } from '@placeos/common';
 import { addDays, getUnixTime, subDays } from 'date-fns';
-import { MOCK_STAFF } from './users.data';
+import { mockId, persist, registerMockEndpoint } from '../session';
+import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 import { MOCK_BUILDINGS, MOCK_LEVELS, MOCK_ZONES } from './zone.data';
 
 // Content Categories and Types
@@ -697,8 +697,15 @@ function generateMockPlaylists(displays, media) {
 
 // Create all mock data
 const MOCK_DISPLAYS = generateMockDisplays();
+/**
+ * Media and playlists keep the generated fields that displays read. Changes
+ * from the API go in each item's `engine` field, which `toEngineMedia` and
+ * `toEnginePlaylist` apply last.
+ */
 const MOCK_MEDIA = generateMockMedia();
 const MOCK_PLAYLISTS = generateMockPlaylists(MOCK_DISPLAYS, MOCK_MEDIA);
+const MOCK_TEMPLATES: HashMap[] = [];
+const MOCK_TEMPLATE_MAPPINGS: HashMap[] = [];
 const MOCK_PLUGINS = [
     {
         id: 'weather',
@@ -858,6 +865,7 @@ function toEngineMedia(item: any) {
         valid_from: item.scheduling?.start_date,
         valid_until: item.scheduling?.end_date,
         tags: item.tags || [],
+        ...item.engine,
     };
 }
 
@@ -875,7 +883,48 @@ function toEnginePlaylist(item: any) {
         play_count: 0,
         created_at: item.created_at,
         updated_at: item.updated_at,
+        ...item.engine,
     };
+}
+
+/** Find the item with the given ID, or throw a 404 */
+function findItem<T extends { id?: string }>(
+    list: T[],
+    id: string,
+    label: string,
+) {
+    const item = list.find((entry) => entry.id === id);
+    if (!item) throw { status: 404, message: `${label} not found` };
+    return item;
+}
+
+/** Remove the item with the given ID from `list`, if it is there */
+function removeItem(list: { id?: string }[], id: string) {
+    const index = list.findIndex((entry) => entry.id === id);
+    if (index >= 0) list.splice(index, 1);
+}
+
+/** Merge API changes into the `engine` field of a media item or playlist */
+function applyEngineChanges(item: HashMap, changes: HashMap) {
+    item.engine = { ...item.engine, ...changes };
+    if (changes.tags) item.tags = changes.tags;
+    item.updated_at = getUnixTime(Date.now());
+}
+
+/** Response for a share request: every item is linked */
+function shareResult(query_params: HashMap) {
+    const items = `${query_params?.items || ''}`.split(',').filter(Boolean);
+    return { linked: items, already_present: [] };
+}
+
+/** Users that can approve content for a group */
+function approvers(group_id: string) {
+    return SIGNAGE_GROUP_USERS.filter((item) => item.group_id === group_id).map(
+        (item) => ({
+            id: item.user?.email || item.user_id,
+            name: item.user?.name || item.user_id,
+        }),
+    );
 }
 
 function playlistMediaResponse(playlist_id: string, approved = false) {
@@ -964,8 +1013,17 @@ export function registerMockSignage() {
     // MOCK_ZONES is already imported at the top of the file
 
     // Add signage zone entries for displays
+    persist('signage-media', MOCK_MEDIA);
+    persist('signage-playlists', MOCK_PLAYLISTS);
+    persist('signage-groups', SIGNAGE_GROUPS);
+    persist('signage-group-users', SIGNAGE_GROUP_USERS);
+    persist('signage-group-zones', SIGNAGE_GROUP_ZONES);
+    persist('signage-templates', MOCK_TEMPLATES);
+    persist('signage-template-mappings', MOCK_TEMPLATE_MAPPINGS);
+
     MOCK_DISPLAYS.forEach((display, index) => {
-        if (index < 10) {
+        // Zones restored from the session can hold the display already
+        if (index < 10 && !MOCK_ZONES.some((zone) => zone.id === display.id)) {
             // Only add first 10 to avoid clutter
             MOCK_ZONES.push({
                 id: display.id,
@@ -1266,15 +1324,63 @@ export function registerMockSignage() {
         },
     });
 
+    /** Media of the request's group that has `tag` */
+    const taggedMedia = (query_params: HashMap, tag: string) =>
+        filterByGroup(MOCK_MEDIA, query_params?.group_id).filter((item) =>
+            toEngineMedia(item).tags.includes(tag),
+        );
+
+    // Before `/signage/media/:id`, which would match `tags` as an ID
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/media/tags',
+        method: 'PATCH',
+        callback: ({ query_params }) => {
+            const { current_tag, new_tag } = query_params;
+            for (const item of taggedMedia(query_params, current_tag)) {
+                const tags = toEngineMedia(item).tags.map((tag: string) =>
+                    tag === current_tag ? new_tag : tag,
+                );
+                applyEngineChanges(item, { tags: [...new Set(tags)] });
+            }
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/media/tags',
+        method: 'DELETE',
+        callback: ({ query_params }) => {
+            const { tag } = query_params;
+            for (const item of taggedMedia(query_params, tag)) {
+                if (`${query_params.remove_media}` === 'true') {
+                    removeItem(MOCK_MEDIA, item.id);
+                    continue;
+                }
+                applyEngineChanges(item, {
+                    tags: toEngineMedia(item).tags.filter(
+                        (value: string) => value !== tag,
+                    ),
+                });
+            }
+        },
+    });
+
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media',
         method: 'POST',
-        callback: (request) => ({
-            ...request.body,
-            id: `media-${Date.now()}`,
-            created_at: getUnixTime(Date.now()),
-            updated_at: getUnixTime(Date.now()),
-        }),
+        callback: (request) => {
+            const now = getUnixTime(Date.now());
+            const item = {
+                id: mockId('media-'),
+                name: request.body?.name || '',
+                type: request.body?.media_type === 'video' ? 'video' : 'image',
+                tags: request.body?.tags || [],
+                created_at: now,
+                updated_at: now,
+                engine: { ...request.body },
+            };
+            MOCK_MEDIA.push(item);
+            return toEngineMedia(item);
+        },
     });
 
     registerMockEndpoint({
@@ -1282,7 +1388,7 @@ export function registerMockSignage() {
         method: 'GET',
         callback: (request) => ({
             ...toEngineMedia(
-                MOCK_MEDIA.find((item) => item.id === request.route_params.id),
+                findItem(MOCK_MEDIA, request.route_params.id, 'Media'),
             ),
             shared_with: sharedWithGroups(MOCK_MEDIA, request.route_params.id),
         }),
@@ -1291,19 +1397,25 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media/:id',
         method: 'PATCH',
-        callback: (request) => ({
-            ...toEngineMedia(
-                MOCK_MEDIA.find((item) => item.id === request.route_params.id),
-            ),
-            ...request.body,
-            updated_at: getUnixTime(Date.now()),
-        }),
+        callback: (request) => {
+            const item = findItem(MOCK_MEDIA, request.route_params.id, 'Media');
+            applyEngineChanges(item, request.body || {});
+            return toEngineMedia(item);
+        },
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media/:id',
         method: 'DELETE',
-        callback: () => ({}),
+        callback: (request) => {
+            const id = request.route_params.id;
+            removeItem(MOCK_MEDIA, id);
+            for (const playlist of MOCK_PLAYLISTS) {
+                playlist.items = playlist.items.filter(
+                    (item) => item.media_id !== id,
+                );
+            }
+        },
     });
 
     registerMockEndpoint({
@@ -1333,7 +1445,7 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media/share',
         method: 'POST',
-        callback: () => ({}),
+        callback: (request) => shareResult(request.query_params),
     });
 
     registerMockEndpoint({
@@ -1363,35 +1475,38 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/approvers',
         method: 'GET',
-        callback: (request) =>
-            SIGNAGE_GROUP_USERS.filter(
-                (item) => item.group_id === request.query_params?.group_id,
-            ).map((item) => ({
-                id: item.user?.email || item.user_id,
-                name: item.user?.name || item.user_id,
-            })),
+        callback: (request) => approvers(request.query_params?.group_id),
     });
+
+    const findPlaylist = (id: string) =>
+        findItem(MOCK_PLAYLISTS, id, 'Playlist');
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists',
         method: 'POST',
-        callback: (request) => ({
-            ...request.body,
-            id: `playlist-${Date.now()}`,
-            created_at: getUnixTime(Date.now()),
-            updated_at: getUnixTime(Date.now()),
-        }),
+        callback: (request) => {
+            const now = getUnixTime(Date.now());
+            const playlist = {
+                id: mockId('playlist-'),
+                name: request.body?.name || '',
+                description: request.body?.description || '',
+                status: 'active',
+                items: [],
+                settings: {},
+                created_at: now,
+                updated_at: now,
+                engine: { ...request.body },
+            };
+            MOCK_PLAYLISTS.push(playlist);
+            return toEnginePlaylist(playlist);
+        },
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id',
         method: 'GET',
         callback: (request) => ({
-            ...toEnginePlaylist(
-                MOCK_PLAYLISTS.find(
-                    (item) => item.id === request.route_params.id,
-                ),
-            ),
+            ...toEnginePlaylist(findPlaylist(request.route_params.id)),
             shared_with: sharedWithGroups(
                 MOCK_PLAYLISTS,
                 request.route_params.id,
@@ -1402,21 +1517,18 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id',
         method: 'PATCH',
-        callback: (request) => ({
-            ...toEnginePlaylist(
-                MOCK_PLAYLISTS.find(
-                    (item) => item.id === request.route_params.id,
-                ),
-            ),
-            ...request.body,
-            updated_at: getUnixTime(Date.now()),
-        }),
+        callback: (request) => {
+            const playlist = findPlaylist(request.route_params.id);
+            applyEngineChanges(playlist, request.body || {});
+            return toEnginePlaylist(playlist);
+        },
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id',
         method: 'DELETE',
-        callback: () => ({}),
+        callback: (request) =>
+            removeItem(MOCK_PLAYLISTS, request.route_params.id),
     });
 
     registerMockEndpoint({
@@ -1426,39 +1538,64 @@ export function registerMockSignage() {
             playlistMediaResponse(request.route_params.id, false),
     });
 
+    // The body lists media IDs, or schedule IDs for distribution playlists.
+    // Items keep their schedules when they stay in the list.
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id/media',
         method: 'POST',
-        callback: (request) => ({
-            ...playlistMediaResponse(request.route_params.id, false),
-            items: request.body || [],
-            updated_at: getUnixTime(Date.now()),
-        }),
+        callback: (request) => {
+            const playlist = findPlaylist(request.route_params.id);
+            const distribution = !!playlist.distribution;
+            const refs: string[] = Array.isArray(request.body)
+                ? request.body
+                : [];
+            playlist.items = refs.map(
+                (ref) =>
+                    playlist.items.find(
+                        (item) =>
+                            (distribution ? item.id : item.media_id) === ref,
+                    ) || { id: mockId('item-'), media_id: ref, schedules: [] },
+            );
+            playlist.updated_at = getUnixTime(Date.now());
+            return playlistMediaResponse(playlist.id, false);
+        },
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id/media/schedule',
         method: 'POST',
-        callback: (request) => ({
-            ...playlistMediaResponse(request.route_params.id, false),
-            schedules: [
-                {
-                    id: `schedule-${Date.now()}`,
-                    item_id: request.body?.item_id,
-                    schedules: request.body?.schedules || [],
-                },
-            ],
-        }),
+        callback: (request) => {
+            const playlist = findPlaylist(request.route_params.id);
+            playlist.items.push({
+                id: mockId('schedule-'),
+                media_id: request.body?.item_id,
+                schedules: request.body?.schedules || [],
+            });
+            playlist.updated_at = getUnixTime(Date.now());
+            return playlistMediaResponse(playlist.id, false);
+        },
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/:id/media/schedule/:item_id',
         method: 'PATCH',
-        callback: (request) => ({
-            id: request.route_params.item_id,
-            item_id: request.body?.item_id || request.route_params.item_id,
-            schedules: request.body?.schedules || [],
-        }),
+        callback: (request) => {
+            const playlist = findPlaylist(request.route_params.id);
+            const item = findItem<HashMap>(
+                playlist.items,
+                request.route_params.item_id,
+                'Schedule',
+            );
+            if (request.body?.item_id) item.media_id = request.body.item_id;
+            if (request.body?.schedules)
+                item.schedules = request.body.schedules;
+            playlist.updated_at = getUnixTime(Date.now());
+            return {
+                id: item.id,
+                item_id: item.media_id,
+                schedules: item.schedules || [],
+            };
+        },
     });
 
     registerMockEndpoint({
@@ -1486,9 +1623,12 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists/share',
         method: 'POST',
-        callback: () => ({}),
+        callback: (request) => shareResult(request.query_params),
     });
 
+    registerMockSignageTemplates();
+
+    // After the other `/signage/*` routes, which it would otherwise match
     registerMockEndpoint({
         path: '/api/engine/v2/signage/:id',
         method: 'GET',
@@ -1502,6 +1642,177 @@ export function registerMockSignage() {
     });
 
     registerMockSignageImageGen();
+}
+
+/**
+ * Signage templates and the mappings that show them on displays. The mock
+ * keeps no drafts, so an edit changes the live template.
+ */
+function registerMockSignageTemplates() {
+    const BASE = '/api/engine/v2/signage/templates';
+    const MAPPINGS = '/api/engine/v2/signage/template_mappings';
+    const now = () => new Date().toISOString();
+    const findTemplate = (id: string) =>
+        findItem(MOCK_TEMPLATES, id, 'Template');
+
+    registerMockEndpoint({
+        path: BASE,
+        method: 'GET',
+        callback: ({ query_params }) =>
+            filterByGroup(MOCK_TEMPLATES, query_params?.group_id).filter(
+                (item) =>
+                    `${query_params?.approved}` !== 'true' || item.approved,
+            ),
+    });
+
+    // Before `${BASE}/:id`, which would match these names as IDs
+    registerMockEndpoint({
+        path: `${BASE}/approvers`,
+        method: 'GET',
+        callback: ({ query_params }) => approvers(query_params?.group_id),
+    });
+
+    registerMockEndpoint({
+        path: `${BASE}/share`,
+        method: 'POST',
+        callback: ({ query_params }) => shareResult(query_params),
+    });
+
+    registerMockEndpoint({
+        path: `${BASE}/:id`,
+        method: 'GET',
+        callback: ({ route_params }) => ({
+            ...findTemplate(route_params.id),
+            shared_with: sharedWithGroups(MOCK_TEMPLATES, route_params.id),
+        }),
+    });
+
+    registerMockEndpoint({
+        path: BASE,
+        method: 'POST',
+        callback: ({ body }) => {
+            const template = {
+                tags: [],
+                layouts: [],
+                ...body,
+                id: mockId('template-'),
+                approved: false,
+                approval_requested: false,
+                created_at: now(),
+                updated_at: now(),
+            };
+            MOCK_TEMPLATES.push(template);
+            return template;
+        },
+    });
+
+    registerMockEndpoint({
+        path: `${BASE}/:id`,
+        method: 'PATCH',
+        callback: ({ route_params, body }) =>
+            Object.assign(findTemplate(route_params.id), body, {
+                id: route_params.id,
+                updated_at: now(),
+            }),
+    });
+
+    registerMockEndpoint({
+        path: `${BASE}/:id`,
+        method: 'DELETE',
+        callback: ({ route_params }) => {
+            removeItem(MOCK_TEMPLATES, route_params.id);
+            const mappings = MOCK_TEMPLATE_MAPPINGS.filter(
+                (item) => item.template_id === route_params.id,
+            );
+            mappings.forEach((item) =>
+                removeItem(MOCK_TEMPLATE_MAPPINGS, item.id),
+            );
+        },
+    });
+
+    registerMockEndpoint({
+        path: `${BASE}/:id/draft`,
+        method: 'DELETE',
+        callback: ({ route_params }) => findTemplate(route_params.id),
+    });
+
+    registerMockEndpoint({
+        path: `${BASE}/:id/approve`,
+        method: 'POST',
+        callback: ({ route_params }) =>
+            Object.assign(findTemplate(route_params.id), {
+                approved: true,
+                approval_requested: false,
+                approved_by_id: ACTIVE_USER.id,
+                approved_by_name: ACTIVE_USER.name,
+                approved_by_email: ACTIVE_USER.email,
+                updated_at: now(),
+            }),
+    });
+
+    registerMockEndpoint({
+        path: `${BASE}/:id/request_approval`,
+        method: 'POST',
+        callback: ({ route_params }) => {
+            Object.assign(findTemplate(route_params.id), {
+                approval_requested: true,
+                requested_by_id: ACTIVE_USER.id,
+            });
+        },
+    });
+
+    registerMockEndpoint({
+        path: MAPPINGS,
+        method: 'GET',
+        callback: ({ query_params }) =>
+            MOCK_TEMPLATE_MAPPINGS.filter((item) =>
+                ['control_system_id', 'zone_id', 'template_id'].every(
+                    (key) =>
+                        !query_params?.[key] || item[key] === query_params[key],
+                ),
+            ),
+    });
+
+    registerMockEndpoint({
+        path: `${MAPPINGS}/:id`,
+        method: 'GET',
+        callback: ({ route_params }) =>
+            findItem(MOCK_TEMPLATE_MAPPINGS, route_params.id, 'Mapping'),
+    });
+
+    registerMockEndpoint({
+        path: MAPPINGS,
+        method: 'POST',
+        callback: ({ body }) => {
+            const mapping = {
+                schedule: null,
+                ...body,
+                id: mockId('template-mapping-'),
+                created_at: now(),
+                updated_at: now(),
+            };
+            MOCK_TEMPLATE_MAPPINGS.push(mapping);
+            return mapping;
+        },
+    });
+
+    registerMockEndpoint({
+        path: `${MAPPINGS}/:id`,
+        method: 'PATCH',
+        callback: ({ route_params, body }) =>
+            Object.assign(
+                findItem(MOCK_TEMPLATE_MAPPINGS, route_params.id, 'Mapping'),
+                body,
+                { id: route_params.id, updated_at: now() },
+            ),
+    });
+
+    registerMockEndpoint({
+        path: `${MAPPINGS}/:id`,
+        method: 'DELETE',
+        callback: ({ route_params }) =>
+            removeItem(MOCK_TEMPLATE_MAPPINGS, route_params.id),
+    });
 }
 
 /**
