@@ -397,7 +397,9 @@ export class ImageGenLayerControlsComponent {
         const colours = Object.values(this.brand()?.palette || {});
         return [
             ...new Set(
-                ['#ffffff', '#1b2420', ...colours].map(hexColour).filter(Boolean),
+                ['#ffffff', '#1b2420', ...colours]
+                    .map(hexColour)
+                    .filter(Boolean),
             ),
         ];
     });

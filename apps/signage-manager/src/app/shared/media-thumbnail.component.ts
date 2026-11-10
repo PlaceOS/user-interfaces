@@ -26,7 +26,7 @@ import {
                 auth
                 [source]="thumbnail_url()"
                 [alt]="item().name + ' thumbnail'"
-                class="h-full w-full text-xs flex items-center justify-center"
+                class="flex h-full w-full items-center justify-center text-xs"
                 [class.object-cover]="cover()"
                 [class.object-contain]="!cover()"
             />

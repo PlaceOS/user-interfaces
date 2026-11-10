@@ -84,9 +84,7 @@ describe('signage playlist util', () => {
         expect(
             playlistItemMediaIds({
                 items: ['schedule-1', 'media-2'],
-                schedules: [
-                    { id: 'schedule-1', item_id: 'media-1' },
-                ] as any,
+                schedules: [{ id: 'schedule-1', item_id: 'media-1' }] as any,
             }),
         ).toEqual(['media-1', 'media-2']);
     });

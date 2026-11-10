@@ -196,11 +196,14 @@ export class ImageGenLayerComponent {
         this.selected_id.set('');
         this._draw();
         return new Promise((resolve) =>
-            canvas.toBlob((blob) => {
-                this.hover_id.set(hovered);
-                this.selected_id.set(selected);
-                resolve(blob);
-            }, ...COMPOSITE_TYPE),
+            canvas.toBlob(
+                (blob) => {
+                    this.hover_id.set(hovered);
+                    this.selected_id.set(selected);
+                    resolve(blob);
+                },
+                ...COMPOSITE_TYPE,
+            ),
         );
     }
 

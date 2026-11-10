@@ -115,9 +115,11 @@ export class MediaSectionComponent {
 
     public async handleDrop(event: DragEvent) {
         if (!this.hasDraggedFiles(event)) return;
+        this.hideDropzone();
+        // A playlist in the sidebar took the drop, to upload to itself
+        if (event.defaultPrevented) return;
         event.preventDefault();
         event.stopPropagation();
-        this.hideDropzone();
         await this._media_service.previewFiles(event.dataTransfer?.files);
     }
 

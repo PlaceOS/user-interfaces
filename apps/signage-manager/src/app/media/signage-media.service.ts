@@ -469,15 +469,53 @@ export class SignageMediaService {
     public async previewFiles(
         files: ArrayLike<File> | Iterable<File> | null | undefined,
     ) {
+        await this._uploadFiles(files);
+    }
+
+    /**
+     * Upload files to the selected group, then add the new media to the end
+     * of a playlist, as the "Add to playlist" action does. Uploads go through
+     * the same dialogs as a drop onto the media library.
+     */
+    public async uploadFilesToPlaylist(
+        playlist_id: string,
+        files: ArrayLike<File> | Iterable<File> | null | undefined,
+    ) {
+        // Checked first, so files are not uploaded only to fail the add
+        if (
+            !playlist_id ||
+            !this._context.requirePermission(
+                this._context.can_update(),
+                'SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS',
+            )
+        )
+            return false;
+        const media = await this._uploadFiles(files);
+        if (!media.length) return false;
+        return this._playlist_service.addMediaItemsToPlaylist(
+            playlist_id,
+            media.map(({ id }) => id),
+            media,
+        );
+    }
+
+    /**
+     * Upload files to the selected group. One file opens the edit modal,
+     * several open the bulk upload modal, and PDFs open the import modal.
+     * @returns The media created, in upload order
+     */
+    private async _uploadFiles(
+        files: ArrayLike<File> | Iterable<File> | null | undefined,
+    ): Promise<SignageMedia[]> {
         if (
             !this._context.requirePermission(
                 this._context.can_create(),
                 'SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA',
             )
         )
-            return;
-        if (!files) return;
-        const upload_files = Array.from(files);
+            return [];
+        const upload_files = Array.from(files || []);
+        if (!upload_files.length) return [];
         if (upload_files.some((file) => isPdfFile(file))) {
             return this._uploadWithPdfs(upload_files);
         }
@@ -485,19 +523,21 @@ export class SignageMediaService {
             return this.bulkUploadMedia(upload_files);
         }
         const [file] = upload_files;
-        const prepared = file ? await this._prepareUploadMedia(file) : null;
-        if (!prepared) return;
-        await this.editMedia(
+        const prepared = await this._prepareUploadMedia(file);
+        if (!prepared) return [];
+        const created = await this.editMedia(
             new SignageMedia({ video_length: videoLength(prepared.metadata) }),
             prepared.file,
             prepared.metadata,
         );
+        return created ? [created] : [];
     }
 
     /**
      * Upload several files through the bulk upload modal. Each created item is
      * added to the loaded media list, so the list is not fetched again: the
      * search index can lag the new records and would drop them.
+     * @returns The media created
      */
     public async bulkUploadMedia(files: File[]) {
         if (
@@ -506,8 +546,8 @@ export class SignageMediaService {
                 'SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA',
             )
         )
-            return;
-        await this._openBulkUpload(await this._prepareBulkItems(files));
+            return [];
+        return this._openBulkUpload(await this._prepareBulkItems(files));
     }
 
     /** Prepare files for the bulk upload modal, leaving out those that fail */
@@ -526,6 +566,7 @@ export class SignageMediaService {
      * Upload files that include PDFs. Each PDF opens the import modal in
      * turn, to pick and set up its pages, and the pages then upload in one
      * bulk upload with the other files.
+     * @returns The media created
      */
     private async _uploadWithPdfs(files: File[]) {
         // The other files are read while the user sets up the PDF pages
@@ -541,7 +582,7 @@ export class SignageMediaService {
         // Pages render as they upload, so the PDFs stay open until then.
         // Import already confirmed the upload, so it starts straight away.
         try {
-            await this._openBulkUpload(
+            return await this._openBulkUpload(
                 [...pdf_import.items, ...(await other_items)],
                 { auto_start: true },
             );
@@ -553,20 +594,22 @@ export class SignageMediaService {
     /**
      * Open the bulk upload modal for prepared items. With `auto_start`, the
      * upload starts as the modal opens.
+     * @returns The media created, in the order of the items
      */
     private async _openBulkUpload(
         items: BulkMediaUploadItem[],
         { auto_start = false } = {},
-    ) {
-        if (!items.length) return;
+    ): Promise<SignageMedia[]> {
+        if (!items.length) return [];
         this._warnLargeMedia(items);
         // A retry reuses the stored file, so only the failed step runs again
         const stored = new Map<BulkMediaUploadItem, StoredMediaUpload>();
+        const created = new Map<BulkMediaUploadItem, SignageMedia>();
         const data: BulkMediaUploadModalData = {
             items,
             auto_start,
-            onUpload: async (item, on_progress) =>
-                this._addMedia(
+            onUpload: async (item, on_progress) => {
+                const media = await this._addMedia(
                     // A file made at upload time is let go once it is stored
                     await loadBulkItemFile(item),
                     new SignageMedia({ name: item.name, tags: item.tags }),
@@ -577,7 +620,10 @@ export class SignageMediaService {
                         stored: stored.get(item),
                         on_stored: (upload) => stored.set(item, upload),
                     },
-                ),
+                );
+                created.set(item, media);
+                return media;
+            },
         };
         const { BulkMediaUploadModalComponent } =
             await import('../shared/bulk-media-upload-modal.component');
@@ -593,6 +639,7 @@ export class SignageMediaService {
             if (this._bulk_tags_changed) this._media_tags.reload();
             this._bulk_tags_changed = false;
         }
+        return items.flatMap((item) => created.get(item) ?? []);
     }
 
     public async addMediaFromLink(url: string) {
@@ -740,12 +787,16 @@ export class SignageMediaService {
      * Open the media edit modal. A new file must come from
      * `_prepareUploadMedia` with its metadata, as it is not validated again.
      */
+    /**
+     * Open the edit modal for media, or for new media from a file or plugin.
+     * @returns The media created, when the modal adds new media
+     */
     public async editMedia(
         media: SignageMedia = new SignageMedia({}),
         file?: File,
         prepared_file_metadata?: SignageMediaMetadata,
         plugin?: SignagePlugin,
-    ) {
+    ): Promise<SignageMedia | undefined> {
         if (media.id) {
             if (
                 !this._context.requirePermission(
@@ -778,6 +829,7 @@ export class SignageMediaService {
         const file_thumbnail = file
             ? this._generateThumbnail(file, 1280, 720).catch(() => '')
             : undefined;
+        let created: SignageMedia | undefined;
         const { MediaEditModalComponent } =
             await import('../shared/media-edit-modal.component');
         const ref = this._dialog.open(MediaEditModalComponent, {
@@ -805,7 +857,7 @@ export class SignageMediaService {
                         thumbnail,
                         { thumbnail: file_thumbnail },
                         fallback_thumbnail,
-                    ),
+                    ).then((added) => (created = added)),
                 onEdit: async (id: string, data: MediaEditChanges) => {
                     const updated_media = await this._editMedia(id, data);
                     Object.assign(media, updated_media);
@@ -814,6 +866,7 @@ export class SignageMediaService {
             },
         });
         await dialogClosed(ref);
+        return created;
     }
 
     private async _editMedia(id: string, data: MediaEditChanges) {

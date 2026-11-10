@@ -73,9 +73,7 @@ test.describe('US-SGM-007: Sort Distribution Items by Next Play', () => {
         await expect(itemNames(page)).toHaveText(SAVED_ORDER);
     });
 
-    test('fills the sort button only while it is pressed', async ({
-        page,
-    }) => {
+    test('fills the sort button only while it is pressed', async ({ page }) => {
         await openDistributionPlaylist(page);
         const sort = sortButton(page);
         // Move the mouse away so hover styles do not affect the colours

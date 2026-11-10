@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { setNotifyOutlet } from '@placeos/common';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { PlaylistsSectionComponent } from '../../app/playlists/playlists.component';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../../app/signage-context.service';
@@ -32,6 +33,7 @@ describe('PlaylistsSectionComponent', () => {
         loadPlaylist: load_playlist,
     };
 
+    const upload_files = vi.fn();
     let fixture: ComponentFixture<PlaylistsSectionComponent>;
 
     async function make() {
@@ -39,6 +41,10 @@ describe('PlaylistsSectionComponent', () => {
             imports: [PlaylistsSectionComponent],
             providers: [
                 { provide: SignagePlaylistService, useValue: playlist_stub },
+                {
+                    provide: SignageMediaService,
+                    useValue: { uploadFilesToPlaylist: upload_files },
+                },
                 {
                     provide: SignageContextService,
                     useValue: { canQueryLists: () => can_query() },
@@ -230,5 +236,49 @@ describe('PlaylistsSectionComponent', () => {
         expect(selected_playlist()).toBeNull();
         expect(selected_playlist_item()).toBeNull();
         expect(navigate).toHaveBeenCalledWith(['/playlists'], {});
+    });
+
+    describe('files dropped on the page', () => {
+        /** A drag of files, as the browser sends it */
+        function fileDrag(type: string, types = ['Files']) {
+            const event = new Event(type, { cancelable: true });
+            Object.defineProperty(event, 'dataTransfer', {
+                value: { types, files: [], dropEffect: 'copy' },
+            });
+            return event as DragEvent;
+        }
+
+        it('uploads files dropped on the open playlist to it', async () => {
+            selected_playlist.set({ id: 'pl-1' });
+            const component = await make();
+            const files = [new File(['image'], 'poster.png')];
+
+            await component.uploadFiles(files);
+
+            expect(upload_files).toHaveBeenCalledWith('pl-1', files);
+        });
+
+        it('stops the browser opening files dropped outside a playlist', async () => {
+            const component = await make();
+            const drop = fileDrag('drop');
+
+            component.blockMissedFileDrop(drop);
+
+            expect(drop.defaultPrevented).toBe(true);
+            expect(drop.dataTransfer.dropEffect).toBe('none');
+        });
+
+        it('leaves a drop that a playlist took, and drags of other things', async () => {
+            const component = await make();
+            const taken = fileDrag('dragover');
+            taken.preventDefault();
+            const text = fileDrag('drop', ['text/plain']);
+
+            component.blockMissedFileDrop(taken);
+            component.blockMissedFileDrop(text);
+
+            expect(taken.dataTransfer.dropEffect).toBe('copy');
+            expect(text.defaultPrevented).toBe(false);
+        });
     });
 });

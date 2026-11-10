@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { PlaylistListComponent } from '../../app/playlists/playlist-list.component';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 
@@ -37,6 +38,10 @@ describe('PlaylistListComponent', () => {
             providers: [
                 provideRouter([]),
                 { provide: SignagePlaylistService, useValue: playlist_stub },
+                {
+                    provide: SignageMediaService,
+                    useValue: { uploadFilesToPlaylist: vi.fn() },
+                },
             ],
         });
         if (!render_template) {

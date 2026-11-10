@@ -44,7 +44,10 @@ export async function closeDialog(page: Page) {
 
 export async function openFirstPlaylist(page: Page) {
     await navigateWithMock(page, PLAYLISTS_URL);
-    await page.getByRole('link', { name: /open playlist/i }).first().click();
+    await page
+        .getByRole('link', { name: /open playlist/i })
+        .first()
+        .click();
     await expect(page).toHaveURL(/#\/playlists\/.+/);
 }
 
@@ -55,7 +58,10 @@ export async function openFirstZone(page: Page) {
 
 export async function openFirstDisplay(page: Page) {
     await navigateWithMock(page, DISPLAYS_URL);
-    await page.getByRole('link', { name: /open display/i }).first().click();
+    await page
+        .getByRole('link', { name: /open display/i })
+        .first()
+        .click();
     await expect(page).toHaveURL(/#\/displays\/.+/);
     await expect(page.getByRole('tab', { name: /playlists/i })).toBeVisible({
         timeout: LOAD_TIMEOUT,

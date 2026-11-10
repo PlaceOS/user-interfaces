@@ -240,9 +240,11 @@ describe('signage-media-upload util', () => {
                 { type: 'video/mp4' },
             );
 
-            await expect(validateSignageMediaFile(file)).resolves.toMatchObject({
-                valid: false,
-            });
+            await expect(validateSignageMediaFile(file)).resolves.toMatchObject(
+                {
+                    valid: false,
+                },
+            );
         });
 
         it('checks WEBM codecs in the first 1 MB only', async () => {
