@@ -129,6 +129,31 @@ describe('UserListFieldComponent', () => {
         expect(spectator.inject(MatDialog).open).toHaveBeenCalled();
     });
 
+    it('should preserve the file picker default action when the input is clicked', () => {
+        const input = spectator.query<HTMLInputElement>('input[type="file"]');
+        const event = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+        });
+
+        input.dispatchEvent(event);
+
+        expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('should open the file input from the button without cancelling its click', () => {
+        const input = spectator.query<HTMLInputElement>('input[type="file"]');
+        const click = vi.spyOn(input, 'click');
+        let input_event: MouseEvent;
+        input.addEventListener('click', (event) => (input_event = event));
+
+        spectator.query<HTMLButtonElement>('[name="upload-csv"]').click();
+
+        expect(click).toHaveBeenCalledTimes(1);
+        expect(input_event).toBeDefined();
+        expect(input_event.defaultPrevented).toBe(false);
+    });
+
     /** Send CSV text through the file input, with a mocked FileReader */
     const importCsv = async (text: string, type = 'text/csv') => {
         vi.spyOn(window, 'FileReader').mockImplementation(function () {
