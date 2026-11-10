@@ -34,6 +34,11 @@ function itemDetails(item: BulkMediaUploadItem) {
 
 export interface BulkMediaUploadModalData {
     items: BulkMediaUploadItem[];
+    /**
+     * Start uploading as the modal opens, with default permissions, for
+     * uploads confirmed in an earlier step. The modal then shows progress.
+     */
+    auto_start?: boolean;
     onUpload: (
         item: BulkMediaUploadItem,
         permissions: UploadPermissions,
@@ -91,40 +96,45 @@ function uploadErrorMessage(error: unknown) {
         <main
             class="max-h-[65vh] w-[32rem] max-w-full space-y-2 overflow-auto px-4 pt-2 pb-4 max-md:h-auto max-md:w-auto max-md:flex-1"
         >
-            <div class="flex flex-col">
-                <!-- A mat-select names itself from the label by its id -->
-                <label id="bulk-permissions-label" for="bulk-permissions">
-                    {{ 'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSIONS' | translate }}
-                </label>
-                <mat-form-field appearance="outline" class="no-subscript">
-                    <mat-select
-                        id="bulk-permissions"
-                        name="permissions"
-                        aria-labelledby="bulk-permissions-label"
-                        [(ngModel)]="permissions"
-                        [disabled]="uploading()"
-                    >
-                        <mat-option value="none">
-                            {{
-                                'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_NONE'
-                                    | translate
-                            }}
-                        </mat-option>
-                        <mat-option value="support">
-                            {{
-                                'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_SUPPORT'
-                                    | translate
-                            }}
-                        </mat-option>
-                        <mat-option value="admin">
-                            {{
-                                'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_ADMIN'
-                                    | translate
-                            }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
+            @if (!auto_start) {
+                <div class="flex flex-col">
+                    <!-- A mat-select names itself from the label by its id -->
+                    <label id="bulk-permissions-label" for="bulk-permissions">
+                        {{
+                            'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSIONS'
+                                | translate
+                        }}
+                    </label>
+                    <mat-form-field appearance="outline" class="no-subscript">
+                        <mat-select
+                            id="bulk-permissions"
+                            name="permissions"
+                            aria-labelledby="bulk-permissions-label"
+                            [(ngModel)]="permissions"
+                            [disabled]="uploading()"
+                        >
+                            <mat-option value="none">
+                                {{
+                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_NONE'
+                                        | translate
+                                }}
+                            </mat-option>
+                            <mat-option value="support">
+                                {{
+                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_SUPPORT'
+                                        | translate
+                                }}
+                            </mat-option>
+                            <mat-option value="admin">
+                                {{
+                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_ADMIN'
+                                        | translate
+                                }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            }
             @for (row of rows(); track row.id) {
                 <div
                     class="border-base-300 flex w-full items-center space-x-2 rounded-sm border p-2"
@@ -278,6 +288,7 @@ export class BulkMediaUploadModalComponent {
             error: '',
         })),
     );
+    public readonly auto_start = !!this._data.auto_start;
     public readonly permissions = signal<UploadPermissions>('none');
     public readonly uploading = signal(false);
     /** Set by `stop()`. The upload loop ends after the current file. */
@@ -295,6 +306,10 @@ export class BulkMediaUploadModalComponent {
                 (_) => _.status === 'pending' || _.status === 'error',
             ).length,
     );
+
+    constructor() {
+        if (this.auto_start) void this.uploadAll();
+    }
 
     public removeRow(row: BulkUploadRow) {
         this.rows.update((rows) => rows.filter((_) => _.id !== row.id));

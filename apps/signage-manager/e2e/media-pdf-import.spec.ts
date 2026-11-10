@@ -24,12 +24,15 @@ interface CapturedUpload {
 /**
  * Stand in for the uploads API and the storage it signs requests for. Mock
  * mode does not cover uploads, which go straight to the network. Resolves
- * with each file that reached storage.
+ * with each file that reached storage. Storage holds each file until
+ * `release` is called, so the upload can be checked while it runs.
  */
 async function mockUploads(page: Page) {
     const uploads = new Map<string, { name: string; mime: string }>();
     const stored: CapturedUpload[] = [];
     let count = 0;
+    let release: () => void;
+    const released = new Promise<void>((resolve) => (release = resolve));
     await page.route('**/api/engine/v2/uploads**', async (route) => {
         const request = route.request();
         const url = new URL(request.url());
@@ -70,6 +73,7 @@ async function mockUploads(page: Page) {
                 },
             });
         }
+        await released;
         const upload_id = new URL(request.url()).pathname.slice(1);
         const details = uploads.get(upload_id);
         stored.push({
@@ -82,7 +86,7 @@ async function mockUploads(page: Page) {
             body: '',
         });
     });
-    return stored;
+    return { stored, release: () => release() };
 }
 
 /** Width and height from the header of a PNG */
@@ -248,10 +252,40 @@ test.describe('US-SGM-004: Import PDF Pages as Images', () => {
         await expect(page.locator('bulk-media-upload-modal')).toHaveCount(0);
     });
 
+    test('wraps a long example name above the next option', async ({
+        page,
+    }) => {
+        await navigateWithMock(page, MEDIA_URL);
+        const dialog = await openPdf(
+            page,
+            'admission_price_cover_for_the_winter_lantern_festival-1.pdf',
+        );
+        const hint = dialog.locator('#pdf-import-name-hint');
+        await expect(hint).toContainText(
+            'admission_price_cover_for_the_winter_lantern_festival-1 - page 1',
+        );
+        const label = dialog.locator('#pdf-import-fit-label');
+        const options = dialog.getByRole('region', { name: /options/i });
+        // Polled, as the dialog scales while it opens
+        await expect
+            .poll(async () => {
+                const [hint_box, label_box, options_box] = await Promise.all(
+                    [hint, label, options].map((item) => item.boundingBox()),
+                );
+                return {
+                    above_label: hint_box.y + hint_box.height <= label_box.y,
+                    within_options:
+                        hint_box.x + hint_box.width <=
+                        options_box.x + options_box.width,
+                };
+            })
+            .toEqual({ above_label: true, within_options: true });
+    });
+
     test('uploads the selected pages named and tagged after the PDF', async ({
         page,
     }) => {
-        const stored = await mockUploads(page);
+        const { stored, release } = await mockUploads(page);
         await navigateWithMock(page, MEDIA_URL);
         const dialog = await openPdf(page);
         await expect(pageItems(dialog).locator('img')).toHaveCount(3);
@@ -272,16 +306,20 @@ test.describe('US-SGM-004: Import PDF Pages as Images', () => {
         await dialog.getByRole('button', { name: 'Import pages (2)' }).click();
         await expect(dialog).toBeHidden({ timeout: 30000 });
 
+        // Import starts the upload, so the upload dialog only shows progress
         const upload = page.locator('bulk-media-upload-modal');
         await expect(upload).toBeVisible();
+        await expect(upload).toContainText('Uploading 1 of 2');
         await expect(upload).toContainText('Q3 Results - page 1');
         await expect(upload).toContainText('Q3 Results - page 3');
         await expect(upload).not.toContainText('Q3 Results - page 2');
+        await expect(upload).not.toContainText(/file access permissions/i);
+        await expect(upload.getByRole('combobox')).toHaveCount(0);
         // Pages render as they upload, so the list shows the image size
         // they will have rather than a file size
         await expect(upload).toContainText('1920 × 1080');
 
-        await upload.getByRole('button', { name: 'Upload files (2)' }).click();
+        release();
         await expect(upload).toBeHidden({ timeout: 30000 });
 
         // Each page is listed by name, tagged with the PDF name

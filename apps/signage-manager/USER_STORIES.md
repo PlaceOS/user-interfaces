@@ -100,7 +100,8 @@ These stories cover the current app workflows:
 - Users can drag files onto the media page to start upload preview.
 - A PDF opens an import dialog that previews each page. Users can leave pages out (click, or shift-click for a range), turn one page or all pages, and choose the image size (page size, or fitted to a 16:9 or 9:16 screen), background (white, black, a custom colour or transparent), image format (WebP where the browser supports it, else PNG) and resolution (4K or Full HD).
 - Each imported page is uploaded as an image named "<name> - page <n>", keeping its page number in the PDF, and tagged "<name>". The name defaults to the PDF file name without its extension and can be changed in the dialog.
-- Several PDFs dropped together open the import dialog one after another, then upload with any other files in one bulk upload. Cancelling a PDF skips it. A PDF that is password protected or cannot be read shows an error naming the file.
+- Several PDFs dropped together open the import dialog one after another, then upload with any other files in one bulk upload. Cancelling a PDF skips it.
+- Importing starts the upload straight away, with default file access permissions. The upload dialog then only shows progress, and stays open with a retry if a page fails. A PDF that is password protected or cannot be read shows an error naming the file.
 - Users can add webpage media from a valid URL.
 - Invalid URLs are rejected before creating media.
 - Users can create plugin media from the available signage plugins.

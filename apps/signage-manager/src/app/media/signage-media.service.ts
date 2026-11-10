@@ -540,25 +540,33 @@ export class SignageMediaService {
             files.filter((file) => isPdfFile(file)),
             this._openPdfDocument,
         );
-        // Pages render as they upload, so the PDFs stay open until then
+        // Pages render as they upload, so the PDFs stay open until then.
+        // Import already confirmed the upload, so it starts straight away.
         try {
-            await this._openBulkUpload([
-                ...pdf_import.items,
-                ...(await other_items),
-            ]);
+            await this._openBulkUpload(
+                [...pdf_import.items, ...(await other_items)],
+                { auto_start: true },
+            );
         } finally {
             await pdf_import.close();
         }
     }
 
-    /** Open the bulk upload modal for prepared items */
-    private async _openBulkUpload(items: BulkMediaUploadItem[]) {
+    /**
+     * Open the bulk upload modal for prepared items. With `auto_start`, the
+     * upload starts as the modal opens, with default permissions.
+     */
+    private async _openBulkUpload(
+        items: BulkMediaUploadItem[],
+        { auto_start = false } = {},
+    ) {
         if (!items.length) return;
         this._warnLargeMedia(items);
         // A retry reuses the stored file, so only the failed step runs again
         const stored = new Map<BulkMediaUploadItem, StoredMediaUpload>();
         const data: BulkMediaUploadModalData = {
             items,
+            auto_start,
             onUpload: async (item, permissions, on_progress) =>
                 this._addMedia(
                     // A file made at upload time is let go once it is stored

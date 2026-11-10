@@ -195,4 +195,30 @@ describe('BulkMediaUploadModalComponent', () => {
         const select = element.querySelector(`#${label.htmlFor}`);
         expect(select.getAttribute('aria-labelledby')).toContain(label.id);
     });
+
+    it('starts uploading as it opens, without permission options, when asked to', async () => {
+        modal_data.auto_start = true;
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            imports: [BulkMediaUploadModalComponent],
+            providers: [
+                { provide: MAT_DIALOG_DATA, useValue: modal_data },
+                { provide: MatDialogRef, useValue: dialog_ref },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
+        fixture.detectChanges();
+        const element: HTMLElement = fixture.nativeElement;
+
+        expect(element.querySelector('#bulk-permissions')).toBeNull();
+        expect(onUpload).toHaveBeenCalledWith(
+            modal_data.items[0],
+            'none',
+            expect.any(Function),
+        );
+        await vi.waitFor(() =>
+            expect(dialog_ref.close).toHaveBeenCalledWith(2),
+        );
+        expect(onUpload).toHaveBeenCalledTimes(2);
+    });
 });

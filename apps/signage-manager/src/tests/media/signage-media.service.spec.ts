@@ -1332,6 +1332,8 @@ describe('SignageMediaService', () => {
             expect(
                 opened.bulk.items.map((item) => item.name || item.file.name),
             ).toEqual(['deck - page 1', 'deck - page 2', 'photo.png']);
+            // Import confirmed the upload, so the bulk modal only shows progress
+            expect(opened.bulk.auto_start).toBe(true);
             // Pages render as they upload, so the PDF stays open meanwhile
             expect(pdf.destroy).not.toHaveBeenCalled();
         });
