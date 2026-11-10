@@ -39,12 +39,12 @@ import {
 } from "./chunk-QJVPG2LC.js";
 import {
   OrganisationService
-} from "./chunk-IHHLYXQI.js";
+} from "./chunk-UOVK2WTD.js";
 import {
   AsyncHandler,
   SettingsService,
   VERSION
-} from "./chunk-OA3PKDHK.js";
+} from "./chunk-NG5PYND3.js";
 import {
   Ra,
   i18n,
@@ -2515,4 +2515,4 @@ export {
   BootstrapComponent
 };
 //# debugId=8bc6c743-1ac1-5d33-970c-5d003481391c
-//# sourceMappingURL=bootstrap.component-F6QS6DIC.js.map
+//# sourceMappingURL=bootstrap.component-AWKMPFBO.js.map

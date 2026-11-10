@@ -5,7 +5,7 @@ import {
   resetBootRetries,
   scheduleBootRetry,
   startWatchdog
-} from "./chunk-ORSAS3DW.js";
+} from "./chunk-RL2MNE5F.js";
 import {
   hasBootstrappedDisplay
 } from "./chunk-OQDJRCPY.js";
@@ -27,7 +27,7 @@ import {
   serviceWorkerUpdate,
   setInitReloadHandler,
   setMocks
-} from "./chunk-IHHLYXQI.js";
+} from "./chunk-UOVK2WTD.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -38,7 +38,7 @@ import {
   settingSignal,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-OA3PKDHK.js";
+} from "./chunk-NG5PYND3.js";
 import {
   J,
   LocaleService,
@@ -1424,7 +1424,7 @@ function hasStoredApiKey() {
 // apps/signage/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-DW6MF55N.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-IYNQ2ZJ3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -1484,7 +1484,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-DW6MF55N.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-IYNQ2ZJ3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -1520,7 +1520,7 @@ var environment = {
 };
 
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-HA43LK5M.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-GSQOV53Y.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -1528,7 +1528,7 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-F6QS6DIC.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-AWKMPFBO.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {

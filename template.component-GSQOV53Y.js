@@ -17,7 +17,7 @@ import {
 } from "./chunk-AZJHWFMF.js";
 import {
   CustomTooltipComponent
-} from "./chunk-FNCKCZ6N.js";
+} from "./chunk-VD3M7MKW.js";
 import "./chunk-WOKDLQKV.js";
 import {
   DefaultValueAccessor,
@@ -32,14 +32,14 @@ import {
   isDebugEnabled,
   recordHeartbeat,
   watchdogState
-} from "./chunk-ORSAS3DW.js";
+} from "./chunk-RL2MNE5F.js";
 import {
   TranslatePipe
 } from "./chunk-QJVPG2LC.js";
 import {
   setAutoReloadGate,
   updateCheckState
-} from "./chunk-IHHLYXQI.js";
+} from "./chunk-UOVK2WTD.js";
 import {
   AsyncHandler,
   MINUTES,
@@ -47,7 +47,7 @@ import {
   SettingsService,
   VERSION,
   addYears
-} from "./chunk-OA3PKDHK.js";
+} from "./chunk-NG5PYND3.js";
 import {
   Fs,
   J,
@@ -9216,4 +9216,4 @@ export {
   SignageTemplateComponent
 };
 //# debugId=da62a311-730b-5413-8ebf-32ca3aeab0e2
-//# sourceMappingURL=template.component-HA43LK5M.js.map
+//# sourceMappingURL=template.component-GSQOV53Y.js.map
