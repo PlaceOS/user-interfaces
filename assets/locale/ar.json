@@ -2224,6 +2224,7 @@
         "DISPLAY_NO_ZONES": "هذه الشاشة ليست ضمن أي منطقة.",
         "DISPLAY_SELECT_DETAILS": "حدد شاشة لعرض تفاصيلها.",
         "DRAG_MEDIA_HINT": "اسحب الوسائط إلى قائمة تشغيل لإضافتها",
+        "DRAG_MEDIA_OR_FILES_HINT": "اسحب الوسائط أو الملفات إلى قائمة تشغيل لإضافتها",
         "DURATION_DAY": "{{ count }} يوم",
         "DURATION_DAY_1": "{{ count }} يوم",
         "DURATION_HOUR": "{{ count }} ساعة",

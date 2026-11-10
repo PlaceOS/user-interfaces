@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["fullscreen-modal-shell.component.ts"],
-  "sourcesContent": ["\n    h2[mat-dialog-title] {\n        color: inherit;\n        font-family: inherit;\n        letter-spacing: inherit;\n        margin: 0;\n        padding: 0;\n    }\n\n    h2[mat-dialog-title]::before {\n        display: none;\n    }\n"],
-  "mappings": ";AACI,EAAA,CAAA;AACI,SAAA;AACA,eAAA;AACA,kBAAA;AACA,UAAA;AACA,WAAA;AACJ;AAEA,EAAA,CAAA,iBAAA;AACI,WAAA;AACJ;",
+  "sourcesContent": ["\n            main {\n                scroll-margin-top: 60px;\n            }\n        "],
+  "mappings": ";AACY;AACI,qBAAA;AACJ;",
   "names": []
 }
