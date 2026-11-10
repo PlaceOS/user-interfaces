@@ -2224,6 +2224,7 @@
         "DISPLAY_NO_ZONES": "このディスプレイはどのゾーンにも含まれていません。",
         "DISPLAY_SELECT_DETAILS": "詳細を表示するディスプレイを選択してください。",
         "DRAG_MEDIA_HINT": "メディアをプレイリストにドラッグして追加",
+        "DRAG_MEDIA_OR_FILES_HINT": "メディアまたはファイルをプレイリストにドラッグして追加",
         "DURATION_DAY": "{{ count }} 日",
         "DURATION_DAY_1": "{{ count }} 日",
         "DURATION_HOUR": "{{ count }} 時間",
