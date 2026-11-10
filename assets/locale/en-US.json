@@ -2437,7 +2437,7 @@
         "DISPLAY_SELECT_DETAILS": "Select a display to view its details.",
         "DISPLAY_ZONES": "Display zones",
         "DISPLAY_ZONES_HINT": "Select a zone to add it to this display.",
-        "DRAG_MEDIA_HINT": "Drag media onto a playlist to add it",
+        "DRAG_MEDIA_HINT": "Drag media or files onto a playlist to add them",
         "DROP_MEDIA_HINT": "Images, PDFs and supported video files",
         "DROP_MEDIA_TITLE": "Drop media to upload",
         "DURATION_DAY": "{{ count }} days",
