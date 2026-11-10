@@ -125,6 +125,19 @@ export function scrubEnvelope<T extends Envelope>(envelope: T): T {
 export const TRACE_PROPAGATION_TARGET =
     /^\/api\/(?!engine\/v2\/(?:uploads(?:\/|$)|signage\/media\/[^/]+\/))/;
 
+/**
+ * Errors from other code on the page that Sentry does not send. Sentry
+ * compares each pattern with the error message.
+ *
+ * - `unknown action: getLibItems`, `setLibItem` and `removeLibItem`: a
+ *   browser extension rejects with these strings when the page wakes. They
+ *   have no stack, and no PlaceOS code or dependency uses these actions.
+ *   The sessions that sent them also ran WalkMe, which PlaceOS does not load.
+ */
+export const IGNORED_ERRORS = [
+    /^Non-Error promise rejection captured with value: unknown action: (?:getLibItems|setLibItem|removeLibItem)$/,
+];
+
 /** Sample rates from the app settings, from 0 to 1 */
 export interface SentrySampleRates {
     /** Share of transactions to trace */
@@ -200,6 +213,7 @@ export async function initSentry(
             }),
             // Sentry checks the path of same-origin requests against these.
             tracePropagationTargets: [TRACE_PROPAGATION_TARGET],
+            ignoreErrors: IGNORED_ERRORS,
             // Sentry 11 collects more by default. These are the Sentry 10
             // defaults, which send no bodies, cookies or user details.
             dataCollection: {

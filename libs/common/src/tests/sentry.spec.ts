@@ -5,6 +5,7 @@ import * as Sentry from '@sentry/angular';
 
 import {
     DEFAULT_SENTRY_DSN,
+    IGNORED_ERRORS,
     initSentry,
     initSentryFromSettings,
     LazySentryErrorHandler,
@@ -132,6 +133,46 @@ describe('TRACE_PROPAGATION_TARGET', () => {
     });
 });
 
+describe('IGNORED_ERRORS', () => {
+    /** Sentry's own filter, with the client options that `initSentry` sets */
+    async function filter() {
+        const { eventFiltersIntegration } =
+            await vi.importActual<typeof Sentry>('@sentry/angular');
+        const client = {
+            getOptions: () => ({ ignoreErrors: IGNORED_ERRORS }),
+        } as unknown as Sentry.BrowserClient;
+        return (value: string) =>
+            eventFiltersIntegration().processEvent?.(
+                // How Sentry reports a promise that rejects with a string
+                {
+                    exception: {
+                        values: [{ type: 'UnhandledRejection', value }],
+                    },
+                },
+                {},
+                client,
+            ) ?? null;
+    }
+    const PREFIX = 'Non-Error promise rejection captured with value: ';
+
+    it('should drop the extension library rejections', async () => {
+        const process = await filter();
+        for (const action of ['getLibItems', 'setLibItem', 'removeLibItem']) {
+            expect(process(`${PREFIX}unknown action: ${action}`)).toBeNull();
+        }
+    });
+
+    it('should keep other rejections', async () => {
+        const process = await filter();
+        for (const value of [
+            `${PREFIX}unknown action: getBookings`,
+            `${PREFIX}Failed to load authority`,
+        ]) {
+            expect(process(value)).not.toBeNull();
+        }
+    });
+});
+
 describe('LazySentryErrorHandler', () => {
     afterEach(() => vi.restoreAllMocks());
 
@@ -172,6 +213,7 @@ describe('initSentryFromSettings', () => {
                 replaysSessionSampleRate: DEFAULT_SENTRY_RATES.replays_session,
                 replaysOnErrorSampleRate: 0.5,
                 tracePropagationTargets: [TRACE_PROPAGATION_TARGET],
+                ignoreErrors: IGNORED_ERRORS,
             }),
         );
         expect(Sentry.replayIntegration).toHaveBeenCalledWith({
