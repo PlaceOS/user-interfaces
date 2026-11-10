@@ -31,7 +31,7 @@ export async function mockUploads(page: Page, { hold = false } = {}) {
         if (request.method() === 'POST' && url.pathname.endsWith('/uploads')) {
             const params = request.postDataJSON();
             count += 1;
-            const upload_id = `upload-pdf-${count}`;
+            const upload_id = `upload-${count}`;
             uploads.set(upload_id, {
                 name: params.file_name,
                 mime: params.file_mime,

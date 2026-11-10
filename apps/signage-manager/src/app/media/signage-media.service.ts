@@ -784,11 +784,9 @@ export class SignageMediaService {
     }
 
     /**
-     * Open the media edit modal. A new file must come from
-     * `_prepareUploadMedia` with its metadata, as it is not validated again.
-     */
-    /**
      * Open the edit modal for media, or for new media from a file or plugin.
+     * A new file must come from `_prepareUploadMedia` with its metadata, as
+     * it is not validated again.
      * @returns The media created, when the modal adds new media
      */
     public async editMedia(

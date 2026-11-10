@@ -20,6 +20,7 @@ import { mocksInit } from '@placeos/mocks';
 import { authority } from '@placeos/ts-client';
 
 import { CommandPaletteService } from './shared/command-palette.service';
+import { blockMissedFileDrop } from './shared/file-drop.directive';
 import { SignageContextService } from './signage-context.service';
 
 @Component({
@@ -63,7 +64,11 @@ import { SignageContextService } from './signage-context.service';
             />
         }
     `,
-    host: { '(document:keydown)': 'onKeydown($event)' },
+    host: {
+        '(document:keydown)': 'onKeydown($event)',
+        '(window:dragover)': 'blockMissedFileDrop($event)',
+        '(window:drop)': 'blockMissedFileDrop($event)',
+    },
     styles: [
         `
             :host {
@@ -116,6 +121,9 @@ export class AppComponent implements OnInit {
             });
         });
     }
+
+    /** Stop a file dropped outside a drop target from leaving the app */
+    public readonly blockMissedFileDrop = blockMissedFileDrop;
 
     public retryGroups() {
         this._context.reloadSignageGroups();

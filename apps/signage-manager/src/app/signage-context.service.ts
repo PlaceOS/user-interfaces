@@ -425,6 +425,10 @@ export class SignageContextService {
     public readonly can_update = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Update),
     );
+    /** Files dropped on a playlist upload as media, then join the playlist */
+    public readonly can_upload_to_playlist = computed(
+        () => this.can_create() && this.can_update(),
+    );
     public readonly can_delete = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Delete),
     );

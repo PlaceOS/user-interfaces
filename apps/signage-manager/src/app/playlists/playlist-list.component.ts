@@ -1,10 +1,4 @@
-import {
-    Component,
-    computed,
-    ElementRef,
-    inject,
-    viewChildren,
-} from '@angular/core';
+import { Component, ElementRef, inject, viewChildren } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -211,10 +205,7 @@ export class PlaylistListComponent {
     public readonly has_more = this._playlist_service.playlists_has_more;
     public readonly loading = this._playlist_service.playlists_loading;
     public readonly error = this._playlist_service.playlists_error;
-    /** Files dropped on a playlist upload, then join the playlist */
-    public readonly can_upload = computed(
-        () => this._context.can_create() && this._context.can_update(),
-    );
+    public readonly can_upload = this._context.can_upload_to_playlist;
 
     constructor() {
         scrollSelectionIntoView(
