@@ -4,6 +4,7 @@ import {
     currentUser,
     firstTruthyValueFrom,
     markInitialisationComplete,
+    mockModeRequested,
     SettingsService,
     setupPlace,
     storeApiKeyFromUrl,
@@ -105,9 +106,13 @@ export class AppComponent implements OnInit {
         try {
             await firstTruthyValueFrom(this._settings.initialised);
             const settings = { ...(this._settings.get('composer') || {}) };
-            settings.mock =
-                !!this._settings.get('mock') ||
-                location.origin.includes('demo.place.tech');
+            settings.mock = mockModeRequested() || !!this._settings.get('mock');
+            if (settings.mock) {
+                // Lazy load, so mock data stays out of the main bundle
+                await import('@placeos/mocks').then(({ mocksInit }) =>
+                    mocksInit(),
+                );
+            }
             await setupPlace(settings).finally(storeApiKeyFromUrl);
             await withTimeout(
                 firstTruthyValueFrom(current_user),

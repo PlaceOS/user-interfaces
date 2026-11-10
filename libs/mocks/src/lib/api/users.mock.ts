@@ -1,4 +1,4 @@
-import { registerMockEndpoint } from '@placeos/ts-client';
+import { persist, registerMockEndpoint } from '../session';
 
 import { HashMap, predictableRandomInt } from '@placeos/common';
 import { MOCK_SPACES } from './spaces.data';
@@ -8,7 +8,26 @@ import { MOCK_LEVELS } from './zone.data';
 import { getUnixTime, subMinutes } from 'date-fns';
 import { MOCK_EVENTS } from './events.data';
 
+/** Catering requested by each guest, by `email|booking_id` */
+const GUEST_CATERING: HashMap = {};
+
+/** Find a user by ID or email */
+const findUser = (list: HashMap[], id: string) =>
+    list.find((user) => user.id === id || user.email === id);
+
 export function registerMockUsers() {
+    // The staff list holds the active user. Loading saved data copies it, so
+    // link the list entry to the active user again.
+    const linkActiveUser = () => {
+        const index = MOCK_STAFF.findIndex((u) => u.id === ACTIVE_USER.id);
+        if (index >= 0) MOCK_STAFF[index] = ACTIVE_USER as any;
+    };
+    persist('active-user', ACTIVE_USER);
+    persist('staff', MOCK_STAFF, { onLoad: linkActiveUser });
+    persist('guests', MOCK_GUESTS);
+    persist('guest-catering', GUEST_CATERING);
+    linkActiveUser();
+
     registerMockEndpoint({
         path: '/api/engine/v2/users',
         method: 'GET',
@@ -39,13 +58,25 @@ export function registerMockUsers() {
                 }
                 return ACTIVE_USER;
             }
-            const person = MOCK_STAFF.find(
-                (user) => user.email === request.route_params.id,
+            const person = findUser(
+                MOCK_STAFF,
+                decodeURIComponent(request.route_params.id),
             );
             if (person) {
                 return person;
             }
             throw { status: 404, message: 'User not found' };
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/users/:id',
+        method: 'PATCH',
+        callback: (request) => {
+            const id = decodeURIComponent(request.route_params.id);
+            const person = findUser(MOCK_STAFF, id);
+            if (!person) throw { status: 404, message: 'User not found' };
+            return Object.assign(person, request.body, { id: person.id });
         },
     });
 
@@ -94,7 +125,7 @@ export function registerMockUsers() {
                         user.email.toLowerCase().includes(search),
                 );
             }
-            return MOCK_STAFF;
+            return MOCK_GUESTS;
         },
     });
 
@@ -103,9 +134,41 @@ export function registerMockUsers() {
         method: 'GET',
         callback: (request) => {
             const email = decodeURIComponent(request.route_params.email);
-            const person = MOCK_GUESTS.find((user) => user.email === email);
+            const person = findUser(MOCK_GUESTS, email);
             if (person) return person;
             throw { status: 404, message: 'Guest not found' };
+        },
+    });
+
+    // Saving a visitor who is not on file yet adds them, as the real API does
+    registerMockEndpoint({
+        path: '/api/staff/v1/guests/:email',
+        method: 'PATCH',
+        callback: (request) => {
+            const id = decodeURIComponent(request.route_params.email);
+            const guest = findUser(MOCK_GUESTS, id);
+            if (guest) return Object.assign(guest, request.body);
+            const created = { id, email: id, ...request.body };
+            MOCK_GUESTS.push(created);
+            return created;
+        },
+    });
+
+    const cateringKey = (request) =>
+        `${decodeURIComponent(request.route_params.email)}|${request.query_params.booking_id || ''}`;
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/guests/:email/catering',
+        method: 'GET',
+        callback: (request) => GUEST_CATERING[cateringKey(request)] || null,
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/guests/:email/catering',
+        method: 'PATCH',
+        callback: (request) => {
+            GUEST_CATERING[cateringKey(request)] = request.body;
+            return request.body;
         },
     });
 

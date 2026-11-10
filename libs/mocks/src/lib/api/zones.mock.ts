@@ -1,5 +1,5 @@
-import { padLength, predictableRandomInt } from '@placeos/common';
-import { registerMockEndpoint } from '@placeos/ts-client';
+import { HashMap, padLength, predictableRandomInt } from '@placeos/common';
+import { mockId, persist, registerMockEndpoint } from '../session';
 import { MOCK_MENU } from './catering.data';
 import { MOCK_SPACES } from './spaces.data';
 import { MOCK_STAFF } from './users.data';
@@ -11,7 +11,7 @@ import {
     MOCK_ZONES,
 } from './zone.data';
 
-const MOCK_METADATA = {
+const MOCK_METADATA: HashMap<HashMap> = {
     current: {
         contacts: {
             name: 'contacts',
@@ -49,14 +49,36 @@ const MOCK_METADATA = {
 
 export const LOCKERS = {};
 
+/** Engine settings documents, for zones and systems */
+const MOCK_SETTINGS: HashMap[] = [];
+
 export function registerMockZones() {
-    const all_zones = () => [
-        ...MOCK_ORGS,
-        ...MOCK_REGIONS,
-        ...MOCK_BUILDINGS,
-        ...MOCK_LEVELS,
-        ...MOCK_ZONES,
+    const zone_lists = [
+        MOCK_ORGS,
+        MOCK_REGIONS,
+        MOCK_BUILDINGS,
+        MOCK_LEVELS,
+        MOCK_ZONES,
     ];
+    persist('orgs', MOCK_ORGS);
+    persist('regions', MOCK_REGIONS);
+    persist('buildings', MOCK_BUILDINGS);
+    persist('levels', MOCK_LEVELS);
+    persist('zones', MOCK_ZONES);
+    persist('metadata', MOCK_METADATA);
+    persist('lockers', LOCKERS);
+    persist('settings', MOCK_SETTINGS);
+
+    const all_zones = () => zone_lists.flat();
+
+    /** List holding the zone and its index, or throw a 404 */
+    const locateZone = (id: string) => {
+        for (const list of zone_lists) {
+            const index = list.findIndex((zone) => zone.id === id);
+            if (index >= 0) return { list, index };
+        }
+        throw { status: 404, message: `Unable to find zone with id "${id}"` };
+    };
 
     registerMockEndpoint({
         path: '/api/engine/v2/zones',
@@ -97,141 +119,230 @@ export function registerMockZones() {
         },
     });
 
+    // New zones go in the generic list. `all_zones` lists every type.
+    registerMockEndpoint({
+        path: '/api/engine/v2/zones',
+        method: 'POST',
+        callback: (request) => {
+            const zone = { tags: [], ...request.body, id: mockId('zone-') };
+            MOCK_ZONES.push(zone);
+            return zone;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/zones/:id',
+        method: 'PATCH',
+        callback: (request) => {
+            const { list, index } = locateZone(request.route_params.id);
+            const zone = {
+                ...list[index],
+                ...request.body,
+                id: list[index].id,
+            };
+            list.splice(index, 1, zone);
+            return zone;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/zones/:id',
+        method: 'DELETE',
+        callback: (request) => {
+            const { list, index } = locateZone(request.route_params.id);
+            list.splice(index, 1);
+        },
+    });
+
+    const findSettings = (id: string) => {
+        const item = MOCK_SETTINGS.find((entry) => entry.id === id);
+        if (!item) throw { status: 404, message: 'Settings not found' };
+        return item;
+    };
+
     registerMockEndpoint({
         path: '/api/engine/v2/settings',
         method: 'GET',
-        callback: (_request) => [],
+        callback: (request) => {
+            const parent_id = request.query_params?.parent_id;
+            return parent_id
+                ? MOCK_SETTINGS.filter((item) => item.parent_id === parent_id)
+                : MOCK_SETTINGS;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/settings',
+        method: 'POST',
+        callback: (request) => {
+            const item = { ...request.body, id: mockId('sets-') };
+            MOCK_SETTINGS.push(item);
+            return item;
+        },
     });
 
     registerMockEndpoint({
         path: '/api/engine/v2/settings/:id',
         method: 'GET',
-        callback: (_request) => ({}),
+        callback: (request) => findSettings(request.route_params.id),
     });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/settings/:id',
+        method: 'PATCH',
+        callback: (request) =>
+            Object.assign(findSettings(request.route_params.id), request.body),
+    });
+
+    /** Metadata of a zone or system, by name. Saved metadata comes first. */
+    const showMetadata = (request: {
+        route_params: HashMap<string>;
+        query_params: HashMap<string>;
+    }) => {
+        const saved = MOCK_METADATA[request.route_params.id];
+        const name = request.query_params.name;
+        if (name && saved?.[name]) return { [name]: saved[name] };
+        if (request.query_params.name === 'bindings') {
+            // Point at a registered mock system, or websocket binds fail
+            const system_id = MOCK_SPACES[0].id;
+            return {
+                bindings: {
+                    details: {
+                        area_management: system_id,
+                        location_services: system_id,
+                        contact_tracing: system_id,
+                        lockers: system_id,
+                        // payments: system_id,
+                    },
+                },
+            };
+        }
+        if (request.query_params.name === 'catering') {
+            return {
+                catering: {
+                    details: MOCK_MENU,
+                },
+            };
+        }
+        if (request.query_params.name === 'catering-settings') {
+            return {
+                'catering-settings': {
+                    details: {
+                        require_notes: false,
+                        charge_codes: [
+                            'CC-1001',
+                            'CC-1002',
+                            'CC-1003',
+                            'CC-2001',
+                            'CC-2002',
+                        ],
+                        disabled_rooms: [],
+                    },
+                },
+            };
+        }
+        if (request.query_params.name === 'catering_config') {
+            return {
+                catering_config: {
+                    details: [],
+                },
+            };
+        }
+        if (request.query_params.name === 'lockers') {
+            const parts = request.route_params.id.split('-');
+            const id = parts[parts.length - 1];
+            return generateLockers(id);
+        }
+        if (request.query_params.name === 'desks') {
+            const parts = request.route_params.id.split('-');
+            const id = parts[parts.length - 1];
+            return generateMockDeskMetadata(id);
+        }
+        if (request.query_params.name === 'charge_codes') {
+            return {
+                charge_codes: {
+                    details: new Array(30).fill(0).map((_, idx) => `C-${idx}`),
+                },
+            };
+        }
+        if (request.query_params.name === 'map_regions') {
+            return {
+                map_regions: {
+                    details: {
+                        areas: [
+                            {
+                                id: 'zone-10.A',
+                                properties: {
+                                    capacity: 100,
+                                    label_location: { x: 0.36, y: 0.33 },
+                                    // draw_polygon: true
+                                },
+                                geometry: {
+                                    coordinates: [
+                                        [0.0, 0.0],
+                                        [0.0, 0.5],
+                                        [0.5, 0.5],
+                                        [0.5, 0.0],
+                                    ],
+                                },
+                            },
+                            {
+                                id: 'zone-10.B',
+                                properties: {
+                                    capacity: 100,
+                                    label_location: { x: 0.76, y: 0.33 },
+                                },
+                            },
+                            {
+                                id: 'zone-10.C',
+                                properties: {
+                                    capacity: 100,
+                                    label_location: { x: 0.63, y: 0.77 },
+                                },
+                            },
+                        ],
+                    },
+                },
+            };
+        }
+        if (
+            MOCK_METADATA[request.route_params.id] &&
+            MOCK_METADATA[request.route_params.id][request.query_params.name]
+        ) {
+            return MOCK_METADATA[request.route_params.id];
+        } else if (
+            MOCK_METADATA[request.route_params.id] &&
+            !request.query_params.name
+        ) {
+            return MOCK_METADATA[request.route_params.id] || {};
+        }
+        return {};
+    };
 
     registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id',
         method: 'GET',
+        callback: (request) => showMetadata(request),
+    });
+
+    // The segment after `metadata` is the metadata name here, not an ID
+    registerMockEndpoint({
+        path: '/api/engine/v2/metadata/:name/bulk',
+        method: 'GET',
         callback: (request) => {
-            if (request.query_params.name === 'bindings') {
-                // Point at a registered mock system, or websocket binds fail
-                const system_id = MOCK_SPACES[0].id;
-                return {
-                    bindings: {
-                        details: {
-                            area_management: system_id,
-                            location_services: system_id,
-                            contact_tracing: system_id,
-                            lockers: system_id,
-                            // payments: system_id,
-                        },
-                    },
-                };
+            const name = request.route_params.name;
+            const ids = `${request.query_params.parent_ids || ''}`
+                .split(',')
+                .filter(Boolean);
+            const result: HashMap = {};
+            for (const id of ids) {
+                const item = showMetadata({
+                    route_params: { id },
+                    query_params: { name },
+                })[name];
+                if (item) result[id] = item;
             }
-            if (request.query_params.name === 'catering') {
-                return {
-                    catering: {
-                        details: MOCK_MENU,
-                    },
-                };
-            }
-            if (request.query_params.name === 'catering-settings') {
-                return {
-                    'catering-settings': {
-                        details: {
-                            require_notes: false,
-                            charge_codes: [
-                                'CC-1001',
-                                'CC-1002',
-                                'CC-1003',
-                                'CC-2001',
-                                'CC-2002',
-                            ],
-                            disabled_rooms: [],
-                        },
-                    },
-                };
-            }
-            if (request.query_params.name === 'catering_config') {
-                return {
-                    catering_config: {
-                        details: [],
-                    },
-                };
-            }
-            if (request.query_params.name === 'lockers') {
-                const parts = request.route_params.id.split('-');
-                const id = parts[parts.length - 1];
-                return generateLockers(id);
-            }
-            if (request.query_params.name === 'desks') {
-                const parts = request.route_params.id.split('-');
-                const id = parts[parts.length - 1];
-                return generateMockDeskMetadata(id);
-            }
-            if (request.query_params.name === 'charge_codes') {
-                return {
-                    charge_codes: {
-                        details: new Array(30)
-                            .fill(0)
-                            .map((_, idx) => `C-${idx}`),
-                    },
-                };
-            }
-            if (request.query_params.name === 'map_regions') {
-                return {
-                    map_regions: {
-                        details: {
-                            areas: [
-                                {
-                                    id: 'zone-10.A',
-                                    properties: {
-                                        capacity: 100,
-                                        label_location: { x: 0.36, y: 0.33 },
-                                        // draw_polygon: true
-                                    },
-                                    geometry: {
-                                        coordinates: [
-                                            [0.0, 0.0],
-                                            [0.0, 0.5],
-                                            [0.5, 0.5],
-                                            [0.5, 0.0],
-                                        ],
-                                    },
-                                },
-                                {
-                                    id: 'zone-10.B',
-                                    properties: {
-                                        capacity: 100,
-                                        label_location: { x: 0.76, y: 0.33 },
-                                    },
-                                },
-                                {
-                                    id: 'zone-10.C',
-                                    properties: {
-                                        capacity: 100,
-                                        label_location: { x: 0.63, y: 0.77 },
-                                    },
-                                },
-                            ],
-                        },
-                    },
-                };
-            }
-            if (
-                MOCK_METADATA[request.route_params.id] &&
-                MOCK_METADATA[request.route_params.id][
-                    request.query_params.name
-                ]
-            ) {
-                return MOCK_METADATA[request.route_params.id];
-            } else if (
-                MOCK_METADATA[request.route_params.id] &&
-                !request.query_params.name
-            ) {
-                return MOCK_METADATA[request.route_params.id] || {};
-            }
-            return {};
+            return result;
         },
     });
 

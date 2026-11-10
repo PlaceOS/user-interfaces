@@ -608,7 +608,8 @@ export const MOCK_PURCHASE_ORDERS = Array(30)
         };
     });
 
-const MOCK_PARKING_ASSETS_CACHE: Record<string, any[]> = {};
+/** Levels whose parking spaces are already in `MOCK_ASSETS` */
+export const MOCK_PARKING_LEVELS: string[] = [];
 
 /** Every zone a mock level is in: org, region, building and level */
 export function mockLevelZones(level_id: string): string[] {
@@ -620,42 +621,46 @@ export function mockLevelZones(level_id: string): string[] {
     );
 }
 
+/**
+ * Add the parking spaces of a level to `MOCK_ASSETS` on first use, so the
+ * asset endpoints can update them. Returns the spaces of the level.
+ */
 export function generateMockParkingAssets(zone_id: string) {
-    if (!MOCK_PARKING_ASSETS_CACHE[zone_id]) {
+    if (!MOCK_PARKING_LEVELS.includes(zone_id)) {
+        MOCK_PARKING_LEVELS.push(zone_id);
         const zones = mockLevelZones(zone_id);
         const parts = zone_id.split('-');
         const id = parts[parts.length - 1];
-        MOCK_PARKING_ASSETS_CACHE[zone_id] = new Array(18 * 6)
-            .fill(0)
-            .map((_, idx) => {
-                const position = padLength(
-                    (idx % 18) + Math.floor(idx / 18) * 100,
-                    3,
-                );
-                const assignee =
-                    predictableRandomInt(9999) % 4 === 0
-                        ? MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)]
-                        : ({} as any);
-                return {
-                    id: `park-${id}-${position}`,
-                    map_id: `park-${position}`,
-                    name: `${position}`,
-                    bookable: predictableRandomInt(9999) % 4 !== 0,
-                    assigned_to: assignee.email || '',
-                    assigned_name: assignee.name || '',
-                    asset_type_id: '_parking_type_',
-                    zone_id,
-                    zones,
-                    notes: '',
-                    place_groups: [],
-                    features: [],
-                    images: [],
-                };
-            });
+        const spaces = new Array(18 * 6).fill(0).map((_, idx) => {
+            const position = padLength(
+                (idx % 18) + Math.floor(idx / 18) * 100,
+                3,
+            );
+            const assignee =
+                predictableRandomInt(9999) % 4 === 0
+                    ? MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)]
+                    : ({} as any);
+            return {
+                id: `park-${id}-${position}`,
+                map_id: `park-${position}`,
+                name: `${position}`,
+                bookable: predictableRandomInt(9999) % 4 !== 0,
+                assigned_to: assignee.email || '',
+                assigned_name: assignee.name || '',
+                asset_type_id: '_parking_type_',
+                zone_id,
+                zones,
+                notes: '',
+                place_groups: [],
+                features: [],
+                images: [],
+            };
+        });
+        MOCK_ASSETS.push(...spaces);
     }
-    return MOCK_PARKING_ASSETS_CACHE[zone_id];
-}
-
-export function getAllMockParkingAssets() {
-    return Object.values(MOCK_PARKING_ASSETS_CACHE).flat();
+    return MOCK_ASSETS.filter(
+        (asset) =>
+            asset.asset_type_id === '_parking_type_' &&
+            asset.zone_id === zone_id,
+    );
 }

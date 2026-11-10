@@ -132,6 +132,19 @@ export async function createNativeAuthUrl(
 }
 
 /**
+ * Whether the page asks for mock mode. Use it before `setupPlace` runs, which
+ * stores the choice. `?mock=false` turns mock mode off.
+ */
+export function mockModeRequested(): boolean {
+    return (
+        !location.href.includes('mock=false') &&
+        (localStorage.getItem('mock') === 'true' ||
+            location.href.includes('mock=true') ||
+            location.origin.includes('demo.place.tech'))
+    );
+}
+
+/**
  * Initialise the PlaceOS API library
  */
 export async function setupPlace(

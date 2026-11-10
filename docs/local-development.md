@@ -26,6 +26,22 @@ http://localhost:<port>/?mock=true
 
 Use `Ctrl + Alt/Option + Shift + M` in the application to switch mock mode. The application reloads after the switch.
 
+Mock mode keeps your changes for the browser session. The mocks save changed data in `localStorage` after each write request and after each command to a mock system. A reload keeps the changes.
+
+All tabs on the same origin share the changes, also when the tabs show different applications. For example, a booking that you change in Workplace is also changed in the Concierge mock data in another tab. The other tab does not reload. It shows the change on its next request, for example when it polls or when you go to a different page. Commands to a mock system, such as a lighting level, show in the other tab immediately.
+
+Each `nx serve` uses a different port, which is a different origin. To share changes between applications, serve them from one origin, for example the `dist/apps` folder from one static server.
+
+To start again with the generated data, close the browser or remove the `PLACEOS.mock.*` keys from local storage.
+
+Some items do not work fully in mock mode:
+
+- File uploads are not mocked. They go to the network, which is the development proxy when you use `nx serve`.
+- Map AI shows as not available.
+- The `public` and `map-studio` applications have no mock mode.
+
+When you add a mock endpoint, import `registerMockEndpoint` from `libs/mocks/src/lib/session.ts`, not from `@placeos/ts-client`. Call `persist` (or `persistById` for a large generated list) for each dataset that a write request changes.
+
 ## External backend authentication
 
 OAuth redirects do not work through the local development server. Use the basic authentication form at `/login/?continue=/` when the user requests an external backend. Treat access tokens as secrets.

@@ -92,6 +92,10 @@
                         {
                             "replace": "libs/common/src/lib/sentry-rates.ts",
                             "with": "libs/common/src/lib/sentry-rates.prod.ts"
+                        },
+                        {
+                            "replace": "libs/mocks/src/index.ts",
+                            "with": "libs/mocks/src/empty.ts"
                         }
                     ],
                     "outputHashing": "all"

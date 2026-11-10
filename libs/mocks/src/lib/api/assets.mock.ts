@@ -1,73 +1,31 @@
-import { predictableRandomInt } from '@placeos/common';
-import { registerMockEndpoint } from '@placeos/ts-client';
+import { mockId, persist, registerMockEndpoint } from '../session';
 import {
     generateMockParkingAssets,
-    getAllMockParkingAssets,
     MOCK_ASSETS,
     MOCK_CATEGORIES,
+    MOCK_PARKING_LEVELS,
     MOCK_PRODUCTS,
     MOCK_PURCHASE_ORDERS,
     mockLevelZones,
 } from './assets.data';
+import { registerCrudEndpoints } from './crud.mock';
 import { MOCK_LEVELS } from './zone.data';
 
 const BASE_PATH = '/api/engine/v2';
 
-/**
- * Register the show, create, update and delete endpoints for a mock dataset.
- * The list endpoint differs per resource, so callers register it themselves.
- */
-function registerCrudEndpoints(
-    path: string,
-    dataset: any[],
-    id_prefix: string,
-    label: string,
-) {
-    const indexOf = (id: string) => {
-        const index = dataset.findIndex((e) => e.id === id);
-        if (index < 0)
-            throw {
-                status: 404,
-                message: `Unable to find ${label} with ID ${id}`,
-            };
-        return index;
-    };
-    registerMockEndpoint({
-        path: `${path}/:id`,
-        method: 'GET',
-        callback: (req) => dataset[indexOf(req.route_params.id)],
-    });
-    registerMockEndpoint({
-        path,
-        method: 'POST',
-        callback: (req) => {
-            const item = {
-                ...req.body,
-                id: `${id_prefix}${predictableRandomInt(999)}`,
-            };
-            dataset.push(item);
-            return item;
-        },
-    });
-    registerMockEndpoint({
-        path: `${path}/:id`,
-        method: 'PUT',
-        callback: (req) => {
-            const item = { ...req.body };
-            dataset.splice(indexOf(req.route_params.id), 1, item);
-            return item;
-        },
-    });
-    registerMockEndpoint({
-        path: `${path}/:id`,
-        method: 'DELETE',
-        callback: (req) => {
-            dataset.splice(indexOf(req.route_params.id), 1);
-        },
-    });
-}
+/** Bulk asset requests send a JSON string body */
+const bulkBody = (body: unknown): any[] => {
+    const list = typeof body === 'string' ? JSON.parse(body) : body;
+    return Array.isArray(list) ? list : [];
+};
 
 export function registerMockAssets() {
+    persist('asset-categories', MOCK_CATEGORIES);
+    persist('asset-types', MOCK_PRODUCTS);
+    persist('asset-purchase-orders', MOCK_PURCHASE_ORDERS);
+    persist('assets', MOCK_ASSETS);
+    persist('parking-levels', MOCK_PARKING_LEVELS);
+
     registerMockEndpoint({
         path: `${BASE_PATH}/asset_categories`,
         method: 'GET',
@@ -141,7 +99,7 @@ export function registerMockAssets() {
                         ),
                 ).forEach((level) => generateMockParkingAssets(level.id));
             }
-            let results = [...MOCK_ASSETS, ...getAllMockParkingAssets()];
+            let results = [...MOCK_ASSETS];
             if (type_id) {
                 results = results.filter((a) => a.asset_type_id === type_id);
             }
@@ -159,6 +117,31 @@ export function registerMockAssets() {
             }
             return results;
         },
+    });
+    // Before the `/assets/:id` routes, which would match `bulk` as an ID
+    registerMockEndpoint({
+        path: `${BASE_PATH}/assets/bulk`,
+        method: 'POST',
+        callback: (req) => {
+            const items = bulkBody(req.body).map((item) => ({
+                ...item,
+                id: mockId('-asset-'),
+            }));
+            MOCK_ASSETS.push(...items);
+            return items;
+        },
+    });
+    registerMockEndpoint({
+        path: `${BASE_PATH}/assets/bulk`,
+        method: 'PATCH',
+        callback: (req) =>
+            bulkBody(req.body).map((changes) => {
+                const index = MOCK_ASSETS.findIndex((a) => a.id === changes.id);
+                if (index < 0) return changes;
+                const item = { ...MOCK_ASSETS[index], ...changes };
+                MOCK_ASSETS.splice(index, 1, item);
+                return item;
+            }),
     });
     registerCrudEndpoints(
         `${BASE_PATH}/assets`,

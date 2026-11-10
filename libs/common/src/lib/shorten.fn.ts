@@ -1,4 +1,6 @@
-import { apiKey, del, post, put, token } from '@placeos/ts-client';
+import { apiKey, del, isMock, post, put, token } from '@placeos/ts-client';
+
+import { generateQRCode } from './qr-code';
 
 const ENDPOINT = '/api/engine/v2/short_url';
 
@@ -30,6 +32,12 @@ export async function getShortUrlQRCode(
 ): Promise<string> {
     const key = `${id}.${format}`;
     if (QR_STORE.has(key)) return QR_STORE.get(key);
+    // Mock mode has no server to draw the code, so draw the short link here
+    if (isMock()) {
+        const url = generateQRCode(`${location.origin}/r/${id.split('-')[1]}`);
+        QR_STORE.set(key, url);
+        return url;
+    }
     const tkn = token();
     document.cookie = `${
         tkn === 'x-api-key'

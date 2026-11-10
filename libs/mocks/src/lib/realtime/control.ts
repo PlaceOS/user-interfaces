@@ -1,5 +1,7 @@
 import { HashMap, unique } from '@placeos/common';
 
+import { LIGHTING_AREAS } from './room-devices';
+
 export interface EnvironmentSource {
     id?: string;
     name: string;
@@ -58,11 +60,8 @@ class RoomModule {
         'Full',
     ];
     public lighting_scene: string = 'Off';
-    public lighting_levels: HashMap<number> = {
-        zone1: 50,
-        zone2: 75,
-        zone3: 100,
-    };
+    /** Areas the `Lighting` module controls, see `LIGHTING_AREAS` */
+    public lighting_levels = LIGHTING_AREAS;
 
     // Camera bindings
     public available_cameras: string[] = [
@@ -359,13 +358,6 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
                     state: scene,
                 };
             }
-        }
-    }
-
-    /** Set lighting level for a zone */
-    $set_lighting_level(zone: string, level: number) {
-        if (this.lighting_levels[zone] !== undefined) {
-            this.lighting_levels = { ...this.lighting_levels, [zone]: level };
         }
     }
 
