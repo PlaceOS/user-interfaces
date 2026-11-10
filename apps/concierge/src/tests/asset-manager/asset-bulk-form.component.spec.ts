@@ -11,13 +11,7 @@ import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-type BulkPost = (
-    url: string,
-    body: string,
-    options: Record<string, never>,
-) => Promise<Partial<ts_client.PlaceAsset>[]>;
-
-const bulk_post = vi.mocked(ts_client.post as unknown as BulkPost);
+const add_assets = vi.mocked(ts_client.addAssets);
 
 describe('AssetBulkFormComponent', () => {
     let spectator: Spectator<AssetBulkFormComponent>;
@@ -44,12 +38,8 @@ describe('AssetBulkFormComponent', () => {
     });
 
     beforeEach(() => {
-        vi.mocked(ts_client.apiEndpoint).mockReset();
-        bulk_post.mockReset();
-        vi.mocked(ts_client.apiEndpoint).mockReturnValue(
-            'https://example.com/api/engine/v2',
-        );
-        bulk_post.mockResolvedValue([{ id: 'a1' }, { id: 'a2' }]);
+        add_assets.mockReset();
+        add_assets.mockResolvedValue([{ id: 'a1' }, { id: 'a2' }] as any);
         spectator = createComponent();
         spectator.component.model.set({
             id: '',
@@ -68,7 +58,7 @@ describe('AssetBulkFormComponent', () => {
 
         await spectator.component.save();
 
-        expect(bulk_post).not.toHaveBeenCalled();
+        expect(add_assets).not.toHaveBeenCalled();
     });
 
     it('should create one asset per requested count', async () => {
@@ -77,9 +67,7 @@ describe('AssetBulkFormComponent', () => {
 
         await spectator.component.save();
 
-        const [url, body] = bulk_post.mock.calls[0];
-        const list = JSON.parse(body);
-        expect(url).toBe('https://example.com/api/engine/v2/assets/bulk');
+        const [list] = add_assets.mock.calls[0];
         expect(list).toHaveLength(2);
         expect(list[0]).toEqual(
             expect.objectContaining({ identifier: 'Chair', zone_id: 'bld-1' }),

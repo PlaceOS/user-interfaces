@@ -618,7 +618,13 @@ describe('DashboardsService', () => {
                 ),
             );
 
-        beforeEach(() => vi.useFakeTimers());
+        beforeEach(() => {
+            vi.useFakeTimers();
+            // Run the effect that listens again when the group scope changes
+            // now, as it does when the app starts. Left to the scheduler, its
+            // first run can land mid-test and drop the values sent so far.
+            TestBed.tick();
+        });
         afterEach(() => vi.useRealTimers());
 
         it('raises an alert from the latest value only', () => {
@@ -687,8 +693,9 @@ describe('DashboardsService', () => {
         it('raises disconnected devices without a dashboard, after it is set again', async () => {
             await spectator.service.listenForDashboardAlerts(true);
             await vi.advanceTimersByTimeAsync(0);
-            (mock_mqtt_connect as any)()
-                .on.mock.calls.find(([name]) => name === 'connect')[1]();
+            (mock_mqtt_connect as any)().on.mock.calls.find(
+                ([name]) => name === 'connect',
+            )[1]();
             // subscribed, so resubscribing does not drop what is sent next
             await vi.advanceTimersByTimeAsync(1000);
             // the default is not kept in the dashboard's list
