@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1794287964408,
+  "timestamp": 1794288621255,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -214,9 +214,9 @@
     "./assets/img/menus.jpg": "6e6080aabfeed4acfbcb47c4ce546a6076b0edd0",
     "./assets/img/orders.jpg": "d444da6f6ef20ae2975da80b16fe2f751f1dcbc0",
     "./assets/locale/ar.json": "8c70a9d08ce174499b007a8534bc34c2889a2b21",
-    "./assets/locale/en-AU.json": "ae23c3efcbf3995c709e49d455b5d7263590a349",
-    "./assets/locale/en-GB.json": "8f69391e328492ec900d5f7a297656f3be7f32a5",
-    "./assets/locale/en-US.json": "85d4acfd49f051362520d1b0b7726442231ca82d",
+    "./assets/locale/en-AU.json": "e13ab4e15a879397b7db5242b938f176a2e5917c",
+    "./assets/locale/en-GB.json": "e9572d14ec4196842c4be9de39a85bbd5b30f6c9",
+    "./assets/locale/en-US.json": "866097949ebc60ed335964763ef216d74fd03f46",
     "./assets/locale/es.json": "3189f44097e0f953339acd9147ea4996b8e0a796",
     "./assets/locale/fr-CA.json": "9bfe9e885737891347901bcf185d36842e75bd49",
     "./assets/locale/fr.json": "08e9b1c3e69f23af560ac5a91d41278858621f02",
@@ -274,7 +274,7 @@
     "./index.html": "dfc42052cff44b717a14d2cf16321c5ac82cff4f",
     "./it-CKncUqxZ.js": "e86641b9ae7ebed2832b7c038f84f9aaee75e434",
     "./ja-DngrQVLH.js": "fb52890e58546e9fddbfe0cca453a27df3377541",
-    "./main.js": "0d76785ff2677e45fbe3744a9ba1d194fcd50b3d",
+    "./main.js": "2853054fec07e3acf232dce0e943961c6c2a9fb3",
     "./manifest.webmanifest": "39df451c6d81fb831c7cf7df6ea3fade21510647",
     "./native-domain-overlay.component-BeFb-LP-.js": "b7d5a1df3f815b44ab5c35692779f08aabbf6de2",
     "./sentry-sdk-C9TzOLLA.js": "83428b080adacac9a15d11c70d202af477e325e7",
