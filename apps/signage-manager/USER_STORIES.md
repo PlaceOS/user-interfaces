@@ -94,14 +94,14 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - Users with create permission can upload one or more supported media files.
-- Users choose the file access permissions of an upload, for one file or many.
 - A file that the browser cannot read shows an error. The other files of a bulk upload continue.
 - Media larger than 4K (3840x2160, or 2160x3840 in portrait) shows a warning: in the edit dialog for one file, and with the file names for a bulk upload.
 - Users can drag files onto the media page to start upload preview.
 - A PDF opens an import dialog that previews each page. Users can leave pages out (click, or shift-click for a range), turn one page or all pages, and choose the image size (page size, or fitted to a 16:9 or 9:16 screen), background (white, black, a custom colour or transparent), image format (WebP where the browser supports it, else PNG) and resolution (4K or Full HD).
 - Each imported page is uploaded as an image named "<name> - page <n>", keeping its page number in the PDF, and tagged "<name>". The name defaults to the PDF file name without its extension and can be changed in the dialog.
-- Several PDFs dropped together open the import dialog one after another, then upload with any other files in one bulk upload. Cancelling a PDF skips it.
-- Importing starts the upload straight away, with default file access permissions. The upload dialog then only shows progress, and stays open with a retry if a page fails. A PDF that is password protected or cannot be read shows an error naming the file.
+- Several PDFs dropped together open the import dialog one after another, then upload with any other files in one bulk upload. Cancelling a PDF skips it. A PDF that is password protected or cannot be read shows an error naming the file.
+- Importing starts the upload straight away. The upload dialog then only shows progress, and stays open with a retry if a page fails.
+- Uploads do not offer file access permissions.
 - Users can add webpage media from a valid URL.
 - Invalid URLs are rejected before creating media.
 - Users can create plugin media from the available signage plugins.
@@ -384,11 +384,11 @@ These stories cover the current app workflows:
 - The group gets each list from its parent groups until it sets its own. A child group can turn a feature on again if the settings allow it. "Use parent value" removes the group's own list.
 - Saving removes plugin IDs that no longer match a plugin.
 - When a group is selected, the features that both the settings and the group allow apply:
-  - Without `templates`, the templates section is hidden.
-  - Without `template-editing`, template create, edit, duplicate, delete and layout changes are hidden. Template mappings stay available.
-  - Without `ai-generation`, the AI create actions are hidden.
-  - Without `ai-editing`, "Edit with AI" and refinement in the AI editor are hidden.
-  - Without `branding-editing`, the branding tab is read-only, and the AI editor cannot change the logo.
+    - Without `templates`, the templates section is hidden.
+    - Without `template-editing`, template create, edit, duplicate, delete and layout changes are hidden. Template mappings stay available.
+    - Without `ai-generation`, the AI create actions are hidden.
+    - Without `ai-editing`, "Edit with AI" and refinement in the AI editor are hidden.
+    - Without `branding-editing`, the branding tab is read-only, and the AI editor cannot change the logo.
 - The All Groups view uses only `app.features`.
 
 ---

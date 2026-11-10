@@ -50,17 +50,15 @@ describe('BulkMediaUploadModalComponent', () => {
             .compileComponents();
     });
 
-    it('uploads every file with the selected permissions and closes', async () => {
+    it('uploads every file and closes', async () => {
         const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
         const component = fixture.componentInstance;
-        component.permissions.set('support');
 
         await component.uploadAll();
 
         expect(onUpload).toHaveBeenCalledTimes(2);
         expect(onUpload).toHaveBeenCalledWith(
             modal_data.items[0],
-            'support',
             expect.any(Function),
         );
         expect(component.done_count()).toBe(2);
@@ -118,22 +116,18 @@ describe('BulkMediaUploadModalComponent', () => {
     });
 
     it('tracks upload progress for the active row', async () => {
-        onUpload.mockImplementation(
-            async (_item, _permissions, on_progress) => {
-                on_progress(42.5);
-                return new SignageMedia({ id: 'media-1' });
-            },
-        );
+        onUpload.mockImplementation(async (_item, on_progress) => {
+            on_progress(42.5);
+            return new SignageMedia({ id: 'media-1' });
+        });
         const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
         const component = fixture.componentInstance;
         const progress_values: number[] = [];
-        onUpload.mockImplementationOnce(
-            async (_item, _permissions, on_progress) => {
-                on_progress(42.5);
-                progress_values.push(component.rows()[0].progress);
-                return new SignageMedia({ id: 'media-1' });
-            },
-        );
+        onUpload.mockImplementationOnce(async (_item, on_progress) => {
+            on_progress(42.5);
+            progress_values.push(component.rows()[0].progress);
+            return new SignageMedia({ id: 'media-1' });
+        });
 
         await component.uploadAll();
 
@@ -178,25 +172,7 @@ describe('BulkMediaUploadModalComponent', () => {
         expect(dialog_ref.close).toHaveBeenCalled();
     });
 
-    it('labels the permissions select', async () => {
-        TestBed.resetTestingModule();
-        await TestBed.configureTestingModule({
-            imports: [BulkMediaUploadModalComponent],
-            providers: [
-                { provide: MAT_DIALOG_DATA, useValue: modal_data },
-                { provide: MatDialogRef, useValue: dialog_ref },
-            ],
-        }).compileComponents();
-        const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
-        fixture.detectChanges();
-        const element: HTMLElement = fixture.nativeElement;
-
-        const label = element.querySelector('label');
-        const select = element.querySelector(`#${label.htmlFor}`);
-        expect(select.getAttribute('aria-labelledby')).toContain(label.id);
-    });
-
-    it('starts uploading as it opens, without permission options, when asked to', async () => {
+    it('starts uploading as it opens when asked to', async () => {
         modal_data.auto_start = true;
         TestBed.resetTestingModule();
         await TestBed.configureTestingModule({
@@ -208,12 +184,9 @@ describe('BulkMediaUploadModalComponent', () => {
         }).compileComponents();
         const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
         fixture.detectChanges();
-        const element: HTMLElement = fixture.nativeElement;
 
-        expect(element.querySelector('#bulk-permissions')).toBeNull();
         expect(onUpload).toHaveBeenCalledWith(
             modal_data.items[0],
-            'none',
             expect.any(Function),
         );
         await vi.waitFor(() =>

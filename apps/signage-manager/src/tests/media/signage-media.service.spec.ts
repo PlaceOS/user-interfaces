@@ -361,7 +361,7 @@ describe('SignageMediaService', () => {
             new File(['image'], 'poster.png', { type: 'image/png' }),
             new SignageMedia({ name: 'Poster' }),
             { is_landscape: true, duration: 0, width: 1920, height: 1080 },
-            { permissions: 'none', on_progress: (p) => progress.push(p) },
+            { on_progress: (p) => progress.push(p) },
         );
         // Let the file validation and thumbnail steps settle
         for (
@@ -392,7 +392,7 @@ describe('SignageMediaService', () => {
                 new File(['image'], 'poster.png', { type: 'image/png' }),
                 new SignageMedia({ name: 'Poster' }),
                 { is_landscape: true, duration: 0, width: 1920, height: 1080 },
-                { permissions: 'none' },
+                {},
             ),
         ).rejects.toThrow(/status 401/);
 
@@ -824,7 +824,7 @@ describe('SignageMediaService', () => {
             expect(data.media.video_length).toBe(12500);
         });
 
-        it('uploads with the file permissions picked in the edit modal', async () => {
+        it('uploads a file from the edit modal without file permissions', async () => {
             const service = createService();
 
             await service.editMedia(new SignageMedia({}), poster(), metadata);
@@ -836,13 +836,12 @@ describe('SignageMediaService', () => {
                 metadata,
                 '',
                 undefined,
-                'admin',
             );
 
             expect(uploads.uploadFileToCompletion).toHaveBeenCalledWith(
                 file,
                 false,
-                'admin',
+                'none',
                 undefined,
             );
         });
@@ -1111,7 +1110,7 @@ describe('SignageMediaService', () => {
                         const data: BulkMediaUploadModalData = config.data;
                         (async () => {
                             for (const item of data.items) {
-                                await data.onUpload(item, 'none', () => {});
+                                await data.onUpload(item, () => {});
                             }
                             handler(data.items.length);
                         })();
@@ -1209,10 +1208,10 @@ describe('SignageMediaService', () => {
             void service.bulkUploadMedia(pickedFiles());
             await vi.waitFor(() => expect(data).toBeDefined());
             const [item] = data.items;
-            await expect(
-                data.onUpload(item, 'none', () => {}),
-            ).rejects.toMatchObject({ status: 422 });
-            await data.onUpload(item, 'none', () => {});
+            await expect(data.onUpload(item, () => {})).rejects.toMatchObject({
+                status: 422,
+            });
+            await data.onUpload(item, () => {});
 
             expect(uploads.uploadFileToCompletion).toHaveBeenCalledOnce();
             expect(addSignageMedia).toHaveBeenCalledTimes(2);
@@ -1363,7 +1362,7 @@ describe('SignageMediaService', () => {
 
             void service.previewFiles([pdfFile()]);
             await vi.waitFor(() => expect(opened.bulk).toBeDefined());
-            await opened.bulk.onUpload(opened.bulk.items[0], 'none', () => {});
+            await opened.bulk.onUpload(opened.bulk.items[0], () => {});
 
             expect(addSignageMedia).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -1393,7 +1392,7 @@ describe('SignageMediaService', () => {
             await vi.waitFor(() => expect(opened.bulk).toBeDefined());
             expect(loadFile).not.toHaveBeenCalled();
 
-            await opened.bulk.onUpload(opened.bulk.items[0], 'none', () => {});
+            await opened.bulk.onUpload(opened.bulk.items[0], () => {});
 
             expect(loadFile).toHaveBeenCalledOnce();
             expect(uploads.uploadFileToCompletion).toHaveBeenCalledWith(
@@ -1537,7 +1536,7 @@ describe('SignageMediaService', () => {
             const done = service.previewFiles([pdfFile()]);
             await vi.waitFor(() => expect(bulk).toBeDefined());
             for (const item of bulk.items) {
-                await bulk.onUpload(item, 'none', () => {});
+                await bulk.onUpload(item, () => {});
             }
             expect(reload).not.toHaveBeenCalled();
 

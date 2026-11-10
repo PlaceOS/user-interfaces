@@ -1,21 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { humanReadableByteCount } from '@placeos/cloud-uploads';
-import {
-    i18n,
-    notifyError,
-    notifySuccess,
-    UploadPermissions,
-} from '@placeos/common';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 import {
@@ -35,13 +27,12 @@ function itemDetails(item: BulkMediaUploadItem) {
 export interface BulkMediaUploadModalData {
     items: BulkMediaUploadItem[];
     /**
-     * Start uploading as the modal opens, with default permissions, for
+     * Start uploading as the modal opens, for
      * uploads confirmed in an earlier step. The modal then shows progress.
      */
     auto_start?: boolean;
     onUpload: (
         item: BulkMediaUploadItem,
-        permissions: UploadPermissions,
         on_progress: (progress: number) => void,
     ) => Promise<SignageMedia>;
 }
@@ -96,45 +87,6 @@ function uploadErrorMessage(error: unknown) {
         <main
             class="max-h-[65vh] w-[32rem] max-w-full space-y-2 overflow-auto px-4 pt-2 pb-4 max-md:h-auto max-md:w-auto max-md:flex-1"
         >
-            @if (!auto_start) {
-                <div class="flex flex-col">
-                    <!-- A mat-select names itself from the label by its id -->
-                    <label id="bulk-permissions-label" for="bulk-permissions">
-                        {{
-                            'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSIONS'
-                                | translate
-                        }}
-                    </label>
-                    <mat-form-field appearance="outline" class="no-subscript">
-                        <mat-select
-                            id="bulk-permissions"
-                            name="permissions"
-                            aria-labelledby="bulk-permissions-label"
-                            [(ngModel)]="permissions"
-                            [disabled]="uploading()"
-                        >
-                            <mat-option value="none">
-                                {{
-                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_NONE'
-                                        | translate
-                                }}
-                            </mat-option>
-                            <mat-option value="support">
-                                {{
-                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_SUPPORT'
-                                        | translate
-                                }}
-                            </mat-option>
-                            <mat-option value="admin">
-                                {{
-                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_ADMIN'
-                                        | translate
-                                }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-            }
             @for (row of rows(); track row.id) {
                 <div
                     class="border-base-300 flex w-full items-center space-x-2 rounded-sm border p-2"
@@ -262,12 +214,9 @@ function uploadErrorMessage(error: unknown) {
     `,
     styles: [``],
     imports: [
-        FormsModule,
         MatDialogModule,
-        MatFormFieldModule,
         MatProgressSpinnerModule,
         MatRippleModule,
-        MatSelectModule,
         IconComponent,
         TranslatePipe,
     ],
@@ -289,7 +238,6 @@ export class BulkMediaUploadModalComponent {
         })),
     );
     public readonly auto_start = !!this._data.auto_start;
-    public readonly permissions = signal<UploadPermissions>('none');
     public readonly uploading = signal(false);
     /** Set by `stop()`. The upload loop ends after the current file. */
     public readonly stopping = signal(false);
@@ -331,7 +279,6 @@ export class BulkMediaUploadModalComponent {
         if (this.uploading()) return;
         this.uploading.set(true);
         this._dialog_ref.disableClose = true;
-        const permissions = this.permissions();
         for (const row of this.rows()) {
             if (this.stopping()) break;
             if (row.status !== 'pending' && row.status !== 'error') continue;
@@ -341,7 +288,7 @@ export class BulkMediaUploadModalComponent {
                 error: '',
             });
             try {
-                await this._data.onUpload(row.item, permissions, (progress) =>
+                await this._data.onUpload(row.item, (progress) =>
                     this._patchRow(row.id, {
                         progress: Math.min(100, Math.floor(progress)),
                     }),

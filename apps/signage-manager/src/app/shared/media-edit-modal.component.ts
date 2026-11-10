@@ -25,7 +25,6 @@ import {
     mediaAnimation,
     notifyError,
     notifySuccess,
-    UploadPermissions,
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -95,8 +94,6 @@ export interface MediaEditModalData {
         thumbnail?: string,
         /** Supplies a thumbnail when the server screenshot fails */
         fallback_thumbnail?: () => Promise<string>,
-        /** Who can read the uploaded file */
-        permissions?: UploadPermissions,
     ) => Promise<SignageMedia>;
     onEdit: (id: string, data: MediaEditChanges) => Promise<void>;
     preview: (item: SignageMedia) => void;
@@ -510,37 +507,6 @@ function mediaSaveErrorMessage(error: unknown) {
                             ></a-date-field>
                         </div>
                     </div>
-                    @if (file) {
-                        <label
-                            id="upload-permissions-label"
-                            for="upload-permissions"
-                            >{{
-                                'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSIONS'
-                                    | translate
-                            }}</label
-                        >
-                        <mat-form-field appearance="outline">
-                            <mat-select
-                                id="upload-permissions"
-                                aria-labelledby="upload-permissions-label"
-                                [value]="permissions()"
-                                (valueChange)="permissions.set($event)"
-                            >
-                                <mat-option value="none">{{
-                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_NONE'
-                                        | translate
-                                }}</mat-option>
-                                <mat-option value="support">{{
-                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_SUPPORT'
-                                        | translate
-                                }}</mat-option>
-                                <mat-option value="admin">{{
-                                    'SIGNAGE_MANAGER.BULK_UPLOAD_PERMISSION_ADMIN'
-                                        | translate
-                                }}</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    }
                     <signage-shared-with
                         type="media"
                         [item_id]="item.id"
@@ -582,7 +548,6 @@ export class MediaEditModalComponent implements OnDestroy {
     public readonly loading = signal(false);
     public readonly animation_options = ANIMATION_OPTIONS;
     /** Who can read a new file once it is uploaded */
-    public readonly permissions = signal<UploadPermissions>('none');
     /** Warning for a new file larger than 4K. Shown in the modal, as the
      * modal covers notifications. */
     public readonly dimensions_warning =
@@ -854,7 +819,6 @@ export class MediaEditModalComponent implements OnDestroy {
                         this._data.file_metadata,
                         this.custom_thumbnail(),
                         () => this._capturePluginThumbnail(),
-                        this.permissions(),
                     );
                 }
             } catch (error) {

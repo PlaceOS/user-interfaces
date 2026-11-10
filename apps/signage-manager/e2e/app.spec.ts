@@ -128,7 +128,9 @@ test.describe('US-SGM-003: Browse Media', () => {
     }) => {
         await navigateWithMock(page, MEDIA_URL);
 
-        await page.getByRole('textbox', { name: /search media/i }).fill('meeting');
+        await page
+            .getByRole('textbox', { name: /search media/i })
+            .fill('meeting');
         await expect(
             page.locator('media-list-header').getByText(/\d+ items/i),
         ).toBeVisible();
@@ -168,11 +170,15 @@ test.describe('US-SGM-004: Add Media', () => {
         await expect(
             page.getByRole('textbox', { name: /media url/i }),
         ).toBeVisible();
-        await expect(page.getByRole('button', { name: /^add$/i })).toBeDisabled();
+        await expect(
+            page.getByRole('button', { name: /^add$/i }),
+        ).toBeDisabled();
         await page
             .getByRole('textbox', { name: /media url/i })
             .fill('https://example.com');
-        await expect(page.getByRole('button', { name: /^add$/i })).toBeEnabled();
+        await expect(
+            page.getByRole('button', { name: /^add$/i }),
+        ).toBeEnabled();
         await closeDialog(page);
 
         await page
@@ -183,16 +189,51 @@ test.describe('US-SGM-004: Add Media', () => {
         await expect(
             page.getByRole('heading', { name: /add plugin/i }),
         ).toBeVisible();
-        await expect(page.getByRole('button', { name: /^add$/i })).toBeDisabled();
+        await expect(
+            page.getByRole('button', { name: /^add$/i }),
+        ).toBeDisabled();
         await expect(page.locator('media-add-modal mat-select')).toBeVisible();
         await page.locator('media-add-modal mat-select').click();
         await page.getByRole('option', { name: /weather/i }).click();
-        await expect(page.getByRole('button', { name: /^add$/i })).toBeEnabled();
+        await expect(
+            page.getByRole('button', { name: /^add$/i }),
+        ).toBeEnabled();
         await closeDialog(page);
 
         await expect(
             page.locator('input[type="file"][multiple]').first(),
         ).toBeAttached();
+    });
+
+    test('does not offer file access permissions for an upload', async ({
+        page,
+    }) => {
+        // A 1×1 PNG
+        const png = Buffer.from(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==',
+            'base64',
+        );
+        const image = (name: string) => ({
+            name,
+            mimeType: 'image/png',
+            buffer: png,
+        });
+        const picker = page
+            .locator('media-list-header input[type="file"][multiple]')
+            .first();
+        await navigateWithMock(page, MEDIA_URL);
+
+        await picker.setInputFiles([image('poster.png')]);
+        const edit = page.getByRole('dialog');
+        await expect(edit.getByRole('button', { name: /save/i })).toBeVisible();
+        await expect(edit).not.toContainText(/file access permissions/i);
+        await closeDialog(page);
+
+        await picker.setInputFiles([image('one.png'), image('two.png')]);
+        const bulk = page.locator('bulk-media-upload-modal');
+        await expect(bulk).toContainText('two.png');
+        await expect(bulk).not.toContainText(/file access permissions/i);
+        await expect(bulk.getByRole('combobox')).toHaveCount(0);
     });
 });
 
@@ -202,30 +243,55 @@ test.describe('US-SGM-005: Manage Media Items', () => {
     }) => {
         await navigateWithMock(page, MEDIA_URL);
 
-        await page.getByRole('button', { name: /^preview /i }).first().click();
+        await page
+            .getByRole('button', { name: /^preview /i })
+            .first()
+            .click();
         await expect(page.getByRole('dialog')).toBeVisible();
         await expect(page.locator('media-preview-modal')).toBeVisible();
         await closeDialog(page);
 
-        await page.getByRole('button', { name: /media actions/i }).first().click();
-        await expect(page.getByRole('menuitem', { name: /edit/i })).toBeVisible();
-        await expect(page.getByRole('menuitem', { name: /share/i })).toBeVisible();
-        await expect(page.getByRole('menuitem', { name: /preview/i })).toBeVisible();
-        await expect(page.getByRole('menuitem', { name: /remove/i })).toBeVisible();
+        await page
+            .getByRole('button', { name: /media actions/i })
+            .first()
+            .click();
+        await expect(
+            page.getByRole('menuitem', { name: /edit/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('menuitem', { name: /share/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('menuitem', { name: /preview/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('menuitem', { name: /remove/i }),
+        ).toBeVisible();
 
         await page.getByRole('menuitem', { name: /edit/i }).click();
-        await expect(page.getByRole('heading', { name: /edit media/i })).toBeVisible();
-        await expect(page.getByRole('textbox', { name: /media name/i })).toBeVisible();
+        await expect(
+            page.getByRole('heading', { name: /edit media/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('textbox', { name: /media name/i }),
+        ).toBeVisible();
         await closeDialog(page);
 
-        await page.getByRole('button', { name: /media actions/i }).first().click();
+        await page
+            .getByRole('button', { name: /media actions/i })
+            .first()
+            .click();
         await page.getByRole('menuitem', { name: /share/i }).click();
-        await expect(page.getByRole('heading', { name: /share media/i })).toBeVisible();
+        await expect(
+            page.getByRole('heading', { name: /share media/i }),
+        ).toBeVisible();
         await closeDialog(page);
 
         await page.getByRole('checkbox').first().check();
         await expect(page.getByText(/1 selected/i)).toBeVisible();
-        await expect(page.locator('footer icon').filter({ hasText: 'delete' })).toBeVisible();
+        await expect(
+            page.locator('footer icon').filter({ hasText: 'delete' }),
+        ).toBeVisible();
         await expect(
             page.locator('footer icon').filter({ hasText: 'playlist_add' }),
         ).toBeVisible();
@@ -239,7 +305,9 @@ test.describe('US-SGM-005: Manage Media Items', () => {
                 has: page.locator('icon').filter({ hasText: 'playlist_add' }),
             })
             .click();
-        await expect(page.getByRole('heading', { name: /add to playlist/i })).toBeVisible();
+        await expect(
+            page.getByRole('heading', { name: /add to playlist/i }),
+        ).toBeVisible();
         await expect(
             page
                 .getByRole('dialog')
@@ -253,7 +321,9 @@ test.describe('US-SGM-005: Manage Media Items', () => {
                 has: page.locator('icon').filter({ hasText: 'ios_share' }),
             })
             .click();
-        await expect(page.getByRole('heading', { name: /share media/i })).toBeVisible();
+        await expect(
+            page.getByRole('heading', { name: /share media/i }),
+        ).toBeVisible();
         await closeDialog(page);
 
         await page
@@ -262,7 +332,9 @@ test.describe('US-SGM-005: Manage Media Items', () => {
                 has: page.locator('icon').filter({ hasText: 'delete' }),
             })
             .click();
-        await expect(page.getByRole('heading', { name: /remove media/i })).toBeVisible();
+        await expect(
+            page.getByRole('heading', { name: /remove media/i }),
+        ).toBeVisible();
         await closeDialog(page);
     });
 });
@@ -286,9 +358,15 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
 
     test('edits and toggles the schedule validity start', async ({ page }) => {
         await navigateWithMock(page, PLAYLISTS_URL);
-        await page.getByRole('button', { name: /create new playlist/i }).click();
+        await page
+            .getByRole('button', { name: /create new playlist/i })
+            .click();
         const schedule = page.locator('playlist-schedule-form').first();
-        await expect(schedule.locator('[schedule-validity]').getByRole('combobox', { name: 'Timezone', exact: true })).toBeVisible();
+        await expect(
+            schedule
+                .locator('[schedule-validity]')
+                .getByRole('combobox', { name: 'Timezone', exact: true }),
+        ).toBeVisible();
         const valid_from = schedule.getByRole('button', {
             name: /^valid from$/i,
         });
@@ -311,10 +389,16 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
         await time_field.last().click();
         await page.getByRole('menuitem').first().click();
         const validity_error = schedule.getByRole('alert');
-        await expect(validity_error).toHaveText('Valid From must be before Valid Until.');
-        await page.getByRole('textbox', { name: /playlist name/i }).fill('Validity check');
+        await expect(validity_error).toHaveText(
+            'Valid From must be before Valid Until.',
+        );
+        await page
+            .getByRole('textbox', { name: /playlist name/i })
+            .fill('Validity check');
         await page.getByRole('button', { name: /^save/i }).click();
-        await expect(page.getByRole('heading', { name: /new playlist/i })).toBeVisible();
+        await expect(
+            page.getByRole('heading', { name: /new playlist/i }),
+        ).toBeVisible();
         await expect(validity_error).toBeVisible();
         await valid_from.click();
         await expect(validity_error).toHaveCount(0);
@@ -334,9 +418,15 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
             page.getByRole('link', { name: /open playlist/i }).first(),
         ).toBeVisible();
 
-        await page.getByRole('button', { name: /create new playlist/i }).click();
-        await expect(page.getByRole('heading', { name: /new playlist/i })).toBeVisible();
-        await expect(page.getByRole('textbox', { name: /playlist name/i })).toBeVisible();
+        await page
+            .getByRole('button', { name: /create new playlist/i })
+            .click();
+        await expect(
+            page.getByRole('heading', { name: /new playlist/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('textbox', { name: /playlist name/i }),
+        ).toBeVisible();
         await expect(page.getByText(/playlist schedules/i)).toBeVisible();
         await expect(
             page.locator('playlist-schedule-form [start-timezone]'),
@@ -367,7 +457,9 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
         await expect(page.getByRole('option')).toHaveCount(
             selected_timezone === 'Asia/Tokyo' ? 1 : 2,
         );
-        await page.getByRole('option', { name: 'Asia/Tokyo', exact: true }).click();
+        await page
+            .getByRole('option', { name: 'Asia/Tokyo', exact: true })
+            .click();
         await expect(timezone_search).toBeHidden();
         await expect(timezone).toContainText('Asia/Tokyo');
         const start_time = page
@@ -393,9 +485,15 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
         await expect(
             page.getByRole('button', { name: /edit selected playlist/i }),
         ).toBeVisible();
-        await page.getByRole('button', { name: /edit selected playlist/i }).click();
-        await expect(page.getByRole('heading', { name: /edit playlist/i })).toBeVisible();
-        await expect(page.getByRole('textbox', { name: /playlist name/i })).toBeVisible();
+        await page
+            .getByRole('button', { name: /edit selected playlist/i })
+            .click();
+        await expect(
+            page.getByRole('heading', { name: /edit playlist/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('textbox', { name: /playlist name/i }),
+        ).toBeVisible();
         await closeDialog(page);
     });
 });
@@ -406,46 +504,68 @@ test.describe('US-SGM-007 and US-SGM-009: Playlist Items and Approval', () => {
     }) => {
         await openFirstPlaylist(page);
 
-        const item_preview = page.getByRole('button', { name: /^preview /i }).first();
+        const item_preview = page
+            .getByRole('button', { name: /^preview /i })
+            .first();
         if (await item_preview.isVisible().catch(() => false)) {
             await item_preview.click();
             await expect(page.locator('media-preview-modal')).toBeVisible();
             await closeDialog(page);
         } else {
-            await expect(page.getByText(/no items in this playlist/i)).toBeVisible();
+            await expect(
+                page.getByText(/no items in this playlist/i),
+            ).toBeVisible();
         }
 
-        const edit_schedule = page.getByRole('button', { name: /edit schedule/i }).first();
+        const edit_schedule = page
+            .getByRole('button', { name: /edit schedule/i })
+            .first();
         if (await edit_schedule.isVisible().catch(() => false)) {
             await edit_schedule.click();
             await expect(
                 page.getByRole('heading', { name: /item schedules/i }),
             ).toBeVisible();
-            await expect(page.getByRole('button', { name: /add schedule/i })).toBeVisible();
+            await expect(
+                page.getByRole('button', { name: /add schedule/i }),
+            ).toBeVisible();
             await closeDialog(page);
         }
 
         const request_approval = page.getByRole('button', {
             name: /request approval/i,
         });
-        const approve = page.getByRole('button', { name: /approve selected playlist/i });
+        const approve = page.getByRole('button', {
+            name: /approve selected playlist/i,
+        });
         if (await request_approval.isVisible().catch(() => false)) {
             await request_approval.click();
-            await expect(page.getByRole('heading', { name: /request approval/i })).toBeVisible();
+            await expect(
+                page.getByRole('heading', { name: /request approval/i }),
+            ).toBeVisible();
             await expect(page.getByText(/playlist/i).first()).toBeVisible();
             await closeDialog(page);
         } else if (await approve.isVisible().catch(() => false)) {
             await approve.click();
-            await expect(page.getByRole('heading', { name: /approve playlist/i })).toBeVisible();
+            await expect(
+                page.getByRole('heading', { name: /approve playlist/i }),
+            ).toBeVisible();
             await closeDialog(page);
         }
 
-        await page.getByRole('button', { name: /share selected playlist/i }).click();
-        await expect(page.getByRole('heading', { name: /share playlist/i })).toBeVisible();
+        await page
+            .getByRole('button', { name: /share selected playlist/i })
+            .click();
+        await expect(
+            page.getByRole('heading', { name: /share playlist/i }),
+        ).toBeVisible();
         await closeDialog(page);
 
-        await page.getByRole('button', { name: /delete selected playlist/i }).click();
-        await expect(page.getByRole('heading', { name: /remove playlist/i })).toBeVisible();
+        await page
+            .getByRole('button', { name: /delete selected playlist/i })
+            .click();
+        await expect(
+            page.getByRole('heading', { name: /remove playlist/i }),
+        ).toBeVisible();
         await closeDialog(page);
     });
 });
@@ -464,8 +584,12 @@ test.describe('US-SGM-008: Manage Playlist Details', () => {
         });
         if (await add_display.isVisible().catch(() => false)) {
             await add_display.click();
-            await expect(page.getByRole('heading', { name: /add display/i })).toBeVisible();
-            await expect(page.getByRole('textbox', { name: /search displays/i })).toBeVisible();
+            await expect(
+                page.getByRole('heading', { name: /add display/i }),
+            ).toBeVisible();
+            await expect(
+                page.getByRole('textbox', { name: /search displays/i }),
+            ).toBeVisible();
             await closeDialog(page);
         }
 
@@ -474,8 +598,12 @@ test.describe('US-SGM-008: Manage Playlist Details', () => {
         });
         if (await add_zone.isVisible().catch(() => false)) {
             await add_zone.click();
-            await expect(page.getByRole('heading', { name: /add zone/i })).toBeVisible();
-            await expect(page.getByRole('textbox', { name: /search zones/i })).toBeVisible();
+            await expect(
+                page.getByRole('heading', { name: /add zone/i }),
+            ).toBeVisible();
+            await expect(
+                page.getByRole('textbox', { name: /search zones/i }),
+            ).toBeVisible();
             await closeDialog(page);
         }
     });
@@ -518,10 +646,14 @@ test.describe('US-SGM-010: Manage Zone Assignments', () => {
             await expect(displays_tab).toHaveAttribute('aria-selected', 'true');
         }
 
-        const add_display = page.getByRole('button', { name: /add display to zone/i });
+        const add_display = page.getByRole('button', {
+            name: /add display to zone/i,
+        });
         if (await add_display.isVisible().catch(() => false)) {
             await add_display.click();
-            await expect(page.getByRole('heading', { name: /add display/i })).toBeVisible();
+            await expect(
+                page.getByRole('heading', { name: /add display/i }),
+            ).toBeVisible();
             await closeDialog(page);
         }
 
@@ -534,7 +666,9 @@ test.describe('US-SGM-010: Manage Zone Assignments', () => {
         });
         if (await add_playlist.isVisible().catch(() => false)) {
             await add_playlist.click();
-            await expect(page.getByRole('heading', { name: /add to playlist/i })).toBeVisible();
+            await expect(
+                page.getByRole('heading', { name: /add to playlist/i }),
+            ).toBeVisible();
             await closeDialog(page);
         }
     });
@@ -547,7 +681,9 @@ test.describe('US-SGM-012: Review Daily Display and Zone Schedules', () => {
         await expect(page.locator('schedules-section')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
-        await expect(page.getByRole('tab', { name: /displays/i })).toBeVisible();
+        await expect(
+            page.getByRole('tab', { name: /displays/i }),
+        ).toBeVisible();
         await expect(page.getByRole('tab', { name: /zones/i })).toBeVisible();
     });
 
@@ -561,8 +697,12 @@ test.describe('US-SGM-012: Review Daily Display and Zone Schedules', () => {
         await page.getByRole('button', { name: /show today/i }).click();
 
         await page.getByRole('searchbox').fill('hub');
-        await expect(page.getByRole('button', { name: /clear schedule search/i })).toBeVisible();
-        await page.getByRole('button', { name: /clear schedule search/i }).click();
+        await expect(
+            page.getByRole('button', { name: /clear schedule search/i }),
+        ).toBeVisible();
+        await page
+            .getByRole('button', { name: /clear schedule search/i })
+            .click();
 
         await page.getByRole('tab', { name: /zones/i }).click();
         await expect(page.getByRole('tab', { name: /zones/i })).toHaveAttribute(
@@ -592,8 +732,12 @@ test.describe('US-SGM-011: Manage Display Assignments', () => {
     }) => {
         await navigateWithMock(page, DISPLAYS_URL);
 
-        await page.getByRole('textbox', { name: /search displays/i }).fill('hub');
-        await expect(page.getByRole('link', { name: /open display/i }).first()).toBeVisible();
+        await page
+            .getByRole('textbox', { name: /search displays/i })
+            .fill('hub');
+        await expect(
+            page.getByRole('link', { name: /open display/i }).first(),
+        ).toBeVisible();
 
         await openFirstDisplay(page);
         const panel_link = page.getByRole('link', { name: /open panel/i });
@@ -601,17 +745,18 @@ test.describe('US-SGM-011: Manage Display Assignments', () => {
             await expect(panel_link).toHaveAttribute('target', '_blank');
         }
         await page.getByRole('tab', { name: /playlists/i }).click();
-        await expect(page.getByRole('tab', { name: /playlists/i })).toHaveAttribute(
-            'aria-selected',
-            'true',
-        );
+        await expect(
+            page.getByRole('tab', { name: /playlists/i }),
+        ).toHaveAttribute('aria-selected', 'true');
 
         const add_playlist = page.getByRole('button', {
             name: /add playlist to display/i,
         });
         if (await add_playlist.isVisible().catch(() => false)) {
             await add_playlist.click();
-            await expect(page.getByRole('heading', { name: /add to playlist/i })).toBeVisible();
+            await expect(
+                page.getByRole('heading', { name: /add to playlist/i }),
+            ).toBeVisible();
             await closeDialog(page);
         }
 
@@ -669,8 +814,13 @@ test.describe('US-SGM-014 and US-SGM-015: Group Users, Zones, and Permissions', 
         await page
             .getByRole('textbox', { name: /search signage groups/i })
             .fill('facilities');
-        await expect(page.getByRole('button', { name: /open group/i }).first()).toBeVisible();
-        await page.getByRole('button', { name: /open group/i }).first().click();
+        await expect(
+            page.getByRole('button', { name: /open group/i }).first(),
+        ).toBeVisible();
+        await page
+            .getByRole('button', { name: /open group/i })
+            .first()
+            .click();
 
         await page
             .locator('signage-group-detail-header button')
@@ -681,23 +831,51 @@ test.describe('US-SGM-014 and US-SGM-015: Group Users, Zones, and Permissions', 
         ).toBeVisible();
         await closeDialog(page);
 
-        await page.locator('signage-group-users button').filter({ hasText: 'add' }).click();
-        await expect(page.getByRole('heading', { name: /add user/i })).toBeVisible();
-        await expect(page.getByRole('textbox', { name: /search users/i })).toBeVisible();
+        await page
+            .locator('signage-group-users button')
+            .filter({ hasText: 'add' })
+            .click();
+        await expect(
+            page.getByRole('heading', { name: /add user/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('textbox', { name: /search users/i }),
+        ).toBeVisible();
         await closeDialog(page);
 
-        await page.locator('signage-group-users button').filter({ hasText: 'edit' }).first().click();
-        await expect(page.getByRole('heading', { name: /user permissions/i })).toBeVisible();
-        await expect(page.getByRole('button', { name: /^read$/i })).toBeVisible();
+        await page
+            .locator('signage-group-users button')
+            .filter({ hasText: 'edit' })
+            .first()
+            .click();
+        await expect(
+            page.getByRole('heading', { name: /user permissions/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('button', { name: /^read$/i }),
+        ).toBeVisible();
         await closeDialog(page);
 
-        await page.locator('signage-group-zones button').filter({ hasText: 'add' }).click();
-        await expect(page.getByRole('heading', { name: /add zone/i })).toBeVisible();
-        await expect(page.getByRole('textbox', { name: /search zones/i })).toBeVisible();
+        await page
+            .locator('signage-group-zones button')
+            .filter({ hasText: 'add' })
+            .click();
+        await expect(
+            page.getByRole('heading', { name: /add zone/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('textbox', { name: /search zones/i }),
+        ).toBeVisible();
         await closeDialog(page);
 
-        await page.locator('signage-group-zones button').filter({ hasText: 'edit' }).first().click();
-        await expect(page.getByRole('heading', { name: /zone permissions/i })).toBeVisible();
+        await page
+            .locator('signage-group-zones button')
+            .filter({ hasText: 'edit' })
+            .first()
+            .click();
+        await expect(
+            page.getByRole('heading', { name: /zone permissions/i }),
+        ).toBeVisible();
         await expect(page.getByText(/deny selected/i)).toBeVisible();
         await closeDialog(page);
     });
@@ -715,18 +893,28 @@ test.describe('US-SGM-016: Use Signage Manager on Mobile', () => {
         });
         await expect(add_menu).toBeVisible();
         await add_menu.click();
-        await expect(page.getByRole('menuitem', { name: /add plugin/i })).toBeVisible();
-        await expect(page.getByRole('menuitem', { name: /add from link/i })).toBeVisible();
-        await expect(page.getByRole('menuitem', { name: /upload media/i })).toBeVisible();
+        await expect(
+            page.getByRole('menuitem', { name: /add plugin/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('menuitem', { name: /add from link/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('menuitem', { name: /upload media/i }),
+        ).toBeVisible();
         await page.keyboard.press('Escape');
 
         await expect(page.getByRole('link', { name: /media/i })).toBeVisible();
         const footer = page.locator('nav-footer');
         await expect(footer).toBeVisible();
-        const more_nav = footer.getByRole('button', { name: /more nav options/i });
+        const more_nav = footer.getByRole('button', {
+            name: /more nav options/i,
+        });
         if (await more_nav.isVisible().catch(() => false)) {
             await more_nav.click();
-            await expect(page.getByRole('menuitem', { name: /schedules/i })).toBeVisible();
+            await expect(
+                page.getByRole('menuitem', { name: /schedules/i }),
+            ).toBeVisible();
         }
     });
 });

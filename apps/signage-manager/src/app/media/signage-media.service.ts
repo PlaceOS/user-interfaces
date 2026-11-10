@@ -19,7 +19,6 @@ import {
     OrganisationService,
     parseWebUrl,
     SettingsService,
-    UploadPermissions,
     UploadsService,
 } from '@placeos/common';
 import { loadAuthenticatedImage } from '@placeos/components';
@@ -186,7 +185,6 @@ interface StoredMediaUpload {
 }
 
 interface SignageUploadOptions {
-    permissions: UploadPermissions;
     on_progress?: (progress: number) => void;
     /** Upload from an earlier attempt, so a retry only creates the record */
     stored?: StoredMediaUpload;
@@ -554,7 +552,7 @@ export class SignageMediaService {
 
     /**
      * Open the bulk upload modal for prepared items. With `auto_start`, the
-     * upload starts as the modal opens, with default permissions.
+     * upload starts as the modal opens.
      */
     private async _openBulkUpload(
         items: BulkMediaUploadItem[],
@@ -567,7 +565,7 @@ export class SignageMediaService {
         const data: BulkMediaUploadModalData = {
             items,
             auto_start,
-            onUpload: async (item, permissions, on_progress) =>
+            onUpload: async (item, on_progress) =>
                 this._addMedia(
                     // A file made at upload time is let go once it is stored
                     await loadBulkItemFile(item),
@@ -575,7 +573,6 @@ export class SignageMediaService {
                     item.metadata,
                     undefined,
                     {
-                        permissions,
                         on_progress,
                         stored: stored.get(item),
                         on_stored: (upload) => stored.set(item, upload),
@@ -800,17 +797,13 @@ export class SignageMediaService {
                     file_metadata?: SignageMediaMetadata,
                     thumbnail?: string,
                     fallback_thumbnail?: () => Promise<string>,
-                    permissions?: UploadPermissions,
                 ) =>
                     this._addMedia(
                         f,
                         m,
                         file_metadata,
                         thumbnail,
-                        {
-                            permissions: permissions ?? 'none',
-                            thumbnail: file_thumbnail,
-                        },
+                        { thumbnail: file_thumbnail },
                         fallback_thumbnail,
                     ),
                 onEdit: async (id: string, data: MediaEditChanges) => {
@@ -968,7 +961,8 @@ export class SignageMediaService {
         const media_id = await this._uploads.uploadFileToCompletion(
             file,
             false,
-            upload_options?.permissions ?? 'none',
+            // Signage manager does not offer file access permissions
+            'none',
             upload_options?.on_progress,
         );
         const thumbnail_image = await thumbnail_request;

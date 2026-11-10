@@ -139,16 +139,6 @@ describe('MediaEditModalComponent', () => {
         select.remove();
     });
 
-    it('uploads a new file with the picked permissions', async () => {
-        const fixture = TestBed.createComponent(MediaEditModalComponent);
-        const component = fixture.componentInstance;
-        component.permissions.set('admin');
-
-        await component.saveMedia();
-
-        expect(onAdd.mock.calls[0][5]).toBe('admin');
-    });
-
     // The animation is stored as a name, such as "cut", not a number
     it('offers the saved animation of the media as an option', () => {
         modal_data.media = new SignageMedia({
