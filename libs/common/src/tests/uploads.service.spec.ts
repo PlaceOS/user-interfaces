@@ -48,6 +48,16 @@ describe('UploadsService', () => {
         expect(cloud_uploads.initUploads).toHaveBeenCalled();
     });
 
+    it('should not keep finished uploads, and their files, in the manager', async () => {
+        const promise = spectator.service.uploadFile(new File([], 'test.png'));
+        await flush();
+        state.next({ status: 'COMPLETED', progress: 100 });
+        await promise;
+        expect(cloud_uploads.initUploads).toHaveBeenCalledWith(
+            expect.objectContaining({ auto_remove: true }),
+        );
+    });
+
     it('should refresh the token and retry a failed upload', async () => {
         vi.mocked(ts_client.token).mockImplementation((return_expired) =>
             return_expired === false ? '' : 'expired-token',

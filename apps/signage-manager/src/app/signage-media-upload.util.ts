@@ -8,6 +8,8 @@ export const SIGNAGE_MEDIA_PICKER_ACCEPT = [
     'video/mp4',
     '.mov',
     'video/quicktime',
+    '.pdf',
+    'application/pdf',
 ].join(',');
 const SIGNAGE_MEDIA_MAX_WIDTH = 3840;
 const SIGNAGE_MEDIA_MAX_HEIGHT = 2160;
@@ -91,7 +93,7 @@ const MP4_BOX_HEADER_BYTES = 16;
 const MAX_MP4_TOP_LEVEL_BOXES = 1000;
 
 const SUPPORTED_FORMATS_ERROR =
-    'Supported image formats: PNG, JPEG, WEBP, SVG. Supported video formats: WEBM, MP4, and MOV.';
+    'Supported image formats: PNG, JPEG, WEBP, SVG. Supported video formats: WEBM, MP4, and MOV. PDF pages are imported as images.';
 const VIDEO_CODEC_ERROR =
     'Unsupported video codec. Use MP4 or MOV with H.264 video and AAC audio, or WEBM with VP8/VP9 video and Vorbis/Opus audio for broad browser support.';
 const MEDIA_DIMENSIONS_ERROR = `Maximum supported resolution is ${SIGNAGE_MEDIA_MAX_WIDTH}x${SIGNAGE_MEDIA_MAX_HEIGHT} (4K), or ${SIGNAGE_MEDIA_MAX_HEIGHT}x${SIGNAGE_MEDIA_MAX_WIDTH} in portrait.`;
@@ -138,6 +140,15 @@ export async function validateSignageMediaFile(
 
 export function isSupportedImageFile(file: File) {
     return matchesAllowedType(file, IMAGE_MIME_TYPES, IMAGE_EXTENSIONS);
+}
+
+/** Whether a file is a PDF, which is imported as one image per page */
+export function isPdfFile(file: File) {
+    return matchesAllowedType(
+        file,
+        new Set(['application/pdf']),
+        new Set(['pdf']),
+    );
 }
 
 export function isImageSourceFile(file: File) {

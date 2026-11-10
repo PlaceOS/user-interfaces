@@ -41,10 +41,12 @@ import {
 import type { ImageGenModalData } from '../image-gen/image-gen-modal.component';
 import { removeSignageUpload } from '../image-gen/image-gen.fn';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
-import type {
-    BulkMediaUploadItem,
-    BulkMediaUploadModalData,
-} from '../shared/bulk-media-upload-modal.component';
+import type { BulkMediaUploadModalData } from '../shared/bulk-media-upload-modal.component';
+import {
+    bulkItemName,
+    type BulkMediaUploadItem,
+    loadBulkItemFile,
+} from '../shared/bulk-media-upload.util';
 import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import type { MediaEditChanges } from '../shared/media-edit-modal.component';
@@ -62,6 +64,7 @@ import {
 import {
     getVideoContainer,
     isImageSourceFile,
+    isPdfFile,
     isSupportedImageFile,
     SIGNAGE_MEDIA_PICKER_ACCEPT,
     SignageMediaMetadata,
@@ -84,6 +87,7 @@ import {
     isMediaViewActive,
     type MediaViewOptions,
 } from './media-view.util';
+import type { PdfDocumentHandle } from './pdf-import.util';
 
 /** Backoff between attempts at creating a media record, in milliseconds */
 const MEDIA_RETRY_DELAYS = [500, 1500, 4500];
@@ -214,6 +218,15 @@ export class SignageMediaService {
     // Kept on the instance, so specs can stub the file processing
     private _generateThumbnail = generateThumbnail;
     private _getMediaMetadata = getMediaMetadata;
+    /** Loads pdf.js on first use, as only a PDF import needs it */
+    private _openPdfDocument = (file: File): Promise<PdfDocumentHandle> =>
+        import('./pdf-document').then(({ openPdfDocument }) =>
+            openPdfDocument(file),
+        );
+    /** Set while the bulk upload modal is open. Tag counts reload once it
+     * closes, rather than once for each tagged item. */
+    private _bulk_upload_open = false;
+    private _bulk_tags_changed = false;
 
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
 
@@ -372,9 +385,11 @@ export class SignageMediaService {
                 (a, b) => b.created_at - a.created_at,
             ),
         );
-        // Only an item with tags changes the tag counts. A bulk upload adds
-        // items without tags, one at a time.
-        if (item.tags?.length) this._media_tags.reload();
+        // Only an item with tags changes the tag counts. A bulk upload of
+        // PDF pages tags every page, so it reloads them once when it ends.
+        if (!item.tags?.length) return;
+        if (this._bulk_upload_open) this._bulk_tags_changed = true;
+        else this._media_tags.reload();
     }
 
     /** Take deleted media out of the loaded list and its total, in place, as
@@ -436,9 +451,7 @@ export class SignageMediaService {
         );
         if (!large.length) return;
         const { error } = validateSignageMediaDimensions(large[0].metadata);
-        notifyWarn(
-            `${shortList(large.map(({ file }) => file.name))}: ${error}`,
-        );
+        notifyWarn(`${shortList(large.map(bulkItemName))}: ${error}`);
     }
 
     public previewMedia(item: SignageMedia) {
@@ -467,6 +480,9 @@ export class SignageMediaService {
             return;
         if (!files) return;
         const upload_files = Array.from(files);
+        if (upload_files.some((file) => isPdfFile(file))) {
+            return this._uploadWithPdfs(upload_files);
+        }
         if (upload_files.length > 1) {
             return this.bulkUploadMedia(upload_files);
         }
@@ -493,22 +509,61 @@ export class SignageMediaService {
             )
         )
             return;
+        await this._openBulkUpload(await this._prepareBulkItems(files));
+    }
+
+    /** Prepare files for the bulk upload modal, leaving out those that fail */
+    private async _prepareBulkItems(
+        files: File[],
+    ): Promise<BulkMediaUploadItem[]> {
         const prepared = await settleEach(files, (file) =>
             this._prepareUploadMedia(file),
         );
-        const items: BulkMediaUploadItem[] = prepared.flatMap((result) =>
+        return prepared.flatMap((result) =>
             result.status === 'fulfilled' && result.value ? [result.value] : [],
         );
+    }
+
+    /**
+     * Upload files that include PDFs. Each PDF opens the import modal in
+     * turn, to pick and set up its pages, and the pages then upload in one
+     * bulk upload with the other files.
+     */
+    private async _uploadWithPdfs(files: File[]) {
+        // The other files are read while the user sets up the PDF pages
+        const other_items = this._prepareBulkItems(
+            files.filter((file) => !isPdfFile(file)),
+        );
+        const { importPdfPages } = await import('./pdf-upload');
+        const pdf_import = await importPdfPages(
+            this._dialog,
+            files.filter((file) => isPdfFile(file)),
+            this._openPdfDocument,
+        );
+        // Pages render as they upload, so the PDFs stay open until then
+        try {
+            await this._openBulkUpload([
+                ...pdf_import.items,
+                ...(await other_items),
+            ]);
+        } finally {
+            await pdf_import.close();
+        }
+    }
+
+    /** Open the bulk upload modal for prepared items */
+    private async _openBulkUpload(items: BulkMediaUploadItem[]) {
         if (!items.length) return;
         this._warnLargeMedia(items);
         // A retry reuses the stored file, so only the failed step runs again
         const stored = new Map<BulkMediaUploadItem, StoredMediaUpload>();
         const data: BulkMediaUploadModalData = {
             items,
-            onUpload: (item, permissions, on_progress) =>
+            onUpload: async (item, permissions, on_progress) =>
                 this._addMedia(
-                    item.file,
-                    new SignageMedia({}),
+                    // A file made at upload time is let go once it is stored
+                    await loadBulkItemFile(item),
+                    new SignageMedia({ name: item.name, tags: item.tags }),
                     item.metadata,
                     undefined,
                     {
@@ -525,7 +580,14 @@ export class SignageMediaService {
             data,
             panelClass: 'mobile-fullscreen',
         });
-        await dialogClosed(ref);
+        this._bulk_upload_open = true;
+        try {
+            await dialogClosed(ref);
+        } finally {
+            this._bulk_upload_open = false;
+            if (this._bulk_tags_changed) this._media_tags.reload();
+            this._bulk_tags_changed = false;
+        }
     }
 
     public async addMediaFromLink(url: string) {

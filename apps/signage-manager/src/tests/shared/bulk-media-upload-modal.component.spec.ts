@@ -141,6 +141,28 @@ describe('BulkMediaUploadModalComponent', () => {
         expect(component.rows()[0].progress).toBe(100);
     });
 
+    it('lists an item made at upload time by its name and image size', async () => {
+        modal_data.items = [
+            {
+                media_type: 'image',
+                name: 'deck - page 1',
+                metadata: {
+                    is_landscape: true,
+                    duration: 0,
+                    width: 3840,
+                    height: 2160,
+                },
+                loadFile: vi.fn(),
+            },
+        ];
+        const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
+
+        expect(fixture.componentInstance.rows()[0]).toMatchObject({
+            name: 'deck - page 1',
+            formatted_size: '3840 × 2160',
+        });
+    });
+
     it('removes rows and closes the dialog when the list empties', () => {
         const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
         const component = fixture.componentInstance;

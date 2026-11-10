@@ -31,6 +31,10 @@ import { MediaEditModalComponent } from '../../app/shared/media-edit-modal.compo
 import { MediaPreviewModalComponent } from '../../app/shared/media-preview-modal.component';
 import { MediaTagModalComponent } from '../../app/shared/media-tag-modal.component';
 import { MediaTagsModalComponent } from '../../app/shared/media-tags-modal.component';
+import {
+    PdfImportModalComponent,
+    type PdfImportModalData,
+} from '../../app/shared/pdf-import-modal.component';
 import { SignageContextService } from '../../app/signage-context.service';
 
 type SignageMediaServiceTestAccess = SignageMediaService & Record<string, any>;
@@ -1216,6 +1220,328 @@ describe('SignageMediaService', () => {
                 expect.objectContaining({ media_id: 'upload-1' }),
                 {},
             );
+        });
+    });
+
+    describe('PDF upload', () => {
+        const pdfFile = (name = 'deck.pdf') =>
+            new File(['%PDF-1.7'], name, { type: 'application/pdf' });
+        const photo = () =>
+            new File(['photo'], 'photo.png', { type: 'image/png' });
+
+        /** Rendered page, as the PDF import modal closes with it */
+        function pageItem(base: string, page: number) {
+            return {
+                file: new File(['page'], `${base} - page ${page}.webp`, {
+                    type: 'image/webp',
+                }),
+                media_type: 'image' as const,
+                name: `${base} - page ${page}`,
+                tags: [base],
+                metadata: {
+                    is_landscape: true,
+                    duration: 0,
+                    width: 3840,
+                    height: 2160,
+                },
+            };
+        }
+
+        function fakePdf() {
+            return {
+                page_count: 2,
+                pageSize: vi.fn(),
+                renderLayer: vi.fn(),
+                destroy: vi.fn().mockResolvedValue(undefined),
+            };
+        }
+
+        function createPdfService(open_pdf = vi.fn()) {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageMediaServiceTestAccess;
+            test_service['_getMediaMetadata'] = vi.fn().mockResolvedValue({
+                is_landscape: true,
+                duration: 0,
+                width: 1920,
+                height: 1080,
+            });
+            test_service['_openPdfDocument'] = open_pdf;
+            return service;
+        }
+
+        /**
+         * Close each PDF import modal with the next result, and keep the bulk
+         * upload modal open. Resolves with what each modal was given.
+         */
+        function stubDialogs(pdf_results: unknown[]) {
+            const opened: {
+                pdf: PdfImportModalData[];
+                bulk?: BulkMediaUploadModalData;
+            } = { pdf: [] };
+            dialog.open.mockImplementation((component, config) => {
+                if (component === PdfImportModalComponent) {
+                    opened.pdf.push(config.data);
+                    const result = pdf_results.shift();
+                    return {
+                        afterClosed: () => ({
+                            subscribe: (handler: (value: unknown) => void) => {
+                                Promise.resolve().then(() => handler(result));
+                                return { unsubscribe: vi.fn() };
+                            },
+                        }),
+                    };
+                }
+                opened.bulk = config.data;
+                return { afterClosed: () => NEVER };
+            });
+            return opened;
+        }
+
+        beforeEach(() => {
+            vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue(
+                'data:image/webp;base64,',
+            );
+        });
+
+        afterEach(() =>
+            vi.mocked(HTMLCanvasElement.prototype.toDataURL).mockRestore(),
+        );
+
+        it('uploads the pages of a PDF with the other files', async () => {
+            const pdf = fakePdf();
+            const open_pdf = vi.fn().mockResolvedValue(pdf);
+            const service = createPdfService(open_pdf);
+            const opened = stubDialogs([
+                [pageItem('deck', 1), pageItem('deck', 2)],
+            ]);
+
+            void service.previewFiles([pdfFile(), photo()]);
+            await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+
+            expect(open_pdf).toHaveBeenCalledWith(
+                expect.objectContaining({ name: 'deck.pdf' }),
+            );
+            expect(opened.pdf).toHaveLength(1);
+            expect(opened.pdf[0]).toMatchObject({
+                file_name: 'deck.pdf',
+                document: pdf,
+                webp_supported: true,
+                position: undefined,
+            });
+            expect(
+                opened.bulk.items.map((item) => item.name || item.file.name),
+            ).toEqual(['deck - page 1', 'deck - page 2', 'photo.png']);
+            // Pages render as they upload, so the PDF stays open meanwhile
+            expect(pdf.destroy).not.toHaveBeenCalled();
+        });
+
+        it('opens a single PDF in the import modal, not the edit modal', async () => {
+            const service = createPdfService(
+                vi.fn().mockResolvedValue(fakePdf()),
+            );
+            const opened = stubDialogs([[pageItem('deck', 1)]]);
+
+            void service.previewFiles([pdfFile()]);
+            await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+
+            expect(dialog.open).not.toHaveBeenCalledWith(
+                MediaEditModalComponent,
+                expect.anything(),
+            );
+            expect(opened.bulk.items).toHaveLength(1);
+        });
+
+        it('creates each page with its name and tag', async () => {
+            uploads.uploadFileToCompletion.mockResolvedValue('upload-1');
+            const service = createPdfService(
+                vi.fn().mockResolvedValue(fakePdf()),
+            );
+            const opened = stubDialogs([[pageItem('deck', 1)]]);
+
+            void service.previewFiles([pdfFile()]);
+            await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+            await opened.bulk.onUpload(opened.bulk.items[0], 'none', () => {});
+
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    name: 'deck - page 1',
+                    tags: ['deck'],
+                    media_type: 'image',
+                    media_id: 'upload-1',
+                    orientation: 'landscape',
+                }),
+                {},
+            );
+        });
+
+        it('renders a page when it uploads, not before', async () => {
+            uploads.uploadFileToCompletion.mockResolvedValue('upload-1');
+            const service = createPdfService(
+                vi.fn().mockResolvedValue(fakePdf()),
+            );
+            const rendered = new File(['page'], 'deck - page 1.webp', {
+                type: 'image/webp',
+            });
+            const { file: _file, ...page } = pageItem('deck', 1);
+            const loadFile = vi.fn().mockResolvedValue(rendered);
+            const opened = stubDialogs([[{ ...page, loadFile }]]);
+
+            void service.previewFiles([pdfFile()]);
+            await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+            expect(loadFile).not.toHaveBeenCalled();
+
+            await opened.bulk.onUpload(opened.bulk.items[0], 'none', () => {});
+
+            expect(loadFile).toHaveBeenCalledOnce();
+            expect(uploads.uploadFileToCompletion).toHaveBeenCalledWith(
+                rendered,
+                false,
+                'none',
+                expect.any(Function),
+            );
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.objectContaining({ name: 'deck - page 1' }),
+                {},
+            );
+        });
+
+        it('closes the PDFs once the upload closes', async () => {
+            const pdf = fakePdf();
+            let close_bulk: (value: unknown) => void = () => {};
+            const pdf_results = [[pageItem('deck', 1)]];
+            dialog.open.mockImplementation((component) => ({
+                afterClosed: () => ({
+                    subscribe: (handler: (value: unknown) => void) => {
+                        if (component === PdfImportModalComponent) {
+                            Promise.resolve().then(() =>
+                                handler(pdf_results.shift()),
+                            );
+                        } else {
+                            close_bulk = handler;
+                        }
+                        return { unsubscribe: vi.fn() };
+                    },
+                }),
+            }));
+            const service = createPdfService(vi.fn().mockResolvedValue(pdf));
+
+            const done = service.previewFiles([pdfFile()]);
+            await vi.waitFor(() =>
+                expect(dialog.open).toHaveBeenCalledTimes(2),
+            );
+            expect(pdf.destroy).not.toHaveBeenCalled();
+
+            close_bulk(1);
+            await done;
+            expect(pdf.destroy).toHaveBeenCalledOnce();
+        });
+
+        it('closes a PDF straight away when it is cancelled', async () => {
+            const pdf = fakePdf();
+            const service = createPdfService(vi.fn().mockResolvedValue(pdf));
+            stubDialogs([undefined]);
+
+            await service.previewFiles([pdfFile()]);
+
+            expect(pdf.destroy).toHaveBeenCalledOnce();
+        });
+
+        it('imports several PDFs in turn and skips one that is cancelled', async () => {
+            const service = createPdfService(
+                vi.fn().mockResolvedValue(fakePdf()),
+            );
+            const opened = stubDialogs([undefined, [pageItem('two', 1)]]);
+
+            void service.previewFiles([pdfFile('one.pdf'), pdfFile('two.pdf')]);
+            await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+
+            expect(opened.pdf.map((item) => item.position)).toEqual([
+                { current: 1, total: 2 },
+                { current: 2, total: 2 },
+            ]);
+            expect(opened.bulk.items.map((item) => item.name)).toEqual([
+                'two - page 1',
+            ]);
+        });
+
+        it.each([
+            ['password', 'deck.pdf is password protected.'],
+            ['invalid', 'Could not read deck.pdf.'],
+        ])(
+            'names a PDF it cannot open (%s) and keeps the other files',
+            async (reason, message) => {
+                const service = createPdfService(
+                    vi.fn().mockRejectedValue({ reason }),
+                );
+                const opened = stubDialogs([]);
+
+                void service.previewFiles([pdfFile(), photo()]);
+                await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+
+                expect(opened.pdf).toHaveLength(0);
+                expect(notify_open).toHaveBeenCalledWith(
+                    expect.stringContaining(message),
+                    expect.anything(),
+                    expect.objectContaining({ panelClass: ['error'] }),
+                );
+                expect(
+                    opened.bulk.items.map((item) => item.file?.name),
+                ).toEqual(['photo.png']);
+            },
+        );
+
+        it('opens no upload when every PDF is cancelled', async () => {
+            const service = createPdfService(
+                vi.fn().mockResolvedValue(fakePdf()),
+            );
+            const opened = stubDialogs([undefined]);
+
+            await service.previewFiles([pdfFile()]);
+
+            expect(opened.pdf).toHaveLength(1);
+            expect(opened.bulk).toBeUndefined();
+        });
+
+        it('reloads the tag counts once, after the upload', async () => {
+            let close_bulk: (value: unknown) => void = () => {};
+            const pdf_results = [[pageItem('deck', 1), pageItem('deck', 2)]];
+            let bulk: BulkMediaUploadModalData | undefined;
+            dialog.open.mockImplementation((component, config) => {
+                const is_pdf = component === PdfImportModalComponent;
+                if (!is_pdf) bulk = config.data;
+                return {
+                    afterClosed: () => ({
+                        subscribe: (handler: (value: unknown) => void) => {
+                            if (is_pdf) {
+                                Promise.resolve().then(() =>
+                                    handler(pdf_results.shift()),
+                                );
+                            } else {
+                                close_bulk = handler;
+                            }
+                            return { unsubscribe: vi.fn() };
+                        },
+                    }),
+                };
+            });
+            const service = createPdfService(
+                vi.fn().mockResolvedValue(fakePdf()),
+            );
+            const test_service =
+                service as unknown as SignageMediaServiceTestAccess;
+            const reload = vi.spyOn(test_service['_media_tags'], 'reload');
+
+            const done = service.previewFiles([pdfFile()]);
+            await vi.waitFor(() => expect(bulk).toBeDefined());
+            for (const item of bulk.items) {
+                await bulk.onUpload(item, 'none', () => {});
+            }
+            expect(reload).not.toHaveBeenCalled();
+
+            close_bulk(2);
+            await done;
+            expect(reload).toHaveBeenCalledOnce();
         });
     });
 
