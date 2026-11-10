@@ -357,6 +357,11 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
     });
 
     test('edits and toggles the schedule validity start', async ({ page }) => {
+        // Midday, so times are left to pick today. Late in the evening the
+        // time field has none and is disabled.
+        const midday = new Date();
+        midday.setHours(12, 0, 0, 0);
+        await page.clock.setFixedTime(midday);
         await navigateWithMock(page, PLAYLISTS_URL);
         await page
             .getByRole('button', { name: /create new playlist/i })
