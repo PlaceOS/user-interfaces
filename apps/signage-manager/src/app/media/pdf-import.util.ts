@@ -248,12 +248,13 @@ export async function renderPdfPageImage(
     file_name: string,
     signal?: AbortSignal,
 ): Promise<PdfPageImage> {
-    const page_size = rotatedSize(
-        await document_handle.pageSize(page_number),
-        options.rotation,
+    const page_size = await document_handle.pageSize(page_number);
+    // The same size the import modal sends as the media metadata
+    const output = pdfPageImageSize(page_size, options);
+    const placement = pdfPagePlacement(
+        rotatedSize(page_size, options.rotation),
+        output,
     );
-    const output = pdfOutputSize(page_size, options.fit, options.resolution);
-    const placement = pdfPagePlacement(page_size, output);
     const layer = await document_handle.renderLayer(
         page_number,
         options.rotation,

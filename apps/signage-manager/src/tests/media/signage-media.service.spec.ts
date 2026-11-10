@@ -1537,6 +1537,61 @@ describe('SignageMediaService', () => {
             );
         });
 
+        it('does not render a stored page again to retry its record', async () => {
+            uploads.uploadFileToCompletion.mockResolvedValue('upload-1');
+            vi.mocked(addSignageMedia).mockRejectedValueOnce({ status: 422 });
+            const service = createPdfService(
+                vi.fn().mockResolvedValue(fakePdf()),
+            );
+            const { file: _file, ...page } = pageItem('deck', 1);
+            const loadFile = vi
+                .fn()
+                .mockResolvedValue(new File(['page'], 'deck - page 1.webp'));
+            const opened = stubDialogs([[{ ...page, loadFile }]]);
+
+            void service.previewFiles([pdfFile()]);
+            await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+            const [item] = opened.bulk.items;
+            await expect(
+                opened.bulk.onUpload(item, () => {}),
+            ).rejects.toMatchObject({ status: 422 });
+            await opened.bulk.onUpload(item, () => {});
+
+            expect(loadFile).toHaveBeenCalledOnce();
+            expect(uploads.uploadFileToCompletion).toHaveBeenCalledOnce();
+            expect(addSignageMedia).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    name: 'deck - page 1',
+                    tags: ['deck'],
+                    media_id: 'upload-1',
+                    media_type: 'image',
+                    orientation: 'landscape',
+                }),
+                {},
+            );
+        });
+
+        it('closes the PDFs already imported when a later one fails', async () => {
+            const first = fakePdf();
+            const service = createPdfService(
+                vi
+                    .fn()
+                    .mockResolvedValueOnce(first)
+                    .mockResolvedValueOnce(fakePdf()),
+            );
+            stubDialogs([[pageItem('one', 1)]]);
+            const open = dialog.open.getMockImplementation();
+            dialog.open.mockImplementationOnce(open).mockImplementationOnce(() => {
+                throw new Error('dialog failed');
+            });
+
+            await expect(
+                service.previewFiles([pdfFile('one.pdf'), pdfFile('two.pdf')]),
+            ).rejects.toThrow('dialog failed');
+
+            expect(first.destroy).toHaveBeenCalledOnce();
+        });
+
         it('closes the PDFs once the upload closes', async () => {
             const pdf = fakePdf();
             let close_bulk: (value: unknown) => void = () => {};

@@ -22,6 +22,8 @@ const IMAGE_MIME_TYPES = new Set([
     'image/svg+xml',
 ]);
 const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'webp', 'svg']);
+const PDF_MIME_TYPES = new Set(['application/pdf']);
+const PDF_EXTENSIONS = new Set(['pdf']);
 const IMAGE_SOURCE_EXTENSIONS = new Set([
     ...IMAGE_EXTENSIONS,
     'avif',
@@ -144,11 +146,7 @@ export function isSupportedImageFile(file: File) {
 
 /** Whether a file is a PDF, which is imported as one image per page */
 export function isPdfFile(file: File) {
-    return matchesAllowedType(
-        file,
-        new Set(['application/pdf']),
-        new Set(['pdf']),
-    );
+    return matchesAllowedType(file, PDF_MIME_TYPES, PDF_EXTENSIONS);
 }
 
 export function isImageSourceFile(file: File) {

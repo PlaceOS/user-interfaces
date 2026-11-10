@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import type { MatSnackBar } from '@angular/material/snack-bar';
 import { setNotifyOutlet } from '@placeos/common';
 import type {
     PdfDocumentHandle,
@@ -92,7 +93,7 @@ describe('PdfImportModalComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         object_urls.clear();
-        setNotifyOutlet({ open: notify_open } as any, true);
+        setNotifyOutlet({ open: notify_open } as unknown as MatSnackBar, true);
         render_page.mockImplementation(
             async (_document, page_number, options, name) => ({
                 file: new File(

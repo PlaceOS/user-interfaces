@@ -35,24 +35,33 @@ export async function importPdfPages(
 ): Promise<PdfPageImport> {
     const items: BulkMediaUploadItem[] = [];
     const documents: PdfDocumentHandle[] = [];
-    for (const [index, file] of files.entries()) {
-        const position =
-            files.length > 1
-                ? { current: index + 1, total: files.length }
-                : undefined;
-        const result = await importPdf(dialog, file, position, openDocument);
-        if (!result) continue;
-        items.push(...result.items);
-        documents.push(result.document);
-    }
-    return {
-        items,
-        close: async () => {
-            await Promise.all(
-                documents.map((item) => item.destroy().catch(() => undefined)),
-            );
-        },
+    const close = async () => {
+        await Promise.all(
+            documents.map((item) => item.destroy().catch(() => undefined)),
+        );
     };
+    try {
+        for (const [index, file] of files.entries()) {
+            const position =
+                files.length > 1
+                    ? { current: index + 1, total: files.length }
+                    : undefined;
+            const result = await importPdf(
+                dialog,
+                file,
+                position,
+                openDocument,
+            );
+            if (!result) continue;
+            items.push(...result.items);
+            documents.push(result.document);
+        }
+    } catch (error) {
+        // No caller gets `close` then, so close the PDFs already imported
+        await close();
+        throw error;
+    }
+    return { items, close };
 }
 
 /** Message for a PDF that did not open, by `PdfOpenError` reason. Any other
