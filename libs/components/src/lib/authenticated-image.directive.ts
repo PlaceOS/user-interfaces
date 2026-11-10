@@ -109,14 +109,19 @@ export class AuthenticatedImageDirective
             return;
         }
 
-        const is_api =
-            source.includes('/api/engine/v2/uploads') ||
-            source.includes('/api/engine/v2/signage');
-        if (
-            is_api &&
-            !(this._element.nativeElement instanceof HTMLImageElement)
-        ) {
+        const is_signage = source.includes('/api/engine/v2/signage');
+        const is_api = is_signage || source.includes('/api/engine/v2/uploads');
+        const element = this._element.nativeElement;
+        if (is_api && !(element instanceof HTMLImageElement)) {
             this._streamMedia(source);
+            return;
+        }
+        // Signage pages show one thumbnail per media item. The browser loads
+        // and caches them with the auth cookie, in place of a fetch and a
+        // blob copy for each one.
+        if (is_signage) {
+            setAuthCookie(this._cookiePath(source));
+            element.src = source;
             return;
         }
 
